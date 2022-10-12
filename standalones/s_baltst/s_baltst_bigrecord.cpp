@@ -12,6 +12,7 @@ BSLS_IDENT_RCSID(s_baltst_bigrecord_cpp, "$Id$ $CSID$")
 #include <bdlb_string.h>
 
 #include <bsl_string.h>
+#include <bsl_vector.h>
 #include <s_baltst_basicrecord.h>
 #include <bslim_printer.h>
 #include <bsls_assert.h>
@@ -173,7 +174,7 @@ bsl::ostream& BigRecord::print(
 // USING bas_codegen.pl s_baltst_bigrecord.xsd --mode msg --includedir . --msgComponent bigrecord --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

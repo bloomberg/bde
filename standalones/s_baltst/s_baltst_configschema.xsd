@@ -20,6 +20,8 @@
   <xs:include schemaLocation='s_baltst_mysequencewitharray.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithattributes.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithchoice.xsd'/>
+  <xs:include schemaLocation='s_baltst_mysequencewithchoicearray.xsd'/>
+  <xs:include schemaLocation='s_baltst_mysequencewithchoices.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithdecimalattribute.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithdoubleattribute.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithnillable.xsd'/>
@@ -75,6 +77,10 @@
               type='MySequenceWithAttributes'/>
   <xs:element name='MySequenceWithChoice'
               type='MySequenceWithChoice'/>
+  <xs:element name='MySequenceWithChoiceArray'
+              type='MySequenceWithChoiceArray'/>
+  <xs:element name='MySequenceWithChoices'
+              type='MySequenceWithChoices'/>
   <xs:element name='MySequenceWithDecimalAttribute'
               type='MySequenceWithDecimalAttribute'/>
   <xs:element name='MySequenceWithDoubleAttribute'

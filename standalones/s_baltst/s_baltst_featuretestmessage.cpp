@@ -1183,7 +1183,7 @@ const char *FeatureTestMessage::selectionName() const
 // USING bas_codegen.pl s_baltst_featuretestmessage.xsd --mode msg --includedir . --msgComponent featuretestmessage --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

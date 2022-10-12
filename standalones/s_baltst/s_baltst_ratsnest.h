@@ -41,17 +41,16 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
-#include <bslma_allocator.h>
-
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
 namespace s_baltst { class Sequence3; }
 namespace s_baltst { class Sequence5; }
 namespace s_baltst { class Sequence6; }
+namespace s_baltst { class Choice3; }
 namespace s_baltst { class Choice1; }
 namespace s_baltst { class Choice2; }
-namespace s_baltst { class Choice3; }
 namespace s_baltst { class Sequence4; }
 namespace s_baltst { class Sequence1; }
 namespace s_baltst { class Sequence2; }
@@ -932,6 +931,284 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::Sequence6)
 namespace s_baltst {
 
                                // =============
+                               // class Choice3
+                               // =============
+
+class Choice3 {
+
+    // INSTANCE DATA
+    union {
+        bsls::ObjectBuffer< Sequence6 >              d_selection1;
+        bsls::ObjectBuffer< unsigned char >          d_selection2;
+        bsls::ObjectBuffer< s_baltst::CustomString > d_selection3;
+        bsls::ObjectBuffer< s_baltst::CustomInt >    d_selection4;
+    };
+
+    int                                              d_selectionId;
+    bslma::Allocator                                *d_allocator_p;
+
+  public:
+    // TYPES
+
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+      , SELECTION_ID_SELECTION1 = 0
+      , SELECTION_ID_SELECTION2 = 1
+      , SELECTION_ID_SELECTION3 = 2
+      , SELECTION_ID_SELECTION4 = 3
+    };
+
+    enum {
+        NUM_SELECTIONS = 4
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION1 = 0
+      , SELECTION_INDEX_SELECTION2 = 1
+      , SELECTION_INDEX_SELECTION3 = 2
+      , SELECTION_INDEX_SELECTION4 = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
+                                                       const char *name,
+                                                       int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Choice3(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice3' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Choice3(const Choice3& original,
+           bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice3' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    Choice3(Choice3&& original) noexcept;
+        // Create an object of type 'Choice3' having the value of the specified
+        // 'original' object.  After performing this action, the 'original'
+        // object will be left in a valid, but unspecified state.
+
+    Choice3(Choice3&& original,
+           bslma::Allocator *basicAllocator);
+        // Create an object of type 'Choice3' having the value of the specified
+        // 'original' object.  After performing this action, the 'original'
+        // object will be left in a valid, but unspecified state.  Use the
+        // optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+#endif
+
+    ~Choice3();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Choice3& operator=(const Choice3& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    Choice3& operator=(Choice3&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
+#endif
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    Sequence6& makeSelection1();
+    Sequence6& makeSelection1(const Sequence6& value);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    Sequence6& makeSelection1(Sequence6&& value);
+#endif
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
+
+    unsigned char& makeSelection2();
+    unsigned char& makeSelection2(unsigned char value);
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
+
+    s_baltst::CustomString& makeSelection3();
+    s_baltst::CustomString& makeSelection3(const s_baltst::CustomString& value);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    s_baltst::CustomString& makeSelection3(s_baltst::CustomString&& value);
+#endif
+        // Set the value of this object to be a "Selection3" value.  Optionally
+        // specify the 'value' of the "Selection3".  If 'value' is not
+        // specified, the default "Selection3" value is used.
+
+    s_baltst::CustomInt& makeSelection4();
+    s_baltst::CustomInt& makeSelection4(const s_baltst::CustomInt& value);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    s_baltst::CustomInt& makeSelection4(s_baltst::CustomInt&& value);
+#endif
+        // Set the value of this object to be a "Selection4" value.  Optionally
+        // specify the 'value' of the "Selection4".  If 'value' is not
+        // specified, the default "Selection4" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    Sequence6& selection1();
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
+
+    unsigned char& selection2();
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
+
+    s_baltst::CustomString& selection3();
+        // Return a reference to the modifiable "Selection3" selection of this
+        // object if "Selection3" is the current selection.  The behavior is
+        // undefined unless "Selection3" is the selection of this object.
+
+    s_baltst::CustomInt& selection4();
+        // Return a reference to the modifiable "Selection4" selection of this
+        // object if "Selection4" is the current selection.  The behavior is
+        // undefined unless "Selection4" is the selection of this object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const Sequence6& selection1() const;
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
+
+    const unsigned char& selection2() const;
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
+
+    const s_baltst::CustomString& selection3() const;
+        // Return a reference to the non-modifiable "Selection3" selection of
+        // this object if "Selection3" is the current selection.  The behavior
+        // is undefined unless "Selection3" is the selection of this object.
+
+    const s_baltst::CustomInt& selection4() const;
+        // Return a reference to the non-modifiable "Selection4" selection of
+        // this object if "Selection4" is the current selection.  The behavior
+        // is undefined unless "Selection4" is the selection of this object.
+
+    bool isSelection1Value() const;
+        // Return 'true' if the value of this object is a "Selection1" value,
+        // and return 'false' otherwise.
+
+    bool isSelection2Value() const;
+        // Return 'true' if the value of this object is a "Selection2" value,
+        // and return 'false' otherwise.
+
+    bool isSelection3Value() const;
+        // Return 'true' if the value of this object is a "Selection3" value,
+        // and return 'false' otherwise.
+
+    bool isSelection4Value() const;
+        // Return 'true' if the value of this object is a "Selection4" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Choice3& lhs, const Choice3& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'Choice3' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const Choice3& lhs, const Choice3& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Choice3& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close package namespace
+
+// TRAITS
+
+BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::Choice3)
+
+namespace s_baltst {
+
+                               // =============
                                // class Choice1
                                // =============
 
@@ -1476,284 +1753,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Choice2& rhs);
 // TRAITS
 
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::Choice2)
-
-namespace s_baltst {
-
-                               // =============
-                               // class Choice3
-                               // =============
-
-class Choice3 {
-
-    // INSTANCE DATA
-    union {
-        bsls::ObjectBuffer< Sequence6 >              d_selection1;
-        bsls::ObjectBuffer< unsigned char >          d_selection2;
-        bsls::ObjectBuffer< s_baltst::CustomString > d_selection3;
-        bsls::ObjectBuffer< s_baltst::CustomInt >    d_selection4;
-    };
-
-    int                                              d_selectionId;
-    bslma::Allocator                                *d_allocator_p;
-
-  public:
-    // TYPES
-
-    enum {
-        SELECTION_ID_UNDEFINED  = -1
-      , SELECTION_ID_SELECTION1 = 0
-      , SELECTION_ID_SELECTION2 = 1
-      , SELECTION_ID_SELECTION3 = 2
-      , SELECTION_ID_SELECTION4 = 3
-    };
-
-    enum {
-        NUM_SELECTIONS = 4
-    };
-
-    enum {
-        SELECTION_INDEX_SELECTION1 = 0
-      , SELECTION_INDEX_SELECTION2 = 1
-      , SELECTION_INDEX_SELECTION3 = 2
-      , SELECTION_INDEX_SELECTION4 = 3
-    };
-
-    // CONSTANTS
-    static const char CLASS_NAME[];
-
-    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
-
-    // CLASS METHODS
-    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
-        // Return selection information for the selection indicated by the
-        // specified 'id' if the selection exists, and 0 otherwise.
-
-    static const bdlat_SelectionInfo *lookupSelectionInfo(
-                                                       const char *name,
-                                                       int         nameLength);
-        // Return selection information for the selection indicated by the
-        // specified 'name' of the specified 'nameLength' if the selection
-        // exists, and 0 otherwise.
-
-    // CREATORS
-    explicit Choice3(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice3' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-
-    Choice3(const Choice3& original,
-           bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice3' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Choice3(Choice3&& original) noexcept;
-        // Create an object of type 'Choice3' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.
-
-    Choice3(Choice3&& original,
-           bslma::Allocator *basicAllocator);
-        // Create an object of type 'Choice3' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.  Use the
-        // optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-#endif
-
-    ~Choice3();
-        // Destroy this object.
-
-    // MANIPULATORS
-    Choice3& operator=(const Choice3& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Choice3& operator=(Choice3&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
-#endif
-
-    void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
-
-    int makeSelection(int selectionId);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'selectionId'.  Return 0 on success, and
-        // non-zero value otherwise (i.e., the selection is not found).
-
-    int makeSelection(const char *name, int nameLength);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'name' of the specified 'nameLength'.
-        // Return 0 on success, and non-zero value otherwise (i.e., the
-        // selection is not found).
-
-    Sequence6& makeSelection1();
-    Sequence6& makeSelection1(const Sequence6& value);
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sequence6& makeSelection1(Sequence6&& value);
-#endif
-        // Set the value of this object to be a "Selection1" value.  Optionally
-        // specify the 'value' of the "Selection1".  If 'value' is not
-        // specified, the default "Selection1" value is used.
-
-    unsigned char& makeSelection2();
-    unsigned char& makeSelection2(unsigned char value);
-        // Set the value of this object to be a "Selection2" value.  Optionally
-        // specify the 'value' of the "Selection2".  If 'value' is not
-        // specified, the default "Selection2" value is used.
-
-    s_baltst::CustomString& makeSelection3();
-    s_baltst::CustomString& makeSelection3(const s_baltst::CustomString& value);
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    s_baltst::CustomString& makeSelection3(s_baltst::CustomString&& value);
-#endif
-        // Set the value of this object to be a "Selection3" value.  Optionally
-        // specify the 'value' of the "Selection3".  If 'value' is not
-        // specified, the default "Selection3" value is used.
-
-    s_baltst::CustomInt& makeSelection4();
-    s_baltst::CustomInt& makeSelection4(const s_baltst::CustomInt& value);
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    s_baltst::CustomInt& makeSelection4(s_baltst::CustomInt&& value);
-#endif
-        // Set the value of this object to be a "Selection4" value.  Optionally
-        // specify the 'value' of the "Selection4".  If 'value' is not
-        // specified, the default "Selection4" value is used.
-
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' on the address of the modifiable
-        // selection, supplying 'manipulator' with the corresponding selection
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if this object has a defined selection,
-        // and -1 otherwise.
-
-    Sequence6& selection1();
-        // Return a reference to the modifiable "Selection1" selection of this
-        // object if "Selection1" is the current selection.  The behavior is
-        // undefined unless "Selection1" is the selection of this object.
-
-    unsigned char& selection2();
-        // Return a reference to the modifiable "Selection2" selection of this
-        // object if "Selection2" is the current selection.  The behavior is
-        // undefined unless "Selection2" is the selection of this object.
-
-    s_baltst::CustomString& selection3();
-        // Return a reference to the modifiable "Selection3" selection of this
-        // object if "Selection3" is the current selection.  The behavior is
-        // undefined unless "Selection3" is the selection of this object.
-
-    s_baltst::CustomInt& selection4();
-        // Return a reference to the modifiable "Selection4" selection of this
-        // object if "Selection4" is the current selection.  The behavior is
-        // undefined unless "Selection4" is the selection of this object.
-
-    // ACCESSORS
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
-
-    int selectionId() const;
-        // Return the id of the current selection if the selection is defined,
-        // and -1 otherwise.
-
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' on the non-modifiable selection,
-        // supplying 'accessor' with the corresponding selection information
-        // structure.  Return the value returned from the invocation of
-        // 'accessor' if this object has a defined selection, and -1 otherwise.
-
-    const Sequence6& selection1() const;
-        // Return a reference to the non-modifiable "Selection1" selection of
-        // this object if "Selection1" is the current selection.  The behavior
-        // is undefined unless "Selection1" is the selection of this object.
-
-    const unsigned char& selection2() const;
-        // Return a reference to the non-modifiable "Selection2" selection of
-        // this object if "Selection2" is the current selection.  The behavior
-        // is undefined unless "Selection2" is the selection of this object.
-
-    const s_baltst::CustomString& selection3() const;
-        // Return a reference to the non-modifiable "Selection3" selection of
-        // this object if "Selection3" is the current selection.  The behavior
-        // is undefined unless "Selection3" is the selection of this object.
-
-    const s_baltst::CustomInt& selection4() const;
-        // Return a reference to the non-modifiable "Selection4" selection of
-        // this object if "Selection4" is the current selection.  The behavior
-        // is undefined unless "Selection4" is the selection of this object.
-
-    bool isSelection1Value() const;
-        // Return 'true' if the value of this object is a "Selection1" value,
-        // and return 'false' otherwise.
-
-    bool isSelection2Value() const;
-        // Return 'true' if the value of this object is a "Selection2" value,
-        // and return 'false' otherwise.
-
-    bool isSelection3Value() const;
-        // Return 'true' if the value of this object is a "Selection3" value,
-        // and return 'false' otherwise.
-
-    bool isSelection4Value() const;
-        // Return 'true' if the value of this object is a "Selection4" value,
-        // and return 'false' otherwise.
-
-    bool isUndefinedValue() const;
-        // Return 'true' if the value of this object is undefined, and 'false'
-        // otherwise.
-
-    const char *selectionName() const;
-        // Return the symbolic name of the current selection of this object.
-};
-
-// FREE OPERATORS
-inline
-bool operator==(const Choice3& lhs, const Choice3& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Choice3' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
-
-inline
-bool operator!=(const Choice3& lhs, const Choice3& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same values, as determined by 'operator==', and 'false' otherwise.
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Choice3& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
-
-}  // close package namespace
-
-// TRAITS
-
-BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::Choice3)
 
 namespace s_baltst {
 
@@ -3699,6 +3698,164 @@ const bsl::vector<bdlb::NullableValue<unsigned int> >& Sequence6::element15() co
 
 
                                // -------------
+                               // class Choice3
+                               // -------------
+
+// CLASS METHODS
+// CREATORS
+inline
+Choice3::Choice3(bslma::Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+Choice3::~Choice3()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class MANIPULATOR>
+int Choice3::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case Choice3::SELECTION_ID_SELECTION1:
+        return manipulator(&d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case Choice3::SELECTION_ID_SELECTION2:
+        return manipulator(&d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case Choice3::SELECTION_ID_SELECTION3:
+        return manipulator(&d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case Choice3::SELECTION_ID_SELECTION4:
+        return manipulator(&d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(Choice3::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+Sequence6& Choice3::selection1()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+unsigned char& Choice3::selection2()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+s_baltst::CustomString& Choice3::selection3()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+s_baltst::CustomInt& Choice3::selection4()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+// ACCESSORS
+inline
+int Choice3::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int Choice3::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return accessor(d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SELECTION_ID_SELECTION2:
+        return accessor(d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case SELECTION_ID_SELECTION3:
+        return accessor(d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SELECTION_ID_SELECTION4:
+        return accessor(d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const Sequence6& Choice3::selection1() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+const unsigned char& Choice3::selection2() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+const s_baltst::CustomString& Choice3::selection3() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+const s_baltst::CustomInt& Choice3::selection4() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+inline
+bool Choice3::isSelection1Value() const
+{
+    return SELECTION_ID_SELECTION1 == d_selectionId;
+}
+
+inline
+bool Choice3::isSelection2Value() const
+{
+    return SELECTION_ID_SELECTION2 == d_selectionId;
+}
+
+inline
+bool Choice3::isSelection3Value() const
+{
+    return SELECTION_ID_SELECTION3 == d_selectionId;
+}
+
+inline
+bool Choice3::isSelection4Value() const
+{
+    return SELECTION_ID_SELECTION4 == d_selectionId;
+}
+
+inline
+bool Choice3::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+
+
+                               // -------------
                                // class Choice1
                                // -------------
 
@@ -4009,164 +4166,6 @@ bool Choice2::isSelection4Value() const
 
 inline
 bool Choice2::isUndefinedValue() const
-{
-    return SELECTION_ID_UNDEFINED == d_selectionId;
-}
-
-
-                               // -------------
-                               // class Choice3
-                               // -------------
-
-// CLASS METHODS
-// CREATORS
-inline
-Choice3::Choice3(bslma::Allocator *basicAllocator)
-: d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
-
-inline
-Choice3::~Choice3()
-{
-    reset();
-}
-
-// MANIPULATORS
-template <class MANIPULATOR>
-int Choice3::manipulateSelection(MANIPULATOR& manipulator)
-{
-    switch (d_selectionId) {
-      case Choice3::SELECTION_ID_SELECTION1:
-        return manipulator(&d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
-      case Choice3::SELECTION_ID_SELECTION2:
-        return manipulator(&d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
-      case Choice3::SELECTION_ID_SELECTION3:
-        return manipulator(&d_selection3.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
-      case Choice3::SELECTION_ID_SELECTION4:
-        return manipulator(&d_selection4.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
-      default:
-        BSLS_ASSERT(Choice3::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
-    }
-}
-
-inline
-Sequence6& Choice3::selection1()
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
-    return d_selection1.object();
-}
-
-inline
-unsigned char& Choice3::selection2()
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
-    return d_selection2.object();
-}
-
-inline
-s_baltst::CustomString& Choice3::selection3()
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
-    return d_selection3.object();
-}
-
-inline
-s_baltst::CustomInt& Choice3::selection4()
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
-    return d_selection4.object();
-}
-
-// ACCESSORS
-inline
-int Choice3::selectionId() const
-{
-    return d_selectionId;
-}
-
-template <class ACCESSOR>
-int Choice3::accessSelection(ACCESSOR& accessor) const
-{
-    switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1:
-        return accessor(d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
-      case SELECTION_ID_SELECTION2:
-        return accessor(d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
-      case SELECTION_ID_SELECTION3:
-        return accessor(d_selection3.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
-      case SELECTION_ID_SELECTION4:
-        return accessor(d_selection4.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
-      default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
-    }
-}
-
-inline
-const Sequence6& Choice3::selection1() const
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
-    return d_selection1.object();
-}
-
-inline
-const unsigned char& Choice3::selection2() const
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
-    return d_selection2.object();
-}
-
-inline
-const s_baltst::CustomString& Choice3::selection3() const
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
-    return d_selection3.object();
-}
-
-inline
-const s_baltst::CustomInt& Choice3::selection4() const
-{
-    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
-    return d_selection4.object();
-}
-
-inline
-bool Choice3::isSelection1Value() const
-{
-    return SELECTION_ID_SELECTION1 == d_selectionId;
-}
-
-inline
-bool Choice3::isSelection2Value() const
-{
-    return SELECTION_ID_SELECTION2 == d_selectionId;
-}
-
-inline
-bool Choice3::isSelection3Value() const
-{
-    return SELECTION_ID_SELECTION3 == d_selectionId;
-}
-
-inline
-bool Choice3::isSelection4Value() const
-{
-    return SELECTION_ID_SELECTION4 == d_selectionId;
-}
-
-inline
-bool Choice3::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
@@ -5393,6 +5392,49 @@ bsl::ostream& s_baltst::operator<<(
 
 inline
 bool s_baltst::operator==(
+        const s_baltst::Choice3& lhs,
+        const s_baltst::Choice3& rhs)
+{
+    typedef s_baltst::Choice3 Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return lhs.selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return lhs.selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return lhs.selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return lhs.selection4() == rhs.selection4();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool s_baltst::operator!=(
+        const s_baltst::Choice3& lhs,
+        const s_baltst::Choice3& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& s_baltst::operator<<(
+        bsl::ostream& stream,
+        const s_baltst::Choice3& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool s_baltst::operator==(
         const s_baltst::Choice1& lhs,
         const s_baltst::Choice1& rhs)
 {
@@ -5472,49 +5514,6 @@ inline
 bsl::ostream& s_baltst::operator<<(
         bsl::ostream& stream,
         const s_baltst::Choice2& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::Choice3& lhs,
-        const s_baltst::Choice3& rhs)
-{
-    typedef s_baltst::Choice3 Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SELECTION1:
-            return lhs.selection1() == rhs.selection1();
-          case Class::SELECTION_ID_SELECTION2:
-            return lhs.selection2() == rhs.selection2();
-          case Class::SELECTION_ID_SELECTION3:
-            return lhs.selection3() == rhs.selection3();
-          case Class::SELECTION_ID_SELECTION4:
-            return lhs.selection4() == rhs.selection4();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::Choice3& lhs,
-        const s_baltst::Choice3& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::Choice3& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -5629,7 +5628,7 @@ bsl::ostream& s_baltst::operator<<(
 // USING bas_codegen.pl s_baltst_ratsnest.xsd --mode msg --includedir . --msgComponent ratsnest --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

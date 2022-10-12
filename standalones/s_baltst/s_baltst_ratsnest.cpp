@@ -875,6 +875,511 @@ bsl::ostream& Sequence6::print(
 
 
                                // -------------
+                               // class Choice3
+                               // -------------
+
+// CONSTANTS
+
+const char Choice3::CLASS_NAME[] = "Choice3";
+
+const bdlat_SelectionInfo Choice3::SELECTION_INFO_ARRAY[] = {
+    {
+        SELECTION_ID_SELECTION1,
+        "selection1",
+        sizeof("selection1") - 1,
+        "",
+        bdlat_FormattingMode::e_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION2,
+        "selection2",
+        sizeof("selection2") - 1,
+        "",
+        bdlat_FormattingMode::e_DEC
+    },
+    {
+        SELECTION_ID_SELECTION3,
+        "selection3",
+        sizeof("selection3") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
+    },
+    {
+        SELECTION_ID_SELECTION4,
+        "selection4",
+        sizeof("selection4") - 1,
+        "",
+        bdlat_FormattingMode::e_DEC
+    }
+};
+
+// CLASS METHODS
+
+const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(
+        const char *name,
+        int         nameLength)
+{
+    for (int i = 0; i < 4; ++i) {
+        const bdlat_SelectionInfo& selectionInfo =
+                    Choice3::SELECTION_INFO_ARRAY[i];
+
+        if (nameLength == selectionInfo.d_nameLength
+        &&  0 == bsl::memcmp(selectionInfo.d_name_p, name, nameLength))
+        {
+            return &selectionInfo;
+        }
+    }
+
+    return 0;
+}
+
+const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(int id)
+{
+    switch (id) {
+      case SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+      case SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+      case SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+      case SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Choice3::Choice3(
+    const Choice3& original,
+    bslma::Allocator *basicAllocator)
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            Sequence6(
+                original.d_selection1.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            unsigned char(original.d_selection2.object());
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        new (d_selection3.buffer())
+            s_baltst::CustomString(
+                original.d_selection3.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        new (d_selection4.buffer())
+            s_baltst::CustomInt(original.d_selection4.object());
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+Choice3::Choice3(Choice3&& original) noexcept
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(original.d_allocator_p)
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            Sequence6(
+                bsl::move(original.d_selection1.object()), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            unsigned char(bsl::move(original.d_selection2.object()));
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        new (d_selection3.buffer())
+            s_baltst::CustomString(
+                bsl::move(original.d_selection3.object()), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        new (d_selection4.buffer())
+            s_baltst::CustomInt(bsl::move(original.d_selection4.object()));
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+
+Choice3::Choice3(
+    Choice3&& original,
+    bslma::Allocator *basicAllocator)
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            Sequence6(
+                bsl::move(original.d_selection1.object()), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            unsigned char(bsl::move(original.d_selection2.object()));
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        new (d_selection3.buffer())
+            s_baltst::CustomString(
+                bsl::move(original.d_selection3.object()), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        new (d_selection4.buffer())
+            s_baltst::CustomInt(bsl::move(original.d_selection4.object()));
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+#endif
+
+// MANIPULATORS
+
+Choice3&
+Choice3::operator=(const Choice3& rhs)
+{
+    if (this != &rhs) {
+        switch (rhs.d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            makeSelection1(rhs.d_selection1.object());
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            makeSelection2(rhs.d_selection2.object());
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            makeSelection3(rhs.d_selection3.object());
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            makeSelection4(rhs.d_selection4.object());
+          } break;
+          default:
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            reset();
+        }
+    }
+
+    return *this;
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+Choice3&
+Choice3::operator=(Choice3&& rhs)
+{
+    if (this != &rhs) {
+        switch (rhs.d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            makeSelection1(bsl::move(rhs.d_selection1.object()));
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            makeSelection2(bsl::move(rhs.d_selection2.object()));
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            makeSelection3(bsl::move(rhs.d_selection3.object()));
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            makeSelection4(bsl::move(rhs.d_selection4.object()));
+          } break;
+          default:
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            reset();
+        }
+    }
+
+    return *this;
+}
+#endif
+
+void Choice3::reset()
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        d_selection1.object().~Sequence6();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        typedef s_baltst::CustomString Type;
+        d_selection3.object().~Type();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        typedef s_baltst::CustomInt Type;
+        d_selection4.object().~Type();
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+
+    d_selectionId = SELECTION_ID_UNDEFINED;
+}
+
+int Choice3::makeSelection(int selectionId)
+{
+    switch (selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        makeSelection1();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        makeSelection2();
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        makeSelection3();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        makeSelection4();
+      } break;
+      case SELECTION_ID_UNDEFINED: {
+        reset();
+      } break;
+      default:
+        return -1;
+    }
+    return 0;
+}
+
+int Choice3::makeSelection(const char *name, int nameLength)
+{
+    const bdlat_SelectionInfo *selectionInfo =
+                                         lookupSelectionInfo(name, nameLength);
+    if (0 == selectionInfo) {
+       return -1;
+    }
+
+    return makeSelection(selectionInfo->d_id);
+}
+
+Sequence6& Choice3::makeSelection1()
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                Sequence6(d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+Sequence6& Choice3::makeSelection1(const Sequence6& value)
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                Sequence6(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+Sequence6& Choice3::makeSelection1(Sequence6&& value)
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = bsl::move(value);
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                Sequence6(bsl::move(value), d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+#endif
+
+unsigned char& Choice3::makeSelection2()
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+            unsigned char();
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+unsigned char& Choice3::makeSelection2(unsigned char value)
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        d_selection2.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                unsigned char(value);
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+s_baltst::CustomString& Choice3::makeSelection3()
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        bdlat_ValueTypeFunctions::reset(&d_selection3.object());
+    }
+    else {
+        reset();
+        new (d_selection3.buffer())
+                s_baltst::CustomString(d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return d_selection3.object();
+}
+
+s_baltst::CustomString& Choice3::makeSelection3(const s_baltst::CustomString& value)
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        d_selection3.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection3.buffer())
+                s_baltst::CustomString(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return d_selection3.object();
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+s_baltst::CustomString& Choice3::makeSelection3(s_baltst::CustomString&& value)
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        d_selection3.object() = bsl::move(value);
+    }
+    else {
+        reset();
+        new (d_selection3.buffer())
+                s_baltst::CustomString(bsl::move(value), d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return d_selection3.object();
+}
+#endif
+
+s_baltst::CustomInt& Choice3::makeSelection4()
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        bdlat_ValueTypeFunctions::reset(&d_selection4.object());
+    }
+    else {
+        reset();
+        new (d_selection4.buffer())
+            s_baltst::CustomInt();
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return d_selection4.object();
+}
+
+s_baltst::CustomInt& Choice3::makeSelection4(const s_baltst::CustomInt& value)
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        d_selection4.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection4.buffer())
+                s_baltst::CustomInt(value);
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return d_selection4.object();
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+s_baltst::CustomInt& Choice3::makeSelection4(s_baltst::CustomInt&& value)
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        d_selection4.object() = bsl::move(value);
+    }
+    else {
+        reset();
+        new (d_selection4.buffer())
+                s_baltst::CustomInt(bsl::move(value));
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return d_selection4.object();
+}
+#endif
+
+// ACCESSORS
+
+bsl::ostream& Choice3::print(
+    bsl::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        printer.printAttribute("selection1", d_selection1.object());
+      }  break;
+      case SELECTION_ID_SELECTION2: {
+        printer.printAttribute("selection2", (int)d_selection2.object());
+      }  break;
+      case SELECTION_ID_SELECTION3: {
+        printer.printAttribute("selection3", d_selection3.object());
+      }  break;
+      case SELECTION_ID_SELECTION4: {
+        printer.printAttribute("selection4", d_selection4.object());
+      }  break;
+      default:
+        stream << "SELECTION UNDEFINED\n";
+    }
+    printer.end();
+    return stream;
+}
+
+
+const char *Choice3::selectionName() const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
+      case SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
+      case SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
+      case SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return "(* UNDEFINED *)";
+    }
+}
+
+                               // -------------
                                // class Choice1
                                // -------------
 
@@ -1878,511 +2383,6 @@ const char *Choice2::selectionName() const
     }
 }
 
-                               // -------------
-                               // class Choice3
-                               // -------------
-
-// CONSTANTS
-
-const char Choice3::CLASS_NAME[] = "Choice3";
-
-const bdlat_SelectionInfo Choice3::SELECTION_INFO_ARRAY[] = {
-    {
-        SELECTION_ID_SELECTION1,
-        "selection1",
-        sizeof("selection1") - 1,
-        "",
-        bdlat_FormattingMode::e_DEFAULT
-    },
-    {
-        SELECTION_ID_SELECTION2,
-        "selection2",
-        sizeof("selection2") - 1,
-        "",
-        bdlat_FormattingMode::e_DEC
-    },
-    {
-        SELECTION_ID_SELECTION3,
-        "selection3",
-        sizeof("selection3") - 1,
-        "",
-        bdlat_FormattingMode::e_TEXT
-    },
-    {
-        SELECTION_ID_SELECTION4,
-        "selection4",
-        sizeof("selection4") - 1,
-        "",
-        bdlat_FormattingMode::e_DEC
-    }
-};
-
-// CLASS METHODS
-
-const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
-{
-    for (int i = 0; i < 4; ++i) {
-        const bdlat_SelectionInfo& selectionInfo =
-                    Choice3::SELECTION_INFO_ARRAY[i];
-
-        if (nameLength == selectionInfo.d_nameLength
-        &&  0 == bsl::memcmp(selectionInfo.d_name_p, name, nameLength))
-        {
-            return &selectionInfo;
-        }
-    }
-
-    return 0;
-}
-
-const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(int id)
-{
-    switch (id) {
-      case SELECTION_ID_SELECTION1:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-      case SELECTION_ID_SELECTION2:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-      case SELECTION_ID_SELECTION3:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-      case SELECTION_ID_SELECTION4:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
-      default:
-        return 0;
-    }
-}
-
-// CREATORS
-
-Choice3::Choice3(
-    const Choice3& original,
-    bslma::Allocator *basicAllocator)
-: d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
-        new (d_selection1.buffer())
-            Sequence6(
-                original.d_selection1.object(), d_allocator_p);
-      } break;
-      case SELECTION_ID_SELECTION2: {
-        new (d_selection2.buffer())
-            unsigned char(original.d_selection2.object());
-      } break;
-      case SELECTION_ID_SELECTION3: {
-        new (d_selection3.buffer())
-            s_baltst::CustomString(
-                original.d_selection3.object(), d_allocator_p);
-      } break;
-      case SELECTION_ID_SELECTION4: {
-        new (d_selection4.buffer())
-            s_baltst::CustomInt(original.d_selection4.object());
-      } break;
-      default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-    }
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-Choice3::Choice3(Choice3&& original) noexcept
-: d_selectionId(original.d_selectionId)
-, d_allocator_p(original.d_allocator_p)
-{
-    switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
-        new (d_selection1.buffer())
-            Sequence6(
-                bsl::move(original.d_selection1.object()), d_allocator_p);
-      } break;
-      case SELECTION_ID_SELECTION2: {
-        new (d_selection2.buffer())
-            unsigned char(bsl::move(original.d_selection2.object()));
-      } break;
-      case SELECTION_ID_SELECTION3: {
-        new (d_selection3.buffer())
-            s_baltst::CustomString(
-                bsl::move(original.d_selection3.object()), d_allocator_p);
-      } break;
-      case SELECTION_ID_SELECTION4: {
-        new (d_selection4.buffer())
-            s_baltst::CustomInt(bsl::move(original.d_selection4.object()));
-      } break;
-      default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-    }
-}
-
-Choice3::Choice3(
-    Choice3&& original,
-    bslma::Allocator *basicAllocator)
-: d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
-        new (d_selection1.buffer())
-            Sequence6(
-                bsl::move(original.d_selection1.object()), d_allocator_p);
-      } break;
-      case SELECTION_ID_SELECTION2: {
-        new (d_selection2.buffer())
-            unsigned char(bsl::move(original.d_selection2.object()));
-      } break;
-      case SELECTION_ID_SELECTION3: {
-        new (d_selection3.buffer())
-            s_baltst::CustomString(
-                bsl::move(original.d_selection3.object()), d_allocator_p);
-      } break;
-      case SELECTION_ID_SELECTION4: {
-        new (d_selection4.buffer())
-            s_baltst::CustomInt(bsl::move(original.d_selection4.object()));
-      } break;
-      default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-    }
-}
-#endif
-
-// MANIPULATORS
-
-Choice3&
-Choice3::operator=(const Choice3& rhs)
-{
-    if (this != &rhs) {
-        switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
-            makeSelection1(rhs.d_selection1.object());
-          } break;
-          case SELECTION_ID_SELECTION2: {
-            makeSelection2(rhs.d_selection2.object());
-          } break;
-          case SELECTION_ID_SELECTION3: {
-            makeSelection3(rhs.d_selection3.object());
-          } break;
-          case SELECTION_ID_SELECTION4: {
-            makeSelection4(rhs.d_selection4.object());
-          } break;
-          default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
-            reset();
-        }
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-Choice3&
-Choice3::operator=(Choice3&& rhs)
-{
-    if (this != &rhs) {
-        switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
-            makeSelection1(bsl::move(rhs.d_selection1.object()));
-          } break;
-          case SELECTION_ID_SELECTION2: {
-            makeSelection2(bsl::move(rhs.d_selection2.object()));
-          } break;
-          case SELECTION_ID_SELECTION3: {
-            makeSelection3(bsl::move(rhs.d_selection3.object()));
-          } break;
-          case SELECTION_ID_SELECTION4: {
-            makeSelection4(bsl::move(rhs.d_selection4.object()));
-          } break;
-          default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
-            reset();
-        }
-    }
-
-    return *this;
-}
-#endif
-
-void Choice3::reset()
-{
-    switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
-        d_selection1.object().~Sequence6();
-      } break;
-      case SELECTION_ID_SELECTION2: {
-        // no destruction required
-      } break;
-      case SELECTION_ID_SELECTION3: {
-        typedef s_baltst::CustomString Type;
-        d_selection3.object().~Type();
-      } break;
-      case SELECTION_ID_SELECTION4: {
-        typedef s_baltst::CustomInt Type;
-        d_selection4.object().~Type();
-      } break;
-      default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-    }
-
-    d_selectionId = SELECTION_ID_UNDEFINED;
-}
-
-int Choice3::makeSelection(int selectionId)
-{
-    switch (selectionId) {
-      case SELECTION_ID_SELECTION1: {
-        makeSelection1();
-      } break;
-      case SELECTION_ID_SELECTION2: {
-        makeSelection2();
-      } break;
-      case SELECTION_ID_SELECTION3: {
-        makeSelection3();
-      } break;
-      case SELECTION_ID_SELECTION4: {
-        makeSelection4();
-      } break;
-      case SELECTION_ID_UNDEFINED: {
-        reset();
-      } break;
-      default:
-        return -1;
-    }
-    return 0;
-}
-
-int Choice3::makeSelection(const char *name, int nameLength)
-{
-    const bdlat_SelectionInfo *selectionInfo =
-                                         lookupSelectionInfo(name, nameLength);
-    if (0 == selectionInfo) {
-       return -1;
-    }
-
-    return makeSelection(selectionInfo->d_id);
-}
-
-Sequence6& Choice3::makeSelection1()
-{
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
-    }
-    else {
-        reset();
-        new (d_selection1.buffer())
-                Sequence6(d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION1;
-    }
-
-    return d_selection1.object();
-}
-
-Sequence6& Choice3::makeSelection1(const Sequence6& value)
-{
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        d_selection1.object() = value;
-    }
-    else {
-        reset();
-        new (d_selection1.buffer())
-                Sequence6(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION1;
-    }
-
-    return d_selection1.object();
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-Sequence6& Choice3::makeSelection1(Sequence6&& value)
-{
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        d_selection1.object() = bsl::move(value);
-    }
-    else {
-        reset();
-        new (d_selection1.buffer())
-                Sequence6(bsl::move(value), d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION1;
-    }
-
-    return d_selection1.object();
-}
-#endif
-
-unsigned char& Choice3::makeSelection2()
-{
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
-    }
-    else {
-        reset();
-        new (d_selection2.buffer())
-            unsigned char();
-        d_selectionId = SELECTION_ID_SELECTION2;
-    }
-
-    return d_selection2.object();
-}
-
-unsigned char& Choice3::makeSelection2(unsigned char value)
-{
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        d_selection2.object() = value;
-    }
-    else {
-        reset();
-        new (d_selection2.buffer())
-                unsigned char(value);
-        d_selectionId = SELECTION_ID_SELECTION2;
-    }
-
-    return d_selection2.object();
-}
-
-s_baltst::CustomString& Choice3::makeSelection3()
-{
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
-        bdlat_ValueTypeFunctions::reset(&d_selection3.object());
-    }
-    else {
-        reset();
-        new (d_selection3.buffer())
-                s_baltst::CustomString(d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
-    }
-
-    return d_selection3.object();
-}
-
-s_baltst::CustomString& Choice3::makeSelection3(const s_baltst::CustomString& value)
-{
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
-        d_selection3.object() = value;
-    }
-    else {
-        reset();
-        new (d_selection3.buffer())
-                s_baltst::CustomString(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
-    }
-
-    return d_selection3.object();
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-s_baltst::CustomString& Choice3::makeSelection3(s_baltst::CustomString&& value)
-{
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
-        d_selection3.object() = bsl::move(value);
-    }
-    else {
-        reset();
-        new (d_selection3.buffer())
-                s_baltst::CustomString(bsl::move(value), d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
-    }
-
-    return d_selection3.object();
-}
-#endif
-
-s_baltst::CustomInt& Choice3::makeSelection4()
-{
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
-        bdlat_ValueTypeFunctions::reset(&d_selection4.object());
-    }
-    else {
-        reset();
-        new (d_selection4.buffer())
-            s_baltst::CustomInt();
-        d_selectionId = SELECTION_ID_SELECTION4;
-    }
-
-    return d_selection4.object();
-}
-
-s_baltst::CustomInt& Choice3::makeSelection4(const s_baltst::CustomInt& value)
-{
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
-        d_selection4.object() = value;
-    }
-    else {
-        reset();
-        new (d_selection4.buffer())
-                s_baltst::CustomInt(value);
-        d_selectionId = SELECTION_ID_SELECTION4;
-    }
-
-    return d_selection4.object();
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-s_baltst::CustomInt& Choice3::makeSelection4(s_baltst::CustomInt&& value)
-{
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
-        d_selection4.object() = bsl::move(value);
-    }
-    else {
-        reset();
-        new (d_selection4.buffer())
-                s_baltst::CustomInt(bsl::move(value));
-        d_selectionId = SELECTION_ID_SELECTION4;
-    }
-
-    return d_selection4.object();
-}
-#endif
-
-// ACCESSORS
-
-bsl::ostream& Choice3::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
-{
-    bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start();
-    switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
-        printer.printAttribute("selection1", d_selection1.object());
-      }  break;
-      case SELECTION_ID_SELECTION2: {
-        printer.printAttribute("selection2", (int)d_selection2.object());
-      }  break;
-      case SELECTION_ID_SELECTION3: {
-        printer.printAttribute("selection3", d_selection3.object());
-      }  break;
-      case SELECTION_ID_SELECTION4: {
-        printer.printAttribute("selection4", d_selection4.object());
-      }  break;
-      default:
-        stream << "SELECTION UNDEFINED\n";
-    }
-    printer.end();
-    return stream;
-}
-
-
-const char *Choice3::selectionName() const
-{
-    switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
-      case SELECTION_ID_SELECTION2:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
-      case SELECTION_ID_SELECTION3:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
-      case SELECTION_ID_SELECTION4:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
-      default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return "(* UNDEFINED *)";
-    }
-}
-
                               // ---------------
                               // class Sequence4
                               // ---------------
@@ -3284,7 +3284,7 @@ bsl::ostream& Sequence2::print(
 // USING bas_codegen.pl s_baltst_ratsnest.xsd --mode msg --includedir . --msgComponent ratsnest --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

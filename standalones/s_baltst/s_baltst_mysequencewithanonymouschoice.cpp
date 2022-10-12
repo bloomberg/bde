@@ -1,4 +1,4 @@
-// s_baltst_mysequencewithanonymouschoice.cpp*DO NOT EDIT* @generated -*-C++-*-
+// s_baltst_mysequencewithanonymouschoice.cpp *DO NOT EDIT* @generated -*-C++-*-
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(s_baltst_mysequencewithanonymouschoice_cpp, "$Id$ $CSID$")
@@ -528,7 +528,7 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 // USING bas_codegen.pl s_baltst_mysequencewithanonymouschoice.xsd --mode msg --includedir . --msgComponent mysequencewithanonymouschoice --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

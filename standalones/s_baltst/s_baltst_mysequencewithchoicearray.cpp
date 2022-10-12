@@ -1,9 +1,9 @@
-// s_baltst_mysequencewithchoice.cpp     *DO NOT EDIT*     @generated -*-C++-*-
+// s_baltst_mysequencewithchoicearray.cpp  *DO NOT EDIT*   @generated -*-C++-*-
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_mysequencewithchoice_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_mysequencewithchoicearray_cpp, "$Id$ $CSID$")
 
-#include <s_baltst_mysequencewithchoice.h>
+#include <s_baltst_mysequencewithchoicearray.h>
 
 #include <bdlat_formattingmode.h>
 #include <bdlat_valuetypefunctions.h>
@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(s_baltst_mysequencewithchoice_cpp, "$Id$ $CSID$")
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
 
+#include <bsl_vector.h>
 #include <bslim_printer.h>
 #include <bsls_assert.h>
 
@@ -23,19 +24,26 @@ BSLS_IDENT_RCSID(s_baltst_mysequencewithchoice_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 namespace s_baltst {
 
-                      // --------------------------------
-                      // class MySequenceWithChoiceChoice
-                      // --------------------------------
+                   // -------------------------------------
+                   // class MySequenceWithChoiceArrayChoice
+                   // -------------------------------------
 
 // CONSTANTS
 
-const char MySequenceWithChoiceChoice::CLASS_NAME[] = "MySequenceWithChoiceChoice";
+const char MySequenceWithChoiceArrayChoice::CLASS_NAME[] = "MySequenceWithChoiceArrayChoice";
 
-const bdlat_SelectionInfo MySequenceWithChoiceChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MySequenceWithChoiceArrayChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_CHOICE_A,
         "choiceA",
         sizeof("choiceA") - 1,
+        "",
+        bdlat_FormattingMode::e_DEC
+    },
+    {
+        SELECTION_ID_CHOICE_B,
+        "choiceB",
+        sizeof("choiceB") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     }
@@ -43,13 +51,13 @@ const bdlat_SelectionInfo MySequenceWithChoiceChoice::SELECTION_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-const bdlat_SelectionInfo *MySequenceWithChoiceChoice::lookupSelectionInfo(
+const bdlat_SelectionInfo *MySequenceWithChoiceArrayChoice::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
-    for (int i = 0; i < 1; ++i) {
+    for (int i = 0; i < 2; ++i) {
         const bdlat_SelectionInfo& selectionInfo =
-                    MySequenceWithChoiceChoice::SELECTION_INFO_ARRAY[i];
+                    MySequenceWithChoiceArrayChoice::SELECTION_INFO_ARRAY[i];
 
         if (nameLength == selectionInfo.d_nameLength
         &&  0 == bsl::memcmp(selectionInfo.d_name_p, name, nameLength))
@@ -61,11 +69,13 @@ const bdlat_SelectionInfo *MySequenceWithChoiceChoice::lookupSelectionInfo(
     return 0;
 }
 
-const bdlat_SelectionInfo *MySequenceWithChoiceChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MySequenceWithChoiceArrayChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_CHOICE_A:
         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_A];
+      case SELECTION_ID_CHOICE_B:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_B];
       default:
         return 0;
     }
@@ -73,13 +83,17 @@ const bdlat_SelectionInfo *MySequenceWithChoiceChoice::lookupSelectionInfo(int i
 
 // CREATORS
 
-MySequenceWithChoiceChoice::MySequenceWithChoiceChoice(const MySequenceWithChoiceChoice& original)
+MySequenceWithChoiceArrayChoice::MySequenceWithChoiceArrayChoice(const MySequenceWithChoiceArrayChoice& original)
 : d_selectionId(original.d_selectionId)
 {
     switch (d_selectionId) {
       case SELECTION_ID_CHOICE_A: {
         new (d_choiceA.buffer())
             int(original.d_choiceA.object());
+      } break;
+      case SELECTION_ID_CHOICE_B: {
+        new (d_choiceB.buffer())
+            int(original.d_choiceB.object());
       } break;
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -88,13 +102,17 @@ MySequenceWithChoiceChoice::MySequenceWithChoiceChoice(const MySequenceWithChoic
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-MySequenceWithChoiceChoice::MySequenceWithChoiceChoice(MySequenceWithChoiceChoice&& original) noexcept
+MySequenceWithChoiceArrayChoice::MySequenceWithChoiceArrayChoice(MySequenceWithChoiceArrayChoice&& original) noexcept
 : d_selectionId(original.d_selectionId)
 {
     switch (d_selectionId) {
       case SELECTION_ID_CHOICE_A: {
         new (d_choiceA.buffer())
             int(bsl::move(original.d_choiceA.object()));
+      } break;
+      case SELECTION_ID_CHOICE_B: {
+        new (d_choiceB.buffer())
+            int(bsl::move(original.d_choiceB.object()));
       } break;
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -104,13 +122,16 @@ MySequenceWithChoiceChoice::MySequenceWithChoiceChoice(MySequenceWithChoiceChoic
 
 // MANIPULATORS
 
-MySequenceWithChoiceChoice&
-MySequenceWithChoiceChoice::operator=(const MySequenceWithChoiceChoice& rhs)
+MySequenceWithChoiceArrayChoice&
+MySequenceWithChoiceArrayChoice::operator=(const MySequenceWithChoiceArrayChoice& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
           case SELECTION_ID_CHOICE_A: {
             makeChoiceA(rhs.d_choiceA.object());
+          } break;
+          case SELECTION_ID_CHOICE_B: {
+            makeChoiceB(rhs.d_choiceB.object());
           } break;
           default:
             BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
@@ -123,13 +144,16 @@ MySequenceWithChoiceChoice::operator=(const MySequenceWithChoiceChoice& rhs)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-MySequenceWithChoiceChoice&
-MySequenceWithChoiceChoice::operator=(MySequenceWithChoiceChoice&& rhs)
+MySequenceWithChoiceArrayChoice&
+MySequenceWithChoiceArrayChoice::operator=(MySequenceWithChoiceArrayChoice&& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
           case SELECTION_ID_CHOICE_A: {
             makeChoiceA(bsl::move(rhs.d_choiceA.object()));
+          } break;
+          case SELECTION_ID_CHOICE_B: {
+            makeChoiceB(bsl::move(rhs.d_choiceB.object()));
           } break;
           default:
             BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
@@ -141,10 +165,13 @@ MySequenceWithChoiceChoice::operator=(MySequenceWithChoiceChoice&& rhs)
 }
 #endif
 
-void MySequenceWithChoiceChoice::reset()
+void MySequenceWithChoiceArrayChoice::reset()
 {
     switch (d_selectionId) {
       case SELECTION_ID_CHOICE_A: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_CHOICE_B: {
         // no destruction required
       } break;
       default:
@@ -154,11 +181,14 @@ void MySequenceWithChoiceChoice::reset()
     d_selectionId = SELECTION_ID_UNDEFINED;
 }
 
-int MySequenceWithChoiceChoice::makeSelection(int selectionId)
+int MySequenceWithChoiceArrayChoice::makeSelection(int selectionId)
 {
     switch (selectionId) {
       case SELECTION_ID_CHOICE_A: {
         makeChoiceA();
+      } break;
+      case SELECTION_ID_CHOICE_B: {
+        makeChoiceB();
       } break;
       case SELECTION_ID_UNDEFINED: {
         reset();
@@ -169,7 +199,7 @@ int MySequenceWithChoiceChoice::makeSelection(int selectionId)
     return 0;
 }
 
-int MySequenceWithChoiceChoice::makeSelection(const char *name, int nameLength)
+int MySequenceWithChoiceArrayChoice::makeSelection(const char *name, int nameLength)
 {
     const bdlat_SelectionInfo *selectionInfo =
                                          lookupSelectionInfo(name, nameLength);
@@ -180,7 +210,7 @@ int MySequenceWithChoiceChoice::makeSelection(const char *name, int nameLength)
     return makeSelection(selectionInfo->d_id);
 }
 
-int& MySequenceWithChoiceChoice::makeChoiceA()
+int& MySequenceWithChoiceArrayChoice::makeChoiceA()
 {
     if (SELECTION_ID_CHOICE_A == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_choiceA.object());
@@ -195,7 +225,7 @@ int& MySequenceWithChoiceChoice::makeChoiceA()
     return d_choiceA.object();
 }
 
-int& MySequenceWithChoiceChoice::makeChoiceA(int value)
+int& MySequenceWithChoiceArrayChoice::makeChoiceA(int value)
 {
     if (SELECTION_ID_CHOICE_A == d_selectionId) {
         d_choiceA.object() = value;
@@ -210,9 +240,39 @@ int& MySequenceWithChoiceChoice::makeChoiceA(int value)
     return d_choiceA.object();
 }
 
+int& MySequenceWithChoiceArrayChoice::makeChoiceB()
+{
+    if (SELECTION_ID_CHOICE_B == d_selectionId) {
+        bdlat_ValueTypeFunctions::reset(&d_choiceB.object());
+    }
+    else {
+        reset();
+        new (d_choiceB.buffer())
+            int();
+        d_selectionId = SELECTION_ID_CHOICE_B;
+    }
+
+    return d_choiceB.object();
+}
+
+int& MySequenceWithChoiceArrayChoice::makeChoiceB(int value)
+{
+    if (SELECTION_ID_CHOICE_B == d_selectionId) {
+        d_choiceB.object() = value;
+    }
+    else {
+        reset();
+        new (d_choiceB.buffer())
+                int(value);
+        d_selectionId = SELECTION_ID_CHOICE_B;
+    }
+
+    return d_choiceB.object();
+}
+
 // ACCESSORS
 
-bsl::ostream& MySequenceWithChoiceChoice::print(
+bsl::ostream& MySequenceWithChoiceArrayChoice::print(
     bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
@@ -223,6 +283,9 @@ bsl::ostream& MySequenceWithChoiceChoice::print(
       case SELECTION_ID_CHOICE_A: {
         printer.printAttribute("choiceA", d_choiceA.object());
       }  break;
+      case SELECTION_ID_CHOICE_B: {
+        printer.printAttribute("choiceB", d_choiceB.object());
+      }  break;
       default:
         stream << "SELECTION UNDEFINED\n";
     }
@@ -231,30 +294,32 @@ bsl::ostream& MySequenceWithChoiceChoice::print(
 }
 
 
-const char *MySequenceWithChoiceChoice::selectionName() const
+const char *MySequenceWithChoiceArrayChoice::selectionName() const
 {
     switch (d_selectionId) {
       case SELECTION_ID_CHOICE_A:
         return SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_A].name();
+      case SELECTION_ID_CHOICE_B:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_B].name();
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";
     }
 }
 
-                         // --------------------------
-                         // class MySequenceWithChoice
-                         // --------------------------
+                      // -------------------------------
+                      // class MySequenceWithChoiceArray
+                      // -------------------------------
 
 // CONSTANTS
 
-const char MySequenceWithChoice::CLASS_NAME[] = "MySequenceWithChoice";
+const char MySequenceWithChoiceArray::CLASS_NAME[] = "MySequenceWithChoiceArray";
 
-const bdlat_AttributeInfo MySequenceWithChoice::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequenceWithChoiceArray::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_MODE,
-        "mode",
-        sizeof("mode") - 1,
+        ATTRIBUTE_ID_CHOICES,
+        "choices",
+        sizeof("choices") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     }
@@ -262,13 +327,13 @@ const bdlat_AttributeInfo MySequenceWithChoice::ATTRIBUTE_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-const bdlat_AttributeInfo *MySequenceWithChoice::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithChoiceArray::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
     for (int i = 0; i < 1; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
-                    MySequenceWithChoice::ATTRIBUTE_INFO_ARRAY[i];
+                    MySequenceWithChoiceArray::ATTRIBUTE_INFO_ARRAY[i];
 
         if (nameLength == attributeInfo.d_nameLength
         &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
@@ -280,11 +345,11 @@ const bdlat_AttributeInfo *MySequenceWithChoice::lookupAttributeInfo(
     return 0;
 }
 
-const bdlat_AttributeInfo *MySequenceWithChoice::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequenceWithChoiceArray::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_MODE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MODE];
+      case ATTRIBUTE_ID_CHOICES:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICES];
       default:
         return 0;
     }
@@ -292,27 +357,42 @@ const bdlat_AttributeInfo *MySequenceWithChoice::lookupAttributeInfo(int id)
 
 // CREATORS
 
-MySequenceWithChoice::MySequenceWithChoice()
-: d_mode()
+MySequenceWithChoiceArray::MySequenceWithChoiceArray(bslma::Allocator *basicAllocator)
+: d_choices(basicAllocator)
 {
 }
 
-MySequenceWithChoice::MySequenceWithChoice(const MySequenceWithChoice& original)
-: d_mode(original.d_mode)
+MySequenceWithChoiceArray::MySequenceWithChoiceArray(const MySequenceWithChoiceArray& original,
+                                                     bslma::Allocator *basicAllocator)
+: d_choices(original.d_choices, basicAllocator)
 {
 }
 
-MySequenceWithChoice::~MySequenceWithChoice()
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+MySequenceWithChoiceArray::MySequenceWithChoiceArray(MySequenceWithChoiceArray&& original) noexcept
+: d_choices(bsl::move(original.d_choices))
+{
+}
+
+MySequenceWithChoiceArray::MySequenceWithChoiceArray(MySequenceWithChoiceArray&& original,
+                                                     bslma::Allocator *basicAllocator)
+: d_choices(bsl::move(original.d_choices), basicAllocator)
+{
+}
+#endif
+
+MySequenceWithChoiceArray::~MySequenceWithChoiceArray()
 {
 }
 
 // MANIPULATORS
 
-MySequenceWithChoice&
-MySequenceWithChoice::operator=(const MySequenceWithChoice& rhs)
+MySequenceWithChoiceArray&
+MySequenceWithChoiceArray::operator=(const MySequenceWithChoiceArray& rhs)
 {
     if (this != &rhs) {
-        d_mode = rhs.d_mode;
+        d_choices = rhs.d_choices;
     }
 
     return *this;
@@ -320,32 +400,32 @@ MySequenceWithChoice::operator=(const MySequenceWithChoice& rhs)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-MySequenceWithChoice&
-MySequenceWithChoice::operator=(MySequenceWithChoice&& rhs)
+MySequenceWithChoiceArray&
+MySequenceWithChoiceArray::operator=(MySequenceWithChoiceArray&& rhs)
 {
     if (this != &rhs) {
-        d_mode = bsl::move(rhs.d_mode);
+        d_choices = bsl::move(rhs.d_choices);
     }
 
     return *this;
 }
 #endif
 
-void MySequenceWithChoice::reset()
+void MySequenceWithChoiceArray::reset()
 {
-    bdlat_ValueTypeFunctions::reset(&d_mode);
+    bdlat_ValueTypeFunctions::reset(&d_choices);
 }
 
 // ACCESSORS
 
-bsl::ostream& MySequenceWithChoice::print(
+bsl::ostream& MySequenceWithChoiceArray::print(
         bsl::ostream& stream,
         int           level,
         int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("mode", this->mode());
+    printer.printAttribute("choices", this->choices());
     printer.end();
     return stream;
 }
@@ -355,7 +435,7 @@ bsl::ostream& MySequenceWithChoice::print(
 }  // close enterprise namespace
 
 // GENERATED BY @BLP_BAS_CODEGEN_VERSION@
-// USING bas_codegen.pl s_baltst_mysequencewithchoice.xsd --mode msg --includedir . --msgComponent mysequencewithchoice --noRecurse --noExternalization --noHashSupport --noAggregateConversion
+// USING bas_codegen.pl s_baltst_mysequencewithchoicearray.xsd --mode msg --includedir . --msgComponent mysequencewithchoicearray --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright 2022 Bloomberg Finance L.P. All rights reserved.

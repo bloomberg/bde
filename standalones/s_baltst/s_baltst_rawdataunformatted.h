@@ -27,10 +27,9 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
-#include <bslma_allocator.h>
-
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
 namespace s_baltst { class RawDataUnformatted; }
 namespace s_baltst {
@@ -421,7 +420,7 @@ bsl::ostream& s_baltst::operator<<(
 // USING bas_codegen.pl s_baltst_rawdataunformatted.xsd --mode msg --includedir . --msgComponent rawdataunformatted --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

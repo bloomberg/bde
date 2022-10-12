@@ -49,7 +49,7 @@ bsl::ostream& s_baltst::operator<<(
 // USING bas_codegen.pl --mode cfg --includeDir . --configSchema y s_baltst_configschema.xsd
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

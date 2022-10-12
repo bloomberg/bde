@@ -19,6 +19,8 @@
 ./generate s_baltst_mysequencewitharray.xsd
 ./generate s_baltst_mysequencewithattributes.xsd
 ./generate s_baltst_mysequencewithchoice.xsd
+./generate s_baltst_mysequencewithchoicearray.xsd
+./generate s_baltst_mysequencewithchoices.xsd
 ./generate s_baltst_mysequencewithdecimalattribute.xsd
 ./generate s_baltst_mysequencewithdoubleattribute.xsd
 ./generate s_baltst_mysequencewithnillable.xsd

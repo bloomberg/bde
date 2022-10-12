@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:complexType name='MySequenceWithChoiceArray'>
+    <xs:sequence>
+      <xs:element name='choices'
+                  type='MySequenceWithChoiceArrayChoice'
+                  minOccurs='0'
+                  maxOccurs='unbounded'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='MySequenceWithChoiceArrayChoice'>
+    <xs:choice>
+      <xs:element name='choiceA' type='xs:int'/>
+      <xs:element name='choiceB' type='xs:int'/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>
