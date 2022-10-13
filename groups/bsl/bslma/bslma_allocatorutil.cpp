@@ -1,12 +1,11 @@
-// bslma_convertibleallocator.cpp                                     -*-C++-*-
+// bslma_allocatorutil.cpp                                            -*-C++-*-
 
-#include <bslma_convertibleallocator.h>
+#include <bslma_allocatorutil.h>
+
+#include <bslma_testallocator.h>  // FOR TESTING ONLY
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslma_convertibleallocator_cpp, "$Id$ $CSID$")
-
-#include <bslma_defaultallocatorguard.h>  // For testing only
-#include <bslma_testallocator.h>          // For testing only
+BSLS_IDENT_RCSID(bslma_allocatorutil_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 }  // close enterprise namespace

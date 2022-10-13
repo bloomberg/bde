@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::AATypeUtil: namespace for utility functions on allocator-aware types
 //
-//@SEE_ALSO: bslma_aamodel, bslma_convertibleallocator
+//@SEE_ALSO: bslma_aamodel
 //
 //@DESCRIPTION: This component provides a namespace 'struct',
 // 'bslma::AATypeUtil', that provides functions for extracting the allocator
@@ -26,9 +26,9 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 //
-///Example 1: Constructing a new member using an existing member's allocator
+///Example 1: Constructing a New Member Using an Existing Member's Allocator
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example illustrates how 'bslma::AATypeUtil::getConvertibleAllocator'
+// This example illustrates how 'bslma::AATypeUtil::getAdaptedAllocator'
 // can be used to extract the allocator from an Allocator-Aware (AA) object and
 // use it to construct a different AA object without regard to whether either
 // object is *legacy-AA* (using 'bslma::Allocator *') or *bsl-AA* (using
@@ -125,24 +125,24 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Now we implement the constructor that initializes value of the 'Larry'
-// member and leaves the 'Curly' member unset.  Notice that we cast the
-// allocator argument to a 'ConvertibleAllocator' to smooth out the mismatch
-// between the 'bsl::allocator' used by 'LarryMaybeCurly' and the
-// 'bslma::Allocator *' expected by 'Larry'.
+// member and leaves the 'Curly' member unset.  Notice that we use
+// 'bslma::AllocatorUtil::adapt' to smooth out the mismatch between the
+// 'bsl::allocator' used by 'LarryMaybeCurly' and the 'bslma::Allocator *'
+// expected by 'Larry'.
 //..
 //  LarryMaybeCurly::LarryMaybeCurly(int v, const allocator_type& a)
-//      : d_hasCurly(false), d_larry(v, bslma::ConvertibleAllocator(a)) { }
+//      : d_hasCurly(false), d_larry(v, bslma::AllocatorUtil::adapt(a)) { }
 //..
 // Next, we implement the manipulator for setting the 'Curly' object.  This
 // manipulator must use the allocator stored in 'd_larry'.  The function,
-// 'getConvertibleAllocator' yields this allocator in a form that can be
+// 'getAdaptedAllocator' yields this allocator in a form that can be
 // consumed by the 'Curly' constructor:
 //..
 //      // MANIPULATORS
 //  void LarryMaybeCurly::setCurly(int v)
 //  {
 //      new (d_curly.address())
-//          Curly(v, bslma::AATypeUtil::getConvertibleAllocator(d_larry));
+//          Curly(v, bslma::AATypeUtil::getAdaptedAllocator(d_larry));
 //      d_hasCurly = true;
 //  }
 //..
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 //      assert(10  == obj1.curly().value());
 //      assert(&ta == obj1.curly().allocator());
 //..
-// It may not be immediately obvious that 'getConvertibleAllocator' provides
+// It may not be immediately obvious that 'getAdaptedAllocator' provides
 // much benefit; indeed, the example would work just fine if we called
 // 'Larry::allocator()' and passed the result directly to the constructor of
 // 'Curly':
@@ -182,13 +182,13 @@ BSLS_IDENT("$Id: $")
 //..
 // The code above is brittle, however, as updating 'Larry' to be *bsl-AA* would
 // require calling 'larryObj.get_allocator().mechanism()' instead of
-// 'larryObj.allocator().  By using 'getConvertibleAllocator', the 'setCurly'
+// 'larryObj.allocator().  By using 'getAdaptedAllocator', the 'setCurly'
 // implementation above is robust in the face of such future evolution.  This
 // benefit is even more important in generic code, especially when *pmr-AA*
 // types are added into the mix in the future.
 //
-///Example 2: Retrieving a specific allocator from a subobject
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Retrieving a Specific Allocator Type from a Subobject
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example illustrates how 'bslma::AATypeUtil::getAllocatorFromSubobject'
 // can be used to retrieve an allocator of a specific type from a subobject
 // even if that subobject uses an allocator with a smaller interface.
@@ -241,11 +241,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_aamodel.h>
-#include <bslma_convertibleallocator.h>
+#include <bslma_allocatorutil.h>
 
-#include <bslmf_conditional.h>
 #include <bslmf_enableif.h>
-#include <bslmf_issame.h>
 
 namespace BloombergLP {
 namespace bslma {
@@ -255,9 +253,41 @@ namespace bslma {
                         // =================
 
 struct AATypeUtil {
-    // Class description
+    // Namespace for utility functions on allocator-aware types
 
     // CLASS METHODS
+    template <class TYPE>
+    static
+    typename bsl::enable_if<AAModel<TYPE>::value == AAModelLegacy::value ||
+                            AAModel<TYPE>::value == AAModelBsl::value,
+                            bslma::Allocator *>::type
+    getAdaptedAllocator(const TYPE& object);
+        // Return the allocator held by the specified 'object', adapted to be
+        // usable as a constructor argument for the widest possible set of AA
+        // types.  This overload will be selected if 'TYPE' is *bsl-AA* or
+        // *legacy-AA*.
+
+    template <class TYPE>
+    static
+    typename bsl::enable_if<AAModel<TYPE>::value != AAModelBsl::value,
+                            typename TYPE::allocator_type>::type
+    getAdaptedAllocator(const TYPE& object);
+        // Return the allocator held used by the specified 'object'.  This
+        // overload will be selected if 'TYPE' is *pmr-AA* or *stl-AA*.
+
+    template <class ALLOCATOR, class TYPE>
+    static
+    ALLOCATOR getAllocatorFromSubobject(const TYPE& object);
+        // Return the allocator for the specified 'object', converted to the
+        // specified 'ALLOCATOR' template argument, which must be explicitly
+        // provided.  This function can recover allocator-type information if
+        // 'TYPE' holds an allocator that is compatible with 'ALLOCATOR', but
+        // is not necessarily directly convertible -- e.g., 'TYPE' is *bsl-AA*
+        // (uses 'bsl::allocator') and 'ALLOCATOR' is 'bslma::Allocator *'.
+        // The behavior is undefined unless 'object' was constructed with an
+        // allocator that is convertible to 'ALLOCATOR' without loss of
+        // information.
+
     template <class TYPE>
     static bsl::allocator<char> getBslAllocator(const TYPE& object);
         // Return the allocator for the specified 'object', converted to
@@ -267,32 +297,9 @@ struct AATypeUtil {
         // 'object' was constructed with an allocator *value* that is
         // dynamically convertible to a valid 'bsl::allocator'.
 
-    template <class ALLOCATOR, class TYPE>
-    static
-    ALLOCATOR getAllocatorFromSubobject(const TYPE& object);
-        // Return the allocator for the specified 'object', converted to
-        // the specified 'ALLOCATOR' template argument, which must be
-        // explicitly provided.  This function can recover allocator-type
-        // information if 'ALLOCATOR' belongs to an AA model that is a subset
-        // of the model supported by 'TYPE' -- e.g., 'TYPE' is *bsl-AA* and
-        // 'ALLOCATOR' is 'bslma::Allocator *'.  The behavior is undefined
-        // unless 'object' was constructed with an allocator that is
-        // convertible to 'ALLOCATOR'.
-
     template <class TYPE>
     static
-    typename bsl::enable_if<AAModelIsSupported<TYPE, AAModelLegacy>::value,
-                            ConvertibleAllocator>::type
-    getConvertibleAllocator(const TYPE& object);
-        // Return a 'ConvertibleAllocator' holding the allocator used by the
-        // specified 'object'.  This function will not participate in overload
-        // resolution unless 'TYPE' is *bsl-AA* or *legacy-AA*.
-
-    template <class TYPE>
-    static
-    typename bsl::enable_if<bsl::is_same<AAModelLegacy,
-                                         typename AAModel<TYPE>::type
-                                         >::value,
+    typename bsl::enable_if<AAModel<TYPE>::value == AAModelLegacy::value,
                             Allocator *>::type
     getNativeAllocator(const TYPE& object);
         // Return the address of the 'bslma::Allocator' used by the specified
@@ -323,41 +330,44 @@ namespace bslma {
 // CLASS METHODS
 template <class TYPE>
 inline
-bsl::allocator<char> AATypeUtil::getBslAllocator(const TYPE& object)
+typename bsl::enable_if<AAModel<TYPE>::value == AAModelLegacy::value ||
+                        AAModel<TYPE>::value == AAModelBsl::value,
+                        bslma::Allocator *>::type
+AATypeUtil::getAdaptedAllocator(const TYPE& object)
 {
-    // TBD: When 'bsl::polymorphic_allocator' is introduced, add defensive
-    // checks that 'object.get_allocator().resource()' can be dynamically
-    // cast to 'bsl::Allocator *'.
-    return static_cast<bsl::allocator<char> >(getNativeAllocator(object));
+    return AllocatorUtil::adapt(getNativeAllocator(object));
+}
+
+template <class TYPE>
+inline
+typename bsl::enable_if<AAModel<TYPE>::value != AAModelBsl::value,
+                        typename TYPE::allocator_type>::type
+AATypeUtil::getAdaptedAllocator(const TYPE& object)
+{
+    return AllocatorUtil::adapt(getNativeAllocator(object));
 }
 
 template <class ALLOCATOR, class TYPE>
 inline
 ALLOCATOR AATypeUtil::getAllocatorFromSubobject(const TYPE& object)
 {
-    typedef typename bsl::conditional<
-        bsl::is_same<ALLOCATOR, Allocator *>::value,
-        ConvertibleAllocator,
-        ALLOCATOR>::type IntermediateAllocator;
-
-    IntermediateAllocator ret(getNativeAllocator(object));
-    return static_cast<ALLOCATOR>(ret);
+    return static_cast<ALLOCATOR>(
+                             AllocatorUtil::adapt(getNativeAllocator(object)));
 }
 
 template <class TYPE>
 inline
-typename bsl::enable_if<AAModelIsSupported<TYPE, AAModelLegacy>::value,
-                        ConvertibleAllocator>::type
-AATypeUtil::getConvertibleAllocator(const TYPE& object)
+bsl::allocator<char> AATypeUtil::getBslAllocator(const TYPE& object)
 {
-    return getNativeAllocator(object);
+    // TBD: When 'bsl::polymorphic_allocator' is introduced, add defensive
+    // checks that 'object.get_allocator().resource()' can be dynamically
+    // cast to 'bslma::Allocator *'.
+    return static_cast<bsl::allocator<char> >(getNativeAllocator(object));
 }
 
 template <class TYPE>
 inline
-typename bsl::enable_if<bsl::is_same<AAModelLegacy,
-                                     typename AAModel<TYPE>::type
-                                     >::value,
+typename bsl::enable_if<AAModel<TYPE>::value == AAModelLegacy::value,
                         Allocator *>::type
 AATypeUtil::getNativeAllocator(const TYPE& object)
 {

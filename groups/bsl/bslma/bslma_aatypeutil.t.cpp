@@ -14,6 +14,7 @@
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
 #pragma bde_verify -AC02   // Implicit copy constructor is not allocator-aware
+#pragma bde_verify -AL01   // Class needs allocator() method
 #pragma bde_verify -AP02   // Class needs d_allocator_p member
 #pragma bde_verify -AT02   // Class does not have an allocator trait
 #pragma bde_verify -FABC01 // Function not in alphabetical order
@@ -40,7 +41,8 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 4] bsl::allocator<char> getBslAllocator(const TYPE&)
 // [ 5] ALLOCATOR getAllocatorFromSubobject(const TYPE&)
-// [ 2] ConvertibleAllocator getConvertibleAllocator(const TYPE&)
+// [ 2] bslma::Allocator *getAdaptedAllocator(const TYPE&)
+// [ 2] TYPE::allocator_type getAdaptedAllocator(const TYPE&)
 // [ 3] bslma::Allocator *getNativeAllocator(const TYPE&)
 // [ 3] TYPE::allocator_type getNativeAllocator(const TYPE&)
 // ----------------------------------------------------------------------------
@@ -185,18 +187,18 @@ struct BslLegacyAAClass {
 // FUTURE:
 // class PmrAAClass {
 //     // Class meeting minimal requirement for detection as *pmr-AA*.
-
+//
 //     // DATA
 //     bsl::polymorphic_allocator<int> d_allocator;
-
+//
 //   public:
 //     // TYPES
 //     typedef bsl::polymorphic_allocator<int> allocator_type;
-
+//
 //     // CREATORS
 //     explicit PmrAAClass(const allocator_type& allocator)
 //         : d_allocator(allocator) { }
-
+//
 //     // ACCESSORS
 //     allocator_type get_allocator() const { return d_allocator; }
 // };
@@ -331,9 +333,9 @@ int allocatorModel(const StlAllocator<TYPE>&)
 
 namespace {
 
-///Example 1: Constructing a new member using an existing member's allocator
+///Example 1: Constructing a New Member Using an Existing Member's Allocator
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example illustrates how 'bslma::AATypeUtil::getConvertibleAllocator'
+// This example illustrates how 'bslma::AATypeUtil::getAdaptedAllocator'
 // can be used to extract the allocator from an Allocator-Aware (AA) object and
 // use it to construct a different AA object without regard to whether either
 // object is *legacy-AA* (using 'bslma::Allocator *') or *bsl-AA* (using
@@ -430,24 +432,24 @@ namespace {
     };
 //..
 // Now we implement the constructor that initializes value of the 'Larry'
-// member and leaves the 'Curly' member unset.  Notice that we cast the
-// allocator argument to a 'ConvertibleAllocator' to smooth out the mismatch
-// between the 'bsl::allocator' used by 'LarryMaybeCurly' and the
-// 'bslma::Allocator *' expected by 'Larry'.
+// member and leaves the 'Curly' member unset.  Notice that we use
+// 'bslma::AllocatorUtil::adapt' to smooth out the mismatch between the
+// 'bsl::allocator' used by 'LarryMaybeCurly' and the 'bslma::Allocator *'
+// expected by 'Larry'.
 //..
     LarryMaybeCurly::LarryMaybeCurly(int v, const allocator_type& a)
-        : d_hasCurly(false), d_larry(v, bslma::ConvertibleAllocator(a)) { }
+        : d_hasCurly(false), d_larry(v, bslma::AllocatorUtil::adapt(a)) { }
 //..
 // Next, we implement the manipulator for setting the 'Curly' object.  This
 // manipulator must use the allocator stored in 'd_larry'.  The function,
-// 'getConvertibleAllocator' yields this allocator in a form that can be
+// 'getAdaptedAllocator' yields this allocator in a form that can be
 // consumed by the 'Curly' constructor:
 //..
         // MANIPULATORS
     void LarryMaybeCurly::setCurly(int v)
     {
         new (d_curly.address())
-            Curly(v, bslma::AATypeUtil::getConvertibleAllocator(d_larry));
+            Curly(v, bslma::AATypeUtil::getAdaptedAllocator(d_larry));
         d_hasCurly = true;
     }
 //..
@@ -473,7 +475,7 @@ namespace {
         ASSERT(10  == obj1.curly().value());
         ASSERT(&ta == obj1.curly().allocator());
 //..
-// It may not be immediately obvious that 'getConvertibleAllocator' provides
+// It may not be immediately obvious that 'getAdaptedAllocator' provides
 // much benefit; indeed, the example would work just fine if we called
 // 'Larry::allocator()' and passed the result directly to the constructor of
 // 'Curly':
@@ -487,13 +489,13 @@ namespace {
 //..
 // The code above is brittle, however, as updating 'Larry' to be *bsl-AA* would
 // require calling 'larryObj.get_allocator().mechanism()' instead of
-// 'larryObj.allocator().  By using 'getConvertibleAllocator', the 'setCurly'
+// 'larryObj.allocator().  By using 'getAdaptedAllocator', the 'setCurly'
 // implementation above is robust in the face of such future evolution.  This
 // benefit is even more important in generic code, especially when *pmr-AA*
 // types are added into the mix in the future.
 //
-///Example 2: Retrieving a specific allocator from a subobject
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Retrieving a Specific Allocator Type from a Subobject
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example illustrates how 'bslma::AATypeUtil::getAllocatorFromSubobject'
 // can be used to retrieve an allocator of a specific type from a subobject
 // even if that subobject uses an allocator with a smaller interface.
@@ -918,58 +920,67 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // 'getConvertibleAllocator'
+        // 'getAdaptedAllocator'
         //
         // Concerns:
-        //: 1 For a *legacy-AA* object, 'obj', 'getConvertibleAllocator(obj)'
-        //:   returns 'bslma::ConvertibleAllocator(obj.allocator())'.
-        //: 2 For a *bsl-AA* object, 'obj', 'getConvertibleAllocator(obj)'
-        //:   returns 'bslma::ConvertibleAllocator(obj.get_allocator())'.
-        //: 3 For an object, 'obj', whose type has the interface of both
+        //: 1 For a *legacy-AA* object, 'obj', 'getAdaptedAllocator(obj)'
+        //:   returns 'bslma::AllocatorUtil::adapt(obj.allocator())'.
+        //: 2 For a *bsl-AA* object, 'obj', 'getAdaptedAllocator(obj)'
+        //:   returns 'bslma::AllocatorUtil::adapt(obj.get_allocator())'.
+        //: 3 For an *stl-AA* type or (future) *pmr-AA* object, 'obj',
+        //:   'getAdapted(obj)' returns 'obj.get_allocator()'.
+        //: 4 For an object, 'obj', whose type has the interface of both
         //:   *legacy-AA* ('UsesBslmaAllocator' type trait and 'allocator'
         //:   accessor) and *bsl-AA* ('allocator_type' typedef and
-        //:   'get_allocator' accessor) 'getConvertibleAllocator(obj)' is
+        //:   'get_allocator' accessor) 'getAdaptedAllocator(obj)' is
         //:   callable without ambiguity and returns
-        //:   'bslma::ConvertibleAllocator(obj.get_allocator())' (i.e., prefer
+        //:   'bslma::AllocatorUtil::adapt(obj.get_allocator())' (i.e., prefer
         //:   the *bsl-AA* model to the *legacy-AA* model).
         //
         // Plan:
         //: 1 Construct a *legacy-AA* object and verify that
-        //:   'getConvertibleAllocator' returns the expected allocator value.
+        //:   'getAdaptedAllocator' returns the expected allocator value.
         //:   (C-1)
         //: 2 Construct a *bsl-AA* object and verify that
-        //:   'getConvertibleAllocator' returns the expected allocator value.
+        //:   'getAdaptedAllocator' returns the expected allocator value.
         //:   (C-2)
-        //: 3 Define a class with all of the attributes of both a *legacy-AA*
+        //: 3 Construct an *stl-AA* object and (future) *pmr-AA* object and
+        //:   verify that 'getAdaptedAllocator' returns the expected allocator
+        //:   value for each.  (C-3)
+        //: 4 Define a class with all of the attributes of both a *legacy-AA*
         //:   type and a *bsl-AA* type, using different allocators for each
         //:   model.  Construct an object, 'obj', of that class and verify that
         //:   'getConvertibleAlloator(obj)' returns the value returned by
-        //:   'obj.get_allocator()', not 'obj.allocator()'.  (C-3)
+        //:   'obj.get_allocator()', not 'obj.allocator()'.  (C-4)
         //
         // Testing:
-        //      ConvertibleAllocator getConvertibleAllocator(const TYPE&)
+        //      bslma::Allocator *getAdaptedAllocator(const TYPE&)
+        //      TYPE::allocator_type getAdaptedAllocator(const TYPE&)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'getConvertibleAllocator'"
-                            "\n=========================\n");
+        if (verbose) printf("\n'getAdaptedAllocator'"
+                            "\n=====================\n");
 
         typedef bslma::AATypeUtil Util;
 
         bslma::TestAllocator        ta1, ta2;
         bslma::Allocator     *const bslmaAlloc = &ta1;
         bsl::allocator<int>         bslAlloc(&ta2);
+        StlAllocator<char>          stlAlloc(3);
         ASSERT(bslmaAlloc != bslAlloc);
 
         LegacyAAClass   laac(bslmaAlloc); const LegacyAAClass& LAAC = laac;
         BslAAClass      baac(bslAlloc);   const BslAAClass&    BAAC = baac;
+        StlAAClass      saac(stlAlloc);   const StlAAClass&    SAAC = saac;
 
         BslLegacyAAClass        blaac(bslAlloc, bslmaAlloc);
         const BslLegacyAAClass& BLAAC = blaac;
 
-        ASSERT(Util::getConvertibleAllocator(LAAC)  == bslmaAlloc);
-        ASSERT(Util::getConvertibleAllocator(BAAC)  == bslAlloc);
-        ASSERT(Util::getConvertibleAllocator(BLAAC) == bslAlloc);
-        ASSERT(Util::getConvertibleAllocator(BLAAC) != bslmaAlloc);
+        ASSERT(Util::getAdaptedAllocator(LAAC)  == bslmaAlloc);
+        ASSERT(Util::getAdaptedAllocator(BAAC)  == bslAlloc);
+        ASSERT(Util::getAdaptedAllocator(BLAAC) == bslAlloc);
+        ASSERT(Util::getAdaptedAllocator(BLAAC) != bslmaAlloc);
+        ASSERT(Util::getAdaptedAllocator(SAAC)  == stlAlloc);
 
       } break;
 
@@ -1004,15 +1015,12 @@ int main(int argc, char *argv[])
         BslAAClass    baac(bslAlloc);   const BslAAClass&    BAAC = baac;
         StlAAClass    saac(stlAlloc);   const StlAAClass&    SAAC = saac;
 
-        // Exercise 'getConvertibleAllocator'
-        ASSERT(bslmaAlloc == Util::getConvertibleAllocator(LAAC));
+        // Exercise 'getAdaptedAllocator'
+        ASSERT(bslmaAlloc == Util::getAdaptedAllocator(LAAC));
         ASSERT(bsl::allocator<char>(bslmaAlloc) ==
-               Util::getConvertibleAllocator(LAAC));
-        ASSERT(bslAlloc == Util::getConvertibleAllocator(BAAC));
-        ASSERT(bslAlloc.mechanism() ==
-               Util::getConvertibleAllocator(BAAC));
-        ASSERT(bslAlloc.mechanism() ==
-               Util::getConvertibleAllocator(BAAC).mechanism());
+               Util::getAdaptedAllocator(LAAC));
+        ASSERT(bslAlloc             == Util::getAdaptedAllocator(BAAC));
+        ASSERT(bslAlloc.mechanism() == Util::getAdaptedAllocator(BAAC));
 
         // Exercise 'getNativeAllocator'
         ASSERT(bslmaAlloc == Util::getNativeAllocator(LAAC));
@@ -1029,17 +1037,15 @@ int main(int argc, char *argv[])
         //   uncommented selectively to verify non-compilation.
         //
         // Concerns:
-        //: 1 'AATypeUtil::getConvertibleAllocator' will not be found by
-        //:   overload resolution when called on an object that is neither
-        //:   *legacy-AA* nor *bsl-AA*.
+        //: 1 'AATypeUtil::getAdaptedAllocator' will not be found by
+        //:   overload resolution when called on an object that is not AA.
         //: 2 'AATypeUtil::getNativeAllocator' will not be found by
         //:   overload resolution when called on an object that is not AA.
         //
         // Plan:
-        //: 1 Call 'AATypeUtil::getConvertibleAllocator' on a variety of
-        //:   non-bsl-AA and non-legacy-AA types: an 'int', a non-AA class, and
-        //:   an stl-AA class.  Verify that the compiler complains about each
-        //:   having no matching function.  (C-1)
+        //: 1 Call 'AATypeUtil::getAdaptedAllocator' on an 'int' and on an
+        //:   object of non-AA class type.  Verify that the compiler complains
+        //:   about each having no matching function.  (C-1)
         //: 2 Call 'AATypeUtil::getNativeAllocator' on an 'int' and on an
         //:   object of non-AA class type.  Verify that the compiler complains
         //:   about each having no matching function.  (C-2)
@@ -1055,14 +1061,11 @@ int main(int argc, char *argv[])
 
         int                i = 0;     (void) i;
         NonAAClass         nonAA;     (void) nonAA;
-        StlAllocator<char> a(4);
-        StlAAClass         stlAA(a);  (void) stlAA;
 
 #if 0
-        // Step 1: 'getConvertibleAllocator'
-        Util::getConvertibleAllocator(i);
-        Util::getConvertibleAllocator(nonAA);
-        Util::getConvertibleAllocator(stlAA);
+        // Step 1: 'getAdaptedAllocator'
+        Util::getAdaptedAllocator(i);
+        Util::getAdaptedAllocator(nonAA);
 #endif
 
 #if 0

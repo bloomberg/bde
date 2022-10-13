@@ -3,14 +3,13 @@ bslma_aatypeutil
 bslma_allocator
 bslma_allocatoradaptor
 bslma_allocatortraits
-bslma_allocatortraits_cpp03
+bslma_allocatorutil
 bslma_autodeallocator
 bslma_autodestructor
 bslma_autorawdeleter
 bslma_bufferallocator
 bslma_constructionutil
 bslma_constructionutil_cpp03
-bslma_convertibleallocator
 bslma_deallocatorguard
 bslma_deallocatorproctor
 bslma_default

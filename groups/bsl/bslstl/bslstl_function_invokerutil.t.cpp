@@ -11,11 +11,8 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
-
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi', 'size_t'
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -152,19 +149,10 @@ int veryVeryVeryVerbose = 0; // For test allocators
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_GNU)      \
- && BSLS_PLATFORM_CMP_VERSION >= 100000 \
- && BSLS_PLATFORM_CMP_VERSION <  110000
-#define GNU_10 1
+ && BSLS_PLATFORM_CMP_VERSION >= 100000
+#define GNU_10PLUS 1
 #else
-#define GNU_10 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU)      \
- && BSLS_PLATFORM_CMP_VERSION >= 110000 \
- && BSLS_PLATFORM_CMP_VERSION <  120000
-#define GNU_11 1
-#else
-#define GNU_11 0
+#define GNU_10PLUS 0
 #endif
 
 typedef bslstl::Function_InvokerUtil             Util;
@@ -172,7 +160,7 @@ typedef bslstl::Function_Rep                     Rep;
 typedef bslstl::Function_SmallObjectOptimization SmallObjectOptimization;
 
 // Whitebox: Small object optimization buffer size
-static const std::size_t k_SMALL_OBJECT_BUFFER_SIZE =
+static const size_t k_SMALL_OBJECT_BUFFER_SIZE =
     sizeof(SmallObjectOptimization::InplaceBuffer);
 
 #define NTWRAP(r)   bslalg::NothrowMovableUtil::wrap(r)
@@ -475,7 +463,7 @@ class SmallFunctor {
         // Parse the specified 'valstr' as an integer and use it to set this
         // object's value.  This call operator is used to test invocations that
         // return 'void'.  The string argument prevents overload ambiguity.
-        { setValue(std::atoi(valstr)); }
+        { setValue(atoi(valstr)); }
 
     void setValue(int value) { d_value = value; }
 
@@ -1147,7 +1135,7 @@ class TestIsFuncInvocable {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
@@ -1558,8 +1546,7 @@ int main(int argc, char *argv[])
           TEST.run<void (   AI),  void       ( rrPI)  >(L_, NO );
           TEST.run<void (   AI),  void       (rrPcI)  >(L_, !(MSVC
                                                               || CLANG
-                                                              || GNU_10
-                                                              || GNU_11));
+                                                              || GNU_10PLUS));
           TEST.run<void (  AcI),  void       (   PI)  >(L_, NO );
           TEST.run<void (  AcI),  void       (  PcI)  >(L_, YES);
           TEST.run<void (  AcI),  void       (  rPI)  >(L_, NO );

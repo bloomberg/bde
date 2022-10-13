@@ -324,15 +324,13 @@ struct EqPred
                      // ==================================
 
 class IncompleteTypeSupportChecker {
-    // This class is intended to test the support of incomplete types by public
-    // methods of 'bsl::vector'.  The interface completely copies the existing
+    // This class tests that 'bsl::vector' can be instantiated using an
+    // incomplete type and that methods within that incomplete type can
+    // reference such a 'vector'.  The interface completely copies the existing
     // 'bsl::vector' interface and the only purpose of the functions is to call
     // the corresponding methods of the vector parameterized by the incomplete
-    // type.  Therefore function-level documentation differs from that
-    // described in the standard.  To preserve type incompleteness we have to
-    // implement all public methods inline.  Each method increases its own
-    // invocation counter so we can make sure that each method is compiled and
-    // called.
+    // type.  Each method increases its own invocation counter so we can make
+    // sure that each method is compiled and called.
 
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil                      MoveUtil;
@@ -354,13 +352,9 @@ class IncompleteTypeSupportChecker {
 
   private:
     // CLASS DATA
-    static const int        s_numFunctions;          // number of public
-                                                     // methods
-
-    static bsl::vector<int> s_functionCallCounters;  // counters storing the
-                                                     // number of each function
-                                                     // calls
-
+    static int const s_numFunctions;            // number of public methods
+    static int       s_functionCallCounters[];  // number of times each
+                                                // public method is called
     // DATA
     VectorType d_vector;  // underlying vector parameterized with incomplete
                           // type
@@ -387,7 +381,7 @@ class IncompleteTypeSupportChecker {
         s_functionCallCounters[0]++;
     }
 
-    explicit IncompleteTypeSupportChecker(allocator_type& basicAllocator)
+    explicit IncompleteTypeSupportChecker(const allocator_type& basicAllocator)
         // Call 'bsl::vector' constructor passing the specified
         // 'basicAllocator' as a parameter.
     : d_vector(basicAllocator)
@@ -395,29 +389,36 @@ class IncompleteTypeSupportChecker {
         s_functionCallCounters[1]++;
     }
 
-    explicit IncompleteTypeSupportChecker(size_type initialSize)
+    explicit IncompleteTypeSupportChecker(size_type             initialSize,
+                                          const allocator_type& basicAllocator
+                                                            = allocator_type())
         // Call 'bsl::vector' constructor passing the specified 'initialSize'
-        // as a parameter.
-    : d_vector(initialSize)
+        // and 'basicAllocator' as parameters.
+    : d_vector(initialSize, basicAllocator)
     {
         s_functionCallCounters[2]++;
     }
 
     IncompleteTypeSupportChecker(
-                               size_type                           initialSize,
-                               const IncompleteTypeSupportChecker& value)
-        // Call 'bsl::vector' constructor passing the specified 'initialSize'
-        // and 'value' as parameters.
-    : d_vector(initialSize, value)
+                            size_type                           initialSize,
+                            const IncompleteTypeSupportChecker& value,
+                            const allocator_type&               basicAllocator
+                                                            = allocator_type())
+        // Call 'bsl::vector' constructor passing the specified 'initialSize',
+        // 'value', and 'basicAllocator' as parameters.
+    : d_vector(initialSize, value, basicAllocator)
     {
         s_functionCallCounters[3]++;
     }
 
     template <class INPUT_ITER>
-    IncompleteTypeSupportChecker(INPUT_ITER first, INPUT_ITER last)
-        // Call 'bsl::vector' constructor passing the specified 'first' and
-        // 'last' as parameters.
-    : d_vector(first, last)
+    IncompleteTypeSupportChecker(INPUT_ITER            first,
+                                 INPUT_ITER            last,
+                                 const allocator_type& basicAllocator
+                                                            = allocator_type())
+        // Call 'bsl::vector' constructor passing the specified 'first',
+        // 'last', and 'basicAllocator' as parameters.
+    : d_vector(first, last, basicAllocator)
     {
         s_functionCallCounters[4]++;
     }
@@ -432,7 +433,7 @@ class IncompleteTypeSupportChecker {
 
     IncompleteTypeSupportChecker(
                             const IncompleteTypeSupportChecker& original,
-                            allocator_type&                     basicAllocator)
+                            const allocator_type&               basicAllocator)
         // Call 'bsl::vector' constructor passing the underlying vector of the
         // specified 'original' and the specified 'basicAllocator' as
         // parameters.
@@ -449,8 +450,8 @@ class IncompleteTypeSupportChecker {
         s_functionCallCounters[7]++;
     }
 
-    IncompleteTypeSupportChecker(MovableRef      original,
-                                 allocator_type& basicAllocator)
+    IncompleteTypeSupportChecker(MovableRef            original,
+                                 const allocator_type& basicAllocator)
         // Call 'bsl::vector' constructor passing the specified
         // 'basicAllocator' and passing the underlying vector of the specified
         // movable 'original' as parameters.
@@ -461,11 +462,13 @@ class IncompleteTypeSupportChecker {
     }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    explicit IncompleteTypeSupportChecker(
-                    std::initializer_list<IncompleteTypeSupportChecker> values)
-        // Call 'bsl::vector' constructor passing the specified 'values' as a
-        // parameter.
-    : d_vector(values)
+    IncompleteTypeSupportChecker(
+            std::initializer_list<IncompleteTypeSupportChecker> values,
+            const allocator_type&                               basicAllocator
+                                                            = allocator_type())
+        // Call 'bsl::vector' constructor passing the specified 'values' and
+        // 'basicAllocator' as parameters.
+    : d_vector(values, basicAllocator)
     {
         s_functionCallCounters[9]++;
     }
@@ -959,15 +962,14 @@ bool operator==(const IncompleteTypeSupportChecker& lhs,
                   // class IncompleteTypeSupportChecker
                   // ----------------------------------
 // CLASS DATA
-const int        IncompleteTypeSupportChecker::s_numFunctions = 62;
-bsl::vector<int> IncompleteTypeSupportChecker::s_functionCallCounters(
-                                                                s_numFunctions,
-                                                                0);
+const int IncompleteTypeSupportChecker::s_numFunctions = 62;
+int       IncompleteTypeSupportChecker::s_functionCallCounters[s_numFunctions]
+                                                                         = { };
 
 // CLASS METHODS
 void IncompleteTypeSupportChecker::checkInvokedFunctions()
 {
-    for (std::size_t i = 0; i < s_functionCallCounters.size(); ++i) {
+    for (std::size_t i = 0; i < s_numFunctions; ++i) {
         const size_t INDEX = i;
         ASSERTV(INDEX, 0 < s_functionCallCounters[INDEX]);
     }
@@ -981,7 +983,9 @@ void IncompleteTypeSupportChecker::increaseFunctionCallCounter(
 
 void IncompleteTypeSupportChecker::resetFunctionCallCounters()
 {
-    s_functionCallCounters.assign(s_numFunctions, 0);
+    for (std::size_t i = 0; i < s_numFunctions; ++i) {
+        s_functionCallCounters[i] = 0;
+    }
 }
 
 // ACCESSORS
@@ -5504,10 +5508,10 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsl::vector<IncompleteTypeSupportChecker> source(initialSize);
-            IncompleteTypeSupportChecker              mIT(source.begin(),
-                                                          source.end());
-            const IncompleteTypeSupportChecker&       IT = mIT;            // 4
+            IncompleteTypeSupportChecker        source[initialSize];
+            IncompleteTypeSupportChecker        mIT(source,
+                                                    source + initialSize);
+            const IncompleteTypeSupportChecker& IT = mIT;                  // 4
 
             ASSERT(initialSize == IT.size());
         }
@@ -5569,7 +5573,7 @@ int main(int argc, char *argv[])
             IncompleteTypeSupportChecker               source3;
             IncompleteTypeSupportChecker               source4;
             IncompleteTypeSupportChecker               source5(initialSize);
-            bsl::vector<IncompleteTypeSupportChecker>  source6(initialSize);
+            IncompleteTypeSupportChecker               source6[initialSize];
             IncompleteTypeSupportChecker              *nullPtr = 0;
 
             IncompleteTypeSupportChecker        mIT;
@@ -5602,7 +5606,7 @@ int main(int argc, char *argv[])
             IncompleteTypeSupportChecker::increaseFunctionCallCounter(14);
 #endif
 
-            mIT.assign(source6.begin(), source6.end());                   // 15
+            mIT.assign(source6, source6 + initialSize);                   // 15
 
             ASSERT(initialSize == IT.size());
 
@@ -5687,7 +5691,7 @@ int main(int argc, char *argv[])
             ASSERT(initialSize + 10 == IT.size());
             ASSERT(IT.begin()       == mIter    );
 
-            mIter = mIT.insert(mIT.cbegin(), source6.begin(), source6.end());
+            mIter = mIT.insert(mIT.cbegin(), source6, source6 + initialSize);
                                                                           // 38
             ASSERT(initialSize + 15 == IT.size());
             ASSERT(IT.begin()       == mIter    );

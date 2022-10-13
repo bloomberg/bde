@@ -548,8 +548,6 @@ struct AAModelIsSupported<TYPE, AAModelStl>
     // member.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
@@ -559,13 +557,13 @@ struct AAModelIsSupported<TYPE, AAModelStl>
                 // ========================================
 
 template <class TYPE, class>
-struct bslma::AAModel_HasAllocatorType : bsl::false_type {
+struct AAModel_HasAllocatorType : bsl::false_type {
     // Metafunction yields 'true_type' if 'TYPE::allocator_type' exists; else
     // yields 'false_type'.
 };
 
 template <class TYPE>
-struct bslma::AAModel_HasAllocatorType<TYPE,
+struct AAModel_HasAllocatorType<TYPE,
                               BSLMF_VOIDTYPE(typename TYPE::allocator_type)>
     : bsl::true_type {
     // Specialization for 'TYPE's that *do* have an 'allocator_type' member.
@@ -581,7 +579,7 @@ template <class TYPE,
           class MODEL3,
           class MODEL4,
           class MODEL5>
-struct bslma::AAModel_Imp {
+struct AAModel_Imp {
     // Implementation of 'bslma::AAModel' metafunction.  Tries each of the
     // specified 'MODEL1' to 'MODEL5' template arguments and sets the member
     // 'typedef', 'type', to the first model that is supported by the
@@ -608,7 +606,7 @@ struct bslma::AAModel_Imp {
     typedef typename bsl::conditional<
         AAModelIsSupported<TYPE, MODEL1>::value,
         MODEL1,
-        bslma::AAModel_Imp<TYPE, MODEL2, MODEL3, MODEL4, MODEL5>
+        AAModel_Imp<TYPE, MODEL2, MODEL3, MODEL4, MODEL5>
         >::type::type type;
         // One of 'MODEL1' to 'MODEL5', indicating the model supported by
         // 'TYPE'.  If multiple models are supported, then the first supported
@@ -616,12 +614,13 @@ struct bslma::AAModel_Imp {
 };
 
 template <class TYPE>
-struct bslma::AAModel_Imp<TYPE, void, void, void, void, void> {
+struct AAModel_Imp<TYPE, void, void, void, void, void> {
     // Partial specialization of 'AAModel_Imp' for when none of the supplied
     // models is supported (should never happen).  The nested 'type' alias does
     // not exist in this specialization.
 };
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLMA_AAMODEL)

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jul 13 18:18:20 2022
+// Generated on Thu Sep 22 17:06:46 2022
 // Command line: sim_cpp11_features.pl bslma_stdallocator.h
 
 #ifdef COMPILING_BSLMA_STDALLOCATOR_H
@@ -1097,7 +1097,7 @@ bool operator==(const allocator<TYPE>&         lhs,
                 BloombergLP::bslma::Allocator *rhs);
     // Return 'true' if the specified 'lhs' is a proxy for the specified 'rhs',
     // and 'false' otherwise.  Note that 'rhs' points to a *modifiable*
-    // 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a 'const
+    // 'bslma::Allocator', as 'bsl::allocator' cannot proxy a 'const
     // bslma::Allocator *'
 
 template <class TYPE>
@@ -1106,7 +1106,7 @@ bool operator!=(const allocator<TYPE>&         lhs,
                 BloombergLP::bslma::Allocator *rhs);
     // Return 'true' unless the specified 'lhs' is a proxy for the specified
     // 'rhs', in which case return 'false'.  Note that 'rhs' points to a
-    // *modifiable* 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a
+    // *modifiable* 'bslma::Allocator', as 'bsl::allocator' cannot proxy a
     // 'const bslma::Allocator *'
 template <class TYPE>
 inline
@@ -1114,7 +1114,7 @@ bool operator==(BloombergLP::bslma::Allocator *lhs,
                 const allocator<TYPE>&         rhs);
     // Return 'true' if the specified 'rhs' is a proxy for the specified 'lhs',
     // and 'false' otherwise.  Note that 'lhs' points to a *modifiable*
-    // 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a 'const
+    // 'bslma::Allocator', as 'bsl::allocator' cannot proxy a 'const
     // bslma::Allocator *'
 
 template <class TYPE>
@@ -1123,7 +1123,7 @@ bool operator!=(BloombergLP::bslma::Allocator *lhs,
                 const allocator<TYPE>&         rhs);
     // Return 'true' unless the specified 'rhs' is a proxy for the specified
     // 'lhs', in which case return 'false'.  Note that 'lhs' points to a
-    // *modifiable* 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a
+    // *modifiable* 'bslma::Allocator', as 'bsl::allocator' cannot proxy a
     // 'const bslma::Allocator *'
 
 // ============================================================================
