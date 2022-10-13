@@ -114,7 +114,6 @@ static bool veryVeryVeryVerbose;
 
 typedef bsl::pair<int, int> pair_type;
 
-BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::identity<int> >::value));
 BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::select1st<pair_type> >::value));
 BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::select2nd<pair_type> >::value));
 BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::StringComparator>::value));

@@ -163,37 +163,6 @@ class binary_compose
 };
 
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
-
-// This definition of 'identity' conflicts with that in the C++20 standard
-// library.
-
-                            // ===================
-                            // class bsl::identity
-                            // ===================
-
-#define BSLSTP_DEPRECATE_IDENTITY \
-BSLS_DEPRECATE_FEATURE("bsl", "stlport_identity", "Use bslstp::Identity.")
-
-template <class TYPE>
-struct BSLSTP_DEPRECATE_IDENTITY identity
-{
-    // public type names
-    typedef TYPE argument_type;
-    typedef TYPE result_type;
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(identity, bsl::is_trivially_copyable);
-
-    // ACCESSORS
-    const TYPE& operator()(const TYPE& x) const
-    {
-        return x;
-    }
-};
-
-#endif
-
                     // ====================
                     // class bsl::select1st
                     // ====================
