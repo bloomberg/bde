@@ -5,6 +5,9 @@ bdlb_bitmaskutil
 bdlb_bitstringimputil
 bdlb_bitstringutil
 bdlb_bitutil
+bdlb_caselessstringviewequalto
+bdlb_caselessstringviewhash
+bdlb_caselessstringviewless
 bdlb_chartype
 bdlb_cstringequalto
 bdlb_cstringhash
