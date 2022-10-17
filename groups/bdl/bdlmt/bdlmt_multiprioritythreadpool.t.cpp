@@ -21,6 +21,8 @@
 #include <bslmt_mutex.h>
 #include <bslmt_qlock.h>
 #include <bslmt_testutil.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
@@ -418,7 +420,7 @@ enum {
     NUM_PRIORITIES = 2,
     PRIORITY_MASK = 1,
     NUM_POOL_THREADS = 2,
-    NUM_PRODUCER_THREADS = 25
+    NUM_PRODUCER_THREADS = 15
 };
 
 struct Worker {
@@ -904,7 +906,7 @@ int main(int argc, char *argv[])
         bdlcc::Queue<Worker> doneQueue(&ta);
         Worker::s_doneQueue = &doneQueue;
 
-        const int NUM_WORKERS_PER_PRODUCER = 1000;
+        const int NUM_WORKERS_PER_PRODUCER = 500;
 
         bdlmt::MultipriorityThreadPool pool(NUM_POOL_THREADS,
                                             NUM_PRIORITIES,
@@ -1511,7 +1513,10 @@ int main(int argc, char *argv[])
         ASSERT(!pool.isSuspended());
         checkOutPool(&pool);
 
-        ASSERT(0 == pool.startThreads());
+        if (pool.startThreads()) {
+            bslmt::ThreadUtil::microSleep(250000);  // 250 milliseconds
+            ASSERT(0 == pool.startThreads());
+        }
 
         ASSERT(pool.isStarted());
         ASSERT(!pool.isSuspended());
@@ -1680,7 +1685,10 @@ int main(int argc, char *argv[])
                         memset(resultsVec, 0, sizeof(resultsVec));
                         resultsVecIdx = 0;
 
-                        ASSERT(0 == pool->startThreads());
+                        if (pool->startThreads()) {
+                            bslmt::ThreadUtil::microSleep(250000);  // 250 ms
+                            ASSERT(0 == pool->startThreads());
+                        }
 
                         for (long i = 0; 10 > i; ++i) {
                             int sts = pool->enqueueJob(&pushInt,
