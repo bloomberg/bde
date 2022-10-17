@@ -14,6 +14,8 @@
 #include <bdlt_datetimetz.h>
 #include <bdlt_iso8601util.h>
 
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
@@ -29,6 +31,7 @@
 #include <bsl_iostream.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_fuzztest.h>
 #include <bsls_types.h>
 
 using namespace BloombergLP;
@@ -865,6 +868,141 @@ static bdlt::Datetime toDatetime(const char *iso8601TimeString)
                                   len);
     BSLS_ASSERT(0 == rc);
     return time;
+}
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+// ============================================================================
+//                          FUZZ TEST GLOBAL CONSTANTS
+// ----------------------------------------------------------------------------
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    bslim::FuzzDataView fdv(data, size);
+
+    int test = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 0, 99);
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'TimeZoneUtil::convertLocalToUtc'
+        //
+        // Concern:
+        //: 1 That in-contract invocation of 'convertLocalToUtc' with a
+        //:   'Datetime' object and a timezone id created from fuzz data
+        //:    succeeds.
+        //
+        // Plan:
+        //: 1 Create 8 integers from fuzz data.
+        //:
+        //: 2 Create and initialize a 'Datetime' object from the created
+        //:   integers by invoking 'setYearMonthDay' and 'setTime'.
+        //:
+        //: 3 Create an integer between 0 and 5 from fuzz data, and use it to
+        //:   select a timezone from a fixed-size array of timezone strings.
+        //:
+        //: 4 Invoke 'convertLocalToUtc' with the created 'Datetime' object and
+        //:   the selected timezone id inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   bool convertLocalToUtc(Dt*, Dt&, char*, DstPolicy::Enum);
+        // --------------------------------------------------------------------
+
+        const char* tzArray[] = {NY, RY, SA, GMT, GP1, GM1};
+        enum { NUM_TZ = sizeof tzArray / sizeof *tzArray };
+
+        int month = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int year  = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int day   = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+
+        int hour   = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int minute = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int second = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int millisecond =
+            bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int microsecond =
+            bslim::FuzzUtil::consumeNumber<int>(&fdv);
+
+        int tz =
+            bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 0, NUM_TZ - 1);
+
+        bdlt::Datetime result;
+        {
+            bsls::FuzzTestHandlerGuard hG;
+            bdlt::Datetime             datetime;
+
+            BSLS_FUZZTEST_EVALUATE_RAW(datetime.setYearMonthDay(year,
+                                                                month,
+                                                                day));
+            BSLS_FUZZTEST_EVALUATE_RAW(datetime.setTime(hour,
+                                                        minute,
+                                                        second,
+                                                        millisecond,
+                                                        microsecond));
+            BSLS_FUZZTEST_EVALUATE(
+                       Obj::convertLocalToUtc(&result, datetime, tzArray[tz]));
+        }
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'TimeZoneUtil::convertLocalToUtc'
+        //
+        // Concern:
+        //: 1 That in-contract invocation of 'convertLocalToUtc' with a
+        //:   'Datetime' object and a timezone id created from fuzz data
+        //:    succeeds.
+        //
+        // Plan:
+        //: 1 Create 3 integers from fuzz data.
+        //:
+        //: 2 Create and initialize a 'Datetime' object from the created
+        //:   integers by invoking 'setYearMonthDay'.
+        //:
+        //: 3 Invoke 'convertLocalToUtc' with the created 'Datetime' object and
+        //:   "NY" timezone id inside the 'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   bool convertLocalToUtc(Dt*, Dt&, char*, DstPolicy::Enum);
+        // --------------------------------------------------------------------
+
+        int month = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int year  = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        int day   = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+
+        bdlt::Datetime result;
+        {
+            bsls::FuzzTestHandlerGuard hG;
+            bdlt::Datetime             datetime;
+            BSLS_FUZZTEST_EVALUATE_RAW(
+                datetime.setYearMonthDay(year, month, day));
+            BSLS_FUZZTEST_EVALUATE(
+                Obj::convertLocalToUtc(&result, datetime, NY));
+        }
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
 }
 
 // ============================================================================

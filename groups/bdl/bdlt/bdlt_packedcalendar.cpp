@@ -572,7 +572,9 @@ PackedCalendar::PackedCalendar(const Date&       firstDate,
 , d_holidayCodes(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT(firstDate <= lastDate);
+    BSLS_PRECONDITIONS_END();
     if (firstDate > lastDate) {
         d_firstDate = Date(9999, 12, 31);
         d_lastDate  = Date(   1,  1,  1);
@@ -652,9 +654,11 @@ void PackedCalendar::addHolidayCode(const Date& date, int holidayCode)
 
 void PackedCalendar::addWeekendDay(DayOfWeek::Enum weekendDay)
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT(d_weekendDaysTransitions.empty()
                 || (1           == d_weekendDaysTransitions.size() &&
                     Date(1,1,1) == d_weekendDaysTransitions[0].first));
+    BSLS_PRECONDITIONS_END();
 
     if (d_weekendDaysTransitions.empty()) {
         DayOfWeekSet weekendDays;
@@ -863,7 +867,9 @@ void PackedCalendar::removeHolidayCode(const Date& date, int holidayCode)
 
 void PackedCalendar::setValidRange(const Date& firstDate, const Date& lastDate)
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT(firstDate <= lastDate);
+    BSLS_PRECONDITIONS_END();
 
     if (firstDate > lastDate
      || lastDate < d_firstDate

@@ -477,6 +477,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_assert.h>
+#include <bsls_preconditions.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
@@ -1512,7 +1513,9 @@ void Calendar::reserveHolidayCodeCapacity(int numHolidayCodes)
 inline
 void Calendar::setValidRange(const Date& firstDate, const Date& lastDate)
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT(firstDate <= lastDate);
+    BSLS_PRECONDITIONS_END();
 
     if (firstDate <= lastDate) {
         // For backwards compatibility, 'firstDate > lastDate' results in an
@@ -1560,10 +1563,10 @@ inline
 void Calendar::swap(Calendar& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
-
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT(d_packedCalendar.allocator() ==
                                            other.d_packedCalendar.allocator());
-
+    BSLS_PRECONDITIONS_END();
     bslalg::SwapUtil::swap(&d_packedCalendar,  &other.d_packedCalendar);
     bslalg::SwapUtil::swap(&d_nonBusinessDays, &other.d_nonBusinessDays);
 }
@@ -1586,7 +1589,9 @@ inline
 Calendar::BusinessDayConstIterator
                             Calendar::beginBusinessDays(const Date& date) const
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_PRECONDITIONS_END();
 
     return Calendar_BusinessDayConstIter(d_nonBusinessDays,
                                          firstDate(),
@@ -1646,7 +1651,9 @@ inline
 Calendar::BusinessDayConstIterator
                               Calendar::endBusinessDays(const Date& date) const
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_PRECONDITIONS_END();
 
     return BusinessDayConstIterator(d_nonBusinessDays,
                                     firstDate(),
@@ -1696,9 +1703,11 @@ const Date& Calendar::firstDate() const
 inline
 int Calendar::getNextBusinessDay(Date *nextBusinessDay, const Date& date) const
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(nextBusinessDay);
     BSLS_ASSERT_SAFE(Date(9999, 12, 31) > date);
     BSLS_ASSERT_SAFE(isInRange(date + 1));
+    BSLS_PRECONDITIONS_END();
 
     enum { e_SUCCESS = 0, e_FAILURE = 1 };
 
@@ -1746,7 +1755,9 @@ bool Calendar::isInRange(const Date& date) const
 inline
 bool Calendar::isNonBusinessDay(const Date& date) const
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_PRECONDITIONS_END();
 
     return d_nonBusinessDays[date - firstDate()];
 }
@@ -1784,9 +1795,11 @@ int Calendar::numBusinessDays() const
 inline
 int Calendar::numBusinessDays(const Date& beginDate, const Date& endDate) const
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(isInRange(beginDate));
     BSLS_ASSERT_SAFE(isInRange(endDate));
     BSLS_ASSERT_SAFE(beginDate <= endDate);
+    BSLS_PRECONDITIONS_END();
 
     return static_cast<int>(d_nonBusinessDays.num0(beginDate - firstDate(),
                                                    endDate - firstDate() + 1));

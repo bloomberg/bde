@@ -125,6 +125,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_preconditions.h>
 #include <bsls_types.h>
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -1192,7 +1193,9 @@ inline BSLS_KEYWORD_CONSTEXPR_CPP14
 void TimeInterval::setInterval(bsls::Types::Int64 seconds,
                                int                nanoseconds)
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT(isValid(seconds, nanoseconds));
+    BSLS_PRECONDITIONS_END();
 
     d_seconds = seconds;
     if (nanoseconds >= k_NANOSECS_PER_SEC

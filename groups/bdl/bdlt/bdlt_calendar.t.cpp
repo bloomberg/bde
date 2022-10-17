@@ -1,8 +1,12 @@
 // bdlt_calendar.t.cpp                                                -*-C++-*-
 #include <bdlt_calendar.h>
 
+#include <bdlt_fuzzutil.h>
+
 #include <bslalg_swaputil.h>
 
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -14,6 +18,7 @@
 #include <bslmf_issame.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_fuzztest.h>
 #include <bsls_review.h>
 
 #include <bslx_byteinstream.h>
@@ -1140,6 +1145,391 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 //..
 
 // ***--- moved into Case 30 ---***
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+//'LLVMFuzzerTestOneInput' is the entry point for the clang fuzz testing
+// facility.  See {http://bburl/BDEFuzzTesting} for details on how to build and
+// run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+void resetCalendar(Obj *calendar, bslim::FuzzDataView *fdv)
+    // Reinitialize the specified 'calendar' object with the specified 'fdv'.
+{
+    bsls::FuzzTestHandlerGuard hG;
+    calendar->removeAll();
+
+    // Date range from fuzz data
+    bdlt::Date date1 = bdlt::FuzzUtil::consumeDate(fdv);
+    bdlt::Date date2 = bdlt::FuzzUtil::consumeDate(fdv);
+    BSLS_FUZZTEST_EVALUATE(calendar->setValidRange(date1, date2));
+}
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    // Because 'Calendar::~Calendar' is time consuming due to its invocation of
+    // 'Calendar::isCacheSynchronized', employ a 'static' object.
+    static Obj calendar;
+
+    bslim::FuzzDataView fdv(data, size);
+
+    int test = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 0, 99);
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 10: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::isWeekendDay'
+        //
+        // Concern:
+        //: 1 That invoking 'isWeekendDay' after weekend-days transitions were
+        //:   added via the 'addWeekendDaysTransition' method results in a
+        //:   precondition violation.
+        //
+        // Plan:
+        //: 1 Reset the global 'Calendar' object.
+        //:
+        //: 2 Create 'Date' and 'DayOfWeekSet' objects from fuzz data.
+        //:
+        //: 3 Invoke 'addWeekendDaysTransition' with the created 'Date' and
+        //:   'DayOfWeekSet' objects.
+        //:
+        //: 4 Create a 'DayOfWeek' 'enum' from fuzz data and invoke
+        //:   'isWeekendDay' with the created 'enum' inside the
+        //:   'ASSERT_FAIL_RAW' macro.
+        //
+        // Testing:
+        //   bool Calendar::isWeekendDay(DayOfWeek::Enum weekendDay);
+        // --------------------------------------------------------------------
+
+        resetCalendar(&calendar, &fdv);
+        bsls::AssertTestHandlerGuard g;
+
+        // Note that 'consumeDateInRange' is used to avoid invoking
+        // 'addWeekendDaysTransition' with date (1, 1, 1) to ensure
+        // 'isWeekendDay' fails.
+        bdlt::Date begin(1, 1, 2);
+        bdlt::Date end(9999, 12, 31);
+        bdlt::Date startDate = bdlt::FuzzUtil::consumeDateInRange(&fdv, begin,
+                                                                          end);
+
+        bdlt::DayOfWeekSet    dayOfWeekSet;
+        bdlt::DayOfWeek::Enum weekendDay = static_cast<bdlt::DayOfWeek::Enum>(
+            bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 7));
+        dayOfWeekSet.add(weekendDay);
+        bdlt::DayOfWeek::Enum dayOfWeek =
+            static_cast<bdlt::DayOfWeek::Enum>(
+                bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 7));
+
+        calendar.addWeekendDaysTransition(startDate, dayOfWeekSet);
+        ASSERT_FAIL_RAW(calendar.isWeekendDay(dayOfWeek));
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::addWeekendDay'
+        //
+        // Concerns:
+        //: 1 That invoking 'addWeekendDay' after weekend-days transitions were
+        //:   added via the 'addWeekendDaysTransition' method results in a
+        //:   precondition violation.
+        //:
+        // Plan:
+        //: 1 Reset the global 'Calendar' object.
+        //:
+        //: 2 Create 'Date' and 'DayOfWeekSet' objects from fuzz data.
+        //:
+        //: 3 Invoke 'addWeekendDaysTransition' with the created 'Date' and
+        //:   'DayOfWeekSet' objects.
+        //:
+        //: 4 Create a 'DayOfWeek' 'enum' from fuzz data and invoke
+        //:   'addWeekendDay' with the created 'enum' inside the
+        //:   'ASSERT_FAIL_RAW' macro.
+        //
+        // Testing:
+        //   void Calendar::addWeekendDay(DayOfWeek::Enum weekendDay);
+        // --------------------------------------------------------------------
+
+        resetCalendar(&calendar, &fdv);
+        bsls::AssertTestHandlerGuard g;
+
+        // Note that 'consumeDateInRange' is used to avoid invoking
+        // 'addWeekendDaysTransition' with date (1, 1, 1) to ensure
+        // 'addWeekendDay' fails.
+        bdlt::Date begin(1, 1, 2);
+        bdlt::Date end(9999, 12, 31);
+        bdlt::Date startDate = bdlt::FuzzUtil::consumeDateInRange(&fdv, begin,
+                                                                          end);
+
+        bdlt::DayOfWeekSet    dayOfWeekSet;
+        bdlt::DayOfWeek::Enum weekendDay = static_cast<bdlt::DayOfWeek::Enum>(
+            bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 7));
+        dayOfWeekSet.add(weekendDay);
+        bdlt::DayOfWeek::Enum dayOfWeek =
+            static_cast<bdlt::DayOfWeek::Enum>(
+                bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 7));
+
+        calendar.addWeekendDaysTransition(startDate, dayOfWeekSet);
+        ASSERT_FAIL_RAW(calendar.addWeekendDay(dayOfWeek));
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::numBusinessDays'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'numBusinessDays' with two 'Date'
+        //:   objects created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Reset the 'calendar' object.
+        //:
+        //: 2 Create two 'Date' objects from fuzz data.
+        //:
+        //: 3 Invoke 'numBusinessDays' with the 'Date' objects inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   int Calendar::numBusinessDays(const Date&, const Date&) const;
+        // --------------------------------------------------------------------
+
+        resetCalendar(&calendar, &fdv);
+        bsls::FuzzTestHandlerGuard hG;
+        bdlt::Date                 date1 = bdlt::FuzzUtil::consumeDate(&fdv);
+        bdlt::Date                 date2 = bdlt::FuzzUtil::consumeDate(&fdv);
+        BSLS_FUZZTEST_EVALUATE(calendar.numBusinessDays(date1, date2));
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::isNonBusinessDay'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'isNonBusinessDay' with a 'Date'
+        //:   object created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Reset the 'calendar' object.
+        //:
+        //: 2 Create a 'Date' object from fuzz data.
+        //:
+        //: 3 Invoke 'isNonBusinessDay' with the 'Date' object inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   bool Calendar::isNonBusinessDay(const Date& date) const;
+        // --------------------------------------------------------------------
+
+        resetCalendar(&calendar, &fdv);
+        bsls::FuzzTestHandlerGuard hG;
+        bdlt::Date                 date1 = bdlt::FuzzUtil::consumeDate(&fdv);
+        BSLS_FUZZTEST_EVALUATE(calendar.isNonBusinessDay(date1));
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::getNextBusinessDay'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'getNextBusinessDay' with a 'Date'
+        //:   object created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Reset the 'calendar' object.
+        //:
+        //: 2 Create a 'Date' object from fuzz data, and another to hold the
+        //:   returned 'Date'.
+        //:
+        //: 3 Invoke 'getNextBusinessDay' with the 'Date' objects inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   int Calendar::getNextBusinessDay(Date *nd, const Date& date) const
+        // --------------------------------------------------------------------
+
+        resetCalendar(&calendar, &fdv);
+        bsls::FuzzTestHandlerGuard hG;
+        bdlt::Date                 date = bdlt::FuzzUtil::consumeDate(&fdv);
+        bdlt::Date                 dateReturn;
+        BSLS_FUZZTEST_EVALUATE(calendar.getNextBusinessDay(&dateReturn, date));
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::endBusinessDays'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'endBusinessDays' with a 'Date'
+        //:   object created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Reset the 'calendar' object.
+        //:
+        //: 2 Create a 'Date' object from fuzz data.
+        //:
+        //: 3 Invoke 'endBusinessDays' with the 'Date' object inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   BusinessDayConstIterator endBusinessDays(const Date& date) const
+        // --------------------------------------------------------------------
+
+        resetCalendar(&calendar, &fdv);
+        bsls::FuzzTestHandlerGuard hG;
+        bdlt::Date                 date1 = bdlt::FuzzUtil::consumeDate(&fdv);
+        BSLS_FUZZTEST_EVALUATE(calendar.endBusinessDays(date1));
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::beginBusinessDays'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'beginBusinessDays' with a 'Date'
+        //:   object created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Reset the 'calendar' object.
+        //:
+        //: 2 Create a 'Date' object from fuzz data.
+        //:
+        //: 3 Invoke 'beginBusinessDays' with the 'Date' object inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   BusinessDayConstIterator beginBusinessDays(const Date& date) const
+        // --------------------------------------------------------------------
+
+        resetCalendar(&calendar, &fdv);
+        bsls::FuzzTestHandlerGuard hG;
+        bdlt::Date                 date1 = bdlt::FuzzUtil::consumeDate(&fdv);
+        BSLS_FUZZTEST_EVALUATE(calendar.beginBusinessDays(date1));
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::setValidRange'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'setValidRange' with two 'Date'
+        //:   objects created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Clear the 'calendar' object.
+        //:
+        //: 2 Create two 'Date' objects from fuzz data.
+        //:
+        //: 3 Invoke 'setValidRange' with the 'Date' objects inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   void Calendar::setValidRange(const Date& date1, const Date& date2)
+        // --------------------------------------------------------------------
+
+        calendar.removeAll();
+        bsls::FuzzTestHandlerGuard hG;
+        bdlt::Date                 date1 = bdlt::FuzzUtil::consumeDate(&fdv);
+        bdlt::Date                 date2 = bdlt::FuzzUtil::consumeDate(&fdv);
+        BSLS_FUZZTEST_EVALUATE(calendar.setValidRange(date1, date2));
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::swap'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'swap' on 'Calendar' objects
+        //:   created with the same allocator succeeds.
+        //:
+        //: 2 That in-contract invocation of 'swap' on 'Calendar' objects
+        //:   created with different allocators succeeds.
+        //
+        // Plan:
+        //: 1 Create two 'Calendar' objects with the same allocator.
+        //:
+        //: 2 Swap the calendars inside the 'BSLS_FUZZTEST_EVALUATE' macro.
+        //:
+        //: 3 Create two 'Calendar' objects with different allocators.
+        //:
+        //: 4 Swap the calendars inside the 'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   void Calendar::swap(const Date& date1, const Date& date2)
+        // --------------------------------------------------------------------
+
+        {
+            bsls::FuzzTestHandlerGuard hG;
+
+            bslma::TestAllocator oa1("object1");
+
+            Obj mA(&oa1);
+            Obj mB(&oa1);
+
+            BSLS_FUZZTEST_EVALUATE(mA.swap(mB));
+        }
+        {
+            bsls::FuzzTestHandlerGuard hG;
+
+            bslma::TestAllocator oa1("object1");
+            bslma::TestAllocator oa2("object2");
+
+            Obj mC(&oa1);
+            Obj mZ(&oa2);
+
+            BSLS_FUZZTEST_EVALUATE(mC.swap(mZ));
+        }
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Calendar::~Calendar'
+        //
+        // Concerns:
+        //: 1 That upon destruction, no precondition violation occur other than
+        //:   from this function's preconditions (i.e., one explicitly checked
+        //:   in the function implementation).
+        //
+        // Plan:
+        //: 1 Create a 'Calendar' object employing each of the three
+        //:   constructors inside the 'BSLS_FUZZTEST_EVALUATE' and
+        //:   'BSLS_FUZZTEST_EVALUATE_RAW' macros.
+        //
+        // Testing:
+        //   Calendar::~Calendar
+        // --------------------------------------------------------------------
+        {
+            bsls::FuzzTestHandlerGuard hG;
+            BSLS_FUZZTEST_EVALUATE({Obj c1;});
+        }
+        {
+            bsls::FuzzTestHandlerGuard hG;
+
+            bdlt::Date date1 = bdlt::FuzzUtil::consumeDate(&fdv);
+            bdlt::Date date2 = bdlt::FuzzUtil::consumeDate(&fdv);
+            BSLS_FUZZTEST_EVALUATE_RAW({Obj c2(date1, date2);});
+        }
+        {
+            bsls::FuzzTestHandlerGuard hG;
+
+            bdlt::Date date1 = bdlt::FuzzUtil::consumeDate(&fdv);
+            bdlt::Date date2 = bdlt::FuzzUtil::consumeDate(&fdv);
+
+            bdlt::PackedCalendar packedCalendar;
+            BSLS_FUZZTEST_EVALUATE_RAW(
+                packedCalendar.setValidRange(date1, date2));
+            BSLS_FUZZTEST_EVALUATE({Obj c3(packedCalendar);});
+        }
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
+}
 
 // ============================================================================
 //                              MAIN PROGRAM

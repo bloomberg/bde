@@ -16,6 +16,8 @@ BSLS_IDENT_RCSID(baltzo_timezoneutil_cpp,"$Id$ $CSID$")
 #include <bsls_timeinterval.h>
 #include <bdlt_intervalconversionutil.h>
 
+#include <bsls_preconditions.h>
+
 namespace BloombergLP {
 namespace baltzo {
 
@@ -172,8 +174,10 @@ int TimeZoneUtil::convertLocalToUtc(bdlt::Datetime        *result,
                                     const char            *timeZoneId,
                                     DstPolicy::Enum        dstPolicy)
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
+    BSLS_PRECONDITIONS_END();
 
     bdlt::DatetimeTz localTimeTz;
     const int rc = initLocalTime(&localTimeTz,

@@ -138,7 +138,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     // this component and return zero.
 {
     bslim::FuzzDataView fdv(data, size);
-    int test = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 1);
+
+    int test = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 0, 99);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {

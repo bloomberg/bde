@@ -253,6 +253,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_preconditions.h>
 #include <bsls_review.h>
 #include <bsls_stackaddressutil.h>
 #include <bsls_timeinterval.h>
@@ -1466,7 +1467,9 @@ int Datetime::setYearDayIfValid(int year, int dayOfYear)
 inline
 void Datetime::setYearMonthDay(int year, int month, int day)
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(Date::isValidYearMonthDay(year, month, day));
+    BSLS_PRECONDITIONS_END();
 
     setDate(Date(year, month, day));
 }
@@ -1504,6 +1507,7 @@ void Datetime::setTime(int hour,
                        int millisecond,
                        int microsecond)
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(
                (0 <= hour      && hour   < bdlt::TimeUnitRatio::k_H_PER_D_32 &&
                 0 <= minute    && minute < bdlt::TimeUnitRatio::k_M_PER_H_32 &&
@@ -1517,6 +1521,7 @@ void Datetime::setTime(int hour,
                 0                                 == second &&
                 0                                 == millisecond &&
                 0                                 == microsecond));
+    BSLS_PRECONDITIONS_END();
 
     d_value = updatedRepresentation();
 

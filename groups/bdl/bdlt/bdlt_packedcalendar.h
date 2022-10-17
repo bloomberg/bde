@@ -495,6 +495,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_assert.h>
+#include <bsls_preconditions.h>
 #include <bsls_review.h>
 
 #include <bsl_cstddef.h>
@@ -2920,7 +2921,9 @@ bool PackedCalendar::isNonBusinessDay(const Date& date) const
 inline
 bool PackedCalendar::isWeekendDay(DayOfWeek::Enum dayOfWeek) const
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
+    BSLS_PRECONDITIONS_END();
 
     if (d_weekendDaysTransitions.empty()) {
         return false;                                                 // RETURN

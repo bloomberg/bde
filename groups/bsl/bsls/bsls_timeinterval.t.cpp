@@ -5,6 +5,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
+#include <bsls_fuzztest.h>
 #include <bsls_keyword.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
@@ -1535,6 +1536,106 @@ int ByteOutStream::length() const
 }
 
 typedef ByteOutStream Out;
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    size_t      LENGTH = size;
+    int         test;
+
+    if (data && LENGTH) {
+        test = 1 + static_cast<unsigned char>(*data) % 99;
+        ++data;
+        --LENGTH;
+    }
+    else {
+        test = 0;
+    }
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 1: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'TimeInterval::addInterval'
+        //
+        // Concerns:
+        //: 1 That in-contract invocation of 'addInterval' with an 'Int64' and
+        //:   an integer created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Create two 'Int64' values from fuzz data.
+        //:
+        //: 2 Create two 'int' values from fuzz data.
+        //:
+        //: 3 Create a 'TimeInterval' object.
+        //:
+        //: 4 Invoke 'setInterval' on the 'TimeInterval' object with one pair
+        //:   of 'Int64' and 'int' values inside the 'BSLS_FUZZTEST_EVALUATE'
+        //:   macro.
+        //:
+        //: 5 Invoke 'addInterval' on the 'TimeInterval' object with the other
+        //:   pair of 'Int64' and 'int' values inside the
+        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   TimeInterval::addInterval(bsls::Types::Int64 secs, int nanosecs)
+        // --------------------------------------------------------------------
+
+        size_t minLength = 2 * (sizeof(bsls::Types::Int64) + sizeof(int));
+
+        if (LENGTH < minLength) {
+            return 0;                                                 // RETURN
+        }
+
+        bsls::Types::Int64  seconds1, seconds2;
+        int                 nanoseconds1, nanoseconds2;
+
+        memcpy(&seconds1, data, sizeof(bsls::Types::Int64));
+        data += sizeof(bsls::Types::Int64);
+
+        memcpy(&seconds2, data, sizeof(bsls::Types::Int64));
+        data += sizeof(bsls::Types::Int64);
+
+        memcpy(&nanoseconds1, data, sizeof(int));
+        data += sizeof(int);
+
+        memcpy(&nanoseconds2, data, sizeof(int));
+        data += sizeof(int);
+
+        {
+            bsls::FuzzTestHandlerGuard hG;
+
+            Obj ti;
+
+            BSLS_FUZZTEST_EVALUATE(ti.setInterval(seconds1, nanoseconds1));
+            BSLS_FUZZTEST_EVALUATE(ti.addInterval(seconds2, nanoseconds2));
+        }
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM

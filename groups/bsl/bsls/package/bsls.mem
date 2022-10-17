@@ -47,6 +47,8 @@ bsls_cpp11
 bsls_deprecate
 bsls_deprecatefeature
 bsls_exceptionutil
+bsls_fuzztest
+bsls_fuzztestpreconditionexception
 bsls_ident
 bsls_int64
 bsls_keyword
@@ -65,6 +67,7 @@ bsls_performancehint
 bsls_platform
 bsls_platformutil
 bsls_pointercastutil
+bsls_preconditions
 bsls_protocoltest
 bsls_review
 bsls_review_macroreset

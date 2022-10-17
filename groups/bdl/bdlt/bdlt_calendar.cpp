@@ -151,7 +151,9 @@ Calendar::Calendar(const Calendar& original, bslma::Allocator *basicAllocator)
 
 Calendar::~Calendar()
 {
+    BSLS_PRECONDITIONS_BEGIN();
     BSLS_ASSERT_SAFE(isCacheSynchronized());
+    BSLS_PRECONDITIONS_END();
 }
 
 // MANIPULATORS

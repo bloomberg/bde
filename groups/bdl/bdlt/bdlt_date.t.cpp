@@ -1,6 +1,8 @@
 // bdlt_date.t.cpp                                                    -*-C++-*-
 #include <bdlt_date.h>
 
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -8,6 +10,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_fuzztest.h>
 #include <bsls_review.h>
 
 #include <bslx_byteinstream.h>
@@ -331,6 +334,61 @@ const AltDataRow ALT_DATA[] =
 #endif
 };
 const int ALT_NUM_DATA = static_cast<int>(sizeof ALT_DATA / sizeof *ALT_DATA);
+
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    bslim::FuzzDataView fdv(data, size);
+
+    int test = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 0, 99);
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 1: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'Date::setYearMonthDay'
+        //
+        // Concern:
+        //: 1 That in-contract invocation of 'setYearMonthDay' with three
+        //:   integers created from fuzz data succeeds.
+        //
+        // Plan:
+        //: 1 Create 3 integers from fuzz data.
+        //:
+        //: 2 Create a 'Date' object.
+        //:
+        //: 2 Invoke 'setYearMonthDay' on the 'Date' object with the 3 integers
+        //:   inside the 'BSLS_FUZZTEST_EVALUATE' macro.
+        //
+        // Testing:
+        //   Date::setYearMonthDay(int, int, int)
+        // --------------------------------------------------------------------
+
+        const int year  = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        const int month = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+        const int day   = bslim::FuzzUtil::consumeNumber<int>(&fdv);
+
+        Obj d1;
+
+        bsls::FuzzTestHandlerGuard hG;
+        BSLS_FUZZTEST_EVALUATE(d1.setYearMonthDay(year, month, day));
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
+}
 
 // ============================================================================
 //                              MAIN PROGRAM

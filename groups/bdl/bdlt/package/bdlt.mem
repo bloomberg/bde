@@ -21,6 +21,7 @@ bdlt_defaulttimetablecache
 bdlt_epochutil
 bdlt_fixutil
 bdlt_fixutilconfiguration
+bdlt_fuzzutil
 bdlt_intervalconversionutil
 bdlt_iso8601util
 bdlt_iso8601utilconfiguration
