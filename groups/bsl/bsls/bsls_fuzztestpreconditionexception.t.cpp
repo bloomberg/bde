@@ -144,13 +144,13 @@ int main(int argc, char *argv[])
 // recorded the context of where the assertion failed.
 //..
         catch (const bsls::FuzzTestPreconditionException& exception) {
-            ASSERT(0 == strcmp("0 != p",
-                               exception.assertViolation().comment()));
-            ASSERT(0 == strcmp(__FILE__,
-                               exception.assertViolation().fileName()));
-            ASSERT(9 == __LINE__ - exception.assertViolation().lineNumber());
-            ASSERT(0 == strcmp("LEVEL",
-                               exception.assertViolation().assertLevel()));
+            ASSERT(0  == strcmp("0 != p",
+                                exception.assertViolation().comment()));
+            ASSERT(0  == strcmp(__FILE__,
+                                exception.assertViolation().fileName()));
+            ASSERT(11 == __LINE__ - exception.assertViolation().lineNumber());
+            ASSERT(0  == strcmp("LEVEL",
+                                exception.assertViolation().assertLevel()));
         }
 //..
 #else

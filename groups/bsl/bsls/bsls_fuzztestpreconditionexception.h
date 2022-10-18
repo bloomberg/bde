@@ -49,13 +49,13 @@ BSLS_IDENT("$Id: $")
 // recorded the context of where the assertion failed.
 //..
 //      catch (const bsls::FuzzTestPreconditionException& exception) {
-//          assert(0 == strcmp("0 != p",
-//                             exception.assertViolation().comment()));
-//          assert(0 == strcmp(__FILE__,
-//                             exception.assertViolation().fileName()));
-//          assert(9 == __LINE__ - exception.assertViolation().lineNumber());
-//          assert(0 == strcmp("LEVEL",
-//                             exception.assertViolation().assertLevel()));
+//          assert(0  == strcmp("0 != p",
+//                              exception.assertViolation().comment()));
+//          assert(0  == strcmp(__FILE__,
+//                              exception.assertViolation().fileName()));
+//          assert(11 == __LINE__ - exception.assertViolation().lineNumber());
+//          assert(0  == strcmp("LEVEL",
+//                              exception.assertViolation().assertLevel()));
 //      }
 //..
 
