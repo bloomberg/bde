@@ -1714,7 +1714,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     //:
     //: 6 Hashing works for a hash algorithm that is declared in a namespace
     //:   other than 'std' or 'bslh'.  Especially important in C++17 when
-    //:   stringview lives in 'std'.
+    //:   'string_view' lives in 'std'.
     //
     // Plan:
     //: 1 Create an empty object, a zero-length object and hash them.
