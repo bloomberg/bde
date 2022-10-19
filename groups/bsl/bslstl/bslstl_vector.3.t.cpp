@@ -1284,6 +1284,9 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
     static void testCase24_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
 
+    static void testCase24_move_assignment_noexcept();
+        // Test noexcept specification of the move assignment operator.
+
     static void testCase24_dispatch();
         // Test move assignment operator.
 };
@@ -4672,6 +4675,39 @@ void TestDriver3<TYPE, ALLOC>::testCase25()
 }
 
 template <class TYPE, class ALLOC>
+void TestDriver3<TYPE, ALLOC>::testCase24_move_assignment_noexcept()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE-ASSIGNMENT OPERATOR: NOEXCEPT SPECIFICATION
+    //
+    // Concerns:
+    //: 1 If either 'allocator_traits<Allocator>::
+    //:   propagate_on_container_move_assignment::value' or
+    //:   'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the move assignment operator is 'noexcept(true)'.
+    //
+    // Plan:
+    //: 1 Get ORed value of the both traits.
+    //:
+    //: 2 Compare the value with noexcept specification of the move assignment
+    //:   operator.
+    //
+    // Testing:
+    //   vector& operator=(bslmf::MovableRef<vector> rhs);
+    // ------------------------------------------------------------------------
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    bsl::vector<TYPE, ALLOC> a, b;
+
+    const bool isNoexcept =
+        AllocatorTraits::propagate_on_container_move_assignment::value ||
+        AllocatorTraits::is_always_equal::value;
+    ASSERT(isNoexcept ==
+           BSLS_KEYWORD_NOEXCEPT_OPERATOR(a = bslmf::MovableRefUtil::move(b)));
+#endif
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver3<TYPE, ALLOC>::testCase24_dispatch()
 {
     // ------------------------------------------------------------------------
@@ -4722,6 +4758,10 @@ void TestDriver3<TYPE, ALLOC>::testCase24_dispatch()
     //:
     //:13 Assigning an object to itself behaves as expected (alias-safety).
     //:
+    //:14 If either 'allocator_traits<Allocator>::is_always_equal::value' or
+    //:   'allocator_traits<Allocator>::propagate_on_container_move_assignment
+    //:   ::value' is true, the move assignment operator is 'noexcept(true)'.
+    //
     // Plan:
     //
     //: 1 Use the address of 'operator=' to initialize a member-function
@@ -4780,6 +4820,10 @@ void TestDriver3<TYPE, ALLOC>::testCase24_dispatch()
     //:
     //: 6 Use a test allocator installed as the default allocator to verify
     //:   that no memory is ever allocated from the default allocator.
+    //:
+    //: 7 To address concern 14, pass allocators with all combinations of
+    //:   'is_always_equal' and 'propagate_on_container_move_assignment'
+    //:   values.
     //
     // Testing:
     //   vector& operator=(bslmf::MovableRef<vector> rhs);
@@ -5053,6 +5097,12 @@ void TestDriver3<TYPE, ALLOC>::testCase24_dispatch()
     }
 
     ASSERTV(e_STATEFUL == s_allocCategory || 0 == da.numBlocksTotal());
+
+    // Verify move assignment noexcept specifications for the basic template
+    // and the partial specialization of 'vector' for pointer types.
+
+    TestDriver3<TYPE , ALLOC>::testCase24_move_assignment_noexcept();
+    TestDriver3<TYPE*, ALLOC>::testCase24_move_assignment_noexcept();
 }
 
 template <class TYPE>
@@ -5080,6 +5130,20 @@ void MetaTestDriver3<TYPE>::testCase24()
     TestDriver3<TYPE, A01>::testCase24_dispatch();
     TestDriver3<TYPE, A10>::testCase24_dispatch();
     TestDriver3<TYPE, A11>::testCase24_dispatch();
+
+    // is_always_equal == true &&
+    // propagate_on_container_move_assignment == true
+    TestDriver3<TYPE , StatelessAllocator<TYPE , false, true> >::
+        testCase24_move_assignment_noexcept();
+    TestDriver3<TYPE*, StatelessAllocator<TYPE*, false, true> >::
+        testCase24_move_assignment_noexcept();
+
+    // is_always_equal == true &&
+    // propagate_on_container_move_assignment == false
+    TestDriver3<TYPE , StatelessAllocator<TYPE > >::
+        testCase24_move_assignment_noexcept();
+    TestDriver3<TYPE*, StatelessAllocator<TYPE*> >::
+        testCase24_move_assignment_noexcept();
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD

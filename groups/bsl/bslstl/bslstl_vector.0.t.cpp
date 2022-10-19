@@ -55,6 +55,7 @@
 #include <bslstl_iterator.h>
 
 #include <iterator>   // 'iterator_traits'
+#include <new>        // ::operator new
 #include <stdexcept>  // 'length_error', 'out_of_range'
 #include <utility>    // 'move'
 
@@ -1392,6 +1393,78 @@ void debugprint(const BitwiseNotAssignable& v)
 {
     printf("%d", v.value());
 }
+
+                    // =================================
+                    // template class StatelessAllocator
+                    // =================================
+
+template <class TYPE,
+          bool  PROPAGATE_ON_CONTAINER_SWAP            = false,
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT = false>
+struct StatelessAllocator {
+    // Stateless std allocator with 'is_always_equal == true_type'
+
+    // TYPES
+    typedef TYPE      value_type;
+    typedef size_t    size_type;
+    typedef ptrdiff_t difference_type;
+
+    typedef value_type       *pointer;
+    typedef const value_type *const_pointer;
+
+    template <class OTHER_TYPE>
+    struct rebind {
+        typedef StatelessAllocator<OTHER_TYPE,
+                                   PROPAGATE_ON_CONTAINER_SWAP,
+                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+            other;
+    };
+
+    typedef bsl::true_type is_always_equal;
+    typedef bsl::integral_constant<bool, PROPAGATE_ON_CONTAINER_SWAP>
+        propagate_on_container_swap;
+    typedef bsl::integral_constant<bool,
+                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+        propagate_on_container_move_assignment;
+
+    // CREATORS
+    StatelessAllocator()
+        // Create a 'StatelessAllocator' object.
+    {
+    }
+    template <class OTHER_TYPE>
+    StatelessAllocator(
+             const StatelessAllocator<OTHER_TYPE,
+                                      PROPAGATE_ON_CONTAINER_SWAP,
+                                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>&)
+        // Create a 'StatelessAllocator' object.
+    {
+    }
+
+    // MANIPULATORS
+    pointer allocate(size_type count)
+        // Return a pointer to an uninitialized memory that is enough to store
+        // an array of the specified 'count' objects.
+    {
+        return static_cast<pointer>(::operator new(count *
+                                                   sizeof(value_type)));
+    }
+    void deallocate(pointer address, size_type)
+        // Return the memory at the specified 'address' to this allocator.
+    {
+        ::operator delete(static_cast<void *>(address));
+    }
+
+    // FREE OPERATORS
+    friend bool operator==(StatelessAllocator, StatelessAllocator)
+    {
+        return true;
+    }
+    friend bool operator!=(StatelessAllocator, StatelessAllocator)
+    {
+        return false;
+    }
+};
 
 // TBD: duplicate these types as allocator-aware
 // TBD: duplicate the allocator-aware types for std allocators

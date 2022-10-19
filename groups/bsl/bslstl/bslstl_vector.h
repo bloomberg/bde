@@ -1246,7 +1246,10 @@ class vector : public  vectorBase<VALUE_TYPE>
         // 'VALUE_TYPE' be 'copy-assignable' and 'copy-insertable' into this
         // vector (see {Requirements on 'VALUE_TYPE'}).
 
-    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs);
+    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+              AllocatorTraits::propagate_on_container_move_assignment::value ||
+              AllocatorTraits::is_always_equal::value);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -1580,7 +1583,9 @@ class vector : public  vectorBase<VALUE_TYPE>
         // included) and 'last' is an iterator in the range
         // '[first .. cend()]' (both endpoints included).
 
-    void swap(vector& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(vector& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                         AllocatorTraits::propagate_on_container_swap::value ||
+                         AllocatorTraits::is_always_equal::value);
         // Exchange the value of this object with that of the specified 'other'
         // object; also exchange the allocator of this object with that of
         // 'other' if the (template parameter) type 'ALLOCATOR' has the
@@ -1707,7 +1712,8 @@ erase_if(vector<VALUE_TYPE, ALLOCATOR>& vec, PREDICATE predicate);
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                                   a.swap(b)));
     // Exchange the value of the specified 'a' object with that of the
     // specified 'b' object; also exchange the allocator of 'a' with that of
     // 'b' if the (template parameter) type 'ALLOCATOR' has the
@@ -1809,7 +1815,8 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     // MANIPULATORS
     vector& operator=(const vector& rhs);
     vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                       d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl)));
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     vector& operator=(std::initializer_list<VALUE_TYPE *> values);
@@ -1901,7 +1908,9 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     iterator erase(const_iterator position);
     iterator erase(const_iterator first, const_iterator last);
 
-    void swap(vector& other);
+    void swap(vector& other)
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                   d_impl.swap(other.d_impl)));
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
 
@@ -1978,7 +1987,9 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     }
 
     friend
-    void swap(vector& a, vector& b) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    void swap(vector& a, vector& b)
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                      a.d_impl.swap(b.d_impl)))
     {
         a.d_impl.swap(b.d_impl);
     }
@@ -3225,6 +3236,9 @@ template <class VALUE_TYPE, class ALLOCATOR>
 vector<VALUE_TYPE, ALLOCATOR>&
 vector<VALUE_TYPE, ALLOCATOR>::operator=(
                                     BloombergLP::bslmf::MovableRef<vector> rhs)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+              AllocatorTraits::propagate_on_container_move_assignment::value ||
+              AllocatorTraits::is_always_equal::value)
 {
     vector& lvalue = rhs;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
@@ -3743,7 +3757,9 @@ vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void vector<VALUE_TYPE, ALLOCATOR>::swap(vector<VALUE_TYPE, ALLOCATOR>& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                         AllocatorTraits::propagate_on_container_swap::value ||
+                         AllocatorTraits::is_always_equal::value)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
@@ -3895,7 +3911,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                                    a.swap(b)))
 {
     a.swap(b);
 }
@@ -4040,7 +4057,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
                                     BloombergLP::bslmf::MovableRef<vector> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                        d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl)))
 {
     d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl);
     return *this;
@@ -4362,6 +4380,8 @@ vector<VALUE_TYPE *, ALLOCATOR>::erase(const_iterator first,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE *, ALLOCATOR>::swap(vector& other)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                    d_impl.swap(other.d_impl)))
 {
     d_impl.swap(other.d_impl);
 }

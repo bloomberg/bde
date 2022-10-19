@@ -53,6 +53,9 @@ struct TestDriver1 : TestSupport<TYPE, ALLOC> {
     static void testCase8_propagate_on_container_swap();
         // Test 'propagate_on_container_swap'.
 
+    static void testCase8_swap_noexcept();
+        // Test 'swap' noexcept specifications.
+
     static void testCase8_dispatch();
         // Test 'swap' member.
 
@@ -148,6 +151,16 @@ void MetaTestDriver1<TYPE>::testCase8()
     TestDriver1<TYPE, A01>::testCase8_dispatch();
     TestDriver1<TYPE, A10>::testCase8_dispatch();
     TestDriver1<TYPE, A11>::testCase8_dispatch();
+
+    // is_always_equal == true && propagate_on_container_swap == true
+    TestDriver1<TYPE , StatelessAllocator<TYPE , true> >::
+        testCase8_swap_noexcept();
+    TestDriver1<TYPE*, StatelessAllocator<TYPE*, true> >::
+        testCase8_swap_noexcept();
+
+    // is_always_equal == true && propagate_on_container_swap == false
+    TestDriver1<TYPE , StatelessAllocator<TYPE>  >::testCase8_swap_noexcept();
+    TestDriver1<TYPE*, StatelessAllocator<TYPE*> >::testCase8_swap_noexcept();
 }
                                 // ----------
                                 // TEST CASES
@@ -932,6 +945,42 @@ void TestDriver1<TYPE, ALLOC>::testCase8_propagate_on_container_swap()
 }
 
 template <class TYPE, class ALLOC>
+void TestDriver1<TYPE, ALLOC>::testCase8_swap_noexcept()
+{
+    // ------------------------------------------------------------------------
+    // SWAP MEMBER AND FREE FUNCTIONS: NOEXCEPT SPECIFICATIONS
+    //
+    // Concerns:
+    //: 1 If either 'allocator_traits<Allocator>::propagate_on_container_swap::
+    //:   value' or 'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the swap functions are 'noexcept(true)'.
+    //
+    // Plan:
+    //: 1 Get ORed value of the both traits.
+    //:
+    //: 2 Compare the value with the member 'swap' function noexcept
+    //:   specification.
+    //:
+    //: 3 Compare the value with the free 'swap' function noexcept
+    //:   specification.
+    //
+    // Testing:
+    //   vector::swap()
+    //   swap(vector& , vector&)
+    // ------------------------------------------------------------------------
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    bsl::vector<TYPE, ALLOC> a, b;
+
+    const bool isNoexcept =
+                         AllocatorTraits::propagate_on_container_swap::value ||
+                         AllocatorTraits::is_always_equal::value;
+    ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
+    ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(a, b)));
+#endif
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver1<TYPE, ALLOC>::testCase8_dispatch()
 {
     // ------------------------------------------------------------------------
@@ -967,6 +1016,10 @@ void TestDriver1<TYPE, ALLOC>::testCase8_dispatch()
     //:
     //: 8 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup).
+    //:
+    //: 9 If either 'allocator_traits<Allocator>::is_always_equal::value' or
+    //:   'allocator_traits<Allocator>::propagate_on_container_swap::value' is
+    //:   true, the 'swap' functions are 'noexcept(true)'.
     //
     // Plan:
     //: 1 Use the addresses of the 'swap' member and free functions defined
@@ -1121,6 +1174,9 @@ void TestDriver1<TYPE, ALLOC>::testCase8_dispatch()
     //:     1 The values have been exchanged.  (C-1)
     //:
     //:     2 There was no additional object memory allocation.  (C-4)
+    //:
+    //: 6 To address concern 9, pass allocators with all combinations of
+    //:   'is_always_equal' and 'propagate_on_container_swap' values.
     //
     // Testing:
     //   void swap(vector&);
@@ -1390,6 +1446,12 @@ void TestDriver1<TYPE, ALLOC>::testCase8_dispatch()
     }
 
     ASSERTV(e_STATEFUL == s_allocCategory || 0 == da.numBlocksTotal());
+
+    // Verify 'swap' noexcept specifications for the basic template and the
+    // partial specialization of 'vector' for pointer types
+
+    TestDriver1<TYPE , ALLOC>::testCase8_swap_noexcept();
+    TestDriver1<TYPE*, ALLOC>::testCase8_swap_noexcept();
 }
 
 template <class TYPE, class ALLOC>
