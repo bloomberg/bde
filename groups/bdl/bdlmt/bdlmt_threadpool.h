@@ -90,17 +90,6 @@ BSLS_IDENT("$Id: $")
 // SIGTRAP
 // SIGIOT
 //
-///Thread Names for Sub-Threads
-///----------------------------
-// To facilitate debugging, users can provide a thread name as the 'threadName'
-// attribute of the 'bslmt::ThreadAttributes' argument passed to the
-// constructor, that will be used for all the sub-threads.  The thread name
-// should not be used programmatically, but will appear in debugging tools on
-// platforms that support naming threads to help users identify the source and
-// purpose of a thread.  If no 'ThreadAttributes' object is passed, or if the
-// 'threadName' attribute is not set, the default value "bdl.ThreadPool" will
-// be used.
-//
 ///Usage
 ///-----
 // This example demonstrates the use of a 'bdlmt::ThreadPool' to parallelize a
@@ -418,10 +407,6 @@ class ThreadPool {
     typedef bsl::function<void()> Job;
 
   private:
-    // PRIVATE CLASS DATA
-    static const char    s_defaultThreadName[16];  // Thread name to use when
-                                                   // none is specified.
-
     // PRIVATE DATA
     bsl::deque<Job>      d_queue;          // queue of pending jobs
 

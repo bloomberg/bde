@@ -19,6 +19,7 @@
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_newdeleteallocator.h>
 #include <bslma_rawdeleterproctor.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -237,31 +238,33 @@ void makeFunc(Func  *f,
 void noop() {
 }
 
-static
-void incrementCounter(bsls::AtomicInt *counter)
+void checkThreadName()
+    // Check that the name of the thread is one of the acceptable values.    
 {
-    // Increment the value at the address specified by 'counter'.
-
-    ASSERT(counter);
-    ++*counter;
-
     bsl::string threadName;
     bslmt::ThreadUtil::getThreadName(&threadName);
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
                                        defined(BSLS_PLATFORM_OS_DARWIN)
     ASSERTV(threadName, threadName == "bdl.MultiQuePl" ||
-                  threadName == "bdl.ThreadPool" || threadName == "OtherName");
+                                                    threadName == "OtherName");
 #else
     ASSERTV(threadName, threadName.empty());
 #endif
 }
 
+static
+void incrementCounter(bsls::AtomicInt *counter)
+    // Increment the value at the address specified by 'counter'.
+{
+    ASSERT(counter);
+    ++*counter;
+}
+
 static void timedWaitOnBarrier(bslmt::Barrier  *barrier,
                                bsls::AtomicInt *timedOut)
-{
     // Timed wait on the specified 'barrier' for 0.1 seconds and load into the
     // specified 'timedOut' a non-zero value if the 'timedWait' timeouts.
-
+{
     ASSERT(barrier);
     ASSERT(timedOut);
 
@@ -1489,6 +1492,9 @@ int main(int argc, char *argv[]) {
 
     bslma::TestAllocator ta("test"), da("default");
     bslma::DefaultAllocatorGuard dGuard(&da);
+
+    bslma::NewDeleteAllocator  globalAllocator;
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 34: {
@@ -2799,14 +2805,15 @@ int main(int argc, char *argv[]) {
 
                 bsls::AtomicInt pauseCount(0);
                 bslmt::Barrier pauseBarrier(2);
-                bslmt::ThreadUtil::create(
+                bslmt::ThreadUtil::createWithAllocator(
                                    &handle,
                                    detached,
                                    bdlf::BindUtil::bind(&waitPauseAndIncrement,
                                                         &pauseBarrier,
                                                         &mX,
                                                         id1,
-                                                        &pauseCount));
+                                                        &pauseCount),
+                                   &ta);
                 pauseBarrier.wait();
                 // Now the thread will invoke pauseQueue.  Wait a little bit
                 // and ensure it hasn't finished (because the threadpool job is
@@ -2844,6 +2851,7 @@ int main(int argc, char *argv[]) {
 
                 mX.enqueueJob(id2, job);
                 mX.enqueueJob(id2, job);
+                mX.enqueueJob(id2, &checkThreadName);
                 mX.drainQueue(id2);
                 ASSERT(2 == count2);
             }
@@ -4356,8 +4364,9 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.enqueueJob(id, count));
             ASSERT(0 == mX.enqueueJob(id, count));
             ASSERT(0 == mX.enqueueJob(id, count));
+            ASSERT(0 == mX.enqueueJob(id, &checkThreadName));
             numElements = X.numElements(id);
-            ASSERT(5 == numElements || 6 == numElements);
+            ASSERT(6 == numElements || 7 == numElements);
             ASSERT(0 == mX.disableQueue(id));
 
             ASSERT(0 != mX.enqueueJob(id, block));
@@ -4365,14 +4374,15 @@ int main(int argc, char *argv[]) {
             ASSERT(0 != mX.enqueueJob(id, count));
             ASSERT(0 != mX.enqueueJob(id, count));
             numElements = X.numElements(id);
-            ASSERT(5 == numElements || 6 == numElements);
+            ASSERT(6 == numElements || 7 == numElements);
 
             ASSERT(0 == mX.enableQueue(id));
             ASSERT(0 == mX.enqueueJob(id, count));
             ASSERT(0 == mX.enqueueJob(id, count));
             ASSERT(0 == mX.enqueueJob(id, count));
             numElements = X.numElements(id);
-            ASSERT(8 == numElements || 9 == numElements);
+
+            ASSERT(9 == numElements || 10 == numElements);
             ASSERT(0 == mX.enqueueJob(id, block));
             barrier.wait();                          // 'block' is blocking
             barrier.wait();                          // 'block' is blocking
@@ -4697,6 +4707,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 != id);
                 ASSERT(1 == X.numQueues());
                 ASSERT(0 == X.numElements(id));
+                ASSERT(0 == mX.enqueueJob(id, &checkThreadName));
                 ASSERT(0 == mX.enqueueJob(id, block));
                 ASSERT(0 == mX.enqueueJob(id, block));
                 barrier.wait();                        // first job blocks
@@ -5148,9 +5159,12 @@ int main(int argc, char *argv[]) {
       }
     }
 
+//  ASSERT(0 == globalAllocator.numAllocations());
+
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 

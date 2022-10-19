@@ -594,10 +594,12 @@ int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
         modAttr.setThreadName(s_defaultThreadName);
     }
 
-    if (bslmt::ThreadUtil::create(&d_dispatcherThread,
-                                  modAttr,
-                                  &TimerEventSchedulerDispatcherThread,
-                                  this))
+    if (bslmt::ThreadUtil::createWithAllocator(
+                                          &d_dispatcherThread,
+                                          modAttr,
+                                          &TimerEventSchedulerDispatcherThread,
+                                          this,
+                                          d_allocator_p))
     {
         return -1;                                                    // RETURN
     }

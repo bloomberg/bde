@@ -21,8 +21,7 @@
 #include <bslmt_mutex.h>
 #include <bslmt_qlock.h>
 #include <bslmt_testutil.h>
-#include <bslmt_threadutil.h>
-
+#include <bslmt_threadgroup.h>
 #include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
@@ -690,6 +689,9 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&taDefault);
     ASSERT(&taDefault == bslma::Default::defaultAllocator());
 
+    bslma::TestAllocator  globalAllocator;
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -916,13 +918,10 @@ int main(int argc, char *argv[])
         bslmt::Barrier barrier(NUM_PRODUCER_THREADS + 1);
         ProducerThread::s_barrier = &barrier;
 
-        bslmt::ThreadUtil::Handle handles[NUM_PRODUCER_THREADS];
+        bslmt::ThreadGroup tg(&ta);
 
-        for (int i = 0; NUM_PRODUCER_THREADS > i; ++i) {
-            ProducerThread producer(NUM_WORKERS_PER_PRODUCER);
-
-            bslmt::ThreadUtil::create(&handles[i], producer);
-        }
+        tg.addThreads(ProducerThread(NUM_WORKERS_PER_PRODUCER),
+                      NUM_PRODUCER_THREADS);
 
         pool.startThreads();
 
@@ -933,9 +932,8 @@ int main(int argc, char *argv[])
         barrier.wait();         // set all producer threads loose
         double startTime = u::nowAsDouble();
 
-        for (int i = 0; NUM_PRODUCER_THREADS > i; ++i) {
-            bslmt::ThreadUtil::join(handles[i]);
-        }
+        tg.joinAll();
+
         pool.drainJobs();
         pool.stopThreads();
 
@@ -1928,9 +1926,13 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }  // switch (test)
+
+    ASSERT(0 == globalAllocator.numAllocations());
+
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 

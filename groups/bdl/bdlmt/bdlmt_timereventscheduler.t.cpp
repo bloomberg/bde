@@ -9,13 +9,6 @@
 
 #include <bdlmt_timereventscheduler.h>
 
-#include <bslma_testallocator.h>
-#include <bslmt_barrier.h>
-#include <bslmt_threadgroup.h>
-#include <bsls_atomic.h>
-#include <bsls_review.h>
-#include <bsls_systemtime.h>
-
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
@@ -24,13 +17,18 @@
 #include <bdlt_datetime.h>
 #include <bdlt_timeunitratio.h>
 
+#include <bslma_default.h>
+#include <bslma_newdeleteallocator.h>
+#include <bslma_testallocator.h>
 #include <bslmt_timedsemaphore.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_barrier.h>
 #include <bslmt_testutil.h>
+#include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
@@ -206,6 +204,7 @@ static bslmt::Mutex &assertMutex = printMutex;// mutex to protect assert macros
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
+static int veryVeryVeryVerbose;
 
 typedef bdlmt::TimerEventScheduler          Obj;
 typedef Obj::Handle                         Handle;
@@ -316,18 +315,23 @@ static void executeInParallel(int                               numThreads,
     // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
     // to i'th thread.  Finally join all the threads.
 {
-    bslmt::ThreadUtil::Handle *threads =
-                               new bslmt::ThreadUtil::Handle[numThreads];
-    ASSERT(threads);
+    bslma::Allocator *alloc = &bslma::NewDeleteAllocator::singleton();
 
-    for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::create(&threads[i], func, (void*)(IntPtr)i);
-    }
-    for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::join(threads[i]);
+    bsl::vector<bslmt::ThreadUtil::Handle> handles(alloc);
+
+    for (int ii = 0; ii < numThreads; ++ii) {
+        bslmt::ThreadUtil::Handle handle;
+        ASSERT(0 == bslmt::ThreadUtil::createWithAllocator(
+                                                          &handle,
+                                                          func,
+                                                          (void *) (IntPtr) ii,
+                                                          alloc));
+        handles.push_back(handle);
     }
 
-    delete [] threads;
+    for (int ii = 0; ii < numThreads; ++ii) {
+        bslmt::ThreadUtil::join(handles[ii]);
+    }
 }
 
                               // ===============
@@ -1388,18 +1392,22 @@ void startStopConcurrencyTest()
     bslmt::ThreadUtil::Handle stopThread;
     bslmt::TimedSemaphore stopSema(bsls::SystemClockType::e_MONOTONIC);
     bslmt::Barrier syncBarrier(2);
-    bslmt::ThreadUtil::create(&stopThread,
-                              bdlf::BindUtil::bind(&waitStopAndSignal,
-                                                   &syncBarrier,
-                                                   &x,
-                                                   &stopSema));
+    bslmt::ThreadUtil::createWithAllocator(
+                                       &stopThread,
+                                       bdlf::BindUtil::bind(&waitStopAndSignal,
+                                                            &syncBarrier,
+                                                            &x,
+                                                            &stopSema),
+                                       &ta);
     syncBarrier.wait();
 
     // From another thread, invoke start().  (stop() is blocked at this point,
     // and future implementations might block start() if stop() is running)
     bslmt::ThreadUtil::Handle startThread;
-    bslmt::ThreadUtil::create(&startThread,
-                              bdlf::BindUtil::bind(&startScheduler, &x));
+    bslmt::ThreadUtil::createWithAllocator(
+                                    &startThread,
+                                    bdlf::BindUtil::bind(&startScheduler, &x),
+                                    &ta);
 
     // Release the scheduled event so that the dispatcher thread can complete
     sema.post();
@@ -2809,6 +2817,7 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
     int nExec;
 
     bslma::TestAllocator ta;
@@ -2817,6 +2826,14 @@ int main(int argc, char *argv[])
 
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
+    bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+
+    bslma::TestAllocator globalAllocator;
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    bslma::TestAllocator defaultAllocator;
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 29: {
@@ -4539,15 +4556,13 @@ int main(int argc, char *argv[])
                                   &test7_e, &test7_f };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadGroup tg(&testAllocator);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == tg.addThread(funcPtrs[i]));
         }
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
-        }
+        tg.joinAll();
       } break;
       case 6: {
         // -----------------------------------------------------------------
@@ -4609,15 +4624,13 @@ int main(int argc, char *argv[])
         const Func funcPtrs[] = { &test6_a, &test6_b, &test6_c };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadGroup tg(&testAllocator);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == tg.addThread(funcPtrs[i]));
         }
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
-        }
+        tg.joinAll();
       } break;
       case 5: {
         // -----------------------------------------------------------------
@@ -5123,15 +5136,13 @@ int main(int argc, char *argv[])
                                   &test3_e, &test3_f, &test3_g };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadGroup tg(&testAllocator);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == tg.addThread(funcPtrs[i]));
         }
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
-        }
+        tg.joinAll();
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -5413,15 +5424,13 @@ int main(int argc, char *argv[])
                                   &test1_i, &test1_j, &test1_k };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadGroup tg(&testAllocator);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == tg.addThread(funcPtrs[i]));
         }
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
-        }
+        tg.joinAll();
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -5521,6 +5530,9 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == globalAllocator.numAllocations());
+    ASSERT(0 == defaultAllocator.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

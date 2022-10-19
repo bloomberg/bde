@@ -183,10 +183,6 @@ namespace bdlmt {void ThreadPool::initBlockSet()
 #endif
 
 namespace bdlmt {
-
-// PRIVATE CLASS DATA
-const char ThreadPool::s_defaultThreadName[16] = { "bdl.ThreadPool" };
-
 int ThreadPool::startNewThread()
 {
     bslmt::ThreadUtil::Handle handle;
@@ -371,9 +367,6 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_threadAttributes.setDetachedState(
                                    bslmt::ThreadAttributes::e_CREATE_DETACHED);
-    if (d_threadAttributes.threadName().empty()) {
-        d_threadAttributes.setThreadName(s_defaultThreadName);
-    }
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet();
@@ -406,9 +399,6 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_threadAttributes.setDetachedState(
                                    bslmt::ThreadAttributes::e_CREATE_DETACHED);
-    if (d_threadAttributes.threadName().empty()) {
-        d_threadAttributes.setThreadName("bdl.ThreadPool");
-    }
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet();

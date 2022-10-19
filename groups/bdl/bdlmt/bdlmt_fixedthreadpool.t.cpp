@@ -947,6 +947,9 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&taDefault);
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
+    bslma::TestAllocator  globalAllocator;
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // case 0 is always the first case
@@ -2210,11 +2213,12 @@ int main(int argc, char *argv[])
             for (int i=0; i<NITERATIONS; ++i) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
-                bslmt::ThreadUtil::create(
+                bslmt::ThreadUtil::createWithAllocator(
                           &threadHandles[i],
                           attributes,
                           &testThreadJobFunction1,
-                          &args);
+                          &args,
+                          &testAllocator);
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
@@ -2252,11 +2256,12 @@ int main(int argc, char *argv[])
                 mutex.lock();
                 args.d_startSig=0;
                 args.d_stopSig=0;
-                bslmt::ThreadUtil::create(
+                bslmt::ThreadUtil::createWithAllocator(
                           &threadHandles[i],
                           attributes,
                           &testThreadJobFunction2,
-                          &args);
+                          &args,
+                          &testAllocator);
                 while (!args.d_startSig) {
                     startCond.wait(&mutex);
                 }
@@ -2287,11 +2292,12 @@ int main(int argc, char *argv[])
             bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NITERATIONS; ++i) {
-                bslmt::ThreadUtil::create(
+                bslmt::ThreadUtil::createWithAllocator(
                           &threadHandles[i],
                           attributes,
                           &testThreadJobFunction3,
-                          &args);
+                          &args,
+                          &testAllocator);
             }
             ASSERT(0 == args.d_count);
             startBarrier.wait();
@@ -2461,6 +2467,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == globalAllocator.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
