@@ -24,7 +24,8 @@ BSLS_IDENT("$Id: $")
 // require seeds, will not meet these requirements, meaning they cannot be used
 // with 'bslh::Hash'.  A call to 'bslh::Hash::operator()' for a (template
 // parameter) 'TYPE' will call the 'hashAppend' free function for 'TYPE' and
-// provide 'hashAppend' an instance of the 'HASH_ALGORITHM'.
+// provide 'hashAppend' an instance of 'Hash_AdlWrapper<HASH_ALGORITHM>', a
+// wrapper around 'HASH_ALGORITHM' that is in the 'bslh' namespace.
 //
 // This component also contains 'hashAppend' definitions for fundamental types,
 // which are required by algorithms defined in 'bslh'.  Clients are expected to
@@ -52,13 +53,13 @@ BSLS_IDENT("$Id: $")
 // 'hashAppend' is the function that is used to pass attributes that are
 // salient to hashing into a hashing algorithm.  A type must define a
 // 'hashAppend' overload that can be discovered through ADL in order to be
-// hashed using this facility.  A simple implementation of an overload for
-// 'hashAppend' might call 'hashAppend' on each of the type's attributes that
-// are salient to hashing.  Note that when writing a 'hashAppend' function,
-// 'using bslh::hashAppend;' must be included as the first line of code in the
-// function.  The using statement ensures that ADL will always be able to find
-// the fundamental type 'hashAppend' functions, even when the (template
-// parameter) type 'HASH_ALGORITHM' is not implemented in 'bslh'.
+// hashed using this facility.  This means that the 'hashAppend' function must
+// be defined in either the namespace of the type being hashed, or, if that is
+// not an option, in the 'bslh' namespace as the wrapper around the algorithm
+// object passed to the first argument of 'hashAppend' will be in the 'bslh'
+// namespace.  A simple implementation of an overload for 'hashAppend' might
+// call 'hashAppend' on each of the type's attributes that are salient to
+// hashing.
 //
 // Some types may require more subtle implementations for 'hashAppend', such as
 // types containing C-strings which are salient to hashing.  These C-strings
@@ -221,7 +222,6 @@ BSLS_IDENT("$Id: $")
 //  void hashAppend(HASH_ALGORITHM& hashAlg, const Point& point)
 //      // Apply the specified 'hashAlg' to the specified 'point'
 //  {
-//      using bslh::hashAppend;
 //      hashAppend(hashAlg, point.getX());
 //      hashAppend(hashAlg, point.getY());
 //  }
@@ -396,20 +396,21 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we verify that each element in our array registers with count:
 //..
-// for ( int i = 0; i < 6; ++i) { ASSERT(hashTable.contains(boxes[i])); }
+// for ( int i = 0; i < 6; ++i) { assert(hashTable.contains(boxes[i])); }
 //..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
 //..
-// ASSERT(!hashTable.contains(Box(Point(1, 1), 1, 1)));
-// ASSERT(!hashTable.contains(Box(Point(0, 0), 0, 0)));
-// ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
+// assert(!hashTable.contains(Box(Point(1, 1), 1, 1)));
+// assert(!hashTable.contains(Box(Point(0, 0), 0, 0)));
+// assert(!hashTable.contains(Box(Point(3, 3), 3, 3)));
 //..
 
 #include <bslscm_version.h>
 
 #include <bslh_defaulthashalgorithm.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isenum.h>
@@ -428,6 +429,57 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bslh {
+
+                      // ===========================
+                      // class bslh::Hash_AdlWrapper
+                      // ===========================
+
+template <class HASH_ALGORITHM>
+class Hash_AdlWrapper {
+    // This 'class' is a wrapper that is useful in the case of 'HASH_ALGORITHM'
+    // not being in the 'bslh' namespace, which can be problematic for ADL
+    // lookup of 'bslh::hashAppend'.  Wrapping a hash algorithm in this
+    // wrapper, which is called inline, effectively forwards the algorithm into
+    // the 'bslh' namespace.
+    //
+    // More detailed explanation:
+    //
+    // Normally, we define the free functions 'hashAppend' in the same
+    // namespaces as the types they are hashing, so that ADL will find the
+    // function.  In cases where this is not possible, such as 'std', we
+    // support defining a 'hashAppend' overload in the 'bslh' namespace
+    // instead.  This wrapper makes sure that 'bslh' is an associated namespace
+    // when it is used as the first argument to 'hashAppend', ensuring that
+    // such overloads in 'bslh' added outside this component are still found
+    // via ADL.  Without this wrapper, in the cases where the hash algorithm is
+    // neither in 'bslh' nor in the namespace of the hashed type, ADL then
+    // fails to find the function.
+    //
+    // This wrapper solves this problem by forcibly associating the invocation
+    // of 'hashAppend', wherever it may be, with the 'bslh' namespace.
+
+  public:
+    typedef typename HASH_ALGORITHM::result_type result_type;
+
+  private:
+    // DATA
+    HASH_ALGORITHM d_hashAlgorithm;    // the wrapped hash algorithm, which may
+                                       // be in any namespace
+
+  public:
+    // CREATORS
+    Hash_AdlWrapper();
+        // Default construct an instance of the hash algorithm wrapped in this
+        // wrapper.
+
+    // MANIPULATORS
+    void operator()(const void *input, size_t numBytes);
+        // Forward the call to the identical manipulator of 'HASH_ALGORITHM'.
+
+    result_type computeHash();
+        // Forward the call to the identical manipulator of 'HASH_ALGORITHM'
+        // and cast the return value to 'result_type.
+};
 
                           // ================
                           // class bslh::Hash
@@ -512,8 +564,9 @@ hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // compilers before 2013 require (some) functions declared using enable_if
     // be in-place inline.
 {
-    if (input == 0)
+    if (input == 0) {
         input = 0;
+    }
     hashAlg(&input, sizeof(input));
 }
 
@@ -580,6 +633,39 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                            // ---------------------
+                            // bslh::Hash_AdlWrapper
+                            // ---------------------
+
+// CREATORS
+template <class HASH_ALGORITHM>
+inline
+bslh::Hash_AdlWrapper<HASH_ALGORITHM>::Hash_AdlWrapper()
+: d_hashAlgorithm()
+{}
+
+// MANIPULATORS
+template <class HASH_ALGORITHM>
+inline
+void bslh::Hash_AdlWrapper<HASH_ALGORITHM>::operator()(const void *input,
+                                                       size_t      numBytes)
+{
+    d_hashAlgorithm(input, numBytes);
+}
+
+
+template <class HASH_ALGORITHM>
+inline
+typename bslh::Hash_AdlWrapper<HASH_ALGORITHM>::result_type
+bslh::Hash_AdlWrapper<HASH_ALGORITHM>::computeHash()
+{
+    return d_hashAlgorithm.computeHash();
+}
+
+                                // ----------
+                                // bslh::Hash
+                                // ----------
+
 // ACCESSORS
 template <class HASH_ALGORITHM>
 template <class TYPE>
@@ -587,10 +673,15 @@ inline
 typename bslh::Hash<HASH_ALGORITHM>::result_type
 bslh::Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
 {
-    HASH_ALGORITHM hashAlg;
-    hashAppend(hashAlg, key);
-    return static_cast<result_type>(hashAlg.computeHash());
+    Hash_AdlWrapper<HASH_ALGORITHM> wrapper;
+
+    hashAppend(wrapper, key);
+    return static_cast<result_type>(wrapper.computeHash());
 }
+
+                              // --------------
+                              // FREE FUNCTIONS
+                              // --------------
 
 // FREE FUNCTIONS
 template <class HASH_ALGORITHM, class TYPE>
