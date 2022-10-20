@@ -54,6 +54,7 @@
 #include <stdexcept>  // 'length_error', 'out_of_range'
 #include <algorithm>  // 'next_permutation'
 #include <functional> // 'less'
+#include <new>        // ::operator new
 
 #include <cctype>
 #include <cstdlib>
@@ -1966,6 +1967,7 @@ struct TestSupport {
     typedef bslmf::MovableRefUtil                 MoveUtil;
     typedef bsltf::MoveState                      MoveState;
     typedef bsltf::TestValuesArray<TYPE>          TestValues;
+    typedef bsl::allocator_traits<ALLOC>          AllocTraits;
 
     typedef typename
         bsl::is_convertible<bslma::Allocator*,ALLOC>::type ObjHasBslmaAlloc;
@@ -2214,6 +2216,7 @@ struct TestSupport {
     typedef typename Base::MoveUtil               MoveUtil;                   \
     typedef typename Base::MoveState              MoveState;                  \
     typedef typename Base::TestValues             TestValues;                 \
+    typedef typename Base::AllocTraits            AllocTraits;                \
                                                                               \
     typedef typename Base::ObjHasBslmaAlloc       ObjHasBslmaAlloc;           \
     typedef typename Base::TypeUsesBslmaAlloc     TypeUsesBslmaAlloc;         \
@@ -2240,6 +2243,64 @@ struct TestSupport {
     using Base::numMovedInto;                                                 \
     using Base::primaryCopier;                                                \
     using Base::primaryManipulator
+
+                    // =================================
+                    // template class StatelessAllocator
+                    // =================================
+
+template <class TYPE>
+struct StatelessAllocator {
+    // Stateless std allocator with 'is_always_equal == true_type'
+
+    // TYPES
+    typedef TYPE      value_type;
+    typedef size_t    size_type;
+    typedef ptrdiff_t difference_type;
+
+    typedef value_type       *pointer;
+    typedef const value_type *const_pointer;
+
+    template <class OTHER_TYPE> struct rebind {
+        typedef StatelessAllocator<OTHER_TYPE> other;
+    };
+
+    typedef bsl::true_type is_always_equal;
+
+    // CREATORS
+    StatelessAllocator()
+        // Create a 'StatelessAllocator' object.
+    {
+    }
+    template <class OTHER_TYPE>
+    StatelessAllocator(const StatelessAllocator<OTHER_TYPE>&)
+        // Create a 'StatelessAllocator' object.
+    {
+    }
+
+    // MANIPULATORS
+    pointer allocate(size_type count)
+        // Return a pointer to an uninitialized memory that is enough to store
+        // an array of the specified 'count' objects.
+    {
+        return static_cast<pointer>(::operator new(count *
+                                                   sizeof(value_type)));
+    }
+    void deallocate(pointer address, size_type)
+        // Return the memory at the specified 'address' to this allocator.
+    {
+        ::operator delete(static_cast<void *>(address));
+    }
+
+    // FREE OPERATORS
+    friend bool operator==(StatelessAllocator, StatelessAllocator)
+    {
+        return true;
+    }
+    friend bool operator!=(StatelessAllocator, StatelessAllocator)
+    {
+        return false;
+    }
+};
 
                  // =======================================
                  // template class StdBslmaTestDriverHelper

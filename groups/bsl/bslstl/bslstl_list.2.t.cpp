@@ -128,6 +128,9 @@ struct TestDriver2 : TestSupport<TYPE, ALLOC> {
     static void test19_propagate_on_container_swap();
         // Test 'propagate_on_container_swap'.
 
+    static void test19_swap_noexcept();
+        // Test noexcept specification of 'swap'.
+
     static void test19_swap();
         // Test 'swap' member and global swap.
 
@@ -196,6 +199,9 @@ struct TestDriver2 : TestSupport<TYPE, ALLOC> {
     static void test31_propagate_on_container_move_assignment_dispatch();
     static void test31_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
+
+    static void test31_moveAssign_noexcept();
+        // Test noexcept specification of move assign.
 
     static void test31_moveAssign();
         // Test move assign.
@@ -1129,6 +1135,33 @@ void TestDriver2<TYPE, ALLOC>::test31_propagate_on_container_move_assignment()
 }
 
 template <class TYPE, class ALLOC>
+void TestDriver2<TYPE,ALLOC>::test31_moveAssign_noexcept()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE-ASSIGNMENT OPERATOR: NOEXCEPT SPECIFICATION
+    //
+    // Concerns:
+    //: 1 If 'allocator_traits<Allocator>::is_always_equal::value' is true, the
+    //:   move assignment operator is 'noexcept(true)'.
+    //
+    // Plan:
+    //: 1 Compare the value of the trait with the noexcept specification of the
+    //:    move assignment operator.
+    //
+    // Testing:
+    //   list& operator=(bslmf::MovableRef<list> rhs);
+    // ------------------------------------------------------------------------
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    bsl::list<TYPE, ALLOC> a, b;
+
+    const bool isNoexcept = AllocTraits::is_always_equal::value;
+    ASSERT(isNoexcept ==
+        BSLS_KEYWORD_NOEXCEPT_OPERATOR(a = bslmf::MovableRefUtil::move(b)));
+#endif
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver2<TYPE,ALLOC>::test31_moveAssign()
 {
     // ------------------------------------------------------------------------
@@ -1152,6 +1185,9 @@ void TestDriver2<TYPE,ALLOC>::test31_moveAssign()
     //: 5 The object has its internal memory management system hooked up
     //:   properly so that *all* internally allocated memory draws from a
     //:   user-supplied allocator whenever one is specified.
+    //:
+    //: 6 If 'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the move assignment operator is 'noexcept(true)'.
     //
     // Plan:
     //: 1 Specify a set S of object values with substantial and varied
@@ -1168,6 +1204,9 @@ void TestDriver2<TYPE,ALLOC>::test31_moveAssign()
     //: 4 To address concern 5, observe the default allocator before and after
     //:   the whole test and observe that it is never used (after the first
     //:   call to 'checkIntegrity'.
+    //:
+    //: 5 To address concern 6, pass allocators with both 'is_always_equal'
+    //:   values (true & false).
     //
     // Testing:
     //   list& operator=(list&& orig);
@@ -1412,6 +1451,13 @@ void TestDriver2<TYPE,ALLOC>::test31_moveAssign()
     } // X
 
     ASSERTV(bsls::NameOf<TYPE>(), defaultAllocator_p->numBlocksTotal() == DD);
+
+    // Test noexcept specification of the move assignment operator.
+    TestDriver2<TYPE, ALLOC>::test31_moveAssign_noexcept();
+    // is_always_equal == true
+    typedef StatelessAllocator<TYPE> StatelessAlloc;
+    ASSERT(bsl::allocator_traits<StatelessAlloc>::is_always_equal::value);
+    TestDriver2<TYPE, StatelessAlloc>::test31_moveAssign_noexcept();
 }
 
 template <class TYPE, class ALLOC>
@@ -4440,6 +4486,37 @@ void TestDriver2<TYPE, ALLOC>::test19_propagate_on_container_swap()
 }
 
 template <class TYPE, class ALLOC>
+void TestDriver2<TYPE,ALLOC>::test19_swap_noexcept()
+{
+    // ------------------------------------------------------------------------
+    // SWAP MEMBER AND FREE FUNCTIONS: NOEXCEPT SPECIFICATIONS
+    //
+    // Concerns:
+    //: 1 If 'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the 'swap' functions are 'noexcept(true)'.
+    //
+    // Plan:
+    //: 1 Compare the value of the trait with the member 'swap' function
+    //:   noexcept specification.
+    //:
+    //: 2 Compare the value of the trait with the free 'swap' function noexcept
+    //:   specification.
+    //
+    // Testing:
+    //   list::swap()
+    //   swap(list& , list& )
+    // ------------------------------------------------------------------------
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    bsl::list<TYPE, ALLOC> a, b;
+
+    const bool isNoexcept = AllocTraits::is_always_equal::value;
+    ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
+    ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(a,b)));
+#endif
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver2<TYPE,ALLOC>::test19_swap()
 {
     // ------------------------------------------------------------------------
@@ -4476,6 +4553,9 @@ void TestDriver2<TYPE,ALLOC>::test19_swap()
     //: 9 While the 'swap' functions may allocate memory, they free as much
     //:   memory as they allocate for no net change in memory in use, provided
     //:   both allocators are of type 'bslma::TestAllocator'.
+    //:
+    //:10 If 'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the 'swap' functions are 'noexcept(true)'.
     //
     // Plan:
     //: 1 Use the addresses of the 'swap' member and free functions defined
@@ -4597,6 +4677,9 @@ void TestDriver2<TYPE,ALLOC>::test19_swap()
     //:         is unchanged in both objects.  (C-4)
     //:
     //:       4 There was no additional object memory allocation.  (C-4)
+    //:
+    //: 6 To address concern 10, pass allocators with both 'is_always_equal'
+    //:   values (true & false).
     //
     // Testing:
     //   void swap(Obj& rhs);
@@ -4862,6 +4945,13 @@ void TestDriver2<TYPE,ALLOC>::test19_swap()
         ASSERTV(SPEC1, SPEC2, oam.isTotalSame());
         ASSERTV(SPEC1, SPEC2, dam.isTotalSame());
     }
+
+    // Test noexcept specifications of the 'swap' functions.
+    TestDriver2<TYPE, ALLOC>::test19_swap_noexcept();
+    // is_always_equal == true
+    typedef StatelessAllocator<TYPE> StatelessAlloc;
+    ASSERT(bsl::allocator_traits<StatelessAlloc>::is_always_equal::value);
+    TestDriver2<TYPE, StatelessAlloc>::test19_swap_noexcept();
 }
 
 template <class TYPE, class ALLOC>

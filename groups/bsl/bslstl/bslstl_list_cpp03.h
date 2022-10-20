@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 21 17:14:49 2022
+// Generated on Wed Oct  5 09:43:08 2022
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -684,7 +684,8 @@ class list {
         // be copy-inserted or erased.
 
     list& operator=(BloombergLP::bslmf::MovableRef<list> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                          AllocTraits::is_always_equal::value);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -1593,7 +1594,8 @@ class list {
 
                               // *** misc ***
 
-    void swap(list& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(list& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                          AllocTraits::is_always_equal::value);
         // Exchange the value of this object with that of the specified 'other'
         // object; also exchange the allocator of this object with that of
         // 'other' if the (template parameter) type 'ALLOCATOR' has the
@@ -1831,7 +1833,8 @@ erase_if(list<VALUE, ALLOCATOR>& l, PREDICATE predicate);
 
 template <class VALUE, class ALLOCATOR>
 void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                                   a.swap(b)));
     // Exchange the value of the specified 'a' object with that of the
     // specified 'b' object; also exchange the allocator of 'a' with that of
     // 'b' if the (template parameter) type 'ALLOCATOR' has the
@@ -2485,7 +2488,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& rhs)
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(
                                       BloombergLP::bslmf::MovableRef<list> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(AllocTraits::is_always_equal::value)
 {
     list& lvalue = rhs;
 
@@ -4079,7 +4082,7 @@ void list<VALUE, ALLOCATOR>::unique(EQ_PREDICATE binaryPredicate)
 
 template <class VALUE, class ALLOCATOR>
 void list<VALUE, ALLOCATOR>::swap(list& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(AllocTraits::is_always_equal::value)
 {
     // C++11 behavior for member 'swap': undefined for unequal allocators.
     // BSLS_ASSERT(allocatorImp() == other.allocatorImp());
@@ -4331,7 +4334,8 @@ bsl::erase_if(list<VALUE, ALLOCATOR>& l, PREDICATE predicate)
 template <class VALUE, class ALLOCATOR>
 inline
 void bsl::swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                                    a.swap(b)))
 {
     a.swap(b);
 }
