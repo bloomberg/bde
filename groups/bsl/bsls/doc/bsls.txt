@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 80 components having 16 levels of physical
+ The 'bsls' package currently has 83 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -33,14 +33,17 @@
 
   14. bsls_alignmentutil
       bsls_bslexceptionutil
+      bsls_fuzztest
       bsls_stopwatch
       bsls_timeinterval
 
   13. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
+      bsls_fuzztestpreconditionexception
       bsls_nameof
       bsls_outputredirector
+      bsls_preconditions
       bsls_spinlock
       bsls_timeutil
 
@@ -269,6 +272,12 @@
 : 'bsls_exceptionutil':
 :      Provide simplified exception constructs for non-exception builds.
 :
+: 'bsls_fuzztest':
+:      Provide macros for use in fuzz testing narrow-contract functions.
+:
+: 'bsls_fuzztestpreconditionexception':
+:      Provide an exception type for handling failed preconditions.
+:
 : 'bsls_ident':
 :      Provide macros for inserting SCM Ids into source files.
 :
@@ -322,6 +331,9 @@
 :
 : 'bsls_pointercastutil':
 :      Provide function to cast between function and data pointers.
+:
+: 'bsls_preconditions':
+:      Provide macros for use in fuzz testing narrow contract functions.
 :
 : 'bsls_protocoltest':
 :      Provide classes and macros for testing abstract protocols.

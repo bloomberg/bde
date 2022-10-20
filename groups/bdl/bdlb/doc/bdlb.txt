@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 45 components having 5 levels of physical
+ The 'bdlb' package currently has 48 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -21,6 +21,8 @@
 
   4. bdlb_bigendian
      bdlb_bitstringimputil
+     bdlb_caselessstringviewequalto
+     bdlb_caselessstringviewless
      bdlb_indexspan
      bdlb_nullableallocatedvalue
      bdlb_nullablevalue
@@ -30,6 +32,7 @@
      bdlb_variant
 
   3. bdlb_bitmaskutil
+     bdlb_caselessstringviewhash
      bdlb_guidutil
      bdlb_printmethods
      bdlb_random
@@ -88,6 +91,15 @@
 :
 : 'bdlb_bitutil':
 :      Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
+:
+: 'bdlb_caselessstringviewequalto':
+:      Provide a case-insensitive equality predicate for string views.
+:
+: 'bdlb_caselessstringviewhash':
+:      Provide a case-insensitive hash functor for string views.
+:
+: 'bdlb_caselessstringviewless':
+:      Provide a case-insensitive less-than predicate for string views.
 :
 : 'bdlb_chartype':
 :      Supply locale-independent version of '<ctype.h>' functionality.

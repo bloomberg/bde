@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 39 components having 9 levels of physical
+ The 'bdlt' package currently has 40 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -47,6 +47,7 @@
 
   4. bdlt_datetime
      bdlt_dateutil
+     bdlt_fuzzutil
      bdlt_packedcalendar
      bdlt_timetz
      bdlt_timeutil
@@ -142,6 +143,9 @@
 :
 : 'bdlt_fixutilconfiguration':
 :      Provide an attribute class to configure FIX string generation.
+:
+: 'bdlt_fuzzutil':
+:      Provide creation of 'bdlt' data types from fuzz data.
 :
 : 'bdlt_intervalconversionutil':
 :      Provide functions to convert between time-interval representations.
