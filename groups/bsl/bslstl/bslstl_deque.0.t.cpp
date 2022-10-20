@@ -2275,6 +2275,64 @@ struct AssertAllocator<TYPE, false> {
     {}
 };
 
+                    // =================================
+                    // template class StatelessAllocator
+                    // =================================
+
+template <class TYPE>
+struct StatelessAllocator {
+    // Stateless std allocator with 'is_always_equal == true_type'
+
+    // TYPES
+    typedef TYPE      value_type;
+    typedef size_t    size_type;
+    typedef ptrdiff_t difference_type;
+
+    typedef value_type       *pointer;
+    typedef const value_type *const_pointer;
+
+    template <class OTHER_TYPE> struct rebind {
+        typedef StatelessAllocator<OTHER_TYPE> other;
+    };
+
+    typedef bsl::true_type is_always_equal;
+
+    // CREATORS
+    StatelessAllocator()
+        // Create a 'StatelessAllocator' object.
+    {
+    }
+    template <class OTHER_TYPE>
+    StatelessAllocator(const StatelessAllocator<OTHER_TYPE>&)
+        // Create a 'StatelessAllocator' object.
+    {
+    }
+
+    // MANIPULATORS
+    pointer allocate(size_type count)
+        // Return a pointer to an uninitialized memory that is enough to store
+        // an array of the specified 'count' objects.
+    {
+        return static_cast<pointer>(::operator new(count *
+                                                   sizeof(value_type)));
+    }
+    void deallocate(pointer address, size_type)
+        // Return the memory at the specified 'address' to this allocator.
+    {
+        ::operator delete(static_cast<void *>(address));
+    }
+
+    // FREE OPERATORS
+    friend bool operator==(StatelessAllocator, StatelessAllocator)
+    {
+        return true;
+    }
+    friend bool operator!=(StatelessAllocator, StatelessAllocator)
+    {
+        return false;
+    }
+};
+
                  // =======================================
                  // template class StdBslmaTestDriverHelper
                  // =======================================

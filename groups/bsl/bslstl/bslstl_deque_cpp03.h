@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 21 17:02:00 2022
+// Generated on Wed Oct  5 09:36:25 2022
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -637,7 +637,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // deque (see {Requirements on 'VALUE_TYPE'}).
 
     deque& operator=(BloombergLP::bslmf::MovableRef<deque> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                      AllocatorTraits::is_always_equal::value);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -1372,7 +1373,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // '[first .. cend()]' (both endpoints included).
 
     void swap(deque<VALUE_TYPE, ALLOCATOR>& other)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                      AllocatorTraits::is_always_equal::value);
         // Exchange the value of this object with that of the specified 'other'
         // object; also exchange the allocator of this object with that of
         // 'other' if the (template parameter) type 'ALLOCATOR' has the
@@ -1566,7 +1568,8 @@ erase_if(deque<VALUE_TYPE, ALLOCATOR>& deq, PREDICATE predicate);
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                                   a.swap(b)));
     // Exchange the value of the specified 'a' object with that of the
     // specified 'b' object; also exchange the allocator of 'a' with that of
     // 'b' if the (template parameter) type 'ALLOCATOR' has the
@@ -2932,7 +2935,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>&
 deque<VALUE_TYPE, ALLOCATOR>::operator=(
                                      BloombergLP::bslmf::MovableRef<deque> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                       AllocatorTraits::is_always_equal::value)
 {
     deque& lvalue = rhs;
 
@@ -5985,7 +5989,8 @@ deque<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE, ALLOCATOR>::swap(deque<VALUE_TYPE, ALLOCATOR>& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                       AllocatorTraits::is_always_equal::value)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Deque_Util::swap(static_cast<Base *>(this),
@@ -6152,7 +6157,8 @@ erase_if(deque<VALUE_TYPE, ALLOCATOR>& deq, PREDICATE predicate)
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                                                                    a.swap(b)))
 {
     a.swap(b);
 }

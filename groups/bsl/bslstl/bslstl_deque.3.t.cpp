@@ -342,6 +342,9 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
     static void testCase25();
         // Test 'push_front' and 'push_back' methods that take a movable ref.
 
+    static void testCase24_move_assignment_noexcept();
+        // Test noexcept specification of move assignment operator.
+
     static void testCase24_dispatch();
         // Test move-assignment operator.
 
@@ -3781,6 +3784,33 @@ void TestDriver3<TYPE,ALLOC>::testCase25()
 }
 
 template <class TYPE, class ALLOC>
+void TestDriver3<TYPE,ALLOC>::testCase24_move_assignment_noexcept()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE-ASSIGNMENT OPERATOR: NOEXCEPT SPECIFICATION
+    //
+    // Concerns:
+    //: 1 If 'allocator_traits<Allocator>::is_always_equal::value' is true, the
+    //:   move assignment operator is 'noexcept(true)'.
+    //
+    // Plan:
+    //: 1 Compare the value of the trait with the noexcept specification of the
+    //:    move assignment operator.
+    //
+    // Testing:
+    //   deque& operator=(bslmf::MovableRef<deque> rhs);
+    // ------------------------------------------------------------------------
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    bsl::deque<TYPE, ALLOC> a, b;
+
+    const bool isNoexcept = AllocatorTraits::is_always_equal::value;
+    ASSERT(isNoexcept ==
+        BSLS_KEYWORD_NOEXCEPT_OPERATOR(a = bslmf::MovableRefUtil::move(b)));
+#endif
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver3<TYPE,ALLOC>::testCase24_dispatch()
 {
     // ------------------------------------------------------------------------
@@ -3830,6 +3860,9 @@ void TestDriver3<TYPE,ALLOC>::testCase24_dispatch()
     //:
     //:13 Assigning an object to itself behaves as expected (alias-safety).
     //:
+    //:14 If 'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the move assignment operator is 'noexcept(true)'.
+    //
     // Plan:
     //: 1 Use the address of 'operator=' to initialize a member-function
     //:   pointer having the appropriate signature and return type for the
@@ -3887,6 +3920,9 @@ void TestDriver3<TYPE,ALLOC>::testCase24_dispatch()
     //:
     //: 6 Use a test allocator installed as the default allocator to verify
     //:   that no memory is ever allocated from the default allocator.
+    //:
+    //: 7 To address concern 14, pass allocators with both 'is_always_equal'
+    //:   values (true & false).
     //
     // Testing:
     //   deque& operator=(deque&& rhs);
@@ -4169,6 +4205,9 @@ void TestDriver3<TYPE,ALLOC>::testCase24_dispatch()
     }
 
     ASSERTV(e_STATEFUL == s_allocCategory || 0 == doa.numBlocksTotal());
+
+    // Test noexcept specification of the move assignment operator.
+    testCase24_move_assignment_noexcept();
 }
 
 template <class TYPE, class ALLOC>
@@ -4563,6 +4602,10 @@ void MetaTestDriver3<TYPE>::testCase24()
     TestDriver3<TYPE, A10>::testCase24_dispatch();
     TestDriver3<TYPE, A11>::testCase24_dispatch();
 #endif
+
+    // is_always_equal == true
+    TestDriver3<TYPE, StatelessAllocator<TYPE> >::
+        testCase24_move_assignment_noexcept();
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD

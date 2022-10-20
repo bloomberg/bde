@@ -28,6 +28,9 @@ struct TestDriver2 : TestSupport<TYPE, ALLOC> {
     static void testCase21();
         // Test free comparison operators.
 
+    static void testCase20_swap_noexcept();
+        // Test noexcept specification of 'swap'.
+
     static void testCase20_dispatch();
         // Test 'swap' member.
 
@@ -715,6 +718,37 @@ void TestDriver2<TYPE,ALLOC>::testCase21()
 }
 
 template <class TYPE, class ALLOC>
+void TestDriver2<TYPE,ALLOC>::testCase20_swap_noexcept()
+{
+    // ------------------------------------------------------------------------
+    // SWAP MEMBER AND FREE FUNCTIONS: NOEXCEPT SPECIFICATIONS
+    //
+    // Concerns:
+    //: 1 If 'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the 'swap' functions are 'noexcept(true)'.
+    //
+    // Plan:
+    //: 1 Compare the value of the trait with the member 'swap' function
+    //:   noexcept specification.
+    //:
+    //: 2 Compare the value of the trait with the free 'swap' function noexcept
+    //:   specification.
+    //
+    // Testing:
+    //   deque::swap()
+    //   swap(deque& , deque& )
+    // ------------------------------------------------------------------------
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    bsl::deque<TYPE, ALLOC> a, b;
+
+    const bool isNoexcept = AllocatorTraits::is_always_equal::value;
+    ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
+    ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(a,b)));
+#endif
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver2<TYPE,ALLOC>::testCase20_dispatch()
 {
     // ------------------------------------------------------------------------
@@ -750,6 +784,9 @@ void TestDriver2<TYPE,ALLOC>::testCase20_dispatch()
     //:
     //: 8 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup).
+    //:
+    //: 9 If 'allocator_traits<Allocator>::is_always_equal::value' is
+    //:   true, the 'swap' functions are 'noexcept(true)'.
     //
     // Plan:
     //: 1 Use the addresses of the 'swap' member and free functions defined
@@ -904,10 +941,13 @@ void TestDriver2<TYPE,ALLOC>::testCase20_dispatch()
     //:     1 The values have been exchanged.  (C-1)
     //:
     //:     2 There was no additional object memory allocation.  (C-4)
+    //:
+    //: 6 To address concern 9 pass allocators with both 'is_always_equal'
+    //:   values (true & false).
     //
     // Testing:
-    //   void swap(multiset& other);
-    //   void swap(multiset<K, C, A>& a, multiset<K, C, A>& b);
+    //   void swap(deque& other);
+    //   void swap(deque& a, deque& b);
     // ------------------------------------------------------------------------
 
     // Since this function is called with a variety of template arguments, it
@@ -1151,6 +1191,9 @@ void TestDriver2<TYPE,ALLOC>::testCase20_dispatch()
     }
 
     ASSERTV(e_STATEFUL == s_allocCategory || 0 == doa.numBlocksTotal());
+
+    // Test noexcept specifications of the 'swap' functions.
+    testCase20_swap_noexcept();
 }
 
 template <class TYPE, class ALLOC>
@@ -4699,6 +4742,9 @@ void MetaTestDriver2<TYPE>::testCase20()
     TestDriver2<TYPE, A10>::testCase20_dispatch();
     TestDriver2<TYPE, A11>::testCase20_dispatch();
 #endif
+
+    // is_always_equal == true
+    TestDriver2<TYPE, StatelessAllocator<TYPE> >::testCase20_swap_noexcept();
 }
 
 // ============================================================================
