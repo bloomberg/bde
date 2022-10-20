@@ -1,5 +1,36 @@
-bsl-internal (3.109.0.0) unstable; urgency=low
+bsl-internal (3.110.0.0) unstable; urgency=low
 
+  * 654328a72 Bumped version to 3.110.0.0
+  * 18579b4d6 C++17: list noexcept specifications (#3929)
+  * d30a68f3e C++17: deque noexcept specifications (#3928)
+  * 827f40a00 Merge pull request #3911 from bchapman/bslh_hash_adlref-drqs-170259221
+  * eb5f6b5eb Bdlmt thread create alloc drqs 170542164 (#3952)
+  * e87f2c60f C++17: vector noexcept specifications (#3927)
+  * b0440292c fix usage example in test driver and header (#3953)
+  * 34aefe4d5 retry on failed start and reduce execution time of long test (#3950)
+  * 92343bf89 Fuzzing functions with preconditions (#3861)
+  * a35a6e320 Add other missing headers or components drqs170561126 (#3949)
+  * 4cec7c5bd Add missing bdlb_caseless components to mem file (#3948)
+  * c91ea1e07 Remove STLPort bsl::identity (#3932)
+  * 861525b23 s_baltst: Add Types with Choice Sub-Objects (#3942)
+  * 5fb871d81 Apply workaround for c++20 gcc is-optional concept (#3937)
+  * e62913678 Add UUIDv5 generation (DRQS 154326219) (#3907)
+  * 96e11c7f1 Fix comment for implicit conversion to string (#3935)
+  * edef0591d Update ball_logfilecleanerutil.h (#3933)
+  * ee8486177 'bslstl_string' freestanding 'operator+' for rvalues has been added. DRQS 169974490 (#3918)
+  * a5e938187 adding asserts to help locate hard to reproduce issue (#3930)
+  * 0b18b95bf C++17: array::swap() noexcept specification (#3926)
+  * 184b130b8 Update minimum CMake version.
+  * 057948071 bdlmt: default thread names for thread pool subthreads (#3920)
+  * fc36779da DRQS 170435960: Switch from master to main (#3924)
+  * 5f7bed872 'shrink_to_fit' method has been added to 'bslstl::basic_string'. DRQS 169974493 (#3905)
+  * 32c4fcc77 C++17 work: pair free function sfinae (#3917)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 20 Oct 2022 12:53:36 -0400
+
+bsl-internal (3.109.0.0) git; urgency=low
+
+  * af28534e4 Changelog for version 3.109.0.0
   * 53a12d8ea Bumped version to 3.109.0.0
   * 755e94e18 C++17-conformant noexcept specification for pair::swap() (DRQS 169974448) (#3900)
   * c56f32c26 correct build warnings (#3923)
@@ -12,7 +43,7 @@ bsl-internal (3.109.0.0) unstable; urgency=low
   * 1b3c66957 adding header to fix build error (#3914)
   * 108b36251 Revert "bsl::integral_constant is used instead of deprecated bslmf::MetaInt (DRQS 169833586) (#3882)" (#3912)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 29 Sep 2022 14:44:59 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 29 Sep 2022 14:48:52 -0400
 
 bsl-internal (3.108.0.1) git; urgency=low
 
