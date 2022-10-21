@@ -647,44 +647,6 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
 }
 
 //=============================================================================
-//                       UNUSUAL HASH ALGORITHM
-//-----------------------------------------------------------------------------
-
-namespace WeirdPlace {
-
-class BslhLikeHashingAlgorithm {
-  public:
-    // PUBLIC TYPES
-    typedef size_t result_type;
-
-  private:
-    // DATA
-    result_type d_value;
-
-  public:
-    // CREATORS
-    BslhLikeHashingAlgorithm() : d_value(0) {}
-
-    // MANIPULATORS
-    void operator()(const void *input, size_t numBytes)
-    {
-        const unsigned char *p = static_cast<unsigned const char *>(input);
-        const unsigned char *end = p + numBytes;
-        while (p < end) {
-            d_value += *p++;
-            d_value *= 99991;    // highest prime below 100,000
-        }
-    }
-
-    result_type computeHash()
-    {
-        return d_value;
-    }
-};
-
-}  // close namespace WeirdPlace
-
-//=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
@@ -1711,10 +1673,6 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     //: 4 Empty objects can be hashed.
     //:
     //: 5 Zero-length objects can be hashed.
-    //:
-    //: 6 Hashing works for a hash algorithm that is declared in a namespace
-    //:   other than 'std' or 'bslh'.  Especially important in C++17 when
-    //:   'string_view' lives in 'std'.
     //
     // Plan:
     //: 1 Create an empty object, a zero-length object and hash them.
@@ -1730,9 +1688,6 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     //: 5 Create two objects, having the same lengths and referring to the
     //:   different strings, having the same values.  Hash them and verify that
     //:   hashes are equal.  (C-3)
-    //:
-    //: 6 Repeat P-3, except this time using the weird hash function in a
-    //:   strange namespace.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const basic_string_view& str);
@@ -1743,13 +1698,6 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef Hasher::result_type         HashType;
     Hasher                              hasher;
-    const Hasher&                       HASHER = hasher;
-
-    typedef ::BloombergLP::bslh::Hash<WeirdPlace::BslhLikeHashingAlgorithm>
-                                        WeirdHasher;
-    typedef WeirdHasher::result_type    WeirdHashType;
-    WeirdHasher                         weirdHasher;
-    const WeirdHasher&                  WEIRD_HASHER = weirdHasher;
 
     const TYPE *STRING   = s_testString;
     const TYPE *NULL_PTR = 0;
@@ -1840,7 +1788,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
         Obj            mX1(STRING1, LENGTH1);
         const Obj&     X1    = mX1;
-        const HashType HASH1 = HASHER(X1);
+        const HashType HASH1 = hasher(X1);
 
         ASSERTV(LINE1, hashEmpty, HASH1, hashEmpty != HASH1);
         ASSERTV(LINE1, hashZero,  HASH1, hashZero  != HASH1);
@@ -1852,7 +1800,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
             Obj            mX2(STRING2, LENGTH2);
             const Obj&     X2    = mX2;
-            const HashType HASH2 = HASHER(X2);
+            const HashType HASH2 = hasher(X2);
 
             ASSERTV(LINE1, LINE2, HASH1, HASH2, (i == j) == (HASH1 == HASH2));
         }
@@ -1864,51 +1812,15 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
         Obj            mX1(STRING1);
         const Obj&     X1    = mX1;
-        const HashType HASH1 = HASHER(X1);
+        const HashType HASH1 = hasher(X1);
 
         Obj            mX2(STRING2);
         const Obj&     X2    = mX2;
-        const HashType HASH2 = HASHER(X2);
+        const HashType HASH2 = hasher(X2);
 
         ASSERTV(X1.data() != X2.data());
         ASSERTV(X1        == X2       );
         ASSERTV(HASH1     == HASH2    );
-    }
-
-    // The weird hash function was hastily thrown together and is not a very
-    // good hash, and often has a few collisions on unequal inputs.  Keep track
-    // and make sure the number of collisions is not too many.
-
-    // The nature of the table is that from the point of view of the weird hash
-    // function, a lot of the strings are extremely similar.
-
-    // The quality of the hashing is completely irrelevant to what we are
-    // interested in here -- we mostly just want to see if this compiles at
-    // all.
-
-    for (size_type i = 0; i < NUM_DATA; ++i) {
-        const int          LINE1   = DATA[i].d_lineNum;
-        const TYPE * const STRING1 = DATA[i].d_string;
-        const size_type    LENGTH1 = DATA[i].d_length;
-
-        Obj                 mX1(STRING1, LENGTH1);
-        const Obj&          X1    = mX1;
-        const WeirdHashType HASH1 = WEIRD_HASHER(X1);
-
-        ASSERTV(LINE1, hashEmpty, HASH1, hashEmpty != HASH1);
-        ASSERTV(LINE1, hashZero,  HASH1, hashZero  != HASH1);
-
-        for (size_type j = 0; j < NUM_DATA; ++j) {
-            const int          LINE2   = DATA[j].d_lineNum;
-            const TYPE * const STRING2 = DATA[j].d_string;
-            const size_type    LENGTH2 = DATA[j].d_length;
-
-            Obj                 mX2(STRING2, LENGTH2);
-            const Obj&          X2    = mX2;
-            const WeirdHashType HASH2 = WEIRD_HASHER(X2);
-
-            ASSERTV(LINE1, LINE2, (i == j) == (HASH1 == HASH2));
-        }
     }
 }
 
