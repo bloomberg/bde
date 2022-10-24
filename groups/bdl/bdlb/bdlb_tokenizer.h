@@ -895,7 +895,7 @@ class Tokenizer {
 
     bslstl::StringRef previousDelimiter() const;
         // Return a reference to the non-modifiable previous delimiter (or
-        // *leader*) in the input string.  The behavior is undefined unless the
+        // *leader*) in the input string.  The behavior is undefined if the
         // underlying input has been modified or destroyed since this object
         // was most recently reset (or created).
 
