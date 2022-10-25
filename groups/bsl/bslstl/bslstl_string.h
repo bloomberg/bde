@@ -769,33 +769,6 @@ String_Traits<std::char_traits<char> >::find(const char  *s,
 
 #endif
 
-// 'MovableRef<TYPE>' is defined such that 'TYPE' cannot be deduced directly
-// from 'MovableRef<TYPE>' in C++11 mode.  Use
-// 'BSLSTL_STRING_DEDUCE_RVREF(TYPE)' instead of 'MovableRef<TYPE>' in
-// situations where 'TYPE' must be deduced.
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#define BSLSTL_STRING_DEDUCE_RVREF                                            \
-                        bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> &&
-#define BSLSTL_STRING_DEDUCE_RVREF_1                                          \
-                           bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC1> &&
-#define BSLSTL_STRING_DEDUCE_RVREF_2                                          \
-                           bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2> &&
-#else
-#define BSLSTL_STRING_DEDUCE_RVREF                                            \
-BloombergLP::bslmf::MovableRef<bsl::basic_string<CHAR_TYPE,                   \
-                                                 CHAR_TRAITS,                 \
-                                                 ALLOCATOR> >
-#define BSLSTL_STRING_DEDUCE_RVREF_1                                          \
-BloombergLP::bslmf::MovableRef<bsl::basic_string<CHAR_TYPE,                   \
-                                                 CHAR_TRAITS,                 \
-                                                 ALLOC1> >
-#define BSLSTL_STRING_DEDUCE_RVREF_2                                          \
-BloombergLP::bslmf::MovableRef<bsl::basic_string<CHAR_TYPE,                   \
-                                                 CHAR_TRAITS,                 \
-                                                 ALLOC2> >
-#endif
-
                     // =======================================
                     // struct String_IsConvertibleToStringView
                     // =======================================
@@ -2939,72 +2912,34 @@ bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&    lhs,
-          const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&    rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-operator+(BSLSTL_STRING_DEDUCE_RVREF                              lhs,
-          const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-operator+(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  lhs,
-          BSLSTL_STRING_DEDUCE_RVREF                              rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-operator+(BSLSTL_STRING_DEDUCE_RVREF                              lhs,
-          BSLSTL_STRING_DEDUCE_RVREF                              rhs);
+operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
+          const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>
-operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&  lhs,
-          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&  rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>
-operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&  lhs,
-          BSLSTL_STRING_DEDUCE_RVREF_2                            rhs);
+operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>
-operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&  lhs,
-          const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&  rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>
-operator+(BSLSTL_STRING_DEDUCE_RVREF_1                            lhs,
-          const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&  rhs);
+operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(const CHAR_TYPE                                        *lhs,
-          const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&    rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-operator+(const CHAR_TYPE                                        *lhs,
-          BSLSTL_STRING_DEDUCE_RVREF                              rhs);
+operator+(const CHAR_TYPE                                      *lhs,
+          const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(CHAR_TYPE                                               lhs,
-          const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&    rhs);
+operator+(CHAR_TYPE                                             lhs,
+          const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(CHAR_TYPE                                               lhs,
-          BSLSTL_STRING_DEDUCE_RVREF                              rhs);
+operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
+          const CHAR_TYPE                                      *rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&    lhs,
-          const CHAR_TYPE                                        *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(BSLSTL_STRING_DEDUCE_RVREF                              lhs,
-          const CHAR_TYPE                                        *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&    lhs,
-          CHAR_TYPE                                               rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-operator+(BSLSTL_STRING_DEDUCE_RVREF                              lhs,
-          CHAR_TYPE                                               rhs);
+operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
+          CHAR_TYPE                                             rhs);
     // Return the concatenation of strings constructed from the specified 'lhs'
-    // and 'rhs' arguments, i.e., 'basic_string(lhs).append(rhs)'.  The
-    // allocator of the returned string is determined per the rules in P1165
-    // (https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1165r1.html).
+    // and 'rhs' arguments, i.e., 'basic_string(lhs).append(rhs)'.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
@@ -6818,45 +6753,11 @@ bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 bsl::operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& rhs)
 {
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> result(
-        bsl::allocator_traits<ALLOCATOR>::
-            select_on_container_copy_construction(lhs.get_allocator()));
+    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result;
     result.reserve(lhs.length() + rhs.length());
     result += lhs;
     result += rhs;
     return result;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-bsl::operator+(BSLSTL_STRING_DEDUCE_RVREF                             lhs,
-               const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
-{
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lvalue = lhs;
-    lvalue.append(rhs);
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-bsl::operator+(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lhs,
-               BSLSTL_STRING_DEDUCE_RVREF                             rhs)
-{
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lvalue = rhs;
-    lvalue.insert(0, lhs);
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-bsl::operator+(BSLSTL_STRING_DEDUCE_RVREF lhs, BSLSTL_STRING_DEDUCE_RVREF rhs)
-{
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lvalue = lhs;
-    lvalue.append(rhs);
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
@@ -6864,9 +6765,7 @@ bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>
 bsl::operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
-    bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result(
-        bsl::allocator_traits<ALLOC2>::
-            select_on_container_copy_construction(rhs.get_allocator()));
+    bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
     result.reserve(lhs.length() + rhs.length());
     result.append(lhs.c_str(), lhs.length());
     result += rhs;
@@ -6874,39 +6773,15 @@ bsl::operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>
-bsl::operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-               BSLSTL_STRING_DEDUCE_RVREF_2                           rhs)
-{
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& lvalue = rhs;
-    lvalue.insert(0, lhs.c_str(), lhs.size());
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>
 bsl::operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
                const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
-    bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1> result(
-        bsl::allocator_traits<ALLOC1>::
-            select_on_container_copy_construction(lhs.get_allocator()));
+    bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1> result;
     result.reserve(lhs.length() + rhs.length());
     result += lhs;
     result.append(rhs.c_str(), rhs.length());
     return result;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC1>
-bsl::operator+(BSLSTL_STRING_DEDUCE_RVREF_1                           lhs,
-               const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
-{
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC1>& lvalue = lhs;
-    lvalue.append(rhs.c_str(), rhs.length());
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC1>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -6919,24 +6794,11 @@ bsl::operator+(const CHAR_TYPE                                      *lhs,
     typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
                                           lhsLength = CHAR_TRAITS::length(lhs);
 
-    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result(
-        bsl::allocator_traits<ALLOCATOR>::
-            select_on_container_copy_construction(rhs.get_allocator()));
+    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result;
     result.reserve(lhsLength + rhs.length());
     result.append(lhs, lhsLength);
     result += rhs;
     return result;
-}
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-bsl::operator+(const CHAR_TYPE *lhs, BSLSTL_STRING_DEDUCE_RVREF rhs)
-{
-    BSLS_ASSERT_SAFE(lhs);
-
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lvalue = rhs;
-    lvalue.insert(0, lhs);
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -6944,9 +6806,7 @@ bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 bsl::operator+(CHAR_TYPE                                            lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& rhs)
 {
-    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result(
-        bsl::allocator_traits<ALLOCATOR>::
-            select_on_container_copy_construction(rhs.get_allocator()));
+    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result;
     result.reserve(1 + rhs.length());
     result.push_back(lhs);
     result += rhs;
@@ -6955,27 +6815,15 @@ bsl::operator+(CHAR_TYPE                                            lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-bsl::operator+(CHAR_TYPE lhs, BSLSTL_STRING_DEDUCE_RVREF rhs)
-{
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lvalue = rhs;
-    lvalue.insert(lvalue.begin(), lhs);
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
-}
-
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 bsl::operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
                const CHAR_TYPE                                      *rhs)
 {
     BSLS_ASSERT_SAFE(rhs);
+
     typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
                                           rhsLength = CHAR_TRAITS::length(rhs);
 
-    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result(
-        bsl::allocator_traits<ALLOCATOR>::
-            select_on_container_copy_construction(lhs.get_allocator()));
+    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result;
     result.reserve(lhs.length() + rhsLength);
     result += lhs;
     result.append(rhs, rhsLength);
@@ -6984,38 +6832,14 @@ bsl::operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-bsl::operator+(BSLSTL_STRING_DEDUCE_RVREF lhs, const CHAR_TYPE *rhs)
-{
-    BSLS_ASSERT_SAFE(rhs);
-
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lvalue = lhs;
-    lvalue.append(rhs);
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 bsl::operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& lhs,
                CHAR_TYPE                                            rhs)
 {
-    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result(
-        bsl::allocator_traits<ALLOCATOR>::
-            select_on_container_copy_construction(lhs.get_allocator()));
+    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result;
     result.reserve(lhs.length() + 1);
     result += lhs;
     result.push_back(rhs);
     return result;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-bsl::operator+(BSLSTL_STRING_DEDUCE_RVREF lhs, CHAR_TYPE rhs)
-{
-    basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& lvalue = lhs;
-    lvalue.push_back(rhs);
-    return basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-        BloombergLP::bslmf::MovableRefUtil::move(lvalue));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
@@ -7259,10 +7083,6 @@ extern template class bsl::String_Imp<wchar_t, bsl::wstring::size_type>;
 extern template class bsl::basic_string<char>;
 extern template class bsl::basic_string<wchar_t>;
 #endif
-
-#undef BSLSTL_STRING_DEDUCE_RVREF
-#undef BSLSTL_STRING_DEDUCE_RVREF_1
-#undef BSLSTL_STRING_DEDUCE_RVREF_2
 
 #endif
 
