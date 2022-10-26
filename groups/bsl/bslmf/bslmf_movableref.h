@@ -12,6 +12,7 @@ BSLS_IDENT("$Id: $")
 //  bslmf::MovableRefUtil: a namespace for functions dealing with movables
 //
 //@MACROS:
+//  BSLMF_MOVABLEREF_DEDUCE(TYPE): movable ref of 'TYPE' that is deducible
 //  BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES: defined if MovableRef<T> is 'T&&'
 //
 //@SEE_ALSO:
@@ -157,6 +158,14 @@ BSLS_IDENT("$Id: $")
 // 'bslmf::MovableRef<T>' is designed specifically to avoid deduction of 'T',
 // thus preventing it from accidentally being used as a forwarding reference
 // (which would have the wrong effect in C++03).
+//
+// For contexts where it is desirable to deduce 'T', the
+// 'BSLMF_MOVABLEREF_DEDUCE' macro is provided.  When invoked like
+// 'BSLMF_MOVABLEREF_DEDUCE(T)', this macro expands to 'bslmf::MovableRef<T>'
+// in C++03, and a type alias to 'T&&' for which substitution fails if 'T&&'
+// would be an lvalue reference in C++11 and later.  In both cases, the type
+// 'T' is deducible, and substitution succeeds only if
+// 'BSLMF_MOVABLEREF_DEDUCE(T)' deduces a movable reference.
 //
 ///Usage
 ///-----
@@ -534,6 +543,20 @@ BSLS_IDENT("$Id: $")
     // both r-value reference and alias templates need to be supported.
 #endif
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#   define BSLMF_MOVABLEREF_DEDUCE(...)                                       \
+        ::BloombergLP::bslmf::MovableRef_Deduced<__VA_ARGS__>
+    // This macro expands to a movable reference to '__VA_ARGS__' for which the
+    // arguments are deducible in all language versions.  Note that the
+    // argument list of this macro is variadic in order to support deducing
+    // template arguments, e.g., this macro supports uses like
+    // 'BSLMF_MOVABLEREF_DEDUCE(bsl::pair<T1, T2>)' for which the  types 'T1'
+    // and 'T2' are deducible, even though the macro argument contains a comma.
+#else
+#    define BSLMF_MOVABLEREF_DEDUCE(...)                                      \
+        ::BloombergLP::bslmf::MovableRef<__VA_ARGS__>
+#endif
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -803,6 +826,17 @@ struct MovableRef_Helper {
         // The type 'type' defined to be an r-value reference to the argument
         // type of 'MovableRef_Helper.
 };
+
+                          // =======================
+                          // type MovableRef_Deduced
+                          // =======================
+
+template <class TYPE,
+          typename bsl::enable_if<!bsl::is_lvalue_reference<TYPE>::value,
+                                  int>::type = 0>
+using MovableRef_Deduced = TYPE&&;
+    // This component-private alias template names the type 't_TYPE&&' if and
+    // only if the specified 't_TYPE' is not an lvalue reference.
 
 #endif // defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 

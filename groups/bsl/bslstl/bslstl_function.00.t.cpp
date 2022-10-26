@@ -651,16 +651,6 @@ void dumpExTest(const char *s,
 #define MSVC_2015 0
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-# ifndef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
-#  error "This test driver requires 'bslmf::MovableRef<T>' be 'T&&' if" \
-         " the current compiler supports rvalue references."
-# endif
-# define DEDUCED_MOVABLE_REF(T) T&&
-#else
-# define DEDUCED_MOVABLE_REF(T) ::BloombergLP::bslmf::MovableRef<T >
-#endif
-
 namespace {
 
 // Size type used by test allocator.
@@ -2109,7 +2099,7 @@ struct ArgGenerator<TYPE&> : ArgGeneratorBase<TYPE> {
 };
 
 template <class TYPE>
-struct ArgGenerator<DEDUCED_MOVABLE_REF(TYPE)> : ArgGeneratorBase<TYPE> {
+struct ArgGenerator<BSLMF_MOVABLEREF_DEDUCE(TYPE)> : ArgGeneratorBase<TYPE> {
     // Specialization of 'ArgGenerator' for movable references to the specified
     // 'TYPE'.
 
@@ -2154,7 +2144,7 @@ struct ArgGenerator<SmartPtr<TYPE> > : ArgGeneratorBase<TYPE> {
 };
 
 template <class TYPE>
-struct ArgGenerator<DEDUCED_MOVABLE_REF(SmartPtr<TYPE>)>
+struct ArgGenerator<BSLMF_MOVABLEREF_DEDUCE(SmartPtr<TYPE>)>
 : ArgGeneratorBase<TYPE> {
     // Specialization of 'ArgGenerator' for movable references of modifiable
     // smart pointers smart pointers to the specified 'TYPE'.

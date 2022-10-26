@@ -50,7 +50,8 @@ using namespace BloombergLP;
 // [ 8] MovableRef<TYPE> VS. RVALUE
 // [ 9] EXTENDING 'bsl::is_nothrow_move_constructible'
 // [10] CONCERN: IBM XL C++ functions with default arguments workaround
-// [11] USAGE EXAMPLE
+// [11] BSLMF_MOVABLEREF_DEDUCE
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -416,6 +417,124 @@ namespace {
 
 class Class;
     // This class declaration provides a name for an incomplete class type.
+
+struct TestIsDeducible {
+    // This 'struct' defines a function object whose overloaded function-call
+    // operator can be used to test whether an argument's type is deducible as
+    // a movable ref using the 'BSLMF_MOVABLEREF_DEDUCE' macro.  Note that the
+    // overload taking an ellipsis "..." has the lowest possible precedence for
+    // overload resolution and will only be selected if substitution fails for
+    // the (deduced) movable-ref overload.  In essence, this overload set
+    // allows testing whether or not substitution fails for the deduced movable
+    // reference type.
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(int  line,
+                    bool shouldTypeBeDeduced,
+                    BSLMF_MOVABLEREF_DEDUCE(TYPE)) const
+    {
+        ASSERTV(line, shouldTypeBeDeduced);
+    }
+
+    void operator()(int line, bool shouldTypeBeDeduced, ...) const
+    {
+        ASSERTV(line, !shouldTypeBeDeduced);
+    }
+};
+
+template <class ARG1, class ARG2, class ARG3>
+struct ClassTemplate {
+    // This 'struct' template defines trivial and standard-layout (POD) type
+    // template.
+};
+
+struct TestTemplateIsDeducible {
+    // This 'struct' defines a function object whose overloaded function-call
+    // operator can be used to test whether an argument of a specialization of
+    // an (optionally 'const'-qualified) 'ClassTemplate' type is deducible as a
+    // movable ref using the 'BSLMF_MOVABLEREF_DEDUCE' macro.
+
+    // ACCESSORS
+    template <class ARG1, class ARG2, class ARG3>
+    void
+    operator()(int  line,
+               bool shouldTypeBeDeduced,
+               bool shouldPickConstOverload,
+               BSLMF_MOVABLEREF_DEDUCE(ClassTemplate<ARG1, ARG2, ARG3>)) const
+    {
+        ASSERTV(line, shouldTypeBeDeduced);
+        ASSERTV(line, !shouldPickConstOverload);
+    }
+
+    template <class ARG1, class ARG2, class ARG3>
+    void operator()(
+          int  line,
+          bool shouldTypeBeDeduced,
+          bool shouldPickConstOverload,
+          BSLMF_MOVABLEREF_DEDUCE(const ClassTemplate<ARG1, ARG2, ARG3>)) const
+    {
+        ASSERTV(line, shouldTypeBeDeduced);
+        ASSERTV(line, shouldPickConstOverload);
+    }
+
+    void operator()(int line, bool shouldTypeBeDeduced, bool, ...) const
+    {
+        ASSERTV(line, !shouldTypeBeDeduced);
+    }
+};
+
+struct TestOverloadSelection {
+    // This 'struct' defines a function object whose overloaded function-call
+    // operator can be used to test (1) whether an overload set for an argument
+    // with both a deduced movable reference type and alternatively for an
+    // argument with a deduced 'const' 'lvalue' reference is unambiguous, and
+    // (2) which overload is selected for a particular argument.
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(int line,
+                    bool shouldPickMovableRefOverload,
+                    BSLMF_MOVABLEREF_DEDUCE(TYPE)) const
+    {
+        ASSERTV(line, shouldPickMovableRefOverload);
+    }
+
+    template <class TYPE>
+    void operator()(int line,
+                    bool shouldPickMovableRefOverload,
+                    const TYPE&) const
+    {
+        ASSERTV(line, !shouldPickMovableRefOverload);
+    }
+};
+
+struct TestOverloadSelectionWithConstMovableRef {
+    // This 'struct' defines a function object whose function-call operator
+    // overload set can be used to test (1) whether an overload set for an
+    // argument with both a deduced movable reference type and alternatively
+    // for an argument with a deduced movable reference to 'const' is
+    // unambiguous, and (2) which overload is selected for a particular
+    // argument.
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(int line,
+                    bool shouldPickConstOverload,
+                    BSLMF_MOVABLEREF_DEDUCE(TYPE)) const
+    {
+        ASSERTV(line, !shouldPickConstOverload);
+    }
+
+    template <class TYPE>
+    void operator()(int line,
+                    bool shouldPickConstOverload,
+                    BSLMF_MOVABLEREF_DEDUCE(const TYPE)) const
+    {
+        ASSERTV(line, shouldPickConstOverload);
+    }
+};
+
 
 template <class TYPE>
 struct TestMovableRefArgument {
@@ -1077,7 +1196,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1150,6 +1269,278 @@ int main(int argc, char *argv[])
 // Compiling this code with both C++03 and C++11 compilers shows that there is
 // no need for conditional compilation in when using 'MovableRef<TYPE>' while
 // move semantics is enabled in both modes.
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING DEDUCTION
+        //   Ensure that the macro 'BSLMF_MOVABLEREF_DEDUCE' expands to a type
+        //   that is an instantiation of 'bslmf::MovableRef' that is deducible,
+        //   even if the argument to the macro is, for example, a template
+        //   instantiation with multiple arguments.  Also, ensure that the
+        //   so-deduced type is always an rvalue reference and never an lvalue
+        //   reference when compiled in C++11 mode and later, such that
+        //   substitution fails for would-be-deduced lvalue references.
+        //
+        // Concerns:
+        //: 1 The macro only deduces movable references and never lvalue
+        //:   references, and does so in a sfinae-friendly way.
+        //:
+        //: 2 The types that are deduced can be arguments to type templates,
+        //:   e.g., 'BSLMF_MOVABLEREF_DEDUCE(bsl::pair<T1, T2>)' should be able
+        //:   to deduce 'T1' and 'T2', and expand to a movable reference to
+        //:   'bsl::pair<T1, T2>' even though the argument to the macro has a
+        //:   comma in it.
+        //:
+        //: 3 It is safe to use a deduced movable reference in an overload set
+        //:   that also takes an lvalue reference, and overload selection
+        //:   behaves as if the movable reference were 'MovableRef<T>' for some
+        //:   'T' in C++03, and as 'T&&' in C++11 and later.
+        //:
+        //: 4 The macro is able to deduce a movable reference to 'const',
+        //:   it is safe to have an overload set with 'const' and non-'const'
+        //:   deduced movable references, and overload resolution behaves as
+        //:   if the movable references to const were 'MovableRef<const T>'
+        //:   in C++03, and as 'const T&&' in C++11 and later.
+        //
+        // Plan:
+        //: 1 Given all possible combinations of 'const' and reference
+        //:   qualification for 'int' and a trivial class type 'O', verify that
+        //:   movable references can be deduced for expressions of such types
+        //:   having lvalue, xvalue, and prvalue value categories (where
+        //:   possible for the language version and reference qualification).
+        //:   Verify that movable references can be deduced for xvalue and
+        //:   prvalue expressions of movable reference type (but not lvalue
+        //:   expressions when in C++11 and later). (C-1)
+        //:
+        //: 2 Given all possible combinations of 'const' and reference
+        //:   qualification for a trivial class template specialization
+        //:   ('ClassTemplate<int, int, int>'), verify that a deduced movable
+        //:   reference to an (optionally 'const') 'ClassTemplate<T1, T2, T3>'
+        //:   where 'T1', 'T2', and 'T3' are template arguments, is deducible.
+        //:   (C-2)
+        //:
+        //: 3 Given all possible combinations of 'const' and reference
+        //:   qualification for 'int' and a trivial class type 'O', verify that
+        //:   an overload set consisting of an lvalue reference to a 'const'
+        //:   'T' and a deduced movable reference select the lvalue-reference
+        //:   overload for lvalue expressions, and select the
+        //:   deduced-movable-reference overload for xvalue and prvalue
+        //:   expressions. (C-3)
+        //:
+        //: 4 Given all possible combinations of 'const' and reference
+        //:   qualification for 'int' and a trivial class type 'O', verify that
+        //:   the 'const' qualification of a deduced movable reference matches
+        //:   the 'const' qualification of the expression (except when the
+        //:   expression is a fundamental type, in which the 'const' is
+        //:   dropped).  Also verify that there are no overload resolution
+        //:   ambiguity problems for overload sets taking both 'const' and
+        //:   non-'const' deduced movable references. (C-4)
+        //
+        // Testing:
+        //   BSLMF_MOVABLEREF_DEDUCE
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING DEDUCTION"
+                   "\n=================\n");
+
+        // Short for "Not Applicable"
+        static const bool NA = false;
+
+        static const bool YES = true;
+        static const bool NO = false;
+
+        typedef bslmf::MovableRefUtil U;
+
+        typedef int I;
+        typedef I& rI;
+        typedef const I cI;
+        typedef const I& rcI;
+        typedef bslmf::MovableRef<I> rrI;
+        typedef bslmf::MovableRef<cI> rrcI;
+        I i = 0;
+        rI ri = i;
+        rrI rri = bslmf::MovableRefUtil::move(i);
+        cI ci = 0;
+        rcI rci = ci;
+        rrcI rrci = bslmf::MovableRefUtil::move(ci);
+
+        typedef TrivialClass O;
+        typedef O& rO;
+        typedef const O cO;
+        typedef const O& rcO;
+        typedef bslmf::MovableRef<O> rrO;
+        typedef bslmf::MovableRef<cO> rrcO;
+        O o;
+        rO ro = o;
+        rrO rro = bslmf::MovableRefUtil::move(o);
+        cO co;
+        rcO rco = co;
+        rrcO rrco = bslmf::MovableRefUtil::move(co);
+
+        typedef ClassTemplate<int, int, int> T;
+        typedef T& rT;
+        typedef const T cT;
+        typedef const T& rcT;
+        typedef bslmf::MovableRef<T> rrT;
+        typedef bslmf::MovableRef<const T> rrcT;
+        T t;
+        rT rt = t;
+        rrT rrt = bslmf::MovableRefUtil::move(t);
+        cT ct;
+        rcT rct = ct;
+        rrcT rrct = bslmf::MovableRefUtil::move(ct);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        const bool IF_RVALUE_REF = true;
+#else
+        const bool IF_RVALUE_REF = false;
+#endif
+
+        const TestIsDeducible TEST1;
+
+        //       LINE
+        //      .----
+        //     / IS MR DEDUCIBLE?   EXPRESSION
+        //    -- ---------------- ---------------
+        TEST1(L_,   IF_RVALUE_REF, I()           );
+        TEST1(L_,   IF_RVALUE_REF, cI()          );
+        TEST1(L_,   NO           , i             );
+        TEST1(L_,   NO           , ri            );
+        TEST1(L_, ! IF_RVALUE_REF, rri           );
+        TEST1(L_,   NO           , ci            );
+        TEST1(L_,   NO           , rci           );
+        TEST1(L_, ! IF_RVALUE_REF, rrci          );
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TEST1(L_,   YES          , U::move(I())  );
+#endif
+        TEST1(L_,   YES          , U::move(i)    );
+        TEST1(L_,   YES          , U::move(ri)   );
+        TEST1(L_,   YES          , U::move(rri)  );
+        TEST1(L_,   YES          , U::move(ci)   );
+        TEST1(L_,   YES          , U::move(rci)  );
+        TEST1(L_,   YES          , U::move(rrci) );
+
+        TEST1(L_,   IF_RVALUE_REF, O()           );
+        TEST1(L_,   IF_RVALUE_REF, cO()          );
+        TEST1(L_,   NO           , o             );
+        TEST1(L_,   NO           , ro            );
+        TEST1(L_, ! IF_RVALUE_REF, rro           );
+        TEST1(L_,   NO           , co            );
+        TEST1(L_,   NO           , rco           );
+        TEST1(L_, ! IF_RVALUE_REF, rrco          );
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TEST1(L_,   YES          , U::move(O())  );
+        TEST1(L_,   YES          , U::move(cO()) );
+#endif
+        TEST1(L_,   YES          , U::move(o)    );
+        TEST1(L_,   YES          , U::move(ro)   );
+        TEST1(L_,   YES          , U::move(rro)  );
+        TEST1(L_,   YES          , U::move(co)   );
+        TEST1(L_,   YES          , U::move(rco)  );
+        TEST1(L_,   YES          , U::move(rrco) );
+
+        const TestTemplateIsDeducible TEST2;
+
+        //       LINE
+        //      .----
+        //     / IS MR DEDUCIBLE?    CONST?     EXPRESSION
+        //    -- ---------------- ----------- ---------------
+        TEST2(L_,   IF_RVALUE_REF, NO        , T()           );
+        TEST2(L_,   IF_RVALUE_REF, YES       , cT()          );
+        TEST2(L_,   NO           , NA        , t             );
+        TEST2(L_,   NO           , NA        , rt            );
+        TEST2(L_, ! IF_RVALUE_REF, NO        , rrt           );
+        TEST2(L_,   NO           , NA        , ct            );
+        TEST2(L_,   NO           , NA        , rct           );
+        TEST2(L_, ! IF_RVALUE_REF, YES       , rrct          );
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TEST2(L_,   YES          , NO        , U::move(T())  );
+        TEST2(L_,   YES          , YES       , U::move(cT()) );
+#endif
+        TEST2(L_,   YES          , NO        , U::move(t)    );
+        TEST2(L_,   YES          , NO        , U::move(rt)   );
+        TEST2(L_,   YES          , NO        , U::move(rrt)  );
+        TEST2(L_,   YES          , YES       , U::move(ct)   );
+        TEST2(L_,   YES          , YES       , U::move(rct)  );
+        TEST2(L_,   YES          , YES       , U::move(rrct) );
+
+        const TestOverloadSelection TEST3;
+
+        //       LINE
+        //      .----
+        //     / IS MR DEDUCIBLE?   EXPRESSION
+        //    -- ---------------- ---------------
+        TEST3(L_,   IF_RVALUE_REF, I()           );
+        TEST3(L_,   IF_RVALUE_REF, cI()          );
+        TEST3(L_,   NO           , i             );
+        TEST3(L_,   NO           , ri            );
+        TEST3(L_, ! IF_RVALUE_REF, rri           );
+        TEST3(L_,   NO           , ci            );
+        TEST3(L_,   NO           , rci           );
+        TEST3(L_, ! IF_RVALUE_REF, rrci          );
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TEST3(L_,   YES          , U::move(I())  );
+        TEST3(L_,   YES          , U::move(cI()) );
+#endif
+        TEST3(L_,   YES          , U::move(i)    );
+        TEST3(L_,   YES          , U::move(ri)   );
+        TEST3(L_,   YES          , U::move(rri)  );
+        TEST3(L_,   YES          , U::move(ci)   );
+        TEST3(L_,   YES          , U::move(rci)  );
+        TEST3(L_,   YES          , U::move(rrci) );
+
+        TEST3(L_,   IF_RVALUE_REF, O()           );
+        TEST3(L_,   IF_RVALUE_REF, cO()          );
+        TEST3(L_,   NO           , o             );
+        TEST3(L_,   NO           , ro            );
+        TEST3(L_, ! IF_RVALUE_REF, rro           );
+        TEST3(L_,   NO           , co            );
+        TEST3(L_,   NO           , rco           );
+        TEST3(L_, ! IF_RVALUE_REF, rrco          );
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TEST3(L_,   YES          , U::move(O())  );
+        TEST3(L_,   YES          , U::move(cO()) );
+#endif
+        TEST3(L_,   YES          , U::move(o)    );
+        TEST3(L_,   YES          , U::move(ro)   );
+        TEST3(L_,   YES          , U::move(rro)  );
+        TEST3(L_,   YES          , U::move(co)   );
+        TEST3(L_,   YES          , U::move(rco)  );
+        TEST3(L_,   YES          , U::move(rrco) );
+
+        const TestOverloadSelectionWithConstMovableRef TEST4;
+
+        //       LINE
+        //      .----
+        //     /   DEDUCE CONST?     EXPRESSION
+        //    -- ---------------- ---------------
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TEST4(L_,   NO           , I()           );
+        TEST4(L_,   NO           , cI()          );
+        TEST4(L_,   NO           , U::move(I())  );
+        TEST4(L_,   NO           , U::move(cI()) );
+#endif
+        TEST4(L_,   NO           , U::move(i)    );
+        TEST4(L_,   NO           , U::move(ri)   );
+        TEST4(L_,   NO           , U::move(rri)  );
+        TEST4(L_,   YES          , U::move(ci)   );
+        TEST4(L_,   YES          , U::move(rci)  );
+        TEST4(L_,   YES          , U::move(rrci) );
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TEST4(L_,   NO           , O()           );
+        TEST4(L_,   YES          , cO()          );
+        TEST4(L_,   NO           , U::move(O())  );
+        TEST4(L_,   YES          , U::move(cO()) );
+#endif
+        TEST4(L_,   NO           , U::move(o)    );
+        TEST4(L_,   NO           , U::move(ro)   );
+        TEST4(L_,   NO           , U::move(rro)  );
+        TEST4(L_,   YES          , U::move(co)   );
+        TEST4(L_,   YES          , U::move(rco)  );
+        TEST4(L_,   YES          , U::move(rrco) );
+
       } break;
       case 10: {
         // --------------------------------------------------------------------

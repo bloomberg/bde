@@ -75,13 +75,6 @@ BSLS_IDENT("$Id: $")
 #include <cstdlib>
 #include <typeinfo>
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-# define BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(TYPE) TYPE&&
-#else
-# define BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(TYPE) \
-         ::BloombergLP::bslmf::MovableRef<TYPE>
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 
@@ -293,8 +286,7 @@ class Function_Rep {
     template <class FUNC>
     void constructTarget(FUNC& func);
     template <class FUNC>
-    void constructTarget(
-                      BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(const FUNC) func);
+    void constructTarget(BSLMF_MOVABLEREF_DEDUCE(const FUNC) func);
         // Copy the specified callable object 'func' into this object's target
         // storage (either in-place within this object's small-object buffer or
         // out-of-place from the allocator).  The behavior is undefined unless
@@ -302,7 +294,7 @@ class Function_Rep {
         // is when 'd_invoker_p == 0' and 'd_funcManager_p != 0'.
 
     template <class FUNC>
-    void constructTarget(BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(FUNC) func);
+    void constructTarget(BSLMF_MOVABLEREF_DEDUCE(FUNC) func);
         // Move the specified callable object 'func' into this object's target
         // storage (either in-place within this object's small-object buffer or
         // out-of-place from the allocator).  The behavior is undefined unless
@@ -574,8 +566,8 @@ void bslstl::Function_Rep::constructTarget(FUNC& func)
 }
 
 template <class FUNC>
-void bslstl::Function_Rep::constructTarget(
-                       BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(const FUNC) func)
+void bslstl::Function_Rep::constructTarget(BSLMF_MOVABLEREF_DEDUCE(const FUNC)
+                                               func)
 {
     BSLS_ASSERT_SAFE(0 != d_funcManager_p);
     BSLS_ASSERT_SAFE(0 == d_invoker_p);
@@ -584,8 +576,7 @@ void bslstl::Function_Rep::constructTarget(
 }
 
 template <class FUNC>
-void bslstl::Function_Rep::constructTarget(
-                             BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(FUNC) func)
+void bslstl::Function_Rep::constructTarget(BSLMF_MOVABLEREF_DEDUCE(FUNC) func)
 {
     BSLS_ASSERT_SAFE(0 != d_funcManager_p);
     BSLS_ASSERT_SAFE(0 == d_invoker_p);

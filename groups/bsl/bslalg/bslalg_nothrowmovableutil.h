@@ -286,18 +286,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 
 namespace BloombergLP {
-
 namespace bslalg {
-
-// 'MovableRef<TYPE>' is defined such that 'TYPE' cannot be deduced directly
-// from 'MovableRef<TYPE>' in C++11 mode.  Use
-// 'BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE)' instead of
-// 'MovableRef<TYPE>' in situations where 'TYPE' must be deduced.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#define BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE) TYPE&&
-#else
-#define BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE) bslmf::MovableRef<TYPE>
-#endif
 
 // FORWARD DECLARATION
 template <class TYPE, bool = bsl::is_function<TYPE>::value>
@@ -343,10 +332,10 @@ struct NothrowMovableUtil {
     static typename UnwrappedType<TYPE>::type const& unwrap(TYPE const& f);
     template <class TYPE>
     static bslmf::MovableRef<const typename UnwrappedType<TYPE>::type>
-        unwrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE) f);
+        unwrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE) f);
     template <class TYPE>
     static bslmf::MovableRef<typename UnwrappedType<TYPE>::type>
-        unwrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE) f);
+        unwrap(BSLMF_MOVABLEREF_DEDUCE(TYPE) f);
         // Return a reference to the object wrapped in the specified 'f'
         // object.  If 'f' is not wrapped, simply return a reference to 'f'.  Note
         // that the overloads taking an lvalue argument prevent the overload
@@ -361,10 +350,10 @@ struct NothrowMovableUtil {
     static typename WrappedType<TYPE>::type wrap(TYPE const& f);
     template <class TYPE>
     static typename WrappedType<TYPE>::type
-        wrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE) f);
+        wrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE) f);
     template <class TYPE>
     static typename WrappedType<TYPE>::type
-        wrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE) f);
+        wrap(BSLMF_MOVABLEREF_DEDUCE(TYPE) f);
         // Return a wrapped copy of the specified 'f' object.  If 'f' is
         // already wrapped, return a simple copy of 'f' without wrapping it
         // again.  Note that the overloads taking an lvalue argument prevent
@@ -460,11 +449,10 @@ template <class TYPE>
 inline
 bslmf::MovableRef<
     const typename bslalg::NothrowMovableUtil::UnwrappedType<TYPE>::type>
-    bslalg::NothrowMovableUtil::unwrap(
-        BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE) f)
+    bslalg::NothrowMovableUtil::unwrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE) f)
 {
     const typename bslalg::NothrowMovableUtil::UnwrappedType<TYPE>::type& r =
-        bslmf::MovableRefUtil::access(f);
+                                              bslmf::MovableRefUtil::access(f);
     return bslmf::MovableRefUtil::move(r);
 }
 
@@ -472,11 +460,10 @@ template <class TYPE>
 inline
 bslmf::MovableRef<
     typename bslalg::NothrowMovableUtil::UnwrappedType<TYPE>::type>
-    bslalg::NothrowMovableUtil::unwrap(
-        BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE) f)
+    bslalg::NothrowMovableUtil::unwrap(BSLMF_MOVABLEREF_DEDUCE(TYPE) f)
 {
     typename bslalg::NothrowMovableUtil::UnwrappedType<TYPE>::type& r =
-        bslmf::MovableRefUtil::access(f);
+                                              bslmf::MovableRefUtil::access(f);
     return bslmf::MovableRefUtil::move(r);
 }
 
@@ -499,18 +486,16 @@ bslalg::NothrowMovableUtil::wrap(const TYPE& f)
 template <class TYPE>
 inline
 typename bslalg::NothrowMovableUtil::WrappedType<TYPE>::type
-    bslalg::NothrowMovableUtil::wrap(
-        BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE) f)
+    bslalg::NothrowMovableUtil::wrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE) f)
 {
-    return
-        typename WrappedType<TYPE>::type(bslmf::MovableRefUtil::move(f));
+    return typename WrappedType<TYPE>::type(bslmf::MovableRefUtil::move(f));
 }
 
 template <class TYPE>
 inline
 typename bslalg::NothrowMovableUtil::WrappedType<TYPE>::type
     bslalg::NothrowMovableUtil::wrap(
-        BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE) f)
+        BSLMF_MOVABLEREF_DEDUCE(TYPE) f)
 {
     return
         typename WrappedType<typename bslmf::MovableRefUtil::RemoveReference<
@@ -518,8 +503,6 @@ typename bslalg::NothrowMovableUtil::WrappedType<TYPE>::type
 }
 
 }  // close enterprise namespace
-
-#undef BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF
 
 #endif  // ! defined(INCLUDED_BSLALG_NOTHROWMOVABLEUTIL)
 

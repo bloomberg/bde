@@ -44,12 +44,12 @@ using namespace BloombergLP;
 // STATIC METHODS
 // [ 3] wrap(TYPE&)
 // [ 3] wrap(TYPE const&)
-// [ 3] wrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE))
-// [ 3] wrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE)
+// [ 3] wrap(BSLMF_MOVABLEREF_DEDUCE(TYPE))
+// [ 3] wrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE)
 // [ 4] unwrap(TYPE&)
 // [ 4] unwrap(TYPE const&)
-// [ 4] unwrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE))
-// [ 4] unwrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE))
+// [ 4] unwrap(BSLMF_MOVABLEREF_DEDUCE(TYPE))
+// [ 4] unwrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE))
 //
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
@@ -943,8 +943,8 @@ void TestDriver<TYPE>::testCase4()
     // Testing:
     //   unwrap(TYPE&);
     //   unwrap(TYPE const&);
-    //   unwrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE));
-    //   unwrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE));
+    //   unwrap(BSLMF_MOVABLEREF_DEDUCE(TYPE));
+    //   unwrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE));
     // --------------------------------------------------------------------
 
     typedef bslalg::ConstructorProxy<TYPE> TypeWithAllocator;
@@ -1042,8 +1042,8 @@ void TestDriver<TYPE>::testCase3()
     // Testing:
     //   wrap(TYPE& );
     //   wrap(TYPE const&);
-    //   wrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(TYPE));
-    //   wrap(BSLALG_NOTHROWMOVABLEUTIL_DEDUCE_RVREF(const TYPE));
+    //   wrap(BSLMF_MOVABLEREF_DEDUCE(TYPE));
+    //   wrap(BSLMF_MOVABLEREF_DEDUCE(const TYPE));
     // --------------------------------------------------------------------
 
     typedef bslalg::ConstructorProxy<TYPE> TypeWithAllocator;
