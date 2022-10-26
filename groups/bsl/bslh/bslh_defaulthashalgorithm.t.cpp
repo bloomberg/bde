@@ -41,7 +41,8 @@ using namespace bslh;
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 5] HASHING AS SEPARATE SEGMENTS
+// [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -103,6 +104,88 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
+//                  TYPES, CLASSES, FUNCTIONS, AND CONSTANTS
+// ----------------------------------------------------------------------------
+
+typedef bsls::Types::Uint64      Uint64;
+typedef DefaultHashAlgorithm     Obj;
+
+namespace {
+namespace u {
+
+const Uint64 minus1 = static_cast<Uint64>(0) - 1;
+
+struct RandGen {
+    // DATA
+    Uint64 d_accum;
+
+    // PRIVATE MANIPULATOR
+    void munge()
+    {
+        d_accum = d_accum * 6364136223846793005ULL + 1442695040888963407ULL;
+    }
+
+  public:
+    // CREATOR
+    RandGen() : d_accum(0) {}
+
+    // MANIPULATORS
+    unsigned num(Uint64 seed = minus1)
+        // MMIX Linear Congruential Generator algorithm by Donald Knuth
+    {
+        if (minus1 != seed) {
+            d_accum = seed;
+
+            munge();
+            d_accum ^= d_accum >> 32;
+            munge();
+            d_accum ^= d_accum >> 32;
+            munge();
+        }
+
+        munge();
+
+        return static_cast<unsigned>(d_accum >> 32);
+    }
+
+    void randMemory(void *memory, size_t size);
+
+    template <class TYPE>
+    void randVal(TYPE *var);
+};
+
+void RandGen::randMemory(void *memory, size_t size)
+{
+    char *ram = static_cast<char *>(memory);
+    char *end = ram + size;
+
+    for (size_t toCopy; ram < end; ram += toCopy) {
+        unsigned randVal = num();
+        toCopy = std::min<size_t>(sizeof(unsigned), end - ram);
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+        // always change to little endian
+
+        randVal = bsls::ByteOrderUtil::swapBytes32(randVal);
+#endif
+
+        memcpy(ram, &randVal, toCopy);
+    }
+}
+
+template <class TYPE>
+void RandGen::randVal(TYPE *var)
+{
+    Uint64 accum = num();
+    accum |= (static_cast<Uint64>(num()) << 32);
+
+    *var = static_cast<TYPE>(accum);
+}
+
+}  // close namespace u
+}  // close namespace
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -353,12 +436,6 @@ bool HashTable<TYPE, HASHER>::contains(const TYPE& value) const
     return lookup(&idx, value, d_hasher(value));
 }
 
-//=============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
-//-----------------------------------------------------------------------------
-
-typedef DefaultHashAlgorithm Obj;
-
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -376,7 +453,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be used to create more powerful
@@ -426,6 +503,59 @@ int main(int argc, char *argv[])
         ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
 
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING HASHING AS SEPARATE SEGMENTS
+        //
+        // Concerns:
+        //: 1 Hashing memory as a single segment yields the same result as
+        //:   hashing it in multiple segments.
+        //
+        // Plan:
+        //: 1 Use a random number generator to fill a buffer with random data.
+        //:
+        //: 2 Hash it as a single segment and store the result.
+        //:
+        //: 3 Iterate 10 times, each time randomly hashing it as multiple
+        //:   segments, and compare the result to the single segment result.
+        //
+        // Tesing:
+        //   HASHING AS SEPARATE SEGMENTS
+        // --------------------------------------------------------------------
+
+        enum { k_MAX_LEN = 1024 };
+
+        for (unsigned ti = 0; ti < k_MAX_LEN; ++ti) {
+            const size_t LEN = ti;
+
+            u::RandGen rand;
+            rand.num(ti);
+
+            char buffer[k_MAX_LEN];
+            rand.randMemory(buffer, LEN);
+
+            Obj oneShotHash;
+            oneShotHash(buffer, LEN);
+            const Obj::result_type oneShotResult = oneShotHash.computeHash();
+
+            for (int tj = 0; tj < 10; ++tj) {
+                Obj multiShotHash;
+
+                for (size_t offset = 0, subLen; offset < LEN;
+                                                            offset += subLen) {
+                    subLen = rand.num() % (LEN + 1 - offset);
+                    ASSERT(offset + subLen <= LEN);
+
+                    multiShotHash(buffer + offset, subLen);
+                }
+
+                const Obj::result_type multiShotResult =
+                                                   multiShotHash.computeHash();
+
+                ASSERT(oneShotResult == multiShotResult);
+            }
+        }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'result_type' TYPEDEF
@@ -455,8 +585,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("ASSERT the typedef is accessible and is the"
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
-            ASSERT((bslmf::IsSame<Obj::result_type,
-                                  WyHashAlgorithm::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<
+                             Obj::result_type,
+                             WyHashIncrementalAlgorithm::result_type>::VALUE));
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
@@ -494,8 +625,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Hash a number of values with 'bslh::DefaultHashAlgorithm' and
-        //:   'bslh::WyHashAlgorithm' and verify that the outputs match.
-        //:   (C-1,2,3)
+        //:   'bslh::WyHashIncrementalAlgorithm' and verify that the outputs
+        //:   match.  (C-1,2,3)
         //:
         //: 2 Call 'operator()' with a null pointer. (C-4)
         //
@@ -541,21 +672,48 @@ int main(int argc, char *argv[])
                             " 'bslh::WyHashAlgorithm' and verify that the"
                             " outputs match. (C-1,2,3)\n");
         {
+            u::RandGen rand;
+
             for (int i = 0; i != NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const char *VALUE = DATA[i].d_value;
+                const int     LINE  = DATA[i].d_line;
+                const char   *VALUE = DATA[i].d_value;
+                const size_t  LEN   = strlen(VALUE);
 
-                if (veryVerbose) printf("Hashing: %s\n with"
-                                        " 'bslh::DefaultHashAlgorithm' and"
-                                        " 'bslh::WyHashAlgorithm'", VALUE);
+                ASSERT(0 < LEN);
 
-                Obj             contiguousHash;
-                WyHashAlgorithm cannonicalHashAlgorithm;
+                if (veryVerbose) printf(
+                                 "Hashing: %s\n with"
+                                 " 'bslh::DefaultHashAlgorithm' and"
+                                 " 'bslh::WyHashIncrementalAlgorithm'", VALUE);
 
-                cannonicalHashAlgorithm(VALUE, strlen(VALUE));
-                contiguousHash(VALUE, strlen(VALUE));
-                ASSERTV(LINE, cannonicalHashAlgorithm.computeHash() ==
-                                                 contiguousHash.computeHash());
+                Obj                        defaultHasher;
+                WyHashIncrementalAlgorithm canonicalHasher;
+
+                defaultHasher(  VALUE, LEN);
+                canonicalHasher(VALUE, LEN);
+
+                BSLMF_ASSERT((bsl::is_same<
+                             Obj::result_type,
+                             WyHashIncrementalAlgorithm::result_type>::value));
+
+                const Obj::result_type defaultHashVal =
+                                                   defaultHasher.computeHash();
+                const Obj::result_type canonicalHashVal =
+                                                 canonicalHasher.computeHash();
+                ASSERTV(LINE, defaultHashVal == canonicalHashVal);
+
+                for (int jj = 0; jj < 5; ++jj) {
+                    Obj contiguousHasher;
+                    size_t idx = 0, deltaIdx;
+                    for (; idx < LEN; idx += deltaIdx) {
+                        rand.randVal(&deltaIdx);
+                        deltaIdx %= 1 + LEN - idx;
+                        contiguousHasher(VALUE + idx, deltaIdx);
+                    }
+                    ASSERT(LEN == idx && 0 < deltaIdx);
+
+                    ASSERT(defaultHashVal == contiguousHasher.computeHash());
+                }
             }
         }
 

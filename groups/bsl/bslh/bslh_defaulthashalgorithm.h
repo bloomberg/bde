@@ -279,7 +279,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#include <bslh_wyhashalgorithm.h>
+#include <bslh_wyhashincrementalalgorithm.h>
 
 namespace BloombergLP {
 
@@ -292,7 +292,7 @@ class DefaultHashAlgorithm {
 
   private:
     // PRIVATE TYPES
-    typedef bslh::WyHashAlgorithm InternalHashAlgorithm;
+    typedef bslh::WyHashIncrementalAlgorithm InternalHashAlgorithm;
         // Typedef indicating the algorithm currently being used by
         // 'bslh::DefualtHashAlgorithm' to compute hashes.  This algorithm is
         // subject to change.

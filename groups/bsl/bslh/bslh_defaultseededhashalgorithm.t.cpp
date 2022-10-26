@@ -46,7 +46,8 @@ using namespace bslh;
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [ 6] HASHING AS SEPARATE SEGMENTS
+// [ 7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -113,8 +114,88 @@ void aSsErT(bool condition, const char *message, int line)
 //                 GLOBAL TYPEDEFS AND DATA FOR TESTING
 //-----------------------------------------------------------------------------
 
+typedef bsls::Types::Uint64        Uint64;
 typedef DefaultSeededHashAlgorithm Obj;
 const char globalSeed[DefaultSeededHashAlgorithm::k_SEED_LENGTH] = { 0 };
+
+// ============================================================================
+//                  TYPES, CLASSES, FUNCTIONS, AND CONSTANTS
+// ----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+const Uint64 minus1 = static_cast<Uint64>(0) - 1;
+
+struct RandGen {
+    // DATA
+    Uint64 d_accum;
+
+    // PRIVATE MANIPULATOR
+    void munge()
+    {
+        d_accum = d_accum * 6364136223846793005ULL + 1442695040888963407ULL;
+    }
+
+  public:
+    // CREATOR
+    RandGen() : d_accum(0) {}
+
+    // MANIPULATORS
+    unsigned num(Uint64 seed = minus1)
+        // MMIX Linear Congruential Generator algorithm by Donald Knuth
+    {
+        if (minus1 != seed) {
+            d_accum = seed;
+
+            munge();
+            d_accum ^= d_accum >> 32;
+            munge();
+            d_accum ^= d_accum >> 32;
+            munge();
+        }
+
+        munge();
+
+        return static_cast<unsigned>(d_accum >> 32);
+    }
+
+    void randMemory(void *memory, size_t size);
+
+    template <class TYPE>
+    void randVal(TYPE *var);
+};
+
+void RandGen::randMemory(void *memory, size_t size)
+{
+    char *ram = static_cast<char *>(memory);
+    char *end = ram + size;
+
+    for (size_t toCopy; ram < end; ram += toCopy) {
+        unsigned randVal = num();
+        toCopy = std::min<size_t>(sizeof(unsigned), end - ram);
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+        // always change to little endian
+
+        randVal = bsls::ByteOrderUtil::swapBytes32(randVal);
+#endif
+
+        memcpy(ram, &randVal, toCopy);
+    }
+}
+
+template <class TYPE>
+void RandGen::randVal(TYPE *var)
+{
+    Uint64 accum = num();
+    accum |= (static_cast<Uint64>(num()) << 32);
+
+    *var = static_cast<TYPE>(accum);
+}
+
+}  // close namespace u
+}  // close namespace
 
 //=============================================================================
 //                    COMPONENTS REQUIRED FOR USAGE EXAMPLE
@@ -403,15 +484,15 @@ int main(int argc, char *argv[])
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    bool     veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
+    bool veryVeryVeryVerbose = argc > 5; (void) veryVeryVeryVerbose;
 
     (void)veryVeryVeryVerbose;  // suppress warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be used to create more powerful
@@ -462,6 +543,62 @@ int main(int argc, char *argv[])
         ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
 
       } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING HASHING AS SEPARATE SEGMENTS
+        //
+        // Concerns:
+        //: 1 Hashing memory as a single segment yields the same result as
+        //:   hashing it in multiple segments.
+        //
+        // Plan:
+        //: 1 Use a random number generator to fill a buffer and a seed buffer
+        //:   with random data.
+        //:
+        //: 2 Hash it as a single segment and store the result.
+        //:
+        //: 3 Iterate 10 times, each time randomly hashing it as multiple
+        //:   segments, and compare the result to the single segment result.
+        //
+        // Tesing:
+        //   HASHING AS SEPARATE SEGMENTS
+        // --------------------------------------------------------------------
+
+        enum { k_MAX_LEN = 1024 };
+
+        for (unsigned ti = 0; ti < k_MAX_LEN; ++ti) {
+            const size_t LEN = ti;
+
+            u::RandGen rand;
+            rand.num(ti);
+
+            char buffer[k_MAX_LEN];
+            rand.randMemory(buffer, LEN);
+
+            char seedBuffer[Obj::k_SEED_LENGTH];
+            rand.randMemory(seedBuffer, Obj::k_SEED_LENGTH);
+
+            Obj oneShotHash(seedBuffer);
+            oneShotHash(buffer, LEN);
+            const Obj::result_type oneShotResult = oneShotHash.computeHash();
+
+            for (int tj = 0; tj < 10; ++tj) {
+                Obj multiShotHash(seedBuffer);
+
+                for (size_t offset = 0, subLen; offset < LEN;
+                                                            offset += subLen) {
+                    subLen = rand.num() % (LEN + 1 - offset);
+                    ASSERT(offset + subLen <= LEN);
+
+                    multiShotHash(buffer + offset, subLen);
+                }
+
+                Obj::result_type multiShotResult = multiShotHash.computeHash();
+
+                ASSERT(oneShotResult == multiShotResult);
+            }
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING 'k_SEED_LENGTH'
@@ -476,7 +613,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Access 'k_SEED_LENGTH' and ASSERT it is equal to the value
-        //:   defined by 'bslh::WyHashAlgorithm. (C-1,2)
+        //:   defined by 'bslh::WyHashInternalAlgorithm. (C-1,2)
         //
         // Testing:
         //   enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
@@ -486,10 +623,10 @@ int main(int argc, char *argv[])
                             "\n=======================\n");
 
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
-                            " the value defined by 'bslh::WyHashAlgorithm."
-                            " (C-1,2)\n");
+                            " the value defined by"
+                            " 'bslh::WyHashIncrementalAlgorithm'. (C-1,2)\n");
         {
-            ASSERT(int(WyHashAlgorithm::k_SEED_LENGTH) ==
+            ASSERT(int(WyHashIncrementalAlgorithm::k_SEED_LENGTH) ==
                    int(Obj::k_SEED_LENGTH));
         }
 
@@ -502,7 +639,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bslh::WyHashAlgorithm::result_type'.
+        //:   'bslh::WyHashIncrementalAlgorithm::result_type'.
         //:
         //: 2 'computeHash()' returns 'result_type'
         //
@@ -523,8 +660,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("ASSERT the typedef is accessible and is the"
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
-            ASSERT((bslmf::IsSame<Obj::result_type,
-                                  WyHashAlgorithm::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<
+                             Obj::result_type,
+                             WyHashIncrementalAlgorithm::result_type>::VALUE));
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
@@ -545,9 +683,9 @@ int main(int argc, char *argv[])
         //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
         //   state as specified by the underlying hashing algorithm
-        //   (bslh::WyHashAlgorithm).  Verify that 'computeHash()' returns
-        //   the final value specified by the canonical implementation of the
-        //   underlying hashing algorithm.
+        //   (bslh::WyHashIncrementalAlgorithm).  Verify that 'computeHash()'
+        //   returns the final value specified by the canonical implementation
+        //   of the underlying hashing algorithm.
         //
         // Concerns:
         //: 1 The function call operator is callable.
@@ -562,8 +700,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Hash a number of values with 'bslh::DefaultSeededHashAlgorithm'
-        //:   and 'bslh::WyHashAlgorithm' and verify that the outputs match.
-        //:   (C-1,2,3)
+        //:   and 'bslh::WyHashIncrementalAlgorithm' and verify that the
+        //:   outputs match.  (C-1,2,3)
         //:
         //: 2 Call 'operator()' with a null pointer. (C-4)
         //
@@ -606,31 +744,31 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Hash a number of values with"
                             " 'bslh::DefaultSeededHashAlgorithm' and"
-                            " 'bslh::WyHashAlgorithm' and verify that the"
-                            " outputs match. (C-1,2,3)\n");
+                            " 'bslh::WyHashIncrementalAlgorithm' and verify"
+                            " that the outputs match. (C-1,2,3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
                 const char *VALUE = DATA[i].d_value;
 
                 if (veryVerbose) printf("Hashing: %s\n with"
                                         " 'bslh::DefaultSeededHashAlgorithm'"
-                                        " and 'bslh::WyHashAlgorithm'",
+                                        " and"
+                                        " 'bslh::WyHashIncrementalAlgorithm'",
                                         VALUE);
 
-                Obj             contiguousHash(globalSeed);
-                WyHashAlgorithm cannonicalHashAlgorithm(globalSeed);
+                Obj                        contiguousHash(globalSeed);
+                WyHashIncrementalAlgorithm cannonicalHashAlgorithm(globalSeed);
 
                 cannonicalHashAlgorithm(VALUE, strlen(VALUE));
                 contiguousHash(VALUE, strlen(VALUE));
 
                 const Obj::result_type contHash = contiguousHash.computeHash();
-                const WyHashAlgorithm::result_type canHash =
+                const WyHashIncrementalAlgorithm::result_type canHash =
                                          cannonicalHashAlgorithm.computeHash();
 
                 BSLMF_ASSERT((bsl::is_same<
-                                        Obj::result_type,
-                                        WyHashAlgorithm::result_type>::value));
+                             Obj::result_type,
+                             WyHashIncrementalAlgorithm::result_type>::value));
 
                 ASSERTV(contHash, canHash, contHash == canHash);
             }

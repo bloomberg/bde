@@ -7,7 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslh_defaultseededhashalgorithm.h> // for testing only
 #include <bslh_siphashalgorithm.h>           // for testing only
 #include <bslh_spookyhashalgorithm.h>        // for testing only
-#include <bslh_wyhashalgorithm.h>            // for testing only
+#include <bslh_wyhashincrementalalgorithm.h> // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

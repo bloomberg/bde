@@ -291,7 +291,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslh_wyhashalgorithm.h>
+#include <bslh_wyhashincrementalalgorithm.h>
 
 #include <bslmf_assert.h>
 
@@ -308,7 +308,7 @@ class DefaultSeededHashAlgorithm {
 
   private:
     // PRIVATE TYPES
-    typedef bslh::WyHashAlgorithm InternalHashAlgorithm;
+    typedef bslh::WyHashIncrementalAlgorithm InternalHashAlgorithm;
         // Typedef indicating the algorithm currently being used by
         // 'bslh::DefualtHashAlgorithm' to compute hashes.  This algorithm is
         // subject to change.

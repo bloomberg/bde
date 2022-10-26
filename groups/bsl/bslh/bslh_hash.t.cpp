@@ -3,7 +3,7 @@
 #include <bslh_defaultseededhashalgorithm.h>
 #include <bslh_siphashalgorithm.h>
 #include <bslh_spookyhashalgorithm.h>
-#include <bslh_wyhashalgorithm.h>
+#include <bslh_wyhashincrementalalgorithm.h>
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
@@ -1054,7 +1054,8 @@ int main(int argc, char *argv[])
                                   Hash<SpookyHashAlgorithm>::result_type>
                                                                      ::VALUE));
             ASSERT((bslmf::IsSame<size_t,
-                                  Hash<WyHashAlgorithm>::result_type>::VALUE));
+                                  Hash<WyHashIncrementalAlgorithm>::
+                                                         result_type>::VALUE));
         }
 
         if (verbose) printf("Invoke 'operator()' and verify the return type is"
@@ -1070,8 +1071,8 @@ int main(int argc, char *argv[])
             ASSERT(TypeChecker<Hash<SpookyHashAlgorithm>::result_type>::
                                 isCorrectType(Hash<SpookyHashAlgorithm>()(1)));
 
-            ASSERT(TypeChecker<Hash<WyHashAlgorithm>::result_type>::
-                                isCorrectType(Hash<WyHashAlgorithm>()(1)));
+            ASSERT(TypeChecker<Hash<WyHashIncrementalAlgorithm>::result_type>::
+                         isCorrectType(Hash<WyHashIncrementalAlgorithm>()(1)));
         }
 
       } break;
@@ -1105,6 +1106,7 @@ int main(int argc, char *argv[])
             bsls::Types::Uint64  d_expectedHash;
         } DATA[] = {
           // LINE    DATA              HASH
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
             { L_,        1, 17109556646805833470ULL },
             { L_,        3, 16351598246447922364ULL },
             { L_,        9,  1205159795595966972ULL },
@@ -1120,6 +1122,23 @@ int main(int argc, char *argv[])
             { L_,   531441,  4940997958587689384ULL },
             { L_,  1594323, 14969997265140987090ULL },
             { L_,  4782969, 16880761100252594755ULL },
+#else
+            { L_,        1, 10721771165655570898ULL },
+            { L_,        3, 15543619864905589427ULL },
+            { L_,        9, 15788302220835240787ULL },
+            { L_,       27,  3633547382623884630ULL },
+            { L_,       81, 10552108476797136748ULL },
+            { L_,      243, 16459323445399415947ULL },
+            { L_,      729, 18066594498176664786ULL },
+            { L_,     2187,  1290944882718715391ULL },
+            { L_,     6561,  8759231575490458848ULL },
+            { L_,    19683,  7145943025158893086ULL },
+            { L_,    59049,  9742622179988096332ULL },
+            { L_,   177147, 11267389570837324346ULL },
+            { L_,   531441,  4283194815975407009ULL },
+            { L_,  1594323,  8377256145471936158ULL },
+            { L_,  4782969, 17443951588166189420ULL },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1141,24 +1160,27 @@ int main(int argc, char *argv[])
                 Obj hash = Obj();
                 const size_t result = hash(LE_VALUE);
 
-                if (veryVeryVerbose) {
-                    static bool firstTime = true;
-                    if (firstTime &&
-                               sizeof(size_t) != sizeof(bsls::Types::Uint64)) {
-                        firstTime = false;
+#undef  U_PRINT_TABLE
+#define U_PRINT_TABLE 0
 
-                        printf("To print the table properly,"
-                                               " run this on a 64-bit build.");
-                    }
+#if U_PRINT_TABLE
+                static bool firstTime = true;
+                if (firstTime) {
+                    firstTime = false;
 
-                    printf("            { L_, %8d, %20lluULL },\n",
-                              VALUE, static_cast<bsls::Types::Uint64>(result));
+                    ASSERT(0 && "printing table - test disabled");
+                    ASSERT(sizeof(size_t) == sizeof(bsls::Types::Uint64));
                 }
 
+                printf("            { L_, %8d, %20lluULL },\n",
+                              VALUE, static_cast<bsls::Types::Uint64>(result));
+#else
                 LOOP_ASSERT(LINE, result == HASH);
 
                 const Obj constHash = Obj();
                 LOOP_ASSERT(LINE, constHash(LE_VALUE) == HASH);
+#endif
+#undef  U_PRINT_TABLE
             }
         }
 

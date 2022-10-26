@@ -11,4 +11,4 @@ bslh_seedgenerator
 bslh_siphashalgorithm
 bslh_spookyhashalgorithm
 bslh_spookyhashalgorithmimp
-bslh_wyhashalgorithm
+bslh_wyhashincrementalalgorithm

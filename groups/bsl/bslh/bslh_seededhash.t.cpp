@@ -4,7 +4,7 @@
 #include <bslh_seedgenerator.h>
 #include <bslh_siphashalgorithm.h>
 #include <bslh_spookyhashalgorithm.h>
-#include <bslh_wyhashalgorithm.h>
+#include <bslh_wyhashincrementalalgorithm.h>
 
 #include <bslmf_issame.h>
 
@@ -357,9 +357,9 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    bool         veryVerbose = argc > 3; (void) veryVerbose;
+    bool     veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
+    bool veryVeryVeryVerbose = argc > 5; (void) veryVeryVeryVerbose;
 
     (void)veryVeryVerbose;      // suppress warning
     (void)veryVeryVeryVerbose;  // suppress warning
@@ -484,8 +484,9 @@ int main(int argc, char *argv[])
             ASSERT((bslmf::IsSame<size_t,
                                   SeededHash<SeedGen, SpookyHashAlgorithm>
                                                        ::result_type>::VALUE));
-            ASSERT((bslmf::IsSame<size_t,
-                                  SeededHash<SeedGen, WyHashAlgorithm>
+            ASSERT((bslmf::IsSame<
+                                size_t,
+                                SeededHash<SeedGen, WyHashIncrementalAlgorithm>
                                                        ::result_type>::VALUE));
         }
 
@@ -495,7 +496,7 @@ int main(int argc, char *argv[])
             typedef SeededHash<SeedGen, DefaultSeededHashAlgorithm> S1;
             typedef SeededHash<SeedGen, SipHashAlgorithm>           S2;
             typedef SeededHash<SeedGen, SpookyHashAlgorithm>        S3;
-            typedef SeededHash<SeedGen, WyHashAlgorithm>            S4;
+            typedef SeededHash<SeedGen, WyHashIncrementalAlgorithm> S4;
 
             ASSERT(TypeChecker<S1::result_type>::isCorrectType(S1()(1)));
 
@@ -536,6 +537,7 @@ int main(int argc, char *argv[])
             int d_value;
             u64 d_expectedHash;
         } DATA[] = {
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
             // LINE   DATA              HASH
             { L_,        1,     850780076440683384ULL },
             { L_,        3,   18306243112761280582ULL },
@@ -552,6 +554,23 @@ int main(int argc, char *argv[])
             { L_,   531441,    7539576847008949288ULL },
             { L_,  1594323,   10753838002839432121ULL },
             { L_,  4782969,   10048672953098544131ULL },
+#else
+            { L_,        1,    3746121849524411997ULL },
+            { L_,        3,   16762070641185500389ULL },
+            { L_,        9,   13453652562151400172ULL },
+            { L_,       27,    5097513958213049491ULL },
+            { L_,       81,    2089515317577045414ULL },
+            { L_,      243,    1271004789093687620ULL },
+            { L_,      729,    8085157705749227523ULL },
+            { L_,     2187,    3222261377507691997ULL },
+            { L_,     6561,    5273289906489851356ULL },
+            { L_,    19683,   16254242405306114334ULL },
+            { L_,    59049,   15671958668864391521ULL },
+            { L_,   177147,    7937421076815580469ULL },
+            { L_,   531441,    2403778846675763457ULL },
+            { L_,  1594323,    8395213753795219846ULL },
+            { L_,  4782969,   18067522342587326734ULL },
+#endif
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -568,6 +587,19 @@ int main(int argc, char *argv[])
                 Obj hash = Obj();
                 const u64 result = hash(LE_VALUE);
 
+#undef  U_PRINT_TABLE
+#define U_PRINT_TABLE 0
+
+#if     U_PRINT_TABLE
+                static bool firstTime = true;
+                if (firstTime) {
+                    firstTime = false;
+
+                    ASSERT(0 && "printing table - test disabled");
+                }
+
+                printf("            { L_, %8d, %22lluULL },\n", VALUE, result);
+#else
                 if (sizeof(Obj::result_type) == sizeof(HASH)) {
                     ASSERT(HASH == result);
                 }
@@ -575,16 +607,13 @@ int main(int argc, char *argv[])
                 size_t truncResult = size_t(result);
                 size_t truncExpect = size_t(HASH);
 
-                if (veryVerbose) {
-                    printf("            { L_, %8d, %22lluULL },\n", VALUE,
-                                                                       result);
-                }
-
                 LOOP_ASSERT(LINE, truncResult == truncExpect);
 
                 const Obj constHash = Obj();
                 size_t constTruncResult = size_t(constHash(LE_VALUE));
                 LOOP_ASSERT(LINE, constTruncResult == truncExpect);
+#endif
+#undef  U_PRINT_TABLE
             }
         }
 
