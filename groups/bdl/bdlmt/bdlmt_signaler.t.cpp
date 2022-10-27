@@ -1014,15 +1014,13 @@ static void test4_signaler_connect()
 
     const bdlt::Datetime now = bdlt::CurrentTime::local();
 
-    if ((major < 16 || (16 == major && minor <= 1)) &&
-                                          now < bdlt::Datetime(2023, 11, 14)) {
+    if (major < 16 || (16 == major && minor <= 1)) {
         // There is a compiler bug on Aix {DRQS 166134166<GO>} that causes the
         // 'this' pointer to be corrupted when a base class d'tor is called if
         // the derived class c'tor throws.
 
         // We want to discontinue this workaround once we get to xlC_r 16.2 or
-        // later, or on November 14, 2023 (30 months from today) whichever
-        // comes first.
+        // later.
 
         cout << "Quitting before '3' to avoid xlC_r known compiler bug.\n" <<
                                             "see {DRQS 166134166<GO>}" << endl;
@@ -1034,7 +1032,7 @@ static void test4_signaler_connect()
         // usefulness, and if the following tests fails, we want attention
         // drawn to the fact that it's a known compiler bug.
 
-        ASSERT(0 && "Clean me up after November 14, 2023 or sooner.");
+        ASSERT(0 && "Clean me up after xlC_r 16.1 or sooner.");
     }
 # endif
 
