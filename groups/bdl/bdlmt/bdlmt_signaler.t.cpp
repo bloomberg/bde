@@ -1007,35 +1007,35 @@ static void test4_signaler_connect()
         ASSERTV(sig.slotCount(), 1 == sig.slotCount());
     }
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDE_BUILD_TARGET_EXC)
+# if defined(BSLS_PLATFORM_CMP_IBM) && defined(BSLS_PLATFORM_CPU_32_BIT)
     const int major = (0xff00 & BSLS_PLATFORM_CMP_VERSION) >> 8;
     const int minor =  0x00ff & BSLS_PLATFORM_CMP_VERSION;
 
     const bdlt::Datetime now = bdlt::CurrentTime::local();
 
-    if ((major < 16 || (16 == major && minor <= 1)) &&
-                                           now < bdlt::Datetime(2022, 5, 14)) {
+    if (major < 16 || (16 == major && minor <= 1)) {
         // There is a compiler bug on Aix {DRQS 166134166<GO>} that causes the
         // 'this' pointer to be corrupted when a base class d'tor is called if
         // the derived class c'tor throws.
 
         // We want to discontinue this workaround once we get to xlC_r 16.2 or
-        // later, or on May 14, 2022 (one year from today) whichever comes
-        // first.
+        // later.
 
-        cout << "Quitting before '3' to avoid xlC_r compiler bug.\n";
+        cout << "Quitting before '3' to avoid xlC_r known compiler bug.\n" <<
+                                            "see {DRQS 166134166<GO>}" << endl;
 
         return;       // Quit test.
     }
-    else if (now > bdlt::Datetime(2023, 5, 14)) {
+    else {
         // We want this workaround to be removed once it has outlived its
-        // usefulness.
+        // usefulness, and if the following tests fails, we want attention
+        // drawn to the fact that it's a known compiler bug.
 
-        ASSERT(0 && "Clean me up after May 14, 2023 or sooner.");
+        ASSERT(0 && "Clean me up after xlC_r 16.1 or sooner.");
     }
-#endif
+# endif
 
-#if defined(BDE_BUILD_TARGET_EXC)
     if (veryVerbose) cout << "3. connect a slot that throws on copy\n";
     {
         bsl::ostringstream      out(&alloc);
