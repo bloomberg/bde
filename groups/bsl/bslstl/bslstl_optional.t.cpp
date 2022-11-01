@@ -20,6 +20,7 @@
 #include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_types.h> // 'bsls::Types::Int64'
 
 // A list of disabled tests :
@@ -203,6 +204,8 @@ using namespace bsl;
 // [14] DRQS 169300521
 // [19] DRQS 165776192
 // [21] CLASS TEMPLATE DEDUCTION GUIDES
+// [23] TESTING DERIVED -- 'TYPE' ALLOCATES
+// [24] TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -291,6 +294,9 @@ using namespace bsl;
 
 typedef bslmf::MovableRefUtil MoveUtil;
 
+typedef bsltf::TemplateTestFacility TTF;
+typedef bsltf::MoveState            MoveState;
+
 namespace {
     enum { k_MOVED_FROM_VAL = 0x01d };
     enum { k_DESTROYED = 0x05c };
@@ -300,6 +306,22 @@ namespace {
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
+
+#define ASSERT_IS_MOVED_FROM(val)                                             \
+    ASSERT(TTF::getMovedFromState(val) == MoveState::e_MOVED ||               \
+           TTF::getMovedFromState(val) == MoveState::e_UNKNOWN);
+
+#define ASSERT_IS_MOVED_INTO(val)                                             \
+    ASSERT(TTF::getMovedIntoState(val) == MoveState::e_MOVED ||               \
+           TTF::getMovedIntoState(val) == MoveState::e_UNKNOWN);
+
+#define ASSERT_IS_NOT_MOVED_FROM(val)                                         \
+    ASSERT(TTF::getMovedFromState(val) == MoveState::e_NOT_MOVED ||           \
+           TTF::getMovedFromState(val) == MoveState::e_UNKNOWN);
+
+#define ASSERT_IS_NOT_MOVED_INTO(val)                                         \
+    ASSERT(TTF::getMovedIntoState(val) == MoveState::e_NOT_MOVED ||           \
+           TTF::getMovedIntoState(val) == MoveState::e_UNKNOWN);
 
 #define BSLSTL_OPTIONAL_TEST_TYPES_INSTANCE_COUNTING                          \
     MyClass1, MyClass1a, MyClass2, MyClass2a
@@ -5813,6 +5835,35 @@ bool hasSameAllocator(const TYPE& obj1, const TYPE& obj2)
     return Test_Util<TYPE>::hasSameAllocator(obj1, obj2);
 }
 
+                              // ---------------
+                              // Test Case 23-24
+                              // ---------------
+
+template <class TYPE,
+          bool  USES_BSLMA_ALLOC =
+                           BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>
+struct Derived;
+
+template <class TYPE>
+struct Derived<TYPE, true> : bsl::optional<TYPE, true> {
+    // CREATORS
+    Derived(bsl::allocator_arg_t aarg,
+            bsl::allocator<char> alloc,
+            const TYPE&          value)
+    : bsl::optional<TYPE, true>(aarg, alloc, value)
+    {
+    }
+};
+
+template <class TYPE>
+struct Derived<TYPE, false> : bsl::optional<TYPE, false> {
+    // CREATORS
+    Derived(const TYPE& value)
+    : bsl::optional<TYPE, false>(value)
+    {
+    }
+};
+
                               // ------------
                               // Test Case 22
                               // ------------
@@ -5901,6 +5952,12 @@ class TestDriver {
         // Array of test values of 'TYPE'.
 
   public:
+
+    static void testCase24();
+        // TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
+
+    static void testCase23();
+        // TESTING DERIVED -- 'TYPE' ALLOCATES
 
     static void testCase20();
         // TESTING NOEXCEPT
@@ -6040,6 +6097,313 @@ void bslstl_optional_value_type_deduce(const bsl::optional<TYPE>&)
 template <class TYPE>
 void bslstl_optional_optional_type_deduce(const TYPE&)
 {
+}
+
+template <class TYPE>
+void TestDriver<TYPE>::testCase24()
+{
+    // ------------------------------------------------------------------------
+    // TESTING ASSIGNABILITY/CONSTRUCTIBILITY FROM DERIVED CLASS
+    //
+    // The 'class' 'Derived<TYPE>' (defined in this file above) is derived from
+    // 'bsl::optional<TYPE>'.  In this test case, we only consider 'TYPE's
+    // which don't allocate memory.
+    //
+    // Concerns:
+    //: 1 'optional' can be assigned from a const 'Derived' object.
+    //:
+    //: 2 'optional' can be constructed from a const 'Derived' object.
+    //:
+    //: 3 'optional' can be assigned from a moved 'Derived' object.
+    //:
+    //: 4 'optional' can be constructed from a moved 'Derived' object.
+    //
+    // Plan:
+    //: 1 assign to an 'optional' from a const 'Derived'.
+    //:
+    //: 2 construct an 'optional' from a const 'Derived'.
+    //:
+    //: 3 assign to an 'optional' from a moved 'Derived'.
+    //:
+    //: 4 construct an 'optional' from a moved 'Derived'.
+    //
+    // TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
+    // ------------------------------------------------------------------------
+
+    BSLMF_ASSERT(!BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value);
+
+    const TestValues     tvs;
+
+    ASSERT(tvs[0] != tvs[1]);
+
+    Obj            ov(tvs[0]);
+    Derived<TYPE>  dv(tvs[1]);    const Derived<TYPE>& DV = dv;
+
+    ASSERT(tvs[0] == *ov);
+    ASSERT(tvs[1] == *DV);
+
+    // assign from const 'Derived'
+
+    ov = DV;
+
+    ASSERT(tvs[1] == *ov);
+    ASSERT(tvs[1] == *DV);
+
+    ov = tvs[0];
+
+    // construct from const 'Derived'
+
+    Obj odv(DV);
+
+    ASSERT(*odv == tvs[1]);
+
+    // assign from moved 'Derived'
+
+    ov = MoveUtil::move(dv);
+
+    ASSERT_IS_NOT_MOVED_FROM(*ov);
+    ASSERT_IS_MOVED_INTO(*ov);
+    ASSERT_IS_MOVED_FROM(*dv);
+    ASSERT_IS_NOT_MOVED_INTO(*dv);
+
+    ASSERT(tvs[1] == *ov);
+
+    *ov = tvs[0];
+    *dv = tvs[1];
+
+    ASSERT_IS_NOT_MOVED_FROM(*ov);
+    ASSERT_IS_NOT_MOVED_INTO(*ov);
+    ASSERT_IS_NOT_MOVED_FROM(*dv);
+    ASSERT_IS_NOT_MOVED_INTO(*dv);
+
+    ASSERT(tvs[0] == *ov);
+    ASSERT(tvs[1] == *dv);
+
+    // construct from moved 'Derived'
+
+    Obj oev(MoveUtil::move(dv));
+
+    ASSERT_IS_NOT_MOVED_FROM(*oev);
+    ASSERT_IS_MOVED_INTO(*oev);
+    ASSERT_IS_MOVED_FROM(*dv);
+    ASSERT_IS_NOT_MOVED_INTO(*dv);
+
+    ASSERT(tvs[1] == *oev);
+}
+
+template <class TYPE>
+void TestDriver<TYPE>::testCase23()
+{
+    // ------------------------------------------------------------------------
+    // TESTING ASSIGNABILITY/CONSTRUCTIBILITY FROM DERIVED CLASS
+    //
+    // The 'class' 'Derived<TYPE>' (defined in this file above) is derived from
+    // 'bsl::optional<TYPE>'.  In this test case, we only consider 'TYPE's
+    // which allocate memory.
+    //
+    // Concerns:
+    //: 1 'optional' can be assigned from a const 'Derived' object.
+    //:   o allocators match
+    //:
+    //:   o allocators don't match
+    //:
+    //: 2 'optional' can be constructed from a const 'Derived' object.
+    //:   o No allocator passed
+    //:
+    //:   o non-matching allocator passed
+    //:
+    //:   o matching allocator passed
+    //:
+    //: 3 'optional' can be assigned from a moved 'Derived' object.
+    //:
+    //: 4 'optional' can be constructed from a moved 'Derived' object.
+    //:   o No allocator passed
+    //:
+    //:   o non-matching allocator passed
+    //:
+    //:   o matching allocator passed
+    //
+    // Plan:
+    //: 1 Create 3 'bsl::allocator' objects, 'aa', 'ab', and 'ad', where 'ad'
+    //:   is the default allocator.
+    //:
+    //: 2 Iterate a loop through 'c' equals 'a', 'b', and 'c', where a
+    //:   reference 'aExp' is set to allocators 'aa', 'ab', and 'ad' depending
+    //:   on the value of 'c'.  We will do our tests, both assignments and
+    //:   constructions, so that the expected allocator of the result matches
+    //:   'aExp'.
+    //:   o Create an 'optional' object 'ov' which uses 'aExp'.  'ov' will be
+    //:     used as the destination for assignments.
+    //:
+    //:   o Create a 'Derived' object 'dv' which uses 'ab', and 'DV', a const
+    //:     ref to that.
+    //;
+    //:   o Assign to 'ov' from 'DV' (C-1).
+    //:
+    //:   o Check that the value and allocator of 'ov' are as expected.
+    //:
+    //:   o Reset 'ov' to its original value.
+    //:
+    //:   o Create a 'bsls::ObjectBuffer<optional>' 'oBuf', and 'odv', an
+    //:     'optional' reference to it.
+    //:
+    //:   o Go into a switch and call placement constructors to construct 'odv'
+    //:     from DV.  If 'aExp' is 'aa' or 'ab' pass 'aExp' to the constructor,
+    //:     otherwise pass no allocator to the constructor (in which case we
+    //:     expect the result to use the default allocator 'ad', which will
+    //:     match 'aExp').  (C-2)
+    //:
+    //:   o Check that the value and allocator of 'odv' are as expected.
+    //:
+    //:   o Destroy 'odv'
+    //:
+    //:   o Assign to 'ov' from moved 'dv'.  (C-3)
+    //:
+    //:   o Check that the value and allocator of 'ov' are as expected.
+    //:
+    //:   o Reset 'ov' to its original value.
+    //:
+    //:   o Go into a switch and call placement constructors to construct 'odv'
+    //:     from moved 'dv'.  If 'aExp' is 'aa' or 'ad' pass 'aExp' to the
+    //:     constructor, otherwise pass no allocator to the constructor (in
+    //:     which case we expect the result to use 'dv's allocator 'ab', which
+    //:     will match 'aExp').  (C-4)
+    //:
+    //:   o Check that the value and allocator of 'odv' are as expected.
+    //:
+    //:   o Destroy 'odv'
+    //
+    // TESTING DERIVED -- 'TYPE' ALLOCATES
+    // ------------------------------------------------------------------------
+
+    BSLMF_ASSERT(BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value);
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    bslma::TestAllocator ta, tb;
+    bsl::allocator<char> aa(&ta), ab(&tb), ad(&da);
+
+    const TestValues     tvs;
+
+    ASSERT(tvs[0] != tvs[1]);
+
+    for (char c = 'a'; c <= 'c'; ++c) {
+        bsl::allocator<char>& aExp = 'a' == c ? aa    // 'aExp' is always
+                                   : 'b' == c ? ab    // expected to be the
+                                   : ad;              // allocator of the
+                                                      // destinations, both
+                                                      // 'ov' and 'odv'.
+
+        Obj ov(bsl::allocator_arg, aExp, tvs[0]);
+        Derived<TYPE>        dv(bsl::allocator_arg, ab, tvs[1]);
+        const Derived<TYPE>& DV = dv;
+
+        ASSERT(tvs[0] == *ov);
+        ASSERT(tvs[1] == *DV);
+
+        ASSERT(aExp == ov.get_allocator());
+        ASSERT(ab   == DV.get_allocator());
+
+        // assign from const
+
+        ov = DV;
+
+        ASSERT_IS_NOT_MOVED_FROM(*ov);
+        ASSERT_IS_NOT_MOVED_INTO(*ov);
+        ASSERT_IS_NOT_MOVED_FROM(*DV);
+        ASSERT_IS_NOT_MOVED_INTO(*DV);
+
+        ASSERT(tvs[1] == *ov);
+        ASSERT(tvs[1] == *dv);
+
+        ASSERT(aExp == ov.get_allocator());
+        ASSERT(ab == DV.get_allocator());
+
+        ov = tvs[0];
+
+        // construct from const
+
+        bsls::ObjectBuffer<Obj> oBuf;
+        Obj& odv = oBuf.object();
+        switch (c) {
+          case 'a':
+          case 'b': {
+            new (oBuf.address()) Obj(bsl::allocator_arg, aExp, DV);
+          } break;
+          case 'c': {
+            new (oBuf.address()) Obj(DV);
+          } break;
+          default: {
+            ASSERT(0);
+          }
+        }
+
+        ASSERT(tvs[1] == *odv);
+        ASSERT(tvs[1] == *DV);
+
+        ASSERT_IS_NOT_MOVED_FROM(*odv);
+        ASSERT_IS_NOT_MOVED_INTO(*odv);
+        ASSERT_IS_NOT_MOVED_FROM(*DV);
+        ASSERT_IS_NOT_MOVED_INTO(*DV);
+
+        ASSERT(aExp == odv.get_allocator());
+
+        odv.~Obj();
+
+        // assign from moved
+
+        ov = MoveUtil::move(dv);
+
+        ASSERT_IS_NOT_MOVED_FROM(*ov);
+        ASSERT_IS_MOVED_INTO(*ov);
+        ASSERT_IS_MOVED_FROM(*dv);
+        ASSERT_IS_NOT_MOVED_INTO(*dv);
+
+        ASSERT(tvs[1] == *ov);
+
+        ASSERT(aExp == ov.get_allocator());
+        ASSERT(ab == DV.get_allocator());
+
+        *ov = tvs[0];
+        *dv = tvs[1];
+
+        ASSERT_IS_NOT_MOVED_FROM(*ov);
+        ASSERT_IS_NOT_MOVED_INTO(*ov);
+        ASSERT_IS_NOT_MOVED_FROM(*dv);
+        ASSERT_IS_NOT_MOVED_INTO(*dv);
+
+        ASSERT(tvs[0] == *ov);
+        ASSERT(tvs[1] == *dv);
+
+        // construct from moved
+
+        switch (c) {
+          case 'a':
+          case 'c': {
+            new (oBuf.address()) Obj(bsl::allocator_arg,
+                                     aExp,
+                                     MoveUtil::move(dv));
+          } break;
+          case 'b': {
+            // No allocator passed, will get allocator from 'dv', which is
+            // 'ab', which matched 'aExp' if 'c == 'b''.
+
+            new (oBuf.address()) Obj(MoveUtil::move(dv));
+          } break;
+        }
+
+        ASSERT(tvs[1] == *odv);
+
+        ASSERT_IS_NOT_MOVED_FROM(*odv);
+        ASSERT_IS_MOVED_INTO(*odv);
+        ASSERT_IS_MOVED_FROM(*dv);
+        ASSERT_IS_NOT_MOVED_INTO(*dv);
+
+        ASSERT(aExp == odv.get_allocator());
+
+        odv.~Obj();
+    }
 }
 
 template <class TYPE>
@@ -8809,14 +9173,9 @@ void TestDriver<TYPE>::testCase10c()
             TEST_ASSIGN_VAL_ENGAGED(i);
             TEST_MOVE_ASSIGN_VAL_ENGAGED(int, i);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            // C++03 MovableRef isn't const friendly which will make this test
-            // fail
-
             const int ci = 6;
             TEST_ASSIGN_VAL_ENGAGED(ci);
             TEST_ASSIGN_VAL_ENGAGED(MoveUtil::move(ci));
-#endif
         }
         if (veryVeryVerbose)
             printf("\t\tChecking assignment to a disengaged"
@@ -12461,6 +12820,22 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 24: {
+        RUN_EACH_TYPE(TestDriver,
+                      testCase24,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                      bsltf::SimpleTestType,
+                      bsltf::BitwiseCopyableTestType,
+                      bsltf::BitwiseMoveableTestType,
+                      bsltf::MovableTestType);
+      } break;
+      case 23: {
+        RUN_EACH_TYPE(TestDriver,
+                      testCase23,
+                      bsltf::AllocTestType,
+                      bsltf::AllocBitwiseMoveableTestType,
+                      bsltf::MovableAllocTestType);
+      } break;
       case 22: {
         //---------------------------------------------------------------------
         // REPRODUCE DRQS 168615744 bsl::optional<bdef_Function>

@@ -327,6 +327,11 @@ int main(int argc, char *argv[])
         ASSERT((true ==
                 bslmf::IsAccessibleBaseOf<Base, AmbiguousRight>::value));
 
+        ASSERT((true ==
+                bslmf::IsAccessibleBaseOf<Base, Base>::value));
+        ASSERT((true ==
+                bslmf::IsAccessibleBaseOf<Derived, Derived>::value));
+
 #ifdef BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
         ASSERT((false ==
                 bslmf::IsAccessibleBaseOf<Base, PrivatelyDerived>::value));

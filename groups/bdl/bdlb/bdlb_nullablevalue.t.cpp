@@ -37,6 +37,7 @@
 #include <bsls_types.h>
 
 #include <bsltf_movabletesttype.h>
+#include <bsltf_movestate.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
@@ -102,7 +103,7 @@ using bsls::NameOf;
 // MANIPULATORS
 // [ 7] NullableValue& operator=(const NullableValue& rhs);
 // [21] NullableValue& operator=(NullableValue&& rhs);
-// [12] NullableValue& operator=(const NullableValue<BDE_OTHER_TYPE>& rhs);
+// [12] NullableValue& operator=(const NullableValue<BDE_OTHER_TYPE>&);
 // [10] NullableValue& operator=(const TYPE& rhs);
 // [23] NullableValue& operator=(TYPE&& rhs);
 // [12] NullableValue& operator=(const BDE_OTHER_TYPE& rhs);
@@ -169,6 +170,8 @@ using bsls::NameOf;
 // [ 2] BREATHING TEST 2: Using 'int'
 // [31] USAGE EXAMPLE
 // [24] Concern: Types that are not copy-assignable can be used.
+// [26] bsl::optional c'tors from derived type
+// [26] bsl::optional assignment from derived type
 // [28] DRQS 166024189: 'NullableValue<T> -> bool' implicit conv. w/C++03.
 // [29] noexcept
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -6467,7 +6470,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6510,6 +6513,446 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // OPTIONAL ASSIGNABLE / CONSTRUCTIBLE FROM NULLABLEVALUE
+        //
+        // Concerns:
+        //: 1 bdlb::NullableValue<TYPE> must be assignable to
+        //:   bsl::optionl<TYPE> in C++03 as well as C++11 and beyond.
+        //:
+        //: 2 Must be assignable when TYPE does and does not allocate memory.
+        //:
+        //: 3 Allocators: If 'TYPE' allocates:
+        //:   o Construction with no allocator passed must propagate allocator.
+        //:
+        //:   o Construction with allocator passed must used passed allocator.
+        //:
+        //:   o Assignment must not propagate allocator.
+        //:
+        //:   o If 'TYPE' does not allocate, constructors that take allocators
+        //:     and accessors to determine the allocator are not available, so
+        //:     none of the above sub-items of '3' apply.
+        //:
+        //: 4 Moves: Construction and assignment must both properly support
+        //:   moves in both C++03 and C++11.
+        //
+        // Plan:
+        //: 1 Test with 'TYPE' == 'int'.  Since this doesn't allocate, we
+        //:   can't test C-3, and 'moved-from' objects don't change their
+        //:   state.  But we can test C-1, C-2, and C-4.
+        //:
+        //: 2 Test with 'TYPE' == 'bsl::string', where the contents of the
+        //:   strings are too long for the short-string optimization, which
+        //:   means that a string will change state when moved-from to a
+        //:   string with the same allocator.  Test C-(1-4).
+        //:
+        //: 3 Test with 'TYPE' == 'bsltf::MovableTestType'.  Not an allocating
+        //:   type, so only C-1, C-2, and C-4.
+        //:
+        //: 4 Test with 'TYPE' == 'bsltf::MovableAllocTestType', test
+        //:   C-(1-4).
+        //
+        // Testing:
+        //   bsl::optional c'tors from derived type
+        //   bsl::optional assignment from derived type
+        // --------------------------------------------------------------------
+
+        typedef bslmf::MovableRefUtil MoveUtil;
+
+        if (verbose) cout << "Payload 'int'\n";
+        {
+            const bdlb::NullableValue<int> ni(7);
+            bsl::optional<int>             oi(100);
+            ASSERT(*oi == 100);
+
+            oi = ni;
+            ASSERT(*oi == 7);
+            ASSERT(*ni == 7);
+
+            const bsl::optional<int> oiB(ni);
+            ASSERT(*oiB == 7);
+
+            bdlb::NullableValue<int> nmi(17);
+            oi = MoveUtil::move(nmi);
+            ASSERT(*oi  == 17);
+            ASSERT(*nmi == 17);
+
+            nmi = ni;
+            ASSERT(*nmi == 7);
+
+            const bsl::optional<int> oiC(MoveUtil::move(nmi));
+            ASSERT(*oiC == 7);
+            ASSERT(*nmi == 7);
+        }
+
+        if (verbose) cout << "Paylod 'string'\n";
+        {
+            typedef bsl::allocator<char> Alloc;
+
+            bslma::TestAllocator ta, tb;
+            Alloc                aa(&ta), ab(&tb);
+
+            // strings too long for short-string optimization, will allocate
+
+            const bsl::string woof("woof                woof");
+            const bsl::string meow("meow                meow");
+
+            const bdlb::NullableValue<bsl::string> ns(woof, aa);
+            bsl::optional<bsl::string>             os(bsl::allocator_arg, ab);
+
+            // assign from const derived
+
+            os = ns;
+
+            ASSERT(ns->get_allocator().mechanism() == &ta);
+            ASSERT(ns.get_allocator().mechanism()  == &ta);
+            ASSERT(os->get_allocator().mechanism() == &tb);
+            ASSERT(os.get_allocator().mechanism()  == &tb);
+            ASSERT(*os == woof);
+
+            // copy-construct
+
+            const bsl::optional<bsl::string> osB(ns);
+
+            ASSERT(osB->get_allocator().mechanism() == &defaultAllocator);
+            ASSERT(osB.get_allocator().mechanism()  == &defaultAllocator);
+
+            bsl::optional<bsl::string> osC(bsl::allocator_arg, aa, woof);
+            ASSERT(*osC == woof);
+
+            ASSERT(osC.get_allocator().mechanism()  == &ta);
+            ASSERT(osC->get_allocator().mechanism() == &ta);
+
+            bdlb::NullableValue<bsl::string> nms(meow, aa);
+
+            // copy-construct: non-matching allocators
+
+            const bsl::optional<bsl::string> osE(bsl::allocator_arg,
+                                                 ab,
+                                                 nms);
+            ASSERT(nms->get_allocator().mechanism() == &ta);
+            ASSERT(nms.get_allocator().mechanism()  == &ta);
+            ASSERT(osE->get_allocator().mechanism() == &tb);
+            ASSERT(osE.get_allocator().mechanism()  == &tb);
+            ASSERTV(*osE, *osE == meow);
+
+            ASSERT(*nms == meow);    // not moved
+
+            // copy-construct: matching allocators
+
+            const bsl::optional<bsl::string> osG(bsl::allocator_arg,
+                                                 aa,
+                                                 nms);
+            ASSERT(nms->get_allocator().mechanism() == &ta);
+            ASSERT(nms.get_allocator().mechanism()  == &ta);
+            ASSERT(osG->get_allocator().mechanism() == &ta);
+            ASSERT(osG.get_allocator().mechanism()  == &ta);
+            ASSERTV(*osG, *osG == meow);
+
+            ASSERT(*nms == meow);    // not moved
+
+            // move-assign, non-matching allocators
+
+            os = MoveUtil::move(nms);
+
+            ASSERT(nms->get_allocator().mechanism() == &ta);
+            ASSERT(nms.get_allocator().mechanism()  == &ta);
+            ASSERT(os->get_allocator().mechanism()  == &tb);
+            ASSERT(os.get_allocator().mechanism()   == &tb);
+
+            ASSERT(*nms == meow);    // no change to '*nms", allocators didn't
+                                     // match so just copies
+            ASSERT(*os == meow);
+
+            // move-assign, matching allocators
+
+            osC = MoveUtil::move(nms);
+            ASSERT(*osC == meow);
+
+            ASSERT(*nms != meow);            // moved-from
+            ASSERT(*nms == bsl::string());   // moved-from
+
+            ASSERT(nms->get_allocator().mechanism() == &ta);
+            ASSERT(nms.get_allocator().mechanism()  == &ta);
+            ASSERT(osC->get_allocator().mechanism() == &ta);
+            ASSERT(osC.get_allocator().mechanism()  == &ta);
+
+            nms = meow;
+
+            // move-construct, no allocator passed
+
+            const bsl::optional<bsl::string> osD(MoveUtil::move(nms));
+
+            ASSERT(osD->get_allocator().mechanism() == &ta);    // alloc
+            ASSERT(osD.get_allocator().mechanism() == &ta);     // propagated
+            ASSERTV(*osD, *osD == meow);
+
+            ASSERT(*nms != meow);            // moved-from
+            ASSERT(*nms == bsl::string());   // moved-from
+
+            nms = meow;
+
+            // move-construct, non-matching allocator passed
+
+            const bsl::optional<bsl::string> osF(bsl::allocator_arg,
+                                                 ab,
+                                                 MoveUtil::move(nms));
+            ASSERT(nms->get_allocator().mechanism() == &ta);
+            ASSERT(nms.get_allocator().mechanism()  == &ta);
+            ASSERT(osF->get_allocator().mechanism() == &tb);
+            ASSERT(osF.get_allocator().mechanism()  == &tb);
+            ASSERTV(*osF, *osF == meow);
+
+            ASSERT(*nms == meow);    // not changed
+
+            // move-construct, matching allocator passed
+
+            const bsl::optional<bsl::string> osH(bsl::allocator_arg,
+                                                 aa,
+                                                 MoveUtil::move(nms));
+            ASSERT(nms->get_allocator().mechanism() == &ta);
+            ASSERT(nms.get_allocator().mechanism()  == &ta);
+            ASSERT(osH->get_allocator().mechanism() == &ta);
+            ASSERT(osH.get_allocator().mechanism()  == &ta);
+            ASSERTV(*osH, *osH == meow);
+
+            ASSERT(*nms != meow);            // moved-from
+            ASSERT(*nms == bsl::string());   // moved-from
+        }
+
+        if (verbose) cout << "Payload is 'MovableTestType'\n";
+        {
+            typedef bsltf::MovableTestType MTT;
+
+            MTT mX(5), mY(7);    const MTT &X = mX, &Y = mY;
+
+            bsl::optional<MTT> om(X);
+            bdlb::NullableValue<MTT> nm(Y);
+
+            om = nm;
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*om);
+
+            ASSERT(Y == *om);
+            ASSERT(Y == *nm);
+
+            om = X;
+
+            ASSERT_IS_NOT_MOVED_INTO(*om);
+
+            om = MoveUtil::move(nm);
+
+            ASSERT_IS_MOVED_FROM(    *nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*om);
+            ASSERT_IS_MOVED_INTO(    *om);
+
+            ASSERT(Y == *om);
+
+            nm->setData(7);
+            om->setData(5);
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*om);
+            ASSERT_IS_NOT_MOVED_INTO(*om);
+
+            bsl::optional<MTT> ocm(MoveUtil::move(nm));
+
+            ASSERT_IS_MOVED_FROM(    *nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*ocm);
+            ASSERT_IS_MOVED_INTO(    *ocm);
+
+            ASSERT(Y == *ocm);
+        }
+
+        if (verbose) cout << "Payload is 'MovableAllocTestType'\n";
+        {
+            typedef bsl::allocator<char> Alloc;
+
+            bslma::TestAllocator ta, tb;
+            Alloc                aa(&ta), ab(&tb);
+
+            typedef bsltf::MovableAllocTestType MATT;
+
+            MATT mX(5, &ta), mY(7, &tb);    const MATT &X = mX, &Y = mY;
+
+            bsl::optional<MATT> os(bsl::allocator_arg, aa, X);
+            bdlb::NullableValue<MATT> nm(Y, &tb);
+
+            os = nm;
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*os);
+
+            ASSERT(Y == *os);
+            ASSERT(Y == *nm);
+
+            os = X;
+
+            ASSERT_IS_NOT_MOVED_INTO(*os);
+
+            // assign -- non-matching allocs
+
+            os = MoveUtil::move(nm);
+
+            ASSERT_IS_MOVED_FROM(    *nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*os);
+            ASSERT_IS_MOVED_INTO(    *os);
+
+            ASSERT(aa == os.get_allocator());
+            ASSERT(ab == nm.get_allocator());
+
+            ASSERT(Y == *os);
+
+            nm->setData(7);
+            os->setData(5);
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*os);
+            ASSERT_IS_NOT_MOVED_INTO(*os);
+
+            // assign -- matching allocs
+
+            bsl::optional<MATT> osB(bsl::allocator_arg, ab, X);
+
+            osB = MoveUtil::move(nm);
+
+            ASSERT_IS_MOVED_FROM(    *nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osB);
+            ASSERT_IS_MOVED_INTO(    *osB);
+
+            ASSERT(ab == osB.get_allocator());
+            ASSERT(ab == nm.get_allocator());
+
+            ASSERT(Y == *osB);
+
+            nm->setData(7);
+            osB->setData(5);
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osB);
+            ASSERT_IS_NOT_MOVED_INTO(*osB);
+
+            // construction -- no allocator passed
+
+            const bsl::optional<MATT> osC(nm);
+
+            ASSERT(Y == *nm);
+            ASSERT(Y == *osC);
+
+            ASSERT(&defaultAllocator == osC.get_allocator().mechanism());
+            ASSERT(ab == nm.get_allocator());
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osC);
+            ASSERT_IS_NOT_MOVED_INTO(*osC);
+
+            // construction -- non-matching allocator passed
+
+            const bsl::optional<MATT> osD(bsl::allocator_arg, aa, nm);
+
+            ASSERT(Y == *nm);
+            ASSERT(Y == *osD);
+
+            ASSERT(aa == osD.get_allocator());
+            ASSERT(ab == nm.get_allocator());
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osD);
+            ASSERT_IS_NOT_MOVED_INTO(*osD);
+
+            // construction -- matching allocator passed
+
+            const bsl::optional<MATT> osE(bsl::allocator_arg, aa, nm);
+
+            ASSERT(Y == *nm);
+            ASSERT(Y == *osE);
+
+            ASSERT(aa == osE.get_allocator());
+            ASSERT(ab == nm.get_allocator());
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osE);
+            ASSERT_IS_NOT_MOVED_INTO(*osE);
+
+            // move construction -- no allocator passed
+
+            bsl::optional<MATT> osF(MoveUtil::move(nm));
+
+            ASSERT_IS_MOVED_FROM(    *nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osF);
+            ASSERT_IS_MOVED_INTO(    *osF);
+
+            ASSERT(Y == *osF);
+            ASSERT(ab == nm.get_allocator());
+            ASSERT(ab == osF.get_allocator());
+
+            nm->setData(7);
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            // move construction -- non-matching allocator passed
+
+            bsl::optional<MATT> osG(bsl::allocator_arg,
+                                    aa,
+                                    MoveUtil::move(nm));
+
+            ASSERT_IS_MOVED_FROM(    *nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osG);
+            ASSERT_IS_MOVED_INTO(    *osG);
+
+            ASSERT(Y == *osG);
+            ASSERT(ab == nm.get_allocator());
+            ASSERT(aa == osG.get_allocator());
+
+            nm->setData(7);
+
+            ASSERT_IS_NOT_MOVED_FROM(*nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            // move construction -- matching allocator passed
+
+            bsl::optional<MATT> osH(bsl::allocator_arg,
+                                    ab,
+                                    MoveUtil::move(nm));
+
+            ASSERT_IS_MOVED_FROM(    *nm);
+            ASSERT_IS_NOT_MOVED_INTO(*nm);
+
+            ASSERT_IS_NOT_MOVED_FROM(*osH);
+            ASSERT_IS_MOVED_INTO(    *osH);
+
+            ASSERT(Y == *osH);
+            ASSERT(ab == nm.get_allocator());
+            ASSERT(ab == osH.get_allocator());
+        }
       } break;
       case 35: {
         // --------------------------------------------------------------------
@@ -7556,9 +7999,9 @@ int main(int argc, char *argv[])
         //:
         //: 4 Test C-1 and C-2 for the
         //:   'NullableValue<optional<optional<TYPE> > >' and
-        //:   'NullableValue<optional<optional<BDE_OTHER_TYPE> > >' where 'TYPE'
-        //:   and 'OTHER_TYPE' are both move-aware, where 'OTHER_TYPE' is
-        //:   convertible to 'TYPE', and where 'TYPE':
+        //:   'NullableValue<optional<optional<BDE_OTHER_TYPE> > >' where
+        //:   'TYPE' and 'BDE_OTHER_TYPE' are both move-aware, where
+        //:   'BDE_OTHER_TYPE' is convertible to 'TYPE', and where 'TYPE':
         //:   o does not allocate memory
         //:
         //:   o allocates memory
@@ -10236,7 +10679,7 @@ int main(int argc, char *argv[])
         //   observe that it fails to compile.
         //
         // Testing:
-        //   NullableValue& operator=(const NullableValue<BDE_OTHER_TYPE>& rhs);
+        //   NullableValue& operator=(const NullableValue<BDE_OTHER_TYPE>&);
         //   NullableValue& operator=(const BDE_OTHER_TYPE& rhs);
         //   TYPE& makeValue(const BDE_OTHER_TYPE& value);
         // --------------------------------------------------------------------
@@ -10992,7 +11435,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING CONVERSION CONSTRUCTORS"
                              "\n===============================" << endl;
 
-        if (verbose) cout << "\nConversion from 'OTHER_TYPE'." << endl;
+        if (verbose) cout << "\nConversion from 'BDE_OTHER_TYPE'." << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
@@ -11129,10 +11572,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) {
-            cout << "\nConversion from 'NullableValue<BDE_OTHER_TYPE>'."
-                 << endl;
-        }
+        if (verbose) cout <<
+                  "\nConversion from 'NullableValue<BDE_OTHER_TYPE>'." << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
