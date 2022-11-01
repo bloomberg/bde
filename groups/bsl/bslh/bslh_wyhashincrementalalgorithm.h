@@ -530,6 +530,10 @@ class WyHashIncrementalAlgorithm {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                        // --------------------------
+                        // WyHashIncrementalAlgorithm
+                        // --------------------------
+
 // PRIVATE CLASS METHODS
 #if BSLH_WYHASHINCREMENTALALGORITHM_WYMUM_PSEUDO_MULTIPLY
 inline
@@ -784,7 +788,11 @@ void WyHashIncrementalAlgorithm::operator()(const void *data, size_t numBytes)
         if (remOffset < 16) {
             BSLS_ASSERT_SAFE(0 < remOffset);
 
-            memcpy(prePad() + remOffset, end - 16, 16);
+            // We say 'p + remOffset - 16' rather than 'end - 16' below because
+            // the latter caused an inaccurate warning which could not be
+            // silenced via pragmas.
+
+            memcpy(prePad() + remOffset, p + remOffset - 16, 16);
 
             return;                                                   // RETURN
         }
@@ -878,8 +886,8 @@ struct is_trivially_copyable<
 {};
 }  // close namespace bsl
 
-#undef BSLH_WYHASHINCREMENTALALGORITHM_WYMUM_XOR
 #undef BSLH_WYHASHINCREMENTALALGORITHM_WYMUM_PSEUDO_MULTIPLY
+#undef BSLH_WYHASHINCREMENTALALGORITHM_WYMUM_XOR
 
 #endif
 

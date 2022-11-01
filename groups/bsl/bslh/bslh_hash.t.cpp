@@ -1312,7 +1312,20 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_HASH_HAS_BOOL_INCREMENT)
             bool incrementedBool = true;
+
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
+    defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated"
+#endif
+
             ++incrementedBool;
+
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
+    defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+# pragma GCC diagnostic pop
+#endif
+
             MockHashingAlgorithm incrementedAlg;
             hashAppend(incrementedAlg, incrementedBool);
 #endif
