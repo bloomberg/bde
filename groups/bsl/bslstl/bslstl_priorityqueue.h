@@ -583,8 +583,9 @@ class priority_queue {
         // behavior is undefined if there is currently no elements in this
         // object.
 
-    void swap(priority_queue& other)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(priority_queue& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 bsl::is_nothrow_swappable<CONTAINER>::value &&
+                                 bsl::is_nothrow_swappable<COMPARATOR>::value);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  In effect, performs 'using bsl::swap;
         // swap(c, other.c);'.
@@ -919,7 +920,9 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::swap(priority_queue& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 bsl::is_nothrow_swappable<CONTAINER>::value &&
+                                 bsl::is_nothrow_swappable<COMPARATOR>::value)
 {
     BloombergLP::bslalg::SwapUtil::swap(&c, &other.c);
     BloombergLP::bslalg::SwapUtil::swap(&comp, &other.comp);

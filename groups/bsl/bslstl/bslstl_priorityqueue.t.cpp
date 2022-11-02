@@ -1410,6 +1410,67 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
          < bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
+                            // =======================
+                            // class NothrowSwapVector
+                            // =======================
+
+template <class VALUE>
+class NothrowSwapVector : public bsl::vector<VALUE, bsl::allocator<VALUE> > {
+    // 'vector' with non-throwing 'swap'
+
+    // TYPES
+    typedef bsl::vector<VALUE, bsl::allocator<VALUE> > base;
+        // Base class alias.
+  public:
+    // MANIPULATORS
+    void swap(NothrowSwapVector& other) BSLS_KEYWORD_NOEXCEPT
+        // Exchange the value of this object with that of the specified 'other'
+        // object.
+    {
+        base::swap(other);
+    }
+
+    // FREE FUNCTIONS
+    friend void swap(NothrowSwapVector& a,
+                     NothrowSwapVector& b) BSLS_KEYWORD_NOEXCEPT
+        // Exchange the values of the specified 'a' and 'b' objects.
+    {
+        a.swap(b);
+    }
+};
+                            // =============================
+                            // struct ThrowingSwapComparator
+                            // =============================
+
+template <class TYPE>
+struct ThrowingSwapComparator {
+    // Comparator with throwing 'swap'
+
+    // MANIPULATORS
+    void swap(
+      ThrowingSwapComparator& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Exchange the value of this object with that of the specified 'other'
+        // object.
+    {
+    }
+
+    // ACCESSORS
+    bool operator() (const TYPE& lhs, const TYPE& rhs) const
+        // Return 'true' if the integer representation of the specified 'lhs'
+        // is less than integer representation of the specified 'rhs'.
+    {
+        return lhs < rhs;
+    }
+
+    // FREE FUNCTIONS
+    friend void swap(
+          ThrowingSwapComparator& a,
+          ThrowingSwapComparator& b) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Exchange the values of the specified 'a' and 'b' objects.
+    {
+    }
+};
+
                             // ==========================
                             // class StatefulStlAllocator
                             // ==========================
@@ -1891,7 +1952,11 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase22()
         Obj x;
         Obj q;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(q)));
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        const bool isNoexcept = bsl::is_nothrow_swappable<CONTAINER>::value &&
+                                bsl::is_nothrow_swappable<COMPARATOR>::value;
+        ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(q)));
+#endif
     }
 
     // page 903
@@ -6306,8 +6371,34 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 
-        TestDriver<int>::testCase22();
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(!bsl::is_nothrow_swappable<vector<int> >::value);
+        ASSERT( bsl::is_nothrow_swappable<TestComparator<int> >::value);
+#endif
+        TestDriver<int, vector<int>, TestComparator<int> >::testCase22();
 
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT( bsl::is_nothrow_swappable<NothrowSwapVector<int> >::value);
+        ASSERT( bsl::is_nothrow_swappable<TestComparator<int> >::value);
+#endif
+        TestDriver<int, NothrowSwapVector<int>, TestComparator<int> >
+                                                                ::testCase22();
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(!bsl::is_nothrow_swappable<vector<int> >::value);
+        ASSERT(!bsl::is_nothrow_swappable<ThrowingSwapComparator<int> >
+                                                                     ::value);
+#endif
+        TestDriver<int, vector<int>, ThrowingSwapComparator<int> >
+                                                                ::testCase22();
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT( bsl::is_nothrow_swappable<NothrowSwapVector<int> >::value);
+        ASSERT(!bsl::is_nothrow_swappable<ThrowingSwapComparator<int> >
+                                                                      ::value);
+#endif
+        TestDriver<int, NothrowSwapVector<int>, ThrowingSwapComparator<int> >
+                                                                ::testCase22();
       } break;
       case 21: {
         // --------------------------------------------------------------------

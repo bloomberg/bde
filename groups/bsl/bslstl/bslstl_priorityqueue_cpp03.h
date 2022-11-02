@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Sep 23 09:33:25 2022
+// Generated on Sun Oct 30 12:15:45 2022
 // Command line: sim_cpp11_features.pl bslstl_priorityqueue.h
 
 #ifdef COMPILING_BSLSTL_PRIORITYQUEUE_H
@@ -416,8 +416,9 @@ class priority_queue {
         // behavior is undefined if there is currently no elements in this
         // object.
 
-    void swap(priority_queue& other)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(priority_queue& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 bsl::is_nothrow_swappable<CONTAINER>::value &&
+                                 bsl::is_nothrow_swappable<COMPARATOR>::value);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  In effect, performs 'using bsl::swap;
         // swap(c, other.c);'.
@@ -1031,7 +1032,9 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::swap(priority_queue& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 bsl::is_nothrow_swappable<CONTAINER>::value &&
+                                 bsl::is_nothrow_swappable<COMPARATOR>::value)
 {
     BloombergLP::bslalg::SwapUtil::swap(&c, &other.c);
     BloombergLP::bslalg::SwapUtil::swap(&comp, &other.comp);
