@@ -1647,7 +1647,9 @@ class basic_string
         // a reference providing modifiable access to this string.
 
     basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+            AllocatorTraits::propagate_on_container_move_assignment::value ||
+            AllocatorTraits::is_always_equal::value);
         // Assign to this string the value of the specified 'rhs' string,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -2219,7 +2221,9 @@ class basic_string
         // destructor or any of its manipulators invalidates the returned
         // pointer.
 
-    void swap(basic_string& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(basic_string& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                         AllocatorTraits::propagate_on_container_swap::value ||
+                         AllocatorTraits::is_always_equal::value);
         // Exchange the value of this object with that of the specified 'other'
         // object; also exchange the allocator of this object with that of
         // 'other' if the (template parameter) type 'ALLOCATOR' has the
@@ -3081,9 +3085,10 @@ wstring operator ""_S(const wchar_t *characterString, std::size_t length);
 
 // FREE FUNCTIONS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
-          basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+void swap(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
+          basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b)
+                           BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                               BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
     // Exchange the value of the specified 'a' object with that of the
     // specified 'b' object; also exchange the allocator of 'a' with that of
     // 'b' if the (template parameter) type 'ALLOCATOR' has the
@@ -4596,7 +4601,9 @@ inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                               BloombergLP::bslmf::MovableRef<basic_string> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+              AllocatorTraits::propagate_on_container_move_assignment::value ||
+              AllocatorTraits::is_always_equal::value)
 {
     basic_string& lvalue = rhs;
 
@@ -5657,7 +5664,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() BSLS_KEYWORD_NOEXCEPT
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                         AllocatorTraits::propagate_on_container_swap::value ||
+                         AllocatorTraits::is_always_equal::value)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(other);
@@ -6476,7 +6485,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
                basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                            BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)))
 {
     a.swap(b);
 }

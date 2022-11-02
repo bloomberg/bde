@@ -2444,6 +2444,17 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
         P(bsls::NameOf<ALLOC>())
     }
 
+    typedef bsl::allocator_traits<ALLOC> AllocatorTraits;
+
+    bool isMoveAssignmentNoexcept =
+             BSLS_KEYWORD_NOEXCEPT_AVAILABLE &&
+             (AllocatorTraits::propagate_on_container_move_assignment::value ||
+              AllocatorTraits::is_always_equal::value);
+    bool isSwapNoexcept =
+                        BSLS_KEYWORD_NOEXCEPT_AVAILABLE &&
+                        (AllocatorTraits::propagate_on_container_swap::value ||
+                         AllocatorTraits::is_always_equal::value);
+
     // N4594: page 699: String classes
 
     // page 704
@@ -2471,7 +2482,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(Obj(MoveUtil::move(str))));
 
         Obj s;
-        ASSERT(false
+        ASSERT(isMoveAssignmentNoexcept
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(s = MoveUtil::move(str)));
     }
 
@@ -2565,6 +2576,14 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //       allocator_traits<Allocator>::propagate_on_container_swap::value ||
     //       allocator_traits<Allocator>::is_always_equal::value);
     //..
+
+    {
+        Obj str1;
+        Obj str2;
+
+        ASSERT(isSwapNoexcept
+               == BSLS_KEYWORD_NOEXCEPT_OPERATOR(str1.swap(str2)));
+    }
 
     // page 706 - 707
     //..
@@ -2676,7 +2695,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(lhs >= rhs));
 
         using bsl::swap;
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(lhs, rhs)));
+        ASSERT(isSwapNoexcept
+               == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(lhs, rhs)));
     }
 }
 
@@ -16791,12 +16811,104 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 
+        typedef bsltf::StdStatefulAllocator
+                           <char,   // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            false   // IS_ALWAYS_EQUAL
+                           > AllFalseAllocator;
+
+        typedef bsltf::StdStatefulAllocator
+                           <char,   // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            true,   // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            false   // IS_ALWAYS_EQUAL
+                           > ContainerSwapAllocator;
+
+        typedef bsltf::StdStatefulAllocator
+                           <char,   // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            true,   // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            false   // IS_ALWAYS_EQUAL
+                           > ContainerMoveAllocator;
+
+        typedef bsltf::StdStatefulAllocator
+                           <char,   // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            true    // IS_ALWAYS_EQUAL
+                           > AlwaysEqualAllocator;
+
+        typedef bsltf::StdStatefulAllocator
+                           <char,   // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            true,   // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            true    // IS_ALWAYS_EQUAL
+                           > ContainerSwapAlwaysEqualAllocator;
+
+        typedef bsltf::StdStatefulAllocator
+                           <char,   // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            true,   // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            true    // IS_ALWAYS_EQUAL
+                           > ContainerMoveAlwaysEqualAllocator;
+
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase35();
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase35();
 
+        if (verbose)
+            printf("\n... with 'false' allocator propagation properties.\n");
+        TestDriver<char,
+                   bsl::char_traits<char>,
+                   AllFalseAllocator>::testCase35();
+
+        if (verbose)
+            printf("\n... with and 'container swap' propagation property.\n");
+        TestDriver<char,
+                   bsl::char_traits<char>,
+                   ContainerSwapAllocator>::testCase35();
+
+        if (verbose)
+            printf("\n... with and 'container move assignment' propagation"
+                   " property.\n");
+        TestDriver<char,
+                   bsl::char_traits<char>,
+                   ContainerMoveAllocator>::testCase35();
+
+        if (verbose)
+            printf("\n... with and 'always equal' propagation property.\n");
+        TestDriver<char,
+                   bsl::char_traits<char>,
+                   AlwaysEqualAllocator>::testCase35();
+
+        if (verbose)
+            printf("\n... with 'container swap' and 'always equal' propagation"
+                   " properties.\n");
+        TestDriver<char,
+                   bsl::char_traits<char>,
+                   ContainerSwapAlwaysEqualAllocator>::testCase35();
+
+        if (verbose)
+            printf("\n... with 'container move assignment' and 'always equal'"
+                   " propagation properties.\n");
+        TestDriver<char,
+                   bsl::char_traits<char>,
+                   ContainerMoveAlwaysEqualAllocator>::testCase35();
       } break;
       case 34: {
         // --------------------------------------------------------------------
