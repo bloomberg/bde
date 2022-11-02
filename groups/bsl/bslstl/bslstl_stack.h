@@ -486,7 +486,8 @@ class stack {
         // the new object on this stack.  'value' is left in a valid but
         // unspecified state.
 
-    void swap(stack& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(stack& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                  bsl::is_nothrow_swappable<CONTAINER>::value);
         // Exchange the value of this stack with the value of the specified
         // 'other' stack.
 
@@ -774,7 +775,8 @@ void stack<VALUE, CONTAINER>::push(BloombergLP::bslmf::MovableRef<value_type>
 template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::swap(stack& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                   bsl::is_nothrow_swappable<CONTAINER>::value)
 {
     BloombergLP::bslalg::SwapUtil::swap(&c, &other.c);
 }

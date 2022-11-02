@@ -1943,6 +1943,35 @@ bool operator==(const MovableVector<VALUE, ALLOCATOR>& lhs,
     return lhs.d_vector == rhs.d_vector;
 }
 
+                            // =======================
+                            // class NothrowSwapVector
+                            // =======================
+
+template <class VALUE>
+class NothrowSwapVector : public bsl::vector<VALUE, bsl::allocator<VALUE> > {
+    // 'vector' with non-throwing 'swap'
+
+    // TYPES
+    typedef bsl::vector<VALUE, bsl::allocator<VALUE> > base;
+        // Base class alias.
+  public:
+    // MANIPULATORS
+    void swap(NothrowSwapVector& other) BSLS_KEYWORD_NOEXCEPT
+        // Exchange the value of this object with that of the specified 'other'
+        // object.
+    {
+        base::swap(other);
+    }
+
+    // FREE FUNCTIONS
+    friend void swap(NothrowSwapVector& a,
+                     NothrowSwapVector& b) BSLS_KEYWORD_NOEXCEPT
+        // Exchange the values of the specified 'a' and 'b' objects.
+    {
+        a.swap(b);
+    }
+};
+
                             // ==========================
                             // class StatefulStlAllocator
                             // ==========================
@@ -2495,7 +2524,10 @@ void TestDriver<CONTAINER>::testCase19()
         Obj c;
         Obj s;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(c.swap(s)));
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(bsl::is_nothrow_swappable<CONTAINER>::value ==
+               BSLS_KEYWORD_NOEXCEPT_OPERATOR(c.swap(s)));
+#endif
     }
 
     // page 905
@@ -6639,7 +6671,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "------------------------" "\n");
 
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(!bsl::is_nothrow_swappable<bsl::vector<int> >::value);
+#endif
         TestDriver<bsl::vector<int> >::testCase19();
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(bsl::is_nothrow_swappable<NothrowSwapVector<int> >::value);
+#endif
+        TestDriver<NothrowSwapVector<int> >::testCase19();
 
       } break;
       case 18: {
