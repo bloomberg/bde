@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Sep 23 09:33:25 2022
+// Generated on Tue Nov  1 08:34:10 2022
 // Command line: sim_cpp11_features.pl bslstl_queue.h
 
 #ifdef COMPILING_BSLSTL_QUEUE_H
@@ -369,7 +369,8 @@ class queue {
         // Remove the front (the earliest pushed) element from this 'queue'
         // object.
 
-    void swap(queue& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(queue& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                  bsl::is_nothrow_swappable<CONTAINER>::value);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  In effect, performs
         // 'using bsl::swap; swap(c, other.c);'.
@@ -951,10 +952,11 @@ void queue<VALUE, CONTAINER>::pop()
 
 template <class VALUE, class CONTAINER>
 inline
-void queue<VALUE, CONTAINER>::swap(queue& q)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+void queue<VALUE, CONTAINER>::swap(queue& other)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                   bsl::is_nothrow_swappable<CONTAINER>::value)
 {
-    BloombergLP::bslalg::SwapUtil::swap(&c, &q.c);
+    BloombergLP::bslalg::SwapUtil::swap(&c, &other.c);
 }
 
 // ACCESSORS

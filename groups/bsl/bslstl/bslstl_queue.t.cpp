@@ -1257,6 +1257,35 @@ bool isCalledMethodCheckPassed(CalledMethod flag)
     return true;
 }
 
+                            // ======================
+                            // class NothrowSwapDeque
+                            // ======================
+
+template <class VALUE>
+class NothrowSwapDeque : public bsl::deque<VALUE, bsl::allocator<VALUE> > {
+    // 'deque' with non-throwing 'swap'
+
+    // TYPES
+    typedef bsl::deque<VALUE, bsl::allocator<VALUE> > base;
+        // Base class alias.
+  public:
+    // MANIPULATORS
+    void swap(NothrowSwapDeque& other) BSLS_KEYWORD_NOEXCEPT
+        // Exchange the value of this object with that of the specified 'other'
+        // object.
+    {
+        base::swap(other);
+    }
+
+    // FREE FUNCTIONS
+    friend void swap(NothrowSwapDeque& a,
+                     NothrowSwapDeque& b) BSLS_KEYWORD_NOEXCEPT
+        // Exchange the values of the specified 'a' and 'b' objects.
+    {
+        a.swap(b);
+    }
+};
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -1589,7 +1618,10 @@ void TestDriver<VALUE, CONTAINER>::testCase20()
         Obj x;
         Obj q;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(q)));
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(bsl::is_nothrow_swappable<CONTAINER>::value ==
+               BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(q)));
+#endif
     }
 
     // page 900
@@ -5802,7 +5834,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "------------------------" "\n");
 
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(!bsl::is_nothrow_swappable<bsl::vector<int> >::value);
+#endif
         TestDriver<int, bsl::vector<int> >::testCase20();
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT(bsl::is_nothrow_swappable<NothrowSwapDeque<int> >::value);
+#endif
+        TestDriver<int, NothrowSwapDeque<int> >::testCase20();
 
       } break;
       case 19: {
