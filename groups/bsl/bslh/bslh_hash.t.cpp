@@ -19,7 +19,6 @@
 #include <wchar.h>
 
 using namespace BloombergLP;
-using namespace bslh;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -74,7 +73,7 @@ using namespace bslh;
 // [ 3] void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 // [ 6] IsBitwiseMovable trait
 // [ 6] is_trivially_copyable trait
 // [ 6] is_trivially_default_constructible trait
@@ -704,6 +703,12 @@ class MockAccumulatingHashingAlgorithm {
     }
 };
 
+}  // close namespace bslh
+}  // close enterprise namespace
+
+using bslh::MockHashingAlgorithm;
+using bslh::MockAccumulatingHashingAlgorithm;
+
 template<class TYPE>
 class TestDriver {
     // This class implements a test driver that can run tests on any type.
@@ -855,11 +860,11 @@ class TypeChecker {
     // Provides a member function to determine if passed data is of the same
     // type as the (template parameter) 'EXPECTED_TYPE'
   public:
-      static bool isCorrectType(EXPECTED_TYPE type);
-      template<class BDE_OTHER_TYPE>
-      static bool isCorrectType(BDE_OTHER_TYPE type);
-          // Return true if the specified 'type' is of the same type as the
-          // (template parameter) 'EXPECTED_TYPE'.
+    static bool isCorrectType(EXPECTED_TYPE type);
+    template<class BDE_OTHER_TYPE>
+    static bool isCorrectType(BDE_OTHER_TYPE type);
+        // Return true if the specified 'type' is of the same type as the
+        // (template parameter) 'EXPECTED_TYPE'.
 };
 
 template<class EXPECTED_TYPE>
@@ -931,7 +936,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be applied to user defined types which
@@ -1080,7 +1085,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING QOI: IS AN EMPTY TYPE"
                             "\n=============================\n");
 
-        typedef DefaultHashAlgorithm TYPE;
+        typedef bslh::DefaultHashAlgorithm TYPE;
 
         if (verbose) printf("Define two non-empty classes with no padding, one"
                             " of which is derived from 'hash'.  Assert that"
@@ -1091,7 +1096,7 @@ int main(int argc, char *argv[])
                 int b;
             };
 
-            struct DerivedInts : Hash<TYPE> {
+            struct DerivedInts : bslh::Hash<TYPE> {
                 int a;
                 int b;
             };
@@ -1108,7 +1113,7 @@ int main(int argc, char *argv[])
         {
 
             struct IntsWithMember {
-                Hash<TYPE> dummy;
+                bslh::Hash<TYPE> dummy;
                 int              a;
                 int              b;
             };
@@ -1144,9 +1149,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("ASSERT the presence of each trait using the"
                             " 'bslalg::HasTrait' metafunction. (C-1..3)\n");
         {
-            ASSERT(bslmf::IsBitwiseMoveable<Hash<> >::value);
-            ASSERT(bsl::is_trivially_copyable<Hash<> >::value);
-            ASSERT(bsl::is_trivially_default_constructible<Hash<> >::value);
+            ASSERT(bslmf::IsBitwiseMoveable<bslh::Hash<> >::value);
+            ASSERT(bsl::is_trivially_copyable<bslh::Hash<> >::value);
+            ASSERT(bsl::is_trivially_default_constructible<
+                                                        bslh::Hash<> >::value);
         }
 
       } break;
@@ -1179,6 +1185,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING 'result_type' TYPEDEF"
                             "\n=============================\n");
+
+        using namespace bslh;
 
         if (verbose) printf("ASSERT the 'typedef' accessibly aliases the"
                             " correct type using 'bslmf::IsSame' for a number"
@@ -1872,7 +1880,7 @@ int main(int argc, char *argv[])
 
             ConvertibleClass c = ConvertibleClass();
             MockHashingAlgorithm hashAlg;
-            hashAppend(hashAlg, c);
+            bslh::hashAppend(hashAlg, c);
 
         }
 #endif
