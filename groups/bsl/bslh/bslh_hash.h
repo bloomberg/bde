@@ -592,6 +592,22 @@ bslh::Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
     return static_cast<result_type>(hashAlg.computeHash());
 }
 
+template <>
+template <class TYPE>
+inline
+typename bslh::Hash<bslh::DefaultHashAlgorithm>::result_type
+bslh::Hash<bslh::DefaultHashAlgorithm>::operator()(TYPE const& key) const
+{
+    DefaultHashAlgorithm hashAlg;
+
+    hashAppend(hashAlg, key);
+    return static_cast<result_type>(hashAlg.computeHash());
+}
+
+                              // --------------
+                              // FREE FUNCTIONS
+                              // --------------
+
 // FREE FUNCTIONS
 template <class HASH_ALGORITHM, class TYPE>
 inline
