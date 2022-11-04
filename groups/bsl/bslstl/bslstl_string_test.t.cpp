@@ -24,6 +24,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_macrorepeat.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
@@ -1932,6 +1933,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
                         ua == (CL  + XR).get_allocator().allocator());
             }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             // According to the paper mentioned above, moveable object
             // allocator must be used to supply memory.  Rvalue reference
             // points to the 'lhs' parameter, therefore the 'la' allocator is
@@ -2253,6 +2255,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
                                       .allocator());
                 }
             }
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         }
     }
 
@@ -2263,10 +2266,6 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
 
         Obj         mX;
         const Obj&  X = mX;
-        Obj         mXML1;
-        Obj         mXML2;
-        Obj         mXMR1;
-        Obj         mXMR2;
         TYPE        character = 0;
         const TYPE *validPtr  = &character;
         const TYPE *nullPtr   = 0;
@@ -2277,11 +2276,18 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
         ASSERT_SAFE_FAIL(nullPtr  + X);
         ASSERT_SAFE_PASS(validPtr + X);
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        Obj mXML1;
+        Obj mXML2;
+        Obj mXMR1;
+        Obj mXMR2;
+
         ASSERT_SAFE_FAIL(MoveUtil::move(mXML1) + nullPtr );
         ASSERT_SAFE_PASS(MoveUtil::move(mXML2) + validPtr);
 
         ASSERT_SAFE_FAIL(nullPtr  + MoveUtil::move(mXMR1));
         ASSERT_SAFE_PASS(validPtr + MoveUtil::move(mXMR2));
+#endif
     }
 }
 
@@ -16737,7 +16743,7 @@ int main(int argc, char *argv[])
         //:   1 Iterate through the 'J' loop, and create various input
         //:     variants ('bsl::string', 'std::string', 'const TYPE *' and
         //:     'TYPE') to be used as the 'right-hand-side' non-moveable
-        //:      parameters for the operator.  For each pair '(lhs, rhs)':
+        //:     parameters for the operator.  For each pair '(lhs, rhs)':
         //:
         //:     1 Call the operator and verify that the result string contains
         //:       the expected value.
