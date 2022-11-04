@@ -428,7 +428,15 @@ class BlobBuffer {
 
     BlobBuffer(const bsl::shared_ptr<char>& buffer, int size);
         // Create a blob buffer representing the specified 'buffer' of the
-        // specified 'size'.  Undefined unless '0 <= size'.
+        // specified 'size'.  The behavior is undefined unless '0 <= size' and
+        // the 'buffer' refers to a continuous block of memory of at least
+        // 'size' bytes.
+
+    BlobBuffer(bslmf::MovableRef<bsl::shared_ptr<char> > buffer, int size);
+        // Create a blob buffer representing the specified moveable 'buffer' of
+        // the specified 'size'.  The behavior is undefined unless '0 <= size'
+        // and the 'buffer' refers to a continuous block of memory of at least
+        // 'size' bytes.
 
     BlobBuffer(const BlobBuffer& original);
         // Create a blob buffer having the same value as the specified
@@ -459,7 +467,15 @@ class BlobBuffer {
 
     void reset(const bsl::shared_ptr<char>& buffer, int size);
         // Set the buffer represented by this object to the specified 'buffer'
-        // of the specified 'size'.  Undefined unless '0 <= size'.
+        // of the specified 'size'.  The behavior is undefined unless
+        // '0 <= size' and the 'buffer' refers to a continuous block of memory
+        // of at least 'size' bytes.
+
+    void reset(bslmf::MovableRef<bsl::shared_ptr<char> > buffer, int size);
+        // Set the buffer represented by this object to the specified moveable
+        // 'buffer' of the specified 'size'.  The behavior is undefined unless
+        // '0 <= size' and the 'buffer' refers to a continuous block of memory
+        // of at least 'size' bytes.
 
     bsl::shared_ptr<char>& buffer();
         // Return a reference to the shared pointer to the modifiable buffer
@@ -687,6 +703,15 @@ class Blob {
         // equivalent to 'insertBuffer(numBuffers(), buffer)', but is more
         // efficient.
 
+    void appendBuffer(bslmf::MovableRef<BlobBuffer> buffer);
+        // Append the specified move-insertable 'buffer' after the last buffer
+        // of this blob.  The 'buffer' is left in a valid but unspecified
+        // state.  The length of this blob is unaffected.  The behavior is
+        // undefined unless neither the total size of the resulting blob nor
+        // its total number of buffers exceeds 'INT_MAX'.  Note that this
+        // operation is equivalent to 'insertBuffer(numBuffers(), buffer)', but
+        // is more efficient.
+
     void appendDataBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last *data* buffer of this
         // blob; the last data buffer is trimmed, if necessary.  The length of
@@ -698,6 +723,22 @@ class Blob {
         //  const int n = blob.length();
         //  blob.trimLastDataBuffer();
         //  blob.insertBuffer(numDataBuffers(), buffer);
+        //  blob.setLength(n + buffer.size());
+        //..
+        // but is more efficient.
+
+    void appendDataBuffer(bslmf::MovableRef<BlobBuffer> buffer);
+        // Append the specified move-insertable 'buffer' after the last *data*
+        // buffer of this blob; the last data buffer is trimmed, if necessary.
+        // The 'buffer' is left in a valid but unspecified state.  The length
+        // of this blob is incremented by the size of 'buffer'.  The behavior
+        // is undefined unless neither the total size of the resulting blob nor
+        // its total number of buffers exceeds 'INT_MAX'.  Note that this
+        // operation is equivalent to:
+        //..
+        //  const int n = blob.length();
+        //  blob.trimLastDataBuffer();
+        //  blob.insertBuffer(numDataBuffers(), MoveUtil::move(buffer));
         //  blob.setLength(n + buffer.size());
         //..
         // but is more efficient.
@@ -715,6 +756,20 @@ class Blob {
         // '0 <= index <= numBuffers()' and neither the total size of the
         // resulting blob nor its total number of buffers exceeds 'INT_MAX'.
 
+    void insertBuffer(int index, bslmf::MovableRef<BlobBuffer> buffer);
+        // Insert the specified move-insertable 'buffer' at the specified
+        // 'index' in this blob.  Increment the length of this blob by the size
+        // of 'buffer' if 'buffer' is inserted *before* the logical end of this
+        // blob.  The length of this blob is _unchanged_ if inserting at a
+        // position following all data buffers (e.g., inserting into an empty
+        // blob or inserting a buffer to increase capacity); in that case, the
+        // blob length must be changed by an explicit call to 'setLength'.
+        // Buffers at 'index' and higher positions (if any) are shifted up by
+        // one index position.  The 'buffer' is left in a valid but unspecified
+        // state.  The behavior is undefined unless
+        // '0 <= index <= numBuffers()' and neither the total size of the
+        // resulting blob nor its total number of buffers exceeds 'INT_MAX'.
+
     void prependDataBuffer(const BlobBuffer& buffer);
         // Insert the specified 'buffer' before the beginning of this blob.
         // The length of this blob is incremented by the length of the
@@ -724,6 +779,20 @@ class Blob {
         //..
         //  const int n = blob.length();
         //  blob.insertBuffer(0, buffer);
+        //  blob.setLength(n + buffer.size());
+        //..
+        // but is more efficient.
+
+    void prependDataBuffer(bslmf::MovableRef<BlobBuffer> buffer);
+        // Insert the specified move-insertable 'buffer' before the beginning
+        // of this blob.  The length of this blob is incremented by the length
+        // of the prepended buffer.  The 'buffer' is left in a valid but
+        // unspecified state.  The behavior is undefined unless neither the
+        // total size of the resulting blob nor its total number of buffers
+        // exceeds 'INT_MAX'.  Note that this operation is equivalent to:
+        //..
+        //  const int n = blob.length();
+        //  blob.insertBuffer(0, MoveUtil::move(buffer));
         //  blob.setLength(n + buffer.size());
         //..
         // but is more efficient.
@@ -892,9 +961,9 @@ void swap(Blob& a, Blob& b);
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                              // ================
+                              // ----------------
                               // class BlobBuffer
-                              // ================
+                              // ----------------
 
 // CREATORS
 inline
@@ -909,6 +978,17 @@ BlobBuffer::BlobBuffer(const bsl::shared_ptr<char>& buffer, int size)
 , d_size(size)
 {
     BSLS_ASSERT(0 <= size);
+    BSLS_ASSERT(size == 0 || buffer);
+}
+
+inline
+BlobBuffer::BlobBuffer(bslmf::MovableRef<bsl::shared_ptr<char> > buffer,
+                       int                                       size)
+: d_buffer(MoveUtil::move(buffer))
+, d_size(size)
+{
+    BSLS_ASSERT(0 <= size);
+    BSLS_ASSERT(size == 0 || d_buffer);
 }
 
 inline
@@ -984,11 +1064,39 @@ bool bdlbb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 
 namespace bdlbb {
 
-                                 // ==========
+                                 // ----------
                                  // class Blob
-                                 // ==========
+                                 // ----------
 
 // MANIPULATORS
+inline
+void Blob::appendBuffer(const BlobBuffer& buffer)
+{
+    BlobBuffer objectToMove(buffer);
+    appendBuffer(MoveUtil::move(objectToMove));
+}
+
+inline
+void Blob::appendDataBuffer(const BlobBuffer& buffer)
+{
+    BlobBuffer objectToMove(buffer);
+    appendDataBuffer(MoveUtil::move(objectToMove));
+}
+
+inline
+void Blob::insertBuffer(int index, const BlobBuffer& buffer)
+{
+    BlobBuffer objectToMove(buffer);
+    insertBuffer(index, MoveUtil::move(objectToMove));
+}
+
+inline
+void Blob::prependDataBuffer(const BlobBuffer& buffer)
+{
+    BlobBuffer objectToMove(buffer);
+    prependDataBuffer(MoveUtil::move(objectToMove));
+}
+
 inline
 void Blob::reserveBufferCapacity(int numBuffers)
 {

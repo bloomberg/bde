@@ -232,6 +232,15 @@ struct BlobUtil {
         // success, and a non-zero value (with no effect) otherwise.  The
         // length of the 'dest' is unaffected.
 
+    static int appendBufferIfValid(Blob                          *dest,
+                                   bslmf::MovableRef<BlobBuffer>  buffer);
+        // Append the specified move-insertable 'buffer' after the last buffer
+        // of the specified 'dest' if neither the resulting total size of
+        // 'dest' nor its resulting total number of buffers exceeds 'INT_MAX'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  The length of the 'dest' is unaffected.  In case of
+        // success the 'buffer' is left in a valid but unspecified state.
+
     static int appendDataBufferIfValid(Blob *dest, const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last *data* buffer of the
         // specified 'dest' if neither the resulting total size of 'dest' nor
@@ -239,6 +248,17 @@ struct BlobUtil {
         // on success, and a non-zero value (with no effect) otherwise.  The
         // last data buffer of the 'dest' is trimmed, if necessary.  The length
         // of the 'dest' is incremented by the size of 'buffer'.
+
+    static int appendDataBufferIfValid(Blob                          *dest,
+                                       bslmf::MovableRef<BlobBuffer>  buffer);
+        // Append the specified move-insertable 'buffer' after the last *data*
+        // buffer of the specified 'dest' if neither the resulting total size
+        // of 'dest' nor its resulting total number of buffers exceeds
+        // 'INT_MAX'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  The last data buffer of the 'dest' is trimmed,
+        // if necessary.  The length of the 'dest' is incremented by the size
+        // of 'buffer'.  In case of success the 'buffer' is left in a valid but
+        // unspecified state.
 
     static int insertBufferIfValid(Blob              *dest,
                                    int                index,
@@ -256,6 +276,24 @@ struct BlobUtil {
         // explicit call to 'setLength'.  Buffers at 'index' and higher
         // positions (if any) are shifted up by one index position.
 
+    static int insertBufferIfValid(Blob                          *dest,
+                                   int                            index,
+                                   bslmf::MovableRef<BlobBuffer>  buffer);
+        // Insert the specified move-insertable 'buffer' at the specified
+        // 'index' in the specified 'dest' if
+        // '0 <= index <= dest->numBuffers()' and neither the resulting total
+        // size of 'dest' nor its resulting total number of buffers exceeds
+        // 'INT_MAX'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  Increment the length of the 'dest by the size of
+        // the 'buffer' if 'buffer' is inserted *before* the logical end of the
+        // 'dest'.  The length of the 'dest' is _unchanged_ if inserting at a
+        // position following all data buffers (e.g., inserting into an empty
+        // blob or inserting a buffer to increase capacity); in that case, the
+        // blob length must be changed by an explicit call to 'setLength'.
+        // Buffers at 'index' and higher positions (if any) are shifted up by
+        // one index position.  In case of success the 'buffer' is left in a
+        // valid but unspecified state.
+
     static int prependDataBufferIfValid(Blob *dest, const BlobBuffer& buffer);
         // Insert the specified 'buffer' before the beginning of the specified
         // 'dest' if neither the resulting total size of 'dest' nor its
@@ -263,6 +301,16 @@ struct BlobUtil {
         // success, and a non-zero value (with no effect) otherwise.  The
         // length of the 'dest' is incremented by the length of the prepended
         // buffer.
+
+    static int prependDataBufferIfValid(Blob                          *dest,
+                                        bslmf::MovableRef<BlobBuffer>  buffer);
+        // Insert the specified move-insertable 'buffer' before the beginning
+        // of the specified 'dest' if neither the resulting total size of
+        // 'dest' nor its resulting total number of buffers exceeds 'INT_MAX'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  The length of the 'dest' is incremented by the length of
+        // the prepended buffer.  In case of success the 'buffer' is left in a
+        // valid but unspecified state.
 
     // ---------- DEPRECATED FUNCTIONS ------------- //
 
@@ -540,9 +588,20 @@ int BlobUtil::write(STREAM&     stream,
 inline
 int BlobUtil::appendBufferIfValid(Blob *dest, const BlobBuffer& buffer)
 {
-    if (dest->totalSize() <= INT_MAX - buffer.size()
+    BlobBuffer objectToMove(buffer);
+    return appendBufferIfValid(dest,
+                               bslmf::MovableRefUtil::move(objectToMove));
+}
+
+inline
+int BlobUtil::appendBufferIfValid(Blob                          *dest,
+                                  bslmf::MovableRef<BlobBuffer>  buffer)
+{
+    BlobBuffer& lvalue = buffer;
+
+    if (dest->totalSize() <= INT_MAX - lvalue.size()
     && (dest->numBuffers() < INT_MAX)) {
-        dest->appendBuffer(buffer);
+        dest->appendBuffer(bslmf::MovableRefUtil::move(buffer));
         return 0;                                                     // RETURN
     }
     return -1;
@@ -551,9 +610,20 @@ int BlobUtil::appendBufferIfValid(Blob *dest, const BlobBuffer& buffer)
 inline
 int BlobUtil::appendDataBufferIfValid(Blob *dest, const BlobBuffer& buffer)
 {
+    BlobBuffer objectToMove(buffer);
+    return appendDataBufferIfValid(dest,
+                                   bslmf::MovableRefUtil::move(objectToMove));
+}
+
+inline
+int BlobUtil::appendDataBufferIfValid(Blob                          *dest,
+                                      bslmf::MovableRef<BlobBuffer>  buffer)
+{
     // Last data buffer can be trimmed during appending new buffer.  Therefore,
     // the potentially allowed size of the added buffer should be adjusted
     // accordingly.
+
+    BlobBuffer& lvalue = buffer;
 
     const int TRIMMED_SIZE =
         0 == dest->numDataBuffers()
@@ -561,10 +631,10 @@ int BlobUtil::appendDataBufferIfValid(Blob *dest, const BlobBuffer& buffer)
             : dest->buffer(dest->numDataBuffers() - 1).size() -
                   dest->lastDataBufferLength();
 
-    if ((dest->totalSize() - TRIMMED_SIZE <= INT_MAX - buffer.size())
+    if ((dest->totalSize() - TRIMMED_SIZE <= INT_MAX - lvalue.size())
      && (dest->numBuffers() < INT_MAX)) {
 
-        dest->appendDataBuffer(buffer);
+        dest->appendDataBuffer(bslmf::MovableRefUtil::move(lvalue));
         return 0;                                                     // RETURN
     }
     return -1;
@@ -575,11 +645,24 @@ int BlobUtil::insertBufferIfValid(Blob              *dest,
                                   int                index,
                                   const BlobBuffer&  buffer)
 {
+    BlobBuffer objectToMove(buffer);
+    return insertBufferIfValid(dest,
+                               index,
+                               bslmf::MovableRefUtil::move(objectToMove));
+}
+
+inline
+int BlobUtil::insertBufferIfValid(Blob                          *dest,
+                                  int                            index,
+                                  bslmf::MovableRef<BlobBuffer>  buffer)
+{
+    BlobBuffer& lvalue = buffer;
+
     if (0 <= index
      && dest->numBuffers() >= index
-     && (dest->totalSize() <= INT_MAX - buffer.size())
+     && (dest->totalSize() <= INT_MAX - lvalue.size())
      && (dest->numBuffers() < INT_MAX)) {
-        dest->insertBuffer(index, buffer);
+        dest->insertBuffer(index, bslmf::MovableRefUtil::move(lvalue));
         return 0;                                                     // RETURN
     }
     return -1;
@@ -588,10 +671,21 @@ int BlobUtil::insertBufferIfValid(Blob              *dest,
 inline
 int BlobUtil::prependDataBufferIfValid(Blob *dest, const BlobBuffer& buffer)
 {
-    int bufferSize = buffer.size();
+    BlobBuffer objectToMove(buffer);
+    return prependDataBufferIfValid(dest,
+                                    bslmf::MovableRefUtil::move(objectToMove));
+}
+
+inline
+int BlobUtil::prependDataBufferIfValid(Blob                          *dest,
+                                       bslmf::MovableRef<BlobBuffer>  buffer)
+{
+    BlobBuffer& lvalue = buffer;
+
+    int bufferSize = lvalue.size();
     if ((dest->totalSize() <= INT_MAX - bufferSize)
      && (dest->numBuffers() < INT_MAX)) {
-        dest->prependDataBuffer(buffer);
+        dest->prependDataBuffer(bslmf::MovableRefUtil::move(lvalue));
         return 0;                                                     // RETURN
     }
     return -1;

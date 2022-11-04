@@ -43,9 +43,13 @@ using namespace bsl;  // automatically added by script
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
 // [13] int appendBufferIfValid(Blob *d, const BlobBuffer& b);
-// [13] int appendDataBufferIfValid(Blob *d, const BlobBuffer& );
+// [13] int appendBufferIfValid(Blob *d, MovableRef<BlobBuffer> b);
+// [13] int appendDataBufferIfValid(Blob *d, const BlobBuffer& b);
+// [13] int appendDataBufferIfValid(Blob *d, MovableRef<BlobBuffer> b);
 // [13] int insertBufferIfValid(Blob *d, int i, const BlobBuffer& b);
+// [13] int insertBufferIfValid(Blob *d, int i, MovableRef<BlobBuffer> b);
 // [13] int prependDataBufferIfValid(Blob *d, const BlobBuffer& b);
+// [13] int prependDataBufferIfValid(Blob *d, MovableRef<BlobBuffer> b);
 // [12] padToAlignment(Blob *, int, char = 0);
 // [10] Testing copy to a blob
 // [ 9] Testing getContiguousRangeOrCopy
@@ -173,9 +177,11 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
 //                              GLOBAL TYPEDEF
 // ----------------------------------------------------------------------------
 
-typedef bdlbb::BlobUtil    Util;
-typedef bdlbb::Blob        Blob;
-typedef bsls::Types::Int64 Int64;
+typedef bdlbb::BlobUtil       Util;
+typedef bdlbb::Blob           Blob;
+typedef bdlbb::BlobBuffer     BlobBuffer;
+typedef bsls::Types::Int64    Int64;
+typedef bslmf::MovableRefUtil MoveUtil;
 
 int verbose;
 int veryVerbose;
@@ -402,6 +408,28 @@ void checkBlob(const bdlbb::Blob& dst,
     }
 }
 
+bool areBlobsBasicallyEqual(const Blob& lhs, const Blob& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' are basically equal and
+    // 'false' otherwise.  Two blobs are basically equal when all their
+    // parameters are exactly the same, except that the 'BlobBuffer' pointers
+    // can point to different shared buffers.  This function is used instead of
+    // equality comparison operator in tests of move-insertion functions.
+{
+    if (lhs.totalSize()            != rhs.totalSize() ||
+        lhs.length()               != rhs.length() ||
+        lhs.numBuffers()           != rhs.numBuffers() ||
+        lhs.numDataBuffers()       != rhs.numDataBuffers() ||
+        lhs.lastDataBufferLength() != rhs.lastDataBufferLength()) {
+        return false;                                                 // RETURN
+    }
+    for (int i = 0; i < lhs.numBuffers(); ++i) {
+        if (lhs.buffer(i).size() != rhs.buffer(i).size()) {
+            return false;                                             // RETURN
+        }
+    }
+    return true;
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -427,32 +455,53 @@ int main(int argc, char *argv[])
         // TESTING SAFE BUFFER ADD FUNCTIONS
         //   Safe functions check compliance with the required conditions and
         //   invoke appropriate 'bdlbb::Blob' method.  Therefore we use the
-        //   result of class method to verify the result of utility function.
+        //   result of the class method to verify the result of utility
+        //   function.
+        //   Since overloads that accept const references just call overloads
+        //   that accept rvalue references, passing there a copy of incoming
+        //   parameter, we are going to test the first ones superficially.
         //
         // Concerns:
-        //: 1 All functions pass incoming 'BlobBuffer' reference to the
-        //:   appropriate 'Blob' method.
+        //: 1 All functions pass incoming 'BlobBuffer' reference (const or
+        //:   rvalue) to the appropriate 'Blob' method.
         //:
         //: 2 All functions correctly calculate whether the incoming
-        //:   'BlobBuffer' reference can be added to the 'Blob'.
+        //:   'BlobBuffer' object can be added to the 'Blob'.
         //:
-        //: 3. 'Blob' object remains unaffected on failure.
+        //: 3 'BlobBuffer' object is moved by the functions accepting rvalue
+        //:   references.
+        //:
+        //: 4. 'Blob' and 'BlobBuffer' objects remain unaffected on failure.
         //
         // Plan:
         //: 1 For all combinations of length, buffer size (for the factory),
         //:   and number of buffers, check that a blob after prepending and
-        //:   appending data buffers using utility function has the same
-        //:   characteristics as the blob modified by class methods.  Verify
-        //:   that functions return zero value (success result).  (C-1)
+        //:   appending data buffers using utility function accepting rvalue
+        //:   reference, has the same characteristics as the blob modified by
+        //:   class methods.  Verify that functions return zero value (success
+        //:   result).  Verify that the 'use_count' of the inserted buffer is
+        //:   equal to 1 (the buffer has been moved, not copied).
         //:
-        //: 2 Pass to utility function blob buffer with enormously big size
+        //: 2 For some combinations of buffer size check that a blob after
+        //:   prepending and appending data buffers using utility function
+        //:   accepting const reference has the same characteristics as the
+        //:   blob modified by function accepting rvalue reference.  Verify
+        //:   that functions return zero value (success result).  Verify that
+        //:   the 'use_count' of the inserted buffer is equal to 2 (the buffer
+        //:   has been copied, not moved).  (C-1, 3)
+        //:
+        //: 3 Pass to utility function blob buffer with enormously big size
         //:   and verify that function returns non-zero value (failure result)
-        //:   and blob is not changed.  (C-2..3)
+        //:   and blob is not changed.  (C-2, 4)
         //
         // Testing:
+        //   int appendBufferIfValid(Blob *d, MovableRef<BlobBuffer> b);
         //   int appendBufferIfValid(Blob *d, const BlobBuffer& b);
-        //   int appendDataBufferIfValid(Blob *d, const BlobBuffer& );
+        //   int appendDataBufferIfValid(Blob *d, MovableRef<BlobBuffer> b);
+        //   int appendDataBufferIfValid(Blob *d, const BlobBuffer& b);
+        //   int insertBufferIfValid(Blob *d, int i, MovableRef<BlobBuffer> b);
         //   int insertBufferIfValid(Blob *d, int i, const BlobBuffer& b);
+        //   int prependDataBufferIfValid(Blob *d, MovableRef<BlobBuffer> b);
         //   int prependDataBufferIfValid(Blob *d, const BlobBuffer& b);
         // --------------------------------------------------------------------
 
@@ -463,7 +512,14 @@ int main(int argc, char *argv[])
         const int SUCCESS =  0;
         const int FAILURE = -1;
 
-        if (verbose) cout << "Testing basic behavior" << endl;
+        enum {
+            APPEND_BUFFER       = 0,
+            APPEND_DATA_BUFFER  = 1,
+            PREPEND_DATA_BUFFER = 2,
+            INSERT_BUFFER       = 3
+        };
+
+        if (verbose) cout << "Testing moving overloads" << endl;
 
         for (int bufferSize = 1; bufferSize <= MAX_NUM; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= MAX_NUM; ++numBuffers)
@@ -471,10 +527,12 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int insertSize = 0; insertSize <= MAX_NUM; ++insertSize)
         {
-            const int BUFFER_SIZE        = bufferSize;
-            const int DATA_LENGTH        = dataLength;
-            const int NUM_BUFFERS        = numBuffers;
-            const int INSERT_BUFFER_SIZE = insertSize;
+            const int BUFFER_SIZE           = bufferSize;
+            const int DATA_LENGTH           = dataLength;
+            const int NUM_BUFFERS           = numBuffers;
+            const int INSERT_BUFFER_SIZE    = insertSize;
+            const int INIT_NUM_DATA_BUFFERS =
+                                 (DATA_LENGTH + BUFFER_SIZE - 1) / BUFFER_SIZE;
 
             bslma::TestAllocator         da("default", veryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
@@ -482,25 +540,35 @@ int main(int argc, char *argv[])
             // Testing 'appendBufferIfValid', 'appendDataBufferIfValid' and
             // 'prependDataBufferIfValid'.
 
-            for (char function = 'a'; function <= 'c'; ++function) {
-                const char FUNCTION = function;
-                typedef int (*UtilFunction)(Blob *, const bdlbb::BlobBuffer&);
-                typedef void (Blob::*MemberFunction)(const bdlbb::BlobBuffer&);
+            for (int function = APPEND_BUFFER;
+                 function <= PREPEND_DATA_BUFFER;
+                 ++function) {
+                const int FUNCTION = function;
+
+                typedef int (*UtilFunction)(Blob *,
+                                            bslmf::MovableRef<BlobBuffer>);
+                typedef void (Blob::*MemberFunction)(
+                                                bslmf::MovableRef<BlobBuffer>);
 
                 UtilFunction   utilFunction   = 0;
                 MemberFunction memberFunction = 0;
+                int            index          = 0;
+
                 switch (FUNCTION) {
-                  case ('a'):
+                  case APPEND_BUFFER:
                     utilFunction   = &Util::appendBufferIfValid;
                     memberFunction = &Blob::appendBuffer;
+                    index          = NUM_BUFFERS;
                     break;
-                  case ('b'):
+                  case APPEND_DATA_BUFFER:
                     utilFunction   = &Util::appendDataBufferIfValid;
                     memberFunction = &Blob::appendDataBuffer;
+                    index          = INIT_NUM_DATA_BUFFERS;
                     break;
-                  case ('c'):
+                  case PREPEND_DATA_BUFFER:
                     utilFunction   = &Util::prependDataBufferIfValid;
                     memberFunction = &Blob::prependDataBuffer;
+                    index          = 0;
                     break;
                   default:
                     ASSERTV(!"Unexpected function mode");
@@ -514,15 +582,17 @@ int main(int argc, char *argv[])
                         P(FUNCTION);
                 }
 
-                bdlbb::Blob                    model;
-                const bdlbb::Blob&             MODEL = model;
-                bdlbb::Blob                    dst;
-                const bdlbb::Blob&             DST   = dst;
-                bdlbb::SimpleBlobBufferFactory fa(BUFFER_SIZE);
+                // Object initialization.
+
+                Blob                           model;
+                const Blob&                    MODEL = model;
+                Blob                           dst;
+                const Blob&                    DST   = dst;
+                bdlbb::SimpleBlobBufferFactory factory(BUFFER_SIZE);
 
                 for (int i = 0; i < NUM_BUFFERS; ++i) {
-                    bdlbb::BlobBuffer initialBuffer;
-                    fa.allocate(&initialBuffer);
+                    BlobBuffer initialBuffer;
+                    factory.allocate(&initialBuffer);
 
                     model.appendBuffer(initialBuffer);
                     dst.appendBuffer(initialBuffer);
@@ -533,26 +603,67 @@ int main(int argc, char *argv[])
 
                 ASSERT(MODEL == DST);
 
-                bdlbb::SimpleBlobBufferFactory ifa(INSERT_BUFFER_SIZE);
+                // Buffer initialization
+
+                bdlbb::SimpleBlobBufferFactory insertFactory(
+                                                           INSERT_BUFFER_SIZE);
+                bdlbb::BlobBuffer              modelBuffer;
                 bdlbb::BlobBuffer              buffer;
-                ifa.allocate(&buffer);
+                insertFactory.allocate(&modelBuffer);
+                insertFactory.allocate(&buffer);
 
-                (model.*memberFunction)(buffer);
+                (model.*memberFunction)(MoveUtil::move(modelBuffer));
 
-                int result = utilFunction(&dst, buffer);
+                // Tested action.
+
+                int result = utilFunction(&dst, MoveUtil::move(buffer));
+
+                // Verification.
 
                 ASSERT(SUCCESS == result);
-                ASSERT(MODEL   == DST   );
+                ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
+
+                // The following check fails because of inconsistent behavior
+                // of 'bsl::vector<>::insert' method (see {DRQS 170573799}).
+                // This check should be uncommented after the issue is fixed.
+                //
+                // ASSERT(1 == DST.buffer(index).buffer().use_count());
 
                 // Insert empty buffer.
 
+                bdlbb::BlobBuffer modelEmptyBuffer;
                 bdlbb::BlobBuffer emptyBuffer;
-                (model.*memberFunction)(emptyBuffer);
 
-                result = utilFunction(&dst, emptyBuffer);
+                switch (FUNCTION) {
+                  case APPEND_BUFFER:
+                    index = NUM_BUFFERS + 1;
+                    break;
+                  case APPEND_DATA_BUFFER:
+                    index = INIT_NUM_DATA_BUFFERS + 1;
+                    break;
+                  case PREPEND_DATA_BUFFER:
+                    index = 0;
+                    break;
+                  default:
+                    ASSERTV(!"Unexpected function mode");
+                }
+
+                (model.*memberFunction)(MoveUtil::move(modelEmptyBuffer));
+
+                // Tested action.
+
+                result = utilFunction(&dst, MoveUtil::move(emptyBuffer));
+
+                // Verification.
 
                 ASSERT(SUCCESS == result);
-                ASSERT(MODEL   == DST   );
+                ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
+
+                // The following check fails because of inconsistent behavior
+                // of 'bsl::vector<>::insert' method (see {DRQS 170573799}).
+                // This check should be uncommented after the issue is fixed.
+                //
+                // ASSERT(1 == DST.buffer(index).buffer().use_count());
 
                 // Last data buffer can be trimmed during appending new data
                 // buffer (but not prepending or appending non-data buffer) .
@@ -560,7 +671,8 @@ int main(int argc, char *argv[])
                 // should be adjusted accordingly.
 
                 const int TRIMMED_SIZE =
-                     'a' == FUNCTION || 'c' == FUNCTION
+                     APPEND_BUFFER       == FUNCTION ||
+                     PREPEND_DATA_BUFFER == FUNCTION
                         ? 0
                         : 0 == DST.numDataBuffers()
                               ? 0
@@ -570,26 +682,56 @@ int main(int argc, char *argv[])
                 // The following blob buffers represent null buffer but have
                 // non-zero size.  This can lead to undefined behavior in real
                 // world, but we are not going to make read/write operations on
-                // these buffers during testing. Only their sizes are valuable
+                // these buffers during testing.  Only their sizes are valuable
                 // for our test.
 
+                bdlbb::BlobBuffer modelMaximalValidBuffer;
                 bdlbb::BlobBuffer maximalValidBuffer;
                 bdlbb::BlobBuffer tinyBuffer;
 
+                modelMaximalValidBuffer.setSize(
+                                     INT_MAX - DST.totalSize() + TRIMMED_SIZE);
                 maximalValidBuffer.setSize(
                                      INT_MAX - DST.totalSize() + TRIMMED_SIZE);
                 tinyBuffer.setSize(1);
 
-                (model.*memberFunction)(maximalValidBuffer);
-                result = utilFunction(&dst, maximalValidBuffer);
+                switch (FUNCTION) {
+                  case APPEND_BUFFER:
+                    index = NUM_BUFFERS + 1;
+                    break;
+                  case APPEND_DATA_BUFFER:
+                    index = INIT_NUM_DATA_BUFFERS + 1;
+                    break;
+                  case PREPEND_DATA_BUFFER:
+                    index = 0;
+                    break;
+                  default:
+                    ASSERTV(!"Unexpected function mode");
+                }
+
+                (model.*memberFunction)(MoveUtil::move(
+                                                     modelMaximalValidBuffer));
+
+                // Tested action.
+
+                result = utilFunction(&dst, MoveUtil::move(
+                                                          maximalValidBuffer));
+
+                // Verification.
 
                 ASSERT(SUCCESS == result);
-                ASSERT(MODEL   == DST   );
+                ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
 
-                result = utilFunction(&dst, tinyBuffer);
+                // The following check fails because of inconsistent behavior
+                // of 'bsl::vector<>::insert' method (see {DRQS 170573799}).
+                // This check should be uncommented after the issue is fixed.
+                //
+                // ASSERT(1 == DST.buffer(index).buffer().use_count());
+
+                result = utilFunction(&dst, MoveUtil::move(tinyBuffer));
 
                 ASSERT(FAILURE == result);
-                ASSERT(MODEL   == DST   );
+                ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
             }
 
             // Testing 'insertBufferIfValid'.
@@ -605,15 +747,17 @@ int main(int argc, char *argv[])
                             P(POSITION);
                     }
 
-                    bdlbb::Blob                    model;
-                    const bdlbb::Blob&             MODEL = model;
-                    bdlbb::Blob                    dst;
-                    const bdlbb::Blob&             DST   = dst;
-                    bdlbb::SimpleBlobBufferFactory fa(BUFFER_SIZE);
+                    // Object initialization.
+
+                    Blob                           model;
+                    const Blob&                    MODEL = model;
+                    Blob                           dst;
+                    const Blob&                    DST   = dst;
+                    bdlbb::SimpleBlobBufferFactory factory(BUFFER_SIZE);
 
                     for (int i = 0; i < NUM_BUFFERS; ++i) {
-                        bdlbb::BlobBuffer initialBuffer;
-                        fa.allocate(&initialBuffer);
+                        BlobBuffer initialBuffer;
+                        factory.allocate(&initialBuffer);
 
                         model.appendBuffer(initialBuffer);
                         dst.appendBuffer(initialBuffer);
@@ -624,78 +768,220 @@ int main(int argc, char *argv[])
 
                     ASSERT(MODEL == DST);
 
-                    bdlbb::SimpleBlobBufferFactory ifa(INSERT_BUFFER_SIZE);
-                    bdlbb::BlobBuffer              buffer;
-                    ifa.allocate(&buffer);
+                    // Buffer initialization
 
-                    model.insertBuffer(POSITION, buffer);
+                    bdlbb::SimpleBlobBufferFactory insertFactory(
+                                                           INSERT_BUFFER_SIZE);
+                    BlobBuffer                     modelBuffer;
+                    BlobBuffer                     buffer;
+                    insertFactory.allocate(&modelBuffer);
+                    insertFactory.allocate(&buffer);
 
-                    int result = Util::insertBufferIfValid(&dst,
-                                                           POSITION,
-                                                           buffer);
+                    model.insertBuffer(POSITION, MoveUtil::move(modelBuffer));
 
-                    ASSERT(SUCCESS == result);
-                    ASSERT(MODEL   == DST   );
+                    // Tested action.
 
-                    bdlbb::BlobBuffer emptyBuffer;
-                    model.insertBuffer(POSITION, emptyBuffer);
-
-                    result = Util::insertBufferIfValid(&dst,
+                    int result = Util::insertBufferIfValid(
+                                                       &dst,
                                                        POSITION,
-                                                       emptyBuffer);
+                                                       MoveUtil::move(buffer));
+
+                    // Verification.
 
                     ASSERT(SUCCESS == result);
-                    ASSERT(MODEL   == DST   );
+                    ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
 
-                    bdlbb::BlobBuffer maximalValidBuffer;
-                    bdlbb::BlobBuffer tinyBuffer;
+                    // Insert empty buffer.
 
+                    BlobBuffer modelEmptyBuffer;
+                    BlobBuffer emptyBuffer;
+
+                    model.insertBuffer(POSITION,
+                                       MoveUtil::move(modelEmptyBuffer));
+
+                    // Tested action.
+
+                    result = Util::insertBufferIfValid(
+                                                  &dst,
+                                                  POSITION,
+                                                  MoveUtil::move(emptyBuffer));
+
+                    // Verification.
+
+                    ASSERT(SUCCESS == result);
+                    ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
+
+                    // The following check fails because of inconsistent
+                    // behavior of 'bsl::vector<>::insert' method (see
+                    // {DRQS 170573799}). This check should be uncommented
+                    // after the issue is fixed.
+                    //
+                    // ASSERT(1 == DST.buffer(index).buffer().use_count());
+
+                    // Testing size exceeding scenario.
+
+                    BlobBuffer modelMaximalValidBuffer;
+                    BlobBuffer maximalValidBuffer;
+                    BlobBuffer tinyBuffer;
+
+                    modelMaximalValidBuffer.setSize(INT_MAX - DST.totalSize());
                     maximalValidBuffer.setSize(INT_MAX - DST.totalSize());
                     tinyBuffer.setSize(1);
 
+                    model.insertBuffer(POSITION,
+                                      MoveUtil::move(modelMaximalValidBuffer));
 
-                    model.insertBuffer(POSITION, maximalValidBuffer);
-                    result = Util::insertBufferIfValid(&dst,
-                                                       POSITION,
-                                                       maximalValidBuffer);
+                    // Tested action.
+
+                    result = Util::insertBufferIfValid(
+                                           &dst,
+                                           POSITION,
+                                           MoveUtil::move(maximalValidBuffer));
+
+                    // Verification.
 
                     ASSERT(SUCCESS == result);
-                    ASSERT(MODEL   == DST   );
+                    ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
 
-                    result = Util::insertBufferIfValid(&dst,
-                                                       POSITION,
-                                                       tinyBuffer);
+                    // The following check fails because of inconsistent
+                    // behavior of 'bsl::vector<>::insert' method (see
+                    // {DRQS 170573799}). This check should be uncommented
+                    // after the issue is fixed.
+                    //
+                    // ASSERT(1 == DST.buffer(index).buffer().use_count());
+
+                    result = Util::insertBufferIfValid(
+                                                   &dst,
+                                                   POSITION,
+                                                   MoveUtil::move(tinyBuffer));
 
                     ASSERT(FAILURE == result);
-                    ASSERT(MODEL   == DST   );
+                    ASSERT(u::areBlobsBasicallyEqual(MODEL, DST));
                 }
+            }
+        }
+
+        if (verbose) cout << "Testing copy overloads" << endl;
+
+        for (int insertSize = 0; insertSize <= MAX_NUM; ++insertSize)
+        {
+            const int INSERT_BUFFER_SIZE = insertSize;
+
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            for (int function = APPEND_BUFFER;
+                 function <= INSERT_BUFFER;
+                 ++function) {
+                const int FUNCTION = function;
+
+                if (veryVerbose) {
+                    T_ P_(INSERT_BUFFER_SIZE); P(FUNCTION);
+                }
+
+                // Object initialization.
+
+                Blob                           model;
+                const Blob&                    MODEL = model;
+                Blob                           dst;
+                const Blob&                    DST   = dst;
+
+                // Buffer initialization
+
+                bdlbb::SimpleBlobBufferFactory insertFactory(
+                                                           INSERT_BUFFER_SIZE);
+                bdlbb::BlobBuffer              buffer;
+                insertFactory.allocate(&buffer);
+
+                int result      = 0;
+                int modelResult = 0;
+
+                // Tested action.
+
+                switch (FUNCTION) {
+                  case APPEND_BUFFER:
+                    result = Util::appendBufferIfValid(&dst, buffer);
+                    ASSERT(2 == buffer.buffer().use_count());
+                    modelResult = Util::appendBufferIfValid(
+                                                       &model,
+                                                       MoveUtil::move(buffer));
+                    break;
+                  case APPEND_DATA_BUFFER:
+                    result = Util::appendDataBufferIfValid(&dst, buffer);
+                    ASSERT(2 == buffer.buffer().use_count());
+                    modelResult = Util::appendDataBufferIfValid(
+                                                       &model,
+                                                       MoveUtil::move(buffer));
+                    break;
+                  case PREPEND_DATA_BUFFER:
+                    result = Util::prependDataBufferIfValid(&dst, buffer);
+                    ASSERT(2 == buffer.buffer().use_count());
+                    modelResult = Util::prependDataBufferIfValid(
+                                                       &model,
+                                                       MoveUtil::move(buffer));
+                    break;
+                  case INSERT_BUFFER:
+                    result = Util::insertBufferIfValid(&dst, 0, buffer);
+                    ASSERT(2 == buffer.buffer().use_count());
+                    modelResult = Util::insertBufferIfValid(
+                                                       &model,
+                                                       0,
+                                                       MoveUtil::move(buffer));
+                    break;
+                  default:
+                    ASSERTV(!"Unexpected function mode");
+                }
+
+                ASSERT(modelResult == result);
+                ASSERT(MODEL       == DST   );
+
             }
         }
 
         if (verbose) cout << "Testing specific failure scenarios." << endl;
         {
-            const bdlbb::BlobBuffer EMPTY;
-            const bdlbb::BlobBuffer TINY_DUMMY(bsl::shared_ptr<char>(), 1);
+            bslma::TestAllocator  ta("test", veryVeryVerbose);
+            bsl::shared_ptr<char> buffer((char *)ta.allocate(1), &ta);
+
+            const BlobBuffer MODEL_EMPTY;
+            const BlobBuffer EMPTY(MODEL_EMPTY);
+            const BlobBuffer MODEL_TINY_DUMMY(buffer, 1);
+            const BlobBuffer TINY_DUMMY(MODEL_TINY_DUMMY);
 
             {
-                bdlbb::Blob                    model;
-                const bdlbb::Blob&             MODEL = model;
-                bdlbb::Blob                    dst;
-                const bdlbb::Blob&             DST   = dst;
+                Blob        model;
+                const Blob& MODEL = model;
+                Blob        dst;
+                const Blob& DST   = dst;
 
-                int result = Util::insertBufferIfValid(&dst,
-                                                       -1,
-                                                       EMPTY);
+                int result = Util::insertBufferIfValid(&dst, -1, EMPTY);
 
-                ASSERT(FAILURE == result);
-                ASSERT(MODEL   == DST   );
+                ASSERT(FAILURE     == result);
+                ASSERT(MODEL       == DST   );
+                ASSERT(MODEL_EMPTY == EMPTY );
+
+
+                result = Util::insertBufferIfValid(&dst,
+                                                   -1,
+                                                   MoveUtil::move(EMPTY));
+
+                ASSERT(FAILURE     == result);
+                ASSERT(MODEL       == DST   );
+                ASSERT(MODEL_EMPTY == EMPTY );
+
+                result = Util::insertBufferIfValid(&dst, 1, EMPTY);
+
+                ASSERT(FAILURE     == result);
+                ASSERT(MODEL       == DST   );
+                ASSERT(MODEL_EMPTY == EMPTY );
 
                 result = Util::insertBufferIfValid(&dst,
                                                    1,
-                                                   EMPTY);
+                                                   MoveUtil::move(EMPTY));
 
-                ASSERT(FAILURE == result);
-                ASSERT(MODEL   == DST   );
+                ASSERT(FAILURE     == result);
+                ASSERT(MODEL       == DST   );
+                ASSERT(MODEL_EMPTY == EMPTY );
             }
 
             {
@@ -708,8 +994,10 @@ int main(int argc, char *argv[])
                 // a lot of resources, we comment out this test.  The manual
                 // test was performed.
 
-                // bdlbb::Blob        blob;
-                // const bdlbb::Blob& BLOB = blob;
+                // Blob        blob;
+                // const Blob& BLOB = blob;
+                // Blob        model;
+                // const Blob& MODEL = model;
                 //
                 // for (int i = 0; i < INT_MAX; ++i) {
                 //     blob.appendBuffer(EMPTY);
@@ -718,19 +1006,36 @@ int main(int argc, char *argv[])
                 // ASSERT(INT_MAX == BLOB.numBuffers());
                 // ASSERT(0       == BLOB.totalSize() );
                 //
-                // const int APPEND_RESULT =
-                //        Util::appendBufferIfValid(     &blob,    TINY_DUMMY);
-                // const int APPEND_DATA_RESULT =
-                //        Util::appendDataBufferIfValid( &blob,    TINY_DUMMY);
-                // const int INSERT_RESULT =
-                //        Util::insertBufferIfValid(     &blob, 0, TINY_DUMMY);
-                // const int PREPEND_DATA_RESULT =
-                //        Util::prependDataBufferIfValid(&blob,    TINY_DUMMY);
+                // const int APPEND_RESULT = Util::appendBufferIfValid(
+                //                                 &blob,
+                //                                 MoveUtil::move(TINY_DUMMY));
                 //
-                // ASSERT(FAILURE == APPEND_RESULT      );
-                // ASSERT(FAILURE == APPEND_DATA_RESULT );
-                // ASSERT(FAILURE == INSERT_RESULT      );
-                // ASSERT(FAILURE == PREPEND_DATA_RESULT);
+                // ASSERT(FAILURE          == APPEND_RESULT);
+                // ASSERT(MODEL            == BLOB         );
+                // ASSERT(MODEL_TINY_DUMMY == TINY_DUMMY   );
+                //
+                // const int APPEND_DATA_RESULT =
+                //   Util::appendDataBufferIfValid(&blob,
+                //                                 MoveUtil::move(TINY_DUMMY));
+                // ASSERT(FAILURE          == APPEND_DATA_RESULT);
+                // ASSERT(MODEL            == BLOB              );
+                // ASSERT(MODEL_TINY_DUMMY == TINY_DUMMY        );
+                //
+                // const int INSERT_RESULT = Util::insertBufferIfValid(
+                //                                 &blob,
+                //                                 0,
+                //                                 MoveUtil::move(TINY_DUMMY));
+                // ASSERT(FAILURE          == INSERT_RESULT);
+                // ASSERT(MODEL            == BLOB         );
+                // ASSERT(MODEL_TINY_DUMMY == TINY_DUMMY   );
+                //
+                // const int PREPEND_DATA_RESULT =
+                //     Util::prependDataBufferIfValid(
+                //                                 &blob,
+                //                                 MoveUtil::move(TINY_DUMMY));
+                // ASSERT(FAILURE          == PREPEND_DATA_RESULT);
+                // ASSERT(MODEL            == BLOB               );
+                // ASSERT(MODEL_TINY_DUMMY == TINY_DUMMY         );
             }
         }
       } break;

@@ -93,27 +93,36 @@ using bsl::cerr;
 // [ 4] void bdlbb::Blob::trimLastDataBuffer();
 // [ 4] int bdlbb::Blob::lastDataBufferLength();
 // [ 4] int bdlbb::Blob::numDataBuffers();
-// [ 5] void bdlbb::Blob::insertBuffer(index, buffer);
-// [ 6] void bdlbb::Blob::appendBuffer(buffer);
+// [ 5] void bdlbb::Blob::insertBuffer(int, const BlobBuffer&);
+// [ 5] void bdlbb::Blob::insertBuffer(int, MovableRef<BlobBuffer>);
+// [ 6] void bdlbb::Blob::appendBuffer(const BlobBuffer&);
+// [ 6] void bdlbb::Blob::appendBuffer(MovableRef<BlobBuffer>);
 // [ 7] void bdlbb::Blob::removeAll();
 // [ 7] void bdlbb::Blob::removeBuffer(index);
 // [ 7] void bdlbb::Blob::removeBuffers(index, numBuffers);
 // [ 7] void bdlbb::Blob::removeUnusedBuffers();
-// [ 8] void bdlbb::Blob::prependDataBuffer(buffer);
-// [ 8] void bdlbb::Blob::appendDataBuffer(buffer)
+// [ 8] void bdlbb::Blob::prependDataBuffer(const BlobBuffer&);
+// [ 8] void bdlbb::Blob::prependDataBuffer(MovableRef<BlobBuffer>);
+// [ 8] void bdlbb::Blob::appendDataBuffer(const BlobBuffer&);
+// [ 8] void bdlbb::Blob::appendDataBuffer(MovableRef<BlobBuffer>);
 // [ 9] void bdlbb::Blob::replaceDataBuffer(int index, BlobBuffer *srcBuffer)
 // [10] void bdlbb::Blob::moveBuffers(bdlbb::Blob *srcBlob);
 // [11] void bdlbb::Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer);
 // [12] void bdlbb::Blob::moveDataBuffers(bdlbb::Blob *srcBlob);
 // [12] void bdlbb::Blob::moveAndAppendDataBuffers(bdlbb::Blob *srcBlob);
 // [16] bslma::allocator *bdlbb::Blob::allocator() const;
+// [17] BlobBuffer(const bsl::shared_ptr<char>& buffer, int size);
+// [17] BlobBuffer(bslmf::MovableRef<bsl::shared_ptr<char> > b, int size);
+// [18] void BlobBuffer::reset();
+// [18] void BlobBuffer::reset(const bsl::shared_ptr<char>& b, int size);
+// [18] void BlobBuffer::reset(MovableRef<shared_ptr<char> > b, int s);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] CONCERN: BUFFER ALIASING
 // [14] IMPLICIT TRIM
 // [15] MOVE OPERATIONS
 // [16] SWAP
-// [17] USAGE EXAMPLE
+// [19] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -175,8 +184,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlbb::Blob       Obj;
-typedef bdlbb::BlobBuffer ObjBuffer;
+typedef bdlbb::Blob                        Obj;
+typedef bdlbb::BlobBuffer                  ObjBuffer;
+typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
 
 // ============================================================================
 
@@ -723,7 +733,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -875,6 +885,310 @@ int main(int argc, char *argv[])
         ASSERT(5                             == blob.numDataBuffers());
         ASSERT(5                             == blob.numBuffers());
     }
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'BlobBuffer::reset'
+        //   The 'bdldd::BlobBuffer' should be separated into a full-fledged
+        //   component with its own test driver.
+        //
+        // Concerns:
+        //: 1 Any 'BlobBuffer' object can be reset.
+        //:
+        //: 2 'BlobBuffer' object can be reset using any 'shared_ptr'
+        //:   (including the default constructed) and any valid size.
+        //:
+        //: 3 'shared_ptr' is moved by the overload accepting rvalue reference.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a non-empty object and reset it using overload without
+        //:   parameters. Verify that the object has been set to the
+        //:   default-constructed state.
+        //:
+        //: 2 Create an empty object and reset it passing some non-empty buffer
+        //:   and non-zero size value to the 'copying' overload.  Verify that
+        //:   the object has been set to the expected state and the passed
+        //:   buffer has been copied, not moved.  Reset this object, passing
+        //:   an empty buffer and zero as size to the 'copying' overload.
+        //:   Verify that the object has been set to the default-constructed
+        //:   state.
+        //:
+        //: 3 Repeat steps from P-2 using the 'moving' overload and verifying
+        //:   that buffers passed as a parameters have been moved, not copied.
+        //:   (C-1..3)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid values, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
+        //
+        // Testing:
+        //   void BlobBuffer::reset();
+        //   void BlobBuffer::reset(const bsl::shared_ptr<char>& b, int size);
+        //   void BlobBuffer::reset(MovableRef<shared_ptr<char> > b, int s);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'BlobBuffer::reset'" << endl
+                          << "===========================" << endl;
+
+        bslma::TestAllocator         da("default", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        NullDeleter deleter;
+        char        buffer;
+
+        if (verbose) cout << "\tTesting full reset." << endl;
+        {
+            bsl::shared_ptr<char> sharedPtr(&buffer, &deleter, &da);
+
+            ObjBuffer        mX(sharedPtr, 1);
+            const ObjBuffer& X = mX;
+
+            ASSERT(1 == X.size());
+            ASSERT(0 != X.buffer());
+            ASSERT(2 == sharedPtr.use_count());
+
+            mX.reset();
+
+            ASSERT(0 == X.size());
+            ASSERT(0 == X.buffer());
+            ASSERT(1 == sharedPtr.use_count());
+        }
+
+        if (verbose) cout << "\tTesting copy overload." << endl;
+        {
+            bsl::shared_ptr<char> sharedPtr(&buffer, &deleter, &da);
+            bsl::shared_ptr<char> emptyPtr;
+
+            ObjBuffer        mX;
+            const ObjBuffer& X = mX;
+
+            ASSERT(0 == X.size()             );
+            ASSERT(0 == X.buffer()           );
+            ASSERT(1 == sharedPtr.use_count());
+
+            mX.reset(sharedPtr, 1);
+
+            ASSERT(1         == X.size()             );
+            ASSERT(sharedPtr == X.buffer()           );
+            ASSERT(2         == sharedPtr.use_count());
+
+            mX.reset(emptyPtr, 0);
+
+            ASSERT(0        == X.size()             );
+            ASSERT(emptyPtr == X.buffer()           );
+            ASSERT(1        == sharedPtr.use_count());
+        }
+
+        if (verbose) cout << "\tTesting moving overload." << endl;
+        {
+            bsl::shared_ptr<char>  sharedPtr(&buffer, &deleter, &da);
+            bsl::shared_ptr<char>  emptyPtr;
+
+            ObjBuffer        mX;
+            const ObjBuffer& X = mX;
+
+            ASSERT(0 == X.size());
+            ASSERT(0 == X.buffer());
+            ASSERT(1 == sharedPtr.use_count());
+
+            mX.reset(MoveUtil::move(sharedPtr), 1);
+
+            ASSERT(1       == X.size()              );
+            ASSERT(&buffer == X.buffer().get()      );
+            ASSERT(1       == X.buffer().use_count());
+            ASSERT(0       == sharedPtr             );
+
+            mX.reset(MoveUtil::move(emptyPtr), 0);
+
+            ASSERT(0 == X.size()  );
+            ASSERT(0 == X.buffer());
+        }
+
+        if (verbose) cout << "\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            char        buffer;
+            NullDeleter deleter;
+
+            const int NEGATIVE = -1;
+            const int ZERO     =  0;
+            const int POSITIVE =  1;
+
+            {
+                ObjBuffer             mX;
+                bsl::shared_ptr<char> empty1;
+                bsl::shared_ptr<char> empty2;
+
+                ASSERT_PASS(mX.reset(empty1, ZERO    ));
+                ASSERT_FAIL(mX.reset(empty1, NEGATIVE));
+
+                ASSERT_PASS(mX.reset(MoveUtil::move(empty1), ZERO    ));
+                ASSERT_FAIL(mX.reset(MoveUtil::move(empty2), NEGATIVE));
+            }
+
+            {
+                ObjBuffer             mX;
+                bsl::shared_ptr<char> empty1;
+                bsl::shared_ptr<char> empty2;
+                bsl::shared_ptr<char> nonEmpty1(&buffer, &deleter, &da);
+                bsl::shared_ptr<char> nonEmpty2(&buffer, &deleter, &da);
+
+                ASSERT_PASS(mX.reset(empty1,    ZERO    ));
+                ASSERT_PASS(mX.reset(nonEmpty1, ZERO    ));
+                ASSERT_PASS(mX.reset(nonEmpty1, POSITIVE));
+                ASSERT_FAIL(mX.reset(empty1,    POSITIVE));
+
+                ASSERT_PASS(mX.reset(MoveUtil::move(empty1),    ZERO    ));
+                ASSERT_PASS(mX.reset(MoveUtil::move(nonEmpty1), ZERO    ));
+                ASSERT_PASS(mX.reset(MoveUtil::move(nonEmpty2), POSITIVE));
+                ASSERT_FAIL(mX.reset(MoveUtil::move(empty2),    POSITIVE));
+            }
+        }
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS OF 'BlobBuffer'
+        //   The 'bdldd::BlobBuffer' should be separated into a full-fledged
+        //   component with its own test driver.
+        //
+        // Concerns:
+        //: 1 A 'BlobBuffer' object can be created using any 'shared_ptr'
+        //:   (including the default constructed) and any valid size.
+        //:
+        //: 2 'shared_ptr' is moved by the constructor accepting rvalue
+        //:   reference.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create several objects passing copies of the different buffers
+        //:   (including an empty buffer) and size values as parameters.
+        //:   Verify that created objects have expected values.  Verify that
+        //:   the passed buffers have been copied, not moved.
+        //:
+        //: 2 Create several objects moving the different buffers (including an
+        //:   empty buffer) and passing different size values as parameters to
+        //:   the constructor.  Verify that created objects have expected
+        //:   values.  Verify that the buffers have been moved, not copied.
+        //:   (C-1..2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid values, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-3)
+        //
+        // Testing:
+        //   BlobBuffer(const bsl::shared_ptr<char>& buffer, int size);
+        //   BlobBuffer(bslmf::MovableRef<bsl::shared_ptr<char> > b, int size);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRIMARY MANIPULATORS OF 'BlobBuffer'" << endl
+                          << "====================================" << endl;
+
+        bslma::TestAllocator         da("default", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        NullDeleter deleter;
+        char        buffer[4];
+
+        bsl::shared_ptr<char> emptyPtr;
+        bsl::shared_ptr<char> sharedPtr1(buffer, &deleter, &da);
+        bsl::shared_ptr<char> sharedPtr2(buffer, &deleter, &da);
+
+        if (verbose) cout << "\tTesting copy overload." << endl;
+
+        {
+            ObjBuffer        mXEmpty(emptyPtr, 0);
+            const ObjBuffer& XEmpty = mXEmpty;
+
+            ASSERT(0 == XEmpty.size()  );
+            ASSERT(0 == XEmpty.buffer());
+
+            ObjBuffer        mX1(sharedPtr1, 1);
+            const ObjBuffer& X1 = mX1;
+
+            ASSERT(1          == X1.size()             );
+            ASSERT(sharedPtr1 == X1.buffer()           );
+            ASSERT(2          == sharedPtr1.use_count());
+
+            ObjBuffer        mX2(sharedPtr2, 4);
+            const ObjBuffer& X2 = mX2;
+
+            ASSERT(4          == X2.size()            );
+            ASSERT(sharedPtr2 == X2.buffer()          );
+            ASSERT(2          == sharedPtr2.use_count());
+        }
+
+        if (verbose) cout << "\tTesting moving overload." << endl;
+        {
+            ObjBuffer        mXEmpty(MoveUtil::move(emptyPtr), 0);
+            const ObjBuffer& XEmpty = mXEmpty;
+
+            ASSERT(0 == XEmpty.size()  );
+            ASSERT(0 == XEmpty.buffer());
+
+            ObjBuffer        mX1(MoveUtil::move(sharedPtr1), 1);
+            const ObjBuffer& X1 = mX1;
+
+            ASSERT(1      == X1.size()              );
+            ASSERT(buffer == X1.buffer().get()      );
+            ASSERT(1      == X1.buffer().use_count());
+            ASSERT(0      == sharedPtr1             );
+
+            ObjBuffer        mX2(MoveUtil::move(sharedPtr2), 4);
+            const ObjBuffer& X2 = mX2;
+
+            ASSERT(4      == X2.size()              );
+            ASSERT(buffer == X2.buffer().get()      );
+            ASSERT(1      == X2.buffer().use_count());
+            ASSERT(0      == sharedPtr2             );
+        }
+
+        if (verbose) cout << "\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            char        buffer;
+            NullDeleter deleter;
+
+            const int NEGATIVE = -1;
+            const int ZERO     =  0;
+            const int POSITIVE =  1;
+
+            {
+                ObjBuffer             mX;
+                bsl::shared_ptr<char> empty1;
+                bsl::shared_ptr<char> empty2;
+
+                ASSERT_PASS((ObjBuffer(empty1, ZERO    )));
+                ASSERT_FAIL((ObjBuffer(empty1, NEGATIVE)));
+
+                ASSERT_PASS((ObjBuffer(MoveUtil::move(empty1), ZERO    )));
+                ASSERT_FAIL((ObjBuffer(MoveUtil::move(empty2), NEGATIVE)));
+            }
+
+            {
+                ObjBuffer             mX;
+                bsl::shared_ptr<char> empty1;
+                bsl::shared_ptr<char> empty2;
+                bsl::shared_ptr<char> nonEmpty1(&buffer, &deleter, &da);
+                bsl::shared_ptr<char> nonEmpty2(&buffer, &deleter, &da);
+
+                ASSERT_PASS((ObjBuffer(empty1,    ZERO    )));
+                ASSERT_PASS((ObjBuffer(nonEmpty1, ZERO    )));
+                ASSERT_PASS((ObjBuffer(nonEmpty1, POSITIVE)));
+                ASSERT_FAIL((ObjBuffer(empty1,    POSITIVE)));
+
+                ASSERT_PASS((ObjBuffer(MoveUtil::move(empty1),    ZERO    )));
+                ASSERT_PASS((ObjBuffer(MoveUtil::move(nonEmpty1), ZERO    )));
+                ASSERT_PASS((ObjBuffer(MoveUtil::move(nonEmpty2), POSITIVE)));
+                ASSERT_FAIL((ObjBuffer(MoveUtil::move(empty2),    POSITIVE)));
+            }
+        }
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -1807,9 +2121,14 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
 
+            bslma::TestAllocator  ta("test", veryVeryVerbose);
+            NullDeleter           deleter;
+            char                  buffer;
+            bsl::shared_ptr<char> dummyPtr(&buffer, &deleter, &ta);
+
             const ObjBuffer EMPTY;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX - 1);
-            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),           1);
+            const ObjBuffer HUGE_DUMMY(dummyPtr, INT_MAX - 1);
+            const ObjBuffer TINY_DUMMY(dummyPtr,           1);
 
             {
                 Obj mX;
@@ -2131,9 +2450,14 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
 
+            bslma::TestAllocator  ta("test", veryVeryVerbose);
+            NullDeleter           deleter;
+            char                  buffer;
+            bsl::shared_ptr<char> dummyPtr(&buffer, &deleter, &ta);
+
             {
-                const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
-                const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
+                const ObjBuffer TINY_DUMMY(dummyPtr,       1);
+                const ObjBuffer HUGE_DUMMY(dummyPtr, INT_MAX);
                 const ObjBuffer EMPTY;
                 Obj             mX;
 
@@ -2149,6 +2473,9 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'prependDataBuffer' and 'appendDataBuffer'
+        //   Since overloads that accept const references just call overloads
+        //   that accept rvalue references, passing there a copy of incoming
+        //   parameter, we are going to test the first ones superficially.
         //
         // Concerns:
         //   - That pre/appending at the end of a blob must always increase the
@@ -2173,8 +2500,10 @@ int main(int argc, char *argv[])
         //   not triggered for adjacent valid ones.
         //
         // Testing:
-        //   bdlbb::Blob::prependDataBuffer(bdlbb::BlobBuffer);
-        //   bdlbb::Blob::appendDataBuffer(bdlbb::BlobBuffer);
+        //   void bdlbb::Blob::prependDataBuffer(const BlobBuffer&);
+        //   void bdlbb::Blob::prependDataBuffer(MovableRef<BlobBuffer>);
+        //   void bdlbb::Blob::appendDataBuffer(const BlobBuffer&);
+        //   void bdlbb::Blob::appendDataBuffer(MovableRef<BlobBuffer>);
         //   bdlbb::Blob::setLength(int) in the presence of 0-sized buffers
         // --------------------------------------------------------------------
 
@@ -2182,7 +2511,9 @@ int main(int argc, char *argv[])
                           << "TESTING '{pre/ap}pendDataBuffer" << endl
                           << "===============================" << endl;
 
-        if (verbose) cout << "\nTesting 'prependDataBuffer'" << endl;
+        if (verbose)
+            cout << "\nTesting moving overload of the 'prependDataBuffer'"
+                 << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
@@ -2190,55 +2521,74 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int prependSz  = 0; prependSz  <= 5; ++prependSz)
         {
-            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         fa("factory", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
 
-            bslma::TestAllocator& testAllocator = ta;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
             {
-                const int BUFFER_SIZE          = bufferSize;
-                const int DATA_LENGTH          = dataLength;
-                const int NUM_BUFFERS          = numBuffers;
+                const int BUFFER_SIZE           = bufferSize;
+                const int DATA_LENGTH           = dataLength;
+                const int INIT_NUM_BUFFERS      = numBuffers;
                 const int PREPEND_BUFFER_SIZE   = prependSz;
-                const int EXP_NUM_DATA_BUFFERS = (dataLength + BUFFER_SIZE - 1)
-                                               / BUFFER_SIZE;
-                const int EXP_NUM_BUFFERS      = NUM_BUFFERS;
-                const int EXP_LAST_DB_LENGTH   = EXP_NUM_DATA_BUFFERS > 0
-                       ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
-                       : 0;
+                const int INIT_NUM_DATA_BUFFERS =
+                                 (DATA_LENGTH + BUFFER_SIZE - 1) / BUFFER_SIZE;
+                const int EXP_LAST_DB_LENGTH   = INIT_NUM_DATA_BUFFERS > 0
+                      ? DATA_LENGTH - (INIT_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
+                      : 0;
                 if (veryVerbose) {
-                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
-                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
-                                                         P(EXP_LAST_DB_LENGTH);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P(INIT_NUM_BUFFERS);
+                    T_; P_(INIT_NUM_DATA_BUFFERS); P(EXP_LAST_DB_LENGTH);
                 }
 
-                SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
+                // Object initialization.
 
-                Obj mX(&fa, &ta);   const Obj& X = mX;
-                mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
-
+                SimpleBlobBufferFactory objectFactory(BUFFER_SIZE, &fa);
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                mX.setLength(BUFFER_SIZE * INIT_NUM_BUFFERS);
                 mX.setLength(DATA_LENGTH);
-                ASSERT(DATA_LENGTH          == X.length());
-                ASSERT(EXP_NUM_BUFFERS      == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
-                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
 
-                SimpleBlobBufferFactory ifa(PREPEND_BUFFER_SIZE, &ta);
-                bdlbb::BlobBuffer buffer;
-                ifa.allocate(&buffer);
+                ASSERT(DATA_LENGTH           == X.length());
+                ASSERT(INIT_NUM_BUFFERS      == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH    == X.lastDataBufferLength());
+
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(PREPEND_BUFFER_SIZE,
+                                                      &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
                 ASSERT(PREPEND_BUFFER_SIZE == buffer.size());
 
-                mX.prependDataBuffer(buffer); // TEST HERE
+                bslma::TestAllocatorMonitor fam(&fa);
+                bslma::TestAllocatorMonitor bam(&ba);
+
+                //  Prepend.
+
+                mX.prependDataBuffer(MoveUtil::move(buffer));
+                const ObjBuffer& prependedBuffer = X.buffer(0);
+                ASSERT(PREPEND_BUFFER_SIZE == prependedBuffer.size());
+
+                // The following two checks fail because of inconsistent
+                // behavior of 'bsl::vector<>::insert' method (see
+                // {DRQS 170573799}).  These checks should be uncommented
+                // after the issue is fixed.
+                //
+                // ASSERTV(1 == prependedBuffer.buffer().use_count());
+                // ASSERTV(0 == buffer.buffer().use_count());
 
                 ASSERT(DATA_LENGTH + PREPEND_BUFFER_SIZE == X.length());
-                ASSERT(EXP_NUM_DATA_BUFFERS + 1 == X.numDataBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS + 1 == X.numDataBuffers());
                 if (0 < DATA_LENGTH) {
                     ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
                 } else {
                     ASSERT(PREPEND_BUFFER_SIZE == X.lastDataBufferLength());
                 }
-                ASSERT(EXP_NUM_BUFFERS + 1 == X.numBuffers());
+                ASSERT(INIT_NUM_BUFFERS + 1 == X.numBuffers());
 
                 // Repeat invariants after testing setLength in the presence of
                 // zero-sized buffers.
@@ -2246,25 +2596,91 @@ int main(int argc, char *argv[])
                 mX.setLength(0);
                 mX.setLength(DATA_LENGTH + PREPEND_BUFFER_SIZE);
                 ASSERT(DATA_LENGTH + PREPEND_BUFFER_SIZE == X.length());
-                ASSERT(EXP_NUM_DATA_BUFFERS + 1 == X.numDataBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS + 1 == X.numDataBuffers());
                 if (0 < DATA_LENGTH) {
                     ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
                 } else {
                     ASSERT(PREPEND_BUFFER_SIZE == X.lastDataBufferLength());
                 }
-                ASSERT(EXP_NUM_BUFFERS + 1 == X.numBuffers());
+                ASSERT(INIT_NUM_BUFFERS + 1 == X.numBuffers());
 
                 checkNoAliasedBlobBuffers(X);
+
+                ASSERT(fam.isTotalSame());
+                ASSERT(bam.isTotalSame());
             }
-            ASSERT(0 <  ta.numAllocations());
-            ASSERT(0 == ta.numBytesInUse());
-            ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocations());
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-        if (verbose) cout << "\nTesting 'appendDataBuffer'" << endl;
+        if (verbose)
+            cout << "\nTesting copy overload of the 'prependDataBuffer'"
+                 << endl;
+
+        for (int prependSz = 0; prependSz <= 5; ++prependSz)
+        {
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
+            {
+                const int PREPEND_BUFFER_SIZE = prependSz;
+                if (veryVerbose) {
+                    T_; P(PREPEND_BUFFER_SIZE);
+                }
+
+                // Object initialization.
+
+                SimpleBlobBufferFactory objectFactory;
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                Obj                     mZ(&objectFactory, &oa);  // control
+                const Obj&              Z = mZ;
+
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(PREPEND_BUFFER_SIZE,
+                                                      &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
+                ASSERT(PREPEND_BUFFER_SIZE == buffer.size());
+                ASSERT(1                   == buffer.buffer().use_count());
+
+                bslma::TestAllocatorMonitor bam(&ba);
+
+                //  Prepend.
+
+                mX.prependDataBuffer(buffer);
+
+                const ObjBuffer& prependedBuffer = X.buffer(0);
+                ASSERTV(2 == prependedBuffer.buffer().use_count());
+                ASSERTV(2 == buffer.buffer().use_count());
+
+                // Modifying the control object. We use 'move'-overload, since
+                // it has been tested already.
+
+                mZ.prependDataBuffer(MoveUtil::move(buffer));
+                ASSERT(Z == X);
+
+                ASSERT(bam.isTotalSame());
+            }
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose)
+            cout << "\nTesting moving overload of the 'appendDataBuffer'"
+                 << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
@@ -2272,57 +2688,142 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int appendSz   = 0; appendSz   <= 5; ++appendSz)
         {
-            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         fa("factory", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
 
-            bslma::TestAllocator& testAllocator = ta;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
             {
-                const int BUFFER_SIZE          = bufferSize;
-                const int DATA_LENGTH          = dataLength;
-                const int NUM_BUFFERS          = numBuffers;
-                const int APPEND_BUFFER_SIZE   = appendSz;
-                const int EXP_NUM_DATA_BUFFERS = (dataLength + BUFFER_SIZE - 1)
-                                               / BUFFER_SIZE;
-                const int EXP_NUM_BUFFERS      = NUM_BUFFERS;
-                const int EXP_LAST_DB_LENGTH   = EXP_NUM_DATA_BUFFERS > 0
-                       ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
-                       : 0;
+                const int BUFFER_SIZE           = bufferSize;
+                const int DATA_LENGTH           = dataLength;
+                const int INIT_NUM_BUFFERS      = numBuffers;
+                const int APPEND_BUFFER_SIZE    = appendSz;
+                const int EXP_DATA_LENGTH       =
+                                              DATA_LENGTH + APPEND_BUFFER_SIZE;
+                const int INIT_NUM_DATA_BUFFERS =
+                                 (DATA_LENGTH + BUFFER_SIZE - 1) / BUFFER_SIZE;
+                const int EXP_LAST_DB_LENGTH    = INIT_NUM_DATA_BUFFERS > 0
+                      ? DATA_LENGTH - (INIT_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
+                      : 0;
+
                 if (veryVerbose) {
-                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
-                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
-                                                         P(EXP_LAST_DB_LENGTH);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(INIT_NUM_BUFFERS);
+                    T_; P_(INIT_NUM_DATA_BUFFERS); P(EXP_LAST_DB_LENGTH);
                 }
 
-                SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
-                Obj mX(&fa, &ta);   const Obj& X = mX;
-                mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
+                // Object initialization.
 
+                SimpleBlobBufferFactory objectFactory(BUFFER_SIZE, &fa);
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                mX.setLength(BUFFER_SIZE * INIT_NUM_BUFFERS);
                 mX.setLength(DATA_LENGTH);
-                ASSERT(DATA_LENGTH          == X.length());
-                ASSERT(EXP_NUM_BUFFERS      == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
-                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
 
-                SimpleBlobBufferFactory ifa(APPEND_BUFFER_SIZE, &ta);
-                bdlbb::BlobBuffer buffer;
-                ifa.allocate(&buffer);
+                ASSERT(DATA_LENGTH           == X.length());
+                ASSERT(INIT_NUM_BUFFERS      == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH    == X.lastDataBufferLength());
+
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(APPEND_BUFFER_SIZE, &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
                 ASSERT(APPEND_BUFFER_SIZE == buffer.size());
 
-                mX.appendDataBuffer(buffer); // TEST HERE
+                bslma::TestAllocatorMonitor fam(&fa);
+                bslma::TestAllocatorMonitor bam(&ba);
 
-                ASSERT(DATA_LENGTH + APPEND_BUFFER_SIZE == X.length());
-                ASSERT(EXP_NUM_BUFFERS + 1 == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS + 1 == X.numDataBuffers());
-                ASSERT(APPEND_BUFFER_SIZE   == X.lastDataBufferLength());
+                //  Append.
+
+                mX.appendDataBuffer(MoveUtil::move(buffer));
+                const ObjBuffer& appendedBuffer =
+                                          X.buffer(X.numDataBuffers() - 1);
+                ASSERT(APPEND_BUFFER_SIZE == appendedBuffer.size());
+
+                // The following two checks fail because of inconsistent
+                // behavior of 'bsl::vector<>::insert' method (see
+                // {DRQS 170573799}).  These checks should be uncommented
+                // after the issue is fixed.
+                //
+                // ASSERTV(1 == appendedBuffer.buffer().use_count());
+                // ASSERTV(0 == buffer.buffer().use_count());
+
+                ASSERT(EXP_DATA_LENGTH           == X.length());
+                ASSERT(INIT_NUM_BUFFERS + 1      == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS + 1 == X.numDataBuffers());
+                ASSERT(APPEND_BUFFER_SIZE        == X.lastDataBufferLength());
 
                 checkNoAliasedBlobBuffers(X);
+
+                ASSERT(fam.isTotalSame());
+                ASSERT(bam.isTotalSame());
             }
-            ASSERT(0 <  ta.numAllocations());
-            ASSERT(0 == ta.numBytesInUse());
-            ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocations());
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose)
+            cout << "\nTesting copying overload of the 'appendDataBuffer'"
+                 << endl;
+
+        for (int appendSz   = 0; appendSz   <= 5; ++appendSz)
+        {
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
+            {
+                const int APPEND_BUFFER_SIZE = appendSz;
+                if (veryVerbose) {
+                    T_; P(APPEND_BUFFER_SIZE);
+                }
+
+                // Object initialization.
+
+                SimpleBlobBufferFactory objectFactory;
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                Obj                     mZ(&objectFactory, &oa);  // control
+                const Obj&              Z = mZ;
+
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(APPEND_BUFFER_SIZE, &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
+                ASSERT(APPEND_BUFFER_SIZE == buffer.size());
+
+                bslma::TestAllocatorMonitor bam(&ba);
+
+                //  Append.
+
+                mX.appendDataBuffer(buffer);
+                const ObjBuffer& appendedBuffer =
+                                              X.buffer(X.numDataBuffers() - 1);
+                ASSERTV(2 == appendedBuffer.buffer().use_count());
+                ASSERTV(2 == buffer.buffer().use_count());
+
+                // Modifying the control object. We use 'move'-overload, since
+                // it has been tested already.
+
+                mZ.appendDataBuffer(MoveUtil::move(buffer));
+                ASSERT(Z == X);
+
+                ASSERT(bam.isTotalSame());
+            }
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
@@ -2330,24 +2831,42 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
-            const ObjBuffer EMPTY;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
-            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
+
+            bslma::TestAllocator  ta("test", veryVeryVerbose);
+            NullDeleter           deleter;
+            char                  buffer;
+            bsl::shared_ptr<char> dummyPtr(&buffer, &deleter, &ta);
 
             {
                 Obj mX;
                 (void) mX;
+                Obj mX1;
+                (void) mX1;
+
+                const ObjBuffer HUGE_DUMMY(dummyPtr, INT_MAX);
+                const ObjBuffer TINY_DUMMY(dummyPtr,       1);
 
                 ASSERT_PASS(mX.appendDataBuffer(HUGE_DUMMY));
                 ASSERT_FAIL(mX.appendDataBuffer(TINY_DUMMY));
+
+                ASSERT_PASS(mX1.appendDataBuffer(MoveUtil::move(HUGE_DUMMY)));
+                ASSERT_FAIL(mX1.appendDataBuffer(MoveUtil::move(TINY_DUMMY)));
             }
 
             {
                 Obj mX;
                 (void) mX;
+                Obj mX1;
+                (void) mX1;
+
+                const ObjBuffer HUGE_DUMMY(dummyPtr, INT_MAX);
+                const ObjBuffer TINY_DUMMY(dummyPtr,       1);
 
                 ASSERT_PASS(mX.prependDataBuffer(HUGE_DUMMY));
                 ASSERT_FAIL(mX.prependDataBuffer(TINY_DUMMY));
+
+                ASSERT_PASS(mX1.prependDataBuffer(MoveUtil::move(HUGE_DUMMY)));
+                ASSERT_FAIL(mX1.prependDataBuffer(MoveUtil::move(TINY_DUMMY)));
             }
 
             // In addition to "d_totalSize", return value of 'numBuffers()' can
@@ -2357,6 +2876,9 @@ int main(int argc, char *argv[])
             // performed.
 
             // {
+            //     const ObjBuffer EMPTY;
+            //     const ObjBuffer TINY_DUMMY(dummyPtr, 1);
+            //
             //     Obj mX;
             //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.appendBuffer(EMPTY);
@@ -2364,8 +2886,26 @@ int main(int argc, char *argv[])
             //     ASSERT_PASS(mX.appendDataBuffer(TINY_DUMMY));
             //     ASSERT_FAIL(mX.appendDataBuffer(TINY_DUMMY));
             // }
-            //
+
             // {
+            //     const ObjBuffer EMPTY;
+            //     const ObjBuffer TINY_DUMMY1(dummyPtr, 1);
+            //     const ObjBuffer TINY_DUMMY2(dummyPtr, 1);
+            //
+            //     Obj mX;
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
+            //         mX.appendBuffer(EMPTY);
+            //     }
+            //     ASSERT_PASS(mX.appendDataBuffer(
+            //                                   MoveUtil::move(TINY_DUMMY1)));
+            //     ASSERT_FAIL(mX.appendDataBuffer(
+            //                                   MoveUtil::move(TINY_DUMMY2)));
+            // }
+
+            // {
+            //     const ObjBuffer EMPTY;
+            //     const ObjBuffer TINY_DUMMY(dummyPtr, 1);
+            //
             //     Obj mX;
             //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.appendBuffer(EMPTY);
@@ -2373,6 +2913,21 @@ int main(int argc, char *argv[])
             //
             //     ASSERT_PASS(mX.prependDataBuffer(TINY_DUMMY));
             //     ASSERT_FAIL(mX.prependDataBuffer(TINY_DUMMY));
+            // }
+
+            // {
+            //     const ObjBuffer EMPTY;
+            //     const ObjBuffer TINY_DUMMY1(dummyPtr, 1);
+            //     const ObjBuffer TINY_DUMMY2(dummyPtr, 1);
+            //
+            //     Obj mX;
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
+            //         mX.appendBuffer(EMPTY);
+            //     }
+            //     ASSERT_PASS(mX.prependDataBuffer(
+            //                                   MoveUtil::move(TINY_DUMMY1)));
+            //     ASSERT_FAIL(mX.prependDataBuffer(
+            //                                   MoveUtil::move(TINY_DUMMY2)));
             // }
         }
       } break;
@@ -2741,6 +3296,9 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING APPEND
+        //   Since overload that accepts const references just calls overload
+        //   that accepts rvalue references, passing there a copy of incoming
+        //   parameter, we are going to test the first one superficially.
         //
         // Concerns:
         //   - That appending at the end of a blob must not increase the length
@@ -2765,14 +3323,15 @@ int main(int argc, char *argv[])
         //   not triggered for adjacent valid ones.
         //
         // Testing:
-        //   bdlbb::Blob::appendBuffer(bdlbb::BlobBuffer);
+        //   void bdlbb::Blob::appendBuffer(const BlobBuffer&);
+        //   void bdlbb::Blob::appendBuffer(MovableRef<BlobBuffer>);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING 'appendBuffer'" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "\tTesting basic behavior." << endl;
+        if (verbose) cout << "\tTesting moving overload." << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
@@ -2780,66 +3339,169 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int appendSz   = 0; appendSz   <= 5; ++appendSz)
         {
-            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         fa("factory", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
 
-            bslma::TestAllocator& testAllocator = ta;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
             {
-                const int BUFFER_SIZE          = bufferSize;
-                const int DATA_LENGTH          = dataLength;
-                const int NUM_BUFFERS          = numBuffers;
-                const int APPEND_BUFFER_SIZE   = appendSz;
-                const int EXP_NUM_DATA_BUFFERS = (dataLength + BUFFER_SIZE - 1)
-                                               / BUFFER_SIZE;
-                const int EXP_NUM_BUFFERS      = NUM_BUFFERS;
-                const int EXP_LAST_DB_LENGTH   = EXP_NUM_DATA_BUFFERS > 0
-                       ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
-                       : 0;
+                const int BUFFER_SIZE           = bufferSize;
+                const int DATA_LENGTH           = dataLength;
+                const int INIT_NUM_BUFFERS      = numBuffers;
+                const int APPEND_BUFFER_SIZE    = appendSz;
+                const int INIT_NUM_DATA_BUFFERS =
+                                 (DATA_LENGTH + BUFFER_SIZE - 1) / BUFFER_SIZE;
+                const int EXP_LAST_DB_LENGTH    = INIT_NUM_DATA_BUFFERS > 0
+                      ? DATA_LENGTH - (INIT_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
+                      : 0;
+
                 if (veryVerbose) {
-                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
-                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
-                                                         P(EXP_LAST_DB_LENGTH);
+                    T_; P_(BUFFER_SIZE); P_(INIT_NUM_BUFFERS);
+                        P_(DATA_LENGTH); P_(APPEND_BUFFER_SIZE);
+                    T_; P_(INIT_NUM_DATA_BUFFERS); P(EXP_LAST_DB_LENGTH);
                 }
 
-                SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
+                // Object initialization.
 
-                Obj mX(&fa, &ta);   const Obj& X = mX;
-                mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
-
+                SimpleBlobBufferFactory objectFactory(BUFFER_SIZE, &fa);
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                mX.setLength(BUFFER_SIZE * INIT_NUM_BUFFERS);
                 mX.setLength(DATA_LENGTH);
-                ASSERT(DATA_LENGTH          == X.length());
-                ASSERT(EXP_NUM_BUFFERS      == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
-                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
 
-                SimpleBlobBufferFactory ifa(APPEND_BUFFER_SIZE, &ta);
-                bdlbb::BlobBuffer buffer;
-                ifa.allocate(&buffer);
+                ASSERT(DATA_LENGTH           == X.length());
+                ASSERT(INIT_NUM_BUFFERS      == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH    == X.lastDataBufferLength());
+
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(APPEND_BUFFER_SIZE, &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
                 ASSERT(APPEND_BUFFER_SIZE == buffer.size());
 
-                mX.appendBuffer(buffer); // TEST HERE
+                bslma::TestAllocatorMonitor fam(&fa);
+                bslma::TestAllocatorMonitor bam(&ba);
 
-                ASSERT(DATA_LENGTH          == X.length());
-                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
-                ASSERT(EXP_NUM_BUFFERS + 1  == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+                //  Append.
 
-                bdlbb::BlobBuffer emptyBuffer;
-                mX.appendBuffer(emptyBuffer); // TEST HERE
+                mX.appendBuffer(MoveUtil::move(buffer));
+                const ObjBuffer& appendedBuffer1 =
+                                                  X.buffer(X.numBuffers() - 1);
+                ASSERT(APPEND_BUFFER_SIZE == appendedBuffer1.size());
 
-                ASSERT(DATA_LENGTH == X.length());
-                ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
-                ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+                // The following two checks fail because of inconsistent
+                // behavior of 'bsl::vector<>::insert' method (see
+                // {DRQS 170573799}).  These checks should be uncommented
+                // after the issue is fixed.
+                //
+                // ASSERTV(1 == appendedBuffer1.buffer().use_count());
+                // ASSERTV(0 == buffer.buffer().use_count());
+
+                ASSERT(DATA_LENGTH           == X.length());
+                ASSERT(EXP_LAST_DB_LENGTH    == X.lastDataBufferLength());
+                ASSERT(INIT_NUM_BUFFERS + 1  == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS == X.numDataBuffers());
+
+                // Append empty buffer.
+
+                ObjBuffer emptyBuffer;
+
+                // void appendBuffer(bslmf::MovableRef<BlobBuffer>)
+                mX.appendBuffer(MoveUtil::move(emptyBuffer));
+                const ObjBuffer& appendedBuffer2 =
+                                                  X.buffer(X.numBuffers() - 1);
+                ASSERT(0 == appendedBuffer2.size());
+
+                // The following two checks fail because of inconsistent
+                // behavior of 'bsl::vector<>::insert' method (see
+                // {DRQS 170573799}).  These checks should be uncommented
+                // after the issue is fixed.
+                //
+                // ASSERTV(0 == appendedBuffer2.buffer().use_count());
+                // ASSERTV(0 == emptyBuffer.buffer().use_count());
+
+
+                ASSERT(DATA_LENGTH           == X.length());
+                ASSERT(EXP_LAST_DB_LENGTH    == X.lastDataBufferLength());
+                ASSERT(INIT_NUM_BUFFERS + 2  == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS == X.numDataBuffers());
 
                 checkNoAliasedBlobBuffers(X);
+
+                ASSERT(fam.isTotalSame());
+                ASSERT(bam.isTotalSame());
             }
-            ASSERT(0 <  ta.numAllocations());
-            ASSERT(0 == ta.numBytesInUse());
-            ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocations());
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose) cout << "\tTesting copy overload." << endl;
+
+        // Since copy overload calls moving method passing there a copy of
+        // parameter, we test it superficially, concentrating on the fact that
+        // the buffer is copied, not moved.
+
+        for (int appendSz = 0; appendSz <= 5; ++appendSz)
+        {
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
+            {
+                const int APPEND_BUFFER_SIZE = appendSz;
+
+                if (veryVerbose) {
+                    T_; P(APPEND_BUFFER_SIZE);
+                }
+
+                // Object initialization.
+
+                SimpleBlobBufferFactory objectFactory;
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                Obj                     mZ(&objectFactory, &oa);  // control
+                const Obj&              Z = mZ;
+
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(APPEND_BUFFER_SIZE, &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
+                ASSERT(APPEND_BUFFER_SIZE == buffer.size());
+                ASSERT(1                  == buffer.buffer().use_count());
+
+                bslma::TestAllocatorMonitor bam(&ba);
+
+                //  Append.
+
+                mX.appendBuffer(buffer);
+
+                const ObjBuffer& appendedBuffer = X.buffer(X.numBuffers() - 1);
+                ASSERT(2 == appendedBuffer.buffer().use_count());
+                ASSERT(2 == buffer.buffer().use_count());
+
+                // Modifying the control object. We use 'move'-overload, since
+                // it has been tested already.
+
+                mZ.appendBuffer(MoveUtil::move(buffer));
+                ASSERT(Z == X);
+
+                ASSERT(bam.isTotalSame());
+            }
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
@@ -2847,15 +3509,26 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
-            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
+
+            bslma::TestAllocator  ta("test", veryVeryVerbose);
+            NullDeleter           deleter;
+            char                  buffer;
+            bsl::shared_ptr<char> dummyPtr(&buffer, &deleter, &ta);
 
             {
                 Obj mX;
+                Obj mX1;
                 (void) mX;
+                (void) mX1;
+
+                const ObjBuffer HUGE_DUMMY(dummyPtr, INT_MAX);
+                const ObjBuffer TINY_DUMMY(dummyPtr,       1);
 
                 ASSERT_PASS(mX.appendBuffer(HUGE_DUMMY));
                 ASSERT_FAIL(mX.appendBuffer(TINY_DUMMY));
+
+                ASSERT_PASS(mX1.appendBuffer(MoveUtil::move(HUGE_DUMMY)));
+                ASSERT_FAIL(mX1.appendBuffer(MoveUtil::move(TINY_DUMMY)));
             }
 
             // In addition to "d_totalSize", return value of 'numBuffers()' can
@@ -2865,12 +3538,28 @@ int main(int argc, char *argv[])
             // performed.
 
             // {
-            //     Obj mX;
+            //     Obj             mX;
+            //     const ObjBuffer EMPTY;
+            //     const ObjBuffer TINY_DUMMY(dummyPtr, 1);
+            //
             //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.appendBuffer(EMPTY);
             //     }
             //     ASSERT_PASS(mX.appendBuffer(TINY_DUMMY));
             //     ASSERT_FAIL(mX.appendBuffer(TINY_DUMMY));
+            // }
+
+            // {
+            //     Obj       mX;
+            //     ObjBuffer EMPTY;
+            //     ObjBuffer TINY_DUMMY1(dummyPtr, 1);
+            //     ObjBuffer TINY_DUMMY2(dummyPtr, 1);
+            //
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
+            //         mX.appendBuffer(EMPTY);
+            //     }
+            //     ASSERT_PASS(mX.appendBuffer(MoveUtil::move(TINY_DUMMY1)));
+            //     ASSERT_FAIL(mX.appendBuffer(MoveUtil::move(TINY_DUMMY2)));
             // }
         }
 
@@ -2878,6 +3567,9 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING INSERT
+        //   Since overload that accepts const references just calls overload
+        //   that accepts rvalue references, passing there a copy of incoming
+        //   parameter, we are going to test the first one superficially.
         //
         // Concerns:
         //   - That inserting at the end of a blob (or beginning of an empty
@@ -2907,7 +3599,8 @@ int main(int argc, char *argv[])
         //   ones.
         //
         // Testing:
-        //   bdlbb::Blob::insertBuffer(int, bdlbb::BlobBuffer);
+        //   void bdlbb::Blob::insertBuffer(int, const BlobBuffer&);
+        //   void bdlbb::Blob::insertBuffer(int, MovableRef<BlobBuffer>);
         //   bdlbb::Blob::setLength(int) in the presence of 0-sized buffers
         // --------------------------------------------------------------------
 
@@ -2915,95 +3608,189 @@ int main(int argc, char *argv[])
                           << "TESTING 'insertBuffer'" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "\tTesting basic behavior." << endl;
+        if (verbose) cout << "\nTesting moving overload" << endl;
 
-        for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
-        for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
+        for (int bufferSize = 1; bufferSize <= 2; ++bufferSize)
+        for (int numBuffers = 0; numBuffers <= 2; ++numBuffers)
         for (int dataLength = 0; dataLength <= bufferSize * numBuffers;
                                                   ++dataLength)
         for (int insertPos  = 0; insertPos  <= numBuffers; ++insertPos)
-        for (int insertSz   = 0; insertSz   <= 5; ++insertSz)
+        for (int insertSz   = 0; insertSz   <= 2; ++insertSz)
         {
-            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         fa("factory", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
 
-            bslma::TestAllocator& testAllocator = ta;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
             {
-                const int BUFFER_SIZE          = bufferSize;
-                const int DATA_LENGTH          = dataLength;
-                const int NUM_BUFFERS          = numBuffers;
-                const int INSERT_POSITION      = insertPos;
-                const int INSERT_BUFFER_SIZE   = insertSz;
-                const int EXP_NUM_DATA_BUFFERS = (dataLength + BUFFER_SIZE - 1)
-                                               / BUFFER_SIZE;
-                const int EXP_NUM_BUFFERS      = NUM_BUFFERS;
-                const int EXP_LAST_DB_LENGTH   = EXP_NUM_DATA_BUFFERS > 0
-                       ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
-                       : 0;
+                const int BUFFER_SIZE               = bufferSize;
+                const int DATA_LENGTH               = dataLength;
+                const int INIT_NUM_BUFFERS          = numBuffers;
+                const int INSERT_POSITION           = insertPos;
+                const int INSERT_BUFFER_SIZE        = insertSz;
+                const int INIT_NUM_DATA_BUFFERS     =
+                                 (DATA_LENGTH + BUFFER_SIZE - 1) / BUFFER_SIZE;
+                const int EXP_LAST_DB_LENGTH        = INIT_NUM_DATA_BUFFERS > 0
+                      ? DATA_LENGTH - (INIT_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
+                      : 0;
+                const int NUM_INSERTED_DATA_BUFFERS =
+                               INSERT_POSITION < INIT_NUM_DATA_BUFFERS ? 1 : 0;
+                const int EXP_DATA_LENGTH           =
+                  DATA_LENGTH + NUM_INSERTED_DATA_BUFFERS * INSERT_BUFFER_SIZE;
+
                 if (veryVerbose) {
-                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(INIT_NUM_BUFFERS);
                           P(INSERT_POSITION)
-                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
-                          P(EXP_LAST_DB_LENGTH);
+                    T_; P_(INIT_NUM_DATA_BUFFERS);  P(EXP_LAST_DB_LENGTH);
                 }
 
-                SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
+                // Object initialization.
 
-                Obj mX(&fa, &ta);   const Obj& X = mX;
-                mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
-
+                SimpleBlobBufferFactory objectFactory(BUFFER_SIZE, &fa);
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                mX.setLength(BUFFER_SIZE * INIT_NUM_BUFFERS);
                 mX.setLength(DATA_LENGTH);
-                ASSERT(DATA_LENGTH          == X.length());
-                ASSERT(EXP_NUM_BUFFERS      == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
-                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
+
+                ASSERT(DATA_LENGTH           == X.length());
+                ASSERT(INIT_NUM_BUFFERS      == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH    == X.lastDataBufferLength());
                 checkNoAliasedBlobBuffers(X);
 
-                SimpleBlobBufferFactory ifa(INSERT_BUFFER_SIZE, &ta);
-                bdlbb::BlobBuffer buffer;
-                ifa.allocate(&buffer);
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(INSERT_BUFFER_SIZE, &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
                 ASSERT(INSERT_BUFFER_SIZE == buffer.size());
 
-                mX.insertBuffer(INSERT_POSITION, buffer); // TEST HERE
+                bslma::TestAllocatorMonitor fam(&fa);
+                bslma::TestAllocatorMonitor bam(&ba);
 
-                const int INSERT_FLAG = INSERT_POSITION < EXP_NUM_DATA_BUFFERS;
-                ASSERT(DATA_LENGTH + INSERT_FLAG * INSERT_BUFFER_SIZE
-                                                                == X.length());
-                ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
-                ASSERT(EXP_NUM_BUFFERS + 1 == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS + INSERT_FLAG ==
+                //  Insertion.
+
+                mX.insertBuffer(INSERT_POSITION, MoveUtil::move(buffer));
+                const ObjBuffer& insertedBuffer1 = X.buffer(INSERT_POSITION);
+                ASSERT(INSERT_BUFFER_SIZE == insertedBuffer1.size());
+
+                // The following two checks fail because of inconsistent
+                // behavior of 'bsl::vector<>::insert' method (see
+                // {DRQS 170573799}).  These checks should be uncommented
+                // after the issue is fixed.
+                //
+                // ASSERTV(1 == insertedBuffer1.buffer().use_count());
+                // ASSERTV(0 == buffer.buffer().use_count());
+
+                ASSERT(EXP_DATA_LENGTH      == X.length());
+                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
+                ASSERT(INIT_NUM_BUFFERS + 1 == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS + NUM_INSERTED_DATA_BUFFERS ==
                                                            X.numDataBuffers());
 
                 const int NEW_DATA_LENGTH = X.length();
 
-                // Insert empty buffer
+                // Insert empty buffer.
 
-                bdlbb::BlobBuffer emptyBuffer;
-                mX.insertBuffer(INSERT_POSITION, emptyBuffer);
-                ASSERT(NEW_DATA_LENGTH    == X.length());
-                ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
-                ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS + 2 * INSERT_FLAG ==
-                       X.numDataBuffers());
+                ObjBuffer emptyBuffer;
+
+                mX.insertBuffer(INSERT_POSITION, MoveUtil::move(emptyBuffer));
+                const ObjBuffer& insertedBuffer2 = X.buffer(INSERT_POSITION);
+                ASSERT(0 == insertedBuffer2.size());
+
+                // The following two checks fail because of inconsistent
+                // behavior of 'bsl::vector<>::insert' method (see
+                // {DRQS 170573799}).  These checks should be uncommented
+                // after the issue is fixed.
+                //
+                // ASSERTV(0 == insertedBuffer2.buffer().use_count());
+                // ASSERTV(0 == emptyBuffer.buffer().use_count());
+
+                ASSERT(NEW_DATA_LENGTH         == X.length());
+                ASSERT(EXP_LAST_DB_LENGTH      == X.lastDataBufferLength());
+                ASSERT(INIT_NUM_BUFFERS + 2    == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS + 2 * NUM_INSERTED_DATA_BUFFERS ==
+                                                           X.numDataBuffers());
+                ASSERT(0 == X.buffer(INSERT_POSITION).size());
 
                 // Repeat invariants after testing setLength in the presence of
                 // zero-sized buffers.
 
                 mX.setLength(0);
-                mX.setLength(DATA_LENGTH + INSERT_FLAG * INSERT_BUFFER_SIZE);
+                mX.setLength(EXP_DATA_LENGTH);
                 ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
-                ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS + 2 * INSERT_FLAG ==
+                ASSERT(INIT_NUM_BUFFERS + 2 == X.numBuffers());
+                ASSERT(INIT_NUM_DATA_BUFFERS + 2 * NUM_INSERTED_DATA_BUFFERS ==
                                                            X.numDataBuffers());
-
                 checkNoAliasedBlobBuffers(X);
+
+                ASSERT(fam.isTotalSame());
+                ASSERT(bam.isTotalSame());
             }
-            ASSERT(0 <  ta.numAllocations());
-            ASSERT(0 == ta.numBytesInUse());
-            ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocations());
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose) cout << "\nTesting copy overload" << endl;
+
+        for (int insertSz = 0; insertSz <= 5; ++insertSz)
+        {
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         ba("buffer", veryVeryVerbose);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
+            {
+                const int INSERT_BUFFER_SIZE = insertSz;
+                const int INSERT_POSITION    = 0;
+                if (veryVerbose) {
+                    T_; P(INSERT_BUFFER_SIZE);
+                }
+
+                // Object initialization.
+
+                SimpleBlobBufferFactory objectFactory;
+                Obj                     mX(&objectFactory, &oa);
+                const Obj&              X = mX;
+                Obj                     mZ(&objectFactory, &oa);  // control
+                const Obj&              Z = mZ;
+
+                // Buffer initialization.
+
+                SimpleBlobBufferFactory bufferFactory(INSERT_BUFFER_SIZE, &ba);
+                ObjBuffer               buffer;
+                bufferFactory.allocate(&buffer);
+                ASSERT(INSERT_BUFFER_SIZE == buffer.size());
+                ASSERT(1                  == buffer.buffer().use_count());
+
+                bslma::TestAllocatorMonitor bam(&ba);
+
+                //  Insertion.
+
+                mX.insertBuffer(INSERT_POSITION, buffer);
+                const ObjBuffer& insertedBuffer = X.buffer(INSERT_POSITION);
+                ASSERTV(2 == insertedBuffer.buffer().use_count());
+                ASSERTV(2 == buffer.buffer().use_count());
+
+                // Modifying the control object. We use 'move'-overload, since
+                // it has been tested already.
+
+                mZ.insertBuffer(INSERT_POSITION, MoveUtil::move(buffer));
+                ASSERT(Z == X);
+
+                ASSERT(bam.isTotalSame());
+            }
+            ASSERT(0 <  oa.numAllocations());
+            ASSERT(0 == oa.numBytesInUse());
+            ASSERT(0 == oa.numMismatches());
+            ASSERT(0 == da.numAllocations());
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
@@ -3012,18 +3799,31 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
 
-            const ObjBuffer EMPTY;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
-            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
+            bslma::TestAllocator  ta("test", veryVeryVerbose);
+            NullDeleter           deleter;
+            char                  buffer;
+            bsl::shared_ptr<char> dummyPtr(&buffer, &deleter, &ta);
+
             {
                 Obj mX;
+                Obj mX1;
                 (void) mX;
+                (void) mX1;
 
-                ASSERT_PASS(mX.insertBuffer(0,  EMPTY    ));
-                ASSERT_FAIL(mX.insertBuffer(-1, EMPTY    ));
+                const ObjBuffer EMPTY;
+                const ObjBuffer HUGE_DUMMY(dummyPtr, INT_MAX);
+                const ObjBuffer TINY_DUMMY(dummyPtr,       1);
 
-                ASSERT_PASS(mX.insertBuffer(0, HUGE_DUMMY));
-                ASSERT_FAIL(mX.insertBuffer(0, TINY_DUMMY));
+                ASSERT_PASS(mX.insertBuffer(0,   EMPTY                     ));
+                ASSERT_FAIL(mX.insertBuffer(-1,  EMPTY                     ));
+
+                ASSERT_PASS(mX1.insertBuffer(0,  MoveUtil::move(EMPTY)     ));
+                ASSERT_FAIL(mX1.insertBuffer(-1, MoveUtil::move(EMPTY)     ));
+
+                ASSERT_PASS(mX.insertBuffer(0,   HUGE_DUMMY                ));
+                ASSERT_FAIL(mX.insertBuffer(0,   TINY_DUMMY                ));
+                ASSERT_PASS(mX1.insertBuffer(0,  MoveUtil::move(HUGE_DUMMY)));
+                ASSERT_FAIL(mX1.insertBuffer(0,  MoveUtil::move(TINY_DUMMY)));
             }
 
             // In addition to "d_totalSize", return value of 'numBuffers()' can
@@ -3033,12 +3833,30 @@ int main(int argc, char *argv[])
             // performed.
 
             // {
-            //     Obj mX;
+            //     Obj             mX;
+            //     const ObjBuffer EMPTY;
+            //     const ObjBuffer TINY_DUMMY(dummyPtr, 1);
+            //
             //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.insertBuffer(0, EMPTY);
             //     }
             //     ASSERT_PASS(mX.insertBuffer(0, TINY_DUMMY));
             //     ASSERT_FAIL(mX.insertBuffer(0, TINY_DUMMY));
+            // }
+
+            // {
+            //     Obj             mX;
+            //     const ObjBuffer EMPTY;
+            //     const ObjBuffer TINY_DUMMY1(dummyPtr, 1);
+            //     const ObjBuffer TINY_DUMMY2(dummyPtr, 1);
+            //
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
+            //         mX.insertBuffer(0, EMPTY);
+            //     }
+            //     ASSERT_PASS(mX.insertBuffer(0,
+            //                                 MoveUtil::move(TINY_DUMMY1)));
+            //     ASSERT_FAIL(mX.insertBuffer(0,
+            //                                 MoveUtil::move(TINY_DUMMY2)));
             // }
         }
       } break;
@@ -3595,16 +4413,18 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&ta);
         NullDeleter deleter;
 
+        char buffer[4];
+
         if (verbose) cout << "\nTesting bdlbb::BlobBuffer." << endl;
         {
-            bsl::shared_ptr<char> shptrA((char *) 0, &deleter, &ta);
+            bsl::shared_ptr<char> shptrA(buffer, &deleter, &ta);
             ObjBuffer mVA(shptrA, 1); const ObjBuffer& VA = mVA;
 
-            bsl::shared_ptr<char> shptrB((char *) 1, &deleter, &ta);
+            bsl::shared_ptr<char> shptrB(buffer, &deleter, &ta);
             ObjBuffer mVB(shptrB, 2); const ObjBuffer& VB = mVB;
 
-            bsl::shared_ptr<char> shptrC((char *) ULONG_MAX, &deleter, &ta);
-            ObjBuffer mVC(shptrC, INT_MAX); const ObjBuffer& VC = mVC;
+            bsl::shared_ptr<char> shptrC(buffer, &deleter, &ta);
+            ObjBuffer mVC(shptrC, 4); const ObjBuffer& VC = mVC;
 
             if (verbose) {
                 cout << "\n 1. Create an object x1 (initialize to VA)."
@@ -3708,7 +4528,7 @@ int main(int argc, char *argv[])
                 cout << "\t(a) Check initial state of x4." << endl;
             }
             ASSERT(0 == X4.data());
-            ASSERT(0 ==  X4.buffer().get());
+            ASSERT(0 == X4.buffer().get());
             ASSERT(0 == X4.size());
 
             if (verbose) {

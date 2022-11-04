@@ -125,9 +125,20 @@ BlobBuffer& BlobBuffer::operator=(bslmf::MovableRef<BlobBuffer> rhs)
 void BlobBuffer::reset(const bsl::shared_ptr<char>& buffer, int size)
 {
     BSLS_ASSERT(0 <= size);
+    BSLS_ASSERT(size == 0 || buffer);
 
     d_buffer = buffer;
     d_size   = size;
+}
+
+void BlobBuffer::reset(bslmf::MovableRef<bsl::shared_ptr<char> > buffer,
+                       int                                       size)
+{
+    d_buffer = MoveUtil::move(buffer);
+    d_size   = size;
+
+    BSLS_ASSERT(0 <= size);
+    BSLS_ASSERT(size == 0 || d_buffer);
 }
 
 void BlobBuffer::reset()
@@ -431,22 +442,25 @@ Blob& Blob::operator=(bslmf::MovableRef<Blob> rhs)
     return *this;
 }
 
-void Blob::appendBuffer(const BlobBuffer& buffer)
+void Blob::appendBuffer(bslmf::MovableRef<BlobBuffer> buffer)
 {
-    BSLS_ASSERT(d_totalSize <= INT_MAX - buffer.size());
+    BlobBuffer& lvalue     = buffer;
+    const int   bufferSize = lvalue.size();
+
+    BSLS_ASSERT(d_totalSize <= INT_MAX - lvalue.size());
     BSLS_ASSERT(numBuffers() < INT_MAX);
 
-    d_buffers.push_back(buffer);
-    d_totalSize += buffer.size();
+    d_buffers.push_back(MoveUtil::move(lvalue));
+    d_totalSize += bufferSize;
 }
 
-void Blob::appendDataBuffer(const BlobBuffer& buffer)
+void Blob::appendDataBuffer(bslmf::MovableRef<BlobBuffer> buffer)
 {
-
     BSLS_ASSERT(numBuffers() < INT_MAX);
 
-    const int bufferSize    = buffer.size();
-    const int oldDataLength = d_dataLength;
+    BlobBuffer& lvalue        = buffer;
+    const int   bufferSize    = lvalue.size();
+    const int   oldDataLength = d_dataLength;
 
     if (d_totalSize == d_dataLength || 0 == d_dataLength) {
         // Fast path.  At the start, we had some data buffers in the blob and
@@ -455,7 +469,8 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
 
         BSLS_ASSERT(d_totalSize <= INT_MAX - bufferSize);
 
-        d_buffers.insert(d_buffers.begin() + numDataBuffers(), buffer);
+        d_buffers.insert(d_buffers.begin() + numDataBuffers(),
+                         MoveUtil::move(lvalue));
 
         d_preDataIndexLength = oldDataLength;
         ++d_dataIndex;
@@ -489,7 +504,8 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
         prevBuf.setSize(newPrevBufSize);
         d_totalSize -= TRIMMED_SIZE;
 
-        d_buffers.insert(d_buffers.begin() + d_dataIndex + 1, buffer);
+        d_buffers.insert(d_buffers.begin() + d_dataIndex + 1,
+                         MoveUtil::move(lvalue));
         ++d_dataIndex;
         d_preDataIndexLength = oldDataLength;
         d_totalSize += bufferSize;
@@ -497,16 +513,18 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
     }
 }
 
-void Blob::insertBuffer(int index, const BlobBuffer& buffer)
+void Blob::insertBuffer(int index, bslmf::MovableRef<BlobBuffer> buffer)
 {
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(index <= static_cast<int>(d_buffers.size()));
 
-    const int bufferSize = buffer.size();
+    BlobBuffer& lvalue     = buffer;
+    const int   bufferSize = lvalue.size();
     BSLS_ASSERT(d_totalSize <= INT_MAX - bufferSize);
     BSLS_ASSERT(numBuffers() < INT_MAX);
 
-    d_buffers.insert(d_buffers.begin() + index, buffer);
+    d_buffers.insert(d_buffers.begin() + index, MoveUtil::move(lvalue));
+
     d_totalSize += bufferSize;
     if (0 != d_dataLength && index <= d_dataIndex) {
         // Newly-inserted buffer is a data buffer.
@@ -517,14 +535,15 @@ void Blob::insertBuffer(int index, const BlobBuffer& buffer)
     }
 }
 
-void Blob::prependDataBuffer(const BlobBuffer& buffer)
+void Blob::prependDataBuffer(bslmf::MovableRef<BlobBuffer> buffer)
 {
-    const int bufferSize = buffer.size();
+    BlobBuffer& lvalue     = buffer;
+    const int   bufferSize = lvalue.size();
 
     BSLS_ASSERT(d_totalSize <= INT_MAX - bufferSize);
     BSLS_ASSERT(numBuffers() < INT_MAX);
 
-    d_buffers.insert(d_buffers.begin(), buffer);
+    d_buffers.insert(d_buffers.begin(), MoveUtil::move(lvalue));
 
     ++d_dataIndex;
     if (0 != d_dataIndex) {
