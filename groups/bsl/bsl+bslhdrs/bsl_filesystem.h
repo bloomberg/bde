@@ -14,12 +14,14 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_nativestd.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #include <filesystem>
 
 namespace bsl {
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     namespace filesystem {
         // CLASSES
         using std::filesystem::path;
@@ -80,9 +82,9 @@ namespace bsl {
         using std::filesystem::status_known;
 
     }  // close namespace filesystem
-
-#endif
 }  // close package namespace
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #endif
 
