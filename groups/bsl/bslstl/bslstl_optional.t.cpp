@@ -5187,6 +5187,41 @@ void swap(SwappableAA& a, SwappableAA& b)
     bslalg::SwapUtil::swap(&a.d_def.d_value, &b.d_def.d_value);
 }
 
+                              // ============================
+                              // class ThrowMoveConstructible
+                              // ============================
+
+template <bool SWAP_NOEXCEPT>
+struct ThrowMoveConstructible {
+    // Type with throwing move constructor.
+
+    // CREATORS
+    ThrowMoveConstructible()
+        // Create a 'ThrowMoveConstructible' object.
+    {
+    }
+    ThrowMoveConstructible(bslmf::MovableRef<ThrowMoveConstructible> )
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Create a 'ThrowMoveConstructible' object.
+    {
+    }
+
+    // MANIPULATORS
+    void swap(ThrowMoveConstructible& other)
+                             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(SWAP_NOEXCEPT)
+        // Exchange the value of this object with that of the specified 'other'
+        // object.
+    {
+    }
+    // FREE FUNCTIONS
+    friend void swap(ThrowMoveConstructible& a,
+                     ThrowMoveConstructible& b)
+                             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(SWAP_NOEXCEPT)
+        // Exchange the values of the specified 'a' and 'b' objects.
+    {
+    }
+};
+
 namespace BloombergLP {
 namespace bslh {
 
@@ -9562,6 +9597,21 @@ void testCase9_imp()
     }
 }
 
+template <class TYPE>
+void testCase9_noexcept()
+    // Verify that noexcept specification of the member 'swap' function is
+    // correct.
+{
+    bsl::optional<TYPE> a;
+    bsl::optional<TYPE> b;
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    const bool isNoexcept = bsl::is_nothrow_move_constructible<TYPE>::value &&
+                            bsl::is_nothrow_swappable<TYPE>::value;
+    ASSERT(isNoexcept == BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
+#endif
+}
+
 void testCase9()
 {
 
@@ -9583,6 +9633,26 @@ void testCase9()
     testCase9_imp<bsl::optional<SwappableAA>,
                    bsl::optional<SwappableAA> >();
 
+    // Test 'noexcept'
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    ASSERT( bsl::is_nothrow_move_constructible<Swappable>::value);
+    ASSERT(!bsl::is_nothrow_swappable<Swappable>::value);
+    testCase9_noexcept<Swappable>();
+
+    ASSERT( bsl::is_nothrow_move_constructible<int>::value);
+    ASSERT( bsl::is_nothrow_swappable<int>::value);
+    testCase9_noexcept<int>();
+
+    ASSERT(!bsl::is_nothrow_move_constructible<
+                                        ThrowMoveConstructible<true> >::value);
+    ASSERT( bsl::is_nothrow_swappable<ThrowMoveConstructible<true> >::value);
+    testCase9_noexcept<ThrowMoveConstructible<true> >();
+
+    ASSERT(!bsl::is_nothrow_move_constructible<
+                                       ThrowMoveConstructible<false> >::value);
+    ASSERT(!bsl::is_nothrow_swappable<ThrowMoveConstructible<false> >::value);
+    testCase9_noexcept<ThrowMoveConstructible<false> >();
+#endif
 }
 
 

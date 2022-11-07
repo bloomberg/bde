@@ -103,6 +103,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isnothrowmoveconstructible.h>
+#include <bslmf_isnothrowswappable.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -1265,7 +1266,9 @@ class optional {
         // Reset this object to the default constructed state (i.e., to a
         // disengaged state).
 
-    void swap(optional& other);
+    void swap(optional& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                             bsl::is_nothrow_move_constructible<TYPE>::value &&
+                             bsl::is_nothrow_swappable<TYPE>::value);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee if the template parameter 'TYPE' provides
@@ -2126,7 +2129,9 @@ class optional<TYPE, false> {
         // Reset this object to the default constructed state (i.e., to be in a
         // disengaged state).
 
-    void swap(optional& other);
+    void swap(optional& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                             bsl::is_nothrow_move_constructible<TYPE>::value &&
+                             bsl::is_nothrow_swappable<TYPE>::value);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee if the template parameter 'TYPE' provides
@@ -3587,6 +3592,9 @@ void optional<TYPE, USES_BSLMA_ALLOC>::reset() BSLS_KEYWORD_NOEXCEPT
 
 template <class TYPE, bool USES_BSLMA_ALLOC>
 void optional<TYPE, USES_BSLMA_ALLOC>::swap(optional& other)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                             bsl::is_nothrow_move_constructible<TYPE>::value &&
+                             bsl::is_nothrow_swappable<TYPE>::value)
 {
     BSLS_ASSERT(d_allocator == other.d_allocator);
 
@@ -4756,6 +4764,9 @@ void optional<TYPE, false>::reset() BSLS_KEYWORD_NOEXCEPT
 
 template <class TYPE>
 void optional<TYPE, false>::swap(optional& other)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                             bsl::is_nothrow_move_constructible<TYPE>::value &&
+                             bsl::is_nothrow_swappable<TYPE>::value)
 {
     if (this->has_value() && other.has_value()) {
         BloombergLP::bslalg::SwapUtil::swap(
