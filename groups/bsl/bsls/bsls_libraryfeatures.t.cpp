@@ -89,6 +89,12 @@
 # include <ctime>
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+    // Verify assumption that the BASELINE C++20 library includes all of the
+    // new library headers not covered by a more specific macro.
+# include <span>
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -171,6 +177,7 @@
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 // [15] BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+// [17] BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -181,7 +188,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [17] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -315,6 +322,13 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
                                                                           true;
 #else
                                                                          false;
@@ -1178,6 +1192,14 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    printf("%s\n",
+                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
@@ -1413,7 +1435,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1433,6 +1455,41 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY'
+        //
+        // Concerns:
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is defined only
+        //:   when the native standard library provides a baseline of C++20
+        //:   library features (span).
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is
+        //:   defined include the appropriate headers and use the expected
+        //:   typenames.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY'\n"
+            "=========================================================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY_defined)
+        }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        {
+            std::span<int> x;
+            (void) x;
+        }
+#endif
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
+
       } break;
       case 16: {
         // --------------------------------------------------------------------

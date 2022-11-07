@@ -44,6 +44,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: <memory_resource>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET: <ctime>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC: <cstdlib>
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY: C++20 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED: 'result_of' et al. gone
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
@@ -480,6 +481,28 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 7
 //:   o clang 7
 //:   o MSVC 2019
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY'
+///----------------------------------------------------
+// This macro is used to identify whether the current platform's standard
+// library supports a baseline set of C++20 library features (which are defined
+// below).  This is especially important in BSL when importing standard library
+// functions and types into the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
+//
+// This macro is defined if all of the listed conditions are true:
+//
+//: o The compiler supports C++20 language features.
+//:
+//: o The following headers can be included:
+//:
+//:   o <span>
+//:
+//
+// Currently the following compilers will have this macro defined by default:
+//
+//:   o GCC 10
+//:   o clang 11
+//:   o MSVC 2019 19.30
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
@@ -1205,6 +1228,11 @@ BSLS_IDENT("$Id: $")
         #endif
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS         1
     #endif
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+        #if BSLS_PLATFORM_CMP_VERSION >= 10000
+            #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY           1
+        #endif
+    #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
         // that precise bitwidth atomics exist, but the libstdc++ shipping with
@@ -1349,6 +1377,11 @@ BSLS_IDENT("$Id: $")
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                    1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS 1
         #endif
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            #if BSLS_PLATFORM_CMP_VERSION >= 110000
+                #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY       1
+            #endif
+        #endif
 
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000
 
@@ -1412,6 +1445,11 @@ BSLS_IDENT("$Id: $")
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM             1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS    1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                    1
+        #endif
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            #if BSLS_PLATFORM_CMP_VERSION >= 110000
+                #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY       1
+            #endif
         #endif
     #endif
 
@@ -1504,6 +1542,12 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY          1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET              1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS    1
+        #endif
+    #endif
+
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+        #if BSLS_PLATFORM_CMP_VERSION >= 1930
+            #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY       1
         #endif
     #endif
 
