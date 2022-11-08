@@ -2,6 +2,7 @@
 #include <bslstl_string.h>
 
 #include <bslstl_forwarditerator.h>
+#include <bslstl_stringref.h>
 
 #include <bsla_fallthrough.h>
 #include <bslma_allocator.h>
@@ -138,13 +139,15 @@ using bsls::nameOfType;
 // [12] basic_string(size_type n, CHAR_TYPE c = CHAR_TYPE(), a = A());
 // [12] template<class Iter> basic_string(Iter first, Iter last, a = A());
 // [26] basic_string(const std::basic_string<CHAR, TRAITS, A2>&);
+// [12] basic_string(const STRING_VIEW_LIKE_TYPE& object, a = A());
+// [12] basic_string(const STRING_VIEW_LIKE_TYPE& object, pos, n, a = A());
 // [  ] basic_string(const StringRefData& strRefData, a = A());
 // [33] basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
 // [ 2] ~basic_string();
 //
 /// MANIPULATORS:
 // [ 9] basic_string& operator=(const basic_string& rhs);
-// [ 9] basic_string& operator=(const StringRefData& strRefData);
+// [ 9] basic_string& operator=(const STRING_VIEW_LIKE_TYPE& rhs);
 // [ 9] basic_string& operator=(MovableRef<basic_string> rhs);
 // [  ] basic_string& operator=(const CHAR_TYPE *s);
 // [  ] basic_string& operator=(CHAR_TYPE c);
@@ -152,7 +155,7 @@ using bsls::nameOfType;
 // [  ] basic_string& operator+=(const basic_string& rhs);
 // [  ] basic_string& operator+=(const CHAR_TYPE *s);
 // [17] basic_string& operator+=(CHAR_TYPE c);
-// [17] basic_string& operator+=(const StringRefData& strRefData);
+// [17] basic_string& operator+=(const STRING_VIEW_LIKE_TYPE& rhs);
 // [16] iterator begin();
 // [16] iterator end();
 // [16] reverse_iterator rbegin();
@@ -170,12 +173,15 @@ using bsls::nameOfType;
 // [13] basic_string& assign(const basic_string& str, pos, n = npos);
 // [13] basic_string& assign(const CHAR_TYPE *s, size_type n);
 // [13] basic_string& assign(const CHAR_TYPE *s);
-// [13] basic_string& assign(const StringRefData<CHAR_TYPE>& strRef);
+// [13] basic_string& assign(const STRING_VIEW_LIKE_TYPE& s);
+// [13] basic_string& assign(const STRING_VIEW_LIKE_TYPE& s, p, n = npos);
 // [13] basic_string& assign(size_type n, CHAR_TYPE c);
 // [13] template <class Iter> basic_string& assign(Iter first, Iter last);
 // [33] basic_string& assign(initializer_list<CHAR_TYPE> values);
 // [17] basic_string& append(const basic_string& str);
 // [17] basic_string& append(const basic_string& str, pos, n = npos);
+// [17] basic_string& append(const STRING_VIEW_LIKE_TYPE& strView);
+// [17] basic_string& append(const STRING_VIEW_LIKE_TYPE& strView, pos,n);
 // [17] basic_string& append(const CHAR_TYPE *s, size_type n);
 // [17] basic_string& append(const CHAR_TYPE *s);
 // [17] basic_string& append(size_type n, CHAR_TYPE c);
@@ -184,9 +190,11 @@ using bsls::nameOfType;
 // [ 2] void push_back(CHAR_TYPE c);
 // [18] basic_string& insert(size_type pos1, const string& str);
 // [18] basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
-// [18] basic_string& insert(size_type pos, const CHAR_TYPE *s, n2);
+// [18] basic_string& insert(size_type pos, const CHAR_TYPE *s, n);
 // [18] basic_string& insert(size_type pos, const CHAR_TYPE *s);
 // [18] basic_string& insert(size_type pos, size_type n, CHAR_TYPE c);
+// [18] basic_string& insert(size_type p, const STRING_VIEW_LIKE_TYPE& s);
+// [18] basic_string& insert(p1, const STRING_VIEW_LIKE_TYPE& s, p2, n);
 // [18] iterator insert(const_iterator pos, CHAR_TYPE value);
 // [18] iterator insert(const_iterator pos, size_type n, CHAR_TYPE value);
 // [18] template <class Iter> iterator insert(const_iterator, Iter, Iter);
@@ -196,11 +204,14 @@ using bsls::nameOfType;
 // [19] iterator erase(const_iterator position);
 // [19] iterator erase(const_iterator first, const_iterator last);
 // [20] basic_string& replace(pos1, n1, const string& str);
+// [20] basic_string& replace(pos1, n1, const STRING_VIEW_LIKE_TYPE& str);
 // [20] basic_string& replace(pos1, n1, const string& str, pos2, n2=npos);
+// [20] basic_string& replace(p1,n1,const STRING_VIEW_LIKE_TYPE& s,p2,n2);
 // [20] basic_string& replace(pos1, n1, const C *s, n2);
 // [20] basic_string& replace(pos1, n1, const C *s);
 // [20] basic_string& replace(pos1, n1, size_type n2, C c);
 // [20] basic_string& replace(const_iterator p, q, const string& str);
+// [20] basic_string& replace(const_iterator p,q,const STRING_VIEW_LIKE&);
 // [20] basic_string& replace(const_iterator p, q, const C *s, n2);
 // [20] basic_string& replace(const_iterator p, q, const C *s);
 // [20] basic_string& replace(const_iterator p, q, size_type n2, C c);
@@ -232,29 +243,35 @@ using bsls::nameOfType;
 // [ 4] const CHAR_TYPE *data() const;
 // [  ] allocator_type get_allocator() const;
 // [22] size_type find(const string& str, pos = 0) const;
+// [22] size_type find(const STRING_VIEW_LIKE_TYPE& str, pos = 0) const;
 // [22] size_type find(const C *s, pos, n) const;
 // [22] size_type find(const C *s, pos = 0) const;
 // [22] size_type find(C c, pos = 0) const;
-// [22] size_type rfind(const string& str, pos = 0) const;
+// [22] size_type rfind(const string& str, pos = npos) const;
+// [22] size_type rfind(const STRING_VIEW_LIKE_TYPE& str, pos) const;
 // [22] size_type rfind(const C *s, pos, n) const;
-// [22] size_type rfind(const C *s, pos = 0) const;
-// [22] size_type rfind(C c, pos = 0) const;
+// [22] size_type rfind(const C *s, pos = npos) const;
+// [22] size_type rfind(C c, pos = npos) const;
 // [22] size_type find_first_of(const string& str, pos = 0) const;
+// [22] size_type find_first_of(const STRING_VIEW_LIKE_TYPE& s, p) const;
 // [22] size_type find_first_of(const C *s, pos, n) const;
 // [22] size_type find_first_of(const C *s, pos = 0) const;
 // [22] size_type find_first_of(C c, pos = 0) const;
-// [22] size_type find_last_of(const string& str, pos = 0) const;
+// [22] size_type find_last_of(const string& str, pos = npos) const;
+// [22] size_type find_last_of(const STRING_VIEW_LIKE_TYPE& str, p) const;
 // [22] size_type find_last_of(const C *s, pos, n) const;
-// [22] size_type find_last_of(const C *s, pos = 0) const;
-// [22] size_type find_last_of(C c, pos = 0) const;
+// [22] size_type find_last_of(const C *s, pos = npos) const;
+// [22] size_type find_last_of(C c, pos = npos) const;
 // [22] size_type find_first_not_of(const string& str, pos = 0) const;
+// [22] size_type find_first_not_of(const STRING_VIEW_LIKE_TYPE&,p) const;
 // [22] size_type find_first_not_of(const C *s, pos, n) const;
 // [22] size_type find_first_not_of(const C *s, pos = 0) const;
 // [22] size_type find_first_not_of(C c, pos = 0) const;
-// [22] size_type find_last_not_of(const string& str, pos = 0) const;
+// [22] size_type find_last_not_of(const string& str, pos = npos) const;
+// [22] size_type find_last_not_of(const STRING_VIEW_LIKE_TYPE&, p) const;
 // [22] size_type find_last_not_of(const C *s, pos, n) const;
-// [22] size_type find_last_not_of(const C *s, pos = 0) const;
-// [22] size_type find_last_not_of(C c, pos = 0) const;
+// [22] size_type find_last_not_of(const C *s, pos = npos) const;
+// [22] size_type find_last_not_of(C c, pos = npos) const;
 // [23] string substr(pos, n) const;
 // [23] size_type copy(char *s, n, pos = 0) const;
 // [24] int compare(const string& str) const;
@@ -988,6 +1005,76 @@ struct UsesBslmaAllocator<LimitAllocator<ALLOC> > : bsl::false_type {};
 }  // close namespace bslma
 }  // close enterprise namespace
 
+                 // =================================
+                 // class ConvertibleToStringViewType
+                 // =================================
+
+template <class TYPE,
+          class TRAITS = bsl::char_traits<TYPE> >
+class ConvertibleToStringViewType
+    // This test class provides conversion operators to
+    // 'bsl::basic_string_view' object.  It is used for testing methods that
+    // accept 'StringViewLike' types.
+{
+    // DATA
+    const TYPE *d_value_p;  // value (held, not owned)
+
+  public:
+    // CREATORS
+    explicit ConvertibleToStringViewType(const TYPE *value);
+        // Create an object that has the specified 'value'.
+
+    // ACCESSORS
+    operator bsl::basic_string_view<TYPE, TRAITS>() const;
+        // Convert this object to a 'bsl::basic_string_view' object,
+        // instantiated with the same character type and traits type.  The
+        // return string will contain the same sequence of characters as this
+        // object.  Note that this conversion operator can be invoked
+        // implicitly (e.g., during argument passing).
+
+    const TYPE *data() const;
+        // Return the value of this object.
+
+    size_t length() const;
+        // Return the length of the underlying string.
+};
+
+                 // ---------------------------------
+                 // class ConvertibleToStringViewType
+                 // ---------------------------------
+
+// CREATORS
+template <class TYPE, class TRAITS>
+inline
+ConvertibleToStringViewType<TYPE, TRAITS>::
+ConvertibleToStringViewType(const TYPE *value)
+: d_value_p(value)
+{
+}
+
+// ACCESSORS
+template <class TYPE, class TRAITS>
+inline
+ConvertibleToStringViewType<TYPE, TRAITS>::
+operator bsl::basic_string_view<TYPE, TRAITS>() const
+{
+    return bsl::basic_string_view<TYPE, TRAITS>(d_value_p);
+}
+
+template <class TYPE, class TRAITS>
+inline
+const TYPE *ConvertibleToStringViewType<TYPE, TRAITS>::data() const
+{
+    return d_value_p;
+}
+
+template <class TYPE, class TRAITS>
+inline
+size_t ConvertibleToStringViewType<TYPE, TRAITS>::length() const
+{
+    return TRAITS::length(d_value_p);
+}
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -1655,7 +1742,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING ASSIGNMENT OPERATOR:
     //
     // Concerns:
@@ -1719,11 +1806,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     //
     // Testing:
     //   basic_string& operator=(const basic_string& rhs);
-    //   basic_string& operator=(const StringRefData& strRefData);
-    //   basic_string& operator=(const basic_string& rhs);
+    //   basic_string& operator=(const STRING_VIEW_LIKE_TYPE& rhs);
     //   basic_string& operator=(const CHAR_TYPE *s);
     //   basic_string& operator=(CHAR_TYPE c);
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
+    typedef bslstl::StringRefImp<TYPE>           StringRefImp;
+    typedef bsl::basic_string_view<TYPE, TRAITS> StringView;
+    typedef ConvertibleToStringViewType<TYPE>    StringViewLikeType;
 
     bslma::TestAllocator         testAllocator(veryVeryVerbose);
     Allocator                    Z(&testAllocator);
@@ -1735,6 +1825,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     const int           NUM_VALUES = getValues(&values);
 
     (void) NUM_VALUES;
+
+    enum {
+        ASSIGN_MODE_FIRST            = 0,
+        ASSIGN_MODE_STRING           = 0,
+        ASSIGN_MODE_STRING_REF       = 1,
+        ASSIGN_MODE_STRING_VIEW      = 2,
+        ASSIGN_MODE_STRING_VIEW_LIKE = 3,
+        ASSIGN_MODE_LAST             = 3
+    };
 
     // --------------------------------------------------------------------
 
@@ -1769,8 +1868,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
         };
         enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
-        for (int fromRef = 0; fromRef < 2; ++fromRef) {
-            int uOldLen = -1;
+        for (int assignMode = ASSIGN_MODE_FIRST;
+             assignMode <= ASSIGN_MODE_LAST;
+             ++assignMode) {
+            const int MODE    = assignMode;
+            int       uOldLen = -1;
+
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
                 const size_t      uLen   = strlen(U_SPEC);
@@ -1828,29 +1931,43 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, EQUAL == (V == U));
 
-                    const Int64 TDA = defaultAllocator.numAllocations();
-                    const int NUM_CTOR = numCopyCtorCalls;
-                    const int NUM_DTOR = numDestructorCalls;
+                    const int    NUM_CTOR   = numCopyCtorCalls;
+                    const int    NUM_DTOR   = numDestructorCalls;
                     const size_t OLD_LENGTH = U.size();
+                    const Int64  TDA        =
+                                             defaultAllocator.numAllocations();
 
-                    if (!fromRef) {
+                    switch (MODE) {
+                      case ASSIGN_MODE_STRING: {
                         mU = V; // test assignment here
-                    }
-                    else {
-                        bsl::basic_string_view<TYPE> bsw(V.data(), V.length());
-                        mU = bsw; // test assignment here
+                      } break;
+                      case ASSIGN_MODE_STRING_REF: {
+                        const StringRefImp SR(V.data(), V.length());
+                        mU = SR; // test assignment here
+                      } break;
+                      case ASSIGN_MODE_STRING_VIEW: {
+                        const StringView SV(V.data(), V.length());
+                        mU = SV; // test assignment here
+                      } break;
+                      case ASSIGN_MODE_STRING_VIEW_LIKE: {
+                        const StringViewLikeType SVL(V.data());
+                        mU = SVL; // test assignment here
+                      } break;
+                      default: {
+                        ASSERTV(MODE, !"Bad assignment mode.");
+                      } return;                                       // RETURN
                     }
 
                     const Int64 TDB = defaultAllocator.numAllocations();
 
-                    ASSERTV(fromRef, U_SPEC, V_SPEC, TDB - TDA, TDB == TDA);
+                    ASSERTV(MODE, U_SPEC, V_SPEC, TDB - TDA, TDB == TDA);
                     ASSERT((numCopyCtorCalls - NUM_CTOR) <= (int)V.size());
                     ASSERT((numDestructorCalls - NUM_DTOR) <=
                                                  (int)(V.size() + OLD_LENGTH));
 
-                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
-                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
-                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  V == U);
+                    ASSERTV(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                    ASSERTV(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                    ASSERTV(U_SPEC, U_N, V_SPEC, V_N,  V == U);
                     // ---------v
                             }
                             // 'mV' (and therefore 'V') now out of scope
@@ -1898,8 +2015,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
         int iterationModulus = 1;
         int iteration = 0;
-        for (int fromRef = 0; fromRef < 2; ++fromRef) {
-            int uOldLen = -1;
+
+        for (int assignMode = ASSIGN_MODE_FIRST;
+             assignMode <= ASSIGN_MODE_LAST;
+             ++assignMode) {
+            const int MODE    = assignMode;
+            int       uOldLen = -1;
+
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
                 const size_t      U_LEN  = strlen(U_SPEC);
@@ -1963,27 +2085,38 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
                         const Int64 TDA = defaultAllocator.numAllocations();
 
-                        if (!fromRef) {
+                        switch (MODE) {
+                          case ASSIGN_MODE_STRING: {
                             mU = V; // test assignment here
-                        }
-                        else {
-                            bsl::basic_string_view<TYPE> bsw(V.data(),
-                                                             V.length());
-                            mU = bsw; // test assignment here
+                          } break;
+                          case ASSIGN_MODE_STRING_REF: {
+                            const StringRefImp SR(V.data(), V.length());
+                            mU = SR; // test assignment here
+                          } break;
+                          case ASSIGN_MODE_STRING_VIEW: {
+                            const StringView SV(V.data(), V.length());
+                            mU = SV; // test assignment here
+                          } break;
+                          case ASSIGN_MODE_STRING_VIEW_LIKE: {
+                            const StringViewLikeType SVL(V.data());
+                            mU = SVL; // test assignment here
+                          } break;
+                          default: {
+                            ASSERTV(MODE, !"Bad assignment mode.");
+                          } return;                                   // RETURN
                         }
                         guard.release();
 
                         const Int64 TDB = defaultAllocator.numAllocations();
 
-                        ASSERTV(fromRef, U_SPEC, V_SPEC, TDB - TDA,
-                                                                   TDB == TDA);
+                        ASSERTV(MODE, U_SPEC, V_SPEC, TDB - TDA, TDB == TDA);
 
-                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
-                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
-                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  V == U);
+                        ASSERTV(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                        ASSERTV(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                        ASSERTV(U_SPEC, U_N, V_SPEC, V_N,  V == U);
                     }
                     // 'mV' (and therefore 'V') now out of scope
-                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                    ASSERTV(U_SPEC, U_N, V_SPEC, V_N, VV == U);
                     //--------------v
                                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                             }
@@ -1998,25 +2131,29 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     if (verbose) printf("\nTesting self assignment (Aliasing).\n");
     {
         enum {
-            SELF_ASSIGN_MODE_FIRST = 0,
-            SELF_ASSIGN_STRING = 0,
-            SELF_ASSIGN_CSTRING = 1,
-            SELF_ASSIGN_STRINGVIEW = 2,
-            SELF_ASSIGN_MODE_LAST = 2
+            SELF_ASSIGN_MODE_FIRST     = 0,
+            SELF_ASSIGN_STRING         = 0,
+            SELF_ASSIGN_CSTRING        = 1,
+            SELF_ASSIGN_STRINGREF      = 2,
+            SELF_ASSIGN_STRINGVIEW     = 3,
+            SELF_ASSIGN_STRINGVIEWLIKE = 4,
+            SELF_ASSIGN_MODE_LAST      = 4
         };
 
         enum {
-            PARTIAL_SELF_ASSIGN_MODE_FIRST = 0,
-            PARTIAL_SELF_ASSIGN_MODE_CSTRING = 0,
-            PARTIAL_SELF_ASSIGN_MODE_STRINGVIEW = 1,
-            PARTIAL_SELF_ASSIGN_MODE_LAST = 1
+            PARTIAL_SELF_ASSIGN_MODE_FIRST          = 0,
+            PARTIAL_SELF_ASSIGN_MODE_CSTRING        = 0,
+            PARTIAL_SELF_ASSIGN_MODE_STRINGREF      = 1,
+            PARTIAL_SELF_ASSIGN_MODE_STRINGVIEW     = 2,
+            PARTIAL_SELF_ASSIGN_MODE_STRINGVIEWLIKE = 3,
+            PARTIAL_SELF_ASSIGN_MODE_LAST           = 3
         };
 
         enum {
-            PARTIAL_SELF_ASSIGN_CONSTRUCT_FIRST = 0,
-            PARTIAL_SELF_ASSIGN_CONSTRUCT_LONG_TAIL = 0,
+            PARTIAL_SELF_ASSIGN_CONSTRUCT_FIRST      = 0,
+            PARTIAL_SELF_ASSIGN_CONSTRUCT_LONG_TAIL  = 0,
             PARTIAL_SELF_ASSIGN_CONSTRUCT_SHORT_TAIL = 1,
-            PARTIAL_SELF_ASSIGN_CONSTRUCT_LAST = 1
+            PARTIAL_SELF_ASSIGN_CONSTRUCT_LAST       = 1
         };
 
         static const char *SPECS[] = {
@@ -2079,10 +2216,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                           case SELF_ASSIGN_CSTRING: {
                             mY = Y.c_str();
                           } break;
+                          case SELF_ASSIGN_STRINGREF: {
+                            const StringRefImp SR(Y.data(), Y.length());
+                            mY = SR;
+                          } break;
                           case SELF_ASSIGN_STRINGVIEW: {
-                            const bsl::basic_string_view<TYPE> bsw(Y.begin(),
-                                                                   Y.length());
-                            mY = bsw;
+                            const StringView SV(Y.data(), Y.length());
+                            mY = SV;
+                          } break;
+                          case SELF_ASSIGN_STRINGVIEWLIKE: {
+                            const StringViewLikeType SVL(Y.data());
+                            mY = SVL;
                           } break;
                           default: {
                             printf("***UNKNOWN SELF_ASSIGN MODE***\n");
@@ -2091,8 +2235,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                         }
                     }
 
-                    LOOP3_ASSERT(SPEC, N, assignMode, Y == Y);
-                    LOOP3_ASSERT(SPEC, N, assignMode, X == Y);
+                    ASSERTV(SPEC, N, assignMode, Y == Y);
+                    ASSERTV(SPEC, N, assignMode, X == Y);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
 
@@ -2148,11 +2292,19 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                           case PARTIAL_SELF_ASSIGN_MODE_CSTRING: {
                             mY = Y.c_str() + OFFSET;
                           } break;
+                          case PARTIAL_SELF_ASSIGN_MODE_STRINGREF: {
+                            const StringRefImp SR(Y.data()   + OFFSET,
+                                                  Y.length() - OFFSET);
+                            mY = SR;
+                          } break;
                           case PARTIAL_SELF_ASSIGN_MODE_STRINGVIEW: {
-                            const bsl::basic_string_view<TYPE> bsw(
-                                                          Y.begin() + OFFSET,
-                                                          Y.length() - OFFSET);
-                            mY = bsw;
+                            const StringView SV(Y.data()   + OFFSET,
+                                                Y.length() - OFFSET);
+                            mY = SV;
+                          } break;
+                          case PARTIAL_SELF_ASSIGN_MODE_STRINGVIEWLIKE: {
+                            const StringViewLikeType SVL(Y.data() + OFFSET);
+                            mY = SVL;
                           } break;
                           default: {
                             printf("***UNKNOWN PARTIAL_SELF_ASSIGN MODE***\n");
@@ -2204,11 +2356,80 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             ASSERT(0 && "Wrong exception caught");
         }
 
-        // restore the allocator state
-        testAllocator.setAllocationLimit(oldLimit);
+        ASSERT(exceptionCaught);
+        ASSERT(dst == dstCopy);
+
+        exceptionCaught = false;
+        testAllocator.setAllocationLimit(0);
+
+        try
+        {
+            const StringRefImp SR(src.data(), src.length());
+
+            // the assignment will require to allocate more memory
+            dst = SR;
+        }
+        catch (const bslma::TestAllocatorException &)
+        {
+            exceptionCaught = true;
+        }
+        catch (...)
+        {
+            exceptionCaught = true;
+            ASSERT(0 && "Wrong exception caught");
+        }
 
         ASSERT(exceptionCaught);
         ASSERT(dst == dstCopy);
+
+        exceptionCaught = false;
+        testAllocator.setAllocationLimit(0);
+
+        try
+        {
+            const StringView SV(src.data(), src.length());
+
+            // the assignment will require to allocate more memory
+            dst = SV;
+        }
+        catch (const bslma::TestAllocatorException &)
+        {
+            exceptionCaught = true;
+        }
+        catch (...)
+        {
+            exceptionCaught = true;
+            ASSERT(0 && "Wrong exception caught");
+        }
+
+        ASSERT(exceptionCaught);
+        ASSERT(dst == dstCopy);
+
+        exceptionCaught = false;
+        testAllocator.setAllocationLimit(0);
+
+        try
+        {
+            const StringViewLikeType SVL(src.data());
+
+            // the assignment will require to allocate more memory
+            dst = SVL;
+        }
+        catch (const bslma::TestAllocatorException &)
+        {
+            exceptionCaught = true;
+        }
+        catch (...)
+        {
+            exceptionCaught = true;
+            ASSERT(0 && "Wrong exception caught");
+        }
+
+        ASSERT(exceptionCaught);
+        ASSERT(dst == dstCopy);
+
+        // restore the allocator state
+        testAllocator.setAllocationLimit(oldLimit);
     }
 #endif
 }
@@ -5392,36 +5613,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase1()
 // BDE_VERIFY pragma: -FD02 // Contracts are often expository
 // BDE_VERIFY pragma: -FD03 // Contracts are often expository
 
-namespace BloombergLP {
-namespace bslstl {
-
-class StringRef {
-    // This 'class' provides a dummy implementation for use with the usage
-    // example.   The interface is minimal and only supports functions needed
-    // for testing.
-
-    // DATA
-    const char *d_begin_p;
-    const char *d_end_p;
-
-  public:
-    // CREATORS
-    StringRef(const char *begin, const char *end)
-    : d_begin_p(begin)
-    , d_end_p(end)
-    {
-    }
-
-    // ACCESSORS
-    const char *begin() const { return d_begin_p; }
-    const char *end() const   { return d_end_p;   }
-
-    bool isEmpty() const { return d_begin_p == d_end_p; }
-};
-
-}  // close package namespace
-}  // close enterprise namespace
-
 namespace UsageExample {
 
 ///Usage
@@ -5473,10 +5664,10 @@ namespace UsageExample {
             // 'basicAllocator' is 0, the currently installed default
             // allocator is used.
 
-        Employee(const bslstl::StringRef&  firstName,
-                 const bslstl::StringRef&  lastName,
-                 int                       id,
-                 bslma::Allocator         *basicAllocator = 0);
+        Employee(const bsl::string_view&  firstName,
+                 const bsl::string_view&  lastName,
+                 int                      id,
+                 bslma::Allocator        *basicAllocator = 0);
             // Create a 'Employee' object having the specified 'firstName',
             // 'lastName', and 'id' attribute values.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -5496,8 +5687,8 @@ namespace UsageExample {
 // an allocator that is then passed through to the 'string' data members of
 // 'Employee'.  This allows the user to control how memory is allocated by
 // 'Employee' objects.  Also note that the type of the 'firstName' and
-// 'lastName' arguments of the value constructor is 'bslstl::StringRef'.  The
-// 'bslstl::StringRef' allows specifying a 'string' or a 'const char *' to
+// 'lastName' arguments of the value constructor is 'bsl::string_view'.  The
+// 'bsl::string_view' allows specifying a 'string' or a 'const char *' to
 // represent a string value.  For the sake of brevity its implementation is
 // not explored here.
 //
@@ -5509,11 +5700,11 @@ namespace UsageExample {
             // and return a reference providing modifiable access to this
             // object.
 
-        void setFirstName(const bslstl::StringRef& value);
+        void setFirstName(const bsl::string_view& value);
             // Set the 'firstName' attribute of this object to the specified
             // 'value'.
 
-        void setLastName(const bslstl::StringRef& value);
+        void setLastName(const bsl::string_view& value);
             // Set the 'lastName' attribute of this object to the specified
             // 'value'.
 
@@ -5561,16 +5752,16 @@ namespace UsageExample {
     }
 
     inline
-    Employee::Employee(const bslstl::StringRef&  firstName,
-                       const bslstl::StringRef&  lastName,
-                       int                       id,
-                       bslma::Allocator         *basicAllocator)
+    Employee::Employee(const bsl::string_view&  firstName,
+                       const bsl::string_view&  lastName,
+                       int                      id,
+                       bslma::Allocator        *basicAllocator)
     : d_firstName(firstName.begin(), firstName.end(), basicAllocator)
     , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
     , d_id(id)
     {
-        BSLS_ASSERT_SAFE(!firstName.isEmpty());
-        BSLS_ASSERT_SAFE(!lastName.isEmpty());
+        BSLS_ASSERT_SAFE(!firstName.empty());
+        BSLS_ASSERT_SAFE(!lastName.empty());
     }
 
     inline
@@ -5598,17 +5789,17 @@ namespace UsageExample {
     }
 
     inline
-    void Employee::setFirstName(const bslstl::StringRef& value)
+    void Employee::setFirstName(const bsl::string_view& value)
     {
-        BSLS_ASSERT_SAFE(!value.isEmpty());
+        BSLS_ASSERT_SAFE(!value.empty());
 
         d_firstName.assign(value.begin(), value.end());
     }
 
     inline
-    void Employee::setLastName(const bslstl::StringRef& value)
+    void Employee::setLastName(const bsl::string_view& value)
     {
-        BSLS_ASSERT_SAFE(!value.isEmpty());
+        BSLS_ASSERT_SAFE(!value.empty());
 
         d_lastName.assign(value.begin(), value.end());
     }
@@ -5911,18 +6102,18 @@ int main(int argc, char *argv[])
         {
             using namespace UsageExample;
 
-            // Default ctor
+            // Default constructor
             Employee e1;  const Employee& E1 = e1;
             ASSERT("" == E1.firstName());
             ASSERT("" == E1.lastName());
             ASSERT(0  == E1.id());
 
-            // Value ctor
-            bsl::string       FIRST_NAME = "Joe";
-            bsl::string       LAST_NAME  = "Smith";
-            bslstl::StringRef FIRST(FIRST_NAME.begin(), FIRST_NAME.end());
-            bslstl::StringRef LAST(LAST_NAME.begin(), LAST_NAME.end());
-            int               ID         = 1;
+            // Value constructor
+            bsl::string      FIRST_NAME = "Joe";
+            bsl::string      LAST_NAME  = "Smith";
+            bsl::string_view FIRST(FIRST_NAME.begin(), FIRST_NAME.length());
+            bsl::string_view LAST(LAST_NAME.begin(), LAST_NAME.length());
+            int              ID         = 1;
 
             Employee e2(FIRST, LAST, ID);  const Employee& E2 = e2;
             ASSERT(FIRST_NAME == E2.firstName());
@@ -6161,6 +6352,7 @@ int main(int argc, char *argv[])
         //   basic_string& operator=(const basic_string& rhs);
         //   basic_string& operator=(MovableRef<basic_string> rhs);
         //   basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
+        //   basic_string& operator=(const STRING_VIEW_LIKE_TYPE& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ASSIGNMENT OPERATORS"

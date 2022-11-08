@@ -2502,7 +2502,6 @@ void testIncompleteTypeConversion(const IncompleteType &obj)
     overloadedFunction(obj);
 }
 
-
 template <class CHAR_TYPE>
 class TestDriver {
     // TYPES
