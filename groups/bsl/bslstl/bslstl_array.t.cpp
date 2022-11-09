@@ -218,6 +218,12 @@ static bool veryVeryVeryVerbose;
 // BDE_VERIFY pragma: -FD01   // Function contracts are descriptive text
 // BDE_VERIFY pragma: -AC02   // Implicit copy ctor is not allocator-aware
 
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
 namespace bsl {
 
 // array-specific print function.
@@ -242,6 +248,10 @@ void debugprint(const array<TYPE, SIZE>& v)
 }
 
 }  // close namespace bsl
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
 //=============================================================================
 //                      TEST APPARATUS: GENERATOR FUNCTIONS
@@ -272,6 +282,12 @@ void debugprint(const array<TYPE, SIZE>& v)
 //              and 2 respectively.
 //-----------------------------------------------------------------------------
 //..
+
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
 
 template <class TYPE, size_t SIZE>
 void resetMovedInto(bsl::array<TYPE, SIZE> *object)
@@ -333,6 +349,11 @@ bsl::array<TYPE, SIZE>& gg(bsl::array<TYPE, SIZE> *object,
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
+
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
 //=============================================================================
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
@@ -1071,11 +1092,11 @@ struct TupleApiTest<TYPE, 5>
             ASSERT(true          ==         isRefConstant(bsl::get<3>( X)));
             ASSERT(true          ==         isRefConstant(bsl::get<4>( X)));
 
-            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
-            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
-            ASSERT( X.d_data + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
-            ASSERT( X.d_data + 3 == bsls::Util::addressOf(bsl::get<3>( X)));
-            ASSERT( X.d_data + 4 == bsls::Util::addressOf(bsl::get<4>( X)));
+            ASSERT( X.data() + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.data() + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+            ASSERT( X.data() + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
+            ASSERT( X.data() + 3 == bsls::Util::addressOf(bsl::get<3>( X)));
+            ASSERT( X.data() + 4 == bsls::Util::addressOf(bsl::get<4>( X)));
 
             ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
             ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
@@ -1083,11 +1104,11 @@ struct TupleApiTest<TYPE, 5>
             ASSERT(false         ==         isRefConstant(bsl::get<3>(mX)));
             ASSERT(false         ==         isRefConstant(bsl::get<4>(mX)));
 
-            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
-            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
-            ASSERT(mX.d_data + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
-            ASSERT(mX.d_data + 3 == bsls::Util::addressOf(bsl::get<3>(mX)));
-            ASSERT(mX.d_data + 4 == bsls::Util::addressOf(bsl::get<4>(mX)));
+            ASSERT(mX.data() + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.data() + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+            ASSERT(mX.data() + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
+            ASSERT(mX.data() + 3 == bsls::Util::addressOf(bsl::get<3>(mX)));
+            ASSERT(mX.data() + 4 == bsls::Util::addressOf(bsl::get<4>(mX)));
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1307,15 +1328,15 @@ struct TupleApiTest<TYPE, 4>
             TA        mX;
             const TA& X = mX;
 
-            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
-            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
-            ASSERT(mX.d_data + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
-            ASSERT(mX.d_data + 3 == bsls::Util::addressOf(bsl::get<3>(mX)));
+            ASSERT(mX.data() + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.data() + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+            ASSERT(mX.data() + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
+            ASSERT(mX.data() + 3 == bsls::Util::addressOf(bsl::get<3>(mX)));
 
-            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
-            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
-            ASSERT( X.d_data + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
-            ASSERT( X.d_data + 3 == bsls::Util::addressOf(bsl::get<3>( X)));
+            ASSERT( X.data() + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.data() + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+            ASSERT( X.data() + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
+            ASSERT( X.data() + 3 == bsls::Util::addressOf(bsl::get<3>( X)));
 
             ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
             ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
@@ -1515,13 +1536,13 @@ struct TupleApiTest<TYPE, 3>
             TA        mX;
             const TA& X = mX;
 
-            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
-            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
-            ASSERT(mX.d_data + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
+            ASSERT(mX.data() + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.data() + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+            ASSERT(mX.data() + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
 
-            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
-            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
-            ASSERT( X.d_data + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
+            ASSERT( X.data() + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.data() + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+            ASSERT( X.data() + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
 
             ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
             ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
@@ -1691,11 +1712,11 @@ struct TupleApiTest<TYPE, 2>
             TA        mX;
             const TA& X = mX;
 
-            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
-            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+            ASSERT(mX.data() + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.data() + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
 
-            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
-            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+            ASSERT( X.data() + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.data() + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
 
             ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
             ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
@@ -1833,9 +1854,9 @@ struct TupleApiTest<TYPE, 1>
             TA        mX;
             const TA& X = mX;
 
-            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.data() + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
 
-            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.data() + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
 
             ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
 
@@ -2351,6 +2372,13 @@ struct TestDriverWrapper{
                                 // ----------
                                 // Test Cases
                                 // ----------
+
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase24()
 {
@@ -2569,10 +2597,12 @@ void TestDriver<TYPE, SIZE>::testCase20()
     ASSERTV(SIZE, false == isPtrConstant(mX.data()));
     ASSERTV(SIZE, true  == isPtrConstant( X.data()));
 
+#if !defined(BSLSTL_ARRAY_IS_ALIASED)
     ASSERTV(mX.d_data == mX.data());
     ASSERTV( X.d_data ==  X.data());
     ASSERTV(mX.d_data == bsl::data(mX));
     ASSERTV( X.d_data == bsl::data( X));
+#endif
 }
 
 template<class TYPE>
@@ -2628,8 +2658,8 @@ void TestDriver<TYPE, SIZE>::testCase19()
         Obj        mX;
         const Obj& X = mX;
 
-        const TYPE  *EXP_FRONT_ADDRESS = mX.d_data;
-        const TYPE  *EXP_BACK_ADDRESS  = mX.d_data + SIZE -1;
+        const TYPE  *EXP_FRONT_ADDRESS = mX.data();
+        const TYPE  *EXP_BACK_ADDRESS  = mX.data() + SIZE -1;
 
         ASSERTV(SIZE, false == isRefConstant(mX.front()));
         ASSERTV(SIZE, true  == isRefConstant( X.front()));
@@ -2656,16 +2686,18 @@ void TestDriver<TYPE, SIZE>::testCase19()
         const Obj& X = mX;
 
         if (0 == SIZE) {
-            ASSERT_FAIL(mX.front());
-            ASSERT_FAIL( X.front());
-            ASSERT_FAIL(mX.back());
-            ASSERT_FAIL( X.back());
+#if !defined(BSLSTL_ARRAY_IS_ALIASED)
+            ASSERT_FAIL((void)mX.front());
+            ASSERT_FAIL((void) X.front());
+            ASSERT_FAIL((void)mX.back());
+            ASSERT_FAIL((void) X.back());
+#endif
         }
         else {
-            ASSERT_PASS(mX.front());
-            ASSERT_PASS( X.front());
-            ASSERT_PASS(mX.back());
-            ASSERT_PASS( X.back());
+            ASSERT_PASS((void)mX.front());
+            ASSERT_PASS((void) X.front());
+            ASSERT_PASS((void)mX.back());
+            ASSERT_PASS((void) X.back());
         }
     }
 }
@@ -2724,12 +2756,12 @@ void TestDriver<TYPE, SIZE>::testCase18()
         Obj mX; const Obj& X = gg(&mX, SPEC);
 
         for (size_t i = 0; i < SIZE; ++i) {
-            const TYPE  *EXP_ADDRESS = mX.d_data + i;
+            const TYPE  *EXP_ADDRESS = mX.data() + i;
             TYPE&        r  = mX.at(i);
             const TYPE&  cr = X.at(i);
 
-            ASSERTV(SIZE, i, mX.d_data[i] == r                        );
-            ASSERTV(SIZE, i,  X.d_data[i] == cr                       );
+            ASSERTV(SIZE, i, mX.data()[i] == r                        );
+            ASSERTV(SIZE, i,  X.data()[i] == cr                       );
             ASSERTV(SIZE, i, EXP_ADDRESS  == bsls::Util::addressOf( r));
             ASSERTV(SIZE, i, EXP_ADDRESS  == bsls::Util::addressOf(cr));
         }
@@ -2758,7 +2790,7 @@ void TestDriver<TYPE, SIZE>::testCase18()
         for (trials = 0; trials < NUM_TRIALS; ++trials)
         {
             try {
-                mX.at(SIZE + trials);
+                (void) mX.at(SIZE + trials);
                 ASSERTV(SIZE, trials, mX.size(), false);
             }
             catch (const std::out_of_range&) {
@@ -2777,7 +2809,7 @@ void TestDriver<TYPE, SIZE>::testCase18()
         for (trials = 0; trials < NUM_TRIALS; ++trials)
         {
             try {
-                X.at(SIZE + trials);
+                (void) X.at(SIZE + trials);
                 ASSERTV(SIZE, trials, X.size(), false);
             } catch (const std::out_of_range&) {
                 ++exceptions;
@@ -3056,12 +3088,14 @@ void TestDriver<TYPE, SIZE>::testCase14()
 
     if (veryVerbose) printf("\t\t\tTesting iterators are correct types.\n");
 
+#if !defined(BSLSTL_ARRAY_IS_ALIASED)
     ASSERT( (bsl::is_same<Iter,        TYPE *>::value));
     ASSERT( (bsl::is_same<CIter, const TYPE *>::value));
+#endif
 #ifndef BSLS_PLATFORM_CMP_SUN
-    ASSERT( (bsl::is_same<RIter, bsl::reverse_iterator<TYPE *> >::value));
+    ASSERT( (bsl::is_same<RIter, bsl::reverse_iterator<Iter> >::value));
     ASSERT( (bsl::is_same<CRIter,
-                          bsl::reverse_iterator<const TYPE *> >::value));
+                          bsl::reverse_iterator<CIter> >::value));
 #endif
 
     const char *SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
@@ -3079,9 +3113,9 @@ void TestDriver<TYPE, SIZE>::testCase14()
     for (;
          it != mX.end() && cit != X.end() && ccit != X.cend();
          ++it, ++cit, ++ccit) {
-        ASSERTV(SIZE, X.d_data + count == bsls::Util::addressOf(  *it));
-        ASSERTV(SIZE, X.d_data + count == bsls::Util::addressOf( *cit));
-        ASSERTV(SIZE, X.d_data + count == bsls::Util::addressOf(*ccit));
+        ASSERTV(SIZE, X.data() + count == bsls::Util::addressOf(  *it));
+        ASSERTV(SIZE, X.data() + count == bsls::Util::addressOf( *cit));
+        ASSERTV(SIZE, X.data() + count == bsls::Util::addressOf(*ccit));
         ASSERTV(SIZE, SPEC[count] == TestFacility::getIdentifier(  *it));
         ASSERTV(SIZE, SPEC[count] == TestFacility::getIdentifier( *cit));
         ASSERTV(SIZE, SPEC[count] == TestFacility::getIdentifier(*ccit));
@@ -3105,9 +3139,9 @@ void TestDriver<TYPE, SIZE>::testCase14()
     for (;
          rit != mX.rend() && crit != X.rend() && ccrit != X.crend();
          ++rit, ++crit, ++ccrit) {
-        ASSERTV(SIZE, X.d_data + count - 1 == bsls::Util::addressOf(  *rit));
-        ASSERTV(SIZE, X.d_data + count - 1 == bsls::Util::addressOf( *crit));
-        ASSERTV(SIZE, X.d_data + count - 1 == bsls::Util::addressOf(*ccrit));
+        ASSERTV(SIZE, X.data() + count - 1 == bsls::Util::addressOf(  *rit));
+        ASSERTV(SIZE, X.data() + count - 1 == bsls::Util::addressOf( *crit));
+        ASSERTV(SIZE, X.data() + count - 1 == bsls::Util::addressOf(*ccrit));
         ASSERTV(SIZE, SPEC[count - 1] == TestFacility::getIdentifier(  *rit));
         ASSERTV(SIZE, SPEC[count - 1] == TestFacility::getIdentifier( *crit));
         ASSERTV(SIZE, SPEC[count - 1] == TestFacility::getIdentifier(*ccrit));
@@ -4067,8 +4101,8 @@ void TestDriver<TYPE, SIZE>::testCase4()
             TYPE&       valueRef      = mX[i];
             const TYPE& constValueRef =  X[i];
 
-            ASSERTV(i, mX.d_data + i == bsls::Util::addressOf(     valueRef));
-            ASSERTV(i,  X.d_data + i == bsls::Util::addressOf(constValueRef));
+            ASSERTV(i, mX.data() + i == bsls::Util::addressOf(     valueRef));
+            ASSERTV(i,  X.data() + i == bsls::Util::addressOf(constValueRef));
             ASSERTV(i, EXP[i]        ==                            valueRef );
             ASSERTV(i, EXP[i]        ==                       constValueRef );
         }
@@ -4089,11 +4123,12 @@ void TestDriver<TYPE, SIZE>::testCase4()
         Obj        mX;
         const Obj& X = gg(&mX, SPEC);
 
-#if !defined(BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS)
-        ASSERT_FAIL( X[SIZE    ]);
+#if !defined(BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS) &&                     \
+    !defined(BSLSTL_ARRAY_IS_ALIASED)
+        ASSERT_FAIL((void) X[SIZE    ]);
 #endif
         if (0 != SIZE) {
-            ASSERT_PASS( X[SIZE - 1]);
+            ASSERT_PASS((void) X[SIZE - 1]);
         }
     }
 }
@@ -4160,7 +4195,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
 
         ASSERTV(bsls::Util::addressOf(mX) == bsls::Util::addressOf(X));
         for (size_t i = 0; i < SIZE; ++i) {
-            ASSERTV(i, EXP[i] == X.d_data[i]);
+            ASSERTV(i, EXP[i] == X.data()[i]);
         }
     }
 
@@ -4229,7 +4264,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
                 const Obj& X = gg(&mX, ORIG_SPEC);
 
                 for (size_t tj = 0; tj < SIZE; ++tj) {
-                    ASSERTV(tj, ORIG_EXP[tj] == X.d_data[tj]);
+                    ASSERTV(tj, ORIG_EXP[tj] == X.data()[tj]);
                 }
 
                 if (veryVerbose) printf("\t\t\tSpec = \"%s\"\n", SPEC);
@@ -4239,16 +4274,16 @@ void TestDriver<TYPE, SIZE>::testCase3()
 
                 if (-1 == INDEX) {
                     for (size_t tj = 0; tj < SIZE; ++tj) {
-                        ASSERTV(tj, EXP[tj] == X.d_data[tj]);
+                        ASSERTV(tj, EXP[tj] == X.data()[tj]);
                     }
                 }
                 else {
                     for (int tj = 0; tj < INDEX; ++tj) {
-                        ASSERTV(tj, EXP[tj] == X.d_data[tj]);
+                        ASSERTV(tj, EXP[tj] == X.data()[tj]);
                     }
                     for (int tj = INDEX; tj < static_cast<int>(SIZE); ++tj) {
                         ASSERTV(tj, 0 <= tj);  // quiet 32-bit C++03 warning
-                        ASSERTV(tj, ORIG_EXP[tj] == X.d_data[tj]);
+                        ASSERTV(tj, ORIG_EXP[tj] == X.data()[tj]);
                     }
                 }
             }
@@ -4331,9 +4366,15 @@ void TestDriver<TYPE, SIZE>::testCase2()
         const OBJ& X1 = mX1;
 
         ASSERT(SIZE == X1.size());
+#if !defined(BSLSTL_ARRAY_IS_ALIASED)
         ASSERTV(VALUE_TYPE::numConstructed(),
                 0 == SIZE ? 1    == VALUE_TYPE::numConstructed()
                           : SIZE == VALUE_TYPE::numConstructed());
+#else
+        ASSERTV(VALUE_TYPE::numConstructed(),
+                0 == SIZE ? 1    >= VALUE_TYPE::numConstructed()
+                          : SIZE == VALUE_TYPE::numConstructed());
+#endif
 
         Obj        mX2;
         const Obj& X2 = mX2;
@@ -4367,7 +4408,7 @@ void TestDriver<TYPE, SIZE>::testCase2()
             }
 
             for (size_t i = 0; i < SIZE; ++i) {
-                ASSERTV(SIZE, i, EXP1[i] == X.d_data[i]);
+                ASSERTV(SIZE, i, EXP1[i] == X.data()[i]);
             }
 
             if (veryVerbose) printf(
@@ -4377,17 +4418,17 @@ void TestDriver<TYPE, SIZE>::testCase2()
 
             for (size_t i = 0; i < SIZE; ++i) {
                 for (size_t j = i; j < SIZE; ++j) {
-                    ASSERTV(SIZE, i, j, EXP1[j] == X.d_data[j]);
+                    ASSERTV(SIZE, i, j, EXP1[j] == X.data()[j]);
                 }
                 mX[i] = TestFacility::create<TYPE>(SPEC2[i]);
                 for (size_t j = 0; j < i; ++j) {
-                    ASSERTV(SIZE, i, j, EXP2[j] == X.d_data[j]);
+                    ASSERTV(SIZE, i, j, EXP2[j] == X.data()[j]);
                 }
 
-                ASSERTV(SIZE, i, EXP2[i] == X.d_data[i]);
+                ASSERTV(SIZE, i, EXP2[i] == X.data()[i]);
 
                 for (size_t j = i + 1; j < SIZE; ++j) {
-                    ASSERTV(SIZE, i, j, EXP1[j] == X.d_data[j]);
+                    ASSERTV(SIZE, i, j, EXP1[j] == X.data()[j]);
                 }
             }
         }
@@ -4400,9 +4441,11 @@ void TestDriver<TYPE, SIZE>::testCase2()
 
         Obj        mX;
 
-        ASSERT_FAIL(mX[SIZE    ]);
+#if !defined(BSLSTL_ARRAY_IS_ALIASED)
+        ASSERT_FAIL((void)mX[SIZE    ]);
+#endif
         if (0 != SIZE) {
-            ASSERT_PASS(mX[SIZE - 1]);
+            ASSERT_PASS((void)mX[SIZE - 1]);
         }
     }
 }
@@ -4492,6 +4535,10 @@ void TestDriver<TYPE, SIZE>::testCase1()
     ASSERT(!(Y < X));
     ASSERT(!(Y > X));
 }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
 // BDE_VERIFY pragma: pop
 

@@ -194,6 +194,24 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifndef BDE_DISABLE_CPP17_ABI
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+#include <array>  // 'std::array'
+#include <tuple>  // 'std::get'
+
+namespace bsl {
+using std::array;
+using std::get;
+}  // close namespace bsl
+
+#define BSLSTL_ARRAY_IS_ALIASED
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BDE_DISABLE_CPP17_ABI
+
+
+#ifndef BSLSTL_ARRAY_IS_ALIASED
+
 // DEFECT DETECTION MACROS
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)                    \
@@ -209,9 +227,7 @@ BSLS_IDENT("$Id: $")
 # define BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS       1
 #endif
 
-
 namespace bsl {
-
                                 // ===========
                                 // class array
                                 // ===========
@@ -553,13 +569,38 @@ struct tuple_size<bsl::array<TYPE, SIZE> > : integral_constant<size_t, SIZE>
 }  // close namespace std
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+#endif  // !BSLSTL_ARRAY_IS_ALIASED
 
-namespace bsl {
+#ifdef BSLSTL_ARRAY_IS_ALIASED
+namespace BloombergLP {
+namespace bslh {
+
+// HASH SPECIALIZATIONS
+template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
+void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
+                const std::array<TYPE, SIZE>& input);
+    // Pass the specified 'input' to the specified 'hashAlgorithm' hashing
+    // algorithm of the (template parameter) type 'HASH_ALGORITHM'.  Note that
+    // this function violates the BDE coding standard, adding a function for a
+    // namespace for a different package, and none of the function parameters
+    // are from this package either.  This is necessary in order to provide an
+    // implementation of 'bslh::hashAppend' for the (native) standard library
+    // 'array' type as we are not allowed to add overloads directly into
+    // namespace 'std', and this component essentially provides the interface
+    // between 'bsl' and 'std' array types.
+
+}  // close namespace bslh
+}  // close enterprise namespace
+
+#endif  // BSLSTL_ARRAY_IS_ALIASED
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+#ifndef BSLSTL_ARRAY_IS_ALIASED
+
+namespace bsl {
                                 // -----------
                                 // class array
                                 // -----------
@@ -909,6 +950,31 @@ const TYPE&& bsl::get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
     return BloombergLP::bslmf::MovableRefUtil::move(a.d_data[INDEX]);
 }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif  // !BSLSTL_ARRAY_IS_ALIASED
+
+#ifdef BSLSTL_ARRAY_IS_ALIASED
+namespace BloombergLP {
+namespace bslh {
+
+// HASH SPECIALIZATIONS
+template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
+void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
+                const std::array<TYPE, SIZE>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    hashAppend(hashAlgorithm, SIZE);
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (SIZE > 0) {
+        for (size_t i = 0; i < SIZE; ++i) {
+            hashAppend(hashAlgorithm, input[i]);
+        }
+    }
+}
+
+}  // close namespace bslh
+}  // close enterprise namespace
+
+#endif  // BSLSTL_ARRAY_IS_ALIASED
 
 // ============================================================================
 //                                TYPE TRAITS
