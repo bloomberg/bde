@@ -3806,7 +3806,14 @@ void TestDriver<TYPE, SIZE>::testCase8()
 
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
     const bool isSwapNoexcept = bsl::is_nothrow_swappable<TYPE>::value;
-    ASSERT(isSwapNoexcept == noexcept(mX1.swap(mX2)));
+    if (0 != SIZE || isSwapNoexcept) {
+        ASSERT(isSwapNoexcept == noexcept(mX1.swap(mX2)));
+    }
+    else  {
+        // Some standard library implementations may mark the swapping of a
+        // zero length array as unconditionally noexcept, so we simply ignore
+        // this case
+    }
 #endif
 
     mX1.swap(mX2);
