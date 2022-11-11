@@ -623,13 +623,19 @@ int main(int argc, char *argv[])
                     << ':'
                     << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.minute()
                     << ':'
-                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.second()
-                    << (offset < bdlt::DatetimeInterval(0) ? '-' : '+')
-                    << bsl::setw(2) << bsl::setfill('0')
-                                                    << bsl::abs(offset.hours())
-                    << ':'
-                    << bsl::setw(2) << bsl::setfill('0')
-                                                 << bsl::abs(offset.minutes());
+                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.second();
+
+            if (offset == bdlt::DatetimeInterval(0)) {
+                ossExpected << 'Z';
+            }
+            else {
+                ossExpected << (offset < bdlt::DatetimeInterval(0) ? '-' : '+')
+                            << bsl::setw(2) << bsl::setfill('0')
+                                            << bsl::abs(offset.hours())
+                            << ':'
+                            << bsl::setw(2) << bsl::setfill('0')
+                                            << bsl::abs(offset.minutes());
+            }
 
             mX.enablePublishInLocalTime();
             ASSERT( mX.isPublishInLocalTimeEnabled());
