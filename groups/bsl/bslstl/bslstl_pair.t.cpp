@@ -9508,8 +9508,8 @@ int main(int argc, char *argv[])
             ASSERT(8 == P2.second);
 
             bsl::pair<int, double> p3(P1, &ta1), &P3 = p3;
-            ASSERT('A' == P2.first);
-            ASSERT(8 == P2.second);
+            ASSERT('A' == P3.first);
+            ASSERT(8 == P3.second);
 
             ASSERT(0 == ta1.numBlocksInUse());
             ASSERT(0 == ta2.numBlocksInUse());

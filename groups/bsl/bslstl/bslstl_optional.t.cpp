@@ -5212,6 +5212,7 @@ struct ThrowMoveConstructible {
         // Exchange the value of this object with that of the specified 'other'
         // object.
     {
+        (void) other;
     }
     // FREE FUNCTIONS
     friend void swap(ThrowMoveConstructible& a,
@@ -5219,6 +5220,8 @@ struct ThrowMoveConstructible {
                              BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(SWAP_NOEXCEPT)
         // Exchange the values of the specified 'a' and 'b' objects.
     {
+        (void) a;
+        (void) b;
     }
 };
 

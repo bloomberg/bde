@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
 
         typedef MyPair<int, double> IntDoublePr;
 
-        int i;
+        int i = 0;
 
         ASSERT(1 == IsSameType<int>()(i));
 

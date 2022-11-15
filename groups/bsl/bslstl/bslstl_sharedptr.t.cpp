@@ -3122,8 +3122,9 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
 
     bsl::vector<TObj *>        mZ(&ta);
     const bsl::vector<TObj *>& Z = mZ;
-
-    bsls::Stopwatch timer;
+    const double               k_BIG_VECTOR_SIZE =
+                                          static_cast<double>(BIG_VECTOR_SIZE);
+    bsls::Stopwatch            timer;
 
     mZ.resize(BIG_VECTOR_SIZE);
     deleteCounter = copyCounter = 0;
@@ -3137,7 +3138,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Creating %d owned objects in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3160,7 +3161,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Copy-constructing %d owned objects in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE - 1),
            timer.elapsedTime(),
-           timer.elapsedTime() / (BIG_VECTOR_SIZE-1));
+           timer.elapsedTime() / (k_BIG_VECTOR_SIZE-1));
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3179,7 +3180,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Destroying %d owned objects in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3233,7 +3234,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Creating %d distinct shared pointers in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3253,7 +3254,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Destroying %d distinct shared pointers in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3291,7 +3292,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
            "Creating %d copies of the same shared pointer in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
         if (verbose) {
             printPerformanceStats(ta.numAllocations() - numAlloc,
                                   ta.numBytesInUse() - numBytes,
@@ -3312,7 +3313,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Destroying %d times the same shared pointer in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3353,7 +3354,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Creating %d distinct in-place shared pointers in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3374,7 +3375,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
          "Destroying %d distinct in-place shared pointers in %gs (%gs each)\n",
          static_cast<int>(BIG_VECTOR_SIZE),
          timer.elapsedTime(),
-         timer.elapsedTime() / BIG_VECTOR_SIZE);
+         timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3400,7 +3401,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
                " (%gs each)\n",
                static_cast<int>(BIG_VECTOR_SIZE),
                timer.elapsedTime(),
-               timer.elapsedTime() / BIG_VECTOR_SIZE);
+               timer.elapsedTime() / k_BIG_VECTOR_SIZE);
         if (verbose) {
             printPerformanceStats(ta.numAllocations() - numAlloc,
                                   ta.numBytesInUse() - numBytes,
@@ -3422,7 +3423,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
            " (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3468,7 +3469,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Assigning %d distinct shared pointers in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE + 1),
            timer.elapsedTime(),
-           timer.elapsedTime() / (BIG_VECTOR_SIZE+1));
+           timer.elapsedTime() / (k_BIG_VECTOR_SIZE+1));
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -3491,7 +3492,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     printf("Assigning %d times the same shared pointer in %gs (%gs each)\n",
            static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
-           timer.elapsedTime() / BIG_VECTOR_SIZE);
+           timer.elapsedTime() / k_BIG_VECTOR_SIZE);
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,

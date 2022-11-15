@@ -2595,8 +2595,8 @@ void TestDriver<CHAR_TYPE>::testCase14()
         "Weasel & the White Boy's Cool - Rickie Lee Jones",
         "Chuck E's in Love - Rickie Lee Jones",
         "Company - Rickie Lee Jones",
-        "There are more things in heaven and Earth, Horatio, than are dreamt"
-                                                      " of in your philosophy."
+      ( "There are more things in heaven and Earth, Horatio, than are dreamt"
+                                                    " of in your philosophy." )
     };
     enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 

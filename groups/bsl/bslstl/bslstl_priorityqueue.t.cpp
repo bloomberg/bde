@@ -1452,6 +1452,7 @@ struct ThrowingSwapComparator {
         // Exchange the value of this object with that of the specified 'other'
         // object.
     {
+        (void) other;
     }
 
     // ACCESSORS
@@ -1468,6 +1469,8 @@ struct ThrowingSwapComparator {
           ThrowingSwapComparator& b) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
         // Exchange the values of the specified 'a' and 'b' objects.
     {
+        (void) a;
+        (void) b;
     }
 };
 

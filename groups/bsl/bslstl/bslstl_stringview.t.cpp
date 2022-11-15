@@ -2473,7 +2473,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
         bool outOfRangeCaught = false;
 
         try {
-            XEmpty.compare(1, 0, XEmpty);
+            (void) XEmpty.compare(1, 0, XEmpty);
         }
         catch (const std::out_of_range&) {
             outOfRangeCaught = true;
@@ -2486,7 +2486,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
         outOfRangeCaught = false;
 
         try {
-            XEmpty.compare(1, 0, XEmpty, 0 , 0);
+            (void) XEmpty.compare(1, 0, XEmpty, 0 , 0);
         }
         catch (const std::out_of_range&) {
             outOfRangeCaught = true;
@@ -2497,7 +2497,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
         outOfRangeCaught = false;
 
         try {
-            XEmpty.compare(0, 0, XEmpty, 1 , 0);
+            (void) XEmpty.compare(0, 0, XEmpty, 1 , 0);
         }
         catch (const std::out_of_range&) {
             outOfRangeCaught = true;
@@ -2510,7 +2510,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
         outOfRangeCaught = false;
 
         try {
-            XEmpty.compare(1, 0, STRING);
+            (void) XEmpty.compare(1, 0, STRING);
         }
         catch (const std::out_of_range&) {
             outOfRangeCaught = true;
@@ -2523,7 +2523,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
         outOfRangeCaught = false;
 
         try {
-            XEmpty.compare(1, 0, NULL_PTR, 0);
+            (void) XEmpty.compare(1, 0, NULL_PTR, 0);
         }
         catch (const std::out_of_range&) {
             outOfRangeCaught = true;
@@ -2671,7 +2671,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
 
         bool caught = false;
         try {
-            XEmpty.substr(1);
+            (void) XEmpty.substr(1);
         }
         catch (const std::out_of_range&) {
             caught = true;
@@ -2685,7 +2685,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
 
         caught = false;
         try {
-            XZero.substr(1);
+            (void) XZero.substr(1);
         }
         catch (const std::out_of_range&) {
             caught = true;
@@ -2702,7 +2702,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
 
         caught = false;
         try {
-            X.substr(2);
+            (void) X.substr(2);
         }
         catch (const std::out_of_range&) {
             caught = true;
@@ -5256,7 +5256,7 @@ void TestDriver<TYPE, TRAITS>::testCase10()
         bool outOfRangeCaught = false;
 
         try {
-            X.at(LENGTH);
+            (void) X.at(LENGTH);
         }
         catch (const std::out_of_range&) {
             outOfRangeCaught = true;
