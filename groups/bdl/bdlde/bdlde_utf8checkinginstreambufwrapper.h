@@ -265,7 +265,7 @@ class Utf8CheckingInStreamBufWrapper : public bsl::streambuf {
     // PRIVATE MANIPULATOR
     pos_type setSeekFailure(bsl::ios_base::openmode mode);
         // Set the state of this object to the failed seek state and return a
-        // negative position, if the the held 'streambuf' is seekable, pass the
+        // negative position, if the held 'streambuf' is seekable, pass the
         // specified 'mode' to a seek to the beginning of the file.
 
   protected:

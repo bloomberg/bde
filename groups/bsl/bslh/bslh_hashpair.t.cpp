@@ -306,8 +306,8 @@ int main(int argc, char *argv[])
         //:
         //: 5 Use the function to compute the hash of a pair an integer type
         //:   and the locally defined class 'my::MyType'.  As before, compare
-        //:   the concatenated results of hashing the the individual elements
-        //:   with that of hashing the pair.  Additionally, check that the
+        //:   the concatenated results of hashing the individual elements with
+        //:   that of hashing the pair.  Additionally, check that the
         //:   concatenation shows the expected result of the locally defined
         //:   'hashAppend' defined for 'my::MyType'.  (C-3)
         //

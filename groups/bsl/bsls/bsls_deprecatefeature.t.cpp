@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
         //: 1 That the "IS_SUPPORTED" macro is instantiated only
         //:   if the platform supported the '[[deprecated]]' C++ attribute.
         //:
-        //: 2 The the "IS_ENABLED" macro is instantiated only if the platform
+        //: 2 The "IS_ENABLED" macro is instantiated only if the platform
         //:   supports the '[[deprecated]]' C++ attribute, and either
         //:   of the enablement macros is defined
         //:   ('BB_DEPRECATE_ENABLE_ALL_...' or

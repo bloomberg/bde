@@ -80,9 +80,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Speed
 ///-----
-// This algorithm is at least 2X faster than Spooky on on all sizes of objects
-// on Linux, Windows, and Solaris.  On Aix it is about twice as fast as Spooky
-// on small objects and about 50% slower on large objects.
+// This algorithm is at least 2X faster than Spooky on all sizes of objects on
+// Linux, Windows, and Solaris.  On Aix it is about twice as fast as Spooky on
+// small objects and about 50% slower on large objects.
 //
 ///Usage
 ///-----

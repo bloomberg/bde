@@ -323,7 +323,7 @@
 
 /'bslma_isstdallocator'
 / - - - - - - - - - - -
-The {'bslma_isstdallocator'} component provides a a meta-function,
+The {'bslma_isstdallocator'} component provides a meta-function,
 'bsl::IsStdAllocator', that determines if a type meets the requirements for an
 allocator, as specified in [container.requirements.general].
 

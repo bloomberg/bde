@@ -87,9 +87,9 @@ BSLS_IDENT("$Id: $")
 //      static int isElementAnArray(bool        *isArray,
 //                                  const TYPE&  array,
 //                                  int          index)
-//          // Load the value 'true' to the the specified 'isArray' if the
-//          // element at the specified 'index' of the specified 'array' has
-//          // the "array" type category, and load the value 'false' otherwise.
+//          // Load the value 'true' to the specified 'isArray' if the element
+//          // at the specified 'index' of the specified 'array' has the
+//          // "array" type category, and load the value 'false' otherwise.
 //          // Return 0 on success, and a non-zero value otherwise.  If a
 //          // non-zero value is returned, the value loaded to 'isArray' is
 //          // unspecified.  The behavior is undefined unless the specified

@@ -1392,8 +1392,8 @@ int removedAddressId = 0;
 // way keep the roll-back-code near the point of use like lambdas allow us in
 // C++11 and later, albeit with a less elegant syntax.
 
-// See introduction with direct call to the the bind expression in the
-// USAGE EXAMPLE test case, in 'main', then return reading here.
+// See introduction with direct call to the bind expression in the USAGE
+// EXAMPLE test case, in 'main', then return reading here.
 
 // Next, we create yet another customer adding function that differs only in
 // its proctor definition from the 'addCustomer11' variant:

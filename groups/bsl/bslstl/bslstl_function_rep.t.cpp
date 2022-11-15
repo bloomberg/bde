@@ -65,7 +65,7 @@ using namespace BloombergLP;
 //: o Is the wrapped object type bitwise movable?
 //: o Does the wrapped object use an allocator?
 //
-// In the last case, we must test the the 'Function_Rep''s allocator is
+// In the last case, we must test the 'Function_Rep''s allocator is
 // propagated to the wrapped object.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -585,7 +585,7 @@ class TestFunctor
     }
 
     TestFunctor(bslmf::MovableRef<TestFunctor> original, const Alloc& alloc)
-        // Extended move construct from the specified 'original' using the the
+        // Extended move construct from the specified 'original' using the
         // specified 'alloc'.  If 'original.get_allocator() == alloc', the
         // behavior is identical to move construction, otherwise it is
         // identical to extended copy construction.

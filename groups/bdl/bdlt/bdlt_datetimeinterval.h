@@ -193,9 +193,9 @@ class DatetimeInterval {
     int assignIfValid(bsls::Types::Int64 days,
                       bsls::Types::Int64 microseconds);
         // Set this datetime interval to have the value given by the sum of the
-        // specified 'days' and 'microseconds'.  Return 0 if the the total
-        // number of days, after converting to the canonical representation,
-        // can be represented as an 'int' and a non-zero value (with no effect)
+        // specified 'days' and 'microseconds'.  Return 0 if the total number
+        // of days, after converting to the canonical representation, can be
+        // represented as an 'int' and a non-zero value (with no effect)
         // otherwise.  Note that it is impossible for an 'Int64' to represent
         // more than a day in microseconds.  Also note that the arguments may
         // be supplied using a mixture of positive, negative, and 0 values.

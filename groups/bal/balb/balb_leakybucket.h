@@ -481,12 +481,12 @@ class LeakyBucket {
         // negatively affected.
 
     void reset(const bsls::TimeInterval& currentTime);
-        // Reset the the following statistic counters for this leaky bucket to
-        // 0: 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
+        // Reset the following statistic counters for this leaky bucket to 0:
+        // 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
         // 'unusedUnits'.  Set the 'lastUpdateTime' and the
         // 'statisticCollectionStartTime' to the specified 'currentTime' of
-        // this leaky bucket.  The behavior is undefined unless
-        // 'LLONG_MIN != currentTime.seconds()'.
+        // this leaky bucket.  The behavior is undefined unless 'LLONG_MIN !=
+        // currentTime.seconds()'.
 
     void resetStatistics();
         // Reset the statics collected for this leaky bucket by setting the

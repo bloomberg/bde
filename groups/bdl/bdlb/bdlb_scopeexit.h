@@ -686,7 +686,7 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
     BSLMF_ASSERT(!bsl::is_reference<EXIT_FUNC>::value);
         // Reference types are not allowed, only objects.
 
-    // We could check for for more, but 'is_destructible' needs full C++1
+    // We could check for more, but 'is_destructible' needs full C++11
     // '<type_traits>' support, and 'is_invocable' is C++17 or later.  So we
     // skip checking these to avoid major conditional compilation clutter.  The
     // chance of passing non-destructible or non-callable 'EXIT_FUNC' argument
