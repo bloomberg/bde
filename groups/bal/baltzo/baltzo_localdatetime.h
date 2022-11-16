@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $ $CSID: $")
 // a time zone (string) identifier.  The date, time, and offset from UTC are
 // contained within a 'bdlt::DatetimeTz' object, which together represents a
 // wall-clock time in a given time zone.  This component differs from
-// 'bdet_datetimetz' in that it provides, as part of the value, a string
+// 'bdlt_datetimetz' in that it provides, as part of the value, a string
 // identifier for the corresponding time zone.
 //
 ///Attributes

@@ -202,7 +202,7 @@
  additional requirements on 'T'.
 
  When clients add elements to a 'bdlcc_TimeQueue', they provide both the
- element 'T' to be added and a time value, of type 'bdet_TimeInterval'.
+ element 'T' to be added and a time value, of type 'bsls::TimeInterval'.
  Elements can be extracted individually in time order using the overloaded
  'popFront()' member functions; a block of elements can also be popped in a
  single operation, 'popLE()', which pops all elements before a given time

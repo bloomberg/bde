@@ -99,15 +99,15 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Usage
 ///-----
-// The following example demonstrates how to implement a shared 'bdet_Datetime'
-// object using 'bslstl::SharedPtrAllocateOutofplaceRep':
+// The following example demonstrates how to implement a shared
+// 'bdlt::Datetime' object using 'bslstl::SharedPtrAllocateOutofplaceRep':
 //..
 //  class MySharedDatetimePtr {
 //      // This class provide a reference counted smart pointer to support
-//      // shared ownership of a 'bdet_Datetime' object.
+//      // shared ownership of a 'bdlt::Datetime' object.
 //
 //    private:
-//      bdet_Datetime      *d_ptr_p;  // pointer to the managed object
+//      bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
 //      bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
 //
 //    private:
@@ -116,7 +116,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //    public:
 //      // CREATORS
-//      MySharedDatetimePtr(bdet_Datetime    *ptr,
+//      MySharedDatetimePtr(bdlt::Datetime   *ptr,
 //                          bslma::Allocator *basicAllocator = 0);
 //          // Create a 'MySharedDatetimePtr' object to managed the specified
 //          // 'ptr'.  Optionally specify an 'basicAllocator' to allocate and
@@ -131,30 +131,30 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //      ~MySharedDatetimePtr();
 //          // Destroy this shared datetime and release the reference to the
-//          // 'bdet_Datetime' object to which it might be referring.  If this
+//          // 'bdlt::Datetime' object to which it might be referring.  If this
 //          // is the last shared reference, deleted the managed object.
 //
 //      // MANIPULATORS
-//      bdet_Datetime& operator*() const;
+//      bdlt::Datetime& operator*() const;
 //          // Return a reference offering modifiable access to the shared
 //          // datetime.
 //
-//      bdet_Datetime *operator->() const;
-//          // Return the address of the modifiable 'bdet_Datetime' to which
+//      bdlt::Datetime *operator->() const;
+//          // Return the address of the modifiable 'bdlt::Datetime' to which
 //          // this object refers.
 //
-//      bdet_Datetime *ptr() const;
-//          // Return the address of the modifiable 'bdet_Datetime' to which
+//      bdlt::Datetime *ptr() const;
+//          // Return the address of the modifiable 'bdlt::Datetime' to which
 //          // this object refers.
 //  };
 //..
 // Finally, we define the implementation.
 //..
-//  MySharedDatetimePtr::MySharedDatetimePtr(bdet_Datetime    *ptr,
+//  MySharedDatetimePtr::MySharedDatetimePtr(bdlt::Datetime   *ptr,
 //                                           bslma::Allocator *basicAllocator)
 //  {
 //      d_ptr_p = ptr;
-//      d_rep_p = bslstl::SharedPtrAllocateOutofplaceRep<bdet_Datetime,
+//      d_rep_p = bslstl::SharedPtrAllocateOutofplaceRep<bdlt::Datetime,
 //                                                       bslma::Allocator *>::
 //                      makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 //  }
@@ -178,15 +178,15 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //  }
 //
-//  bdet_Datetime& MySharedDatetimePtr::operator*() const {
+//  bdlt::Datetime& MySharedDatetimePtr::operator*() const {
 //      return *d_ptr_p;
 //  }
 //
-//  bdet_Datetime *MySharedDatetimePtr::operator->() const {
+//  bdlt::Datetime *MySharedDatetimePtr::operator->() const {
 //      return d_ptr_p;
 //  }
 //
-//  bdet_Datetime *MySharedDatetimePtr::ptr() const {
+//  bdlt::Datetime *MySharedDatetimePtr::ptr() const {
 //      return d_ptr_p;
 //  }
 //..

@@ -66,18 +66,18 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Usage
 ///-----
-// The following example demonstrates how to implement a shared 'bdet_Datetime'
-// using 'bslma::SharedPtrRep'.  In this example, the implementation will store
-// an object of 'bdet_Datetime' in-place.  First, we define an implementation
-// of 'bslma::SharedPtrRep':
+// The following example demonstrates how to implement a shared
+// 'bdlt::Datetime' using 'bslma::SharedPtrRep'.  In this example, the
+// implementation will store an object of 'bdlt::Datetime' in-place.  First, we
+// define an implementation of 'bslma::SharedPtrRep':
 //..
 //  class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
 //      // Implementation of 'bslma::SharedPtrRep' for an in-place
-//      // 'bdet_Datetime' object.
+//      // 'bdlt::Datetime' object.
 //
 //      // DATA
 //      bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
-//      bdet_Datetime     d_instance;    // in-place object
+//      bdlt::Datetime    d_instance;    // in-place object
 //
 //    private:
 //      // NOT IMPLEMENTED
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                              int               year,
 //                              int               month,
 //                              int               day);
-//          // Create a shared representation of a 'bdet_Datetime' object
+//          // Create a shared representation of a 'bdlt::Datetime' object
 //          // having the specified 'year', 'month' and 'day' using the
 //          // specified 'basicAllocator' to supply memory.
 //
@@ -99,15 +99,15 @@ BSLS_IDENT("$Id$ $CSID$")
 //          // Dispose of this 'MySharedDatetimeRepImpl' object.
 //
 //      virtual void disposeObject();
-//          // Dispose of the managed 'bdet_Datetime' object.
+//          // Dispose of the managed 'bdlt::Datetime' object.
 //
 //      // ACCESSORS
-//      bdet_Datetime *ptr();
-//          // Return the address of the modifiable managed 'bdet_Datetime'
+//      bdlt::Datetime *ptr();
+//          // Return the address of the modifiable managed 'bdlt::Datetime'
 //          // object.
 //
 //      virtual void *originalPtr() const;
-//          // Return the address of the modifiable managed 'bdet_Datetime'
+//          // Return the address of the modifiable managed 'bdlt::Datetime'
 //          // object.
 //  };
 //..
@@ -131,10 +131,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //  void MySharedDatetimeRepImpl::disposeObject()
 //  {
-//      d_instance.~bdet_Datetime();
+//      d_instance.~bdlt::Datetime();
 //  }
 //
-//  bdet_Datetime *MySharedDatetimeRepImpl::ptr()
+//  bdlt::Datetime *MySharedDatetimeRepImpl::ptr()
 //  {
 //      return &d_instance;
 //  }
@@ -143,13 +143,13 @@ BSLS_IDENT("$Id$ $CSID$")
 //      return const_cast<void*>(static_cast<const void *>(&d_instance));
 //  }
 //..
-// Next, we implement a shared 'bdet_Datetime' class.
+// Next, we implement a shared 'bdlt::Datetime' class.
 //..
 //  class MySharedDatetimePtr {
 //      // This class provides a reference counted managed pointer to support
-//      // shared ownership of a 'bdet_Datetime' object.
+//      // shared ownership of a 'bdlt::Datetime' object.
 //
-//      bdet_Datetime      *d_ptr_p;  // pointer to the managed object
+//      bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
 //      bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
 //
 //    private:
@@ -161,7 +161,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      MySharedDatetimePtr();
 //          // Create an empty shared datetime.
 //
-//      MySharedDatetimePtr(bdet_Datetime* ptr, bslma::SharedPtrRep* rep);
+//      MySharedDatetimePtr(bdlt::Datetime* ptr, bslma::SharedPtrRep* rep);
 //          // Create a shared datetime that adopts ownership of the specified
 //          // 'ptr' and the specified 'rep'.
 //
@@ -171,7 +171,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //      ~MySharedDatetimePtr();
 //          // Destroy this shared datetime and release the reference to the
-//          // 'bdet_Datetime' object to which it might be referring.  If this
+//          // 'bdlt::Datetime' object to which it might be referring.  If this
 //          // is the last shared reference, deleted the managed object.
 //
 //      // MANIPULATORS
@@ -181,21 +181,21 @@ BSLS_IDENT("$Id$ $CSID$")
 //                         int               day);
 //          // Create a new 'MySharedDatetimeRepImpl', using the specified
 //          // 'basicAllocator' to supply memory, using the specified 'year',
-//          // 'month' and 'day' to initialize the 'bdet_Datetime' within the
+//          // 'month' and 'day' to initialize the 'bdlt::Datetime' within the
 //          // newly created 'MySharedDatetimeRepImpl', and make this
-//          // object refer to the newly created 'bdet_Datetime' object.
+//          // object refer to the newly created 'bdlt::Datetime' object.
 //
 //      // ACCESSORS
-//      bdet_Datetime& operator*() const;
-//          // Return a reference to the modifiable 'bdet_Datetime' to which
+//      bdlt::Datetime& operator*() const;
+//          // Return a reference to the modifiable 'bdlt::Datetime' to which
 //          // this object refers.
 //
-//      bdet_Datetime *operator->() const;
-//          // Return the address of the modifiable 'bdet_Datetime' to which
+//      bdlt::Datetime *operator->() const;
+//          // Return the address of the modifiable 'bdlt::Datetime' to which
 //          // this object refers.
 //
-//      bdet_Datetime *ptr() const;
-//          // Return the address of the modifiable 'bdet_Datetime' to which
+//      bdlt::Datetime *ptr() const;
+//          // Return the address of the modifiable 'bdlt::Datetime' to which
 //          // this object refers.
 //  };
 //..
@@ -207,7 +207,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  {
 //  }
 //
-//  MySharedDatetimePtr::MySharedDatetimePtr(bdet_Datetime      *ptr,
+//  MySharedDatetimePtr::MySharedDatetimePtr(bdlt::Datetime      *ptr,
 //                                           bslma::SharedPtrRep *rep)
 //  : d_ptr_p(ptr)
 //  , d_rep_p(rep)
@@ -249,17 +249,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //      bsl::swap(d_rep_p, temp.d_rep_p);
 //  }
 //
-//  bdet_Datetime& MySharedDatetimePtr::operator*() const
+//  bdlt::Datetime& MySharedDatetimePtr::operator*() const
 //  {
 //      return *d_ptr_p;
 //  }
 //
-//  bdet_Datetime *MySharedDatetimePtr::operator->() const
+//  bdlt::Datetime *MySharedDatetimePtr::operator->() const
 //  {
 //      return d_ptr_p;
 //  }
 //
-//  bdet_Datetime *MySharedDatetimePtr::ptr() const
+//  bdlt::Datetime *MySharedDatetimePtr::ptr() const
 //  {
 //      return d_ptr_p;
 //  }

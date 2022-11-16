@@ -219,7 +219,7 @@ class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
 
     // DATA
     bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
-    bdet_Datetime     d_instance;    // in-place object
+    bdlt::Datetime    d_instance;    // in-place object
 
   public:
     // CREATORS
@@ -227,7 +227,7 @@ class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
                             int               year,
                             int               month,
                             int               day);
-        // Create a shared representation of a 'bdet_Datetime' object having
+        // Create a shared representation of a 'bdlt::Datetime' object having
         // the specified 'year', 'month' and 'day' using the specified
         // 'basicAllocator' to allocate memory.
 
@@ -236,14 +236,15 @@ class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
         // Dispose of this 'MySharedDatetimeRepImpl' object.
 
     virtual void disposeObject();
-        // Dispose of the managed 'bdet_Datetime' object.
+        // Dispose of the managed 'bdlt::Datetime' object.
 
     // ACCESSORS
-    bdet_Datetime *ptr();
-        // Returns a modifiable pointer to the managed 'bdet_Datetime' object.
+    bdlt::Datetime *ptr();
+        // Returns a modifiable pointer to the managed 'bdlt::Datetime' object.
 
     virtual void *originalPtr() const;
-        // Returns a void pointer to the to the managed 'bdet_Datetime' object;
+        // Returns a void pointer to the to the managed 'bdlt::Datetime'
+        // object.
 };
 
 
@@ -266,10 +267,10 @@ void MySharedDatetimeRepImpl::disposeRep() {
 }
 
 void MySharedDatetimeRepImpl::disposeObject() {
-    d_instance.~bdet_Datetime();
+    d_instance.~bdlt::Datetime();
 }
 
-bdet_Datetime *MySharedDatetimeRepImpl::ptr() {
+bdlt::Datetime *MySharedDatetimeRepImpl::ptr() {
     return &d_instance;
 }
 
@@ -283,10 +284,10 @@ void *MySharedDatetimeRepImpl::originalPtr() const {
 
 class MySharedDatetime {
     // This class provide a reference counted managed pointer to supporting
-    // shared ownership of a 'bdet_Datetime' object.
+    // shared ownership of a 'bdlt::Datetime' object.
 
   private:
-    bdet_Datetime       *d_ptr_p;  // pointer to the managed object
+    bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
     bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
 
   public:
@@ -294,7 +295,7 @@ class MySharedDatetime {
     MySharedDatetime();
         // Create an empty shared datetime.
 
-    MySharedDatetime(bdet_Datetime* ptr, bslma::SharedPtrRep* rep);
+    MySharedDatetime(bdlt::Datetime* ptr, bslma::SharedPtrRep* rep);
         // Create a shared datetime that adopts ownership of the specified
         // 'ptr' and the specified 'rep.
 
@@ -313,19 +314,19 @@ class MySharedDatetime {
                        int               day);
         // Create a new 'MySharedDatetimeRepImpl', using the specified
         // 'basicAllocator' to supply memory, using the specified 'year',
-        // 'month' and 'day' to initialize the 'bdet_Datetime' within the newly
-        // created 'MySharedDatetimeRepImpl', and make this 'MySharedDatetime'
-        // refer to the newly created 'bdet_Datetime'.
+        // 'month' and 'day' to initialize the 'bdlt::Datetime' within the
+        // newly created 'MySharedDatetimeRepImpl', and make this
+        // 'MySharedDatetime' refer to the newly created 'bdlt::Datetime'.
 
-    bdet_Datetime& operator*() const;
+    bdlt::Datetime& operator*() const;
         // Return a modifiable reference to the shared datetime.
 
-    bdet_Datetime *operator->() const;
-        // Return the address of the modifiable 'bdet_Datetime' to which this
+    bdlt::Datetime *operator->() const;
+        // Return the address of the modifiable 'bdlt::Datetime' to which this
         // object refers.
 
-    bdet_Datetime *ptr() const;
-        // Return the address of the modifiable 'bdet_Datetime' to which this
+    bdlt::Datetime *ptr() const;
+        // Return the address of the modifiable 'bdlt::Datetime' to which this
         // object refers.
 };
 
@@ -339,7 +340,7 @@ MySharedDatetime::MySharedDatetime()
 {
 }
 
-MySharedDatetime::MySharedDatetime(bdet_Datetime      *ptr,
+MySharedDatetime::MySharedDatetime(bdlt::Datetime      *ptr,
                                    bslma::SharedPtrRep *rep)
 : d_ptr_p(ptr)
 , d_rep_p(rep)
@@ -380,15 +381,15 @@ void MySharedDatetime::createInplace(bslma::Allocator *basicAllocator,
     bsl::swap(d_rep_p, temp.d_rep_p);
 }
 
-bdet_Datetime& MySharedDatetime::operator*() const {
+bdlt::Datetime& MySharedDatetime::operator*() const {
     return *d_ptr_p;
 }
 
-bdet_Datetime *MySharedDatetime::operator->() const {
+bdlt::Datetime *MySharedDatetime::operator->() const {
     return d_ptr_p;
 }
 
-bdet_Datetime *MySharedDatetime::ptr() const {
+bdlt::Datetime *MySharedDatetime::ptr() const {
     return d_ptr_p;
 }
 #endif

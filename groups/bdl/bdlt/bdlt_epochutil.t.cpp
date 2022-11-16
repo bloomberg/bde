@@ -967,12 +967,12 @@ int main(int argc, char *argv[])
         //:
         //: 3 Limit values of 'bdlt::Datetime' convert properly.
         //:
-        //: 4 Datetime values producing negative 'bdlt::TimeInterval' values
+        //: 4 Datetime values producing negative 'bsls::TimeInterval' values
         //:   fail.
         //:
         //: 5 Non-zero status value implies no change to result
         //:
-        //: 6 All relevant fields from bdlt::TimeInterval are recovered
+        //: 6 All relevant fields from bsls::TimeInterval are recovered
         //:   properly.
         //:
         //: 7 In safe mode, contract violations are detected.
@@ -1002,11 +1002,11 @@ int main(int argc, char *argv[])
         //:
         //:     A) First, REUSE the table used to test 'convertToTimeInterval'
         //:        to reverse every successful conversion to
-        //:        'bdlt::TimeInterval', and compare that result against
+        //:        'bsls::TimeInterval', and compare that result against
         //:        the initial input.
         //:
         //:     B) Second, create a separate table that explicitly converts
-        //:        valid (non-negative) 'bdlt::TimeInterval' to
+        //:        valid (non-negative) 'bsls::TimeInterval' to
         //:        'bdlt::Datetime' values with input and individual output
         //:        fields represented as separate columns.  For each result,
         //:        that the input is the table's expected value is verified via
@@ -1024,9 +1024,9 @@ int main(int argc, char *argv[])
         //:
         //:     Use a loop-based approach to verify that pseudo-randomly
         //:     selected, non-repeating datetime values that can be converted
-        //:     to and then from 'bdlt::TimeInterval' objects result in
+        //:     to and then from 'bsls::TimeInterval' objects result in
         //:     exactly the same object.  Note that the intermediate
-        //:     'bdlt::TimeInterval' object is initialized to a different
+        //:     'bsls::TimeInterval' object is initialized to a different
         //:     "garbage" value on each iteration.
         //
         // Testing:

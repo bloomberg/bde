@@ -77,7 +77,7 @@ using namespace bsl;
 // [ 2] void loadTimezone(std::pmr::string *timezone);
 // [ 6] int updateCount();
 // [ 6] void loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
-// [ 6] bdlt::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
+// [ 6] blsl::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -1359,7 +1359,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //  void loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
-        //  bdlt::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
+        //  bsls::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
         //  int updateCount();
         // --------------------------------------------------------------------
 

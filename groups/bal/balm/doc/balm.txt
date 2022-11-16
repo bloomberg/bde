@@ -181,7 +181,7 @@
  publish all collected metrics every 30 seconds.
 ..
       eventScheduler.start();
-      publicationScheduler.setDefaultSchedule(bdet_TimeInterval(30, 0));
+      publicationScheduler.setDefaultSchedule(bsls::TimeInterval(30, 0));
 ..
  Finally we have our main "application" loop, which reads lines of text from
  the standard input (until "exit" is provided as input) and calls

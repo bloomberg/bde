@@ -89,67 +89,67 @@ The following table provides a mapping between an element's 'bdem' elem type
 corresponding JSON type, and the encoding used.
 
 ..
-BDEM type         XSD type      C++ Type        JSON type       Format
----------         --------      --------        ---------       ------
-BDEM_VOID         N/A           N/A             null            Encoding error
+BDEM type         XSD type      C++ Type         JSON type       Format
+---------         --------      --------         ---------       ------
+BDEM_VOID         N/A           N/A              null            Encoding error
 
-BDEM_BOOL         boolean       bool            true/false      <BOOLEAN>
+BDEM_BOOL         boolean       bool             true/false      <BOOLEAN>
 
-BDEM_CHAR         byte          char            number          <NUMBER>
+BDEM_CHAR         byte          char             number          <NUMBER>
 
-BDEM_SHORT        short         short           number          <NUMBER>
+BDEM_SHORT        short         short            number          <NUMBER>
 
-                  unsignedByte  unsigned char   number          <NUMBER>
+                  unsignedByte  unsigned char    number          <NUMBER>
 
-BDEM_INT          int           int             number          <NUMBER>
+BDEM_INT          int           int              number          <NUMBER>
 
-                  unsignedShort unsigned short  number          <NUMBER>
+                  unsignedShort unsigned short   number          <NUMBER>
 
-BDEM_INT64        integer       Int64           number          <NUMBER>
+BDEM_INT64        integer       Int64            number          <NUMBER>
 
-                  long          Int64           number          <NUMBER>
+                  long          Int64            number          <NUMBER>
 
-                  unsignedInt   unsigned int    number          <NUMBER>
+                  unsignedInt   unsigned int     number          <NUMBER>
 
-                  unsignedLong  unsigned Uint64 number          <NUMBER>
+                  unsignedLong  unsigned Uint64  number          <NUMBER>
 
-BDEM_FLOAT        float         float           number/string   <DOUBLE>
+BDEM_FLOAT        float         float            number/string   <DOUBLE>
 
-BDEM_DOUBLE       decimal       double          number/string   <DOUBLE>
+BDEM_DOUBLE       decimal       double           number/string   <DOUBLE>
 
-                  double        double          number/string   <DOUBLE>
+                  double        double           number/string   <DOUBLE>
 
-BDEM_STRING       string        bsl::string     string          <STRING>
+BDEM_STRING       string        bsl::string      string          <STRING>
 
-BDEM_DATETIME     dateTime      bdet_Datetime   string          "<DATETIME>"
+BDEM_DATETIME     dateTime      bdlt::Datetime   string          "<DATETIME>"
 
-BDEM_DATETIMETZ   dateTime      bdet_DatetimeTz string          "<DATETIMETZ>"
+BDEM_DATETIMETZ   dateTime      bdlt::DatetimeTz string          "<DATETIMETZ>"
 
-BDEM_DATE         date          bdet_Date       string          "<DATE>"
+BDEM_DATE         date          bdlt::Date       string          "<DATE>"
 
-BDEM_DATETZ       date          bdet_DateTz     string          "<DATETZ>"
+BDEM_DATETZ       date          bdlt::DateTz     string          "<DATETZ>"
 
-BDEM_TIME         time          bdet_Time       string          "<TIME>"
+BDEM_TIME         time          bdlt::Time       string          "<TIME>"
 
-BDEM_TIMETZ       time          bdet_TimeTz     string          "<TIMETZ>"
+BDEM_TIMETZ       time          bdlt::TimeTz     string          "<TIMETZ>"
 
-BDEM_CHAR_ARRAY   base64Binary  vector<char>    string          "<BASE64STR>"
+BDEM_CHAR_ARRAY   base64Binary  vector<char>     string          "<BASE64STR>"
 
-                  hexBinary     vector<char>    string          "<BASE64STR>"
+                  hexBinary     vector<char>     string          "<BASE64STR>"
 
-BDEM_TYPE_ARRAY   maxOccurs > 1 vector<TYPE>    array           <SIMPLE_ARRAY>
+BDEM_TYPE_ARRAY   maxOccurs > 1 vector<TYPE>     array           <SIMPLE_ARRAY>
 
-BDEM_LIST         sequence      bcem_Aggregate  object          <SEQUENCE>
+BDEM_LIST         sequence      bcem_Aggregate   object          <SEQUENCE>
 
-BDEM_TABLE        maxOccurs > 1 bcem_Aggregate  array of objs   <SEQ_ARRAY>
+BDEM_TABLE        maxOccurs > 1 bcem_Aggregate   array of objs   <SEQ_ARRAY>
 
-BDEM_CHOICE       choice        bcem_Aggregate  object          <CHOICE>
+BDEM_CHOICE       choice        bcem_Aggregate   object          <CHOICE>
 
-BDEM_CHOICE_ARRAY maxOccurs > 1 bcem_Aggregate  array of objs   <CHOICE_ARRAY>
+BDEM_CHOICE_ARRAY maxOccurs > 1 bcem_Aggregate   array of objs   <CHOICE_ARRAY>
 
-BDEM_INT/STRING   enumeration   C++ enumeration string          <STRING>
+BDEM_INT/STRING   enumeration   C++ enumeration  string          <STRING>
 
-BDEM_*            minOccurs = 0 NullableValue   null            <NULL_VALUE>
+BDEM_*            minOccurs = 0 NullableValue    null            <NULL_VALUE>
 ..
 * The exact syntax of the format is specified below.
 

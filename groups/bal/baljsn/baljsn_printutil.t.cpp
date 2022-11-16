@@ -41,7 +41,7 @@ using bsl::endl;
 // The component under test implements a utility for printing 'bdeat'
 // compatible simple types onto an 'bsl::ostream'.  The printing is done via
 // overloaded 'printValue' functions that are overloaded for fundamental types
-// and 'bdet' types.  Since the functions are independent and do not share any
+// and 'bdlt' types.  Since the functions are independent and do not share any
 // state we will test them independently.
 //
 // We use standard table-based approach to testing where we put both input and

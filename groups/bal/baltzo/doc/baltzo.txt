@@ -7,7 +7,7 @@
 @DESCRIPTION: The 'baltzo' package provides facilities to convert a local time
  representation for one time zone into a local time representation for another
  time zone.  Local time zone representations can be any of several time
- vocabulary types (e.g., 'balt_LocalDatetime', 'bdet_Datetime').  Time zones
+ vocabulary types (e.g., 'balt_LocalDatetime', 'bdlt_Datetime').  Time zones
  are here specified using *time* *zone* *identifiers* (e.g.,
  "America/New_York", "America/Indiana/Indianapolis", "Europe/Rome",
  "Pacific/Honolulu").

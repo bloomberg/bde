@@ -376,41 +376,41 @@ class MyTestFactory {
 
 class MySharedDatetime {
     // This class provide a reference counted smart pointer to support shared
-    // ownership of a 'bdet_Datetime' object.
+    // ownership of a 'bdlt_Datetime' object.
 
   private:
-    bdet_Datetime      *d_ptr_p;  // pointer to the managed object
+    bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
     bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
 
   public:
     // CREATORS
-    explicit MySharedDatetime(bdet_Datetime    *ptr,
+    explicit MySharedDatetime(bdlt::Datetime   *ptr,
                               bslma::Allocator *basicAllocator = 0);
     MySharedDatetime(const MySharedDatetime& original);
     ~MySharedDatetime();
 
     // MANIPULATORS
-    bdet_Datetime& operator*() const;
+    bdlt::Datetime& operator*() const;
         // Dereference the shared Datetime
 
-    bdet_Datetime *operator->() const;
-        // Return address of the modifiable 'bdet_Datetime' referred to by this
-        // class.
+    bdlt::Datetime *operator->() const;
+        // Return address of the modifiable 'bdlt::Datetime' referred to by
+        // this class.
 
-    bdet_Datetime *ptr() const;
-        // Return address of the modifiable 'bdet_Datetime' referred to by this
-        // class.
+    bdlt::Datetime *ptr() const;
+        // Return address of the modifiable 'bdlt::Datetime' referred to by
+        // this class.
 };
 
                               // ----------------
                               // MySharedDatetime
                               // ----------------
 
-MySharedDatetime::MySharedDatetime(bdet_Datetime    *ptr,
+MySharedDatetime::MySharedDatetime(bdlt::Datetime   *ptr,
                                    bslma::Allocator *basicAllocator)
 {
     d_ptr_p = ptr;
-    d_rep_p = bslstl::SharedPtrAllocateOutofplaceRep<bdet_Datetime,
+    d_rep_p = bslstl::SharedPtrAllocateOutofplaceRep<bdlt::Datetime,
                                                      bslma::Allocator *>::
                         makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 }
@@ -433,15 +433,15 @@ MySharedDatetime::~MySharedDatetime()
     }
 }
 
-bdet_Datetime& MySharedDatetime::operator*() const {
+bdlt::Datetime& MySharedDatetime::operator*() const {
     return *d_ptr_p;
 }
 
-bdet_Datetime *MySharedDatetime::operator->() const {
+bdlt::Datetime *MySharedDatetime::operator->() const {
     return d_ptr_p;
 }
 
-bdet_Datetime *MySharedDatetime::ptr() const {
+bdlt::Datetime *MySharedDatetime::ptr() const {
     return d_ptr_p;
 }
 #endif
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         {
             ASSERT(0 == ta.numAllocations());
-            MySharedDatetime dt1(new(ta) bdet_Datetime(2011, 1, 1), &ta);
+            MySharedDatetime dt1(new(ta) bdlt::Datetime(2011, 1, 1), &ta);
 
             ASSERT(2 == ta.numAllocations());
 

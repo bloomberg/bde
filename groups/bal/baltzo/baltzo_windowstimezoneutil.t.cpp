@@ -1177,7 +1177,7 @@ int main(int argc, char *argv[])
 // Then, use the Windows 'GetSystemTime' function to load an 'SYSTEMTIME'
 // structure with UTC time information.  The returned information includes
 // year, month ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day
-// ('[0 .. 23]').  Note 'bdet_date' and 'bdet_time' use the same numerical
+// ('[0 .. 23]').  Note 'bdlt_date' and 'bdlt_time' use the same numerical
 // values to represent month, day, etc.  The range of years is different but
 // practically the same as they overlap for several centuries around the
 // current time.

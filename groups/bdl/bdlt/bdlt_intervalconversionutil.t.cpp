@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
         //:   nanoseconds toward 0) is consistent across millisecond +/- 1
         //:   nanosecond boundaries.
         //:
-        //: 4 That round-trip conversion to 'bdlt::TimeInterval' and back is
+        //: 4 That round-trip conversion to 'bsls::TimeInterval' and back is
         //:   not lossy over the valid range common to both data types.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
