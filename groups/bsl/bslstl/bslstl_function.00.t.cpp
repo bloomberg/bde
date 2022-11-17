@@ -210,13 +210,11 @@ Sun_Studio_only_gives_a_warning_for_pound_error;
 #pragma bde_verify append dictionary src tbd unspecialized  // Doesn't work ??
 #endif
 
-#include <cstdio>   // for 'std::puts', 'std::printf'
-#include <cstdlib>  // for 'std::atoi'
+#include <stdio.h>   // for 'puts', 'printf'
+#include <stdlib.h>  // for 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;
-
-using std::printf;
 
 // COMPILE-FAIL CONFIGURATION MACROS
 // ---------------------------------

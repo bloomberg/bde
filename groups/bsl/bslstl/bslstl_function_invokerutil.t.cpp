@@ -14,6 +14,9 @@
 #include <cstdio>   // 'printf'
 #include <cstdlib>  // 'atoi'
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
 // Generated on Thu Oct 21 10:11:37 2021
@@ -23,7 +26,6 @@
 # undef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_T_CPP
 #else
 
-using std::printf;
 using namespace BloombergLP;
 
 // ============================================================================

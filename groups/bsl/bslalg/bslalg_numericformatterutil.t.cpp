@@ -29,8 +29,10 @@
 #include <cstring>
 #include <cfloat>
 
-#include <stdint.h>  // ...we use the C header due to C++03 support
-#include <math.h>    // we need the C header for 'nextafterf'
+#include <stdint.h>  // ... we use the C header due to C++03 support
+#include <stdio.h>   // printf, fprintf, puts, setbuf
+#include <stdlib.h>  // atoi
+#include <math.h>    // nextafterf
 
 #include <ryu/blp_ryu.h>
 #include <ryu/ryu.h>

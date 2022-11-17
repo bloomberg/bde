@@ -1685,16 +1685,16 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
     // ACCESSORS
     void assertInputPosition(int line, std::streampos inputPos)
     {
-        LOOP_ASSERT(line, inputPos - std::streampos(0) ==
-                                                 Base::gptr() - Base::eback());
-        LOOP_ASSERT(line, Base::egptr() - Base::eback() > inputPos);
+        ASSERTV(line, inputPos - std::streampos(0) ==
+                    static_cast<std::streampos>(Base::gptr() - Base::eback()));
+        ASSERTV(line, Base::egptr() - Base::eback() > inputPos);
     }
 
     void assertOutputPosition(int line, std::streampos outputPos)
     {
-        LOOP_ASSERT(line, outputPos - std::streampos(0) ==
-                                                 Base::pptr() - Base::pbase());
-        LOOP_ASSERT(line, Base::epptr() - Base::pbase() > outputPos);
+        ASSERTV(line, outputPos - std::streampos(0) ==
+                    static_cast<std::streampos>(Base::pptr() - Base::pbase()));
+        ASSERTV(line, Base::epptr() - Base::pbase() > outputPos);
     }
 
     void assertPositions(int line,

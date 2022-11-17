@@ -15,13 +15,12 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Thu Jun 16 16:10:56 2022
+// Generated on Wed Nov 16 13:21:57 2022
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 
 // Expanded test driver only when compiling bslstl_function_invokerutil.cpp
 #ifdef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_T_CPP
 
-using std::printf;
 using namespace BloombergLP;
 
 // ============================================================================
