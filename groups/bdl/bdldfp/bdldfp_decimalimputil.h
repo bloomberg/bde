@@ -206,6 +206,14 @@ class DecimalImpUtil {
     typedef Imp::ValueType64  ValueType64;
     typedef Imp::ValueType128 ValueType128;
 
+    enum {
+        // Status flag bitmask for numeric operations.
+
+        k_STATUS_INEXACT = Imp::k_STATUS_INEXACT,
+        k_STATUS_UNDERFLOW = Imp::k_STATUS_UNDERFLOW,
+        k_STATUS_OVERFLOW = Imp::k_STATUS_OVERFLOW
+    };
+
     // CLASS METHODS
     static ValueType64 makeDecimal64(                   int significand,
                                                         int exponent);
@@ -1278,10 +1286,14 @@ class DecimalImpUtil {
     static ValueType32  parse32( const char *input);
     static ValueType64  parse64( const char *input);
     static ValueType128 parse128(const char *input);
+    static ValueType32  parse32( const char *input, unsigned int *status);
+    static ValueType64  parse64( const char *input, unsigned int *status);
+    static ValueType128 parse128(const char *input, unsigned int *status);
         // Produce an object of the indicated return type by parsing the
         // specified 'input' string that represents a floating-point number
-        // written in both fixed or scientific notation.  The resulting decimal
-        // object is initialized as follows:
+        // (written in either fixed or scientific notation).  Optionally
+        // specify 'status' in which to load a bit mask of additional status
+        // information.  The resulting decimal object is initialized as follows:
         //
         //: o If 'input' does not represent a floating-point value, then return
         //:   a decimal object of the indicated return type initialized to a
@@ -1317,6 +1329,13 @@ class DecimalImpUtil {
         //: o Otherwise return a decimal object of the indicated return type
         //:   initialized to the decimal value representation of 'input'.
         //
+        // The '*status', if supplied, mest be 0, and may be loaded with a bit
+        // mask of 'k_STATUS_INEXACT', 'k_STATUS_UNDERFLOW', and
+        // 'k_STATUS_OVERFLOW' indicating wether the conversion from text was
+        // inexact, underflowed, or overflowed (or some combination)
+        // respectively.  The behavior is undefined unless '*status' (if
+        // supplied) is 0.
+        //
         // Note that the parsing follows the rules as specified for the
         // 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
         // Floating-Point Technical Report.
@@ -1327,12 +1346,14 @@ class DecimalImpUtil {
         // digits necessary to differentiate all values of the indicated return
         // type, for example:
         //
-        // 'parse32("0.015")    => 15e-3'
-        // 'parse32("1.5")      => 15e-1'
-        // 'parse32("1.500")    => 1500e-3'
-        // 'parse32("1.2345678) => 1234568e-6'
+        //..
+        //  'parse32("0.015")    => 15e-3'
+        //  'parse32("1.5")      => 15e-1'
+        //  'parse32("1.500")    => 1500e-3'
+        //  'parse32("1.2345678) => 1234568e-6'
+        //..
 
-                        // Densely Packed Conversion Functions
+    // Densely Packed Conversion Functions
 
     static ValueType32  convertDPDtoBID(DecimalStorage::Type32  dpd);
     static ValueType64  convertDPDtoBID(DecimalStorage::Type64  dpd);
@@ -3104,6 +3125,30 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::parse128(const char *input)
 {
     return Imp::parse128(input);
+}
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::parse32(const char *input, unsigned int *status)
+{
+    BSLS_ASSERT(0 == *status);
+    return Imp::parse32(input, status);
+}
+
+inline
+DecimalImpUtil::ValueType64
+DecimalImpUtil::parse64(const char *input, unsigned int *status)
+{
+    BSLS_ASSERT(0 == *status);
+    return Imp::parse64(input, status);
+}
+
+inline
+DecimalImpUtil::ValueType128
+DecimalImpUtil::parse128(const char *input, unsigned int *status)
+{
+    BSLS_ASSERT(0 == *status);
+    return Imp::parse128(input, status);
 }
 
                         // Densely Packed Conversion Functions

@@ -15,9 +15,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a 'struct' of utility functions,
 // 'baljsn::ParserUtil', for decoding data in the JSON format into a 'bdeat'
 // Simple type.  The primary method is 'getValue', which decodes into a
-// specified object and is overloaded for all 'bdeat' Simple types.  The
-// following table describes the format in which various Simple types are
-// decoded.
+// specified object and is overloaded for all 'bdeat' Simple types.
 //
 // Refer to the details of the JSON encoding format supported by this utility
 // in the package documentation file (doc/baljsn.txt).
@@ -68,11 +66,15 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bdljsn_stringutil.h>
+
 #include <bdlb_variant.h>
 
 #include <bdldfp_decimal.h>
+
 #include <bdlt_iso8601util.h>
 
+#include <bsls_assert.h>
 #include <bsls_types.h>
 
 #include <bsl_limits.h>
@@ -114,21 +116,34 @@ struct ParserUtil {
     template <class TYPE>
     static int getIntegralValue(TYPE *value, bsl::string_view data);
         // Load into the specified 'value' the integer value in the specified
-        // 'data'.  Return 0 on success and a non-zero value otherwise.  Note
-        // that 'TYPE' is expected to be a *signed* integral type.
+        // 'data'.  Note that this operation follows the more permissive syntax
+        // specified for 'bdlb::NumericParseUtil', allowing things like leading
+        // '0' digits which the JSON spec does not permit.  Return 0 on success
+        // and a non-zero value otherwise.  The behavior is undefined unless
+        // 'true == is_integral<TYPE>::value && is_signed<TYPE>::value', e.g,
+        // 'TYPE' is expected to be a *signed* integral type.  Note that
+        // although 'data' is passed by value instead of 'const'-reference,
+        // there is no effect on usage.
 
     template <class TYPE>
     static int getUnsignedIntegralValue(TYPE                    *value,
                                         const bsl::string_view&  data);
         // Load into the specified 'value' the unsigned integer value in the
-        // specified 'data'.  Return 0 on success and a non-zero value
-        // otherwise.  Note that 'TYPE' is expected to be a *unsigned* integral
-        // type.
+        // specified 'data'.  Note that this operation follows the more
+        // permissive syntax specified for 'bdlb::NumericParseUtil', allowing
+        // things like leading '0' digits which the JSON spec does not permit.
+        // Return 0 on success and a non-zero value otherwise.  The behavior is
+        // undefined unless
+        // 'true == is_integral<TYPE>::value && !is_signed<TYPE>::value', e.g,
+        // 'TYPE' is expected to be an *unsigned* integral type.
 
     static int getUint64(bsls::Types::Uint64     *value,
                          const bsl::string_view&  data);
         // Load into the specified 'value' the value in the specified 'data'.
-        // Return 0 on success and a non-zero value otherwise.
+        // Note that this operation follows the more permissive syntax
+        // specified for 'bdlb::NumericParseUtil', allowing things like leading
+        // '0' digits which the JSON spec does not permit.  Return 0 on success
+        // and a non-zero value otherwise.
 
   public:
     // TYPES
@@ -229,22 +244,18 @@ inline
 int ParserUtil::getQuotedString(bsl::string             *value,
                                 const bsl::string_view&  data)
 {
-    if (2 > data.size()) {
-        return -1;                                                    // RETURN
-    }
-
-    if (data[0] != '"' && data[data.size() - 1] != '"') {
-        return -1;                                                    // RETURN
-    }
-
-    const bsl::string_view contents = data.substr(1, data.size() - 2);
-    return getUnquotedString(value, contents);
+    return bdljsn::StringUtil::readString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
 }
 
 template <class TYPE>
 int ParserUtil::getUnsignedIntegralValue(TYPE                    *value,
                                          const bsl::string_view&  data)
 {
+    BSLS_ASSERT(value);
+
     if (0 == data.length()) {
         return -1;                                                    // RETURN
     }
@@ -399,7 +410,10 @@ int ParserUtil::getValue(float *value, const bsl::string_view& data)
 inline
 int ParserUtil::getValue(bsl::string *value, const bsl::string_view& data)
 {
-    return getQuotedString(value, data);
+    return bdljsn::StringUtil::readString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
 }
 
 inline

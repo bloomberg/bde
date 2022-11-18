@@ -32,10 +32,11 @@ BSLS_IDENT("$Id$")
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 #include <bdldfp_intelimpwrapper.h>
 
-#include <bsl_locale.h>
-
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
 #include <bsls_assert.h>
 
+#include <bsl_locale.h>
 #include <bsl_cstring.h>
 #include <bsl_c_errno.h>
 
@@ -55,6 +56,14 @@ struct DecimalImpUtil_IntelDfp {
     struct ValueType32  { BID_UINT32  d_raw; };
     struct ValueType64  { BID_UINT64  d_raw; };
     struct ValueType128 { BID_UINT128 d_raw; };
+
+    enum {
+        // Status flag bitmask for numeric operations.
+
+        k_STATUS_INEXACT = BID_INEXACT_EXCEPTION,
+        k_STATUS_UNDERFLOW = BID_UNDERFLOW_EXCEPTION,
+        k_STATUS_OVERFLOW = BID_OVERFLOW_EXCEPTION
+    };
 
   private:
     // CLASS METHODS
@@ -647,12 +656,36 @@ struct DecimalImpUtil_IntelDfp {
         // unless 'input' represents a valid 128 bit decimal floating-point
         // number in scientific or fixed notation, and no unrelated characters
         // precede (not even whitespace) that textual representation and a
-        // terminating nul character immediately follows it.  Note that this
+        // terminating null character immediately follows it.  Note that this
         // method does not guarantee the behavior of ISO/EIC TR 24732 C when
         // parsing NaN because the AIX compiler intrinsics return a signaling
         // NaN.
 
-                        // Densely Packed Conversion Functions
+    static ValueType32 parse32(const char *string, unsigned int *status);
+    static ValueType64 parse64(const char *string, unsigned int *status);
+    static ValueType128 parse128(const char *string, unsigned int *status);
+        // Parse the specified 'string' string as a decimal floating-point
+        // value and return the result, loading the specified 'status' with a
+        // bit mask providing additional status information about the result.
+        // The supplied '*status' must be 0, and may be loaded with a bit mask
+        // of 'k_STATUS_INEXACT', 'k_STATUS_UNDERFLOW', and 'k_STATUS_OVERFLOW'
+        // constants indicating wether the conversion from text inexact,
+        // underflowed, or overflowed (or some combination) respectively. The
+        // parsing is as specified for the 'strtod128' function in section 9.6
+        // of the ISO/EIC TR 24732 C Decimal Floating-Point Technical Report,
+        // except that it is unspecified whether the NaNs returned are quiet or
+        // signaling. The behavior is undefined unless 'input' represents a
+        // valid decimal floating-point number in scientific or fixed notation,
+        // and no unrelated characters precede (not even whitespace) that
+        // textual representation and a terminating null character immediately
+        // follows it.  The behavior is undefined unless '*status' is 0.  Note
+        // that this method does not guarantee the behavior of ISO/EIC TR 24732
+        // C when parsing NaN because the AIX compiler intrinsics return a
+        // signaling NaN.  Also note that the intel decimal floating point
+        // library documents that inexact, underflow, and overflow are the
+        // possible floating point exceptions for this operation.
+
+    // Densely Packed Conversion Functions
 
     static ValueType32  convertDPDtoBID(DecimalStorage::Type32  dpd);
     static ValueType64  convertDPDtoBID(DecimalStorage::Type64  dpd);
@@ -1561,6 +1594,66 @@ DecimalImpUtil_IntelDfp::parse128(const char *string)
     {
         errno = ERANGE;
     }
+
+    return result;
+}
+
+
+inline
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::parse32(const char *string, unsigned int *status)
+{
+    BSLS_ASSERT(0 == *status);
+
+    DecimalImpUtil_IntelDfp::ValueType32 result;
+    BSLMF_ASSERT((bsl::is_same<_IDEC_flags, unsigned int>::value));
+
+    // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
+    // because the __bid* interfaces are C interfaces.  Also note that inexact,
+    // underflow, and overflow are the only dcoumented floating point
+    // exceptions for this function.
+
+    result.d_raw = __bid32_from_string(const_cast<char *>(string), status);
+
+    return result;
+}
+
+
+inline
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::parse64(const char *string, unsigned int *status)
+{
+    BSLS_ASSERT(0 == *status);
+
+    DecimalImpUtil_IntelDfp::ValueType64 result;
+
+    BSLMF_ASSERT((bsl::is_same<_IDEC_flags, unsigned int>::value));
+
+    // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
+    // because the __bid* interfaces are C interfaces.  Also note that inexact,
+    // underflow, and overflow are the only dcoumented floating point
+    // exceptions for this function.
+
+    result.d_raw = __bid64_from_string(const_cast<char *>(string), status);
+
+    return result;
+}
+
+inline
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::parse128(const char *string, unsigned int *status)
+{
+    BSLS_ASSERT(0 == *status);
+
+    DecimalImpUtil_IntelDfp::ValueType128 result;
+    BSLMF_ASSERT((bsl::is_same<_IDEC_flags, unsigned int>::value));
+
+    // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
+    // because the __bid* interfaces are C interfaces.  Also note that inexact,
+    // underflow, and overflow are the only dcoumented floating point
+    // exceptions for this function.
+
+    result.d_raw = __bid128_from_string(const_cast<char *>(string), status);
 
     return result;
 }

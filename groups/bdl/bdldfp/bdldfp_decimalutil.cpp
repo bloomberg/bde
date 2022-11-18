@@ -109,6 +109,52 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
     return 0;
 }
 
+int DecimalUtil::parseDecimal32Exact(Decimal32 *out, const char *str)
+{
+    BSLS_ASSERT(out != 0);
+    BSLS_ASSERT(str != 0);
+
+    unsigned int status = 0;
+
+    Decimal32 d = DecimalImpUtil::parse32(str, &status);
+    if (isNan(d) && !isNanString(str)) {
+        return -1;
+    }
+    *out = d;
+    return status;
+}
+
+int DecimalUtil::parseDecimal64Exact(Decimal64 *out, const char *str)
+{
+    BSLS_ASSERT(out != 0);
+    BSLS_ASSERT(str != 0);
+
+    unsigned int status = 0;
+
+    Decimal64 d = DecimalImpUtil::parse64(str, &status);
+    if (isNan(d) && !isNanString(str)) {
+        return -1;
+    }
+    *out = d;
+    return status;
+}
+
+int DecimalUtil::parseDecimal128Exact(Decimal128 *out, const char *str)
+{
+    BSLS_ASSERT(out != 0);
+    BSLS_ASSERT(str != 0);
+
+    unsigned int status = 0;
+
+    Decimal128 d = DecimalImpUtil::parse128(str, &status);
+    if (isNan(d) && !isNanString(str)) {
+        return -1;
+    }
+    *out = d;
+    return status;
+}
+
+
                         // classification functions
 
 int DecimalUtil::classify(Decimal32 x)

@@ -27,11 +27,11 @@ bsl::ostream& Decoder::logTokenizerError(const char *alternateString)
     }
     else if (sts < 0) {
         d_logStream << "UTF-8 error " << bdlde::Utf8Util::toAscii(sts)
-                    << " at offset " << d_tokenizer.readOffset();
+                    << " at offset " << d_tokenizer.currentPosition();
     }
     else {
-        d_logStream << "Error: unexpected end of file at offset " <<
-                                                      d_tokenizer.readOffset();
+        d_logStream << "Error: unexpected end of file at offset "
+                    << d_tokenizer.currentPosition();
     }
 
     return d_logStream;

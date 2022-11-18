@@ -155,147 +155,31 @@ namespace baljsn {
 int ParserUtil::getUnquotedString(bsl::string             *value,
                                   const bsl::string_view&  data)
 {
-    const char *iter = data.data();
-    const char *end  = data.data() + data.length();
+    return bdljsn::StringUtil::readUnquotedString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
+}
 
-    value->clear();
+int ParserUtil::getValue(bool *value, const bsl::string_view& data)
+{
+    enum { k_TRUE_LENGTH = 4, k_FALSE_LENGTH = 5 };
 
-    while (iter < end) {
-        if ('\\' == *iter) {
-            ++iter;
-            if (iter >= end) {
-                return -1;                                            // RETURN
-            }
-
-            switch (*iter) {
-              case 'b': {
-                *value += '\b';
-              } break;
-              case 'f': {
-                *value += '\f';
-              } break;
-              case 'n': {
-                *value += '\n';
-              } break;
-              case 'r': {
-                *value += '\r';
-              } break;
-              case 't': {
-                *value += '\t';
-              } break;
-              case '"'  : BSLS_ANNOTATION_FALLTHROUGH;
-              case '\\' : BSLS_ANNOTATION_FALLTHROUGH;
-              case '/'  : {
-
-                // printable characters
-
-                *value += *iter;
-              } break;
-              case 'u':
-              case 'U': {
-
-                enum { k_NUM_UNICODE_DIGITS = 4 };
-
-                if (k_NUM_UNICODE_DIGITS >= end - iter) {
-                    return -1;                                        // RETURN
-                }
-
-                ++iter;
-
-                bsls::Types::Uint64 digits;
-                bslstl::StringRef   rest;
-                if (bdlb::NumericParseUtil::parseUnsignedInteger(
-                        &digits,
-                        &rest,
-                        bsl::string_view(iter, k_NUM_UNICODE_DIGITS),
-                        16,
-                        0xFFFFULL,
-                        k_NUM_UNICODE_DIGITS) != 0 ||
-                    rest.size() > 0) {
-                    return -1;                                        // RETURN
-                }
-
-                unsigned int utf32input = static_cast<unsigned int>(digits);
-
-                // Value by which to increment 'iter'.  (3 instead of 4 because
-                // 'iter' is incremented at the end of the function.)
-                int increment = 3;
-
-                // Check for supplementary plane encodings.  These consist of a
-                // pair of Unicode 16-bit values, the first in 'D800..DBFF' and
-                // the second in 'DC00..DFFF'.
-
-                unsigned int first = utf32input;
-
-                if (0xD800 <= first && first <= 0xDBFF) {
-                    // Check that another Unicode escape sequence follows.
-                    if (iter + 2 * k_NUM_UNICODE_DIGITS + 1 >= end) {
-                        return -1;                                    // RETURN
-                    }
-                    if ('\\' != iter[k_NUM_UNICODE_DIGITS]) {
-                        return -1;                                    // RETURN
-                    }
-                    if ('u' != iter[k_NUM_UNICODE_DIGITS + 1] &&
-                        'U' != iter[k_NUM_UNICODE_DIGITS + 1]) {
-                        return -1;                                    // RETURN
-                    }
-
-                    if (bdlb::NumericParseUtil::parseUnsignedInteger(
-                            &digits,
-                            &rest,
-                            bsl::string_view(iter + k_NUM_UNICODE_DIGITS + 2,
-                                             k_NUM_UNICODE_DIGITS),
-                            16,
-                            0xDFFFULL,
-                            k_NUM_UNICODE_DIGITS) != 0 ||
-                        rest.size() > 0 ||
-                        digits < 0xDC00) {
-                        return -1;                                    // RETURN
-                    }
-
-                    unsigned int second = static_cast<unsigned int>(digits);
-
-                    // Combine the two 16-bit halves into one 21-bit whole.
-                    utf32input = 0x010000 +
-                                    ((first - 0xD800) << 10) +
-                                    (second - 0xDC00);
-
-                    // Increment 'increment' to skip past second character.
-                    increment += 6;
-                }
-
-                // Due to the short string optimization there won't be a memory
-                // allocation here.
-
-                bsl::string utf8String;
-                const int rc = bdlde::CharConvertUtf32::utf32ToUtf8(
-                                                                   &utf8String,
-                                                                   &utf32input,
-                                                                   1);
-
-                if (rc) {
-                    return rc;                                        // RETURN
-                }
-
-                value->append(utf8String);
-
-                iter += increment;
-              } break;
-              default: {
-                return -1;                                            // RETURN
-              } break;
-            }
-        }
-        else if ('"' == *iter) {
-            // Do not allow early '"' in strings.
-            return -1;                                                // RETURN
-        }
-        else {
-            *value += *iter;
-        }
-        ++iter;
+    if (k_TRUE_LENGTH == data.length()
+     && 0                  == bsl::strncmp("true",
+                                           data.data(),
+                                           k_TRUE_LENGTH)) {
+        *value = true;
     }
-
+    else if (k_FALSE_LENGTH == data.length()
+          && 0              == bsl::strncmp("false",
+                                            data.data(),
+                                            k_FALSE_LENGTH)) {
+        *value = false;
+    }
+    else {
+        return -1;                                                    // RETURN
+    }
     return 0;
 }
 
@@ -595,40 +479,21 @@ int ParserUtil::getUint64(bsls::Types::Uint64     *value,
     return 0;
 }
 
-int ParserUtil::getValue(bool *value, const bsl::string_view& data)
-{
-    enum { k_TRUE_LENGTH = 4, k_FALSE_LENGTH = 5 };
-
-    if (k_TRUE_LENGTH == data.length()
-     && 0                  == bsl::strncmp("true",
-                                           data.data(),
-                                           k_TRUE_LENGTH)) {
-        *value = true;
-    }
-    else if (k_FALSE_LENGTH == data.length()
-          && 0              == bsl::strncmp("false",
-                                            data.data(),
-                                            k_FALSE_LENGTH)) {
-        *value = false;
-    }
-    else {
-        return -1;                                                    // RETURN
-    }
-    return 0;
-}
-
 int ParserUtil::getValue(bsl::vector<char>       *value,
                          const bsl::string_view&  data)
 {
     BSLS_ASSERT(value);
 
-    const int MAX_LENGTH = 1024;
+    const int                       MAX_LENGTH = 1024;
     bsls::AlignedBuffer<MAX_LENGTH> buffer;
 
     bdlma::BufferedSequentialAllocator allocator(buffer.buffer(), MAX_LENGTH);
-    bsl::string base64String(&allocator);
+    bsl::string                        base64String(&allocator);
 
-    int rc = baljsn::ParserUtil::getValue(&base64String, data);
+    int rc = bdljsn::StringUtil::readString(
+                          &base64String,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
     if (rc) {
         return -1;                                                    // RETURN
     }

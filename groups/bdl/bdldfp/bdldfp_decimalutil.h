@@ -157,7 +157,7 @@ struct DecimalUtil {
     static int parseDecimal32(Decimal32 *out, const char *str);
     static int parseDecimal64(Decimal64 *out, const char *str);
     static int parseDecimal128(Decimal128 *out, const char *str);
-    template<class STRING_TYPE>
+    template <class STRING_TYPE>
     static int parseDecimal32(Decimal32 *out, const STRING_TYPE& str);
     template <class STRING_TYPE>
     static int parseDecimal64(Decimal64 *out, const STRING_TYPE& str);
@@ -171,7 +171,26 @@ struct DecimalUtil {
         // 'std::string', 'std::pmr::string' (if supported), or
         // 'bslstl::StringRef'.
 
-                                  // math
+    static int parseDecimal32Exact(Decimal32 *out, const char *str);
+    static int parseDecimal64Exact(Decimal64 *out, const char *str);
+    static int parseDecimal128Exact(Decimal128 *out, const char *str);
+    template <class STRING_TYPE>
+    static int parseDecimal32Exact(Decimal32 *out, const STRING_TYPE& str);
+    template <class STRING_TYPE>
+    static int parseDecimal64Exact(Decimal64 *out, const STRING_TYPE& str);
+    template <class STRING_TYPE>
+    static int parseDecimal128Exact(Decimal128 *out, const STRING_TYPE& str);
+        // Load into the specified 'out' the decimal floating point number
+        // described by the specified 'str'.  Return 0 if 'out' is an exact
+        // representation of 'str', a positive value if 'str' is an
+        // approximation of 'str' (i.e., 'str' could not be represented
+        // exactly), and a negative value if 'str' could not be parsed.  The
+        // value of 'out' is unspecified if the function returns a negative
+        // value.  The parameterized 'STRING_TYPE' must be one of
+        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
+
+    // math
 
     static Decimal32  copySign(Decimal32  x, Decimal32  y);
     static Decimal64  copySign(Decimal64  x, Decimal64  y);
@@ -871,6 +890,32 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const STRING_TYPE& str)
                                         DecimalUtil_CStringUtil::flatten(str));
 }
 
+template <class STRING_TYPE>
+inline
+int DecimalUtil::parseDecimal32Exact(Decimal32 *out, const STRING_TYPE& str)
+{
+    return DecimalUtil::parseDecimal32Exact(
+                                        out,
+                                        DecimalUtil_CStringUtil::flatten(str));
+}
+
+template <class STRING_TYPE>
+inline
+int DecimalUtil::parseDecimal64Exact(Decimal64 *out, const STRING_TYPE& str)
+{
+    return DecimalUtil::parseDecimal64Exact(
+                                        out,
+                                        DecimalUtil_CStringUtil::flatten(str));
+}
+
+template <class STRING_TYPE>
+inline
+int DecimalUtil::parseDecimal128Exact(Decimal128 *out, const STRING_TYPE& str)
+{
+    return DecimalUtil::parseDecimal128Exact(
+                                        out,
+                                        DecimalUtil_CStringUtil::flatten(str));
+}
 
                              // Quantum functions
 

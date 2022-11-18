@@ -38238,13 +38238,6 @@ int main(int argc, char *argv[])
             ASSERT(pf);
             ASSERT(!FINAL == !!*pf);
 
-            const bsl::size_t ERROFF   = pf - pattern;
-
-            char offBuf[16];
-            bdlsb::FixedMemOutStreamBuf sb(offBuf, sizeof(offBuf));
-            bsl::ostream os(&sb);
-            os << ERROFF << bsl::ends;
-
             for (int tu = 0; tu < k_NUM_UTF8_DATA; ++tu) {
                 const Utf8Data& utf8Data = UTF8_DATA[tu];
                 const int       ULINE    = utf8Data.d_line;
@@ -38277,7 +38270,6 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ASSERTV(ULINE, UMSG, logMsg, npos != logMsg.find(UMSG));
-                    ASSERTV(ULINE, UMSG, offBuf, npos != logMsg.find(offBuf));
                 }
 
                 if (veryVerbose) {

@@ -1570,9 +1570,14 @@ int main(int argc, char *argv[])
         static const bool F = false;
         static const bool T = true;
 
-        static const char *const ERROR =
+        static const char *const ERROR_P =
+                                    "Unable to encode element name: 'data'.\n";
+            // Error at document preamble.
+
+        static const char *const ERROR_C =
             "An error occurred when writing to the supplied output stream or"
             " stream buffer.\n";
+            // Error at document close.
 
         s_baltst::SimpleRequest obj0;
         obj0.data()           = "";
@@ -1590,22 +1595,22 @@ int main(int argc, char *argv[])
         //  |    /    /   .-----------------   ----------------------.
         //  |   /    /   /     EXPECTED STREAM BUFFER CONTENTS       |
         // -- ----- --- -- --------------------------------------- -------
-        t( L_, obj0,  0, F, ""                                    , ERROR );
-        t( L_, obj0,  1, F, "{"                                   , ERROR );
-        t( L_, obj0,  2, F, "{\""                                 , ERROR );
-        t( L_, obj0, 28, F, "{\"data\":\"\",\"responseLength\":"  , ERROR );
-        t( L_, obj0, 29, F, "{\"data\":\"\",\"responseLength\":0" , ERROR );
+        t( L_, obj0,  0, F, ""                                    , ERROR_P );
+        t( L_, obj0,  1, F, "{"                                   , ERROR_P );
+        t( L_, obj0,  2, F, "{\""                                 , ERROR_P );
+        t( L_, obj0, 28, F, "{\"data\":\"\",\"responseLength\":"  , ERROR_C );
+        t( L_, obj0, 29, F, "{\"data\":\"\",\"responseLength\":0" , ERROR_C );
         t( L_, obj0, 30, T, "{\"data\":\"\",\"responseLength\":0}", ""    );
         t( L_, obj0, 31, T, "{\"data\":\"\",\"responseLength\":0}", ""    );
 
-        t( L_, obj1,  0, F, ""                                    , ERROR );
-        t( L_, obj1,  1, F, "{"                                   , ERROR );
+        t( L_, obj1,  0, F, ""                                    , ERROR_P );
+        t( L_, obj1,  1, F, "{"                                   , ERROR_P );
         t( L_, obj1,  2, F, "{"
-                                "\""                              , ERROR );
+                                "\""                              , ERROR_P );
         t( L_, obj1, 57, F, "{"
                                 "\"data\":\"Lorem ipsum dolor"
                                            " sit amet.\","
-                                "\"responseLength\":42"           , ERROR );
+                                "\"responseLength\":42"           , ERROR_C );
         t( L_, obj1, 58, T, "{"
                                 "\"data\":\"Lorem ipsum dolor"
                                            " sit amet.\","

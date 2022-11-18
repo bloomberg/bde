@@ -1,28 +1,40 @@
-// baljsn_tokenizer.t.cpp                                             -*-C++-*-
-#include <baljsn_tokenizer.h>
+// bdljsn_tokenizer.t.cpp                                             -*-C++-*-
+#include <bdljsn_tokenizer.h>
 
-#include <baljsn_parserutil.h>
+#include <bdljsn_numberutil.h>
+#include <bdljsn_stringutil.h>
 
 #include <bdlde_utf8util.h>
-#include <bdlsb_memoutstreambuf.h>            // for testing only
-#include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
-#include <bdlsb_fixedmeminstreambuf.h>        // for testing only
 
+#include <bdlsb_fixedmeminstreambuf.h>   // for testing only
+#include <bdlsb_fixedmemoutstreambuf.h>  // for testing only
+#include <bdlsb_memoutstreambuf.h>       // for testing only
+
+#include <bsla_maybeunused.h>
+
+#include <bslim_printer.h>
 #include <bslim_testutil.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
+#include <bsl_list.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -44,28 +56,30 @@ using bsl::endl;
 // after the advance the next token and the data value is as expected.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baljsn::Tokenizer(bslma::Allocator *bA = 0);
-// [ 2] ~baljsn::Tokenizer();
+// [ 2] bdljsn::Tokenizer(bslma::Allocator *bA = 0);
+// [ 2] ~bdljsn::Tokenizer();
 //
 // MANIPULATORS
-// [ 9] void reset(bsl::streambuf &streamBuf);
-// [12] void resetStreamBufGetPointer();
-// [13] void setAllowStandAloneValues(bool value);
-// [14] void setAllowHeterogenousArrays(bool value);
-// [ 3] int advanceToNextToken();
+// [10] void reset(bsl::streambuf &streamBuf);
+// [13] void resetStreamBufGetPointer();
+// [14] void setAllowStandAloneValues(bool value);
+// [15] void setAllowHeterogenousArrays(bool value);
+// [ 2] int advanceToNextToken();
+// [ 3] int setAllowTrailingTopLevelComma();
 //
 // ACCESSORS
-// [ 3] TokenType tokenType() const;
-// [13] bool allowStandAloneValues() const;
-// [14] bool allowHeterogenousArrays() const;
-// [ 3] int value(bslstl::StringRef *data) const;
-// [17] bool utf8ErrorIsSet() const;
-// [17} const char *utf8ErrorMessage(const char *) const;
-// [17] void setAllowNonUtf8StringLiterals(bool);
-// [17] bool allowNonUtf8StringLiterals() const;
+// [ 4] TokenType tokenType() const;
+// [14] bool allowStandAloneValues() const;
+// [15] bool allowHeterogenousArrays() const;
+// [ 4] int value(bslstl::StringRef *data) const;
+// [18] bool utf8ErrorIsSet() const;
+// [18} const char *utf8ErrorMessage(const char *) const;
+// [18] void setAllowNonUtf8StringLiterals(bool);
+// [18] bool allowNonUtf8StringLiterals() const;
+// [19] Uint64 currentPosition() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [18] USAGE EXAMPLE
+// [20] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -111,13 +125,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define WS "   \t       \n      \v       \f       \r       "
-
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baljsn::Tokenizer   Obj;
+#define WS "   \t       \n      \v       \f       \r       "
+const bsl::size_t WSLEN = sizeof(WS) - 1;
+
+typedef bdljsn::Tokenizer   Obj;
 typedef bdlde::Utf8Util     Utf8Util;
 typedef bsls::Types::IntPtr IntPtr;
 typedef bsls::Types::Int64  Int64;
@@ -253,9 +268,11 @@ const char *LARGE_STRING_C_STR =
 
 struct BreakAllocator : public bslma::TestAllocator {
     // CREATOR
+    // BDE_VERIFY pragma: -FD01
     BreakAllocator() : bslma::TestAllocator() {}
 
     // MANIPULATOR
+    // BDE_VERIFY pragma: -FD01
     virtual void *allocate(size_type size)
     {
         return bslma::TestAllocator::allocate(size);
@@ -267,6 +284,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
 #define CASE(X) case(Obj::X): stream << #X; break;
 
     switch (value) {
+      // BDE_VERIFY pragma: -IND01
       CASE(e_BEGIN)
       CASE(e_ELEMENT_NAME)
       CASE(e_START_OBJECT)
@@ -488,7 +506,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -516,7 +534,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Extracting JSON data into an object
 ///----------------------------------------------
-// For this example, we will use 'baljsn::Tokenizer' to read each node in a
+// For this example, we will use 'bdljsn::Tokenizer' to read each node in a
 // JSON document and populate a simple 'Employee' object.
 //
 // First, we will define the JSON data that the tokenizer will traverse over:
@@ -531,10 +549,10 @@ int main(int argc, char *argv[])
 //..
     bdlsb::FixedMemInStreamBuf isb(INPUT, bsl::strlen(INPUT));
 //..
-// Then, we will create a 'baljsn::Tokenizer' object and associate the above
+// Then, we will create a 'bdljsn::Tokenizer' object and associate the above
 // streambuf with it:
 //..
-    baljsn::Tokenizer tokenizer;
+    bdljsn::Tokenizer tokenizer;
     tokenizer.reset(&isb);
 //..
 // Next, we will create an address record type and object.
@@ -552,8 +570,8 @@ int main(int argc, char *argv[])
     int rc = tokenizer.advanceToNextToken();
     ASSERT(!rc);
 
-    baljsn::Tokenizer::TokenType token = tokenizer.tokenType();
-    ASSERT(baljsn::Tokenizer::e_START_OBJECT == token);
+    bdljsn::Tokenizer::TokenType token = tokenizer.tokenType();
+    ASSERT(bdljsn::Tokenizer::e_START_OBJECT == token);
 
     rc = tokenizer.advanceToNextToken();
     ASSERT(!rc);
@@ -561,8 +579,8 @@ int main(int argc, char *argv[])
 
     // Continue reading elements till '}' is encountered
 
-    while (baljsn::Tokenizer::e_END_OBJECT != token) {
-        ASSERT(baljsn::Tokenizer::e_ELEMENT_NAME == token);
+    while (bdljsn::Tokenizer::e_END_OBJECT != token) {
+        ASSERT(bdljsn::Tokenizer::e_ELEMENT_NAME == token);
 
         // Read element name
 
@@ -578,7 +596,7 @@ int main(int argc, char *argv[])
         ASSERT(!rc);
 
         token = tokenizer.tokenType();
-        ASSERT(baljsn::Tokenizer::e_ELEMENT_VALUE == token);
+        ASSERT(bdljsn::Tokenizer::e_ELEMENT_VALUE == token);
 
         rc = tokenizer.value(&nodeValue);
         ASSERT(!rc);
@@ -586,15 +604,17 @@ int main(int argc, char *argv[])
         // Extract the simple type with the data
 
         if (elementName == "street") {
-            rc = baljsn::ParserUtil::getValue(&address.d_street, nodeValue);
+            rc = bdljsn::StringUtil::readString(&address.d_street,
+                    nodeValue);
             ASSERT(!rc);
         }
         else if (elementName == "state") {
-            rc = baljsn::ParserUtil::getValue(&address.d_state, nodeValue);
+            rc = bdljsn::StringUtil::readString(&address.d_state,
+                    nodeValue);
             ASSERT(!rc);
         }
         else if (elementName == "zipcode") {
-            rc = baljsn::ParserUtil::getValue(&address.d_zipcode, nodeValue);
+            rc = bdljsn::NumberUtil::asInt(&address.d_zipcode, nodeValue);
             ASSERT(!rc);
         }
 
@@ -610,9 +630,180 @@ int main(int argc, char *argv[])
     ASSERT(10022           == address.d_zipcode);
 //..
       } break;
-      case 17: {
+      case 19: {
         // --------------------------------------------------------------------
-        // TESTING UTF8
+        // TESTING 'currentPosition'
+        //
+        // Concerns:
+        //: 1 In both valid and error states, the currentPosition is
+        //:   correctly returned.
+        //:
+        // Plan:
+        //: 1 Test various length valid json strings, making sure the
+        //:   currentPosition is correctly reported at each step, taking
+        //:   varying amounts of whitespace and token lengths into account.
+        //:
+        //: 2 Test various length invalid json strings, making sure the
+        //:   currentPosition is correctly reported at each step and after
+        //:   the failure, taking varying amounts of whitespace and token
+        //:   lengths into account.
+        //
+        // Testing:
+        //   Uint64 currentPosition() const;
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING currentPosition" << "\n"
+                 << "=======================" << endl;
+
+        typedef int TOffsetList[20];
+
+        struct TokenSequence {
+            int         d_lineNum;
+            bsl::string d_string;
+            int         d_offsetCount;
+            TOffsetList d_offsets;
+        };
+
+        const TokenSequence TOKEN_OFFSET_TESTS[] = {
+             //L                            STRING  COUNT            OFFSETS
+             //== ================================  =====  =================
+            { L_,                               WS,     1,              { 0} }
+          , { L_,                            "   ",     1,              { 0} }
+
+          , { L_,                           "null",     2,           { 0, 4} }
+          , { L_,                       "  null  ",     2,           { 0, 6} }
+          , { L_,                      WS "null  ",     2,           { 0,
+                                                                  WSLEN + 4} }
+
+          , { L_,                           "true",     2,           { 0, 4} }
+          , { L_,                       "  true  ",     2,           { 0, 6} }
+          , { L_,                      WS "true  ",     2,           { 0,
+                                                                  WSLEN + 4} }
+          , { L_,                          "false",     2,           { 0, 5} }
+          , { L_,                       "  false ",     2,           { 0, 7} }
+          , { L_,                      WS "false ",     2,           { 0,
+                                                                  WSLEN + 5} }
+
+          , { L_,                           "-123",     2,           { 0, 4} }
+          , { L_,                       "  -123  ",     2,           { 0, 6} }
+          , { L_,                           "1234",     2,           { 0, 4} }
+          , { L_,                       "  1234  ",     2,           { 0, 6} }
+          , { L_,                          "1.0e1",     2,           { 0, 5} }
+          , { L_,                       "  1.0e1 ",     2,           { 0, 7} }
+
+          , { L_,                           "\"\"",     2,           { 0, 2} }
+          , { L_,                       "  \"\"  ",     2,           { 0, 4} }
+          , { L_,                          "\"a\"",     2,           { 0, 3} }
+          , { L_,                       "  \"a\" ",     2,           { 0, 5} }
+
+          , { L_,                             "[]",     3,         {0, 1, 2} }
+          , { L_,                            " []",     3,         {0, 2, 3} }
+          , { L_,                            "[],",     3,         {0, 1, 2} }
+          , { L_,                      "[]   ,   ",     3,         {0, 1, 2} }
+          , { L_,                      "[] , ,   ",     3,         {0, 1, 2} }
+          , { L_,                           " [ ]",     3,         {0, 2, 4} }
+          , { L_,                          "[ 1 ]",     4,      {0, 1, 3, 5} }
+          , { L_,                         " [ 1 ]",     4,      {0, 2, 4, 6} }
+          , { L_,                      "[ 1 , 2 ]",     5,   {0, 1, 3, 7, 9} }
+          , { L_,                     " [ 1 , 2 ]",     5,  {0, 2, 4, 8, 10} }
+          , { L_,                     "[ 1 , 2 ] ",     5,   {0, 1, 3, 7, 9} }
+          , { L_,                    " [ 1 , 2 ] ",     5,  {0, 2, 4, 8, 10} }
+          , { L_,               "[1, 2 ,3  ,  4 ]",     7, {0, 1, 2, 5, 8,
+                                                                     14, 16} }
+          , { L_,        " [1, 2 ,3  ,  4 " WS "]",     7, {0, 2, 3, 6, 9,
+                                                             15, WSLEN + 17} }
+
+          , { L_,                           "[[]]",     5,   {0, 1, 2, 3, 4} }
+          , { L_,                     "[[" WS "]]",     5,   {0, 1, 2,
+                                                       WSLEN + 3, WSLEN + 4} }
+          , { L_,                         "[ [] ]",     5,   {0, 1, 3, 4, 6} }
+          , { L_,                        " [ [] ]",     5,   {0, 2, 4, 5, 7} }
+          , { L_,                        " [ {} ]",     5,   {0, 2, 4, 5, 7} }
+          , { L_,                        "[[ 1 ]]",     6, {0, 1, 2, 4, 6,
+                                                                          7} }
+          , { L_,                  "[ [ 1 , 2 ] ]",     7, {0, 1, 3, 5, 9,
+                                                                     11, 13} }
+
+          , { L_,                             "{}",     3,         {0, 1, 2} }
+          , { L_,                            " {}",     3,         {0, 2, 3} }
+          , { L_,                            "{},",     3,         {0, 1, 2} }
+          , { L_,                      "{}    ,  ",     3,         {0, 1, 2} }
+          , { L_,                      "{} ,  ,  ",     3,         {0, 1, 2} }
+          , { L_,                           " { }",     3,         {0, 2, 4} }
+          , { L_,                   "{\"a\":null}",     5,  {0, 1, 4, 9, 10} }
+          , { L_,                 "{\"a\":[null]}",     7, {0, 1, 4, 6, 10,
+                                                                     11, 12} }
+        };
+
+        const int NUM_TOT = sizeof(TOKEN_OFFSET_TESTS) /
+                            sizeof(TOKEN_OFFSET_TESTS[0]);
+        for (int ti = 0; ti < NUM_TOT; ++ti) {
+            const TokenSequence& DATA         = TOKEN_OFFSET_TESTS[ti];
+            const int            LINE         = DATA.d_lineNum;
+            const bsl::string&   STR          = DATA.d_string;
+            const int            OFFSET_COUNT = DATA.d_offsetCount;
+            const TOffsetList&   OFFSETS      = DATA.d_offsets;
+
+            if (veryVerbose) {
+                P_(ti);
+                P_(LINE);
+                P_(STR);
+                P_(OFFSET_COUNT);
+                cout << " OFFSETS = [";
+                for (int i = 0; i < OFFSET_COUNT; ++i) {
+                    cout << " " << OFFSETS[i];
+                }
+                cout << " ]" << endl;
+            }
+
+            for (int topLevelComma = 0; topLevelComma < 2; ++topLevelComma) {
+                bsl::istringstream iss(STR);
+
+                Obj        mX;
+                const Obj& X = mX;
+                mX.reset(iss.rdbuf());
+
+                mX.setAllowTrailingTopLevelComma(bool(topLevelComma));
+
+                ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
+                ASSERTV(X.currentPosition(), 0 == X.currentPosition());
+                ASSERTV(X.readOffset(), 0 == X.readOffset());
+
+                int currOffsetIndex = 0;
+
+                do {
+                    const bsl::size_t CURR_OFFSET = OFFSETS[currOffsetIndex];
+                    if (veryVeryVerbose) {
+                        T_;
+                        P_(LINE);
+                        P_(CURR_OFFSET);
+                        P_(topLevelComma);
+                        P_(X.currentPosition());
+                        P(X.tokenType());
+                    }
+
+                    ASSERTV(LINE, currOffsetIndex < OFFSET_COUNT);
+                    ASSERTV(LINE,
+                            currOffsetIndex,
+                            OFFSET_COUNT,
+                            X.currentPosition(),
+                            CURR_OFFSET,
+                            X.currentPosition() == CURR_OFFSET);
+
+                    ++currOffsetIndex;
+                } while (0 == mX.advanceToNextToken());
+
+                ASSERTV(currOffsetIndex,
+                        OFFSET_COUNT,
+                        currOffsetIndex == OFFSET_COUNT);
+            }
+        }
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING UTF-8
         //
         // Concerns:
         //: 1 That the tokenizer can accurately detect and report invalid
@@ -633,7 +824,7 @@ int main(int argc, char *argv[])
         //:   fills up the buffer.
         //:
         //: 2 Iterate through the table, visiting only valid UTF-8 strings.
-        //:   o Nest a loop iterating through the same table, again visting
+        //:   o Nest a loop iterating through the same table, again visiting
         //:     only valid UTF-8 strings.
         //:
         //:   o Splice the strings from the inner and outer loops together,
@@ -659,7 +850,7 @@ int main(int argc, char *argv[])
         //:
         //:   o Initialize a stringstream to the spliced string.
         //:
-        //:   o Reset the tokenizer to the stringstreams 'streambuf'.
+        //:   o Reset the tokenizer to the stringstream's 'streambuf'.
         //:
         //:   o Call 'advanceToNextToken' and observe:
         //:     1 It does not return 0.
@@ -684,8 +875,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         bslma::TestAllocator sa;
-        bsl::string str(&sa);
-        bsl::istringstream iss(&sa);
+        bsl::string          str(&sa);
+        bsl::istringstream   iss(&sa);
 
         for (int ti = 0; ti < k_NUM_UTF8_DATA; ++ti) {
             const Utf8Data&   idata   = UTF8_DATA[ti];
@@ -709,12 +900,11 @@ int main(int argc, char *argv[])
             const bsl::size_t ILEN = str.length();
 
             {
-                int sts;
+                int         sts;
                 const char *end;
-                IntPtr numCodePoints = Utf8Util::advanceIfValid(&sts,
-                                                                &end,
-                                                                str.c_str(),
-                                                                INT_MAX);
+                IntPtr      numCodePoints =
+                    Utf8Util::advanceIfValid(&sts, &end, str.c_str(), INT_MAX);
+
                 ASSERT(0 <= numCodePoints);
                 ASSERTV(ILINE, numCodePoints, ISTATUS + 1 == numCodePoints);
             }
@@ -761,7 +951,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
                 ASSERTV(X.tokenType(), Obj::e_ERROR == X.tokenType());
-                ASSERTV(baljsn::Tokenizer::k_EOF == X.readStatus());
+                ASSERTV(bdljsn::Tokenizer::k_EOF == X.readStatus());
             }
 
             for (int tj = 0; tj < k_NUM_UTF8_DATA; ++tj) {
@@ -778,9 +968,10 @@ int main(int argc, char *argv[])
                 str.resize(ILEN);
                 str += JUTF8;
 
-                char errOffStr[256];
+                char                        errOffStr[256];
                 bdlsb::FixedMemOutStreamBuf sb(errOffStr, sizeof(errOffStr));
-                bsl::ostream ostr(&sb);
+                bsl::ostream                ostr(&sb);
+
                 ostr << "UTF-8 error " << Utf8Util::toAscii(JSTATUS) <<
                                           " at offset " << ERROFF << bsl::ends;
                 ASSERT(bsl::strlen(errOffStr) < sizeof(errOffStr));
@@ -836,9 +1027,9 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
-        // TESTING that arrays of heterogenous types are handled correctly
+        // TESTING that arrays of heterogeneous types are handled correctly
         //
         // Concerns:
         //: 1 In an array, all nested types are allowed, in any order.
@@ -854,9 +1045,10 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING that arrays of heterogenous types are handled "
-                    "correctly"
-                 << endl;
+                 << "TESTING THAT ARRAYS OF HETEROGENEOUS TYPES ARE HANDLED "
+                    "CORRECTLY" << "\n"
+                 << "======================================================="
+                    "=========" << endl;
 
         bsl::string values[] = {
             "{}"
@@ -868,7 +1060,7 @@ int main(int argc, char *argv[])
 
         enum { NUM_VALUES = sizeof(values) / sizeof(values[0]) };
 
-        const bsl::string COMMA = ", ";
+        const bsl::string        COMMA = ", ";
         bsl::vector<bsl::string> candidates;
         candidates.reserve(NUM_VALUES * NUM_VALUES * NUM_VALUES * NUM_VALUES *
                            NUM_VALUES);
@@ -936,7 +1128,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING that truncated data is handled correctly
         //
@@ -957,7 +1149,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'is', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'is' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the specified number of
@@ -973,7 +1165,8 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING that truncated data is handled correctly" << endl;
+                 << "TESTING THAT TRUNCATED DATA IS HANDLED CORRECTLY" << "\n"
+                 << "================================================" << "\n";
 
         const struct Data {
             int             d_line;
@@ -1003,27 +1196,24 @@ int main(int argc, char *argv[])
              Obj::e_START_OBJECT,
              0},
             {L_,
-             "{\"name\"",  // with complete element name
-                           // but missing value
+             "{\"name\"",  // with complete element name but missing value
              2,
              Obj::e_ELEMENT_NAME,
              "name"},
             {L_,
-             "{\"name\":",  // with complete element name
-                            // but missing value
+             "{\"name\":",  // with complete element name but missing value
              2,
              Obj::e_ELEMENT_NAME,
              "name"},
             {L_,
-             "{\"name\":1.2",  // with complete element name
-                               // and value but missing closing
-                               // brace
+             "{\"name\":1.2",  // with complete element name and value but
+                               // missing closing brace
              3,
              Obj::e_ELEMENT_VALUE,
              "1.2"},
             {L_,
-             "{\"name\":1.2,",  // with complete element name
-                                // and value but spurious comma
+             "{\"name\":1.2,",  // with complete element name and value but
+                                // spurious comma
              3,
              Obj::e_ELEMENT_VALUE,
              "1.2"},
@@ -1048,15 +1238,14 @@ int main(int argc, char *argv[])
              Obj::e_ELEMENT_NAME,
              "t"},
             {L_,
-             "{\"n\":1,\"t\":",  // with complete element name
-                                 // but missing value
+             "{\"n\":1,\"t\":",  // with complete element name but missing
+                                 // value
              4,
              Obj::e_ELEMENT_NAME,
              "t"},
             {L_,
-             "{\"n\":1,\"t\":\"2\"",  // with complete element name
-                                      // and value but missing closing
-                                      // brace
+             "{\"n\":1,\"t\":\"2\"",  // with complete element name and value
+                                      // but missing closing brace
              5,
              Obj::e_ELEMENT_VALUE,
              "\"2\""},
@@ -1123,7 +1312,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING 'setAllowHeterogenousArrays' and 'allowHeterogenousArrays'
         //
@@ -1137,12 +1326,12 @@ int main(int argc, char *argv[])
         //:   'allowHeterogenousArrays' option.
         //:
         //: 4 If 'allowHeterogenousArrays' option is 'false' then only JSON
-        //:   arrays that have homogenous values are accepted.  Note that
-        //:   homogenous implies that the values are all simple types (number
+        //:   arrays that have homogeneous values are accepted.  Note that
+        //:   homogeneous implies that the values are all simple types (number
         //:   or string) or all arrays or all objects.
         //:
         //: 5 If 'allowHeterogenousArrays' option is 'true' then arrays of
-        //:   heterogenous values are accepted.
+        //:   heterogeneous values are accepted.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -1153,11 +1342,11 @@ int main(int argc, char *argv[])
         //: 2 For each row in the table, construct a 'Tokenizer', 'mX',
         //:   with the values in that row.
         //:
-        //: 3 Confirm that the 'allowHeterogenousArrays' setter and getter
-        //:   functions works as expected.
+        //: 3 Confirm that the 'allowHeterogenousArrays' manipulator and
+        //:   accessor functions work as expected.
         //:
         //: 4 Confirm that the if 'allowHeterogenousArrays' value is 'true'
-        //:   then arrays of heterogenous values are tokenized correctly.
+        //:   then arrays of heterogeneous values are tokenized correctly.
         //
         // Testing:
         //   void setAllowHeterogenousArrays(bool value);
@@ -1166,7 +1355,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'allowHeterogenousArrays' option" << endl
+                 << "TESTING 'allowHeterogenousArrays' OPTION" << endl
                  << "========================================" << endl;
 
         const struct Data {
@@ -1280,7 +1469,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING 'setAllowStandAloneValues' and 'allowStandAloneValues'
         //
@@ -1305,7 +1494,7 @@ int main(int argc, char *argv[])
         //:   'allowStandAloneValues' option, the expected token type after
         //:   invoking 'advanceToNextToken', and the expected value.
         //:
-        //: 2 For each row in the table, construct a 'baljsn::Tokenizer', 'mX',
+        //: 2 For each row in the table, construct a 'bdljsn::Tokenizer', 'mX',
         //:   with the values in that row.
         //:
         //: 3 Confirm that the 'allowStandAloneValues' setter and getter
@@ -1321,7 +1510,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'allowStandAloneValues' option" << endl
+                          << "TESTING 'allowStandAloneValues' OPTION" << endl
                           << "======================================" << endl;
 
 #define DT                                                                    \
@@ -1702,7 +1891,7 @@ int main(int argc, char *argv[])
         }
 #undef DT
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'resetStreamBufGetPointer'
         //
@@ -1721,7 +1910,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Confirm that no characters are available in the 'streambuf'.
@@ -1736,7 +1925,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING resetting streambuf get pointer" << endl;
+                          << "TESTING RESETTING STREAMBUF GET POINTER" << "\n"
+                          << "=======================================" << endl;
 
 // Define data block of 1400 bytes
 
@@ -2010,7 +2200,7 @@ int main(int argc, char *argv[])
             // 'bdlsb::FixedMemInStreamBuf'
             {
                 bdlsb::MemOutStreamBuf osb;
-                bsl::ostream os(&osb);
+                bsl::ostream           os(&osb);
 
                 os << TEXT;
 
@@ -2026,7 +2216,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING that strings with escaped quotes are handled correctly
         //
@@ -2041,7 +2231,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' till an ELEMENT_VALUE
@@ -2053,8 +2243,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING that strings with escaped quotes "
-                          << "are handled correctly" << endl;
+                          << "TESTING THAT STRINGS WITH ESCAPED QUOTES "
+                          << "ARE HANDLED CORRECTLY" << "\n"
+                          << "========================================="
+                          << "=====================" << endl;
 
         const struct Data {
             int             d_line;
@@ -2281,7 +2473,8 @@ int main(int argc, char *argv[])
             }
 
             bslma::TestAllocator ta;
-            Obj mX(&ta);  const Obj& X = mX;
+            Obj                  mX(&ta); const Obj& X = mX;
+
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
@@ -2299,7 +2492,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, value, EXP_VALUE, value == EXP_VALUE);
         }
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING that large values (greater than 8K) are handled correctly
         //
@@ -2318,7 +2511,7 @@ int main(int argc, char *argv[])
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text and
         //:     including the opening brace and name.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -2332,14 +2525,15 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING that large values (greater than 8K) "
-                          << "are handled correctly" << endl;
+                          << "TESTING THAT LARGE VALUES (GREATER THAN 8k) "
+                          << "ARE HANDLED CORRECTLY" << "\n"
+                          << "============================================"
+                          << "=====================" << endl;
 
         const bsl::string LARGE_STRING(LARGE_STRING_C_STR);
 
-        enum Allocs { e_FALSE,
-                      e_TRUE,
-                      e_TRUE_IF_UTF8 };
+        enum Allocs { e_FALSE, e_TRUE, e_TRUE_IF_UTF8 };
+
         const struct Data {
             int               d_line;
             const bsl::string d_suffixText;
@@ -2447,6 +2641,7 @@ int main(int argc, char *argv[])
             }
 
             bsl::ostringstream ds;
+
             const string S = LARGE_STRING + DATA[NUM_DATA - 1].d_suffixText;
             const string T(S.begin() + 1, S.end() - 1);
             const string VERY_LARGE_STRING = "\"" + T + T + T + T + "\"";
@@ -2508,7 +2703,7 @@ int main(int argc, char *argv[])
             ASSERTV(Obj::e_END_OBJECT  == X.tokenType());
         }
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'reset'
         //
@@ -2525,7 +2720,7 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' TO 'e_END_ARRAY'
         //
@@ -2572,7 +2767,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -3544,7 +3739,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' TO 'e_START_ARRAY'
         //
@@ -3581,7 +3776,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -3887,7 +4082,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' TO 'e_END_OBJECT'
         //
@@ -3934,7 +4129,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -4724,7 +4919,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' TO 'e_VALUE'
         //
@@ -4769,7 +4964,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -5634,7 +5829,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' TO 'e_NAME'
         //
@@ -5673,7 +5868,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -6179,7 +6374,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' TO 'e_START_OBJECT'
         //
@@ -6218,7 +6413,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -6952,6 +7147,168 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'setAllowTrailingTopLevelComma'
+        //
+        // Concerns:
+        //: 1 Top-level trailing commas are allowed by default.
+        //:
+        //: 2 Passing 'true' to 'setAllowNonUtf8StringLiterals' disallows them.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of otherwise-valid input text with trailing
+        //:   commas, and make sure the result of calling 'advanceToNextToken'
+        //:   to completion matches the 'setAllowTrailingTopLevelComma' value.
+        //
+        // Testing:
+        //   int setAllowTrailingTopLevelComma();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                    << "TESTING 'setAllowTrailingTopLevelComma'" << endl
+                    << "=======================================" << endl;
+
+        const struct Data {
+            int         d_lineNum;
+            bsl::string d_text;
+        } JSON_DATA[] = {
+            // null
+            {
+                L_,
+                "null,"
+            },
+            {
+                L_,
+                " null  ,   "
+            },
+            // Boolean values
+            {
+                L_,
+                "true,"
+            },
+            {
+                L_,
+                "false,"
+            },
+            {
+                L_,
+                " true  ,   "
+            },
+            {
+                L_,
+                " false  ,   "
+            },
+            // Numerical values
+            {
+                L_,
+                "1,"
+            },
+            {
+                L_,
+                " 1  ,   "
+            },
+            // String values
+            {
+                L_,
+                "\"a\","
+            },
+            {
+                L_,
+                " \"a\"  ,   "
+            },
+            // Array values
+            {
+                L_,
+                "[],"
+            },
+            {
+                L_,
+                " []  ,   "
+            },
+            {
+                L_,
+                "[1,2,3],"
+            },
+            {
+                L_,
+                " [  1 ,   2 , 3     ]  ,   "
+            },
+            {
+                L_,
+                " [ [ 1 ] ,   [2 , 3  ]     ]  ,   "
+            },
+            {
+                L_,
+                " [ { \"a\":[ 1 ] ,   \"b  \"   : [2 , 3  ] }   ]  ,   "
+            },
+            // Object values
+            {
+                L_,
+                "{},"
+            },
+            {
+                L_,
+                " {}  ,   "
+            },
+            {
+                L_,
+                "{\"a\":1},"
+            },
+            {
+                L_,
+                "{\"a\":1, \"b\":{}},"
+            },
+            {
+                L_,
+                "{\"a\":[1, 2], \"b\":[{}, 2, 4]},"
+            },
+        };
+        const int NUM_JSON_DATA = sizeof(JSON_DATA) / sizeof(JSON_DATA[0]);
+
+        for (int ti = 0; ti < NUM_JSON_DATA; ++ti) {
+            const Data&        DATA = JSON_DATA[ti];
+            const int          LINE = DATA.d_lineNum;
+            const bsl::string& TEXT = DATA.d_text;
+
+            if (veryVerbose) {
+                P_(ti);
+                P_(LINE);
+                P(TEXT);
+            }
+
+            for (int topLevelComma = 0; topLevelComma < 2; ++topLevelComma) {
+                bool tlcFlag = bool(topLevelComma);
+
+                if (veryVeryVerbose) {
+                    T_;
+                    P(tlcFlag);
+                }
+
+                bsl::istringstream iss(TEXT);
+
+                Obj        mX;
+                const Obj& X = mX;
+                mX.reset(iss.rdbuf());
+
+                mX.setAllowTrailingTopLevelComma(tlcFlag);
+
+                ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
+                ASSERTV(X.currentPosition(), 0 == X.currentPosition());
+                ASSERTV(X.readOffset(), 0 == X.readOffset());
+
+                while (0 == mX.advanceToNextToken()) {
+                }
+
+                ASSERTV(LINE,
+                        TEXT,
+                        X.readStatus(),
+                        tlcFlag,
+                        tlcFlag == bool(X.readStatus()));
+            }
+        }
+       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' FIRST CHARACTER
@@ -6991,7 +7348,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
         //:
-        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
         //:     'bsl::streambuf' of 'iss' with 'mX'.
         //:
         //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
@@ -7286,7 +7643,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
