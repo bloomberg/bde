@@ -31,10 +31,10 @@ BSLS_IDENT("$Id: $")
 // A 'basic_string' meets the requirements of a sequential container with
 // random access iterators as specified in the [basic.string] section of the
 // C++ standard [21.4].  The 'basic_string' implemented here adheres to the
-// C++11 standard, except that it does not have interfaces that take rvalue
-// references and template specializations 'std::u16string' and
-// 'std::u32string'.  Note that excluded C++11 features are those that require
-// (or are greatly simplified by) C++11 compiler support.
+// C++11 standard, except that it does not have template specializations
+// 'std::u16string' and 'std::u32string'.  Note that excluded C++11 features
+// are those that require (or are greatly simplified by) C++11 compiler
+// support.
 //
 ///Memory Allocation
 ///-----------------
@@ -113,10 +113,6 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.~basic_string<V>()  (destruction)     | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
-//  | a.assign(k, v)                          | O[k]                          |
-//  |-----------------------------------------+-------------------------------|
-//  | a.assign(i1, i2)                        | O[distance(i1,i2)]            |
-//  |-----------------------------------------+-------------------------------|
 //  | get_allocator()                         | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
 //  | a.begin(), a.end(),                     | O[1]                          |
@@ -135,6 +131,8 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.reserve(k)                            | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
+//  | a.shrink_to_fit()                       | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
 //  | a[k]                                    | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
 //  | a.at(k)                                 | O[1]                          |
@@ -146,6 +144,22 @@ BSLS_IDENT("$Id: $")
 //  | a.push_back()                           | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
 //  | a.pop_back()                            | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a += b;                                 | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.append(b);                            | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(b);                            | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(std::move(b));                 | O[1] if the allocator can be  |
+//  |                                         | propagated on container move  |
+//  |                                         | assignment or 'a' and 'b' use |
+//  |                                         | the same allocator; O[n]      |
+//  |                                         | otherwise                     |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(k, v)                          | O[k]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(i1, i2)                        | O[distance(i1,i2)]            |
 //  |-----------------------------------------+-------------------------------|
 //  | a.insert(p1, v)                         | O[1 + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
@@ -164,7 +178,13 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.clear()                               | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
-//  | a = b;           (assignment)           | O[n]                          |
+//  | a = b;              (assignment)        | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a = std::move(b);   (move assignment)   | O[1] if the allocator can be  |
+//  |                                         | propagated on container move  |
+//  |                                         | assignment or 'a' and 'b' use |
+//  |                                         | the same allocator; O[n]      |
+//  |                                         | otherwise                     |
 //  |-----------------------------------------+-------------------------------|
 //  | a == b, a != b                          | O[n]                          |
 //  |-----------------------------------------+-------------------------------|
