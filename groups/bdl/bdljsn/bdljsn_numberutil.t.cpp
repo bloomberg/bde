@@ -489,6 +489,7 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
         return 0;                                                     // RETURN
     }
 
+    const Int64  INT_MIN_VALUE = bsl::numeric_limits<Int64>::min();
     const Uint64 UINT_MAX_VALUE = bsl::numeric_limits<Uint64>::max();
 
     bsl::string_view exponentStr(&*expBegin, value.end() - expBegin);
@@ -501,7 +502,7 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
     // 0s, an ridiculously high value should not be possible.  Note we negate
     // 'exponentBias' below.
 
-    BSLS_ASSERT(exponentBias != INT64_MIN);
+    BSLS_ASSERT(exponentBias != INT_MIN_VALUE);
 
     // Determine the maximum valid exponent that the arithmetic below can
     // support (because 'uExponent' is converted to a signed integer).

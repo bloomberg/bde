@@ -148,6 +148,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bdljsn::Location Obj;
 typedef bsl::uint64_t    Uint64;
+typedef bsl::int64_t     Int64;
 
 class MockAccumulatingHashingAlgorithm {
     // This class implements a mock hashing algorithm that provides a way to
@@ -216,41 +217,6 @@ BSLMF_ASSERT( bslmf::IsBitwiseMoveable<Obj>::value);
 BSLMF_ASSERT(!bslma::UsesBslmaAllocator<Obj>::value);
 
 // ============================================================================
-//                             GLOBAL TEST DATA
-// ----------------------------------------------------------------------------
-
-// Define 'DEFAULT_DATA' that is used by:
-//..
-//   +-------+--------------------------------+
-//   | Case# | Description                    |
-//   +-------+--------------------------------+
-//   |     3 | VALUE CONSTRUCTOR              |
-//   |     6 | COPY CONSTRUCTOR               |
-//   |     7 | SWAP MEMBER AND FREE FUNCTIONS |
-//   |     8 | COPY-ASSIGNMENT OPERATOR       |
-//   |     9 | TEST 'reset'                   |
-//   |    10 | TEST 'hashAppend'              |
-//   +-------+--------------------------------+
-//..
-
-struct DefaultDataRow {
-    int    d_line;           // source line number
-    Uint64 d_offset;
-};
-
-static
-const DefaultDataRow DEFAULT_DATA[] =
-{
-    //LINE  OFFSET
-    //----  -----------------
-    { L_,                0ULL }
-  , { L_,                1ULL }
-  , { L_,   UINT64_MAX - 1ULL }
-  , { L_,   UINT64_MAX - 0ULL }
-};
-enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
-
-// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -269,6 +235,38 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Define 'DEFAULT_DATA' that is used by:
+    //..
+    //   +-------+--------------------------------+
+    //   | Case# | Description                    |
+    //   +-------+--------------------------------+
+    //   |     3 | VALUE CONSTRUCTOR              |
+    //   |     6 | COPY CONSTRUCTOR               |
+    //   |     7 | SWAP MEMBER AND FREE FUNCTIONS |
+    //   |     8 | COPY-ASSIGNMENT OPERATOR       |
+    //   |     9 | TEST 'reset'                   |
+    //   |    10 | TEST 'hashAppend'              |
+    //   +-------+--------------------------------+
+    //..
+
+    struct DefaultDataRow {
+        int    d_line;           // source line number
+        Uint64 d_offset;
+    };
+
+    static
+    const DefaultDataRow DEFAULT_DATA[] =
+    {
+        //LINE  OFFSET
+        //----  ------------------------------------------
+        { L_,                                        0ULL }
+      , { L_,                                        1ULL }
+      , { L_,   bsl::numeric_limits<Uint64>::max() - 1ULL }
+      , { L_,   bsl::numeric_limits<Uint64>::max() - 0ULL }
+    };
+    enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
+
 
     switch (test) { case 0:
       case 11: {
@@ -833,7 +831,7 @@ int main(int argc, char *argv[])
         {
             // 'A' values: Should cause memory allocation if possible.
 
-            const Uint64 A1 = INT64_MAX;
+            const Uint64 A1 = bsl::numeric_limits<Int64>::max();
 
             Obj mX;      const Obj& X = mX; const Obj XX(X);
             Obj mY(A1);  const Obj& Y = mY; const Obj YY(Y);
@@ -1034,7 +1032,7 @@ int main(int argc, char *argv[])
         // Attribute 1 Values: 'utcOffsetInSeconds'
 
         const T1 A1 = 0;                      // baseline
-        const T1 B1 = INT64_MAX;
+        const T1 B1 = bsl::numeric_limits<Int64>::max();
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -1513,7 +1511,7 @@ int main(int argc, char *argv[])
 
         // 'B' values
 
-        const Uint64 B1 = UINT64_MAX;
+        const Uint64 B1 = bsl::numeric_limits<Uint64>::max();
 
         // Default-construct an object.
 

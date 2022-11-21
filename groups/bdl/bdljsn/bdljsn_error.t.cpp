@@ -26,6 +26,7 @@
 #include <bsl_cstdlib.h>     // 'bsl::realloc', 'bsl::free', 'bsl::atoi'
 #include <bsl_cstring.h>     // 'bsl::memcmp'
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_ostream.h>     // 'operator<<'
 #include <bsl_sstream.h>     // 'bsl::ostringstream'
 #include <bsl_string_view.h>
@@ -207,6 +208,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdljsn::Error    Obj;
 typedef bdljsn::Location Loc;
 typedef bsl::uint64_t    Uint64;
+typedef bsl::int64_t     Int64;
 
 // ============================================================================
 //                                TYPE TRAITS
@@ -232,57 +234,6 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
 const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
 const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
-
-// Define 'DEFAULT_DATA' that is used by:
-//..
-//   +-------+--------------------------------+
-//   | Case# | Description                    |
-//   +-------+--------------------------------+
-//   |     3 | VALUE CONSTRUCTOR              |
-//   |     7 | COPY  CONSTRUCTOR              |
-//         8 | MOVE  CONSTRUCTOR              |
-//   |     9 | SWAP MEMBER AND FREE FUNCTIONS |
-//   |    10 | COPY-ASSIGNMENT OPERATOR       |
-//   |    11 | MOVE-ASSIGNMENT OPERATOR       |
-//   |    12 | TEST 'reset'                   |
-//   |    13 | TEST 'hashAppend'              |
-//   +-------+--------------------------------+
-//..
-
-struct DefaultDataRow {
-    int         d_line;           // source line number
-    char        d_mem;            // expected allocation: 'Y', 'N', '?'
-    Uint64      d_offset;
-    const char *d_message_p;
-};
-
-const DefaultDataRow DEFAULT_DATA[] =
-{
-    //LINE  MEM   OFFSET            MESSAGE
-    //----  ---   ----------------  -------------
-
-    // default (must be first)
-    { L_,   'N',              0ULL, ""             },
-
-    // 'offset'
-//  { L_,   'N',              0ULL, ""             }, // default is "min"
-    { L_,   'N',              1ULL, ""             },
-    { L_,   'N',  INT64_MAX - 1ULL, ""             },
-    { L_,   'N',  INT64_MAX - 0ULL, ""             },
-
-    // 'message'
-    { L_,   '?',              0ULL, "a"            },
-    { L_,   '?',              0ULL, "AB"           },
-    { L_,   '?',              0ULL, "1234567890"   },
-    { L_,   'Y',              0ULL, LONG_STRING    },
-    { L_,   'Y',              0ULL, LONGER_STRING  },
-    { L_,   'Y',              0ULL, LONGEST_STRING },
-
-    // other
-    { L_,   '?',              2ULL, "a"            },
-    { L_,   'Y',  INT64_MAX - 0ULL, LONG_STRING    },
-};
-enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 // ============================================================================
 //                              USAGE EXAMPLES
@@ -495,6 +446,59 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Define 'DEFAULT_DATA' that is used by:
+    //..
+    //   +-------+--------------------------------+
+    //   | Case# | Description                    |
+    //   +-------+--------------------------------+
+    //   |     3 | VALUE CONSTRUCTOR              |
+    //   |     7 | COPY  CONSTRUCTOR              |
+    //         8 | MOVE  CONSTRUCTOR              |
+    //   |     9 | SWAP MEMBER AND FREE FUNCTIONS |
+    //   |    10 | COPY-ASSIGNMENT OPERATOR       |
+    //   |    11 | MOVE-ASSIGNMENT OPERATOR       |
+    //   |    12 | TEST 'reset'                   |
+    //   |    13 | TEST 'hashAppend'              |
+    //   +-------+--------------------------------+
+    //..
+
+    const Int64 MAX_INT64 = bsl::numeric_limits<Int64>::max();
+
+    struct DefaultDataRow {
+        int         d_line;           // source line number
+        char        d_mem;            // expected allocation: 'Y', 'N', '?'
+        Uint64      d_offset;
+        const char *d_message_p;
+    };
+
+    const DefaultDataRow DEFAULT_DATA[] =
+    {
+        //LINE  MEM   OFFSET            MESSAGE
+        //----  ---   ----------------  -------------
+
+        // default (must be first)
+        { L_,   'N',              0ULL, ""             },
+
+        // 'offset'
+    //  { L_,   'N',              0ULL, ""             }, // default is "min"
+        { L_,   'N',              1ULL, ""             },
+        { L_,   'N',  MAX_INT64 - 1ULL, ""             },
+        { L_,   'N',  MAX_INT64 - 0ULL, ""             },
+
+        // 'message'
+        { L_,   '?',              0ULL, "a"            },
+        { L_,   '?',              0ULL, "AB"           },
+        { L_,   '?',              0ULL, "1234567890"   },
+        { L_,   'Y',              0ULL, LONG_STRING    },
+        { L_,   'Y',              0ULL, LONGER_STRING  },
+        { L_,   'Y',              0ULL, LONGEST_STRING },
+
+        // other
+        { L_,   '?',              2ULL, "a"            },
+        { L_,   'Y',  MAX_INT64 - 0ULL, LONG_STRING    },
+    };
+    enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
     switch (test) { case 0:
       case 14: {
@@ -1668,7 +1672,7 @@ int main(int argc, char *argv[])
         {
             // 'A' values: Should cause memory allocation if possible.
 
-            const Loc  A1   = Loc(UINT64_MAX);
+            const Loc  A1   = Loc(bsl::numeric_limits<Uint64>::max());
             const char A2[] = "a_" SUFFICIENTLY_LONG_STRING;
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
@@ -2566,7 +2570,7 @@ int main(int argc, char *argv[])
         // Attribute 1 Values: 'utcOffsetInSeconds'
 
         const T1 A1 = Loc(0ULL);                 // baseline
-        const T1 B1 = Loc(INT64_MAX);
+        const T1 B1 = Loc(bsl::numeric_limits<Int64>::max());
 
         // Attribute 3 Values: 'description'
 
@@ -3068,7 +3072,7 @@ int main(int argc, char *argv[])
         // 'A' values: Should cause memory allocation if possible.
         // -------------------------------------------------------
 
-        const Loc  A1   = Loc(UINT64_MAX);
+        const Loc  A1   = Loc(bsl::numeric_limits<Uint64>::max());
         const char A2[] = "a_" SUFFICIENTLY_LONG_STRING;
 
         if (verbose) cout <<
@@ -3595,7 +3599,7 @@ int main(int argc, char *argv[])
 
         // 'B' values: Should NOT cause allocation (use alternate string type).
 
-        const Loc              B1 = Loc(UINT64_MAX);
+        const Loc              B1 = Loc(bsl::numeric_limits<Uint64>::max());
         const bsl::string_view B2 = "shortMessage";
 
         if (verbose) cout << "\nTesting with various allocator configurations."
