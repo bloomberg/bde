@@ -558,7 +558,7 @@ int JsonUtil::write(std::pmr::string    *output,
     PmrOstringStream stream(std::ios_base::out, output->get_allocator());
     int rc = write(stream, json, options);
     if (0 == rc) {
-        std::pmr::string tmpOutput = stream.str(output->getAllocator());
+        std::pmr::string tmpOutput = stream.str(output->get_allocator());
         *output = bslmf::MovableRefUtil::move(tmpOutput);
     }
     return rc;
