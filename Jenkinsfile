@@ -14,7 +14,7 @@ pipeline {
     stages {                                    //stages
         stage('Print environment') {            //define a stage
              steps {
-                             echo "checking out important environments "
+                             echo 'checking out important environments'
                              //tells you which user are you running this job as
                              //what is the current directory this job is running at
                              //on which host
@@ -30,31 +30,28 @@ pipeline {
                 branch "PR-*"               // a stage only runs for pull requests
             }
             steps{
-                echo "checking out repository"  //checkout current repository
+                echo 'checking out repository'  //checkout current repository
                 checkout scm
-		echo 'Git status information'
-		sh """
-		git status
-		git branch -a
-		git log -2
-		git log -1 "--pretty=%B"
+                echo 'Git status information'
+                sh '''
+                git status
+                git branch -a
+                git log -2
+                git log -1 "--pretty=%B"
+                '''
                 echo 'running arc diff --nolint on pull request'
-                sh """             
-		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint
-                """                
+                sh '/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint'
             }
         }
-	stage('Update phabricator with lint'){
+        stage('Update phabricator with lint'){
             when {
                 branch "PR-*"               // a stage only runs for pull requests
             }
             steps{
                 echo 'running arc diff on pull request (w/ lint)'
-                sh """             
-		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py
-                """                
+                sh '/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py'
             }
-        }	 
+        }
     }
     post {                                      //after the build, clean up
         always {
