@@ -12,7 +12,7 @@ pipeline {
         timeout(time: 10, unit: 'MINUTES')      //set timeout for this job
     }
     stages {                                    //stages
-        stage('print environment') {            //define a stage
+        stage('Print environment') {            //define a stage
              steps {
                              echo "checking out important environments "
                              //tells you which user are you running this job as
@@ -25,7 +25,7 @@ pipeline {
                              '''
                   }
              }
-        stage('create or update phabricator'){
+        stage('Create or update phabricator'){
             when {
                 branch "PR-*"               // a stage only runs for pull requests
             }
@@ -34,7 +34,7 @@ pipeline {
                 checkout scm
                 echo 'running arc diff --nolint on pull request'
                 sh """             
-		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabbot.py --verbose --nolint
+		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint
                 """                
             }
         }
@@ -45,7 +45,7 @@ pipeline {
             steps{
                 echo 'running arc diff on pull request (w/ lint)'
                 sh """             
-		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabbot.py
+		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py
                 """                
             }
         }	 
