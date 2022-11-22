@@ -32,6 +32,12 @@ pipeline {
             steps{
                 echo "checking out repository"  //checkout current repository
                 checkout scm
+		echo 'Git status information'
+		sh """
+		git status
+		git branch -a
+		git log -2
+		git log -1 "--pretty=%B"
                 echo 'running arc diff --nolint on pull request'
                 sh """             
 		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint
