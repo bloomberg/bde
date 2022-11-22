@@ -1,9 +1,46 @@
-bsl-internal (3.110.0.3) unstable; urgency=low
+bsl-internal (3.111.0.0) unstable; urgency=low
 
+  * c99dfbbf9 Bumped version to 3.111.0.0
+  * 838ae31bc Adjust documentation [rebased main] (#4021)
+  * d7608aaa8 bdljsn: Remove C11 Limit Macro Use (#4012)
+  * 0d2ef8a16 bdljsn_jsonutil: Use 'get_allocator' w/ 'std::pmr::string' (#4011)
+  * dc543adf0 Add Jenkinsfile (#4013)
+  * 0a0d55caf bdljsn: Add package documentation (#4008)
+  * bdf4b71da Integrate bdljsn (#4006)
+  * 6d492a123 add support for 32-bit filesystem timestamps on 64-bit builds (#3996)
+  * 879ca1415 Minor documentation changes in 'bslstl_string.h' (#4004)
+  * 68a47f248 Minor fixes for stlport ufid on SunOS. (#4005)
+  * 076947904 Cleanup references to bdet_ components (#4000)
+  * 1f6fedc74 Suppress some warnings in test suites (#3987)
+  * 59057d4d0 Remove a set of typos (#4002)
+  * 62a8e51f8 Fix ball_rsf for UTC timezone (#3989)
+  * 74777d83d bslstl_array test fix for clang (#3986)
+  * 5bb66e8d2 bsl::array to alias std::array from C++17 drqs 170276197 (#3915)
+  * d39b88b2a 'StringViewLike' overloads have been added to 'bsl::string' (#3944)
+  * 508b29a74 add missing include for libraryfeatures.h (#3982)
+  * f0e92a4ff Add 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' (#3980)
+  * 83a2be808 C++17 work: bslstl_optional noexcept specification (DRQS 169974445) (#3978)
+  * 7482bd95e Move overloads have been added to 'Blob' and 'BlobUtil'. DRQS 170474031  (#3954)
+  * 80ada9a64 Review/bde bslstl string free addition operator drqs 169974490 (#3962)
+  * 1afb22bf2 C++17 work: priority_queue noexcept specifications (DRQS 169974410) (#3973)
+  * 4eec540cc C++17 work: queue noexcept specifications (DRQS 169974406) (#3972)
+  * 6f0e321d7 C++17 work: stack noexcept specifications (DRQS 169974404) (#3971)
+  * 575800bb1 noexcept specifications for 'bslstl::string' methods have been modified. DRQS 169974477 (#3921)
+  * f89a95bd6 Bslstl optional assign from nullable e drqs 169405953 (#3965)
+  * a4cdda086 bslh_wyhash*.h: silencer really stupid out of bounds warning on some … (#3970)
+  * 5846e018f Merge pull request #3963 from bchapman/bdlmt_signaler-segfault-in-nightly-aix32-drqs-170436185
+  * e2e317ffb bslmf_movableref: Add `BSLMF_MOVABLEREF_DEDUCE` (#3960)
+  * a7721830e Bslh wyhashincremental drqs 170005515 (#3934)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 22 Nov 2022 14:37:32 -0500
+
+bsl-internal (3.110.0.3) git; urgency=low
+
+  * 8e0ddc54a Changelog for version 3.110.0.3
   * 7e3b3eb7b fix documentation for Tokenizer::previousDelimiter (#3958)
   * deaa24ea5 Revert "Bslh hash adlref drqs 170259221" (#3955)
 
- -- Karan Saxena <ksaxena@bloomberg.net>  Mon, 24 Oct 2022 16:05:46 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 25 Oct 2022 08:20:54 -0400
 
 bsl-internal (3.110.0.0) git; urgency=low
 
