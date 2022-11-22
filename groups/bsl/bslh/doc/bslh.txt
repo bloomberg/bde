@@ -874,13 +874,13 @@
 :      Provide an implementation of the SipHash algorithm.
 :
 : 'bslh_spookyhashalgorithm':
-:      Provide an implementation of the incremental SpookyHash algorithm.
+:      Provide an implementation of the SpookyHash algorithm.
 :
 : 'bslh_spookyhashalgorithmimp':
 :      Provide BDE style encapsulation of 3rd party SpookyHash code.
 :
 : 'bslh_wyhashincrementalalgorithm':
-:      Provide incremental WyHash algorithm without byte-order symmetry
+:      Provide an implementation of the WyHash algorithm final v3.
 
 /Component Overview
 /------------------

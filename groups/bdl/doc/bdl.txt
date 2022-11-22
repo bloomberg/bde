@@ -12,7 +12,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdl' package group currently has 17 packages having 9 levels of physical
+ The 'bdl' package group currently has 18 packages having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
@@ -23,6 +23,7 @@
      bdlbb
      bdlcc
      bdld
+     bdljsn
      bdls
 
   7. bdlt
@@ -72,6 +73,9 @@
 :
 : 'bdlf':
 :      Provide signature-specific function objects (functors).
+:
+: 'bdljsn':
+:      Provide a value-semantic JSON type and supporting utilities
 :
 : 'bdlma':
 :      Provide allocators, pools, and other memory-management tools.

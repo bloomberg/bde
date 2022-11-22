@@ -202,9 +202,9 @@ Then, we can observe the following printed to standard output:
      bdljsn_writeoptions
 
   1. bdljsn_jsonnull
-     bdljsn_jsonnumberutil
      bdljsn_jsontype
      bdljsn_location
+     bdljsn_numberutil
      bdljsn_readoptions
      bdljsn_stringutil
      bdljsn_tokenizer
@@ -217,7 +217,7 @@ Then, we can observe the following printed to standard output:
 :      Provide a description of an error processing a document.
 :
 : 'bdljsn_json':
-:      Provide JSON variadic value type and container types.
+:      Provide an in-memory representation of a JSON document.
 :
 : 'bdljsn_jsonnull':
 :      Provide a type that represents the JSON 'null' value.
