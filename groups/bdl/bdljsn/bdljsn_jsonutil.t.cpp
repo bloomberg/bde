@@ -555,34 +555,27 @@ int main(int argc, char *argv[])
             cout << "\nUSAGE EXAMPLE 2"
                  << "\n===============" << endl;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+
 ///Example 2: The Effect of 'options' on 'write'
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // By populating a 'WriteOptions' object and passing it to 'write', the format
 // of the resulting JSON can be controlled.
 //
-// First, let's populate a 'Json' object named 'result' from an input string
+// First, let's populate a 'Json' object named 'json' from an input string
 // using 'read', and create an empty 'options' (see 'bdljsn::WriteOptions'):
 //..
-    const bsl::string OLD_STYLE_JSON="\n"
-"        {\n"
-"          \"a\" : 1,\n"
-"          \"b\" : []\n"
-"        }";
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
     const bsl::string JSON = R"JSON(
-        {
-          "a" : 1,
-          "b" : []
-        })JSON";
-    ASSERT(areEqual(JSON, OLD_STYLE_JSON));
-#else
-    const bsl::string JSON = OLD_STYLE_JSON;
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+      {
+        "a" : 1,
+        "b" : []
+      }
+    )JSON";
 
-    bdljsn::Json         result;
+    bdljsn::Json         json;
     bdljsn::WriteOptions options;
 
-    int rc = bdljsn::JsonUtil::read(&result, JSON);
+    int rc = bdljsn::JsonUtil::read(&json, JSON);
 
     ASSERT(0 == rc);
 //..
@@ -615,17 +608,13 @@ int main(int argc, char *argv[])
     options.setSortMembers(true);
     bsl::string output;
 
-    rc = bdljsn::JsonUtil::write(&output, result, options);
+    rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
     ASSERT(R"JSON({"a":1,"b":[]})JSON" == output);
-#else
-    ASSERT("{\"a\":1,\"b\":[]}" == output);
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 //..
-//  Had we not specified 'setSortMembers(true)', the order of the "a" and "b"
-//  members in the 'output' string would be unpredictable.
+// Had we not specified 'setSortMembers(true)', the order of the "a" and "b"
+// members in the 'output' string would be unpredictable.
 //
 ///'style' And 'style'-related options
 /// -  -  -  -  -  -  -  -  -  -  -  -
@@ -637,33 +626,24 @@ int main(int argc, char *argv[])
 // Next, we write 'json' using the style 'e_COMPACT' (the default), a single
 // line presentation with no added spaces after ':' and ',' elements.
 //..
-    rc = bdljsn::JsonUtil::write(&output, result, options);
+    rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
 
-    // Using 'e_COMPACT' style: no added spaces.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+    // Using 'e_COMPACT' style:
     ASSERT(R"JSON({"a":1,"b":[]})JSON" == output);
-#else
-    ASSERT("{\"a\":1,\"b\":[]}" == output);
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 //..
 // Next, we write 'json' using the 'e_ONELINE' style, another single line
 // format, which adds single ' ' characters after ':' and ',' elements for
 // readability.
 //..
     options.setStyle(bdljsn::WriteStyle::e_ONELINE);
-    rc = bdljsn::JsonUtil::write(&output, result, options);
+    rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
 
-    // Using 'e_ONELINE' style: added spaces for readability over what the
-    // default 'e_COMPACT' 'style' outputs.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+    // Using 'e_ONELINE' style:
     ASSERT(R"JSON({"a": 1, "b": []})JSON" == output);
-#else
-    ASSERT("{\"a\": 1, \"b\": []}" == output);
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 //..
 // Next, we write 'json' using the 'e_PRETTY' style, a multiline format where
 // newlines are introduced after each (non-terminal) '{', '[', ',', ']', and
@@ -685,49 +665,35 @@ int main(int argc, char *argv[])
     options.setSpacesPerLevel(4);     // the default
     options.setInitialIndentLevel(0); // the default
 
-    rc = bdljsn::JsonUtil::write(&output, result, options);
+    rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
 
-    // Using 'e_PRETTY' style: added newlines and indentation for readability,
-    // where the amount of indentation is controlled by the 'spacesPerLevel'
-    // and 'initialIndentLevel' options.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    ASSERT(R"JSON({
+    // Using 'e_PRETTY' style:
+    ASSERT(
+ R"JSON({
     "a": 1,
     "b": []
 })JSON" == output);
-#else
-    ASSERT("{\n"
-           "    \"a\": 1,\n"
-           "    \"b\": []\n"
-           "}" == output);
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 //..
 // Finally, if we set 'initialIndentLevel' to 1, then an extra set of 4 spaces
 // is prepended to each line, where 4 is the value of 'spacesPerLevel':
 //..
     options.setInitialIndentLevel(1);
 
-    rc = bdljsn::JsonUtil::write(&output, result, options);
+    rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
 
-    // Using 'e_PRETTY' style (with 'initialIndentLevel' as 1) indents
-    // everything by 'spacesPerLevel'.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    ASSERT(R"JSON(    {
+    // Using 'e_PRETTY' style (with 'initialIndentLevel' as 1):
+    ASSERT(
+R"JSON(    {
         "a": 1,
         "b": []
     })JSON" == output);
-#else
-    ASSERT("    {\n"
-           "        \"a\": 1,\n"
-           "        \"b\": []\n"
-           "    }" == output);
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 //..
 
+#endif //  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
       } break;
       case 6: {
         // --------------------------------------------------------------------

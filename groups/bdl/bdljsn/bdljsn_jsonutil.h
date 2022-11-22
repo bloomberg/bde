@@ -22,9 +22,12 @@ BSLS_IDENT("$Id: $")
 // There are a number of options to configure the output format produced by
 // 'write':
 //: o 'sortMembers': sort the members of any Object elements in the output JSON
-//    (default: 'false')
-//: o 'style': an enumeration 'e_COMPACT', 'e_ONELINE', 'e_PRETTY' (default:
-//    'e_COMPACT')
+//:   (default: 'false')
+//: o 'style': the style of the resulting output
+//:    o 'e_COMPACT' (default): render with no added white space
+//:    o 'e_ONELINE': render a human readable single-line format (e.g., for
+//:      logging)
+//:    o 'e_PRETTY': render a multi-line human readable format
 //: o 'spacesPerLevel': for the 'e_PRETTY' style, the number of spaces added for
 //    each additional nesting level (default 4)
 //: o 'initialIndentationLevel': for the 'e_PRETTY' style, the number of sets of
@@ -33,15 +36,17 @@ BSLS_IDENT("$Id: $")
 //
 // The example below shows the various write styles:
 //..
-//  Compact: render JSON with no added white space
-//                      {"a":1,"b":[]}
-//  One-line: render a human readable single-line format (e.g., for logging)
-//                      {"a": 1, "b": []}'
-//  Pretty:  - render a multi-line human readable format
-//                      {
-//                          "a": 1,
-//                          "b": []
-//                      }
+//  Compact:
+//    {"a":1,"b":[]}
+//
+//  One-line:
+//    {"a": 1, "b": []}
+//
+//  Pretty:
+//    {
+//        "a": 1,
+//        "b": []
+//    }
 //..
 // For more information, see the 'bdljsn_writeoptions' and
 // 'bdljsn_writestyle' components.
@@ -143,7 +148,7 @@ BSLS_IDENT("$Id: $")
 // By populating a 'WriteOptions' object and passing it to 'write', the format
 // of the resulting JSON can be controlled.
 //
-// First, let's populate a 'Json' object named 'result' from an input string
+// First, let's populate a 'Json' object named 'json' from an input string
 // using 'read', and create an empty 'options' (see 'bdljsn::WriteOptions'):
 //..
 //  const bsl::string JSON = R"JSON(
@@ -153,10 +158,10 @@ BSLS_IDENT("$Id: $")
 //    }
 //  )JSON";
 //
-//  bdljsn::Json         result;
+//  bdljsn::Json         json;
 //  bdljsn::WriteOptions options;
 //
-//  int rc = bdljsn::JsonUtil::read(&result, JSON);
+//  int rc = bdljsn::JsonUtil::read(&json, JSON);
 //
 //  assert(0 == rc);
 //..
@@ -189,7 +194,7 @@ BSLS_IDENT("$Id: $")
 //  options.setSortMembers(true);
 //  bsl::string output;
 //
-//  rc = bdljsn::JsonUtil::write(&output, result, options);
+//  rc = bdljsn::JsonUtil::write(&output, json, options);
 //
 //  assert(0 == rc);
 //  assert(R"JSON({"a":1,"b":[]})JSON" == output);
@@ -207,11 +212,11 @@ BSLS_IDENT("$Id: $")
 // Next, we write 'json' using the style 'e_COMPACT' (the default), a single
 // line presentation with no added spaces after ':' and ',' elements.
 //..
-//  rc = bdljsn::JsonUtil::write(&output, result, options);
+//  rc = bdljsn::JsonUtil::write(&output, json, options);
 //
 //  assert(0 == rc);
 //
-//  // Using 'e_COMPACT' style: no added spaces.
+//  // Using 'e_COMPACT' style:
 //  assert(R"JSON({"a":1,"b":[]})JSON" == output);
 //..
 // Next, we write 'json' using the 'e_ONELINE' style, another single line
@@ -219,12 +224,11 @@ BSLS_IDENT("$Id: $")
 // readability.
 //..
 //  options.setStyle(bdljsn::WriteStyle::e_ONELINE);
-//  rc = bdljsn::JsonUtil::write(&output, result, options);
+//  rc = bdljsn::JsonUtil::write(&output, json, options);
 //
 //  assert(0 == rc);
 //
-//  // Using 'e_ONELINE' style: added spaces for readability over what the
-//  // default 'e_COMPACT' 'style' outputs.
+//  // Using 'e_ONELINE' style:
 //  assert(R"JSON({"a": 1, "b": []})JSON" == output);
 //..
 // Next, we write 'json' using the 'e_PRETTY' style, a multiline format where
@@ -247,13 +251,11 @@ BSLS_IDENT("$Id: $")
 //  options.setSpacesPerLevel(4);     // the default
 //  options.setInitialIndentLevel(0); // the default
 //
-//  rc = bdljsn::JsonUtil::write(&output, result, options);
+//  rc = bdljsn::JsonUtil::write(&output, json, options);
 //
 //  assert(0 == rc);
 //
-//  // Using 'e_PRETTY' style: added newlines and indentation for readability,
-//  // where the amount of indentation is controlled by the 'spacesPerLevel'
-//  // and 'initialIndentLevel' options.
+//  // Using 'e_PRETTY' style:
 //  assert(R"JSON({
 //      "a": 1,
 //      "b": []
@@ -264,12 +266,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  options.setInitialIndentLevel(1);
 //
-//  rc = bdljsn::JsonUtil::write(&output, result, options);
+//  rc = bdljsn::JsonUtil::write(&output, json, options);
 //
 //  assert(0 == rc);
 //
-//  // Using 'e_PRETTY' style (with 'initialIndentLevel' as 1) indents
-//  // everything by 'spacesPerLevel'.
+//  // Using 'e_PRETTY' style (with 'initialIndentLevel' as 1):
 //  assert(R"JSON(    {
 //          "a": 1,
 //          "b": []
