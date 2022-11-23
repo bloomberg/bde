@@ -49,6 +49,7 @@ using bsl::endl;
 // matches the expected value.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
+// [ 3] static int printString(bsl::ostream&, const bsl::string_view&);
 // [ 2] static int printValue(bsl::ostream& s, bool                      v);
 // [ 4] static int printValue(bsl::ostream& s, char                      v);
 // [ 4] static int printValue(bsl::ostream& s, signed char               v);
@@ -1413,6 +1414,7 @@ int main(int argc, char *argv[])
         //: 2 Repeat for strings and Customized type.
         //
         // Testing:
+        //  static int printString(bsl::ostream&, const bsl::string_view&);
         //  static int printValue(bsl::ostream& s, const char             *v);
         //  static int printValue(bsl::ostream& s, const bsl::string&      v);
         // --------------------------------------------------------------------
@@ -1513,6 +1515,17 @@ int main(int argc, char *argv[])
                     const bsl::string result(oss.str());
                     ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
                 }
+
+                if (veryVeryVerbose) cout << "Test 'printString'" << endl;
+                {
+                    bsl::ostringstream oss;
+                    ASSERTV(LINE, 0 == Util::printString(oss,
+                                                        bsl::string(VALUE)));
+
+                    const bsl::string result(oss.str());
+                    ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+                }
+
             }
         }
 
@@ -1548,6 +1561,13 @@ int main(int argc, char *argv[])
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 != Util::printValue(oss,
+                                                        bsl::string(VALUE)));
+                }
+
+                if (veryVeryVerbose) cout << "Test 'printString'" << endl;
+                {
+                    bsl::ostringstream oss;
+                    ASSERTV(LINE, 0 != Util::printString(oss,
                                                         bsl::string(VALUE)));
                 }
             }

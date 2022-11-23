@@ -157,8 +157,11 @@ struct PrintUtil {
         // result to the specified 'stream'.  Use the optionally-specified
         // 'options' to decide how 'value' is encoded.
 
-  public:
-    // CLASS METHODS
+    static int printString(bsl::ostream&           stream,
+                           const bsl::string_view& value);
+        // Encode the specified string 'value' into JSON format and output the
+        // result to the specified 'stream'.
+
     static int printValue(bsl::ostream&         stream,
                           bool                  value,
                           const EncoderOptions *options = 0);
@@ -352,6 +355,13 @@ int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
       }
     }
     return 0;
+}
+
+inline
+int PrintUtil::printString(bsl::ostream&           stream,
+                           const bsl::string_view& value)
+{
+    return bdljsn::StringUtil::writeString(stream, value);
 }
 
 inline
