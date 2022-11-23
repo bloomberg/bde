@@ -1,5 +1,12 @@
-bsl-internal (3.111.0.0) unstable; urgency=low
+bsl-internal (3.111.0.1) unstable; urgency=low
 
+  * 8263a52c6 restore baljsn::PrintUtil::printString (#4022)
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Wed, 23 Nov 2022 09:28:11 -0500
+
+bsl-internal (3.111.0.0) git; urgency=low
+
+  * 8a84ae624 Changelog for version 3.111.0.0
   * c99dfbbf9 Bumped version to 3.111.0.0
   * 838ae31bc Adjust documentation [rebased main] (#4021)
   * d7608aaa8 bdljsn: Remove C11 Limit Macro Use (#4012)
@@ -32,7 +39,7 @@ bsl-internal (3.111.0.0) unstable; urgency=low
   * e2e317ffb bslmf_movableref: Add `BSLMF_MOVABLEREF_DEDUCE` (#3960)
   * a7721830e Bslh wyhashincremental drqs 170005515 (#3934)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 22 Nov 2022 14:37:32 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 22 Nov 2022 14:45:30 -0500
 
 bsl-internal (3.110.0.3) git; urgency=low
 
