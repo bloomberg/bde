@@ -206,25 +206,21 @@ void reseed(GuidState_Imp *guidStatePtr)
         state_t;
 
     state_t state;
-    if (0 != RandomDevice::getRandomBytes(
+    if (0 != RandomDevice::getRandomBytesNonBlocking(
                                reinterpret_cast<unsigned char *>(state.data()),
                                sizeof(state_t::value_type) * state.size())) {
-        if (0 != RandomDevice::getRandomBytesNonBlocking(
-                               reinterpret_cast<unsigned char *>(state.data()),
-                               sizeof(state_t::value_type) * state.size())) {
-            // fallback state: Combine the time and (for unix only) the process
-            // id with the addresses of a library function, a static variable,
-            // a stack variable and a local function to approximate
-            // process-specific semi-random seed values.
-            bsl::uint64_t seed = static_cast<bsl::uint64_t>(bsl::time(0)) ^
-                                 reinterpret_cast<uintptr_t>(&bsl::printf);
-            state[0] = seed;
-            state[1] = seed ^ (static_cast<bsl::uint64_t>(s_pid) << 32) ^
-                       reinterpret_cast<uintptr_t>(&state);
-            state[2] = (seed << 32) ^
-                       reinterpret_cast<uintptr_t>(&registerForkCallback);
-            state[3] = seed ^ reinterpret_cast<uintptr_t>(&s_pid);
-        }
+        // fallback state: Combine the time and (for unix only) the process id
+        // with the addresses of a library function, a static variable, a stack
+        // variable and a local function to approximate process-specific
+        // semi-random seed values.
+        bsl::uint64_t seed = static_cast<bsl::uint64_t>(bsl::time(0)) ^
+                             reinterpret_cast<uintptr_t>(&bsl::printf);
+        state[0] = seed;
+        state[1] = seed ^ (static_cast<bsl::uint64_t>(s_pid) << 32) ^
+                   reinterpret_cast<uintptr_t>(&state);
+        state[2] = (seed << 32) ^
+                   reinterpret_cast<uintptr_t>(&registerForkCallback);
+        state[3] = seed ^ reinterpret_cast<uintptr_t>(&s_pid);
     }
 
     guidStatePtr->seed(state);
