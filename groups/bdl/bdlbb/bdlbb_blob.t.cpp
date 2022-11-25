@@ -86,6 +86,7 @@ using bsl::cerr;
 // [ 2] bdlbb::Blob(allocator);
 // [ 2] bdlbb::Blob(factory, allocator);
 // [ 2] bdlbb::Blob(buffers, numBuffers, allocator);
+// [ 2] bdlbb::BlobBufferFactory *bdlbb::Blob::factory() const;
 // [ 3] void bdlbb::Blob::setLength(newLength);
 // [ 3] int bdlbb::Blob::buffer(index);
 // [ 3] int bdlbb::Blob::length();
@@ -1458,11 +1459,12 @@ int main(int argc, char *argv[])
 
             bdlbb::Blob target(MoveUtil::move(source));
 
-            ASSERT(68  == target.lastDataBufferLength());
-            ASSERT(324 == target.length()              );
-            ASSERT(2   == target.numDataBuffers()      );
-            ASSERT(2   == target.numBuffers()          );
-            ASSERT(512 == target.totalSize()           );
+            ASSERT(68       == target.lastDataBufferLength());
+            ASSERT(324      == target.length()              );
+            ASSERT(2        == target.numDataBuffers()      );
+            ASSERT(2        == target.numBuffers()          );
+            ASSERT(512      == target.totalSize()           );
+            ASSERT(&factory == target.factory()             );
 
             // Ensure that buffer factory is preserved and correct allocator is
             // assigned.
@@ -1500,11 +1502,12 @@ int main(int argc, char *argv[])
             ASSERT(sam.numBlocksTotalChange() == 1);
 
             // Was the data moved?  (No way to add length in the constructor.)
-            ASSERT(0   == autoMoved.lastDataBufferLength());
-            ASSERT(0   == autoMoved.length()              );
-            ASSERT(0   == autoMoved.numDataBuffers()      );
-            ASSERT(2   == autoMoved.numBuffers()          );
-            ASSERT(512 == autoMoved.totalSize()           );
+            ASSERT(0        == autoMoved.lastDataBufferLength());
+            ASSERT(0        == autoMoved.length()              );
+            ASSERT(0        == autoMoved.numDataBuffers()      );
+            ASSERT(2        == autoMoved.numBuffers()          );
+            ASSERT(512      == autoMoved.totalSize()           );
+            ASSERT(&factory == autoMoved.factory()             );
 #endif
 
             // Testing differing allocators
@@ -1523,11 +1526,12 @@ int main(int argc, char *argv[])
             ASSERT(SOURCE_DA_NUM_BYTES_IN_USE == sa.numBytesInUse());
             ASSERT(0                          <  ta.numBytesInUse());
 
-            ASSERT(68  == targetDA.lastDataBufferLength());
-            ASSERT(324 == targetDA.length()              );
-            ASSERT(2   == targetDA.numDataBuffers()      );
-            ASSERT(2   == targetDA.numBuffers()          );
-            ASSERT(512 == targetDA.totalSize()           );
+            ASSERT(68       == targetDA.lastDataBufferLength());
+            ASSERT(324      == targetDA.length()              );
+            ASSERT(2        == targetDA.numDataBuffers()      );
+            ASSERT(2        == targetDA.numBuffers()          );
+            ASSERT(512      == targetDA.totalSize()           );
+            ASSERT(&factory == targetDA.factory()             );
 
             // Ensure that buffer factory is preserved and correct allocator is
             // assigned.
@@ -1559,11 +1563,12 @@ int main(int argc, char *argv[])
             bdlbb::Blob target(&sa);
             target = MoveUtil::move(source);
 
-            ASSERT(68  == target.lastDataBufferLength());
-            ASSERT(324 == target.length()              );
-            ASSERT(2   == target.numDataBuffers()      );
-            ASSERT(2   == target.numBuffers()          );
-            ASSERT(512 == target.totalSize()           );
+            ASSERT(68       == target.lastDataBufferLength());
+            ASSERT(324      == target.length()              );
+            ASSERT(2        == target.numDataBuffers()      );
+            ASSERT(2        == target.numBuffers()          );
+            ASSERT(512      == target.totalSize()           );
+            ASSERT(&factory == target.factory()             );
 
             // Ensure that buffer factory is preserved and correct allocator is
             // assigned.
@@ -1599,11 +1604,12 @@ int main(int argc, char *argv[])
             ASSERT(1   == sam.numBlocksTotalChange()      );
 
             // Was the data moved?  (No way to add length in the constructor.)
-            ASSERT(0   == autoMoved.lastDataBufferLength());
-            ASSERT(0   == autoMoved.length()              );
-            ASSERT(0   == autoMoved.numDataBuffers()      );
-            ASSERT(2   == autoMoved.numBuffers()          );
-            ASSERT(512 == autoMoved.totalSize()           );
+            ASSERT(0        == autoMoved.lastDataBufferLength());
+            ASSERT(0        == autoMoved.length()              );
+            ASSERT(0        == autoMoved.numDataBuffers()      );
+            ASSERT(2        == autoMoved.numBuffers()          );
+            ASSERT(512      == autoMoved.totalSize()           );
+            ASSERT(&factory == autoMoved.factory()             );
 #endif
 
             // Testing differing allocators
@@ -1615,11 +1621,12 @@ int main(int argc, char *argv[])
             bdlbb::Blob          targetDA(&ta);
             targetDA = MoveUtil::move(sourceDA);
 
-            ASSERT(68  == targetDA.lastDataBufferLength());
-            ASSERT(324 == targetDA.length()              );
-            ASSERT(2   == targetDA.numDataBuffers()      );
-            ASSERT(2   == targetDA.numBuffers()          );
-            ASSERT(512 == targetDA.totalSize()           );
+            ASSERT(68       == targetDA.lastDataBufferLength());
+            ASSERT(324      == targetDA.length()              );
+            ASSERT(2        == targetDA.numDataBuffers()      );
+            ASSERT(2        == targetDA.numBuffers()          );
+            ASSERT(512      == targetDA.totalSize()           );
+            ASSERT(&factory == targetDA.factory()             );
 
             // Ensure that buffer factory is preserved and correct allocator is
             // assigned.
@@ -3931,8 +3938,16 @@ int main(int argc, char *argv[])
                     P(X.lastDataBufferLength());
                 }
 
-                mX.trimLastDataBuffer(); // TEST HERE
+                const int EXP_LEFTOVER_SIZE =
+                              mX.numDataBuffers() > 0
+                                  ? mX.buffer(mX.numDataBuffers() - 1).size() -
+                                        mX.lastDataBufferLength()
+                                  : 0;
 
+                ObjBuffer leftover = mX.trimLastDataBuffer(); // TEST HERE
+
+                LOOP3_ASSERT(bufferSize, numBuffers, dataLength,
+                             EXP_LEFTOVER_SIZE == leftover.size());
                 LOOP3_ASSERT(bufferSize, numBuffers, dataLength,
                              EXP_NUM_BUFFERS == X.numBuffers());
                 LOOP3_ASSERT(bufferSize, numBuffers, dataLength,
@@ -3950,7 +3965,9 @@ int main(int argc, char *argv[])
                     P(X.numBuffers());
                     P(X.numDataBuffers());
                     P(X.lastDataBufferLength());
-                    P(X.buffer(X.numDataBuffers()-1).size());
+                    if (X.numDataBuffers() > 0) {
+                        P(X.buffer(X.numDataBuffers()-1).size());
+                    }
                 }
             }
             ASSERT(0 == numBuffers || 0 <  ta.numAllocations());
@@ -4189,6 +4206,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == numUnknownFactoryHandlerInvocations);
             ASSERT(0 == X.length());
             ASSERT(0 == X.numBuffers());
+            ASSERT(!X.factory());
 
             Obj mY(mX, &ta);  // const Obj& Y = mY;
 
@@ -4216,9 +4234,10 @@ int main(int argc, char *argv[])
 
             // Create X, with a factory.
             Obj mX(&fa, &ta);   const Obj& X = mX;
-            ASSERT(0 == X.length());
-            ASSERT(0 == X.totalSize());
-            ASSERT(0 == X.numBuffers());
+            ASSERT(0   == X.length());
+            ASSERT(0   == X.totalSize());
+            ASSERT(0   == X.numBuffers());
+            ASSERT(&fa == X.factory());
             if (veryVerbose) {
                 P_(X.length()); P_(X.numBuffers()); P(X.totalSize());
             }
@@ -4236,6 +4255,7 @@ int main(int argc, char *argv[])
             ASSERT(1           == Y.length());
             ASSERT(BUFFER_SIZE == Y.totalSize());
             ASSERT(1           == Y.numBuffers());
+            ASSERT(!Y.factory());
 
 #if defined(BDE_BUILD_TARGET_EXC) && defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             try {
@@ -4256,6 +4276,7 @@ int main(int argc, char *argv[])
             ASSERT(1           == Z1.length());
             ASSERT(BUFFER_SIZE == Z1.totalSize());
             ASSERT(1           == Z1.numBuffers());
+            ASSERT(&fa         == Z1.factory());
 
             mZ1.setLength(BUFFER_SIZE + 1);
             ASSERT(0 == numUnknownFactoryHandlerInvocations);
@@ -4269,6 +4290,8 @@ int main(int argc, char *argv[])
             ASSERT(1           == Z2.length());
             ASSERT(BUFFER_SIZE == Z2.totalSize());
             ASSERT(1           == Z2.numBuffers());
+            ASSERT(&fa         == Z2.factory());
+
 
             mZ2.setLength(BUFFER_SIZE + 1);
             ASSERT(0 == numUnknownFactoryHandlerInvocations);
@@ -4368,6 +4391,7 @@ int main(int argc, char *argv[])
             ASSERT(0           == X.length());
             ASSERT(TOTAL_SIZE  == X.totalSize());
             ASSERT(NUM_BUFFERS == X.numBuffers());
+            ASSERT(&fa         == X.factory());
             if (veryVerbose) {
                 P_(X.length()); P_(X.numBuffers()); P(X.totalSize());
             }
@@ -4666,10 +4690,11 @@ int main(int argc, char *argv[])
             TestBlobBufferFactory fa(&ta);
 
             Obj mX(&fa, &ta);  const Obj& X = mX;
-            ASSERT(0 == X.length());
-            ASSERT(0 == X.totalSize());
-            ASSERT(0 == X.numBuffers());
-            ASSERT(4 == fa.currentBufferSize());
+            ASSERT(0   == X.length());
+            ASSERT(0   == X.totalSize());
+            ASSERT(0   == X.numBuffers());
+            ASSERT(4   == fa.currentBufferSize());
+            ASSERT(&fa == X.factory());
 
             mX.setLength(0);
             ASSERT(0 == X.totalSize());

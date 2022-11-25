@@ -192,6 +192,30 @@ void BlobUtil::append(Blob *dest, const char *source, int offset, int length)
     }
 }
 
+void BlobUtil::appendWithCapacityBuffer(Blob       *dest,
+                                        BlobBuffer *buffer,
+                                        const char *source,
+                                        int         length)
+{
+    BSLS_ASSERT(dest);
+    BSLS_ASSERT(source);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(buffer);
+
+    if (dest->totalSize() - dest->length() >= length) {
+        // The blob has enough capacity
+        append(dest, source, length);
+    }
+    else {
+        if (buffer->size() > 0) {
+            // Append the capacity buffer
+            dest->appendBuffer(bslmf::MovableRefUtil::move(*buffer));
+        }
+        append(dest, source, length);
+        *buffer = dest->trimLastDataBuffer();
+    }
+}
+
 void BlobUtil::erase(Blob *blob, int offset, int length)
 {
     BSLS_ASSERT(0 != blob);
@@ -695,6 +719,52 @@ int BlobUtil::compare(const Blob& a, const Blob& b)
 
     return lhsLen - rhsLen;
 }
+
+void BlobUtil::prependWithCapacityBuffer(Blob       *dest,
+                                         BlobBuffer *buffer,
+                                         const char *source,
+                                         int         length)
+{
+    BSLS_ASSERT(dest);
+    BSLS_ASSERT(source);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(buffer);
+
+    if (0 == length) {
+        return;                                                       // RETURN
+    }
+
+    if (0 == dest->length()) {
+        appendWithCapacityBuffer(dest, buffer, source, length);
+        return;                                                       // RETURN
+    }
+
+    BlobBuffer nextBuffer;
+    if (0 == buffer->size()) {
+        dest->factory()->allocate(&nextBuffer);
+    }
+    else {
+        nextBuffer = bslmf::MovableRefUtil::move(*buffer);
+    }
+
+    int blobBufferIndex = 0;
+    while (nextBuffer.size() < length) {
+        int size = nextBuffer.size();
+        bsl::memcpy(nextBuffer.data(), source, size);
+        dest->insertBuffer(blobBufferIndex++,
+                           bslmf::MovableRefUtil::move(nextBuffer));
+        length -= size;
+        source += size;
+
+        dest->factory()->allocate(&nextBuffer);
+    }
+
+    bsl::memcpy(nextBuffer.data(), source, length);
+    *buffer = nextBuffer.trim(length);
+    dest->insertBuffer(blobBufferIndex,
+                       bslmf::MovableRefUtil::move(nextBuffer));
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

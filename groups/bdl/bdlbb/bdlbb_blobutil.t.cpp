@@ -42,6 +42,8 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
+// [15] void prependWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
+// [14] void appendWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
 // [13] int appendBufferIfValid(Blob *d, const BlobBuffer& b);
 // [13] int appendBufferIfValid(Blob *d, MovableRef<BlobBuffer> b);
 // [13] int appendDataBufferIfValid(Blob *d, const BlobBuffer& b);
@@ -129,9 +131,11 @@ void aSsErT(bool condition, const char *message, int line)
 
 class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     // This 'class' is just like a 'SimpleBlobBufferFactory' except that it
-    // initializes the first byte of each blob buffer to '#'.
+    // initializes the first byte of each blob buffer to '#' and counts the
+    // number of the 'allocate' function calls.
 
     // PRIVATE DATA
+    int               d_numAllocateCalls;
     int               d_size;
     bslma::Allocator *d_allocator_p;
 
@@ -143,7 +147,8 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     // CREATORS
     explicit
     BlobBufferFactory(int initialSize, bslma::Allocator *basicAllocator = 0)
-    : d_size(initialSize)
+    : d_numAllocateCalls(0)
+    , d_size(initialSize)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
@@ -155,6 +160,7 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     // MANIPULATORS
     virtual void allocate(bdlbb::BlobBuffer *buffer)
     {
+        ++d_numAllocateCalls;
         bsl::shared_ptr<char> shptr((char*)d_allocator_p->allocate(d_size),
                                     d_allocator_p);
         buffer->reset(shptr, d_size);
@@ -170,6 +176,12 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     virtual int bufferSize() const
     {
         return d_size;
+    }
+
+    int numAllocateCalls() const
+        // Return how many times the 'allocate' function was called.
+    {
+        return d_numAllocateCalls;
     }
 };
 
@@ -193,18 +205,24 @@ int veryVeryVerbose;
 // The following functions generate a string of repeating characters in the
 // range [a-z] of a specified length.
 
-int ggg(bsl::string *result, int length)
+enum FillType {
+    e_LETTERS,
+    e_DIGITS
+};
+
+int ggg(bsl::string *result, int length, FillType fill = e_LETTERS)
 {
     // Clear the specified 'result' and append a subset of the string
-    // "abcdefghijklmnopqrstuvwxyz", repeating the pattern until the total
-    // length of 'result' reaches the specified 'length'.
+    // "abcdefghijklmnopqrstuvwxyz" or "0123456789", repeating the pattern
+    // until the total length of 'result' reaches the specified 'length'.
+    // Optionally specify 'fill' to choose either letters or digits.
 
-    const char DATA[] = "abcdefghijklmnopqrstuvwxyz"
-                        "abcdefghijklmnopqrstuvwxyz"
-                        "abcdefghijklmnopqrstuvwxyz"
-                        "abcdefghijklmnopqrstuvwxyz"
-                        "abcdefghijklmnopqrstuvwxyz";
-    enum { k_DATA_SIZE = sizeof DATA - 1 };
+    static const char letters[] = "abcdefghijklmnopqrstuvwxyz";
+    static const char digits[]  = "0123456789";
+
+    const char * const DATA = fill == e_LETTERS ? letters : digits;
+    const int k_DATA_SIZE =
+                      (fill == e_LETTERS ? sizeof letters : sizeof digits) - 1;
 
     int capacity = length;
     result->clear();
@@ -218,21 +236,22 @@ int ggg(bsl::string *result, int length)
     return 0;
 }
 
-bsl::string& gg(bsl::string *result, int length)
+bsl::string& gg(bsl::string *result, int length, FillType fill = e_LETTERS)
 {
     // Return, by reference, the specified 'result' with its value adjusted
-    // according to the specified 'length'.
+    // according to the specified 'length' and 'fill'.
 
-    ASSERT(0 == ggg(result, length));
+    ASSERT(0 == ggg(result, length, fill));
     return *result;
 }
 
-bsl::string g(int length)
+bsl::string g(int length, FillType fill = e_LETTERS)
 {
-    // Return, by value, a new object corresponding to the specified 'spec'.
+    // Return, by value, a new object corresponding to the specified 'length'
+    // and 'fill'.
 
     bsl::string object;
-    return gg(&object, length);
+    return gg(&object, length, fill);
 }
 
 // ============================================================================
@@ -450,6 +469,398 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING 'prependWithCapacityBuffer' FUNCTION
+        //
+        // Concerns:
+        //: 1 The function correctly adds data to the beginning of the 'Blob'.
+        //:
+        //: 2 The function uses the existing capacity first if blob is empty.
+        //:   Otherwise uses the provided capacity buffer first.  Then
+        //:   allocates memory using the factory of the 'Blob'.
+        //:
+        //: 3 Unused part of 'BlobBuffer' is returned after the function call.
+        //:
+        //: 4 The function works correctly when default-constructed (empty)
+        //:   capacity buffer is provided.
+        //:
+        //: 5 Writing 0 bytes is a NOOP.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a table specifying various values of blob buffers length,
+        //:   initital blob size and length, capacity buffer initial size,
+        //:   input data size, expected capacity buffer size after the call and
+        //:   expected number of buffer allocations during the call.
+        //:
+        //: 2 For each row in the table create a blob, capacity buffer and
+        //:   input data block having the specified parameters.  Fill the blob
+        //:   with sequence of letters, the capacity buffer with '#' chars,
+        //:   the input data block with digits.
+        //:
+        //: 3 Invoke the 'prependWithCapacityBuffer' function using as
+        //:   arguments the prepared objects.
+        //:
+        //: 4 Verify that size of the capacity buffer matches the value
+        //:   specified in the table.
+        //:
+        //: 5 Verify that number of buffer allocations matches the value
+        //:   specified in the table.
+        //:
+        //: 6 Verify that length of the blob is increased by the size of the
+        //:   input block.
+        //:
+        //: 7 Verify that data in the blob that existed before the call is
+        //:   unchanged.
+        //:
+        //: 8 Verify that the data is added to the beginning of the blob and
+        //:   matches the input data block.
+        //:
+        //: 9 Repeat steps 2 to 8 for each row in the table.
+        //:
+        //:10 Do negative testing to verify that asserts catch all the
+        //:   undefined behavior in the contract.
+        //
+        // Testing:
+        //   void prependWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'prependWithCapacityBuffer' FUNCTION\n"
+                             "============================================\n";
+
+        static const struct Data {
+            int d_line;
+            int d_blobBufferSize;
+            int d_blobBuffersNumber; // Blob::size() == d_blobBufferSize *
+                                     //                 d_blobBuffersNumber
+            int d_blobLength;
+            int d_capacityBufferSize;
+            int d_inputDataSize;
+            int d_expectedCapacityBufferSize;
+            int d_expectedAllocateCalls; // during the 'prepend' call
+        } DATA[] = {
+            { L_, 64, 1,  0, 64,   0, 64, 0 }, // Prepend 0 bytes
+            { L_, 64, 1,  0, 64,  32, 64, 0 }, // Prepend to empty blob
+            { L_, 64, 1, 32,  0,  32, 32, 1 }, // Empty capacity buffer
+            { L_, 64, 1, 32, 32,  32,  0, 0 }, // Non-empty capacity buffer
+            { L_, 64, 1, 32, 64,  32, 32, 0 }, // Non-empty capacity buffer
+            { L_, 64, 2, 70,  0,  58,  6, 1 }, // Partially filled blob
+            { L_, 64, 2, 70, 64,  58,  6, 0 }, // Partially filled blob
+            { L_, 64, 2,  0,  0,  70,  0, 0 }, // Empty blob but with capacity
+            { L_, 64, 2,  0, 64,  70, 64, 0 }, // Empty blob but with capacity
+            { L_, 64, 2,  0,  0, 128,  0, 0 }, // Fully used blob capacity
+            { L_, 64, 2,  0, 64, 128, 64, 0 }, // Fully used blob capacity
+            { L_, 64, 2,  0,  0, 130, 62, 1 }, // Fully used blob capacity +buf
+            { L_, 64, 2,  0, 64, 130, 62, 0 }, // Fully used blob capacity +buf
+            { L_, 64, 1, 64, 64, 256,  0, 3 }, // Prepend big buffer
+            { L_, 64, 1, 64, 64, 257, 63, 4 }  // Prepend big buffer
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const Data& data                  = DATA[ti];
+            const int LINE                    = data.d_line;
+            const int BLOB_BUFFER_SIZE        = data.d_blobBufferSize;
+            const int BLOB_BUFFERS_NUMBER     = data.d_blobBuffersNumber;
+            const int BLOB_LENGH              = data.d_blobLength;
+            const int CAPACITY_BUFFER_SIZE    = data.d_capacityBufferSize;
+            const int INPUT_DATA_SIZE         = data.d_inputDataSize;
+            const int EXPECTED_CAPACITY_BUFFER_SIZE =
+                                             data.d_expectedCapacityBufferSize;
+            const int EXPECTED_ALLOCATE_CALLS = data.d_expectedAllocateCalls;
+
+            if (veryVerbose) {
+                P_(LINE) P_(BLOB_BUFFER_SIZE) P_(BLOB_BUFFERS_NUMBER)
+                P_(BLOB_LENGH) P_(CAPACITY_BUFFER_SIZE)
+                P_(INPUT_DATA_SIZE) P_(EXPECTED_CAPACITY_BUFFER_SIZE)
+                P(EXPECTED_ALLOCATE_CALLS)
+            }
+
+            ASSERT(BLOB_BUFFER_SIZE > 0);
+
+            BlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob       blob(&factory);
+
+            // Set up the Blob size (copyStringToBlob() will reduce the length)
+            blob.setLength(BLOB_BUFFER_SIZE * BLOB_BUFFERS_NUMBER);
+
+            // Set up the Blob length
+            bsl::string suffix = g(BLOB_LENGH);
+            copyStringToBlob(&blob, suffix);
+            ASSERT(blob.length() == BLOB_LENGH);
+            ASSERT(blob.totalSize() == BLOB_BUFFER_SIZE * BLOB_BUFFERS_NUMBER);
+
+            // Set up the capacity buffer
+            ASSERT(CAPACITY_BUFFER_SIZE <= BLOB_BUFFER_SIZE);
+            bdlbb::BlobBuffer capacityBuffer;
+            if (CAPACITY_BUFFER_SIZE > 0) {
+                factory.allocate(&capacityBuffer);
+                capacityBuffer.trim(CAPACITY_BUFFER_SIZE);
+                bsl::memset(capacityBuffer.data(), '#', capacityBuffer.size());
+            }
+
+            // Set up the input data
+            bsl::string source = g(INPUT_DATA_SIZE, e_DIGITS);
+
+            // Remember the counter's value before the call
+            int numAllocateCalls = factory.numAllocateCalls();
+
+            // TEST
+            Util::prependWithCapacityBuffer(&blob,
+                                            &capacityBuffer,
+                                            source.data(),
+                                            static_cast<int>(source.length()));
+
+            // Calculate the number of allocations during the call
+            numAllocateCalls = factory.numAllocateCalls() - numAllocateCalls;
+
+            // Verify the capacity buffer
+            ASSERT(capacityBuffer.size() == EXPECTED_CAPACITY_BUFFER_SIZE);
+
+            // Verify the number of allocations
+            ASSERTV(numAllocateCalls,
+                    numAllocateCalls == EXPECTED_ALLOCATE_CALLS);
+
+            // Verify the data is added
+            ASSERT(blob.length() == BLOB_LENGH + INPUT_DATA_SIZE);
+
+            // Verify the old data is untouched
+            {
+                bsl::string tmp(BLOB_LENGH, '\x0');
+                Util::copy(tmp.data(), blob, INPUT_DATA_SIZE, BLOB_LENGH);
+                ASSERT(tmp == suffix);
+            }
+            // Verify 'source' is added
+            {
+                bsl::string tmp(INPUT_DATA_SIZE, '\x0');
+                Util::copy(tmp.data(), blob, 0, INPUT_DATA_SIZE);
+                ASSERT(tmp == source);
+            }
+        }
+
+        if (verbose) cout << "Negative testing\n";
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            BlobBufferFactory factory(64);
+            bdlbb::Blob       blob(&factory);
+            bdlbb::BlobBuffer capacityBuffer;
+            char              chunk[32];
+
+            ASSERT_PASS(bdlbb::BlobUtil::prependWithCapacityBuffer(
+                                 &blob, &capacityBuffer, chunk, sizeof chunk));
+            ASSERT_FAIL(bdlbb::BlobUtil::prependWithCapacityBuffer(
+                                     0, &capacityBuffer, chunk, sizeof chunk));
+            ASSERT_FAIL(bdlbb::BlobUtil::prependWithCapacityBuffer(
+                                 &blob, &capacityBuffer,     0, sizeof chunk));
+            ASSERT_PASS(bdlbb::BlobUtil::prependWithCapacityBuffer(
+                                 &blob, &capacityBuffer, chunk,            0));
+            ASSERT_FAIL(bdlbb::BlobUtil::prependWithCapacityBuffer(
+                                 &blob, &capacityBuffer, chunk,           -1));
+            ASSERT_FAIL(bdlbb::BlobUtil::prependWithCapacityBuffer(
+                                 &blob,               0, chunk, sizeof chunk));
+        }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'appendWithCapacityBuffer' FUNCTION
+        //
+        // Concerns:
+        //: 1 The function correctly adds data to the end of the 'Blob'.
+        //:
+        //: 2 The function tries to take memory from the following places in
+        //:   the specified order:
+        //:     1 Existing capacity of the 'Blob';
+        //:     2 The given 'BlobBuffer';
+        //:     3 Factory of the 'Blob'.
+        //:
+        //: 3 Unused part of 'BlobBuffer' is returned after the function call.
+        //:
+        //: 4 The function works correctly when default-constructed (empty)
+        //:   capacity buffer is provided.
+        //:
+        //: 5 Writing 0 bytes is a NOOP.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a table specifying various values of blob buffers length,
+        //:   initital blob size and length, capacity buffer initial size,
+        //:   input data size, expected capacity buffer size after the call and
+        //:   expected number of buffer allocations during the call.
+        //:
+        //: 2 For each row in the table create a blob, capacity buffer and
+        //:   input data block having the specified parameters.  Fill the blob
+        //:   with sequence of letters, the capacity buffer with '#' chars,
+        //:   the input data block with digits.
+        //:
+        //: 3 Invoke the 'appendWithCapacityBuffer' function using as arguments
+        //:   the prepared objects.
+        //:
+        //: 4 Verify that size of the capacity buffer matches the value
+        //:   specified in the table.
+        //:
+        //: 5 Verify that number of buffer allocations matches the value
+        //:   specified in the table.
+        //:
+        //: 6 Verify that length of the blob is increased by the size of the
+        //:   input block.
+        //:
+        //: 7 Verify that data in the blob that existed before the call is
+        //:   unchanged.
+        //:
+        //: 8 Verify that the data is added to the end of the blob and matches
+        //:   the input data block.
+        //:
+        //: 9 Repeat steps 2 to 8 for each row in the table.
+        //:
+        //:10 Do negative testing to verify that asserts catch all the
+        //:   undefined behavior in the contract.
+        //
+        // Testing:
+        //   void appendWithCapacityBuffer(Blob*,BlobBuffer*,const char*,int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'appendWithCapacityBuffer' FUNCTION\n"
+                             "===========================================\n";
+
+        static const struct Data {
+            int d_line;
+            int d_blobBufferSize;
+            int d_blobBuffersNumber; // Blob::size() == d_blobBufferSize *
+                                     //                 d_blobBuffersNumber
+            int d_blobLength;
+            int d_capacityBufferSize;
+            int d_inputDataSize;
+            int d_expectedCapacityBufferSize;
+            int d_expectedAllocateCalls; // during the 'append' call
+        } DATA[] = {
+            { L_, 64, 1,  0, 64,   0, 64, 0 }, // Append 0 bytes
+            { L_, 64, 0,  0, 64,   0, 64, 0 }, // Append 0 bytes
+            { L_, 64, 1,  0, 64,  32, 64, 0 }, // Capacity buffer is unused
+            { L_, 64, 1,  0, 64,  64, 64, 0 }, // Capacity buffer is unused
+            { L_, 64, 1, 64, 64,  64,  0, 0 }, // Capacity buffer is used
+            { L_, 64, 1, 64,  0,  32, 32, 1 }, // Empty capacity buffer,
+                                               // leftover
+            { L_, 64, 2,  0,  0, 128,  0, 0 }, // More than 1 empty buffers
+            { L_, 64, 2,  0,  0, 127,  0, 0 }, // More than 1 empty buffers
+            { L_, 64, 2,  0,  0, 150, 42, 1 }, // More than 1 empty buffers
+            { L_, 64, 2,  0, 64, 150, 42, 0 }, // More than 1 empty buffers
+            { L_, 64, 2, 70,  0,  32,  0, 0 }, // Partially filled blob buffer
+            { L_, 64, 2, 70,  0, 100, 22, 1 }, // Partially filled blob buffer
+            { L_, 64, 2, 70, 64, 100, 22, 0 }, // Partially filled blob buffer
+            { L_, 64, 1,  0, 64, 256,  0, 2 }, // Append big buffer
+            { L_, 64, 1,  0,  0, 256,  0, 3 }, // Append big buffer
+            { L_, 64, 0,  0, 64, 257, 63, 4 }  // Append big buffer
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const Data& data                  = DATA[ti];
+            const int LINE                    = data.d_line;
+            const int BLOB_BUFFER_SIZE        = data.d_blobBufferSize;
+            const int BLOB_BUFFERS_NUMBER     = data.d_blobBuffersNumber;
+            const int BLOB_LENGH              = data.d_blobLength;
+            const int CAPACITY_BUFFER_SIZE    = data.d_capacityBufferSize;
+            const int INPUT_DATA_SIZE         = data.d_inputDataSize;
+            const int EXPECTED_CAPACITY_BUFFER_SIZE =
+                                             data.d_expectedCapacityBufferSize;
+            const int EXPECTED_ALLOCATE_CALLS = data.d_expectedAllocateCalls;
+
+            if (veryVerbose) {
+                P_(LINE) P_(BLOB_BUFFER_SIZE) P_(BLOB_BUFFERS_NUMBER)
+                P_(BLOB_LENGH) P_(CAPACITY_BUFFER_SIZE)
+                P_(INPUT_DATA_SIZE) P_(EXPECTED_CAPACITY_BUFFER_SIZE)
+                P(EXPECTED_ALLOCATE_CALLS)
+            }
+
+            ASSERT(BLOB_BUFFER_SIZE > 0);
+
+            BlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob       blob(&factory);
+
+            // Set up the Blob size (copyStringToBlob() will reduce the length)
+            blob.setLength(BLOB_BUFFER_SIZE * BLOB_BUFFERS_NUMBER);
+
+            // Set up the Blob length
+            bsl::string prefix = g(BLOB_LENGH);
+            copyStringToBlob(&blob, prefix);
+            ASSERT(blob.length() == BLOB_LENGH);
+            ASSERT(blob.totalSize() == BLOB_BUFFER_SIZE * BLOB_BUFFERS_NUMBER);
+
+            // Set up the capacity buffer
+            ASSERT(CAPACITY_BUFFER_SIZE <= BLOB_BUFFER_SIZE);
+            bdlbb::BlobBuffer capacityBuffer;
+            if (CAPACITY_BUFFER_SIZE > 0) {
+                factory.allocate(&capacityBuffer);
+                capacityBuffer.trim(CAPACITY_BUFFER_SIZE);
+                bsl::memset(capacityBuffer.data(), '#', capacityBuffer.size());
+            }
+
+            // Set up the input data
+            bsl::string source = g(INPUT_DATA_SIZE, e_DIGITS);
+
+            // Remember the counter's value before the call
+            int numAllocateCalls = factory.numAllocateCalls();
+
+            // TEST
+            Util::appendWithCapacityBuffer(&blob,
+                                           &capacityBuffer,
+                                           source.data(),
+                                           static_cast<int>(source.length()));
+
+            // Calculate the number of allocations during the call
+            numAllocateCalls = factory.numAllocateCalls() - numAllocateCalls;
+
+            // Verify the capacity buffer
+            ASSERT(capacityBuffer.size() == EXPECTED_CAPACITY_BUFFER_SIZE);
+
+            // Verify the number of allocations
+            ASSERTV(numAllocateCalls,
+                    numAllocateCalls == EXPECTED_ALLOCATE_CALLS);
+
+            // Verify the data is added
+            ASSERT(blob.length() == BLOB_LENGH + INPUT_DATA_SIZE);
+
+            // Verify the old data is untouched
+            {
+                bsl::string tmp(BLOB_LENGH, '\x0');
+                Util::copy(tmp.data(), blob, 0, BLOB_LENGH);
+                ASSERT(tmp == prefix);
+            }
+            // Verify 'source' is added
+            {
+                bsl::string tmp(INPUT_DATA_SIZE, '\x0');
+                Util::copy(tmp.data(), blob, BLOB_LENGH, INPUT_DATA_SIZE);
+                ASSERT(tmp == source);
+            }
+        }
+
+        if (verbose) cout << "Negative testing\n";
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            BlobBufferFactory factory(64);
+            bdlbb::Blob       blob(&factory);
+            bdlbb::BlobBuffer capacityBuffer;
+            char              chunk[32];
+
+            ASSERT_PASS(bdlbb::BlobUtil::appendWithCapacityBuffer(
+                                 &blob, &capacityBuffer, chunk, sizeof chunk));
+            ASSERT_FAIL(bdlbb::BlobUtil::appendWithCapacityBuffer(
+                                     0, &capacityBuffer, chunk, sizeof chunk));
+            ASSERT_FAIL(bdlbb::BlobUtil::appendWithCapacityBuffer(
+                                 &blob, &capacityBuffer,     0, sizeof chunk));
+            ASSERT_PASS(bdlbb::BlobUtil::appendWithCapacityBuffer(
+                                 &blob, &capacityBuffer, chunk,            0));
+            ASSERT_FAIL(bdlbb::BlobUtil::appendWithCapacityBuffer(
+                                 &blob, &capacityBuffer, chunk,           -1));
+            ASSERT_FAIL(bdlbb::BlobUtil::appendWithCapacityBuffer(
+                                 &blob,               0, chunk, sizeof chunk));
+        }
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING SAFE BUFFER ADD FUNCTIONS

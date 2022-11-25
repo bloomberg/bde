@@ -491,6 +491,11 @@ class BlobBuffer {
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.
 
+    BlobBuffer trim(int toSize);
+        // Reduce this buffer to the specified 'toSize' and return the
+        // leftover.  The behaviour is undefined unless '0 <= toSize && toSize
+        // <= size()'.
+
     // ACCESSORS
     const bsl::shared_ptr<char>& buffer() const;
         // Return a reference to the non-modifiable shared pointer to the
@@ -864,13 +869,14 @@ class Blob {
         // 'srcBuffer->size() == buffer(index).size()'.  Note that other than
         // the buffer swap the state of this object remains unchanged.
 
-    void trimLastDataBuffer();
+    BlobBuffer trimLastDataBuffer();
         // Set the size of the last data buffer to 'lastDataBufferLength()'.
         // If there are no data buffers, or if the last data buffer is full
         // (i.e., its size is 'lastDataBufferLength()'), then this method has
-        // no effect.  Note that the length of the blob is unchanged, and that
-        // capacity buffers (i.e., of indices 'numDataBuffers()' and higher)
-        // are *not* removed.
+        // no effect.  Return the leftover of the trimmed buffer or default
+        // constructed 'BlobBuffer' if nothing to trim.  Note that the length
+        // of the blob is unchanged, and that capacity buffers (i.e., of
+        // indices 'numDataBuffers()' and higher) are *not* removed.
 
     void moveBuffers(Blob *srcBlob);
         // Remove all blob buffers from this blob and move the buffers held by
@@ -901,6 +907,9 @@ class Blob {
         // Return a reference to the non-modifiable blob buffer at the
         // specified 'index' in this blob.  The behavior is undefined unless
         // '0 <= index < numBuffers()'.
+
+    BlobBufferFactory *factory() const;
+        // Return the factory used by this object.
 
     int lastDataBufferLength() const;
         // Return the length of the last blob buffer in this blob, or 0 if this
@@ -1125,6 +1134,12 @@ const BlobBuffer& Blob::buffer(int index) const
     BSLS_ASSERT_SAFE(index < static_cast<int>(d_buffers.size()));
 
     return d_buffers[index];
+}
+
+inline
+BlobBufferFactory *Blob::factory() const
+{
+    return d_bufferFactory_p;
 }
 
 inline

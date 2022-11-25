@@ -60,13 +60,25 @@ struct BlobUtil {
         // Append the specified 'length' bytes starting from the specified
         // 'offset' from the specified 'source' address to the specified
         // 'dest'.  The behavior of this function is undefined unless the range
-        // [source + offset, source + offset + length) represents a readable
+        // '[source + offset, source + offset + length)' represents a readable
         // sequence of memory.
 
     static void append(Blob *dest, const char *source, int length);
         // Append the specified 'length' bytes starting from the specified
         // 'source' address to the specified 'dest'.  The behavior is undefined
-        // unless the range '[ source, source + length )' is valid memory.
+        // unless the range '[source, source + length)' is valid memory.
+
+    static void appendWithCapacityBuffer(Blob       *dest,
+                                         BlobBuffer *buffer,
+                                         const char *source,
+                                         int         length);
+        // Append the specified 'length' bytes from the specified 'source'
+        // address to the specified 'dest'.  Use the existing capacity in
+        // 'dest' first, followed by that in the 'buffer', and finally allocate
+        // from the blob buffer factory associated with the 'dest'.  Load any
+        // unused space into the specified 'buffer'.  The behavior is undefined
+        // unless the range '[source, source + length)' represents a readable
+        // sequence of memory.
 
     static void erase(Blob *blob, int offset, int length);
         // Erase the specified 'length' bytes starting at the specified
@@ -194,6 +206,19 @@ struct BlobUtil {
         // filled.  If 'fillChar' is not specified, a 0 byte will be used.  The
         // behavior is undefined unless 'alignment' is a power of 2, and less
         // than or equal to 64.
+
+    static void prependWithCapacityBuffer(Blob       *dest,
+                                          BlobBuffer *buffer,
+                                          const char *source,
+                                          int         length);
+        // Prepend the specified 'length' bytes from the specified 'source'
+        // address to the specified 'dest'.  Use the existing capacity in
+        // 'dest' first if '0 == dest->length()', followed by that in the
+        // 'buffer', and finally allocate from the blob buffer factory
+        // associated with the 'dest'.  Load any unused space into the
+        // specified 'buffer'.  The behavior is undefined unless the range
+        // '[source, source + length)' represents a readable sequence of
+        // memory.
 
     template <class STREAM>
     static STREAM& read(STREAM& stream, Blob *dest, int numBytes);
