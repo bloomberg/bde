@@ -196,11 +196,13 @@ struct TimeZoneUtilImp {
         // specified 'timeZoneId', using the specified 'dstPolicy' to interpret
         // whether or not 'localTime' represents a daylight-saving time value,
         // and using time zone information supplied by the specified 'cache'.
-        // Load, into the specified 'resultValidity' the value indicating the
+        // Load, into the specified 'resultValidity' the value indicating
         // whether 'localTime' is unique, ambiguous but valid, or invalid.
         // Return 0 on success, and a non-zero value otherwise.  A return
         // status of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
-        // is not recognized.
+        // is not recognized, and a return status of
+        // 'ErrorCode::k_OUT_OF_RANGE' indicates that an out of range value of
+        // 'result' would have occurred.
 
     static int loadLocalTimePeriodForUtc(LocalTimePeriod       *result,
                                          const char            *timeZoneId,
@@ -215,7 +217,7 @@ struct TimeZoneUtilImp {
         // otherwise.  A return status of 'ErrorCode::k_UNSUPPORTED_ID'
         // indicates that 'timeZoneId' is not recognized.
 
-    static void resolveLocalTime(
+    static int resolveLocalTime(
                              bdlt::DatetimeTz                  *result,
                              LocalTimeValidity::Enum           *resultValidity,
                              Zoneinfo::TransitionConstIterator *transitionIter,
@@ -226,12 +228,14 @@ struct TimeZoneUtilImp {
         // the specified 'localTime' in the specified 'timeZone', using the
         // specified 'dstPolicy' to interpret whether or not 'localTime'
         // represents a daylight-saving time value; load into the specified
-        // 'resultValidity' a indication of whether 'localTime' is valid and
+        // 'resultValidity' an indication of whether 'localTime' is valid and
         // unique, valid but ambiguous, or invalid; load into the specified
         // 'transitionIter' an iterator pointing to the transition that
-        // characterizes the attributes of 'localTime'.  The behavior is
-        // undefined unless 'ZoneinfoUtil::isWellFormed(timeZone)' is 'true'.
-
+        // characterizes the attributes of 'localTime'.  Return 0 on success,
+        // and a non-zero value otherwise.  A return status of
+        // 'ErrorCode::k_OUT_OF_RANGE' indicates that an out of range value of
+        // 'result' would have occurred.  The behavior is undefined unless
+        // 'ZoneinfoUtil::isWellFormed(timeZone)' is 'true'.
 };
 
 }  // close package namespace

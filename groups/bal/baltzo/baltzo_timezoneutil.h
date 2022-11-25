@@ -421,6 +421,7 @@ BSLS_IDENT("$Id: $")
 
 #include <baltzo_defaultzoneinfocache.h>
 #include <baltzo_dstpolicy.h>
+#include <baltzo_errorcode.h>
 #include <baltzo_localtimevalidity.h>
 #include <baltzo_timezoneutilimp.h>
 #include <baltzo_localdatetime.h>
@@ -541,7 +542,10 @@ struct TimeZoneUtil {
         // zones is rounded down to minute precision.  Return 0 on success, and
         // a non-zero value with no effect otherwise.  A return value of
         // 'ErrorCode::k_UNSUPPORTED_ID' indicates that either
-        // 'targetTimeZoneId' or 'srcTimeZoneId' was not recognized.
+        // 'targetTimeZoneId' or 'srcTimeZoneId' was not recognized, and a
+        // return value of 'ErrorCode::k_OUT_OF_RANGE' indicates that the
+        // result of the operation would have been outside the range of values
+        // representable by the 'result' type.
 
     static int initLocalTime(bdlt::DatetimeTz      *result,
                              const bdlt::Datetime&  localTime,
@@ -580,7 +584,9 @@ struct TimeZoneUtil {
         // UTC of the time zone is rounded down to minute precision.  Return 0
         // on success, and a non-zero value with no effect otherwise.  A return
         // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
-        // was not recognized.
+        // was not recognized, and a return status of
+        // 'ErrorCode::k_OUT_OF_RANGE' indicates that an out of range value of
+        // 'result' would have occurred.
 
     static int convertLocalToUtc(bdlt::Datetime        *result,
                                  const bdlt::Datetime&  localTime,
@@ -604,7 +610,10 @@ struct TimeZoneUtil {
         // offset from UTC of the time zone is rounded down to minute
         // precision.  Return 0 on success, and a non-zero value with no effect
         // otherwise.  A return value of 'ErrorCode::k_UNSUPPORTED_ID'
-        // indicates that 'timeZoneId' was not recognized.
+        // indicates that 'timeZoneId' was not recognized, and a return value
+        // of 'ErrorCode::k_OUT_OF_RANGE' indicates that the result of the
+        // operation would have been outside the range of values representable
+        // by the 'result' type.
 
     static int loadLocalTimePeriod(LocalTimePeriod      *result,
                                    const LocalDatetime&  localTime);
@@ -711,9 +720,9 @@ int TimeZoneUtil::convertLocalToLocalTime(
     BSLS_ASSERT(result);
     BSLS_ASSERT(targetTimeZoneId);
 
-    return convertUtcToLocalTime(result,
-                                 targetTimeZoneId,
-                                 srcTime.datetimeTz().utcDatetime());
+    return convertLocalToLocalTime(result,
+                                   targetTimeZoneId,
+                                   srcTime.datetimeTz());
 }
 
 inline
@@ -725,9 +734,17 @@ int TimeZoneUtil::convertLocalToLocalTime(
     BSLS_ASSERT(result);
     BSLS_ASSERT(targetTimeZoneId);
 
+    bdlt::Datetime utc(srcTime.localDatetime());
+    if (srcTime.offset()) {
+        int rc = utc.addMinutesIfValid(-srcTime.offset());
+        if (0 != rc) {
+            return ErrorCode::k_OUT_OF_RANGE;                         // RETURN
+        }
+    }
+
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
-                                 srcTime.utcDatetime());
+                                 utc);
 }
 
 inline
@@ -739,9 +756,17 @@ int TimeZoneUtil::convertLocalToLocalTime(
     BSLS_ASSERT(result);
     BSLS_ASSERT(targetTimeZoneId);
 
-    return convertUtcToLocalTime(result,
-                                 targetTimeZoneId,
-                                 srcTime.datetimeTz().utcDatetime());
+    LocalDatetime datetime;
+    int           rc = convertLocalToLocalTime(&datetime,
+                                               targetTimeZoneId,
+                                               srcTime.datetimeTz());
+    if (rc != 0) {
+        return rc;                                                    // RETURN
+    }
+
+    *result = datetime.datetimeTz();
+
+    return 0;
 }
 
 inline
@@ -753,9 +778,17 @@ int TimeZoneUtil::convertLocalToLocalTime(
     BSLS_ASSERT(result);
     BSLS_ASSERT(targetTimeZoneId);
 
-    return convertUtcToLocalTime(result,
-                                 targetTimeZoneId,
-                                 srcTime.utcDatetime());
+    LocalDatetime datetime;
+    int           rc = convertLocalToLocalTime(&datetime,
+                                               targetTimeZoneId,
+                                               srcTime);
+    if (rc != 0) {
+        return rc;                                                    // RETURN
+    }
+
+    *result = datetime.datetimeTz();
+
+    return 0;
 }
 
 inline
