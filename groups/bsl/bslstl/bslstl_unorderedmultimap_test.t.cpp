@@ -949,6 +949,97 @@ class TestNonConstHashFunctor {
     }
 };
 
+                            // =======================
+                            // struct ThrowingMoveHash
+                            // =======================
+
+template <class TYPE>
+struct ThrowingMoveHash : public bsl::hash<TYPE> {
+    // Hash functor with throwing move operations.
+
+    // CREATORS
+    ThrowingMoveHash()
+        // Create a 'ThrowingMoveHash' object.
+    {
+    }
+
+    ThrowingMoveHash(const ThrowingMoveHash &other)
+        // Create a 'ThrowingMoveHash' object having the same value as that of
+        // the specified 'other'.
+    {
+        (void)other;
+    }
+
+    ThrowingMoveHash(bslmf::MovableRef<ThrowingMoveHash> other)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Create a 'ThrowingMoveHash' object having the same value as that of
+        // the specified 'other'.
+    {
+        (void)other;
+    }
+
+    // MANIPULATORS
+    ThrowingMoveHash &operator=(const ThrowingMoveHash &other)
+        // Assign to this object the value of the specified 'other'.
+    {
+        (void)other;
+        return *this;
+    }
+
+    ThrowingMoveHash &operator=(bslmf::MovableRef<ThrowingMoveHash> other)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Assign to this object the value of the specified 'other'.
+    {
+        (void)other;
+        return *this;
+    }
+};
+                            // ========================
+                            // struct ThrowingMoveEqual
+                            // ========================
+
+template <class TYPE>
+struct ThrowingMoveEqual : public bsl::equal_to<TYPE> {
+    // Equal functor with throwing move operations.
+
+    // CREATORS
+    ThrowingMoveEqual()
+        // Create a 'ThrowingMoveEqual' object.
+    {
+    }
+
+    ThrowingMoveEqual(const ThrowingMoveEqual &other)
+        // Create a 'ThrowingMoveEqual' object having the same value as that of
+        // the specified 'other'.
+    {
+        (void)other;
+    }
+
+    ThrowingMoveEqual(bslmf::MovableRef<ThrowingMoveEqual> other)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Create a 'ThrowingMoveEqual' object having the same value as that of
+        // the specified 'other'.
+    {
+        (void)other;
+    }
+
+    // MANIPULATORS
+    ThrowingMoveEqual &operator=(const ThrowingMoveEqual &other)
+        // Assign to this object the value of the specified 'other'.
+    {
+        (void)other;
+        return *this;
+    }
+
+    ThrowingMoveEqual &operator=(bslmf::MovableRef<ThrowingMoveEqual> other)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Assign to this object the value of the specified 'other'.
+    {
+        (void)other;
+        return *this;
+    }
+};
+
 }  // close unnamed namespace
 
 template <class ITER, class KEY, class VALUE>
@@ -1560,6 +1651,9 @@ class TestDriver {
     static void testCase27_propagate_on_container_move_assignment_dispatch();
     static void testCase27_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
+
+    static void testCase27_noexcept();
+        // Test move assignment operator noexcept.
 
     static void testCase27();
         // Test move assignment.
@@ -4756,6 +4850,24 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
 
     testCase27_propagate_on_container_move_assignment_dispatch<true, false>();
     testCase27_propagate_on_container_move_assignment_dispatch<true, true>();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27_noexcept()
+    // Verify that noexcept specification of the move assignment operator is
+    // correct.
+{
+    Obj a;
+    Obj b;
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    const bool isNoexcept =
+                        bsl::allocator_traits<ALLOC>::is_always_equal::value &&
+                        std::is_nothrow_move_assignable<HASH>::value &&
+                        std::is_nothrow_move_assignable<EQUAL>::value;
+    ASSERT(isNoexcept ==
+           BSLS_KEYWORD_NOEXCEPT_OPERATOR(a = MoveUtil::move(b)));
+#endif
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -7986,6 +8098,125 @@ int main(int argc, char *argv[])
                            testCase27_propagate_on_container_move_assignment();
 #endif
 
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        // Test noexcept
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false> Alloc;
+            typedef bsl::hash<int> Hash;
+            typedef bsl::equal_to<int> Equal;
+
+            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT( std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT( std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false> Alloc;
+            typedef ThrowingMoveHash<int> Hash;
+            typedef bsl::equal_to<int> Equal;
+
+            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT(!std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT( std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false> Alloc;
+            typedef bsl::hash<int> Hash;
+            typedef ThrowingMoveEqual<int> Equal;
+
+            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT( std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT(!std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false> Alloc;
+            typedef ThrowingMoveHash<int> Hash;
+            typedef ThrowingMoveEqual<int> Equal;
+
+            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT(!std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT(!std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true> Alloc;
+            typedef bsl::hash<int> Hash;
+            typedef bsl::equal_to<int> Equal;
+
+            ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT( std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT( std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true> Alloc;
+            typedef ThrowingMoveHash<int> Hash;
+            typedef bsl::equal_to<int> Equal;
+
+            ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT(!std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT( std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true> Alloc;
+            typedef bsl::hash<int> Hash;
+            typedef ThrowingMoveEqual<int> Equal;
+
+            ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT( std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT(!std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true> Alloc;
+            typedef ThrowingMoveHash<int> Hash;
+            typedef ThrowingMoveEqual<int> Equal;
+
+            ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT(!std::is_nothrow_move_assignable<Hash>::value);
+            ASSERT(!std::is_nothrow_move_assignable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase27_noexcept();
+        }
+#endif
       } break;
       case 26: {
         // --------------------------------------------------------------------

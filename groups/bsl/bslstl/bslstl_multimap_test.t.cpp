@@ -1004,6 +1004,53 @@ void testTransparentComparator(Container& container,
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
 }
 
+                            // =============================
+                            // struct ThrowingMoveComparator
+                            // =============================
+
+template <class TYPE>
+struct ThrowingMoveComparator : public std::less<TYPE> {
+    // Comparator with throwing move operations.
+
+    // CREATORS
+    ThrowingMoveComparator()
+        // Create a 'ThrowingMoveComparator' object.
+    {
+    }
+
+    ThrowingMoveComparator(const ThrowingMoveComparator &other)
+        // Create a 'ThrowingMoveComparator' object having the same value as
+        // that of the specified 'other'.
+    {
+        (void)other;
+    }
+
+    ThrowingMoveComparator(bslmf::MovableRef<ThrowingMoveComparator> other)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Create a 'ThrowingMoveComparator' object having the same value as
+        // that of the specified 'other'.
+    {
+        (void)other;
+    }
+
+    // MANIPULATORS
+    ThrowingMoveComparator &operator=(const ThrowingMoveComparator &other)
+        // Assign to this object the value of the specified 'other'.
+    {
+        (void)other;
+        return *this;
+    }
+
+    ThrowingMoveComparator &operator=(
+        bslmf::MovableRef<ThrowingMoveComparator> other)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Assign to this object the value of the specified 'other'.
+    {
+        (void)other;
+        return *this;
+    }
+};
+
                        // =====================
                        // class TemplateWrapper
                        // =====================
@@ -1615,6 +1662,9 @@ class TestDriver {
 
     static void testCase27_dispatch();
         // Test move assignment.
+
+    static void testCase27_noexcept();
+        // Test move assignment operator noexcept.
 
     static void testCase26();
         // Test move construction.
@@ -5174,6 +5224,23 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase27_dispatch()
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase27_noexcept()
+    // Verify that noexcept specification of the move assignment operator is
+    // correct.
+{
+    Obj a;
+    Obj b;
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    const bool isNoexcept =
+                        bsl::allocator_traits<ALLOC>::is_always_equal::value &&
+                        std::is_nothrow_move_assignable<COMP>::value;
+    ASSERT(isNoexcept ==
+           BSLS_KEYWORD_NOEXCEPT_OPERATOR(a = MoveUtil::move(b)));
+#endif
+}
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
 {
     // ------------------------------------------------------------------------
@@ -8678,6 +8745,60 @@ int main(int argc, char *argv[])
                        bsltf::MoveOnlyAllocTestType>::testCase27();
         MetaTestDriver<int,
                        bsltf::WellBehavedMoveOnlyAllocTestType>::testCase27();
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        // Test noexcept
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false> Alloc;
+            typedef TestComparator<int> Comp;
+
+            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT( std::is_nothrow_move_assignable<Comp>::value);
+            TestDriver<int, int, Comp, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true> Alloc;
+            typedef TestComparator<int> Comp;
+
+            ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT( std::is_nothrow_move_assignable<Comp>::value);
+            TestDriver<int, int, Comp, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false> Alloc;
+            typedef ThrowingMoveComparator<int> Comp;
+
+            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT(!std::is_nothrow_move_assignable<Comp>::value);
+            TestDriver<int, int, Comp, Alloc>::testCase27_noexcept();
+        }
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true> Alloc;
+            typedef ThrowingMoveComparator<int> Comp;
+
+            ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT(!std::is_nothrow_move_assignable<Comp>::value);
+            TestDriver<int, int, Comp, Alloc>::testCase27_noexcept();
+        }
+#endif
       } break;
       case 26: {
         // --------------------------------------------------------------------

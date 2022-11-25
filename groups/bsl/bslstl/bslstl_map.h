@@ -926,7 +926,9 @@ class map {
         // 'VALUE'}).
 
     map& operator=(BloombergLP::bslmf::MovableRef<map> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                           AllocatorTraits::is_always_equal::value &&
+                           std::is_nothrow_move_assignable<COMPARATOR>::value);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
@@ -1305,7 +1307,9 @@ class map {
         // 'end' iterator, and the 'first' position is at or before the 'last'
         // position in the ordered sequence provided by this container.
 
-    void swap(map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 AllocatorTraits::is_always_equal::value &&
+                                 bsl::is_nothrow_swappable<COMPARATOR>::value);
         // Exchange the value and comparator of this object with those of the
         // specified 'other' object; also exchange the allocator of this object
         // with that of 'other' if the (template parameter) type 'ALLOCATOR'
@@ -2430,7 +2434,9 @@ inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(
                                        BloombergLP::bslmf::MovableRef<map> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                            AllocatorTraits::is_always_equal::value &&
+                            std::is_nothrow_move_assignable<COMPARATOR>::value)
 {
     map& lvalue = rhs;
 
@@ -3008,7 +3014,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                  AllocatorTraits::is_always_equal::value &&
+                                  bsl::is_nothrow_swappable<COMPARATOR>::value)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(other);

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 21 17:14:49 2022
+// Generated on Fri Nov  4 09:45:41 2022
 // Command line: sim_cpp11_features.pl bslstl_multimap.h
 
 #ifdef COMPILING_BSLSTL_MULTIMAP_H
@@ -417,7 +417,9 @@ class multimap {
         // 'VALUE'}).
 
     multimap& operator=(BloombergLP::bslmf::MovableRef<multimap> rhs)
-             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                           AllocatorTraits::is_always_equal::value &&
+                           std::is_nothrow_move_assignable<COMPARATOR>::value);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
@@ -676,8 +678,9 @@ class multimap {
         // the 'end' iterator, and the 'first' position is at or before the
         // 'last' position in the ordered sequence provided by this container.
 
-    void swap(multimap& other)
-             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(multimap& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 AllocatorTraits::is_always_equal::value &&
+                                 bsl::is_nothrow_swappable<COMPARATOR>::value);
         // Exchange the value and comparator of this object with those of the
         // specified 'other' object; also exchange the allocator of this object
         // with that of 'other' if the (template parameter) type 'ALLOCATOR'
@@ -1752,7 +1755,9 @@ inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(
                                   BloombergLP::bslmf::MovableRef<multimap> rhs)
-              BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                            AllocatorTraits::is_always_equal::value &&
+                            std::is_nothrow_move_assignable<COMPARATOR>::value)
 {
     multimap& lvalue = rhs;
 
@@ -2238,7 +2243,9 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(multimap& other)
-              BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                  AllocatorTraits::is_always_equal::value &&
+                                  bsl::is_nothrow_swappable<COMPARATOR>::value)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(other);

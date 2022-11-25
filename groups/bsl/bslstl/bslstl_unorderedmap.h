@@ -1317,7 +1317,10 @@ class unordered_map {
 
     unordered_map&
     operator=(BloombergLP::bslmf::MovableRef<unordered_map> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                AllocatorTraits::is_always_equal::value &&
+                                std::is_nothrow_move_assignable<HASH>::value &&
+                                std::is_nothrow_move_assignable<EQUAL>::value);
         // Assign to this object the value, hash function, and key-equality
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -1769,7 +1772,10 @@ class unordered_map {
         // numElements'.  Also note that this operation has no effect if
         // 'numElements <= size()'.
 
-    void swap(unordered_map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(unordered_map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                     AllocatorTraits::is_always_equal::value &&
+                                     bsl::is_nothrow_swappable<HASH>::value &&
+                                     bsl::is_nothrow_swappable<EQUAL>::value);
         // Exchange the value, hasher, key-equality functor, and
         // 'max_load_factor' of this object with those of the specified 'other'
         // object; also exchange the allocator of this object with that of
@@ -2647,7 +2653,10 @@ inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
                              BloombergLP::bslmf::MovableRef<unordered_map> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                AllocatorTraits::is_always_equal::value &&
+                                std::is_nothrow_move_assignable<HASH>::value &&
+                                std::is_nothrow_move_assignable<EQUAL>::value)
 {
     // Note that we have delegated responsibility for correct handling of
     // allocator propagation to the 'HashTable' implementation.
@@ -3074,7 +3083,10 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                     AllocatorTraits::is_always_equal::value &&
+                                     bsl::is_nothrow_swappable<HASH>::value &&
+                                     bsl::is_nothrow_swappable<EQUAL>::value)
 {
     d_impl.swap(other.d_impl);
 }
