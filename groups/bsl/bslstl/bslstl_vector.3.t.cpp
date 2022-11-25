@@ -994,6 +994,41 @@ bool operator==(const IncompleteTypeSupportChecker& lhs,
     return lhs.content() == rhs.content();
 }
 
+                             // ===============
+                             // class UniqueInt
+                             // ===============
+
+class UniqueInt {
+    // Unique int value set on construction.
+
+    // CLASS DATA
+    static int s_counter;
+
+    // DATA
+    int d_value;
+
+  public:
+    // CREATORS
+    UniqueInt() : d_value(s_counter++)
+        // Create a 'UniqueInt' object.
+    {
+    }
+
+    // FREE OPERATORS
+    friend bool operator==(const UniqueInt &v1, const UniqueInt &v2)
+        // Equality comparison.
+    {
+        return v1.d_value == v2.d_value;
+    }
+
+    friend bool operator!=(const UniqueInt &v1, const UniqueInt &v2)
+        // Inequality comparison.
+    {
+        return !(v1 == v2);
+    }
+};
+int UniqueInt::s_counter = 0;
+
                      // TEST DRIVER PART 3 TINY HELPERS
 
 template <int N>
@@ -5340,10 +5375,45 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 42: {
+      case 43: {
         if (verbose) printf(
                     "\nUSAGE EXAMPLE TEST CASE IS IN 'bslstl_vector.t.cpp'"
                     "\n===================================================\n");
+      } break;
+      case 42: {
+        // --------------------------------------------------------------------
+        // CONCERN: Default constructor is called for default-inserted elems
+        //
+        // Concerns:
+        //: 1 Default constructor must be called for each new default-inserted
+        //:   element.
+        //
+        // Plan:
+        //: 1 Every element gets a unique int value in the default constructor.
+        //:   All default-constructed elements must have different values.  If
+        //:   two elements have the same value, one is a copy of another.
+        //
+        // Testing:
+        //   CONCERN: Default constructor is called for default-inserted elems
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+        "\nCONCERN: Default constructor is called for default-inserted elems"
+        "\n================================================================="
+        "\n");
+
+        bsl::vector<UniqueInt> mX(4);
+        ASSERT(mX.size() == 4);
+        // No duplicates
+        ASSERT(mX[0] != mX[1] && mX[0] != mX[2] && mX[0] != mX[3]);
+        ASSERT(                  mX[1] != mX[2] && mX[1] != mX[3]);
+        ASSERT(                                    mX[2] != mX[3]);
+
+        mX.resize(8);
+        ASSERT(mX.size() == 8);
+        ASSERT(mX[4] != mX[5] && mX[4] != mX[6] && mX[4] != mX[7]);
+        ASSERT(                  mX[5] != mX[6] && mX[5] != mX[7]);
+        ASSERT(                                    mX[6] != mX[7]);
       } break;
       case 41: {
         // --------------------------------------------------------------------

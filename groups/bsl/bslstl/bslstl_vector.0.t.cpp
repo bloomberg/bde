@@ -241,6 +241,7 @@
 // [38] CONCERN: Movable types are moved when growing a vector
 // [39] CLASS TEMPLATE DEDUCTION GUIDES
 // [41] INCOMPLETE TYPE SUPPORT
+// [42] CONCERN: Default constructor is called for default-inserted elems
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Tue Nov 15 05:22:39 2022
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -2789,7 +2789,8 @@ void ArrayPrimitives::defaultConstruct(
                || bsl::is_member_pointer<TargetType>::value
 #endif
               ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : bsl::is_trivially_copyable<TargetType>::value
+              : bsl::is_trivially_copyable<TargetType>::value &&
+                bsl::is_trivially_default_constructible<TargetType>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -9047,7 +9048,7 @@ typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
 #endif // ! defined(INCLUDED_BSLALG_ARRAYPRIMITIVES_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

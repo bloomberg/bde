@@ -17,6 +17,7 @@
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_istriviallycopyable.h>
 
+#include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
@@ -77,7 +78,8 @@ using namespace BloombergLP;
 // [ 2] void uninitializedFillN(T *dstB, size_type ne, const T& v, *a);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
+// [12] CONCERN: 'defaultConstruct' calls correct constructor for new elems
 // [11] Hyman's first test case
 
 // ============================================================================
@@ -1578,6 +1580,41 @@ char getValue(const Attrib5& c)
 {
     return c.a();
 }
+
+                             // ===============
+                             // class UniqueInt
+                             // ===============
+
+class UniqueInt {
+    // Unique int value set on construction.
+
+    // CLASS DATA
+    static int s_counter;
+
+    // DATA
+    int d_value;
+
+  public:
+    // CREATORS
+    UniqueInt() : d_value(s_counter++)
+        // Create a 'UniqueInt' object.
+    {
+    }
+
+    // FREE OPERATORS
+    friend bool operator==(const UniqueInt &v1, const UniqueInt &v2)
+        // Equality comparison.
+    {
+        return v1.d_value == v2.d_value;
+    }
+
+    friend bool operator!=(const UniqueInt &v1, const UniqueInt &v2)
+        // Inequality comparison.
+    {
+        return !(v1 == v2);
+    }
+};
+int UniqueInt::s_counter = 0;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -4595,7 +4632,7 @@ int main(int argc, char *argv[])
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4639,6 +4676,39 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             ASSERT(u[i] == DATA[i]);
         }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'defaultConstruct' calls correct constructor for new elems
+        //   Test that 'defaultConstruct' calls the non-trivial default
+        //   constructor for each new element (DRQS 170157583).
+        //
+        // Concerns:
+        //: 1 Non-trivial default constructor must be called for each new
+        //:   default-constructed element.
+        //
+        // Plan:
+        //: 1 Every element gets a unique int value in the default constructor.
+        //:   All default-constructed elements must have different values.  If
+        //:   two elements have the same value, one is a copy of another.
+        //
+        // Testing:
+        //  CONCERN: 'defaultConstruct' calls correct constructor for new elems
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+        "\nCONCERN: 'defaultConstruct' calls correct constructor for new elems"
+        "\n==================================================================="
+        "\n");
+
+        bsls::AlignedBuffer<sizeof(UniqueInt) * 4, sizeof(UniqueInt)> memory;
+        UniqueInt *mX = reinterpret_cast<UniqueInt *>(memory.buffer());
+        Obj::defaultConstruct(mX, 4, Z);
+
+        // No duplicates
+        ASSERT(mX[0] != mX[1] && mX[0] != mX[2] && mX[0] != mX[3]);
+        ASSERT(                  mX[1] != mX[2] && mX[1] != mX[3]);
+        ASSERT(                                    mX[2] != mX[3]);
       } break;
       case 11: {
         // --------------------------------------------------------------------

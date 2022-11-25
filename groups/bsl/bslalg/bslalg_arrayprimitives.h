@@ -1974,7 +1974,8 @@ void ArrayPrimitives::defaultConstruct(
                || bsl::is_member_pointer<TargetType>::value
 #endif
               ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : bsl::is_trivially_copyable<TargetType>::value
+              : bsl::is_trivially_copyable<TargetType>::value &&
+                bsl::is_trivially_default_constructible<TargetType>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
