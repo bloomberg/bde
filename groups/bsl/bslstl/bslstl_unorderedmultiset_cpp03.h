@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 21 17:27:43 2022
+// Generated on Thu Nov 10 12:25:44 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultiset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTISET_H
@@ -341,7 +341,10 @@ class unordered_multiset
 
     unordered_multiset&
     operator=(BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                            BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                AllocatorTraits::is_always_equal::value
+                             && std::is_nothrow_move_assignable<HASH>::value
+                             && std::is_nothrow_move_assignable<EQUAL>::value);
         // Assign to this object the value, hash function, and equality
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -911,7 +914,10 @@ class unordered_multiset
         // has no effect if 'numElements <= size()'.
 
     void swap(unordered_multiset& other)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                                 BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                      AllocatorTraits::is_always_equal::value
+                                  &&  bsl::is_nothrow_swappable<HASH>::value
+                                  &&  bsl::is_nothrow_swappable<EQUAL>::value);
         // Exchange the value, hasher, key-equality functor, and
         // 'max_load_factor' of this object with those of the specified 'other'
         // object; also exchange the allocator of this object with that of
@@ -1448,7 +1454,8 @@ erase_if(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& ms,
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                                BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                    BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
     // Exchange the value, hasher, key-equality functor, and 'max_load_factor'
     // of the specified 'a' object with those of the specified 'b' object; also
     // exchange the allocator of 'a' with that of 'b' if the (template
@@ -1709,7 +1716,10 @@ inline
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                         BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 AllocatorTraits::is_always_equal::value
+                              && std::is_nothrow_move_assignable<HASH>::value
+                              && std::is_nothrow_move_assignable<EQUAL>::value)
 {
     // Note that we have delegated responsibility for correct handling of
     // allocator propagation to the 'HashTable' implementation.
@@ -2567,7 +2577,10 @@ inline
 void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::swap(
                                                      unordered_multiset& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                                   BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                       AllocatorTraits::is_always_equal::value
+                                   &&  bsl::is_nothrow_swappable<HASH>::value
+                                   &&  bsl::is_nothrow_swappable<EQUAL>::value)
 {
     d_impl.swap(other.d_impl);
 }
@@ -2841,7 +2854,8 @@ inline
 void
 bsl::swap(bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                                 BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                     BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)))
 {
     a.swap(b);
 }

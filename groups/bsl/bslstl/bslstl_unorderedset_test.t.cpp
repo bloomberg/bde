@@ -1280,6 +1280,122 @@ class TestNonConstHashFunctor {
     }
 };
 
+                            // ===================
+                            // struct ThrowingHash
+                            // ===================
+
+template <class TYPE>
+struct ThrowingHash : public bsl::hash<TYPE> {
+    // This dummy class implements the minimal interface that meets the
+    // requirements for a hasher that can throw exceptions from the move
+    // assignment operator and from the 'swap' method/free function.
+
+  public:
+    // CREATORS
+    ThrowingHash()
+        // Create a 'ThrowingHash' object.
+    {
+    }
+
+    ThrowingHash(const ThrowingHash&)
+        // Create a 'ThrowingHash' object.
+    {
+    }
+
+    ThrowingHash(bslmf::MovableRef<ThrowingHash>)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Create a 'ThrowingHash' object.
+    {
+    }
+
+    // MANIPULATORS
+    ThrowingHash &operator=(const ThrowingHash&)
+        // Return a reference, providing modifiable access to this object.
+    {
+        return *this;
+    }
+
+    ThrowingHash&
+    operator=(BloombergLP::bslmf::MovableRef<ThrowingHash>)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Return a reference, providing modifiable access to this object.
+    {
+        return *this;
+    }
+
+    void swap(ThrowingHash&) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Do nothing.
+    {
+    }
+};
+
+// FREE FUNCTIONS
+template <class TYPE>
+void swap(ThrowingHash<TYPE>&,
+          ThrowingHash<TYPE>&) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    // Do nothing.
+{
+}
+
+                     // =================================
+                     // class ThrowingAssignmentPredicate
+                     // =================================
+
+template <class TYPE>
+struct ThrowingAssignmentPredicate : public bsl::equal_to<TYPE> {
+    // This dummy class implements the minimal interface that meets the
+    // requirements for a predicate that can throw exceptions from the move
+    // assignment operator and from the 'swap' method/free function.
+
+  public:
+    // CREATORS
+    ThrowingAssignmentPredicate()
+        // Create a 'ThrowingAssignmentPredicate' object.
+    {
+    }
+
+    ThrowingAssignmentPredicate(const ThrowingAssignmentPredicate&)
+        // Create a 'ThrowingAssignmentPredicate' object.
+    {
+    }
+
+    ThrowingAssignmentPredicate(bslmf::MovableRef<ThrowingAssignmentPredicate>)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Create a 'ThrowingAssignmentPredicate' object.
+    {
+    }
+
+    // MANIPULATORS
+    ThrowingAssignmentPredicate &operator=(const ThrowingAssignmentPredicate&)
+        // Return a reference, providing modifiable access to this object.
+    {
+        return *this;
+    }
+
+    ThrowingAssignmentPredicate&
+    operator=(BloombergLP::bslmf::MovableRef<ThrowingAssignmentPredicate>)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Return a reference, providing modifiable access to this object.
+    {
+        return *this;
+    }
+
+    void swap(ThrowingAssignmentPredicate&)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Do nothing.
+    {
+    }
+};
+
+// FREE FUNCTIONS
+template <class TYPE>
+void swap(ThrowingAssignmentPredicate<TYPE>&,
+          ThrowingAssignmentPredicate<TYPE>&)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    // Do nothing.
+{
+}
+
                             // ====================
                             // class CompareProctor
                             // ====================
@@ -2562,7 +2678,14 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase33()
         Obj s;    (void) s;
         Obj x;    (void) x;
 
-        ASSERT(false
+        bool expected = false;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        expected = bsl::allocator_traits<ALLOC> ::is_always_equal::value
+                && std::is_nothrow_move_assignable<HASH>::value
+                && std::is_nothrow_move_assignable<EQUAL>::value;
+#endif
+        ASSERT(expected
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(s = MoveUtil::move(x)));
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
@@ -2629,8 +2752,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase33()
         Obj s;    (void) s;
         Obj x;    (void) x;
 
-        ASSERT(false
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(s.swap(x)));
+        bool expected = false;
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        expected = bsl::allocator_traits<ALLOC>::is_always_equal::value &&
+                   bsl::is_nothrow_swappable<HASH>::value &&
+                   bsl::is_nothrow_swappable<EQUAL>::value;
+#endif
+
+        ASSERT(expected == BSLS_KEYWORD_NOEXCEPT_OPERATOR(s.swap(x)));
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(s.clear()));
@@ -2681,7 +2811,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase33()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(x, y)));
+        bool expected = BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y));
+
+        ASSERT(expected == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(x, y)));
     }
 }
 
@@ -3034,7 +3166,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase32_inline()
     //:   initializer list.
     //
     // Plan:
-    //: 1 Repeat the tests done in 'testCase33_outOfLine', except test only
+    //: 1 Repeat the tests done in 'testCase32_outOfLine', except test only
     //:   with a single, inline constructor list.
     //: 2 There is a bug in the GNU compiler where, if an exception is thrown
     //:   while creating an inline initializer_list, the partially completely
@@ -8495,7 +8627,52 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'noexcept' SPECIFICATION"
                             "\n========================");
 
+        typedef bsltf::StdStatefulAllocator
+                           <int,    // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            false   // IS_ALWAYS_EQUAL
+                           > AFA;   // AllFalseAllocator
+
+        typedef bsltf::StdStatefulAllocator
+                           <int,    // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            true    // IS_ALWAYS_EQUAL
+                           > AEA;   // AlwaysEqualAllocator
+
+        typedef TestHashFunctor<int>             NTH;  // NonThrowingHash
+        typedef ThrowingHash<int>                TH;   // ThrowingHash
+        typedef TestEqualityComparator<int>      NTP;  // NonThrowingPredicate
+        typedef ThrowingAssignmentPredicate<int> TP;   // ThrowingPredicate
+
         TestDriver<int>::testCase33();
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        ASSERT( std::is_nothrow_move_assignable<NTH >::value);
+        ASSERT(!std::is_nothrow_move_assignable< TH >::value);
+        ASSERT( std::is_nothrow_move_assignable<NTP>::value);
+        ASSERT(!std::is_nothrow_move_assignable< TP>::value);
+#endif
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT( bsl::is_nothrow_swappable<NTH >::value);
+        ASSERT(!bsl::is_nothrow_swappable< TH >::value);
+        ASSERT( bsl::is_nothrow_swappable<NTP>::value);
+        ASSERT(!bsl::is_nothrow_swappable< TP>::value);
+#endif
+
+        TestDriver<int, TH,  TP,  AFA>::testCase33();
+        TestDriver<int, TH,  TP,  AEA>::testCase33();
+        TestDriver<int, TH,  NTP, AFA>::testCase33();
+        TestDriver<int, TH,  NTP, AEA>::testCase33();
+        TestDriver<int, NTH, TP,  AFA>::testCase33();
+        TestDriver<int, NTH, TP,  AEA>::testCase33();
+        TestDriver<int, NTH, NTP, AFA>::testCase33();
+        TestDriver<int, NTH, NTP, AEA>::testCase33();
 
       } break;
       case 32: {

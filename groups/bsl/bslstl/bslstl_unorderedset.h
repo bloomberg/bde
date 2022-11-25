@@ -585,6 +585,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isnothrowswappable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_typeidentity.h>
 #include <bslmf_util.h>    // 'forward(V)'
@@ -594,11 +595,15 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
+#include <cstddef>  // for 'std::size_t'
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-# include <initializer_list>
+#include <initializer_list>
 #endif
 
-#include <cstddef>  // for 'std::size_t'
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#include <type_traits>  // 'std::is_nothrow_move_assignable'
+#endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -918,7 +923,10 @@ class unordered_set {
 
     unordered_set&
     operator=(BloombergLP::bslmf::MovableRef<unordered_set> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                            BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                AllocatorTraits::is_always_equal::value
+                             && std::is_nothrow_move_assignable<HASH>::value
+                             && std::is_nothrow_move_assignable<EQUAL>::value);
         // Assign to this object the value, hash function, and equality
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -1117,7 +1125,10 @@ class unordered_set {
         // iterator, and the 'first' position is at or before the 'last'
         // position in the sequence provided by this container.
 
-    void swap(unordered_set& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(unordered_set& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                      AllocatorTraits::is_always_equal::value
+                                  &&  bsl::is_nothrow_swappable<HASH>::value
+                                  &&  bsl::is_nothrow_swappable<EQUAL>::value);
         // Exchange the value, hasher, key-equality functor, and
         // 'max_load_factor' of this object with those of the specified 'other'
         // object; also exchange the allocator of this object with that of
@@ -1733,7 +1744,8 @@ erase_if(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& s, PREDICATE predicate);
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                                BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                    BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
     // Exchange the value, hasher, key-equality functor, and 'max_load_factor'
     // of the specified 'a' object with those of the specified 'b' object; also
     // exchange the allocator of 'a' with that of 'b' if the (template
@@ -1990,7 +2002,10 @@ inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                              BloombergLP::bslmf::MovableRef<unordered_set> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 AllocatorTraits::is_always_equal::value
+                              && std::is_nothrow_move_assignable<HASH>::value
+                              && std::is_nothrow_move_assignable<EQUAL>::value)
 {
     // Note that we have delegated responsibility for correct handling of
     // allocator propagation to the 'HashTable' implementation.
@@ -2294,7 +2309,10 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::reserve(size_type numElements)
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::swap(unordered_set& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                                   BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                       AllocatorTraits::is_always_equal::value
+                                   &&  bsl::is_nothrow_swappable<HASH>::value
+                                   &&  bsl::is_nothrow_swappable<EQUAL>::value)
 {
     d_impl.swap(other.d_impl);
 }
@@ -2546,7 +2564,8 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void bsl::swap(bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
                bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                                 BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                     BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)))
 {
     a.swap(b);
 }

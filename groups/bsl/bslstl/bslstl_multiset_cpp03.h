@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 21 17:14:49 2022
+// Generated on Thu Nov 10 12:25:44 2022
 // Command line: sim_cpp11_features.pl bslstl_multiset.h
 
 #ifdef COMPILING_BSLSTL_MULTISET_H
@@ -337,7 +337,9 @@ class multiset {
         // into this multiset (see {Requirements on 'KEY'}).
 
     multiset& operator=(BloombergLP::bslmf::MovableRef<multiset> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                       BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                           AllocatorTraits::is_always_equal::value
+                        && std::is_nothrow_move_assignable<COMPARATOR>::value);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
@@ -798,7 +800,9 @@ class multiset {
         // the 'end' iterator, and the 'first' position is at or before the
         // 'last' position in the ordered sequence provided by this container.
 
-    void swap(multiset& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(multiset& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 AllocatorTraits::is_always_equal::value
+                              && bsl::is_nothrow_swappable<COMPARATOR>::value);
         // Exchange the value and comparator of this object with those of the
         // specified 'other' object; also exchange the allocator of this object
         // with that of 'other' if the (template parameter) type 'ALLOCATOR'
@@ -1456,7 +1460,8 @@ erase_if(multiset<KEY, COMPARATOR, ALLOCATOR>& ms, PREDICATE predicate);
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
           multiset<KEY, COMPARATOR, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                    BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
     // Exchange the value and comparator of the specified 'a' object with those
     // of the specified 'b' object; also exchange the allocator of 'a' with
     // that of 'b' if the (template parameter) type 'ALLOCATOR' has the
@@ -1839,7 +1844,9 @@ inline
 multiset<KEY, COMPARATOR, ALLOCATOR>&
 multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(
                                   BloombergLP::bslmf::MovableRef<multiset> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                            AllocatorTraits::is_always_equal::value
+                         && std::is_nothrow_move_assignable<COMPARATOR>::value)
 {
     multiset& lvalue = rhs;
 
@@ -3077,7 +3084,9 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                              BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                  AllocatorTraits::is_always_equal::value
+                               && bsl::is_nothrow_swappable<COMPARATOR>::value)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(other);
@@ -3314,7 +3323,8 @@ template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& a,
                bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                                 BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                     BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)))
 {
     a.swap(b);
 }

@@ -1040,6 +1040,63 @@ struct TransparentComparatorWithMultiValueEqualRange {
     }
 };
 
+                            // ========================
+                            // class ThrowingComparator
+                            // ========================
+
+template <class TYPE>
+struct ThrowingComparator : public std::less<TYPE> {
+    // This dummy class implements the minimal interface that meets the
+    // requirements for a comparator that can throw exceptions from the move
+    // assignment operator and from the 'swap' method/free function.
+
+  public:
+    // CREATORS
+    ThrowingComparator()
+        // Create a 'ThrowingComparator' object.
+    {
+    }
+
+    ThrowingComparator(const ThrowingComparator&)
+        // Create a 'ThrowingComparator' object.
+    {
+    }
+
+    ThrowingComparator(bslmf::MovableRef<ThrowingComparator>)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Create a 'ThrowingComparator' object.
+    {
+    }
+
+    // MANIPULATORS
+    ThrowingComparator &operator=(const ThrowingComparator&)
+        // Return a reference, providing modifiable access to this object.
+    {
+        return *this;
+    }
+
+    ThrowingComparator&
+    operator=(BloombergLP::bslmf::MovableRef<ThrowingComparator>)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Return a reference, providing modifiable access to this object.
+    {
+        return *this;
+    }
+
+    void swap(ThrowingComparator&) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+        // Do nothing.
+    {
+    }
+};
+
+// FREE FUNCTIONS
+template <class TYPE>
+void swap(ThrowingComparator<TYPE>&,
+          ThrowingComparator<TYPE>&) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+    // Do nothing.
+{
+}
+
                        // =====================
                        // class TemplateWrapper
                        // =====================
@@ -2212,7 +2269,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase33()
 
         (void) X;    (void) mY;
 
-        ASSERT(false
+        bool expected = false;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        expected = bsl::allocator_traits<ALLOC> ::is_always_equal::value
+                && std::is_nothrow_move_assignable<COMP>::value;
+#endif
+        ASSERT(expected
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX =
                                              bslmf::MovableRefUtil::move(mY)));
 
@@ -2303,8 +2366,14 @@ void TestDriver<KEY, COMP, ALLOC>::testCase33()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(false
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
+        bool expected = false;
+
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        expected = bsl::allocator_traits<ALLOC>::is_always_equal::value &&
+                   bsl::is_nothrow_swappable<COMP>::value;
+#endif
+
+        ASSERT(expected == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
@@ -2323,8 +2392,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase33()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(false
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
+        bool expected = BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y));
+
+        ASSERT(expected == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(x, y)));
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
@@ -8313,7 +8383,42 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 
+        typedef bsltf::StdStatefulAllocator
+                           <int,    // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            false   // IS_ALWAYS_EQUAL
+                           > AllFalseAlloc;
+
+        typedef bsltf::StdStatefulAllocator
+                           <int,    // TYPE
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+                            false,  // PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+                            false,  // PROPAGATE_ON_CONTAINER_SWAP
+                            false,  // PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+                            true    // IS_ALWAYS_EQUAL
+                           > AlwaysEqualAlloc;
+
+        typedef TestComparator<int>     NonThrowingComparator;
+        typedef ThrowingComparator<int> ThrowingComparator;
+
         TestDriver<int>::testCase33();
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        ASSERT( std::is_nothrow_move_assignable<NonThrowingComparator>::value);
+        ASSERT(!std::is_nothrow_move_assignable<   ThrowingComparator>::value);
+#endif
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+        ASSERT( bsl::is_nothrow_swappable<NonThrowingComparator>::value);
+        ASSERT(!bsl::is_nothrow_swappable<   ThrowingComparator>::value);
+#endif
+
+        TestDriver<int, ThrowingComparator,    AllFalseAlloc   >::testCase33();
+        TestDriver<int, ThrowingComparator,    AlwaysEqualAlloc>::testCase33();
+        TestDriver<int, NonThrowingComparator, AllFalseAlloc   >::testCase33();
+        TestDriver<int, NonThrowingComparator, AlwaysEqualAlloc>::testCase33();
 
       } break;
       case 32: {
