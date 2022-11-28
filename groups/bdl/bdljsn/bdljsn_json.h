@@ -2073,8 +2073,10 @@ inline
 bsl::pair<JsonObject::Iterator, bool> JsonObject::insert(
                                               bslmf::MovableRef<Member> member)
 {
+#ifdef BSLS_ASSERT_IS_ACTIVE
     const bsl::string& key = bslmf::MovableRefUtil::access(member).first;
     BSLS_ASSERT(bdlde::Utf8Util::isValid(key.data(), key.size()));
+#endif
     return d_members.insert(bslmf::MovableRefUtil::move(member));
 }
 
