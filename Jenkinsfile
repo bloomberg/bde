@@ -39,7 +39,7 @@ pipeline {
                 '''
                 echo 'Running arc diff with --nolint (in case there is a bde_verify error)'
                 sh """             
-		        /opt/bb/bin/python3.8 /bb/bde/hversche/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint --checkout ${WORKSPACE} --url ${CHANGE_URL}
+		        /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint --checkout ${WORKSPACE} --url ${CHANGE_URL}
                 """             
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             steps{
                 echo 'running arc diff on pull request (w/ lint)'
                 sh """             
-		        /opt/bb/bin/python3.8 /bb/bde/hversche/bde-ci-tools/bin/phabricatorbot.py --verbose --checkout ${WORKSPACE} --url ${CHANGE_URL}
+		        /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --checkout ${WORKSPACE} --url ${CHANGE_URL}
                 """    
             }
         }
