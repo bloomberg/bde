@@ -30,13 +30,6 @@ pipeline {
                 branch "PR-*"               // a stage only runs for pull requests
             }
             steps{
-                echo 'Git status information'
-                sh '''
-                git status
-                git branch -a
-                git log -2
-                git log -1 "--pretty=%B"
-                '''
                 echo 'Running arc diff with --nolint (in case there is a bde_verify error)'
                 sh """             
 		        /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint --checkout ${WORKSPACE} --url ${CHANGE_URL}
