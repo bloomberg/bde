@@ -30,8 +30,6 @@ pipeline {
                 branch "PR-*"               // a stage only runs for pull requests
             }
             steps{
-                echo 'checking out repository'  //checkout current repository
-                checkout scm
                 echo 'Git status information'
                 sh '''
                 git status
@@ -39,8 +37,10 @@ pipeline {
                 git log -2
                 git log -1 "--pretty=%B"
                 '''
-                echo 'running arc diff --nolint on pull request'
-                sh '/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint'
+                echo 'Running arc diff with --nolint (in case there is a bde_verify error)'
+                sh """             
+		        /opt/bb/bin/python3.8 /bb/bde/hversche/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint --checkout ${WORKSPACE} --url ${CHANGE_URL}
+                """             
             }
         }
         stage('Update phabricator with lint'){
@@ -49,7 +49,9 @@ pipeline {
             }
             steps{
                 echo 'running arc diff on pull request (w/ lint)'
-                sh '/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py'
+                sh """             
+		        /opt/bb/bin/python3.8 /bb/bde/hversche/bde-ci-tools/bin/phabricatorbot.py --verbose --checkout ${WORKSPACE} --url ${CHANGE_URL}
+                """    
             }
         }
     }
