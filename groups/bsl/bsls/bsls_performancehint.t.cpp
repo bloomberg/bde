@@ -25,6 +25,10 @@
 #include <sys/resource.h> // 'struct rusage'
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#endif // BSLS_PLATFORM_CMP_CLANG
+
 // ============================================================================
 //                                 TEST  PLAN
 // ----------------------------------------------------------------------------

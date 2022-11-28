@@ -15,6 +15,8 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslh_hash.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
@@ -25,6 +27,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_macrorepeat.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
@@ -3947,24 +3950,21 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     //   hashAppend(HASHALG& hashAlg, const basic_string& str);
     //   hashAppend(HASHALG& hashAlg, const std::basic_string& str);
     // --------------------------------------------------------------------
-    typedef ::BloombergLP::bslh::Hash<> Hasher;
-    typedef typename Hasher::result_type HashType;
-    typedef std::basic_string<TYPE,TRAITS,ALLOC> NativeObj;
+    typedef ::BloombergLP::bslh::Hash<>            Hasher;
+    typedef typename Hasher::result_type           HashType;
+    typedef std::basic_string<TYPE, TRAITS, ALLOC> NativeObj;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    typedef std::pmr::basic_string<TYPE, TRAITS>   NativePmrObj;
+#endif
+    typedef bsl::basic_string_view<TYPE>           StringView;
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#endif // BSLS_PLATFORM_CMP_CLANG
 
     const int PRIME = 100003; // Arbitrary large prime to be used in hash-table
                               // like testing
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wlarger-than="
-#endif
-
-    int       collisions[PRIME]       = {};
-    int       nativeCollisions[PRIME] = {};
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
 
     Hasher    hasher;
     size_t    prevHash                = 0;
@@ -3973,6 +3973,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of strings with"
                         " each char type. (C-1,2)\n");
     {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
+        unsigned char collisions[PRIME] = {};
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i != PRIME; ++i) {
             Obj num;
             if (i > 66000){
@@ -4005,20 +4016,40 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             ASSERT(prevHash != hash);
 
             // Check that minimal collisions are happening
-            ASSERT(++collisions[hash % PRIME] <= 11);  // Choose 11 as a max
-                                                   // number collisions
+            ++collisions[hash % PRIME];
+            // Choose 11 as max number of collisions.
+            ASSERTV(hash,
+                    hash % PRIME,
+                    collisions[hash % PRIME],
+                    collisions[hash % PRIME] <= 11);
 
             Obj numCopy = num;
 
             // Verify same hash is produced for the same value
             ASSERT(num == numCopy);
             ASSERT(hash == hasher(numCopy));
+
+            // Check that hash of the string is the same as the hash of the
+            // equivalent string_view.
+            // (https://cplusplus.github.io/LWG/issue2978)
+            ASSERT(hash == hasher(StringView(num)));
         }
     }
 
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std'"
                         " strings with each char type. (C-1,2)\n");
     {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
+        unsigned char collisions[PRIME] = {};
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i != PRIME; ++i) {
             NativeObj num;
             if (i > 66000){
@@ -4051,17 +4082,93 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             ASSERT(prevHash != hash);
 
             // Check that minimal collisions are happening
-            ASSERT(++nativeCollisions[hash % PRIME] <= 11);
-                                                         // Choose 11 as a max
-                                                         // number collisions
+            ++collisions[hash % PRIME];
+            // Choose 11 as max number of collisions.
+            ASSERTV(hash,
+                    hash % PRIME,
+                    collisions[hash % PRIME],
+                    collisions[hash % PRIME] <= 11);
 
             NativeObj numCopy = num;
 
             // Verify same hash is produced for the same value
             ASSERT(num == numCopy);
             ASSERT(hash == hasher(numCopy));
+
+            // Check that hash of the string is the same as the hash of the
+            // equivalent string_view.
+            // (https://cplusplus.github.io/LWG/issue2978)
+            ASSERT(hash == hasher(StringView(num)));
         }
     }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std::pmr'"
+                        " strings with each char type. (C-1,2)\n");
+    {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
+        unsigned char collisions[PRIME] = {};
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
+        for (int i = 0; i != PRIME; ++i) {
+            NativePmrObj num;
+            if (i > 66000){
+                //Make sure we're testing long strings
+                for (int j = 0; j < 40; ++j) {
+                    num.push_back(TYPE('A'));
+                }
+            }
+            else if (i > 33000) {
+                //Make sure we're testing with null characters in the strings
+                for (int j = 0; j < 5; ++j) {
+                    num.push_back(TYPE('A'));
+                    num.push_back(TYPE('\0'));
+                }
+            }
+            num.push_back( TYPE('0' + (i/1000000)     ));
+            num.push_back( TYPE('0' + (i/100000)  %10 ));
+            num.push_back( TYPE('0' + (i/10000)   %10 ));
+            num.push_back( TYPE('0' + (i/1000)    %10 ));
+            num.push_back( TYPE('0' + (i/100)     %10 ));
+            num.push_back( TYPE('0' + (i/10)      %10 ));
+            num.push_back( TYPE('0' + (i)         %10 ));
+
+            if (veryVerbose) dbg_print("Testing hash of ", num.data(), "\n");
+
+            prevHash = hash;
+            hash     = hasher(num);
+
+            // Check consecutive values are not hashing to the same hash
+            ASSERTV(prevHash, hash, prevHash != hash);
+
+            // Check that minimal collisions are happening
+            ++collisions[hash % PRIME];
+            // Choose 11 as max number of collisions.
+            ASSERTV(hash,
+                    hash % PRIME,
+                    collisions[hash % PRIME],
+                    collisions[hash % PRIME] <= 11);
+
+            NativePmrObj numCopy = num;
+
+            // Verify same hash is produced for the same value
+            ASSERT(num == numCopy);
+            ASSERT(hash == hasher(numCopy));
+
+            // Check that hash of the string is the same as the hash of the
+            // equivalent string_view.
+            // (https://cplusplus.github.io/LWG/issue2978)
+            ASSERT(hash == hasher(StringView(num)));
+        }
+    }
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
     if (verbose) printf("Hash an empty string. (C-3)\n");
     {
@@ -4090,6 +4197,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         TYPE abc[] = { TYPE('a'), TYPE('b'), TYPE('c'), TYPE(0) };
         ASSERT(bsl::hash<Obj>()(s) == bsl::hash<Obj>()(abc));
     }
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic pop
+#endif // BSLS_PLATFORM_CMP_CLANG
 }
 
 template <class TYPE, class TRAITS, class ALLOC>

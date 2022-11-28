@@ -14,6 +14,10 @@
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#endif // BSLS_PLATFORM_CMP_CLANG
+
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
@@ -2030,7 +2034,9 @@ int main(int argc, char *argv[])
                     16 * 1024 * 1024 / sizeof(bsl::vector<short>);
 
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
                 static char
                     buffer[k_VECTOR_ALLOCATION_THRESHOLD *
                                sizeof(bsl::vector<bsl::vector<short> >) +
