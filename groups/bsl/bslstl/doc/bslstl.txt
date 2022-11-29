@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 111 components having 10 levels of physical
+ The 'bslstl' package currently has 112 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -83,6 +83,7 @@
       bslstl_hashtablebucketiterator
       bslstl_hashtableiterator
       bslstl_iteratorutil
+      bslstl_span
       bslstl_stringrefdata
 
    3. bslstl_array
@@ -379,6 +380,9 @@
 :
 : 'bslstl_simplepool':
 :      Provide efficient allocation of memory blocks for a specific type.
+:
+: 'bslstl_span':
+:      Provide an STL-compliant span class.
 :
 : 'bslstl_stack':
 :      Provide an STL-compliant stack class.
