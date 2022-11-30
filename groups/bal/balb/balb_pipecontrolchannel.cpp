@@ -354,10 +354,23 @@ int PipeControlChannel::readNamedPipe()
                 continue;
             }
             else if (0 > bytesRead) {
-                BSLS_LOG_ERROR("Failed to read from pipe '%s', errno = %d: %s",
+                if (EAGAIN == savedErrno || EWOULDBLOCK == savedErrno) {
+                    BSLS_LOG_ERROR(
+                        "Failed to read from pipe '%s', errno = %d: '%s'."
+                        " This indicates that another process is reading from "
+                        "'%s'."
+                        " Messages written to this pipe will be unreliable"
+                        " until the conflict is resolved",
+                        d_pipeName.c_str(), savedErrno,
+                        bsl::strerror(savedErrno), d_pipeName.c_str());
+                    continue;
+                } else {
+                    BSLS_LOG_ERROR(
+                               "Failed to read from pipe '%s', errno = %d: %s",
                                d_pipeName.c_str(), savedErrno,
                                bsl::strerror(savedErrno));
-                return -1;                                            // RETURN
+                    return -1;                                        // RETURN
+                }
             }
             else {
                 if (bsls::Log::severityThreshold() >=
