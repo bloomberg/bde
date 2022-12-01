@@ -193,69 +193,84 @@ void noopHandler (int)
 
 namespace {
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Controlling a Simple Server
+/// - - - - - - - - - - - - - - - - - - -
+// This example illustrates how to construct a simple server that records
+// messages sent on a pipe control channel until "EXIT" is received, at which
+// point the channel is closed and the server stops.
+//
+// First, let's define the implementation of our server.
+//..
                             // ===================
                             // class ControlServer
                             // ===================
 
-class ControlServer {
+    class ControlServer {
 
-    // DATA
-    balb::PipeControlChannel d_channel;
-    bsl::vector<bsl::string> d_messages;
+        // DATA
+        balb::PipeControlChannel d_channel;
+        bsl::vector<bsl::string> d_messages;
 
-    // PRIVATE MANIPULATORS
-    void onMessage(const bslstl::StringRef& message)
-    {
-        if ("EXIT" != message) {
-            d_messages.push_back(message);
+        // PRIVATE MANIPULATORS
+        void onMessage(const bslstl::StringRef& message)
+        {
+            if ("EXIT" != message) {
+                d_messages.push_back(message);
+            }
+            else {
+                shutdown();
+            }
         }
-        else {
-            shutdown();
+
+      private:
+        // NOT IMPLEMENTED
+        ControlServer(const ControlServer&);             // = delete
+        ControlServer& operator=(const ControlServer&);  // = delete
+
+      public:
+        // CREATORS
+        explicit ControlServer(bslma::Allocator *basicAllocator = 0)
+        : d_channel(bdlf::BindUtil::bind(&ControlServer::onMessage,
+                                         this,
+                                         bdlf::PlaceHolders::_1),
+                    basicAllocator)
+        , d_messages(basicAllocator)
+        {}
+
+        // MANIPULATORS
+        int start(const bslstl::StringRef& pipeName)
+        {
+            return d_channel.start(pipeName);
         }
-    }
 
-  private:
-    // NOT IMPLEMENTED
-    ControlServer(const ControlServer&);             // = deleted
-    ControlServer& operator=(const ControlServer&);  // = deleted
+        void shutdown()
+        {
+            d_channel.shutdown();
+        }
 
-  public:
-    // CREATORS
-    explicit ControlServer(bslma::Allocator *basicAllocator = 0)
-    : d_channel(bdlf::BindUtil::bind(&ControlServer::onMessage,
-                                     this,
-                                     bdlf::PlaceHolders::_1),
-                basicAllocator)
-    , d_messages(basicAllocator)
-    {}
+        void stop()
+        {
+            d_channel.stop();
+        }
 
-    // MANIPULATORS
-    int start(const bslstl::StringRef &pipeName)
-    {
-        return d_channel.start(pipeName);
-    }
+        // ACCESSORS
+        bsl::size_t numMessages() const
+        {
+            return d_messages.size();
+        }
 
-    void shutdown()
-    {
-        d_channel.shutdown();
-    }
+        const bsl::string& message(int index) const
+        {
+            return d_messages[index];
+        }
+    };
+//..
 
-    void stop()
-    {
-        d_channel.stop();
-    }
-
-    // ACCESSORS
-    bsl::size_t numMessages() const
-    {
-        return d_messages.size();
-    }
-
-    const bsl::string& message(int index) const
-    {
-        return d_messages[index];
-    }
-};
+// ----------------------------------------------------------------------------
 
 static void threadSend(const bsl::string& pipeName,
                        const bsl::string& message,
@@ -716,7 +731,6 @@ int main(int argc, char *argv[])
             cout << "TESTING START, THREAD ATTRIBUTES PASSING\n"
                     "========================================\n";
         }
-
 
 #if   defined(BSLS_PLATFORM_OS_LINUX)
         // If no threadname is specified, the thread name is up to the first 15
@@ -1300,14 +1314,19 @@ int main(int argc, char *argv[])
 
 // Now, construct and run the server using a canonical name for the pipe:
 //..
-#if 0 // 'pipeName' in test driver (but not most situations) must contain pid.
+#if 0 // 'pipeName' in test driver (but not most situations) must contain pid
+      // and test case number.  See definiton of 'pipeName' under 'main'.
     bsl::string pipeName;
-    bdls::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
+    int         rc = bdls::PipeUtil::makeCanonicalName(&pipeName,
+                                                       "ctrl.pcctest");
+    ASSERT(0 == rc);
+#else
+    int rc;
 #endif
 
     ControlServer server;
 
-    int rc = server.start(pipeName);
+    rc = server.start(pipeName);
     if (0 != rc) {
         cout << "ERROR: Failed to start pipe control channel" << endl;
     }

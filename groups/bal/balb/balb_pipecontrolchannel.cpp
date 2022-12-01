@@ -33,7 +33,6 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
-
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 //  Should not be defining project-level configuration macros inside a cpp file
 //#define WIN32_LEAN_AND_MEAN
