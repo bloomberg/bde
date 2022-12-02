@@ -353,7 +353,14 @@ int PipeControlChannel::readNamedPipe()
                 continue;
             }
             else if (0 > bytesRead) {
+                // On some older systems EAGAIN and EWOULDBLOCK have different
+                // values.  However, if they have the same value, then testing
+                // against both results in an annoying compiler warning.
+#if EAGAIN != EWOULDBLOCK
                 if (EAGAIN == savedErrno || EWOULDBLOCK == savedErrno) {
+#else
+                if (EAGAIN == savedErrno) {
+#endif
                     BSLS_LOG_ERROR(
                         "Failed to read from pipe '%s', errno = %d: '%s'."
                         " This indicates that another process is reading from "
