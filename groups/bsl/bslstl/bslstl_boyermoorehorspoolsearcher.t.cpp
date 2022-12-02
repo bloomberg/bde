@@ -3337,9 +3337,17 @@ static void usage()
         char buffer[32];
 
         if (notFound == result) {
-            sprintf(buffer, "ng: %-10s %-11s\n", givenName, surname);
+            snprintf(buffer,
+                     sizeof(buffer),
+                     "ng: %-10s %-11s\n",
+                     givenName,
+                     surname);
         } else {
-            sprintf(buffer, "OK: %-10s %-11s\n", givenName, surname);
+            snprintf(buffer,
+                     sizeof(buffer),
+                     "OK: %-10s %-11s\n",
+                     givenName,
+                     surname);
         }
 
         output.append(buffer);

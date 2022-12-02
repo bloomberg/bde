@@ -6022,7 +6022,7 @@ int main(int argc, char *argv[])
         MessageProcessor msgProcessor(&ta);
 
         for (int i = 0;i < TOTAL_MSGS; ++i) {
-            sprintf(buffer, "This is message %d", i);
+            snprintf(buffer, sizeof(buffer), "This is message %d", i);
             msg.d_msgId = i;
             msg.d_msg_p = buffer;
             msgProcessor.receiveMessage(msg);

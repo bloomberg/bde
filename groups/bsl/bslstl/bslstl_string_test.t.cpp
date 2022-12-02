@@ -20604,7 +20604,7 @@ int main(int argc, char *argv[])
         //:    value.
         //
         // Plan:
-        //: 1 use 'sprintf' and 'swprintf' with an arbitrarily large buffer,
+        //: 1 use 'snprintf' and 'swprintf' with an arbitrarily large buffer,
         //:   (in this test case the buffer size will be 384) and compare it to
         //:   the output of 'to_string' and 'to_wstring'.  The buffer must be
         //:   at least as large as the largest floating point value that might
@@ -20719,7 +20719,7 @@ int main(int argc, char *argv[])
             }
 
             // Set up the oracle results for signed integers, using 'long long'
-            // versions of the corresponding C library 'sprintf' functions.
+            // versions of the corresponding C library 'snprintf' functions.
 
             // On some platforms, where 'long' and 'long long' are the same
             // size (like x86_64 Linux), these comparisons generate compiler
@@ -20729,7 +20729,7 @@ int main(int argc, char *argv[])
 #pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
 #endif
 
-            sprintf(tempBuf, "%lld", VALUE);
+            snprintf(tempBuf, sizeof(tempBuf), "%lld", VALUE);
 
             if (VALUE <= std::numeric_limits<int>::max() &&
                 VALUE >= std::numeric_limits<int>::min()) {
@@ -20764,9 +20764,9 @@ int main(int argc, char *argv[])
 
             // Set up the oracle results for unsigned integers, using the
             // 'unsigned long long' versions of the corresponding C library
-            // 'sprintf' functions.
+            // 'snprintf' functions.
 
-            sprintf(tempBuf, "%llu", U_VALUE);
+            snprintf(tempBuf, sizeof(tempBuf), "%llu", U_VALUE);
 
 #ifdef BSLS_PLATFORM_CMP_CLANG
 #pragma GCC diagnostic push
@@ -20829,7 +20829,7 @@ int main(int argc, char *argv[])
             }
 
             // Set up the oracle results for signed integers, using 'long long'
-            // versions of the corresponding C library 'sprintf' functions.
+            // versions of the corresponding C library 'snprintf' functions.
 
             swprintf(wTempBuf, BUF_LEN, L"%lld", VALUE);
 
@@ -20859,9 +20859,9 @@ int main(int argc, char *argv[])
 
             // Set up the oracle results for unsigned integers, using the
             // 'unsigned long long' versions of the corresponding C library
-            // 'sprintf' functions.
+            // 'snprintf' functions.
 
-            sprintf(tempBuf, "%llu", U_VALUE);
+            snprintf(tempBuf, sizeof(tempBuf), "%llu", U_VALUE);
             swprintf(wTempBuf, BUF_LEN, L"%llu", U_VALUE);
 
             if (U_VALUE <= std::numeric_limits<unsigned int>::max()) {
@@ -20936,19 +20936,28 @@ int main(int argc, char *argv[])
             }
 
             if (VALUE <= std::numeric_limits<float>::max()){
-                sprintf(tempBuf, "%f", static_cast<float>(VALUE));
+                snprintf(tempBuf,
+                         sizeof(tempBuf),
+                         "%f",
+                         static_cast<float>(VALUE));
                 bsl::string str = bsl::to_string(static_cast<float>(VALUE));
                 ASSERTV(LINE, tempBuf, str, tempBuf == str );
             }
 
             if (VALUE <= std::numeric_limits<double>::max()){
-                sprintf(tempBuf, "%f", static_cast<double>(VALUE));
+                snprintf(tempBuf,
+                         sizeof(tempBuf),
+                         "%f",
+                         static_cast<double>(VALUE));
                 bsl::string str = bsl::to_string(static_cast<double>(VALUE));
                 ASSERTV(LINE, tempBuf, str, tempBuf == str );
             }
 
             if (VALUE <= std::numeric_limits<float>::max()){
-                sprintf(tempBuf, "%Lf", static_cast<long double>(VALUE));
+                snprintf(tempBuf,
+                         sizeof(tempBuf),
+                         "%Lf",
+                         static_cast<long double>(VALUE));
                 bsl::string str =
                                bsl::to_string(static_cast<long double>(VALUE));
                 ASSERTV(LINE, tempBuf, str, tempBuf == str );

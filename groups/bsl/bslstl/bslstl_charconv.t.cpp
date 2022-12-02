@@ -873,12 +873,12 @@ int main(int argc, char *argv[])
         //:     we got the same value preceded by '-'.
         //:
         //: 3 Iterate through the table of numbers.  For each number:
-        //:   o write the number with both 'sprintf' and 'to_chars' as unsigned
-        //:     decimal, hex, and octal strings, and using 'sprintf' as an
-        //:     "oracle" for comparing the resulting strings for perfect
+        //:   o write the number with both 'snprintf' and 'to_chars' as
+        //:     unsigned decimal, hex, and octal strings, and using 'sprintf'
+        //:     as an "oracle" for comparing the resulting strings for perfect
         //:     accuracy.
         //:
-        //:   o Assign it to a signed type, with it with both 'sprintf' and
+        //:   o Assign it to a signed type, with it with both 'snprintf' and
         //:     'to_chars', and observe they match to test for perfect
         //:     accuracy.  Then negate the signed type and repeat the
         //:     experiment.
@@ -1340,7 +1340,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Accuracy 1: sprintf comparisons\n");
+        if (verbose) printf("Accuracy 1: snprintf comparisons\n");
 
         for (int di = 0; di < k_NUM_DATA; ++di) {
             const Data&     data   = DATA[di];
@@ -1351,7 +1351,7 @@ int main(int argc, char *argv[])
             char toCharsBuffer[40];
             bsl::to_chars_result result;
 
-            sprintf(sprintfBuffer, "%llu", VALUE);
+            snprintf(sprintfBuffer, sizeof(sprintfBuffer), "%llu", VALUE);
             result = bsl::to_chars(toCharsBuffer,
                                    toCharsBuffer + sizeof(toCharsBuffer),
                                    VALUE,
@@ -1361,7 +1361,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, !std::strcmp(sprintfBuffer, toCharsBuffer));
 
             for (Int64 sValue = VALUE, ii = 0; ii < 2; ++ii, sValue = -sValue){
-                sprintf(sprintfBuffer, "%lld", sValue);
+                snprintf(sprintfBuffer, sizeof(sprintfBuffer), "%lld", sValue);
                 result = bsl::to_chars(toCharsBuffer,
                                        toCharsBuffer + sizeof(toCharsBuffer),
                                        sValue,
@@ -1376,7 +1376,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            sprintf(sprintfBuffer, "%llo", VALUE);
+            snprintf(sprintfBuffer, sizeof(sprintfBuffer), "%llo", VALUE);
             result = bsl::to_chars(toCharsBuffer,
                                    toCharsBuffer + sizeof(toCharsBuffer),
                                    VALUE,
@@ -1385,7 +1385,7 @@ int main(int argc, char *argv[])
             *result.ptr = 0;
             ASSERTV(LINE, !std::strcmp(sprintfBuffer, toCharsBuffer));
 
-            sprintf(sprintfBuffer, "%llx", VALUE);
+            snprintf(sprintfBuffer, sizeof(sprintfBuffer), "%llx", VALUE);
             result = bsl::to_chars(toCharsBuffer,
                                    toCharsBuffer + sizeof(toCharsBuffer),
                                    VALUE,
@@ -1457,7 +1457,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) P(value);
 
             char sprintfBuf[20];
-            sprintf(sprintfBuf, "%d", value);
+            snprintf(sprintfBuf, sizeof(sprintfBuf), "%d", value);
             const IntPtr len = std::strlen(sprintfBuf);
 
             char toCharsBuf[20];
