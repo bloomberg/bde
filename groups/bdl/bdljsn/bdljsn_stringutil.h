@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 //: o 'writeString': Given an arbitrary UTF-8 codepoint sequence, generate a
 //:   JSON string representing the same codepoints.
-//
+//:
 //: o 'readString': Given a JSON string (e.g., the output of 'writeString'),
 //:   generate the equivalent sequence of UTF-8 code points.
 //
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // For example, the character that rings the console bell is represented as
 // '\u0007'.  Note that the hexadecimal digits can use upper or lower case
 // letters but the lead 'u' character must be lower case.  See {Strictness}.
-//:
+//
 // Eight of the characters that must be escaped can be alternatively
 // represented by special, 2-byte sequences:
 //..
