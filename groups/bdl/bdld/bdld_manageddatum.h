@@ -36,11 +36,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // set of value-semantic-like operations for 'Datum' (see
 // {'bsldoc_glossary'|Value-Semantic Operations}):
 //
-//:  o Equality and Non-Equality Comparisons
-//:  o Copy Construction
-//:  o Copy Assignment
-//:  o Default Construction
-//:  o 'ostream' Printing
+//: o Equality and Non-Equality Comparisons
+//: o Copy Construction
+//: o Copy Assignment
+//: o Default Construction
+//: o 'ostream' Printing
 //
 // In other words, the syntax of 'ManagedDatum' is *regular*, but not all of
 // its copy behavior is value-semantic.  Specifically, for User Defined Types
