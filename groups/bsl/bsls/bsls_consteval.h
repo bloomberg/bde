@@ -183,7 +183,6 @@ BSLS_IDENT("$Id: $")
 // advantage of having optimal algorithms available at both compile time and
 // runtime while getting the best available implementation on newer platforms
 // that enable the detection of compile-time evaluation.
-//..
 
 #include <bsls_compilerfeatures.h>
 
