@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Basic Use of 'bdlb::CaselessStringViewEqualTo':
+///Example 1: Basic Use of 'bdlb::CaselessStringViewEqualTo'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have some strings that compare equal, some that don't, and some
 // of which are equal except for the cases of some of the letters.
