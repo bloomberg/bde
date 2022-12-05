@@ -251,13 +251,13 @@ class SingleConsumerQueueImpl {
     // +-----------+--+-----+
     //..
     //
-    //:  * available:    the number of nodes available for use, which becomes
-    //:                  negative when an allocation is needed
+    //: * available:    the number of nodes available for use, which becomes
+    //:                 negative when an allocation is needed
     //:
-    //:  * a (allocate): a bit indicating a thread is holding the allocation
-    //:                  lock
+    //: * a (allocate): a bit indicating a thread is holding the allocation
+    //:                 lock
     //:
-    //:  * use:          number of threads attempting to use existing nodes
+    //: * use:          number of threads attempting to use existing nodes
     //
     // The 'k_*_MASK' constants define the layout of the attributes, the
     // 'k_*_INC' constants are used to modify the 'd_state' attributes, and the
