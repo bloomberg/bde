@@ -316,7 +316,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //  assert(seenException);
 //  assert(2 == removedAddressId);
-
+//
 //  assert(7 == addCustomer03("Plum Inc.", "1i Imagine Sq, Coppertin, CA"));
 //  assert(2 == removedAddressId);
 //..
