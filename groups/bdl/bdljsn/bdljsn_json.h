@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdljsn_jsonutil, bdljsn_jsonnumber, bdljsn_jsonnull
 //
 //@DESCRIPTION: This component provides a value-semantic type, 'bdljsn::Json',
-// used as an in-memeory representation for a JSON document.  This component
+// used as an in-memory representation for a JSON document.  This component
 // also provides 'bdljsn::JsonArray' and 'bdljsn::JsonObject' types for
 // representing JSON Arrays and Objects respectively.
 //
