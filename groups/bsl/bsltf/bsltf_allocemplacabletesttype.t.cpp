@@ -361,7 +361,7 @@ class TestDriver {
                    bslma::Allocator *basicAllocator,
                    int               verbose = 1);
         // Construct the specified 'object' according to the specified 'spec',
-        // using the specified 'basicAllocator' to supply memeory.  Optionally
+        // using the specified 'basicAllocator' to supply memory.  Optionally
         // specify a zero 'verbose' to suppress 'spec' syntax error messages.
         // Return the index of the first invalid character, and a negative
         // value otherwise.  Note that this function is used to implement 'gg'
