@@ -69,6 +69,11 @@ BSLS_IDENT("$Id: $")
 // also not recommended to write hashes from 'bslh::SpookyHashAlgorihtm' to any
 // memory accessible by multiple machines.
 //
+///Subdivision-Invariance
+///----------------------
+// Note that this algorithm is *subdivision-invariant* (see
+// {'bslh_hash'|Subdivision-Invariance}).
+//
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.
@@ -266,15 +271,15 @@ BSLS_IDENT("$Id: $")
 // Now, we verify that each element in our array registers with count:
 //..
 //      for ( int i = 0; i < 6; ++i) {
-//          ASSERT(hashTable.contains(futures[i]));
+//          assert(hashTable.contains(futures[i]));
 //      }
 //..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
 //..
-//      ASSERT(!hashTable.contains(Future("French Franc", 'N', 2019)));
-//      ASSERT(!hashTable.contains(Future("Swiss Franc", 'X', 2014)));
-//      ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
+//      assert(!hashTable.contains(Future("French Franc", 'N', 2019)));
+//      assert(!hashTable.contains(Future("Swiss Franc", 'X', 2014)));
+//      assert(!hashTable.contains(Future("US Dollar", 'F', 2014)));
 //
 //..
 
@@ -290,9 +295,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <stddef.h>  // for 'size_t'
+#include <string.h>  // for 'memcpy'
 
 namespace BloombergLP {
-
 namespace bslh {
 
 
@@ -330,6 +335,15 @@ class SpookyHashAlgorithm {
     // CONSTANTS
     enum { k_SEED_LENGTH = 16 }; // Seed length in bytes.
 
+  private:
+    // PRIVATE CLASS METHODS
+    static
+    Uint64 getSeed(const char *seed);
+        // The specified 'seed' points to a possibly non-aligned 'Uint64',
+        // return the value of that 'Uint64' without violating the host
+        // machine's alignment requirements.
+
+  public:
     // CREATORS
     SpookyHashAlgorithm();
         // Create a 'SpookyHashAlgorithm' using a default initial seed.
@@ -370,62 +384,25 @@ class SpookyHashAlgorithm {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+// PRIVATE CLASS METHODS
+inline
+SpookyHashAlgorithm::Uint64 SpookyHashAlgorithm::getSeed(const char *seed)
+{
+    Uint64 ret;
+    ::memcpy(&ret, seed, sizeof(ret));
+    return ret;
+}
+
 // CREATORS
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm()
 : d_state(1, 2)
-{
-}
+{}
 
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
-: d_state(
-#if defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
-// Intel x86 processors allow for unaligned memory reads
-          reinterpret_cast<const Uint64 *>(seed)[0],
-          reinterpret_cast<const Uint64 *>(seed)[1]
-#else
-#if defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
-          static_cast<Uint64>(seed[0])        |
-          static_cast<Uint64>(seed[1])  <<  8 |
-          static_cast<Uint64>(seed[2])  << 16 |
-          static_cast<Uint64>(seed[3])  << 24 |
-          static_cast<Uint64>(seed[4])  << 32 |
-          static_cast<Uint64>(seed[5])  << 40 |
-          static_cast<Uint64>(seed[6])  << 48 |
-          static_cast<Uint64>(seed[7])  << 56,
-          static_cast<Uint64>(seed[8])        |
-          static_cast<Uint64>(seed[9])  << 8  |
-          static_cast<Uint64>(seed[10]) << 16 |
-          static_cast<Uint64>(seed[11]) << 24 |
-          static_cast<Uint64>(seed[12]) << 32 |
-          static_cast<Uint64>(seed[13]) << 40 |
-          static_cast<Uint64>(seed[14]) << 48 |
-          static_cast<Uint64>(seed[15]) << 56
-#else  // big endian
-          static_cast<Uint64>(seed[0])  << 56 |
-          static_cast<Uint64>(seed[1])  << 48 |
-          static_cast<Uint64>(seed[2])  << 40 |
-          static_cast<Uint64>(seed[3])  << 32 |
-          static_cast<Uint64>(seed[4])  << 24 |
-          static_cast<Uint64>(seed[5])  << 16 |
-          static_cast<Uint64>(seed[6])  << 8  |
-          static_cast<Uint64>(seed[7]),
-          static_cast<Uint64>(seed[8])  << 56 |
-          static_cast<Uint64>(seed[9])  << 48 |
-          static_cast<Uint64>(seed[10]) << 40 |
-          static_cast<Uint64>(seed[11]) << 32 |
-          static_cast<Uint64>(seed[12]) << 24 |
-          static_cast<Uint64>(seed[13]) << 16 |
-          static_cast<Uint64>(seed[14]) << 8  |
-          static_cast<Uint64>(seed[15])
-#endif
-#endif
-          )
-{
-    // These static casts and bit shifts are to prevent unaligned reads, which
-    // cause runtime errors or bad results on anything but Intel.
-}
+: d_state(getSeed(seed), getSeed(seed + sizeof(Uint64)))
+{}
 
 // MANIPULATORS
 inline

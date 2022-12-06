@@ -73,10 +73,10 @@ BSLS_IDENT("$Id: $")
 // The value obtained by hashing a segment of memory is independent of the
 // alignment of the segment of memory.
 //
-///Hashing Multiple Segments
-///-------------------------
-// Hashing multiple segments of memory into a single result will yield the same
-// result as hashing those segments concatenated into a single segment.
+///Subdivision-Invariance
+///----------------------
+// Note that this algorithm is *subdivision-invariant* (see
+// {'bslh_hash'|Subdivision-Invariance}).
 //
 ///Speed
 ///-----

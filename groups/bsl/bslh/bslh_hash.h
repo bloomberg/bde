@@ -118,13 +118,30 @@ BSLS_IDENT("$Id: $")
 // algorithm.  A default constructor (either implicit or explicit) must be
 // supplied that creates an algorithm functor that is in a usable state.  An
 // 'operator()' must be supplied that takes a 'const void *' to the data to be
-// hashed and a 'size_t' length of bytes to be hashed.  This operator must
-// operate on all data uniformly, meaning that regardless of whether data is
-// passed in all at once, or one byte at a time, the result returned by
-// 'computeHash()' will be the same.  'computeHash()' will return the final
-// result of the hashing algorithm, as type 'result_type'.  'computeHash()' is
-// allowed to modify the internal state of the algorithm, meaning calling
-// 'computeHash()' more than once may not return the correct value.
+// hashed and a 'size_t' length of bytes to be hashed.  'computeHash()' will
+// return the final result of the hashing algorithm, as type 'result_type'.
+// 'computeHash()' is allowed to modify the internal state of the algorithm,
+// meaning calling 'computeHash()' more than once may not return the correct
+// value.
+//
+///Subdivision-Invariance
+/// - - - - - - - - - - -
+// The result produced by the hashing algorithm must be independent of how the
+// data is subdivided into segments when supplied to 'operator()'.  More
+// precisely, for any subdivision of the message 'M' of size 'S' into 'N'
+// segments 'M_i' of size 'S_i', the following must be true:
+//
+//..
+//  SomeHashAlgorithm algM;
+//  algM(M, S);
+//
+//  SomeHashAlgorithm algI;
+//  for (int i = 0; i < N; ++i) {
+//      algI(M_i, S_i);
+//  }
+//
+//  assert(algM.computeHash() == algI.computeHash());
+//..
 //
 ///Usage
 ///-----
