@@ -12,6 +12,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -70,6 +71,7 @@ using namespace bsl;
 // TYPEDEFS
 // [15] typedef TYPE ValueType;
 // [15] typename bsl::allocator<char> allocator_type;
+// [22] bsl::optional<bslma::ManagedPtr<void>>
 //
 // TRAITS
 // [15] bsl::is_trivially_copyable
@@ -5224,6 +5226,19 @@ struct ThrowMoveConstructible {
         (void) b;
     }
 };
+
+                                // ------------
+                                // Test Case 22
+                                // ------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+// Ensure that we can do 'bsl::optional<bslma::ManagedPtr<void> > on C++17.
+
+// This is a compile-only test, and only test on C++17.
+
+template class bsl::optional<bslma::ManagedPtr<void>>;
+template class std::optional<bslma::ManagedPtr<void>>;
+#endif
 
 namespace BloombergLP {
 namespace bslh {
@@ -12893,6 +12908,37 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 25: {
+        //---------------------------------------------------------------------
+        // bsl::optional<bslma::ManagedPtr<void>>
+        //
+        // Concern:
+        //: o That, on C++17 at least, 'optional<bslma::ManagedPtr<void>>'
+        //:   works.
+        //
+        // Plan:
+        //: 1 Do 'template class ...' declarations at file scope and see if
+        //:   they compile on C++17.
+        //:
+        //: 2 Use 'BSLMF_ASSERT' to examine type traits in this 'case' to
+        //:   see if they turn out OK.
+        //
+        // Testing:
+        //   bsl::optional<bslma::ManagedPtr<void>>
+        //---------------------------------------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        typedef bsl::optional<bslma::ManagedPtr<void>> Obj;
+
+        BSLMF_ASSERT(!bsl::is_copy_constructible<Obj>::value);
+        BSLMF_ASSERT(!std::is_copy_assignable<Obj>::value);
+
+        typedef std::optional<bslma::ManagedPtr<void>> SObj;
+
+        BSLMF_ASSERT(!bsl::is_copy_constructible<SObj>::value);
+        BSLMF_ASSERT(!std::is_copy_assignable<SObj>::value);
+#endif
+      } break;
       case 24: {
         RUN_EACH_TYPE(TestDriver,
                       testCase24,

@@ -2837,16 +2837,6 @@ class optional<TYPE, false> : public std::optional<TYPE> {
     optional(bsl::nullopt_t) noexcept;                              // IMPLICIT
         // Create a disengaged 'optional' object.
 
-    optional(const optional& original) = default;
-        // Create an 'optional' object having the value of the specified
-        // 'original' object.
-
-    optional(optional&& original) = default;
-        // Create an 'optional' object having the same value as the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  'original' is left in a valid, but
-        // unspecified state.
-
     template <class ANY_TYPE = TYPE>
     optional(
        ANY_TYPE&&                                                        value,
@@ -2993,17 +2983,6 @@ class optional<TYPE, false> : public std::optional<TYPE> {
     // MANIPULATORS
     optional& operator=(bsl::nullopt_t) noexcept;
         // reset the optional to a disengaged state.
-
-    optional& operator=(const optional& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
-
-    optional& operator=(optional&& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.  The allocators of
-        // this object and 'rhs' both remain unchanged.  The contents of 'rhs'
-        // are either move-constructed into or move-assigned to this object.
-        // 'rhs' is left in a valid but unspecified state.
 
     template <class ANY_TYPE>
     BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_BSL_OPTIONAL(TYPE, const ANY_TYPE&) &
@@ -9329,45 +9308,6 @@ operator=(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT
 }
 
 // MANIPULATORS
-template <class TYPE>
-inline
-optional<TYPE, false>&
-optional<TYPE, false>::operator=(const optional& rhs)
-{
-    if (rhs.has_value()) {
-        if (this->has_value()) {
-            this->operator*() = *rhs;
-        }
-        else {
-            this->emplace(*rhs);
-        }
-    }
-    else {
-        this->reset();
-    }
-    return *this;
-}
-
-template <class TYPE>
-inline
-optional<TYPE, false>&
-optional<TYPE, false>::operator=(optional&& rhs)
-{
-    optional& lvalue = rhs;
-    if (lvalue.has_value()) {
-        if (this->has_value()) {
-            this->operator*() = std::move(*lvalue);
-        }
-        else {
-            this->emplace(std::move(*lvalue));
-        }
-    }
-    else {
-        this->reset();
-    }
-    return *this;
-}
-
 template <class TYPE>
 template <class ANY_TYPE>
 inline
