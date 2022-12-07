@@ -5776,6 +5776,7 @@ bool operator>=(const std::optional<LHS_TYPE>& lhs,
 }  // close namespace bsl
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS==202002L && \
+    defined(BSLS_PLATFORM_CMP_GNU) && \
     defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && \
     (BSLS_PLATFORM_CMP_VERSION > 110000 &&      \
      BSLS_PLATFORM_CMP_VERSION < 130000)
