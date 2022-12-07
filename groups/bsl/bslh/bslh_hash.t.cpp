@@ -959,7 +959,7 @@ namespace Z {
     void testHashDefault()
         // Test that 'bslh::Hash<>()(a)' picks up the 'hashAppend' in 'a's
         // namespace, and that it uses the 'DefaultHashAlgorithm' and not
-        // 'Hash_AdlWrapper<DefaultHashAlgorithm'.
+        // 'Hash_AdlWrapper<DefaultHashAlgorithm>'.
     {
         XX::A a;
         (void) BloombergLP::bslh::Hash<>()(a);
