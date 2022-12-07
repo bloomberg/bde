@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
     // steps.  In order to make sure an entire code base does not rely on these
     // features, recompile with this macro defined.  Examples of such features
     // are: including '<stdheader>' as opposed to '<bsl_stdheader.h>', or using
-    // 'DEBUG' instead of 'BAEL_DEBUG'.
+    // 'DEBUG' instead of 'e_DEBUG'.
 #else
 #define BDE_DONT_ALLOW_TRANSITIVE_INCLUDES 1
     // When we don't want to rely on legacy features, we also want to make sure
