@@ -13,8 +13,8 @@ BSLS_IDENT("$Id: $")
 //  bdlmt::SignalerConnectionGuard: RAII signaler/slot connection
 //
 //@DESCRIPTION: This component provides the template class
-// 'bdlmt::Signaler<PROT>', an implementation of a managed signal and slots
-// system for the void returning function prototype 'PROT'.  Each signaler
+// 'bdlmt::Signaler<t_PROT>', an implementation of a managed signal and slots
+// system for the void returning function prototype 't_PROT'.  Each signaler
 // represents a callback with multiple targets (called "slots") which are
 // invoked in a known order when the signaler is invoked (called being
 // "emitted").
@@ -34,10 +34,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Slot Object Requirements
 ///------------------------
-// Slots connected to a signaler 'Signaler<PROT>' must be callable and copyable
-// objects that may be passed to the constructor of 'bsl::function<PROT>'.
-// I.e. a slot must be callable with the same arguments as 'PROT', and if a
-// slot returns a value it will be discarded.
+// Slots connected to a signaler 'Signaler<t_PROT>' must be callable and
+// copyable objects that may be passed to the constructor of
+// 'bsl::function<t_PROT>'.  I.e. a slot must be callable with the same
+// arguments as 't_PROT', and if a slot returns a value it will be discarded.
 //
 ///Call Groups
 ///-----------
@@ -234,9 +234,9 @@ struct Signaler_NotArg {
                         // class Signaler_ArgumentType
                         // ===========================
 
-template <class PROT>
+template <class t_PROT>
 struct Signaler_ArgumentType {
-    // For a function prototype 'PROT' of up to 9 arguments, provide types
+    // For a function prototype 't_PROT' of up to 9 arguments, provide types
     // 'ForwardingTypeN' which is the most convenient way to forward the 'Nth'
     // argument.
     //: o as the type of argument N itself (in the case of some fundamental
@@ -246,6 +246,7 @@ struct Signaler_ArgumentType {
     //: o as a reference to a modifiable object, if that's how the argument was
     //:   passed in the first place.
     // Note that nothing is passed as an rvalue reference, since if there are
+
     // multiple slots (usually the case), the argument will be moved from by
     // the first one and then unsuitable to be used by the ones following.
     //
@@ -254,12 +255,12 @@ struct Signaler_ArgumentType {
 
   private:
     // PRIVATE TYPES
-    typedef typename bslmf::FunctionPointerTraits<PROT*>::ArgumentList Args;
+    typedef typename bslmf::FunctionPointerTraits<t_PROT *>::ArgumentList Args;
 
-    template <int NUM>
+    template <int t_NUM>
     struct Forward {
         // PUBLIC TYPES
-        typedef typename bslmf::TypeListTypeOf<NUM, Args, Signaler_NotArg>::
+        typedef typename bslmf::TypeListTypeOf<t_NUM, Args, Signaler_NotArg>::
                                                          TypeOrDefault ArgType;
 
         typedef typename bslmf::ForwardingType<ArgType>::Type Type;
@@ -285,15 +286,14 @@ struct Signaler_ArgumentType {
                           // struct Signaler_Invocable
                           // =========================
 
-template <class SIGNALER, class PROT>
+template <class t_SIGNALER, class t_PROT>
 struct Signaler_Invocable {
     // Provides a call operator for the derived class 'bdlmt::Signaler', such
-    // that its call signature is identical to that of 'PROT'.
+    // that its call signature is identical to that of 't_PROT'.
 };
 
-template <class SIGNALER>
-struct Signaler_Invocable<SIGNALER, void()> {
-
+template <class t_SIGNALER>
+struct Signaler_Invocable<t_SIGNALER, void()> {
     // ACCESSOR
     void operator()() const;
         // Call the functions held in all slot holders, in the order of group
@@ -302,141 +302,166 @@ struct Signaler_Invocable<SIGNALER, void()> {
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class ARG1>
-struct Signaler_Invocable<SIGNALER, void(ARG1)> {
-
+template <class t_SIGNALER, class t_ARG1>
+struct Signaler_Invocable<t_SIGNALER, void(t_ARG1)> {
     // ACCESSOR
-    void operator()(ARG1) const;
+    void operator()(t_ARG1) const;
         // Call the functions held in all slot holders, in the order of group
         // numbers and with the ordering within one group being the order in
         // which connections were made, passing the number and type of
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class ARG1,
-                          class ARG2>
-struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2)> {
-
+template <class t_SIGNALER, class t_ARG1, class t_ARG2>
+struct Signaler_Invocable<t_SIGNALER, void(t_ARG1, t_ARG2)> {
     // ACCESSOR
-    void operator()(ARG1, ARG2) const;
+    void operator()(t_ARG1, t_ARG2) const;
         // Call the functions held in all slot holders, in the order of group
         // numbers and with the ordering within one group being the order in
         // which connections were made, passing the number and type of
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3>
-struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3)> {
-
+template <class t_SIGNALER, class t_ARG1, class t_ARG2, class t_ARG3>
+struct Signaler_Invocable<t_SIGNALER, void(t_ARG1, t_ARG2, t_ARG3)> {
     // ACCESSOR
-    void operator()(ARG1, ARG2, ARG3) const;
+    void operator()(t_ARG1, t_ARG2, t_ARG3) const;
         // Call the functions held in all slot holders, in the order of group
         // numbers and with the ordering within one group being the order in
         // which connections were made, passing the number and type of
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4>
-struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4)> {
-
+template <class t_SIGNALER,
+          class t_ARG1,
+          class t_ARG2,
+          class t_ARG3,
+          class t_ARG4>
+struct Signaler_Invocable<t_SIGNALER, void(t_ARG1, t_ARG2, t_ARG3, t_ARG4)> {
     // ACCESSOR
-    void operator()(ARG1, ARG2, ARG3, ARG4) const;
+    void operator()(t_ARG1, t_ARG2, t_ARG3, t_ARG4) const;
         // Call the functions held in all slot holders, in the order of group
         // numbers and with the ordering within one group being the order in
         // which connections were made, passing the number and type of
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5>
-struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5)> {
-
+template <class t_SIGNALER,
+          class t_ARG1,
+          class t_ARG2,
+          class t_ARG3,
+          class t_ARG4,
+          class t_ARG5>
+struct Signaler_Invocable<t_SIGNALER,
+                          void(t_ARG1, t_ARG2, t_ARG3, t_ARG4, t_ARG5)> {
     // ACCESSOR
-    void operator()(ARG1, ARG2, ARG3, ARG4, ARG5) const;
+    void operator()(t_ARG1, t_ARG2, t_ARG3, t_ARG4, t_ARG5) const;
         // Call the functions held in all slot holders, in the order of group
         // numbers and with the ordering within one group being the order in
         // which connections were made, passing the number and type of
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6>
-struct Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)> {
-
-    // ACCESSOR
-    void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const;
-        // Call the functions held in all slot holders, in the order of group
-        // numbers and with the ordering within one group being the order in
-        // which connections were made, passing the number and type of
-        // arguments passed to this function.
-};
-
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6,
-                          class ARG7>
-struct Signaler_Invocable<SIGNALER,
-                          void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)> {
-
-    // ACCESSOR
-    void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const;
-        // Call the functions held in all slot holders, in the order of group
-        // numbers and with the ordering within one group being the order in
-        // which connections were made, passing the number and type of
-        // arguments passed to this function.
-};
-
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6,
-                          class ARG7,
-                          class ARG8>
+template <class t_SIGNALER,
+          class t_ARG1,
+          class t_ARG2,
+          class t_ARG3,
+          class t_ARG4,
+          class t_ARG5,
+          class t_ARG6>
 struct Signaler_Invocable<
-                        SIGNALER,
-                        void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)> {
-
+    t_SIGNALER,
+    void(t_ARG1, t_ARG2, t_ARG3, t_ARG4, t_ARG5, t_ARG6)> {
     // ACCESSOR
-    void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const;
+    void operator()(t_ARG1, t_ARG2, t_ARG3, t_ARG4, t_ARG5, t_ARG6) const;
         // Call the functions held in all slot holders, in the order of group
         // numbers and with the ordering within one group being the order in
         // which connections were made, passing the number and type of
         // arguments passed to this function.
 };
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6,
-                          class ARG7,
-                          class ARG8,
-                          class ARG9>
+template <class t_SIGNALER,
+          class t_ARG1,
+          class t_ARG2,
+          class t_ARG3,
+          class t_ARG4,
+          class t_ARG5,
+          class t_ARG6,
+          class t_ARG7>
 struct Signaler_Invocable<
-                  SIGNALER,
-                  void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)> {
-
+    t_SIGNALER,
+    void(t_ARG1, t_ARG2, t_ARG3, t_ARG4, t_ARG5, t_ARG6, t_ARG7)> {
     // ACCESSOR
-    void operator()(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)
-                                                                         const;
+    void operator()(t_ARG1,
+                    t_ARG2,
+                    t_ARG3,
+                    t_ARG4,
+                    t_ARG5,
+                    t_ARG6,
+                    t_ARG7) const;
+        // Call the functions held in all slot holders, in the order of group
+        // numbers and with the ordering within one group being the order in
+        // which connections were made, passing the number and type of
+        // arguments passed to this function.
+};
+
+template <class t_SIGNALER,
+          class t_ARG1,
+          class t_ARG2,
+          class t_ARG3,
+          class t_ARG4,
+          class t_ARG5,
+          class t_ARG6,
+          class t_ARG7,
+          class t_ARG8>
+struct Signaler_Invocable<
+    t_SIGNALER,
+    void(t_ARG1, t_ARG2, t_ARG3, t_ARG4, t_ARG5, t_ARG6, t_ARG7, t_ARG8)> {
+    // ACCESSOR
+    void operator()(t_ARG1,
+                    t_ARG2,
+                    t_ARG3,
+                    t_ARG4,
+                    t_ARG5,
+                    t_ARG6,
+                    t_ARG7,
+                    t_ARG8) const;
+        // Call the functions held in all slot holders, in the order of group
+        // numbers and with the ordering within one group being the order in
+        // which connections were made, passing the number and type of
+        // arguments passed to this function.
+};
+
+template <class t_SIGNALER,
+          class t_ARG1,
+          class t_ARG2,
+          class t_ARG3,
+          class t_ARG4,
+          class t_ARG5,
+          class t_ARG6,
+          class t_ARG7,
+          class t_ARG8,
+          class t_ARG9>
+struct Signaler_Invocable<t_SIGNALER,
+                          void(t_ARG1,
+                               t_ARG2,
+                               t_ARG3,
+                               t_ARG4,
+                               t_ARG5,
+                               t_ARG6,
+                               t_ARG7,
+                               t_ARG8,
+                               t_ARG9)> {
+    // ACCESSOR
+    void operator()(t_ARG1,
+                    t_ARG2,
+                    t_ARG3,
+                    t_ARG4,
+                    t_ARG5,
+                    t_ARG6,
+                    t_ARG7,
+                    t_ARG8,
+                    t_ARG9) const;
         // Call the functions held in all slot holders, in the order of group
         // numbers and with the ordering within one group being the order in
         // which connections were made, passing the number and type of
@@ -486,7 +511,7 @@ class Signaler_SlotNode_Base {
                             // class Signaler_SlotNode
                             // =======================
 
-template <class PROT>
+template <class t_PROT>
 class Signaler_SlotNode : public Signaler_SlotNode_Base {
     // Dynamically-allocated container for one slot, containing a function
     // object that can be called by a signaler.  Owned by a shared pointer in a
@@ -495,9 +520,9 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
 
   private:
     // PRIVATE TYPES
-    typedef Signaler_ArgumentType<PROT>               ArgumentType;
-    typedef typename ArgumentType::ForwardingNotArg   ForwardingNotArg;
-    typedef Signaler_Node<PROT>                       SignalerNode;
+    typedef Signaler_ArgumentType<t_PROT>               ArgumentType;
+    typedef typename ArgumentType::ForwardingNotArg     ForwardingNotArg;
+    typedef Signaler_Node<t_PROT>                       SignalerNode;
 
   public:
     // PUBLIC TYPE
@@ -519,7 +544,7 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
     bsl::weak_ptr<SignalerNode> d_signalerNodePtr;
         // Weak reference to the associated signaler node.
 
-    bsl::function<PROT>         d_func;
+    bsl::function<t_PROT>         d_func;
         // The target callback.
 
   private:
@@ -639,11 +664,12 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
 
   public:
     // CREATORS
-    template <class FUNC>
-    Signaler_SlotNode(const bsl::weak_ptr<SignalerNode>&       signalerNodePtr,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  slot,
-                      SlotMapKey                               slotMapKey,
-                      bslma::Allocator                        *allocator);
+    template <class t_FUNC>
+    Signaler_SlotNode(
+                    const bsl::weak_ptr<SignalerNode>&         signalerNodePtr,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(t_FUNC)  slot,
+                    SlotMapKey                                 slotMapKey,
+                    bslma::Allocator                          *allocator);
         // Create a 'Signaler_SlotNode' object associated with signaler node at
         // the specified 'signalerNodePtr' using the specified 'slotMapKey' and
         // with the specified 'slot' callable object.  Specify an 'allocator'
@@ -689,7 +715,7 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
         // Invoke the stored callback 'c', as if by 'c(args...)', where
         // 'args...' are the specified arguments 'arg1', 'arg2', 'arg3', etc.,
         // except that the actual number of arguments passed to 'c' is equal to
-        // the number of arguments for 'PROT'.  If this slot is disconnected,
+        // the number of arguments for 't_PROT'.  If this slot is disconnected,
         // this function has no effect.
 
     bool isConnected() const BSLS_KEYWORD_OVERRIDE;
@@ -701,9 +727,9 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
                             // class Signaler_Node
                             // ===================
 
-template <class PROT>
-class Signaler_Node :
-                    public bsl::enable_shared_from_this<Signaler_Node<PROT> > {
+template <class t_PROT>
+class Signaler_Node
+: public bsl::enable_shared_from_this<Signaler_Node<t_PROT> > {
     // Provides the implementation of a signaler.  This object has a 1-1
     // relationship with the 'Signaler', which has a shared pointer to it.
     // This allows other objects to refer to it via shared and weak pointers.
@@ -714,9 +740,9 @@ class Signaler_Node :
 
   private:
     // PRIVATE TYPES
-    typedef Signaler_SlotNode<PROT>                     SlotNode;
-    typedef typename SlotNode::SlotMapKey               SlotMapKey;
-    typedef Signaler_ArgumentType<PROT>                 ArgumentType;
+    typedef Signaler_SlotNode<t_PROT>                     SlotNode;
+    typedef typename SlotNode::SlotMapKey                 SlotMapKey;
+    typedef Signaler_ArgumentType<t_PROT>                 ArgumentType;
 
     typedef bdlcc::SkipList<SlotMapKey,                // [GROUP, ID] pair
                             bsl::shared_ptr<SlotNode> > KeyToSlotMap;
@@ -752,9 +778,10 @@ class Signaler_Node :
 
   public:
     // MANIPULATORS
-    template <class FUNC>
-    SignalerConnection connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) slot,
-                               int                                     group);
+    template <class t_FUNC>
+    SignalerConnection connect(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_FUNC) slot,
+                              int                                       group);
         // Implements 'Signaler::connect'.  Connect the specified 'slot', a
         // callable object which must meet the 'Slot Object Requirements'
         // described in the component documentation, to this signaler.  Specify
@@ -764,7 +791,7 @@ class Signaler_Node :
         // connected slot may be called by a signal emitted from another thread
         // before this function completes.  Also note that it is unspecified
         // whether connecting a slot while the signaler is emitting will result
-        // in the slot being called immediately.  Note that 'FUNC' may have a
+        // in the slot being called immediately.  Note that 't_FUNC' may have a
         // return type other than 'void', but in that case, when the slot is
         // called, the return value will be discarded.
 
@@ -857,27 +884,27 @@ class Signaler_Node :
                                // class Signaler
                                // ==============
 
-template <class PROT>
-class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
+template <class t_PROT>
+class Signaler : public Signaler_Invocable<Signaler<t_PROT>, t_PROT> {
     // This class template provides a thread-safe signaler that executes
-    // connected slots when invoked via its call operator.  'PROT' is a
+    // connected slots when invoked via its call operator.  't_PROT' is a
     // function signature and must have a return type of 'void'.  The callable
     // objects assigned to the slots may have return types other than 'void',
     // in which case their return values will be discarded.
 
   public:
     // TYPES
-    typedef void ResultType;    // Defines the result type of 'operator()'.  If
-                                // 'PROT' has a result type that is not 'void',
-                                // the return values of the calls to the slots
-                                // are discarded.
+    typedef void ResultType;  // Defines the result type of 'operator()'.  If
+                              // 't_PROT' has a result type that is not 'void',
+                              // the return values of the calls to the slots
+                              // are discarded.
 
   private:
     // PRIVATE DATA
-    bsl::shared_ptr<Signaler_Node<PROT> > d_signalerNodePtr;
+    bsl::shared_ptr<Signaler_Node<t_PROT> > d_signalerNodePtr;
 
     // FRIENDS
-    friend struct Signaler_Invocable<Signaler<PROT>, PROT>;
+    friend struct Signaler_Invocable<Signaler<t_PROT>, t_PROT>;
 
   public:
     // TRAITS
@@ -905,10 +932,10 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
 
   public:
     // MANIPULATORS
-    template <class FUNC>
+    template <class t_FUNC>
     SignalerConnection connect(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) slot,
-                            int                                     group = 0);
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_FUNC) slot,
+                          int                                       group = 0);
         // Connect the specified 'slot', a callable object which must meet the
         // 'Slot Object Requirements' described in the component documentation,
         // to this signaler.  Optionally specify a 'group' used to order slots
@@ -918,7 +945,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         // a signal emitted from another thread before this function completes.
         // Also note that it is unspecified whether connecting a slot while the
         // signaler is emitting will result in the slot being called
-        // immediately.  Note that 'FUNC' may have a return type other than
+        // immediately.  Note that 't_FUNC' may have a return type other than
         // 'void', but in that case, when the slot is called, the return value
         // will be discarded.
 
@@ -980,27 +1007,26 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     // ACCESSORS
         // void operator()(ARGS... args) const;
         //
-        // 'bdlmt::Signaler_Invocable', from which this 'class' inherits,
-        // provides a call operator that, in C++11, would be defined and behave
-        // exactly this way, except that the number of arguments is limited to
-        // 9, where 'ARGS...' are the arguments of 'PROT'.  Sequentially emit
-        // the signal, sequentially calling each slot connected to this
-        // signaler as if by 'f_i(args...)', where 'f_i' is the i-th connected
-        // slot.  The behavior is undefined if this function is invoked from a
-        // slot connected to this signaler.  Note that signals emitted to slots
-        // are ordered by their respective groups, and within groups, by the
-        // order in which they were connected.  Also note that the call
-        // operator does not forward rvalue references.  That is done
-        // explicitly to prevent invocation arguments from being moved to the
-        // first slot, leaving them "empty" for all subsequent slots.  Also
-        // note that if a slot is connected by a called slot and the group of
-        // the new slots is less than the group of the called slot, the new
-        // slot will not be called, otherwise it will.  If a slot that has not
-        // been visited in a traversal is disconnected by a call to any of the
-        // 'disconnect*' methods, the disconnected slot will not be called in
-        // the traversal.  Also note that if execution of a slot throws an
-        // exception, the emission sequence is interrupted and the exception is
-        // propagated to the caller of the signaler immediately.
+    // 'bdlmt::Signaler_Invocable', from which this 'class' inherits, provides
+    // a call operator that, in C++11, would be defined and behave exactly this
+    // way, except that the number of arguments is limited to
+    // 9, where 'ARGS...' are the arguments of 't_PROT'.  Sequentially emit
+    // the signal, sequentially calling each slot connected to this signaler as
+    // if by 'f_i(args...)', where 'f_i' is the i-th connected slot.  The
+    // behavior is undefined if this function is invoked from a slot connected
+    // to this signaler.  Note that signals emitted to slots are ordered by
+    // their respective groups, and within groups, by the order in which they
+    // were connected.  Also note that the call operator does not forward
+    // rvalue references.  That is done explicitly to prevent invocation
+    // arguments from being moved to the first slot, leaving them "empty" for
+    // all subsequent slots.  Also note that if a slot is connected by a called
+    // slot and the group of the new slots is less than the group of the called
+    // slot, the new slot will not be called, otherwise it will.  If a slot
+    // that has not been visited in a traversal is disconnected by a call to
+    // any of the 'disconnect*' methods, the disconnected slot will not be
+    // called in the traversal.  Also note that if execution of a slot throws
+    // an exception, the emission sequence is interrupted and the exception is
+    // propagated to the caller of the signaler immediately.
 
     bsl::size_t slotCount() const;
         // Return the number of slots connected to this signaler.  Note that
@@ -1279,11 +1305,11 @@ void swap(SignalerConnectionGuard& a,
                          // struct Signaler_Invocable
                          // -------------------------
 
-template <class SIGNALER>
+template <class t_SIGNALER>
 inline
-void Signaler_Invocable<SIGNALER, void()>::operator()() const
+void Signaler_Invocable<t_SIGNALER, void()>::operator()() const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
                                                             Signaler_NotArg(),
                                                             Signaler_NotArg(),
                                                             Signaler_NotArg(),
@@ -1295,259 +1321,286 @@ void Signaler_Invocable<SIGNALER, void()>::operator()() const
                                                             Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1>
+template <class t_SIGNALER, class t_ARG1>
 inline
-void Signaler_Invocable<SIGNALER, void(ARG1)>::operator()(ARG1 arg1) const
+void Signaler_Invocable<t_SIGNALER, void(t_ARG1)>::operator()(
+                                                             t_ARG1 arg1) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                        bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2>
+template <class t_SIGNALER, class t_ARG1, class t_ARG2>
 inline
-void Signaler_Invocable<SIGNALER, void(ARG1, ARG2)>::operator()(
-                                                               ARG1 arg1,
-                                                               ARG2 arg2) const
+void Signaler_Invocable<t_SIGNALER, void(t_ARG1, t_ARG2)>::operator()(
+                                                             t_ARG1 arg1,
+                                                             t_ARG2 arg2) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                        bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                        bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3>
+template <class t_SIGNALER, class t_ARG1, class t_ARG2, class t_ARG3>
 inline
-void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3)>::operator()(
-                                                               ARG1 arg1,
-                                                               ARG2 arg2,
-                                                               ARG3 arg3) const
+void Signaler_Invocable<t_SIGNALER, void(t_ARG1, t_ARG2, t_ARG3)>::operator()(
+                                                             t_ARG1 arg1,
+                                                             t_ARG2 arg2,
+                                                             t_ARG3 arg3) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                        bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                        bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                        bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(arg3),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                      bslmf::ForwardingTypeUtil<t_ARG3>::forwardToTarget(arg3),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4>
+template <class t_SIGNALER, class t_ARG1,
+                          class t_ARG2,
+                          class t_ARG3,
+                          class t_ARG4>
 inline
-void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4)>::operator()(
-                                                               ARG1 arg1,
-                                                               ARG2 arg2,
-                                                               ARG3 arg3,
-                                                               ARG4 arg4) const
+void Signaler_Invocable<t_SIGNALER, void(t_ARG1,
+                                         t_ARG2,
+                                         t_ARG3,
+                                         t_ARG4)>::operator()(
+                                                           t_ARG1 arg1,
+                                                           t_ARG2 arg2,
+                                                           t_ARG3 arg3,
+                                                           t_ARG4 arg4) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                        bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                        bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                        bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(arg3),
-                        bslmf::ForwardingTypeUtil<ARG4>::forwardToTarget(arg4),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                      bslmf::ForwardingTypeUtil<t_ARG3>::forwardToTarget(arg3),
+                      bslmf::ForwardingTypeUtil<t_ARG4>::forwardToTarget(arg4),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5>
+template <class t_SIGNALER, class t_ARG1,
+                          class t_ARG2,
+                          class t_ARG3,
+                          class t_ARG4,
+                          class t_ARG5>
 inline
-void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5)>::
-                                                    operator()(ARG1 arg1,
-                                                               ARG2 arg2,
-                                                               ARG3 arg3,
-                                                               ARG4 arg4,
-                                                               ARG5 arg5) const
+void Signaler_Invocable<t_SIGNALER, void(t_ARG1,
+                                         t_ARG2,
+                                         t_ARG3,
+                                         t_ARG4,
+                                         t_ARG5)>::
+                                                operator()(t_ARG1 arg1,
+                                                           t_ARG2 arg2,
+                                                           t_ARG3 arg3,
+                                                           t_ARG4 arg4,
+                                                           t_ARG5 arg5) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                       bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                       bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                       bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(arg3),
-                       bslmf::ForwardingTypeUtil<ARG4>::forwardToTarget(arg4),
-                       bslmf::ForwardingTypeUtil<ARG5>::forwardToTarget(arg5),
-                       Signaler_NotArg(),
-                       Signaler_NotArg(),
-                       Signaler_NotArg(),
-                       Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                      bslmf::ForwardingTypeUtil<t_ARG3>::forwardToTarget(arg3),
+                      bslmf::ForwardingTypeUtil<t_ARG4>::forwardToTarget(arg4),
+                      bslmf::ForwardingTypeUtil<t_ARG5>::forwardToTarget(arg5),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6>
+template <class t_SIGNALER, class t_ARG1,
+                          class t_ARG2,
+                          class t_ARG3,
+                          class t_ARG4,
+                          class t_ARG5,
+                          class t_ARG6>
 inline
-void Signaler_Invocable<SIGNALER, void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>::
-                                                   operator()(ARG1 arg1,
-                                                              ARG2 arg2,
-                                                              ARG3 arg3,
-                                                              ARG4 arg4,
-                                                              ARG5 arg5,
-                                                              ARG6 arg6) const
+void Signaler_Invocable<t_SIGNALER, void(t_ARG1,
+                                         t_ARG2,
+                                         t_ARG3,
+                                         t_ARG4,
+                                         t_ARG5,
+                                         t_ARG6)>::
+                                               operator()(t_ARG1 arg1,
+                                                          t_ARG2 arg2,
+                                                          t_ARG3 arg3,
+                                                          t_ARG4 arg4,
+                                                          t_ARG5 arg5,
+                                                          t_ARG6 arg6) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                        bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                        bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                        bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(arg3),
-                        bslmf::ForwardingTypeUtil<ARG4>::forwardToTarget(arg4),
-                        bslmf::ForwardingTypeUtil<ARG5>::forwardToTarget(arg5),
-                        bslmf::ForwardingTypeUtil<ARG6>::forwardToTarget(arg6),
-                        Signaler_NotArg(),
-                        Signaler_NotArg(),
-                        Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                      bslmf::ForwardingTypeUtil<t_ARG3>::forwardToTarget(arg3),
+                      bslmf::ForwardingTypeUtil<t_ARG4>::forwardToTarget(arg4),
+                      bslmf::ForwardingTypeUtil<t_ARG5>::forwardToTarget(arg5),
+                      bslmf::ForwardingTypeUtil<t_ARG6>::forwardToTarget(arg6),
+                      Signaler_NotArg(),
+                      Signaler_NotArg(),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6,
-                          class ARG7>
+template <class t_SIGNALER, class t_ARG1,
+                          class t_ARG2,
+                          class t_ARG3,
+                          class t_ARG4,
+                          class t_ARG5,
+                          class t_ARG6,
+                          class t_ARG7>
 inline
-void Signaler_Invocable<SIGNALER,
-                        void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>::
-                                                    operator()(ARG1 arg1,
-                                                               ARG2 arg2,
-                                                               ARG3 arg3,
-                                                               ARG4 arg4,
-                                                               ARG5 arg5,
-                                                               ARG6 arg6,
-                                                               ARG7 arg7) const
+void Signaler_Invocable<t_SIGNALER,
+                        void(t_ARG1,
+                             t_ARG2,
+                             t_ARG3,
+                             t_ARG4,
+                             t_ARG5,
+                             t_ARG6,
+                             t_ARG7)>::operator()(t_ARG1 arg1,
+                                                  t_ARG2 arg2,
+                                                  t_ARG3 arg3,
+                                                  t_ARG4 arg4,
+                                                  t_ARG5 arg5,
+                                                  t_ARG6 arg6,
+                                                  t_ARG7 arg7) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                        bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                        bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                        bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(arg3),
-                        bslmf::ForwardingTypeUtil<ARG4>::forwardToTarget(arg4),
-                        bslmf::ForwardingTypeUtil<ARG5>::forwardToTarget(arg5),
-                        bslmf::ForwardingTypeUtil<ARG6>::forwardToTarget(arg6),
-                        bslmf::ForwardingTypeUtil<ARG7>::forwardToTarget(arg7),
-                        Signaler_NotArg(),
-                        Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                      bslmf::ForwardingTypeUtil<t_ARG3>::forwardToTarget(arg3),
+                      bslmf::ForwardingTypeUtil<t_ARG4>::forwardToTarget(arg4),
+                      bslmf::ForwardingTypeUtil<t_ARG5>::forwardToTarget(arg5),
+                      bslmf::ForwardingTypeUtil<t_ARG6>::forwardToTarget(arg6),
+                      bslmf::ForwardingTypeUtil<t_ARG7>::forwardToTarget(arg7),
+                      Signaler_NotArg(),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6,
-                          class ARG7,
-                          class ARG8>
+template <class t_SIGNALER, class t_ARG1,
+                          class t_ARG2,
+                          class t_ARG3,
+                          class t_ARG4,
+                          class t_ARG5,
+                          class t_ARG6,
+                          class t_ARG7,
+                          class t_ARG8>
 inline
-void Signaler_Invocable<SIGNALER,
-                        void(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>::
-                                                    operator()(ARG1 arg1,
-                                                               ARG2 arg2,
-                                                               ARG3 arg3,
-                                                               ARG4 arg4,
-                                                               ARG5 arg5,
-                                                               ARG6 arg6,
-                                                               ARG7 arg7,
-                                                               ARG8 arg8) const
+void Signaler_Invocable<t_SIGNALER,
+                        void(t_ARG1,
+                             t_ARG2,
+                             t_ARG3,
+                             t_ARG4,
+                             t_ARG5,
+                             t_ARG6,
+                             t_ARG7,
+                             t_ARG8)>::operator()(t_ARG1 arg1,
+                                                  t_ARG2 arg2,
+                                                  t_ARG3 arg3,
+                                                  t_ARG4 arg4,
+                                                  t_ARG5 arg5,
+                                                  t_ARG6 arg6,
+                                                  t_ARG7 arg7,
+                                                  t_ARG8 arg8) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                        bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                        bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                        bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(arg3),
-                        bslmf::ForwardingTypeUtil<ARG4>::forwardToTarget(arg4),
-                        bslmf::ForwardingTypeUtil<ARG5>::forwardToTarget(arg5),
-                        bslmf::ForwardingTypeUtil<ARG6>::forwardToTarget(arg6),
-                        bslmf::ForwardingTypeUtil<ARG7>::forwardToTarget(arg7),
-                        bslmf::ForwardingTypeUtil<ARG8>::forwardToTarget(arg8),
-                        Signaler_NotArg());
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                      bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                      bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                      bslmf::ForwardingTypeUtil<t_ARG3>::forwardToTarget(arg3),
+                      bslmf::ForwardingTypeUtil<t_ARG4>::forwardToTarget(arg4),
+                      bslmf::ForwardingTypeUtil<t_ARG5>::forwardToTarget(arg5),
+                      bslmf::ForwardingTypeUtil<t_ARG6>::forwardToTarget(arg6),
+                      bslmf::ForwardingTypeUtil<t_ARG7>::forwardToTarget(arg7),
+                      bslmf::ForwardingTypeUtil<t_ARG8>::forwardToTarget(arg8),
+                      Signaler_NotArg());
 }
 
-template <class SIGNALER, class ARG1,
-                          class ARG2,
-                          class ARG3,
-                          class ARG4,
-                          class ARG5,
-                          class ARG6,
-                          class ARG7,
-                          class ARG8,
-                          class ARG9>
+template <class t_SIGNALER, class t_ARG1,
+                          class t_ARG2,
+                          class t_ARG3,
+                          class t_ARG4,
+                          class t_ARG5,
+                          class t_ARG6,
+                          class t_ARG7,
+                          class t_ARG8,
+                          class t_ARG9>
 inline
 void
-Signaler_Invocable<SIGNALER, void(
-                       ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>::
-                                                    operator()(ARG1 arg1,
-                                                               ARG2 arg2,
-                                                               ARG3 arg3,
-                                                               ARG4 arg4,
-                                                               ARG5 arg5,
-                                                               ARG6 arg6,
-                                                               ARG7 arg7,
-                                                               ARG8 arg8,
-                                                               ARG9 arg9) const
+Signaler_Invocable<t_SIGNALER, void(
+                       t_ARG1,
+                       t_ARG2,
+                       t_ARG3,
+                       t_ARG4,
+                       t_ARG5,
+                       t_ARG6,
+                       t_ARG7,
+                       t_ARG8,
+                       t_ARG9)>::operator()(t_ARG1 arg1,
+                                            t_ARG2 arg2,
+                                            t_ARG3 arg3,
+                                            t_ARG4 arg4,
+                                            t_ARG5 arg5,
+                                            t_ARG6 arg6,
+                                            t_ARG7 arg7,
+                                            t_ARG8 arg8,
+                                            t_ARG9 arg9) const
 {
-    static_cast<const SIGNALER *>(this)->d_signalerNodePtr->invoke(
-                       bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(arg1),
-                       bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(arg2),
-                       bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(arg3),
-                       bslmf::ForwardingTypeUtil<ARG4>::forwardToTarget(arg4),
-                       bslmf::ForwardingTypeUtil<ARG5>::forwardToTarget(arg5),
-                       bslmf::ForwardingTypeUtil<ARG6>::forwardToTarget(arg6),
-                       bslmf::ForwardingTypeUtil<ARG7>::forwardToTarget(arg7),
-                       bslmf::ForwardingTypeUtil<ARG8>::forwardToTarget(arg8),
-                       bslmf::ForwardingTypeUtil<ARG9>::forwardToTarget(arg9));
+    static_cast<const t_SIGNALER *>(this)->d_signalerNodePtr->invoke(
+                     bslmf::ForwardingTypeUtil<t_ARG1>::forwardToTarget(arg1),
+                     bslmf::ForwardingTypeUtil<t_ARG2>::forwardToTarget(arg2),
+                     bslmf::ForwardingTypeUtil<t_ARG3>::forwardToTarget(arg3),
+                     bslmf::ForwardingTypeUtil<t_ARG4>::forwardToTarget(arg4),
+                     bslmf::ForwardingTypeUtil<t_ARG5>::forwardToTarget(arg5),
+                     bslmf::ForwardingTypeUtil<t_ARG6>::forwardToTarget(arg6),
+                     bslmf::ForwardingTypeUtil<t_ARG7>::forwardToTarget(arg7),
+                     bslmf::ForwardingTypeUtil<t_ARG8>::forwardToTarget(arg8),
+                     bslmf::ForwardingTypeUtil<t_ARG9>::forwardToTarget(arg9));
 }
 
                             // -----------------------
                             // class Signaler_SlotNode
                             // -----------------------
 
-
 // PRIVATE ACCESSORS
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(bsl::integral_constant<int, 0>,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg,
-                                       ForwardingNotArg) const
+void Signaler_SlotNode<t_PROT>::doInvoke(bsl::integral_constant<int, 0>,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg,
+                                         ForwardingNotArg) const
 {
     d_func();
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 1>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    ForwardingNotArg,
@@ -1564,9 +1617,9 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 2>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    typename ArgumentType::ForwardingType2 arg2,
@@ -1583,9 +1636,9 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1, arg2);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 3>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    typename ArgumentType::ForwardingType2 arg2,
@@ -1602,9 +1655,9 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1, arg2, arg3);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 4>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    typename ArgumentType::ForwardingType2 arg2,
@@ -1621,9 +1674,9 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1, arg2, arg3, arg4);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 5>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    typename ArgumentType::ForwardingType2 arg2,
@@ -1640,9 +1693,9 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1, arg2, arg3, arg4, arg5);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 6>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    typename ArgumentType::ForwardingType2 arg2,
@@ -1659,9 +1712,9 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 7>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    typename ArgumentType::ForwardingType2 arg2,
@@ -1678,9 +1731,9 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
+void Signaler_SlotNode<t_PROT>::doInvoke(
                                    bsl::integral_constant<int, 8>,
                                    typename ArgumentType::ForwardingType1 arg1,
                                    typename ArgumentType::ForwardingType2 arg2,
@@ -1697,20 +1750,19 @@ void Signaler_SlotNode<PROT>::doInvoke(
     d_func(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::doInvoke(
-                                   bsl::integral_constant<int, 9>,
-                                   typename ArgumentType::ForwardingType1 arg1,
-                                   typename ArgumentType::ForwardingType2 arg2,
-                                   typename ArgumentType::ForwardingType3 arg3,
-                                   typename ArgumentType::ForwardingType4 arg4,
-                                   typename ArgumentType::ForwardingType5 arg5,
-                                   typename ArgumentType::ForwardingType6 arg6,
-                                   typename ArgumentType::ForwardingType7 arg7,
-                                   typename ArgumentType::ForwardingType8 arg8,
-                                   typename ArgumentType::ForwardingType9 arg9)
-                                                                          const
+void Signaler_SlotNode<t_PROT>::doInvoke(
+                             bsl::integral_constant<int, 9>,
+                             typename ArgumentType::ForwardingType1 arg1,
+                             typename ArgumentType::ForwardingType2 arg2,
+                             typename ArgumentType::ForwardingType3 arg3,
+                             typename ArgumentType::ForwardingType4 arg4,
+                             typename ArgumentType::ForwardingType5 arg5,
+                             typename ArgumentType::ForwardingType6 arg6,
+                             typename ArgumentType::ForwardingType7 arg7,
+                             typename ArgumentType::ForwardingType8 arg8,
+                             typename ArgumentType::ForwardingType9 arg9) const
 {
     // NOTE: Does not forward
 
@@ -1718,28 +1770,28 @@ void Signaler_SlotNode<PROT>::doInvoke(
 }
 
 // CREATORS
-template <class PROT>
-template <class FUNC>
-Signaler_SlotNode<PROT>::Signaler_SlotNode(
-                      const bsl::weak_ptr<SignalerNode>&       signalerNodePtr,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  func,
-                      SlotMapKey                               slotMapKey,
-                      bslma::Allocator                        *allocator)
+template <class t_PROT>
+template <class t_FUNC>
+Signaler_SlotNode<t_PROT>::Signaler_SlotNode(
+                    const bsl::weak_ptr<SignalerNode>&         signalerNodePtr,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(t_FUNC)  func,
+                    SlotMapKey                                 slotMapKey,
+                    bslma::Allocator                          *allocator)
 : d_slotMapKey(slotMapKey)
 , d_isConnected(true)
 , d_signalerNodePtr(signalerNodePtr)
 , d_func(bsl::allocator_arg,
          allocator,
-         BSLS_COMPILERFEATURES_FORWARD(FUNC, func))
+         BSLS_COMPILERFEATURES_FORWARD(t_FUNC, func))
 {
     BSLS_ASSERT(!signalerNodePtr.expired());
     BSLS_ASSERT(allocator);
 }
 
 // MANIPULATORS
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
+void Signaler_SlotNode<t_PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
 {
     if (!d_isConnected.testAndSwap(true, false)) {
         return;                                                       // RETURN
@@ -1753,9 +1805,9 @@ void Signaler_SlotNode<PROT>::disconnect() BSLS_KEYWORD_NOEXCEPT
     }
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::disconnectAndWait() BSLS_KEYWORD_NOEXCEPT
+void Signaler_SlotNode<t_PROT>::disconnectAndWait() BSLS_KEYWORD_NOEXCEPT
 {
     const bool wasConnected = d_isConnected.testAndSwap(true, false);
 
@@ -1773,17 +1825,17 @@ void Signaler_SlotNode<PROT>::disconnectAndWait() BSLS_KEYWORD_NOEXCEPT
     }
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::notifyDisconnected() BSLS_KEYWORD_NOEXCEPT
+void Signaler_SlotNode<t_PROT>::notifyDisconnected() BSLS_KEYWORD_NOEXCEPT
 {
     d_isConnected = false;
 }
 
 // ACCESSORS
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_SlotNode<PROT>::invoke(
+void Signaler_SlotNode<t_PROT>::invoke(
                              typename ArgumentType::ForwardingType1 arg1,
                              typename ArgumentType::ForwardingType2 arg2,
                              typename ArgumentType::ForwardingType3 arg3,
@@ -1805,15 +1857,15 @@ void Signaler_SlotNode<PROT>::invoke(
         return;                                                       // RETURN
     }
 
-    typedef typename bslmf::FunctionPointerTraits<PROT*>::ArgumentList Args;
+    typedef typename bslmf::FunctionPointerTraits<t_PROT*>::ArgumentList Args;
 
     doInvoke(bsl::integral_constant<int, Args::LENGTH>(),
              arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-bool Signaler_SlotNode<PROT>::isConnected() const
+bool Signaler_SlotNode<t_PROT>::isConnected() const
 {
     return d_isConnected;
 }
@@ -1823,8 +1875,8 @@ bool Signaler_SlotNode<PROT>::isConnected() const
                             // -------------------
 
 // CREATORS
-template <class PROT>
-Signaler_Node<PROT>::Signaler_Node(bslma::Allocator *allocator)
+template <class t_PROT>
+Signaler_Node<t_PROT>::Signaler_Node(bslma::Allocator *allocator)
 : d_signalerMutex()
 , d_slotMap(allocator)
 , d_keyId(0)
@@ -1833,9 +1885,9 @@ Signaler_Node<PROT>::Signaler_Node(bslma::Allocator *allocator)
 }
 
 // MANIPULATORS
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_Node<PROT>::invoke(
+void Signaler_Node<t_PROT>::invoke(
                              typename ArgumentType::ForwardingType1 arg1,
                              typename ArgumentType::ForwardingType2 arg2,
                              typename ArgumentType::ForwardingType3 arg3,
@@ -1888,11 +1940,11 @@ void Signaler_Node<PROT>::invoke(
     } while (slotHandle);
 }
 
-template <class PROT>
-template <class FUNC>
-SignalerConnection
-Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
-                             int                                     group)
+template <class t_PROT>
+template <class t_FUNC>
+SignalerConnection Signaler_Node<t_PROT>::connect(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(t_FUNC) func,
+                               int                                       group)
 {
     // create a key the slot will be indexed by
 
@@ -1900,13 +1952,12 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 
     // create a slot
 
-    bsl::shared_ptr<SlotNode> slotNodePtr =
-                         bsl::allocate_shared<SlotNode>(
-                                     d_slotMap.allocator(),
-                                     this->weak_from_this(),
-                                     BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
-                                     slotMapKey,
-                                     d_slotMap.allocator());
+    bsl::shared_ptr<SlotNode> slotNodePtr = bsl::allocate_shared<SlotNode>(
+                                   d_slotMap.allocator(),
+                                   this->weak_from_this(),
+                                   BSLS_COMPILERFEATURES_FORWARD(t_FUNC, func),
+                                   slotMapKey,
+                                   d_slotMap.allocator());
 
     // connect the slot
 
@@ -1918,8 +1969,8 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
 
 }
 
-template <class PROT>
-void Signaler_Node<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
+template <class t_PROT>
+void Signaler_Node<t_PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
 {
     SlotPairHandle slotHandle;
 
@@ -1936,15 +1987,15 @@ void Signaler_Node<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
     }
 }
 
-template <class PROT>
-void Signaler_Node<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
+template <class t_PROT>
+void Signaler_Node<t_PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
 {
     disconnectAllSlots();
     synchronizeWait();
 }
 
-template <class PROT>
-void Signaler_Node<PROT>::disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT
+template <class t_PROT>
+void Signaler_Node<t_PROT>::disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT
 {
     // 'skipForward', below, may fail if a node is removed from the list while
     // we're visiting it, in which case we have to go back to the front and
@@ -1972,17 +2023,17 @@ void Signaler_Node<PROT>::disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT
     }
 }
 
-template <class PROT>
-void Signaler_Node<PROT>::disconnectGroupAndWait(int group)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_PROT>
+void Signaler_Node<t_PROT>::disconnectGroupAndWait(
+                                               int group) BSLS_KEYWORD_NOEXCEPT
 {
     disconnectGroup(group);
     synchronizeWait();
 }
 
-template <class PROT>
-void Signaler_Node<PROT>::notifyDisconnected(SlotMapKey slotMapKey)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_PROT>
+void Signaler_Node<t_PROT>::notifyDisconnected(
+                                   SlotMapKey slotMapKey) BSLS_KEYWORD_NOEXCEPT
 {
     typename KeyToSlotMap::PairHandle slotHandle;
 
@@ -1998,17 +2049,17 @@ void Signaler_Node<PROT>::notifyDisconnected(SlotMapKey slotMapKey)
     d_slotMap.remove(slotHandle);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler_Node<PROT>::synchronizeWait() BSLS_KEYWORD_NOEXCEPT
+void Signaler_Node<t_PROT>::synchronizeWait() BSLS_KEYWORD_NOEXCEPT
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
 }
 
 // ACCESSORS
-template <class PROT>
+template <class t_PROT>
 inline
-bsl::size_t Signaler_Node<PROT>::slotCount() const
+bsl::size_t Signaler_Node<t_PROT>::slotCount() const
 {
     return d_slotMap.length();
 }
@@ -2018,67 +2069,67 @@ bsl::size_t Signaler_Node<PROT>::slotCount() const
                                // --------------
 
 // CREATORS
-template <class PROT>
-Signaler<PROT>::Signaler(bslma::Allocator *basicAllocator)
-: d_signalerNodePtr(bsl::allocate_shared<Signaler_Node<PROT> >(
+template <class t_PROT>
+Signaler<t_PROT>::Signaler(bslma::Allocator *basicAllocator)
+: d_signalerNodePtr(bsl::allocate_shared<Signaler_Node<t_PROT> >(
                                     basicAllocator,
                                     bslma::Default::allocator(basicAllocator)))
 {
     // NOTHING
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-Signaler<PROT>::~Signaler()
+Signaler<t_PROT>::~Signaler()
 {
     d_signalerNodePtr->disconnectAllSlots();
 }
 
 // MANIPULATORS
-template <class PROT>
-template <class FUNC>
+template <class t_PROT>
+template <class t_FUNC>
 inline
-SignalerConnection Signaler<PROT>::connect(
-                                 BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
-                                 int                                     group)
+SignalerConnection Signaler<t_PROT>::connect(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(t_FUNC) func,
+                               int                                       group)
 {
-    return d_signalerNodePtr->connect(
-                                     BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
-                                     group);
+    return d_signalerNodePtr->connect(BSLS_COMPILERFEATURES_FORWARD(t_FUNC,
+                                                                    func),
+                                      group);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler<PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
+void Signaler<t_PROT>::disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT
 {
     d_signalerNodePtr->disconnectAllSlots();
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler<PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
+void Signaler<t_PROT>::disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT
 {
     d_signalerNodePtr->disconnectAllSlotsAndWait();
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler<PROT>::disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT
+void Signaler<t_PROT>::disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT
 {
     d_signalerNodePtr->disconnectGroup(group);
 }
 
-template <class PROT>
+template <class t_PROT>
 inline
-void Signaler<PROT>::disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT
+void Signaler<t_PROT>::disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT
 {
     d_signalerNodePtr->disconnectGroupAndWait(group);
 }
 
 // ACCESSORS
-template <class PROT>
+template <class t_PROT>
 inline
-bsl::size_t Signaler<PROT>::slotCount() const
+bsl::size_t Signaler<t_PROT>::slotCount() const
 {
     return d_signalerNodePtr->slotCount();
 }
@@ -2154,3 +2205,4 @@ void swap(SignalerConnectionGuard& a,
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ----------------------------------
+

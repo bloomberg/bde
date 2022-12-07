@@ -299,13 +299,13 @@ class ThreadMultiplexor {
         // Destroy this thread multiplexor object.
 
     // MANIPULATORS
-    template <class JOBTYPE>
-    int processJob(const JOBTYPE& job);
+    template <class t_JOBTYPE>
+    int processJob(const t_JOBTYPE& job);
         // Process the specified 'job' functor in the calling thread if the
         // current number of processors is less than the maximum number of
         // processors.  Otherwise, enqueue 'job' to the pending job queue.
         // Return 0 on success, and a non-zero value otherwise.  Note that the
-        // only requirements on 'JOBTYPE' are that it defines 'operator()',
+        // only requirements on 't_JOBTYPE' are that it defines 'operator()',
         // having a 'void' return type, and that it defines a copy constructor.
 
     // ACCESSORS
@@ -321,9 +321,9 @@ class ThreadMultiplexor {
 // ============================================================================
 
 // MANIPULATORS
-template <class JOBTYPE>
+template <class t_JOBTYPE>
 inline
-int ThreadMultiplexor::processJob(const JOBTYPE& job)
+int ThreadMultiplexor::processJob(const t_JOBTYPE& job)
 {
     // Execute 'job' in the calling thread if the current number of processors
     // is less than the maximum number of processors.  Otherwise, enqueue 'job'
@@ -382,3 +382,4 @@ int ThreadMultiplexor::numProcessors() const
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+

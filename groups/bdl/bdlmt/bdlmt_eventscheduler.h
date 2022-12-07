@@ -132,18 +132,18 @@ BSLS_IDENT("$Id: $")
 // relative to the event scheduler's clock for processing.  A possible
 // implementation of such a conversion would be:
 //..
-//  bsls::TimeInterval(time - CLOCK::now()) + eventScheduler.now()
+//  bsls::TimeInterval(time - t_CLOCK::now()) + eventScheduler.now()
 //..
-// where 'time' is a 'time_point', 'CLOCK' is the clock associated with 'time',
-// and 'eventScheduler' is the 'EventScheduler' on which the event is being
-// scheduled.  Notice that the conversion adds some imprecision and overhead to
-// evaluation of the event.  An event scheduler guarantees an event will occur
-// at or after the supplied 'time_point', even if that 'time_point' is defined
-// in terms of a 'CLOCK' different from the one used by the event scheduler.
-// If there is a discontinuity between the clock for a 'time_point' and the
-// event scheduler's clock, additional processing overhead may result (because
-// the event may need to be rescheduled), and the event may also occur later
-// than what one might otherwise expect.
+// where 'time' is a 'time_point', 't_CLOCK' is the clock associated with
+// 'time', and 'eventScheduler' is the 'EventScheduler' on which the event is
+// being scheduled.  Notice that the conversion adds some imprecision and
+// overhead to evaluation of the event.  An event scheduler guarantees an event
+// will occur at or after the supplied 'time_point', even if that 'time_point'
+// is defined in terms of a 't_CLOCK' different from the one used by the event
+// scheduler.  If there is a discontinuity between the clock for a 'time_point'
+// and the event scheduler's clock, additional processing overhead may result
+// (because the event may need to be rescheduled), and the event may also occur
+// later than what one might otherwise expect.
 //
 ///Scheduling Using a 'bsls::TimeInterval'
 ///- - - - - - - - - - - - - - - - - - - -
@@ -706,29 +706,34 @@ class EventScheduler {
         // Return 0.  The 'int' argument is ignored.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class DURATION>
-    static bsls::Types::Int64
-    timeUntilTrigger(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+    template <class t_CLOCK, class t_DURATION>
+    static bsls::Types::Int64 timeUntilTrigger(
+                  const bsl::chrono::time_point<t_CLOCK, t_DURATION>& absTime);
         // Return the number of microseconds between the current time and the
         // specified 'absTime'.  'absTime' is an *absolute* time represented as
         // an interval from some epoch, which is determined by the clock
         // associated with the time point.  Note that this method is used when
-        // the 'CLOCK' type used to schedule the event differs from that of the
-        // event scheduler itself.  Also note that a negative value is returned
-        // if 'absTime' is in the past.
+        // the 't_CLOCK' type used to schedule the event differs from that of
+        // the event scheduler itself.  Also note that a negative value is
+        // returned if 'absTime' is in the past.
 
-    template <class CLOCK, class DURATION, class REP_TYPE, class PERIOD_TYPE>
+    template <class t_CLOCK,
+              class t_DURATION,
+              class t_REP_TYPE,
+              class t_PERIOD_TYPE>
     static bsls::Types::Int64 timeUntilTriggerRecurring(
-               const bsl::chrono::time_point<CLOCK, DURATION>&     absTime,
-               const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
-               int                                                 eventIndex);
+            const bsl::chrono::time_point<t_CLOCK,
+                                          t_DURATION>&             absTime,
+            const bsl::chrono::duration<t_REP_TYPE,
+                                        t_PERIOD_TYPE>&            interval,
+            int                                                    eventIndex);
         // Return the number of microseconds between the current time and the
         // scheduled time of the specified 'eventIndex'th recurring event,
         // which starts at the specified 'absTime' and repeats at the specified
         // 'interval'.  'absTime' is an *absolute* time represented as an
         // interval from some epoch, which is determined by the clock
         // associated with the time point.  The behavior is undefined unless
-        // '0 <= eventIndex'.  Note that this method is used when the 'CLOCK'
+        // '0 <= eventIndex'.  Note that this method is used when the 't_CLOCK'
         // type used to schedule the event differs from that of the event
         // scheduler itself.
 #endif
@@ -994,10 +999,10 @@ class EventScheduler {
         // documentation).
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class DURATION>
+    template <class t_CLOCK, class t_DURATION>
     int rescheduleEvent(
-                const Event                                     *handle,
-                const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime);
+            const Event                                         *handle,
+            const bsl::chrono::time_point<t_CLOCK, t_DURATION>&  newEpochTime);
         // Reschedule the event referred to by the specified 'handle' at the
         // specified 'newEpochTime' truncated to microseconds.  Return 0 on
         // successful reschedule, and a non-zero value if the 'handle' is
@@ -1021,10 +1026,10 @@ class EventScheduler {
         // thread.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class DURATION>
+    template <class t_CLOCK, class t_DURATION>
     int rescheduleEventAndWait(
-                const Event                                     *handle,
-                const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime);
+            const Event                                         *handle,
+            const bsl::chrono::time_point<t_CLOCK, t_DURATION>&  newEpochTime);
         // Reschedule the event referred to by the specified 'handle' at the
         // specified 'newEpochTime' truncated to microseconds.  Block until the
         // event having 'handle' (if it is valid) is either successfully
@@ -1053,15 +1058,15 @@ class EventScheduler {
         // past, in which case the event will be executed as soon as possible.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class DURATION>
+    template <class t_CLOCK, class t_DURATION>
     void scheduleEvent(
-                     const bsl::chrono::time_point<CLOCK, DURATION>& epochTime,
-                     const bsl::function<void()>&                    callback);
-    template <class CLOCK, class DURATION>
+                 const bsl::chrono::time_point<t_CLOCK, t_DURATION>& epochTime,
+                 const bsl::function<void()>&                        callback);
+    template <class t_CLOCK, class t_DURATION>
     void scheduleEvent(
-                    EventHandle                                     *event,
-                    const bsl::chrono::time_point<CLOCK, DURATION>&  epochTime,
-                    const bsl::function<void()>&                     callback);
+                EventHandle                                         *event,
+                const bsl::chrono::time_point<t_CLOCK, t_DURATION>&  epochTime,
+                const bsl::function<void()>&                         callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'epochTime' truncated to microseconds.  Load into the optionally
         // specified 'event' a handle that can be used to cancel the event (by
@@ -1086,11 +1091,11 @@ class EventScheduler {
         // invoking 'releaseEventRaw' when it is no longer needed.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class DURATION>
+    template <class t_CLOCK, class t_DURATION>
     void scheduleEventRaw(
-                   Event                                           **event,
-                   const bsl::chrono::time_point<CLOCK, DURATION>&   epochTime,
-                   const bsl::function<void()>&                      callback);
+               Event                                               **event,
+               const bsl::chrono::time_point<t_CLOCK, t_DURATION>&   epochTime,
+               const bsl::function<void()>&                          callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'epochTime' truncated to microseconds.  Load into the specified
         // 'event' pointer a handle that can be used to cancel the event (by
@@ -1125,19 +1130,29 @@ class EventScheduler {
         // events will be submitted serially.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+    template <class t_CLOCK,
+              class t_REP_TYPE,
+              class t_PERIOD_TYPE,
+              class t_DURATION>
     void scheduleRecurringEvent(
-             const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
-             const bsl::function<void()>&                        callback,
-             const bsl::chrono::time_point<CLOCK, DURATION>&     startEpochTime
-                      = CLOCK::now());
-    template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+           const bsl::chrono::duration<t_REP_TYPE,
+                                      t_PERIOD_TYPE>& interval,
+           const bsl::function<void()>&               callback,
+           const bsl::chrono::time_point<t_CLOCK,
+                                         t_DURATION>& startEpochTime =
+                                                               t_CLOCK::now());
+    template <class t_CLOCK,
+              class t_REP_TYPE,
+              class t_PERIOD_TYPE,
+              class t_DURATION>
     void scheduleRecurringEvent(
-            RecurringEventHandle                                *event,
-            const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&  interval,
-            const bsl::function<void()>&                         callback,
-            const bsl::chrono::time_point<CLOCK, DURATION>&      startEpochTime
-                      = CLOCK::now());
+           RecurringEventHandle                          *event,
+           const bsl::chrono::duration<t_REP_TYPE,
+                                       t_PERIOD_TYPE>&    interval,
+           const bsl::function<void()>&                   callback,
+           const bsl::chrono::time_point<t_CLOCK,
+                                         t_DURATION>&     startEpochTime =
+                                                               t_CLOCK::now());
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval' truncated to microseconds, with the first
         // event dispatched at the optionally specified 'startEpochTime'
@@ -1178,13 +1193,18 @@ class EventScheduler {
         // serially.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+    template <class t_CLOCK,
+              class t_REP_TYPE,
+              class t_PERIOD_TYPE,
+              class t_DURATION>
     void scheduleRecurringEventRaw(
-           RecurringEvent                                      **event,
-           const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&   interval,
-           const bsl::function<void()>&                          callback,
-           const bsl::chrono::time_point<CLOCK, DURATION>&       startEpochTime
-                                                               = CLOCK::now());
+           RecurringEvent                              **event,
+           const bsl::chrono::duration<t_REP_TYPE,
+                                       t_PERIOD_TYPE>&   interval,
+           const bsl::function<void()>&                  callback,
+           const bsl::chrono::time_point<t_CLOCK,
+                                         t_DURATION>&    startEpochTime =
+                                                               t_CLOCK::now());
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval' truncated to microseconds, with the first
         // event dispatched at the optionally specified 'startEpochTime'
@@ -1547,14 +1567,14 @@ namespace bdlmt {
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 // PRIVATE CLASS METHODS
-template <class CLOCK, class DURATION>
+template <class t_CLOCK, class t_DURATION>
 // not inline because it gets put into a bsl::function
 bsls::Types::Int64 EventScheduler::timeUntilTrigger(
-                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+                   const bsl::chrono::time_point<t_CLOCK, t_DURATION>& absTime)
 {
     using namespace bsl::chrono;
 
-    auto         now = CLOCK::now();
+    auto         now = t_CLOCK::now();
     microseconds offset = duration_cast<microseconds>(absTime - now);
     // If the time to fire is less than one microsecond in the future, then
     // report it as 1us.
@@ -1563,12 +1583,15 @@ bsls::Types::Int64 EventScheduler::timeUntilTrigger(
            : static_cast<bsls::Types::Int64>(offset.count());
 }
 
-template <class CLOCK, class DURATION, class REP_TYPE, class PERIOD_TYPE>
+template <class t_CLOCK,
+          class t_DURATION,
+          class t_REP_TYPE,
+          class t_PERIOD_TYPE>
 // not inline because it gets put into a bsl::function
 bsls::Types::Int64 EventScheduler::timeUntilTriggerRecurring(
-                const bsl::chrono::time_point<CLOCK, DURATION>&     absTime,
-                const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
-                int                                                 eventIndex)
+            const bsl::chrono::time_point<t_CLOCK, t_DURATION>&     absTime,
+            const bsl::chrono::duration<t_REP_TYPE, t_PERIOD_TYPE>& interval,
+            int                                                     eventIndex)
 {
     BSLS_ASSERT(0 <= eventIndex);
 
@@ -1613,14 +1636,14 @@ void EventScheduler::releaseEventRaw(RecurringEvent *handle)
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-template <class CLOCK, class DURATION>
+template <class t_CLOCK, class t_DURATION>
 int EventScheduler::rescheduleEvent(
-                 const Event                                     *handle,
-                 const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime)
+             const Event                                         *handle,
+             const bsl::chrono::time_point<t_CLOCK, t_DURATION>&  newEpochTime)
 {
     BSLS_ASSERT(handle);
 
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         return rescheduleEvent(handle, newEpochTime.time_since_epoch());
                                                                       // RETURN
     }
@@ -1630,12 +1653,12 @@ int EventScheduler::rescheduleEvent(
 
     bool                           isNewTop;
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    bsls::TimeInterval             offsetFromNow(newEpochTime - CLOCK::now());
+    bsls::TimeInterval offsetFromNow(newEpochTime - t_CLOCK::now());
 
     if (h) {
-        h->data().d_nowOffset =
-                        bdlf::BindUtil::bind(timeUntilTrigger<CLOCK, DURATION>,
-                                             newEpochTime);
+        h->data().d_nowOffset = bdlf::BindUtil::bind(
+                                         timeUntilTrigger<t_CLOCK, t_DURATION>,
+                                         newEpochTime);
     }
 
     int ret = d_eventQueue.updateR(h,
@@ -1648,14 +1671,14 @@ int EventScheduler::rescheduleEvent(
     return ret;
 }
 
-template <class CLOCK, class DURATION>
+template <class t_CLOCK, class t_DURATION>
 int EventScheduler::rescheduleEventAndWait(
-                 const Event                                     *handle,
-                 const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime)
+             const Event                                         *handle,
+             const bsl::chrono::time_point<t_CLOCK, t_DURATION>&  newEpochTime)
 {
     BSLS_ASSERT(handle);
 
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         return rescheduleEventAndWait(handle, newEpochTime.time_since_epoch());
                                                                       // RETURN
     }
@@ -1667,13 +1690,12 @@ int EventScheduler::rescheduleEventAndWait(
     {
         bool                           isNewTop;
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-        bsls::TimeInterval             offsetFromNow(
-                                                  newEpochTime - CLOCK::now());
+        bsls::TimeInterval offsetFromNow(newEpochTime - t_CLOCK::now());
 
         if (h) {
             h->data().d_nowOffset = bdlf::BindUtil::bind(
-                                             timeUntilTrigger<CLOCK, DURATION>,
-                                             newEpochTime);
+                                         timeUntilTrigger<t_CLOCK, t_DURATION>,
+                                         newEpochTime);
         }
 
         ret = d_eventQueue.updateR(h,
@@ -1723,61 +1745,57 @@ void EventScheduler::scheduleEvent(EventHandle                  *event,
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-template <class CLOCK, class DURATION>
+template <class t_CLOCK, class t_DURATION>
 inline
 void EventScheduler::scheduleEvent(
-                     const bsl::chrono::time_point<CLOCK, DURATION>& epochTime,
-                     const bsl::function<void()>&                    callback)
+                 const bsl::chrono::time_point<t_CLOCK, t_DURATION>& epochTime,
+                 const bsl::function<void()>&                        callback)
 {
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         scheduleEvent(epochTime.time_since_epoch(), callback);
     }
     else {
-        bsls::TimeInterval offsetFromNow(epochTime - CLOCK::now());
-        scheduleEvent(
-            now() + offsetFromNow,
-            EventData(
-                callback,
-                bdlf::BindUtil::bind(
-                    timeUntilTrigger<CLOCK, DURATION>,
-                    epochTime)
-                ));
+        bsls::TimeInterval offsetFromNow(epochTime - t_CLOCK::now());
+        scheduleEvent(now() + offsetFromNow,
+                      EventData(callback,
+                                bdlf::BindUtil::bind(
+                                         timeUntilTrigger<t_CLOCK, t_DURATION>,
+                                         epochTime)));
     }
 }
 
-template <class CLOCK, class DURATION>
+template <class t_CLOCK, class t_DURATION>
 void EventScheduler::scheduleEvent(
-                    EventHandle                                     *event,
-                    const bsl::chrono::time_point<CLOCK, DURATION>&  epochTime,
-                    const bsl::function<void()>&                     callback)
+                EventHandle                                         *event,
+                const bsl::chrono::time_point<t_CLOCK, t_DURATION>&  epochTime,
+                const bsl::function<void()>&                         callback)
 {
     BSLS_ASSERT(event);
 
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         scheduleEvent(event, epochTime.time_since_epoch(), callback);
     }
     else {
-        bsls::TimeInterval offsetFromNow(epochTime - CLOCK::now());
+        bsls::TimeInterval offsetFromNow(epochTime - t_CLOCK::now());
 
-        scheduleEvent(
-            event,
-            now() + offsetFromNow,
-            EventData(
-             callback,
-             bdlf::BindUtil::bind(timeUntilTrigger<CLOCK, DURATION>, epochTime)
-            ));
+        scheduleEvent(event,
+                      now() + offsetFromNow,
+                      EventData(callback,
+                                bdlf::BindUtil::bind(
+                                         timeUntilTrigger<t_CLOCK, t_DURATION>,
+                                         epochTime)));
     }
 }
 
-template <class CLOCK, class DURATION>
+template <class t_CLOCK, class t_DURATION>
 void EventScheduler::scheduleEventRaw(
-                   Event                                           **event,
-                   const bsl::chrono::time_point<CLOCK, DURATION>&   epochTime,
-                   const bsl::function<void()>&                      callback)
+               Event                                               **event,
+               const bsl::chrono::time_point<t_CLOCK, t_DURATION>&   epochTime,
+               const bsl::function<void()>&                          callback)
 {
     BSLS_ASSERT(event);
 
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         scheduleEventRaw(event, epochTime.time_since_epoch(), callback);
     }
     else {
@@ -1787,14 +1805,14 @@ void EventScheduler::scheduleEventRaw(
                      duration_cast<microseconds>(epochTime.time_since_epoch());
 
         bool newTop;
-        d_eventQueue.addRawR((EventQueue::Pair **)event,
-                             (bsls::Types::Int64) stime.count(),
-                             EventData(
-                                 callback,
-                                 bdlf::BindUtil::bind(
-                                    timeUntilTrigger<CLOCK, DURATION>,
-                                    epochTime)),
-                             &newTop);
+        d_eventQueue.addRawR(
+                (EventQueue::Pair **)event,
+                (bsls::Types::Int64)stime.count(),
+                EventData(
+                    callback,
+                    bdlf::BindUtil::bind(timeUntilTrigger<t_CLOCK, t_DURATION>,
+                                         epochTime)),
+                &newTop);
 
         if (newTop) {
             bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
@@ -1838,16 +1856,18 @@ void EventScheduler::scheduleRecurringEvent(
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
-void
-EventScheduler::scheduleRecurringEvent(
-            const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
-            const bsl::function<void()>&                        callback,
-            const bsl::chrono::time_point<CLOCK, DURATION>&     startEpochTime)
+template <class t_CLOCK,
+          class t_REP_TYPE,
+          class t_PERIOD_TYPE,
+          class t_DURATION>
+void EventScheduler::scheduleRecurringEvent(
+        const bsl::chrono::duration<t_REP_TYPE, t_PERIOD_TYPE>& interval,
+        const bsl::function<void()>&                            callback,
+        const bsl::chrono::time_point<t_CLOCK, t_DURATION>&     startEpochTime)
 {
     BSLS_ASSERT(bsl::chrono::microseconds(1) <= interval);
 
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         scheduleRecurringEvent(interval,
                                callback,
                                startEpochTime.time_since_epoch());
@@ -1855,35 +1875,38 @@ EventScheduler::scheduleRecurringEvent(
     else {
         using namespace bsl::chrono;
 
-        bsls::TimeInterval offsetFromNow(startEpochTime - CLOCK::now());
+        bsls::TimeInterval offsetFromNow(startEpochTime - t_CLOCK::now());
 
         scheduleRecurringEventRaw(
-            0,
-            RecurringEventData(
-                interval,
-                callback,
-                bdlf::BindUtil::bind(
-                    timeUntilTriggerRecurring
-                                      <CLOCK, DURATION, REP_TYPE, PERIOD_TYPE>,
-                    startEpochTime,
-                    interval,
-                    bdlf::PlaceHolders::_1)),
-            now() + offsetFromNow);
+             0,
+             RecurringEventData(
+                 interval,
+                 callback,
+                 bdlf::BindUtil::bind(timeUntilTriggerRecurring<t_CLOCK,
+                                                                t_DURATION,
+                                                                t_REP_TYPE,
+                                                                t_PERIOD_TYPE>,
+                                      startEpochTime,
+                                      interval,
+                                      bdlf::PlaceHolders::_1)),
+             now() + offsetFromNow);
     }
 }
 
-template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
-void
-EventScheduler::scheduleRecurringEvent(
-           RecurringEventHandle                                *event,
-           const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&  interval,
-           const bsl::function<void()>&                         callback,
-           const bsl::chrono::time_point<CLOCK, DURATION>&      startEpochTime)
+template <class t_CLOCK,
+          class t_REP_TYPE,
+          class t_PERIOD_TYPE,
+          class t_DURATION>
+void EventScheduler::scheduleRecurringEvent(
+       RecurringEventHandle                                    *event,
+       const bsl::chrono::duration<t_REP_TYPE, t_PERIOD_TYPE>&  interval,
+       const bsl::function<void()>&                             callback,
+       const bsl::chrono::time_point<t_CLOCK, t_DURATION>&      startEpochTime)
 {
     BSLS_ASSERT(event);
     BSLS_ASSERT(bsl::chrono::microseconds(1) <= interval);
 
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         scheduleRecurringEvent(event,
                                interval,
                                callback,
@@ -1892,35 +1915,38 @@ EventScheduler::scheduleRecurringEvent(
     else {
         using namespace bsl::chrono;
 
-        bsls::TimeInterval offsetFromNow(startEpochTime - CLOCK::now());
+        bsls::TimeInterval offsetFromNow(startEpochTime - t_CLOCK::now());
 
         scheduleRecurringEvent(
-            event,
-            RecurringEventData(
-                interval,
-                callback,
-                bdlf::BindUtil::bind(
-                  timeUntilTriggerRecurring
-                                      <CLOCK, DURATION, REP_TYPE, PERIOD_TYPE>,
-                  startEpochTime,
-                  interval,
-                  bdlf::PlaceHolders::_1)),
-            now() + offsetFromNow);
+             event,
+             RecurringEventData(
+                 interval,
+                 callback,
+                 bdlf::BindUtil::bind(timeUntilTriggerRecurring<t_CLOCK,
+                                                                t_DURATION,
+                                                                t_REP_TYPE,
+                                                                t_PERIOD_TYPE>,
+                                      startEpochTime,
+                                      interval,
+                                      bdlf::PlaceHolders::_1)),
+             now() + offsetFromNow);
     }
 }
 
-template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
-void
-EventScheduler::scheduleRecurringEventRaw(
-          RecurringEvent                                      **event,
-          const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&   interval,
-          const bsl::function<void()>&                          callback,
-          const bsl::chrono::time_point<CLOCK, DURATION>&       startEpochTime)
+template <class t_CLOCK,
+          class t_REP_TYPE,
+          class t_PERIOD_TYPE,
+          class t_DURATION>
+void EventScheduler::scheduleRecurringEventRaw(
+      RecurringEvent                                          **event,
+      const bsl::chrono::duration<t_REP_TYPE, t_PERIOD_TYPE>&   interval,
+      const bsl::function<void()>&                              callback,
+      const bsl::chrono::time_point<t_CLOCK, t_DURATION>&       startEpochTime)
 {
     BSLS_ASSERT(event);
     BSLS_ASSERT(bsl::chrono::microseconds(1) <= interval);
 
-    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+    if (bslmt::ChronoUtil::isMatchingClock<t_CLOCK>(d_clockType)) {
         scheduleRecurringEventRaw(event,
                                   interval,
                                   callback,
@@ -1929,20 +1955,21 @@ EventScheduler::scheduleRecurringEventRaw(
     else {
         using namespace bsl::chrono;
 
-        bsls::TimeInterval offsetFromNow(startEpochTime - CLOCK::now());
+        bsls::TimeInterval offsetFromNow(startEpochTime - t_CLOCK::now());
 
         scheduleRecurringEventRaw(
-            event,
-            RecurringEventData(
-                interval,
-                callback,
-                bdlf::BindUtil::bind(
-                    timeUntilTriggerRecurring
-                                      <CLOCK, DURATION, REP_TYPE, PERIOD_TYPE>,
-                    startEpochTime,
-                    interval,
-                    bdlf::PlaceHolders::_1)),
-            now() + offsetFromNow);
+             event,
+             RecurringEventData(
+                 interval,
+                 callback,
+                 bdlf::BindUtil::bind(timeUntilTriggerRecurring<t_CLOCK,
+                                                                t_DURATION,
+                                                                t_REP_TYPE,
+                                                                t_PERIOD_TYPE>,
+                                      startEpochTime,
+                                      interval,
+                                      bdlf::PlaceHolders::_1)),
+             now() + offsetFromNow);
     }
 }
 #endif
@@ -2027,3 +2054,4 @@ bslma::Allocator *EventScheduler::allocator() const
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+

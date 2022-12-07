@@ -285,8 +285,8 @@ class Throttle {
 
   private:
     // FRIENDS
-    template <int                MAX_SIMULTANEOUS_ACTIONS,
-              bsls::Types::Int64 NANOSECONDS_PER_ACTION>
+    template <int                t_MAX_SIMULTANEOUS_ACTIONS,
+              bsls::Types::Int64 t_NANOSECONDS_PER_ACTION>
     friend class Throttle_InitHelper;
 
   public:
@@ -438,12 +438,12 @@ class Throttle {
         // does *not* obtain the current time from the system clock.
 };
 
-                          // =========================
-                          // class Throttle_InitHelper
-                          // =========================
+                         // =========================
+                         // class Throttle_InitHelper
+                         // =========================
 
-template <int                MAX_SIMULTANEOUS_ACTIONS,
-          bsls::Types::Int64 NANOSECONDS_PER_ACTION>
+template <int                t_MAX_SIMULTANEOUS_ACTIONS,
+          bsls::Types::Int64 t_NANOSECONDS_PER_ACTION>
 class Throttle_InitHelper {
     // [!PRIVATE!] This component private meta-function is used to implement
     // the initialization macros.  This type provides the following:
@@ -453,26 +453,26 @@ class Throttle_InitHelper {
     //: o Enables compile time checks with BSLMF_ASSERT
     //:
     //: o Handles special cases if 0 is passed for
-    //:   'MAX_SIMULTANEOUS_ACTIONS' or NANOSECONDS_PER_ACTION'
+    //:   't_MAX_SIMULTANEOUS_ACTIONS' or t_NANOSECONDS_PER_ACTION'
 
-    BSLMF_ASSERT(0 <= MAX_SIMULTANEOUS_ACTIONS);
-    BSLMF_ASSERT(0 <= NANOSECONDS_PER_ACTION);
-    BSLMF_ASSERT(MAX_SIMULTANEOUS_ACTIONS || NANOSECONDS_PER_ACTION);
-    BSLMF_ASSERT(LLONG_MAX /
-                   (MAX_SIMULTANEOUS_ACTIONS ? MAX_SIMULTANEOUS_ACTIONS : 1) >=
-                                                       NANOSECONDS_PER_ACTION);
+    BSLMF_ASSERT(0 <= t_MAX_SIMULTANEOUS_ACTIONS);
+    BSLMF_ASSERT(0 <= t_NANOSECONDS_PER_ACTION);
+    BSLMF_ASSERT(t_MAX_SIMULTANEOUS_ACTIONS || t_NANOSECONDS_PER_ACTION);
+    BSLMF_ASSERT(LLONG_MAX / (t_MAX_SIMULTANEOUS_ACTIONS
+                                  ? t_MAX_SIMULTANEOUS_ACTIONS
+                                  : 1) >=
+                 t_NANOSECONDS_PER_ACTION);
 
   public:
     // PUBLIC CONSTANTS
-    static const bsls::Types::Int64 k_npaValue = 0 == MAX_SIMULTANEOUS_ACTIONS
-                                               ? Throttle::k_ALLOW_NONE
-                                               : NANOSECONDS_PER_ACTION
-                                               ? NANOSECONDS_PER_ACTION
-                                               : Throttle::k_ALLOW_ALL;
+    static const bsls::Types::Int64 k_npaValue =
+                     0 == t_MAX_SIMULTANEOUS_ACTIONS ? Throttle::k_ALLOW_NONE
+                     : t_NANOSECONDS_PER_ACTION      ? t_NANOSECONDS_PER_ACTION
+                                                     : Throttle::k_ALLOW_ALL;
 
-    static const int                k_msaValue = 0 == NANOSECONDS_PER_ACTION
-                                               ? INT_MAX
-                                               : MAX_SIMULTANEOUS_ACTIONS;
+    static const int k_msaValue = 0 == t_NANOSECONDS_PER_ACTION
+                                      ? INT_MAX
+                                      : t_MAX_SIMULTANEOUS_ACTIONS;
 };
 
 //=============================================================================
@@ -638,3 +638,4 @@ bsls::Types::Int64 Throttle::nanosecondsPerAction() const
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+
