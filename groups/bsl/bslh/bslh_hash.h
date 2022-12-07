@@ -24,8 +24,9 @@ BSLS_IDENT("$Id: $")
 // require seeds, will not meet these requirements, meaning they cannot be used
 // with 'bslh::Hash'.  A call to 'bslh::Hash::operator()' for a (template
 // parameter) 'TYPE' will call the 'hashAppend' free function for 'TYPE' and
-// provide 'hashAppend' an instance of 'Hash_AdlWrapper<HASH_ALGORITHM>', a
-// wrapper around 'HASH_ALGORITHM' that is in the 'bslh' namespace.
+// provide 'hashAppend' an instance of a hash algorithm in the 'bslh' namespace
+// that will use the (template parameter) 'HASH_ALGORITHM' to compute hash
+// values.
 //
 // This component also contains 'hashAppend' definitions for fundamental types,
 // which are required by algorithms defined in 'bslh'.  Clients are expected to

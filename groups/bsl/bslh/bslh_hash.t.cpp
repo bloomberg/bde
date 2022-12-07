@@ -865,6 +865,12 @@ class TypeChecker {
     static bool isCorrectType(BDE_OTHER_TYPE type);
         // Return true if the specified 'type' is of the same type as the
         // (template parameter) 'EXPECTED_TYPE'.
+
+    static bool isCorrectTypeRef(const EXPECTED_TYPE& type);
+    template<class BDE_OTHER_TYPE>
+    static bool isCorrectTypeRef(const BDE_OTHER_TYPE& type);
+        // Return true if the specified 'type' is of the same type as the
+        // (template parameter) 'EXPECTED_TYPE'.
 };
 
 template<class EXPECTED_TYPE>
@@ -875,6 +881,19 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE /*type*/) {
 template<class EXPECTED_TYPE>
 template<class BDE_OTHER_TYPE>
 bool TypeChecker<EXPECTED_TYPE>::isCorrectType(BDE_OTHER_TYPE /*type*/) {
+    return false;
+}
+
+template<class EXPECTED_TYPE>
+bool TypeChecker<EXPECTED_TYPE>::isCorrectTypeRef(
+                                               const EXPECTED_TYPE& /*type*/) {
+    return true;
+}
+
+template<class EXPECTED_TYPE>
+template<class BDE_OTHER_TYPE>
+bool TypeChecker<EXPECTED_TYPE>::isCorrectTypeRef(
+                                              const BDE_OTHER_TYPE& /*type*/) {
     return false;
 }
 
@@ -891,6 +910,26 @@ namespace X {
         // ADL.
     {
         (void) hashAlg;
+        (void) &a;
+    }
+}  // close namespace X
+
+namespace XX {
+    struct A
+        // Empty struct for testing.
+    {
+    };
+
+    template<class HASH_ALGORITHM>
+    void hashAppend(HASH_ALGORITHM& hashAlg, A a)
+        // Check that 'hashAlg' is 'DefaultHashAlgorithm'.  This is to check
+        // that 'bslh::Hash<>()(a)' will pick up the right 'hashAppend'.
+    {
+        // We have to use 'isCorrectTypeRef' and not 'isCorrectType' because
+        // the default hash algorithm has no copy c'tor.
+
+        ASSERT(TypeChecker<BloombergLP::bslh::DefaultHashAlgorithm>::
+                                                    isCorrectTypeRef(hashAlg));
         (void) &a;
     }
 }  // close namespace X
@@ -915,6 +954,15 @@ namespace Z {
         X::A a = X::A();
         MockHashingAlgorithm alg = MockHashingAlgorithm();
         hashAppend(alg, a);  // Should compile and not assert
+    }
+
+    void testHashDefault()
+        // Test that 'bslh::Hash<>()(a)' picks up the 'hashAppend' in 'a's
+        // namespace, and that it uses the 'DefaultHashAlgorithm' and not
+        // 'Hash_AdlWrapper<DefaultHashAlgorithm'.
+    {
+        XX::A a;
+        (void) BloombergLP::bslh::Hash<>()(a);
     }
 }  // close namespace Z
 
@@ -1376,6 +1424,8 @@ int main(int argc, char *argv[])
         //: 9 'hashAppend' can be called with 'const' qualified types.
         //:
         //: 10 'hashAppend' is correctly detected by ADL.
+        //:
+        //: 11 'bslh::Hash<>()' uses the default allocator.
         //
         // Plan:
         //: 1 Use a mock hashing algorithm to test that 'hashAppend' inputs the
@@ -1880,7 +1930,7 @@ int main(int argc, char *argv[])
 
             ConvertibleClass c = ConvertibleClass();
             MockHashingAlgorithm hashAlg;
-            bslh::hashAppend(hashAlg, c);
+            hashAppend(hashAlg, c);
 
         }
 #endif
@@ -1889,6 +1939,12 @@ int main(int argc, char *argv[])
                             " used.  (C-10)\n");
         {
             Z::testHashAppendADL();
+        }
+
+        if (verbose) printf("Check that 'bslh::Hash<>()' selects the default"
+                            " allocator.  (C-11)\n");
+        {
+            Z::testHashDefault();
         }
       } break;
       case 2: {
