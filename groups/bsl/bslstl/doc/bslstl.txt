@@ -57,6 +57,7 @@
       bslstl_deque
       bslstl_hashtable_test1                                          !PRIVATE!
       bslstl_hashtable_test2                                          !PRIVATE!
+      bslstl_iomanip
       bslstl_priorityqueue
       bslstl_string_test                                              !PRIVATE!
       bslstl_stringbuf
@@ -257,6 +258,9 @@
 :
 : 'bslstl_inplace':
 :      Provide a standard-compliant in place construction tag types.
+:
+: 'bslstl_iomanip':
+:      Provide a 'bsl::basic_string' support for 'bsl::quoted'.
 :
 : 'bslstl_iosfwd':
 :      Provide forward declarations for Standard stream classes.
