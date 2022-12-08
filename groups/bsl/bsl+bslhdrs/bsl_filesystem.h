@@ -1,4 +1,4 @@
-// bsl_regex.h                                                        -*-C++-*-
+// bsl_filesystem.h                                                   -*-C++-*-
 #ifndef INCLUDED_BSL_FILESYSTEM
 #define INCLUDED_BSL_FILESYSTEM
 
@@ -10,8 +10,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
-// implementation of the C++ standard type (if one exists).  Finally, place the
-// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+// implementation of the C++ standard type (if one exists).  Provide
+// 'bsl::hash' and 'bslh::hashAppend' support.  Finally, place the included
+// symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_nativestd.h>
 #include <bsls_compilerfeatures.h>
@@ -19,6 +20,8 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #include <filesystem>
+
+#include <bslh_filesystem.h>
 
 namespace bsl {
 
@@ -80,7 +83,6 @@ namespace bsl {
         using std::filesystem::is_socket;
         using std::filesystem::is_symlink;
         using std::filesystem::status_known;
-
     }  // close namespace filesystem
 }  // close package namespace
 

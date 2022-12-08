@@ -8,6 +8,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslh_hashpair.h>
+#include <bslh_defaulthashalgorithm.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_movableref.h>
@@ -187,7 +188,8 @@ using namespace bslim;
 //-----------------------------------------------------------------------------
 // [20] CONCERN: 'bsl::invoke' is usable when available.
 // [20] CONCERN: 'bsl::not_fn' is usable when available.
-// [19] C++17 <BSL_FILESYSTEM.H>
+// [19] C++17 <bsl_filesystem.h>
+// [19] CONCERN: 'hashAppend' of 'std::filesystem::path' is usable.
 // [18] bsl::byte;
 // [18] bsl::apply();
 // [18] bsl::make_from_tuple();
@@ -317,7 +319,7 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
@@ -355,8 +357,8 @@ static bool veryVeryVeryVerbose;
 template <class CONTAINER>
 class MapTestDriver {
     // This parameterized class provides a namespace for testing the high level
-    // functionality of bsl map-like containers. Each "testCase*" method test a
-    // specific aspect of such containers.
+    // functionality of bsl map-like containers.  Each "testCase*" method test
+    // a specific aspect of such containers.
 
   private:
     // TYPES
@@ -782,20 +784,32 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The types defined in the filesystem library exist in the 'bsl'
         //:   namespace.
+        //:
+        //: 2 'bsl::hash' and 'bslh::hashAppend' are both defined for
+        //:   'bsl::filesystem::path'.
+        //:
+        //: 3 'std::filesystem::path' works correctly as the key for a
+        //:   'bsl::unordered_map<std::filesystem::path, int>'.
         //
         // Plan:
         //: 1 Attempt to declare a pointer to each of the types from the
         //:   filesystem library.
+        //:
+        //: 2 Define such an 'unordered_map'.
+        //:
+        //: 3 Verify that 'insert', 'find', and an update via 'operator[]' work
+        //:   correctly.
         //
         // Testing:
-        //   C++17 <BSL_FILESYSTEM.H>
+        //   C++17 <bsl_filesystem.h>
+        //   CONCERN: 'hashAppend' of 'std::filesystem::path' is usable.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING C++17 <BSL_FILESYSTEM.H>"
                             "\n================================\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        // Make sure that the types exist
+        // Make sure that the types exist (P-1)
         bsl::filesystem::path                         *ppath = nullptr;
         bsl::filesystem::filesystem_error             *pfe = nullptr;
         bsl::filesystem::directory_entry              *pde = nullptr;
@@ -823,8 +837,47 @@ int main(int argc, char *argv[])
         (void) pco;
         (void) pdo;
         (void) pftt;
-#endif
 
+        bsl::hash<bsl::filesystem::path> hasher;
+        (void) hasher;
+
+        bslh::DefaultHashAlgorithm hash;
+        // Note that the 'hashAppend' overload for 'path' is defined in
+        // namespace 'bslh', not namespace 'std', so it will not be found for
+        // hash algorithms in other namespaces.
+        hashAppend(hash, bsl::filesystem::path());
+
+        typedef std::filesystem::path               TYPE;
+        typedef bsl::unordered_map<TYPE, int>       MAP_TYPE;
+        typedef bsl::pair<MAP_TYPE::iterator, bool> RESULT_PAIR;
+        typedef TYPE::string_type                   STRING_TYPE;
+        typedef STRING_TYPE::value_type             CH;
+
+        STRING_TYPE sep = STRING_TYPE(1, TYPE::preferred_separator);
+
+        const TYPE P1(sep + CH('a') + sep + CH('b') + sep + CH('c'));
+        const TYPE P1_1(sep + CH('a') + sep + CH('b') + sep + sep + CH('c'));
+        const TYPE P2(sep + CH('a') + sep + CH('b') + sep + CH('c') + sep +
+                      CH('d'));
+
+        // P-2
+        MAP_TYPE testMap;
+
+        // P-3
+        RESULT_PAIR result = testMap.insert(std::make_pair(P1, 1));
+        ASSERT(result.second == true);
+        ASSERT(P1 == result.first->first);
+        ASSERT(1 == result.first->second);
+        ASSERT(1 == testMap[P1]);
+
+        ASSERT(P1 == P1_1);
+        ASSERT(testMap.find(P1)   != testMap.end());
+        ASSERT(testMap.find(P1_1) != testMap.end());
+        ASSERT(testMap.find(P2)   == testMap.end());
+
+        testMap[P1] = 2;
+        ASSERT(2 == testMap[P1]);
+#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -852,9 +905,11 @@ int main(int argc, char *argv[])
         //   bsl::timespec_get();
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING C++17 <BSL_CSTDDEF/TUPLE/CTIME/CSTDDEF.H> ADDITIONS"
-            "\n===========================================================\n");
+        if (verbose)
+            printf(
+                "\nTESTING C++17 <BSL_CSTDDEF/TUPLE/CTIME/CSTDDEF.H> ADDITIONS"
+                "\n==========================================================="
+                "\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         bsl::byte *bp = nullptr;
@@ -1497,9 +1552,12 @@ int main(int argc, char *argv[])
         //   CONCERN: 'bslh::hashAppend' of 'std::pair'  is usable from 'bsl'.
         //   CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
         // --------------------------------------------------------------------
-        if (verbose) printf(
-             "\nTESTING 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'"
-             "\n==========================================================\n");
+
+        if (verbose)
+            printf(
+                 "\nTESTING 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'"
+                 "\n=========================================================="
+                 "\n");
 
         if (verbose) printf("Testing 'hashAppend' of 'std::pair'\n");
 
@@ -1902,12 +1960,17 @@ int main(int argc, char *argv[])
               if (verbose) { bsl::cout << "Testing C99 as aliases.\n"; }
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
               typedef int (*FuncPtrType)(double);
-              FuncPtrType funcPtr = &bsl::fpclassify; (void)funcPtr;
+
+              FuncPtrType funcPtr = &bsl::fpclassify;
+              (void)funcPtr;
 #endif
         }
       } break;
       case 1: {
-        if (verbose) { bsl::cout << "Testing references as 'mapped_type'.\n"; }
+        if (verbose) {
+            bsl::cout << "TESTING REFERENCES AS 'mapped_type'.\n"
+                      << "====================================\n";
+        }
 
         if (verbose) { bsl::cout << "Testing 'map' container.\n"; }
         {
