@@ -658,8 +658,8 @@ void TestIterators()
     }
 
     idx = 9;
-    for (bsl::span<int>::reverse_iterator iter = sSpan.rbegin();
-                                          iter != sSpan.rend();
+    for (bsl::span<int>::reverse_iterator iter = dSpan.rbegin();
+                                          iter != dSpan.rend();
                                           ++iter, --idx)
     {
         int newValue = 246 + idx;
