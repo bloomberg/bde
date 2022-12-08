@@ -6531,7 +6531,17 @@ int main(int argc, char *argv[])
         //:   is to verify that that is the case.
         //
         // Plan:
-        //
+        //: 1 Create an 'optional<int>' and a 'NullableValue<int>' with no
+        //:   values assigned, and use 'bsl::tie' to create tuples of lvalue
+        //:   references to them, and check that comparisons between them
+        //:   turn out as expected.
+        //:
+        //: 2 Assign values to the 'optional<int>' and to the
+        //:   'NullableValue<int>' and again, check that comparisons turn out
+        //:   as expected.
+        //:
+        //: 3 Repeat P-1 and P-2, only using 'bsl::forward_as_tuple' to create
+        //:   tuples of rvalue references instead of lvalue references.
         // --------------------------------------------------------------------
 
 #define PP(exp)    if (!verbose) ; else P(exp)
