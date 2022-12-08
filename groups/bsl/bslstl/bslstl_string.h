@@ -841,11 +841,20 @@ struct String_IsConvertibleToCString<CHAR_TYPE, const CHAR_TYPE (&)[]>
     // to the 'const CHAR_TYPE *'.
 };
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
+#define BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE                 \
+  const STRING_VIEW_LIKE_TYPE &
+    // MSVC 2015's limited SFINAE support means we are cannot use 'sizeof' to
+    // detect incomplete types. In this case it is safe to not perform this
+    // detection, as it is only required for the C++03 deficiencies in Sun and
+    // AIX compilers.
+#else
 #define BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE                 \
 typename bsl::enable_if<0 != sizeof(STRING_VIEW_LIKE_TYPE),                   \
                         const STRING_VIEW_LIKE_TYPE&>::type
     // We need to use an intermediate completeness test to work around
     // deficiencies with SFINAE in the Sun and AIX compilers.
+#endif
 
 #define BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE       \
     typename bsl::enable_if<                                                  \
