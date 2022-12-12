@@ -613,7 +613,7 @@ struct CharConvertUtf16 {
         // 'srcBuffer' as 0 terminated.  Optionally specify 'byteOrder'
         // indicating the byte order of 'srcBuffer'; if 'byteOrder' is not
         // supplied, the host byte order is used.  Note that this function will
-        // return the size 'utf16ToUtf8' will require, assuming the 'errryByte'
+        // return the size 'utf16ToUtf8' will require, assuming the 'errorByte'
         // argument to 'utf16ToUtf8' is non-zero.
 
     static int utf16ToUtf8(bsl::string          *dstString,
