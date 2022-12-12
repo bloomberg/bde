@@ -28,9 +28,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  Algorithm                     Short description of observable behavior
 //  ----------------------------  ---------------------------------------------
-//  defaultConstruct              Default construct from value for each element
-//                                in the target range, or 'std::memset' if type
-//                                has a trivial default constructor
+//  defaultConstruct              Construct each element in the target range
+//                                by value-initialization, or 'std::memset' if
+//                                type has a trivial default constructor.
+//                                Note that this function is poorly named and
+//                                !does! !not! default-initialization.
 //
 //  uninitializedFillN            Copy construct from value for each element in
 //                                the target range, or 'std::memset' if value
@@ -462,7 +464,7 @@ struct ArrayPrimitives {
                typename bsl::allocator_traits<ALLOCATOR>::pointer  begin,
                size_type                                           numElements,
                ALLOCATOR                                           allocator);
-        // Default-construct the specified 'numElements' objects of type
+        // Value-inititalize the specified 'numElements' objects of type
         // 'allocator_traits<ALLOCATOR>::value_type' into the uninitialized
         // array beginning at the specified 'begin' location, using the
         // specified 'allocator' to supply memory (if required).  If a
@@ -475,9 +477,9 @@ struct ArrayPrimitives {
     static void defaultConstruct(TARGET_TYPE      *begin,
                                  size_type         numElements,
                                  bslma::Allocator *allocator);
-        // Call the default constructor on each of the elements of an array of
-        // the specified 'numElements' of the parameterized 'TARGET_TYPE'
-        // starting at the specified 'begin' address.  If the (template
+        // Construct each of the elements of an array of the specified
+        // 'numElements' of the parameterized 'TARGET_TYPE' starting at the
+        // specified 'begin' address by value-initialization.  If the (template
         // parameter) 'ALLOCATOR' type is derived from 'bslma::Allocator' and
         // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
         // 'allocator' is passed to each 'TARGET_TYPE' default constructor

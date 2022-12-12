@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov 15 05:22:39 2022
+// Generated on Wed Dec  7 07:39:24 2022
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -143,7 +143,7 @@ struct ArrayPrimitives {
                typename bsl::allocator_traits<ALLOCATOR>::pointer  begin,
                size_type                                           numElements,
                ALLOCATOR                                           allocator);
-        // Default-construct the specified 'numElements' objects of type
+        // Value-inititalize the specified 'numElements' objects of type
         // 'allocator_traits<ALLOCATOR>::value_type' into the uninitialized
         // array beginning at the specified 'begin' location, using the
         // specified 'allocator' to supply memory (if required).  If a
@@ -156,9 +156,9 @@ struct ArrayPrimitives {
     static void defaultConstruct(TARGET_TYPE      *begin,
                                  size_type         numElements,
                                  bslma::Allocator *allocator);
-        // Call the default constructor on each of the elements of an array of
-        // the specified 'numElements' of the parameterized 'TARGET_TYPE'
-        // starting at the specified 'begin' address.  If the (template
+        // Construct each of the elements of an array of the specified
+        // 'numElements' of the parameterized 'TARGET_TYPE' starting at the
+        // specified 'begin' address by value-initialization.  If the (template
         // parameter) 'ALLOCATOR' type is derived from 'bslma::Allocator' and
         // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
         // 'allocator' is passed to each 'TARGET_TYPE' default constructor

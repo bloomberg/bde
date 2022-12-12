@@ -5052,6 +5052,24 @@ int main(int argc, char *argv[])
         typedef bsltf::StdAllocTestType<bsl::allocator<int> > AllocInt;
         StdBslmaTestDriver2<AllocInt>::testCase13();
 
+        if (verbose) printf("\nTesting default-insertable type support"
+                            "\n========================================\n");
+
+        bsl::deque<NonCopyableType> mX;
+        ASSERT(mX.empty());
+
+        mX.resize(10); // grow
+        ASSERT(mX.size() == 10);
+        // Every element is value-initialized
+        for(bsl::deque<NonCopyableType>::iterator it =  mX.begin();
+                                                  it != mX.end();
+                                                  ++it) {
+            ASSERT(*it == NonCopyableType());
+        }
+
+        mX.resize(1); // shorten
+        ASSERT(mX.size() == 1);
+        ASSERT(mX.front() == NonCopyableType());
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -5138,6 +5156,18 @@ int main(int argc, char *argv[])
 
         typedef bsltf::StdAllocTestType<bsl::allocator<int> > AllocInt;
         StdBslmaTestDriver2<AllocInt>::testCase11();
+
+        if (verbose) printf("\nTesting default-insertable type support"
+                            "\n========================================\n");
+
+        bsl::deque<NonCopyableType> mX(5);
+        ASSERT(mX.size() == 5);
+        // Every element is value-initialized
+        for(bsl::deque<NonCopyableType>::iterator it =  mX.begin();
+                                                  it != mX.end();
+                                                  ++it) {
+            ASSERT(*it == NonCopyableType());
+        }
 
         if (verbose) printf("\nTesting Initial-Range Constructor"
                             "\n=================================\n");

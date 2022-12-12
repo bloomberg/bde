@@ -44,6 +44,9 @@ BSLS_IDENT("$Id: $")
 //  uninitializedFillNFront       'Ar::uninitializedFillN' for each block at
 //                                the front of the deque.
 //
+//  valueInititalizeN             'Ar::defaultConstruct' for each block at the
+//                                end of the deque.
+//
 //  insertAndMoveToBack           Copy construct each element in the target
 //                                range, or 'std::memmove' if type is bitwise
 //                                moveable, to the back of the deque to create
@@ -682,6 +685,20 @@ struct DequePrimitives {
         // undefined unless 'fromBegin - numElements' is a valid iterator
         // (i.e., the block pointer array holds enough room before the
         // 'fromBegin' position to insert 'numElements').
+
+    template <class ALLOCATOR>
+    static void valueInititalizeN(Iterator  *toEnd,
+                                  Iterator   fromEnd,
+                                  size_type  numElements,
+                                  ALLOCATOR  allocator);
+        // Append the specified 'numElements' value-initialized objects to the
+        // deque ending at the specified 'fromEnd' iterator, passing the
+        // specified 'allocator' through to the new elements, and load into the
+        // specified 'toEnd' an iterator pointing to the end of the data after
+        // appending (i.e., 'fromEnd + numElements').  The behavior is
+        // undefined unless 'fromEnd + numElements' is a valid iterator (i.e.,
+        // the block pointer array holds enough room after the 'fromEnd'
+        // position to insert 'numElements').
 };
 
 // PARTIAL SPECIALIZATION
@@ -786,6 +803,26 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                    const VALUE_TYPE&               value,
                                    ALLOCATOR                       allocator,
                                    bslmf::MetaInt<NON_NIL_TRAITS> *);
+
+    template <class ALLOCATOR>
+    static void valueInititalizeN(Iterator  *toEnd,
+                                  Iterator   fromEnd,
+                                  size_type  numElements,
+                                  ALLOCATOR  allocator);
+
+    template <class ALLOCATOR>
+    static void valueInititalizeN(Iterator  *toEnd,
+                                  Iterator   fromEnd,
+                                  size_type  numElements,
+                                  ALLOCATOR  allocator,
+                                  bslmf::MetaInt<NIL_TRAITS> *);
+
+    template <class ALLOCATOR>
+    static void valueInititalizeN(Iterator  *toEnd,
+                                  Iterator   fromEnd,
+                                  size_type  numElements,
+                                  ALLOCATOR  allocator,
+                                  bslmf::MetaInt<NON_NIL_TRAITS> *);
 };
 
                     // =======================================
@@ -2579,6 +2616,50 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
+    ::valueInititalizeN(Iterator  *toEnd,
+                        Iterator   fromEnd,
+                        size_type  numElements,
+                        ALLOCATOR  allocator)
+{
+    if (fromEnd.remainingInBlock() > numElements) {
+        ArrayPrimitives::defaultConstruct(fromEnd.valuePtr(),
+                                          numElements,
+                                          allocator);
+        fromEnd += numElements;
+        *toEnd   = fromEnd;
+        return;                                                       // RETURN
+    }
+
+    size_type firstRemaining = fromEnd.remainingInBlock();
+
+    ArrayPrimitives::defaultConstruct(fromEnd.valuePtr(),
+                                      firstRemaining,
+                                      allocator);
+
+    numElements -= firstRemaining;
+    fromEnd     += firstRemaining;
+    *toEnd       = fromEnd;
+
+    for ( ; numElements >= BLOCK_LENGTH; numElements -= BLOCK_LENGTH) {
+        ArrayPrimitives::defaultConstruct(fromEnd.valuePtr(),
+                                          BLOCK_LENGTH,
+                                          allocator);
+        fromEnd.nextBlock();
+        toEnd->nextBlock();
+    }
+
+    ArrayPrimitives::defaultConstruct(fromEnd.valuePtr(),
+                                      numElements,
+                                      allocator);
+
+    fromEnd += numElements;
+    *toEnd   = fromEnd;
+}
+
+template <class VALUE_TYPE, int BLOCK_LENGTH>
+template <class ALLOCATOR>
+void
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
           ::uninitializedFillNFront(Iterator          *toBegin,
                                     Iterator           fromBegin,
                                     size_type          numElements,
@@ -3099,6 +3180,81 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
                                             1,
                                             value,
                                             allocator);
+        ++fromEnd;
+        *toEnd = fromEnd;
+    }
+}
+
+template <class VALUE_TYPE>
+template <class ALLOCATOR>
+inline
+void
+DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
+                                                  Iterator   fromEnd,
+                                                  size_type  numElements,
+                                                  ALLOCATOR  allocator)
+{
+    enum {
+        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::value,
+        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::value,
+        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::value,
+
+        IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
+                                    (IS_POINTER && !IS_FUNCTION_POINTER),
+
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+
+        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
+                NON_NIL_TRAITS
+              : NIL_TRAITS
+    };
+
+    valueInititalizeN(toEnd,
+                      fromEnd,
+                      numElements,
+                      allocator,
+                      (bslmf::MetaInt<VALUE>*)0);
+}
+
+template <class VALUE_TYPE>
+template <class ALLOCATOR>
+void
+DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
+                                                  Iterator   fromEnd,
+                                                  size_type  numElements,
+                                                  ALLOCATOR  allocator,
+                                                  bslmf::MetaInt<NIL_TRAITS> *)
+{
+    typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
+                                              1,
+                                              ALLOCATOR>  ElementGuard;
+
+    ElementGuard guard(fromEnd, fromEnd, allocator);
+    for (; 0 < numElements; --numElements) {
+        bsl::allocator_traits<ALLOCATOR>::construct(allocator,
+                                                    fromEnd.valuePtr());
+        ++fromEnd;
+        guard.moveEnd(1);
+    }
+    guard.release();
+    *toEnd = fromEnd;
+}
+
+template <class VALUE_TYPE>
+template <class ALLOCATOR>
+void
+DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
+                                              Iterator  *toEnd,
+                                              Iterator   fromEnd,
+                                              size_type  numElements,
+                                              ALLOCATOR  allocator,
+                                              bslmf::MetaInt<NON_NIL_TRAITS> *)
+{
+    *toEnd = fromEnd;  // necessary in case 'numElements = 0'
+    for ( ; 0 < numElements; --numElements) {
+        ArrayPrimitives::defaultConstruct(fromEnd.valuePtr(),
+                                          1,
+                                          allocator);
         ++fromEnd;
         *toEnd = fromEnd;
     }

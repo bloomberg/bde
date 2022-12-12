@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct  5 09:36:25 2022
+// Generated on Wed Dec  7 07:49:58 2022
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -382,6 +382,10 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // unless 'first' and 'last' refer to a sequence of valid values where
         // 'first' is at a position at or before 'last'.
 
+    void privateAppendDefaultInsertable(size_type numElements);
+        // Append the specified 'numElements' value-inititalized objects to
+        // this deque.
+
     void privateAppendRaw(size_type numElements, const VALUE_TYPE& value);
         // Append the specified 'numElements' copies of the specified 'value'
         // to this deque.
@@ -508,18 +512,17 @@ class deque : public  Deque_Base<VALUE_TYPE>
     deque(size_type        numElements,
           const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a deque of the specified 'numElements' size whose every
-        // element is default-constructed.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the type
-        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator is used.  Throw
-        // 'bsl::length_error' if 'numElements > max_size()'.  This method
-        // requires that the (template parameter) 'VALUE_TYPE' be
-        // 'default-insertable' into this deque (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // element is value-initialized.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not supplied, a
+        // default-constructed object of the (template parameter) type
+        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
+        // (the default), then 'basicAllocator', if supplied, shall be
+        // convertible to 'bslma::Allocator *'.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used.  Throw 'bsl::length_error' if
+        // 'numElements > max_size()'.  This method requires that the (template
+        // parameter) 'VALUE_TYPE' be 'default-insertable' into this deque (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     deque(size_type         numElements,
           const VALUE_TYPE& value,
@@ -715,7 +718,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // 'size() - newSize' elements at the back if 'newSize < size()'.
         // Append 'newSize - size()' elements at the back having the optionally
         // specified 'value' if 'newSize > size()'; if 'value' is not
-        // specified, default-constructed objects of the (template parameter)
+        // specified, value-initialized objects of the (template parameter)
         // 'VALUE_TYPE' are emplaced.  This method has no effect if
         // 'newSize == size()'.  Throw 'bsl::length_error' if
         // 'newSize > max_size()'.
@@ -2182,6 +2185,23 @@ deque<VALUE_TYPE, ALLOCATOR>::privateAppend(INPUT_ITERATOR          first,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+void deque<VALUE_TYPE, ALLOCATOR>::privateAppendDefaultInsertable(
+                                                         size_type numElements)
+{
+    // Create new blocks at the back.  In case an exception is thrown, any
+    // unused blocks are returned to the allocator.
+
+    size_type numNewBlocks = (this->d_finish.offsetInBlock() + numElements) /
+                                                                  BLOCK_LENGTH;
+    BlockCreator newBlocks(this);
+    newBlocks.insertAtBack(numNewBlocks);
+    DequePrimitives::valueInititalizeN(&this->d_finish,
+                                       this->d_finish,
+                                       numElements,
+                                       ContainerBase::allocator());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE, ALLOCATOR>::privateAppendRaw(
                                                  size_type         numElements,
                                                  const VALUE_TYPE& value)
@@ -2734,7 +2754,7 @@ deque<VALUE_TYPE, ALLOCATOR>::deque(size_type        numElements,
     }
     deque temp(k_RAW_INIT, this->get_allocator());
     temp.privateInit(numElements);
-    temp.privateAppendRaw(numElements, VALUE_TYPE());
+    temp.privateAppendDefaultInsertable(numElements);
     Deque_Util::move(static_cast<Base *>(this), static_cast<Base *>(&temp));
 }
 
@@ -3135,10 +3155,35 @@ void deque<VALUE_TYPE, ALLOCATOR>::reserve(size_type numElements)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-inline
 void deque<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
 {
-    resize(newSize, VALUE_TYPE());
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newSize > max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                     "deque<...>::resize(n): deque too big");
+    }
+
+    size_type origSize = this->size();
+
+    if (newSize <= origSize) {
+        // Note that we do not use 'erase' here as 'erase' requires elements be
+        // copy-insertable, while the standard does not require elements be
+        // copy-insertable for this 'resize' overload.
+
+        IteratorImp oldEnd = this->d_finish;
+        IteratorImp newEnd = this->d_start + newSize;
+        DequePrimitives::destruct(newEnd, oldEnd, ContainerBase::allocator());
+        // Deallocate blocks no longer used
+        for (; oldEnd.blockPtr() != newEnd.blockPtr();
+               oldEnd.previousBlock()) {
+            this->deallocateN(*oldEnd.blockPtr(), 1);
+        }
+        this->d_finish = newEnd;
+    }
+    else {
+        privateAppendDefaultInsertable(newSize - origSize);
+    }
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

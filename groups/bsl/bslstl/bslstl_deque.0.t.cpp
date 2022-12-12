@@ -219,6 +219,8 @@
 // [33] size_t erase(deque<T,A>&, const U&);
 // [33] size_t erase_if(deque<T,A>&, PREDICATE);
 // ----------------------------------------------------------------------------
+// [11] CONCERN: non-copyable/non-movable types are supported.
+// [13] CONCERN: non-copyable/non-movable types are supported.
 // [22] CONCERN: 'std::length_error' is used properly.
 //
 // ~~ bslstl_deque.3.t.cpp ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1390,6 +1392,42 @@ struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
 
 }  // close namespace bslmf
 }  // close enterprise namespace
+
+                             // =====================
+                             // class NonCopyableType
+                             // =====================
+
+class NonCopyableType {
+    // Non-copyable and non-movable type.
+
+    // DATA
+    int value;
+
+    // NOT IMPLEMENTED
+    NonCopyableType(const NonCopyableType &) BSLS_KEYWORD_DELETED;
+    NonCopyableType &operator=(const NonCopyableType &) BSLS_KEYWORD_DELETED;
+  public:
+    // CREATORS
+    NonCopyableType() : value(0)
+        // Create a 'NonCopyableType' object.
+     {
+     }
+
+    // FREE OPERATORS
+    friend bool operator==(const NonCopyableType &v1,
+                           const NonCopyableType &v2)
+        // Equality comparison.
+    {
+        return v1.value == v2.value;
+    }
+
+    friend bool operator!=(const NonCopyableType &v1,
+                           const NonCopyableType &v2)
+        // Inequality comparison.
+    {
+        return !(v1 == v2);
+    }
+};
 
                         // ==========================
                         // template struct PageLength
