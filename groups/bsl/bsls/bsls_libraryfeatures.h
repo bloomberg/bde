@@ -1364,19 +1364,23 @@ BSLS_IDENT("$Id: $")
         #if __cplusplus >= 201402L
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS            1
         #endif
+
         #if __cplusplus >= 201703L
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
-
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD            1
-            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS        1
 
+            #if BSLS_PLATFORM_CMP_VERSION >= 140000
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY       1
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS        1
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM             1
+            #endif
+
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS        1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV               1
-            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM             1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS    1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                    1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS 1
         #endif
+
         #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
             #if BSLS_PLATFORM_CMP_VERSION >= 110000
                 #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY       1
@@ -1389,10 +1393,14 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY                      1
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF                     1
         #endif
+
         #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS            1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING         1
+            #if __cplusplus >= 201703L
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM             1
+            #endif
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR 1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE                1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                      1

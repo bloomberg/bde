@@ -159,7 +159,7 @@
 #include <bsl_shared_mutex.h>
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
 #include <bsl_filesystem.h>
 #endif
 
@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING C++17 <BSL_FILESYSTEM.H>"
                             "\n================================\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
         // Make sure that the types exist (P-1)
         bsl::filesystem::path                         *ppath = nullptr;
         bsl::filesystem::filesystem_error             *pfe = nullptr;
