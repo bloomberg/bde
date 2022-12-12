@@ -715,6 +715,27 @@ int JsonUtil::read(Json               *result,
     result->swap(json);
     return 0;
 }
+bsl::ostream& JsonUtil::printError(bsl::ostream&   stream,
+                                   bsl::streambuf *input,
+                                   const Error&    error)
+{
+    typedef bdlde::Utf8Util::Uint64 Uint64;
+
+    Uint64 line, column, byteOffset;
+
+    int rc = bdlde::Utf8Util::getLineAndColumnNumber(
+        &line, &column, &byteOffset, input, error.location().offset());
+
+    if (0 != rc) {
+        stream << "Error (offset " << error.location().offset()
+               << "): " << error.message();
+        return stream;                                                // RETURN
+    }
+
+    stream << "Error (line " << line << ", "
+           << "col " << column << "): " << error.message();
+    return stream;
+}
 
 int JsonUtil::write(bsl::ostream&       output,
                     const Json&         json,

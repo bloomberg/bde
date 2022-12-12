@@ -80,9 +80,12 @@ using bsl::ends;
 // [ 5] static int write(std::pmr::string*, const Json&, const WriteOptions&);
 // [ 5] static int write(std::string*, const Json&);
 // [ 5] static int write(std::string*, const Json&, const WriteOptions&);
+// [ 6] static ostream& printError(ostream&, streambuf *, const Error&);
+// [ 6] static ostream& printError(ostream&, istream&, const Error&);
+// [ 6] static ostream& printError(ostream&, string_view&, const Error&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -496,6 +499,7 @@ void checkResult(int                     line,
     }
 }
 
+
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -526,17 +530,10 @@ int main(int argc, char *argv[])
 
     switch (test) {
       case 0:
-      case 8: {
-        // --------------------------------------------------------------------
-        // CHECK EQUALITY OF SIMPLE_JSON and OLD_STYLE_SIMPLE_JSON
-        // --------------------------------------------------------------------
-
-        ASSERT(areEqual(SIMPLE_JSON, OLD_STYLE_SIMPLE_JSON));
-      } break;
       case 7: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2
-        //   Second usage example extracted from component header file.
+        // USAGE EXAMPLE
+        //   First usage example extracted from component header file.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -552,9 +549,117 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nUSAGE EXAMPLE 2"
-                 << "\n===============" << endl;
+            cout << "\nUSAGE EXAMPLE"
+                 << "\n=============" << endl;
+        if (verbose)
+            cout << "Testing usage example 1" << endl;
+        {
+///Example 1: Reading and Writing JSON Data
+/// - - - - - - - - - - - - - - - - - - - -
+// This component provides methods for reading and writing JSON data to/from
+// 'Json' objects.
+//
+// First, we define the JSON data we plan to read:
+//..
+   const char *OLD_STYLE_INPUT_JSON =
+   "{\n"
+   "  \"a boolean\": true,\n"
+   "  \"a date\": \"1970-01-01\",\n"
+   "  \"a number\": 2.1,\n"
+   "  \"an integer\": 10,\n"
+   "  \"array of values\": [\n"
+   "    -1,\n"
+   "    0,\n"
+   "    2.718281828459045,\n"
+   "    3.1415926535979,\n"
+   "    \"abc\",\n"
+   "    true\n"
+   "  ],\n"
+   "  \"event\": {\n"
+   "    \"date\": \"1969-07-16\",\n"
+   "    \"description\": \"Apollo 11 Moon Landing\",\n"
+   "    \"passengers\": [\n"
+   "      \"Neil Armstrong\",\n"
+   "      \"Buzz Aldrin\"\n"
+   "    ],\n"
+   "    \"success\": true\n"
+   "  }\n"
+   "}";
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+    const char *INPUT_JSON = R"JSON({
+  "a boolean": true,
+  "a date": "1970-01-01",
+  "a number": 2.1,
+  "an integer": 10,
+  "array of values": [
+    -1,
+    0,
+    2.718281828459045,
+    3.1415926535979,
+    "abc",
+    true
+  ],
+  "event": {
+    "date": "1969-07-16",
+    "description": "Apollo 11 Moon Landing",
+    "passengers": [
+      "Neil Armstrong",
+      "Buzz Aldrin"
+    ],
+    "success": true
+  }
+})JSON";
+    ASSERT(areEqual(INPUT_JSON, OLD_STYLE_INPUT_JSON));
+#else
+    const char *INPUT_JSON = OLD_STYLE_INPUT_JSON;
+#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+
+//..
+// Next, we read the JSON data into a 'Json' object:
+//..
+   bdljsn::Json        result;
+   bdljsn::Error       error;
+
+   int rc = bdljsn::JsonUtil::read(&result, &error, INPUT_JSON);
+
+   ASSERT(0 == rc);
+
+   if (0 != rc) {
+       bsl::cout << "Error message: \"" << error.message() << "\""
+                 << bsl::endl;
+   }
+
+//..
+// Then, we check the values of a few selected fields:
+//..
+   ASSERT(result.type() == JsonType::e_OBJECT);
+   ASSERT(result["array of values"][2].theNumber().asDouble()
+          == 2.718281828459045);
+   ASSERT(result["event"]["date"].theString() == "1969-07-16");
+   ASSERT(result["event"]["passengers"][1].theString() == "Buzz Aldrin");
+//..
+// Finally, we'll 'write' the 'result' back into another string and make sure
+// we got the same value back, by using the correct 'WriteOptions' to match
+// the input format:
+//..
+   bsl::string resultString;
+
+   // Set the WriteOptions to match the initial style:
+   WriteOptions writeOptions;
+   writeOptions.setStyle(bdljsn::WriteStyle::e_PRETTY);
+   writeOptions.setInitialIndentLevel(0);
+   writeOptions.setSpacesPerLevel(2);
+   writeOptions.setSortMembers(true);
+
+   bdljsn::JsonUtil::write(&resultString, result, writeOptions);
+
+   ASSERT(resultString == INPUT_JSON);
+//..
+        }
+        if (verbose)
+            cout << "Testing usage example 2" << endl;
+        {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 
 ///Example 2: The Effect of 'options' on 'write'
@@ -692,133 +797,125 @@ R"JSON(    {
         "b": []
     })JSON" == output);
 //..
-
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+        }
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 1
-        //   First usage example extracted from component header file.
+        // PRINTERROR TESTS
+        //   Test 'printError' overloads
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 Verify that printError writes an description of the error
+        //:   including line and column number.
+        //:
+        //: 2 That printError will write a simple description of the
+        //:   error if the line and column number can't be determined
+        //:
+        //: 3 That printError can accept input in any of the available
+        //:   overloads.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Perform a table based test on a example input with a
+        //:   variety of locations and error messages.
+        //:
+        //: 2 Perform a sanity test on an error reported from
+        //:   'JsonUtil::read'
+        //:
+        //: 3 Perform a manual test for each of the non-primary
+        //:   overloads.
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   static ostream& printError(ostream&, streambuf *, const Error&);
+        //   static ostream& printError(ostream&, istream&, const Error&);
+        //   static ostream& printError(ostream&, string_view&, const Error&);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nUSAGE EXAMPLE 1"
-                 << "\n===============" << endl;
+            cout << "\nPRINTERROR TESTS"
+                 << "\n================" << endl;
 
-///Example 2: Reading and Writing JSON Data
-/// - - - - - - - - - - - - - - - - - - - -
-// This component provides methods for reading and writing JSON data to/from
-// 'Json' objects.
-//
-// First, we define the JSON data we plan to read:
-//..
-   const char *OLD_STYLE_INPUT_JSON =
-   "{\n"
-   "  \"a boolean\": true,\n"
-   "  \"a date\": \"1970-01-01\",\n"
-   "  \"a number\": 2.1,\n"
-   "  \"an integer\": 10,\n"
-   "  \"array of values\": [\n"
-   "    -1,\n"
-   "    0,\n"
-   "    2.718281828459045,\n"
-   "    3.1415926535979,\n"
-   "    \"abc\",\n"
-   "    true\n"
-   "  ],\n"
-   "  \"event\": {\n"
-   "    \"date\": \"1969-07-16\",\n"
-   "    \"description\": \"Apollo 11 Moon Landing\",\n"
-   "    \"passengers\": [\n"
-   "      \"Neil Armstrong\",\n"
-   "      \"Buzz Aldrin\"\n"
-   "    ],\n"
-   "    \"success\": true\n"
-   "  }\n"
-   "}";
+        bsl::string twoLineMesage("0123456789\n0123456789");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    const char *INPUT_JSON = R"JSON({
-  "a boolean": true,
-  "a date": "1970-01-01",
-  "a number": 2.1,
-  "an integer": 10,
-  "array of values": [
-    -1,
-    0,
-    2.718281828459045,
-    3.1415926535979,
-    "abc",
-    true
-  ],
-  "event": {
-    "date": "1969-07-16",
-    "description": "Apollo 11 Moon Landing",
-    "passengers": [
-      "Neil Armstrong",
-      "Buzz Aldrin"
-    ],
-    "success": true
-  }
-})JSON";
-    ASSERT(areEqual(INPUT_JSON, OLD_STYLE_INPUT_JSON));
-#else
-    const char *INPUT_JSON = OLD_STYLE_INPUT_JSON;
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+        struct {
+            uint64_t    d_location;
+            const char *d_message;
+            const char *d_expected;
+        } DATA[] = {
+            {  0, "A", "Error (line 1, col 1): A"},
+            {  0, "B", "Error (line 1, col 1): B"},
+            {  1, "C", "Error (line 1, col 2): C"},
+            { 13, "D", "Error (line 2, col 3): D"},
+            { 21, "E", "Error (offset 21): E"},
+        };
 
-//..
-// Next, we read the JSON data into a 'Json' object:
-//..
-   bdljsn::Json        result;
-   bdljsn::Error       error;
+        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+        if (verbose)
+            cout << "Table based test" << endl;
+        for (int i = 0; i < NUM_DATA; ++i) {
+            Location location(DATA[i].d_location);
+            Error error(location, DATA[i].d_message);
+            const char *EXPECTED = DATA[i].d_expected;
 
-   int rc = bdljsn::JsonUtil::read(&result, &error, INPUT_JSON);
+            bsl::stringbuf input(twoLineMesage);
+            bsl::ostringstream output;
 
-   ASSERT(0 == rc);
+            bsl::ostream& result = Util::printError(output, &input, error);
+            ASSERT(&result == &output);
+            ASSERTV(output.str(), EXPECTED, output.str() == EXPECTED);
+        }
 
-   if (0 != rc) {
-       bsl::cout << "Error message: \"" << error.message() << "\""
-                 << bsl::endl;
-   }
+        if (verbose)
+            cout << "Sanity test on real JSON" << endl;
+        {
+            const char *JSON =
+            "{\n"
+            "  \"a\": 1,\n"
+            "  \"b\": 2,\n"
+            "  \"c\": oops,\n"
+            "}\n"
+            ;
+            Json result;
+            Error error;
 
-//..
-// Then, we check the values of a few selected fields:
-//..
-   ASSERT(result.type() == JsonType::e_OBJECT);
-   ASSERT(result["array of values"][2].theNumber().asDouble()
-          == 2.718281828459045);
-   ASSERT(result["event"]["date"].theString() == "1969-07-16");
-   ASSERT(result["event"]["passengers"][1].theString() == "Buzz Aldrin");
-//..
-// Finally, we'll 'write' the 'result' back into another string and make sure
-// we got the same value back, by using the correct 'WriteOptions' to match
-// the input format:
-//..
-   bsl::string resultString;
+            int rc = Util::read(&result, &error, JSON);
+            ASSERTV(rc, 0 != rc);
 
-   // Set the WriteOptions to match the initial style:
-   WriteOptions writeOptions;
-   writeOptions.setStyle(bdljsn::WriteStyle::e_PRETTY);
-   writeOptions.setInitialIndentLevel(0);
-   writeOptions.setSpacesPerLevel(2);
-   writeOptions.setSortMembers(true);
+            const char *EXPECTED = "Error (line 4, col 12): Invalid JSON Number";
 
-   bdljsn::JsonUtil::write(&resultString, result, writeOptions);
+            bsl::stringbuf input(JSON);
+            bsl::ostringstream output;
 
-   ASSERT(resultString == INPUT_JSON);
-//..
+            Util::printError(output, &input, error);
+            ASSERTV(output.str(), EXPECTED, output.str() == EXPECTED);
+        }
+
+        if (verbose)
+            cout << "Test overloads" << endl;
+        {
+            Error error(Location(0), "A");
+            const char *EXPECTED = "Error (line 1, col 1): A";
+
+            {
+                bsl::ostringstream output;
+
+                bsl::ostream& result =
+                    Util::printError(output, twoLineMesage, error);
+
+                ASSERT(&result == &output)
+                ASSERTV(output.str(), EXPECTED, output.str() == EXPECTED);
+            }
+            {
+                bsl::ostringstream output;
+                bsl::istringstream input(twoLineMesage);
+
+                bsl::ostream& result = Util::printError(output, input, error);
+
+                ASSERT(&result == &output)
+                ASSERTV(output.str(), EXPECTED, output.str() == EXPECTED);
+            }
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -3188,6 +3285,8 @@ R"JSON(    {
         if (verbose)
             cout << "\nBREATHING TEST"
                  << "\n==============" << endl;
+
+        ASSERT(areEqual(SIMPLE_JSON, OLD_STYLE_SIMPLE_JSON));
 
         const WriteStyle::Enum C = WriteStyle::e_COMPACT;
         const WriteStyle::Enum O = WriteStyle::e_ONELINE;

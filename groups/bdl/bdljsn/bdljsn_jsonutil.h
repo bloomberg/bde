@@ -357,6 +357,24 @@ struct JsonUtil {
         // (non-whitespace) contents after an otherwise valid JSON text will
         // result in failure.
 
+    static bsl::ostream& printError(bsl::ostream&          stream,
+                                    bsl::istream&           input,
+                                    const Error&            error);
+    static bsl::ostream& printError(bsl::ostream&           stream,
+                                    bsl::streambuf         *input,
+                                    const Error&            error);
+    static bsl::ostream& printError(bsl::ostream&           stream,
+                                    const bsl::string_view& input,
+                                    const Error&            error);
+        // Print, to the specified 'stream', a description of the specified
+        // 'error', containing the line and column in the specified 'input'
+        // where the 'error' occured.  Return a reference to the modifiable
+        // 'stream'.  If 'error.location()' does not refer to a valid location
+        // in 'input' an unspecified error description will be written to
+        // 'stream'.  Note that the caller should ensure 'input' refers to the
+        // same input position as when 'input' was supplied to 'read' (or
+        // whatever operation created 'error').
+
     static int write(bsl::ostream&       output,
                      const Json&         json);
     static int write(bsl::ostream&       output,
@@ -497,6 +515,23 @@ int JsonUtil::read(Json                    *result,
 {
     ReadOptions options;
     return read(result, errorDescription, input, options);
+}
+
+inline
+bsl::ostream& JsonUtil::printError(bsl::ostream& stream,
+                                   bsl::istream& input,
+                                   const Error&  error)
+{
+    return printError(stream, input.rdbuf(), error);
+}
+
+inline
+bsl::ostream& JsonUtil::printError(bsl::ostream&           stream,
+                                   const bsl::string_view& input,
+                                   const Error&            error)
+{
+    bdlsb::FixedMemInStreamBuf inputBuf(input.data(), input.size());
+    return printError(stream, &inputBuf, error);
 }
 
 inline
