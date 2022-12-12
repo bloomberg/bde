@@ -10,6 +10,7 @@
 #include <bdlde_charconvertutf16.h>
 
 #include <bdlde_charconvertstatus.h>
+#include <bdlde_utf8util.h>
 
 #include <bslalg_constructorproxy.h>
 
@@ -17,6 +18,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_platform.h>
@@ -29,6 +31,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
+#include <bsl_cwchar.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 
@@ -128,8 +131,11 @@ using namespace bsl;
 // Exercise boundary cases for both of the conversion mappings as well as
 // handling of buffer capacity issues.
 //-----------------------------------------------------------------------------
-// [15] USAGE EXAMPLE 2
-// [14] USAGE EXAMPLE 1
+// [18] USAGE EXAMPLE 2
+// [17] USAGE EXAMPLE 1
+// [16] UTF-8 LENGTH CALCULATION TEST -- INCORRECT UNICODE
+// [15] UTF-16 LENGTH CALCULATION TEST -- INCORRECT UNICODE
+// [14] UTF-16 & UTF-8 LENGTH CALCULATION TEST -- CORRECT UNICODE
 // [13] BACKWARDS BYTE ORDER TEST
 // [12] EMBEDDED ZEROES TEST
 // [11] UTF-16 -> UTF-8: THOROUGH BROKEN GLASS TEST
@@ -144,6 +150,12 @@ using namespace bsl;
 // [ 2] SINGLE-VALUE, LEGAL VALUE TEST
 // [ 1] BREATHING/USAGE TEST
 //-----------------------------------------------------------------------------
+// [16] computeRequiredUtf8Bytes(w_char_t *, w_char_t *, byteOrder);
+// [16] computeRequiredUtf8Bytes(ushort *, ushort *, byteOrder);
+// [15] computeRequiredUtf16Words(char *, char *);
+// [14] computeRequiredUtf16Words(char *, char *);
+// [14] computeRequiredUtf8Bytes(w_char_t *, w_char_t *, byteOrder);
+// [14] computeRequiredUtf8Bytes(ushort *, ushort *, byteOrder);
 // [13] utf8ToUtf16 (all container overloads)
 // [13] utf16ToUtf8 (all container overloads)
 // [12] utf8ToUtf16 (single container overload)
@@ -1194,6 +1206,107 @@ int surrogateUtf8ToUtf16(unsigned short         *dstBuffer,
                              numWordsWritten,
                              errorWord,
                              byteOrder);
+}
+
+//-----------------------------------------------------------------------------
+//                          Random Number Generator
+//-----------------------------------------------------------------------------
+
+class RandGen {
+    typedef bsls::Types::Uint64 Uint64;
+
+    // Random number generator using the high-order 32 bits of Donald Knuth's
+    // MMIX algorithm.
+
+    Uint64   d_seed;
+    Uint64   d_bitAccum;
+    unsigned d_bitAccumNumBits;
+
+    // PRIVATE MANIPULATORS
+    void replenishBitAccum();
+        // Replenish 'd_bitAccum' with fresh random bits.
+
+  public:
+    // CREATOR
+    explicit
+    RandGen(unsigned startSeed = 0);
+        // Initialize the generator with the optionally specified 'startSeed'.
+
+    // MANIPULATORS
+    unsigned operator()();
+        // Return the next random number in the series;
+
+    unsigned bits(unsigned numBits);
+        // Return a value where the low-order 'numBits' are random and all
+        // other bits are 0.
+
+    char getChar();
+        // Return a random 'char'.
+};
+
+                        // ------------------------
+                        // RandGen: INLINE FUNCIONS
+                        // ------------------------
+
+// MANIPULATORS
+inline
+unsigned RandGen::operator()()
+{
+    d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
+    return static_cast<unsigned>(d_seed >> 32);
+}
+
+inline
+unsigned RandGen::bits(unsigned numBits)
+{
+    BSLS_ASSERT_SAFE(0 < numBits && numBits < 32);
+
+    if (d_bitAccumNumBits < numBits) {
+        replenishBitAccum();
+    }
+
+    const unsigned ret = static_cast<unsigned>(
+                                           d_bitAccum & ((1u << numBits) - 1));
+
+    d_bitAccum        >>= numBits;
+    d_bitAccumNumBits -=  numBits;
+
+    return ret;
+}
+
+inline
+char RandGen::getChar()
+{
+    return static_cast<char>(bits(8));
+}
+
+                        // ----------------------------
+                        // RandGen: NON_INLINE FUNCIONS
+                        // ----------------------------
+
+// PRIVATE MANIPULATORS
+void RandGen::replenishBitAccum()
+{
+    // This function is NOT inlined so that inline calls to 'bits' will have a
+    // smaller code footprint.
+
+    const Uint64 hi = (*this)();
+
+    d_bitAccum = (hi << 32) | (*this)();
+
+    d_bitAccumNumBits = 64;
+}
+
+// CREATOR
+RandGen::RandGen(unsigned startSeed)
+: d_seed(startSeed)
+, d_bitAccumNumBits(0)
+{
+    // Rarely called, not worth inlining.
+
+    for (unsigned uu = 0; uu < 5; ++uu) {
+        (void) (*this)();
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -4399,7 +4512,7 @@ unsigned char utf8MultiLang[] = {
     187,  13,  10,   0
 };
 const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
-
+enum { k_MULTI_LANG_LEN = sizeof(utf8MultiLang) - 1 };
 
 template <class UTF16_WORD>
 static
@@ -4427,13 +4540,327 @@ bsl::size_t localUtf16Len(const UTF16_WORD *str)
     return pws - str;
 }
 
+static
+bsl::string displayUtf8(const bsl::string& str)
+    // Return another string that is a human-readable version of the specified
+    // 'str', with non-printable characters translated at '\x??' where '?' is
+    // '[0-9]'.
+{
+    bsl::string ret("\"");
+
+    const unsigned char *begin = reinterpret_cast<const unsigned char *>(
+                                                                  str.c_str());
+    for (const unsigned char *pc = begin; *pc; ++pc) {
+        if ((0xc0u & *pc) != 0x80u && begin < pc) {
+            ret.push_back(' ');
+        }
+        if ((0x80 & *pc) || !isprint(*pc)) {
+            ret.push_back('\\');
+            ret.push_back('x');
+            unsigned nybble = *pc >> 4;
+            nybble = nybble < 10 ? '0' + nybble : 'a' + nybble - 10;
+            ret.push_back(static_cast<char>(nybble));
+            nybble = *pc & 0xf;
+            nybble = nybble < 10 ? '0' + nybble : 'a' + nybble - 10;
+            ret.push_back(static_cast<char>(nybble));
+        }
+        else {
+            ret.push_back(*pc);
+        }
+    }
+
+    ret.push_back('"');
+
+    return ret;
+}
+
+template <class UTF16_WORD>
+static
+bsl::string displayUtf16(const UTF16_WORD       *utf16Str,
+                         bdlde::ByteOrder::Enum  byteOrder)
+    // Return a bsl::string that is a human-readable version of the specified
+    // 'utf16Str', with non-printable characters translated at '\x<hex><hex>'
+    // where '<hex>' is a hex digit.
+{
+    bsl::string ret("\"");
+
+    for (const UTF16_WORD *pw = utf16Str; *pw; ++pw) {
+        const UTF16_WORD w = bdlde::ByteOrder::e_HOST == byteOrder
+                           ? *pw
+                           : bsls::ByteOrderUtil::swapBytes(*pw);
+
+        if (utf16Str < pw) {
+            ret.push_back(' ');
+        }
+        if (w < 128 && isprint(static_cast<char>(w))) {
+            ret.push_back('\'');
+            ret.push_back(static_cast<char>(w));
+            ret.push_back('\'');
+        }
+        else {
+            ret.push_back('\\');
+            ret.push_back('x');
+            for (int ii = 3; 0 <= ii; --ii) {
+                unsigned nybble = (w >> (ii * 4)) & 0xf;
+                unsigned c = nybble < 10 ? '0' + nybble : 'a' + nybble - 10;
+                ret.push_back(static_cast<char>(c));
+            }
+        }
+    }
+
+    ret.push_back('"');
+
+    return ret;
+}
+
 //=============================================================================
 //                              TEST DRIVER
 //=============================================================================
 
-struct TestDriver
-{
-    // TEST CASES
+class TestDriver {
+    enum Validity { e_VALID, e_INVALID };
+
+    enum Utf8Bits {
+        // Masks and shifts used to assemble and dismantle UTF-8 encodings.
+
+        ONE_OCT_CONT_WID   = 7,               // Content in a one-octet coding
+        ONE_OCTET_MASK     = 0xff & (~0u << ONE_OCT_CONT_WID),
+        ONE_OCTET_TAG      = 0xff & 0,        // Compare this to mask'd bits
+
+        CONTINUE_CONT_WID  = 6,               // Content in a continuation
+                                              //                      octet
+        CONTINUE_MASK      = 0xff & (~0u << CONTINUE_CONT_WID),
+        CONTINUE_TAG       = ONE_OCTET_MASK,  // Compare this to mask'd bits
+
+        TWO_OCT_CONT_WID   = 5,               // Content in a two-octet header
+        TWO_OCTET_MASK     = 0xff & (~0u << TWO_OCT_CONT_WID),
+        TWO_OCTET_TAG      = CONTINUE_MASK,   // Compare this to mask'd bits
+
+        THREE_OCT_CONT_WID = 4,               // Content in a 3-octet header
+        THREE_OCTET_MASK   = 0xff & (~0u << THREE_OCT_CONT_WID),
+        THREE_OCTET_TAG    = TWO_OCTET_MASK,  // Compare this to mask'd bits
+
+        FOUR_OCT_CONT_WID  = 3,               // Content in a four-octet header
+        FOUR_OCTET_MASK    = 0xff & (~0u << FOUR_OCT_CONT_WID),
+        FOUR_OCTET_TAG     = THREE_OCTET_MASK // Compare this to mask'd bits
+    };
+
+    enum {
+        // In functions where we are making a random choice between
+        // possibilities, which happens frequently in test cases 14-16, when we
+        // are choosing between 'N' possibilities where 'N' is not a power of
+        // two, we take 'M > N' when 'M' is the next higher power of two than
+        // N, where 'M == (1 << BITS)' and then calculate
+        // 'k_RAND_NUM_BITS == BITS + k_RAND_FUDGE_BITS' that when we calculate
+        //..
+        // x = s_randGen.bits(k_RAND_NUM_BITS) % N;
+        //..
+        // and we get roughly equal probability of each choice in the range
+        // '[ 0 .. N-1 ]'.  We can test that our fudge factor is adequate with
+        //..
+        // BSLMF_ASSERT(N * k_RAND_FUDGE_MULTIPE < (1 << K_RAND_NUM_BITS));
+        //..
+
+        k_RAND_FUDGE_BITS     = 3,
+        k_RAND_FUDGE_MULTIPLE = 1u << k_RAND_FUDGE_BITS
+    };
+
+    enum { k_LO_SURROGATE_BASE = 0xd800u,    // low UTF-16 surrogates are in
+                                             // the range
+                                             // '[ 0xd800 .. 0xdbff ]'
+           k_HI_SURROGATE_BASE = 0xdc00u,    // high UTF-16 surrogates are in
+                                             // the range
+                                             // '[ 0xdc00 .. 0xdfff ]'
+           k_SURROGATE_CEILING = 0xe000u,
+
+           k_SURROGATE_RAND_BITS = 10u };
+
+    BSLMF_ASSERT(k_LO_SURROGATE_BASE + (1u << k_SURROGATE_RAND_BITS) ==
+                                                          k_HI_SURROGATE_BASE);
+    BSLMF_ASSERT(k_HI_SURROGATE_BASE + (1u << k_SURROGATE_RAND_BITS) ==
+                                                          k_SURROGATE_CEILING);
+
+    typedef unsigned UnicodeCodePoint;
+
+    // CLASS DATA
+    static RandGen s_randGen;                // Random number generator
+
+    // PRIVATE CLASS METHODS
+    static void copyUtf16ToWstring(
+                                bsl::wstring                       *wStr,
+                                const bsl::vector<unsigned short>&  utf16In,
+                                bdlde::ByteOrder::Enum              byteOrder);
+        // Copy the specified UTF-16 sequence from 'utf16In' to the specified
+        // 'wStr', interpret the byte order of both input and output as the
+        // specified 'byteOrder'.  This is useful when we've created invalid
+        // UTF-16 in a 'vector<unsigned short>' with 'randomInvalidUtf16Vector'
+        // (below) and we want to also test on a 'wstring' without having to
+        // templatize 'randomInvalidUtf16Vector' or create another version of
+        // it that operates on a 'wstring' instead of a 'vector'.
+
+    static unsigned numBitsSet(unsigned value);
+        // Return the number of bits in the specified 'value' that are set.
+
+    static unsigned calculateRandomNumOctets();
+        // Calculate a random number of octets with the following
+        // probabilities: 1 octet: 12.5%, 2 octets: 37.5%, 3 octets: 37.5%, 4
+        // octets: 12.5%.  Note that single-octet sequences are not very
+        // interesting for testing, and quad octets are normally extremely rare
+        // in UTF-8.
+
+    static
+    bool fitsInSingleOctet(UnicodeCodePoint uc);
+        // Return 'true' if the specified Unicode code point 'uc' will fit in a
+        // single octet of UTF-8, and 'false' otherwise.
+
+    static
+    bool fitsInTwoOctets(UnicodeCodePoint uc);
+        // Return 'true' if the specified Unicode code point 'uc' will fit in
+        // two octets of UTF-8, and 'false' otherwise.
+
+    static
+    bool fitsInThreeOctets(UnicodeCodePoint uc);
+        // Return 'true' if the specified Unicode code point 'uc' will fit in
+        // three octets of UTF-8, and 'false' otherwise.
+
+    // The functions:
+    //
+    //: 1 'encodeTwoOctets',
+    //:
+    //: 2 'encodeThreeOctets', and
+    //:
+    //: 3 'encodeFourOctets'
+    //
+    // encode the iso10646 code point passed as their second argument into the
+    // specified number of octets in the UTF-8 byte array addressed by their
+    // first argument.  The behavior is undefined if there is not enough room
+    // in the array.  The result may be incorrect UTF-8 if the specified
+    // encoding is not the correct coding for the code point given (we desire
+    // this behavior when creating invalid UTF-8 to test on).  Note that the
+    // single-byte encoding is accomplished by a direct copy, for which no
+    // function is provided here.
+
+    static
+    void encodeTwoOctets(char *octBuf, UnicodeCodePoint isoBuf);
+        // Assume the specified 'isoBuf' will fit in 2 octets of UTF-8 and
+        // encode it at the position indicated by the specified 'octBuf'.
+
+    static
+    void encodeThreeOctets(char *octBuf, UnicodeCodePoint isoBuf);
+        // Assume the specified 'isoBuf' will fit in 3 octets of UTF-8 and
+        // encode it at the position indicated by the specified 'octBuf'.
+
+    static
+    void encodeFourOctets(char *octBuf, UnicodeCodePoint isoBuf);
+        // Assume the specified 'isoBuf' will fit in 4 octets of UTF-8 and
+        // encode it at the position indicated by the specified 'octBuf'.
+
+    static
+    bool isContinuation(char c);
+        // Return 'true' if the specified 'c' is a continuation byte and
+        // 'false' otherwise.
+
+    static
+    void appendRandomInvalidSingleOctet(bsl::string *string);
+        // Append a random invalid single byte to the specified '*string'.
+        // Note that the byte appended may be legal if it is a continuation
+        // byte and the preceding contents '*string' is a truncated sequence.
+
+    static
+    void appendRandomInvalidTwoOctets(bsl::string *string);
+        // Append a random invalid two-octet code point to the specified
+        // '*string'.
+
+    static
+    void appendRandomInvalidThreeOctets(bsl::string *string);
+        // Append a random invalid three-octet code point to the specified
+        // '*string'.
+
+    static
+    void appendRandomInvalidFourOctets(bsl::string *string);
+        // Append a random invalid four-octet code point to the specified
+        // '*string'.
+
+    static
+    void appendRandomValidSingleOctet(bsl::string *string);
+        // Append a random non-zero ASCII byte to the specified '*string'.
+
+    static
+    void appendRandomValidTwoOctets(bsl::string *string);
+        // Append a random valid two octet sequence to the specified '*string'.
+
+    static
+    void appendRandomValidThreeOctets(bsl::string *string);
+        // Append a random valid three octet sequence to the specified
+        // '*string'.
+
+    static
+    void appendRandomValidFourOctets(bsl::string *string);
+        // Append a random valid four octet sequence to the specified
+        // '*string'.
+
+    static
+    void appendRandomValidUtf8CodePoint(bsl::string *string);
+        // Append a random valid UTF-8 code point to the specified '*string'.
+        // Make 2 and 3 byte code points 3 times as likely as 1 or 4 byte
+        // code points.
+
+    static void appendRandomInvalidUtf8CodePoint(bsl::string *string);
+        // Append random invalid UTF-8 to the specified '*string'.  Note that
+        // the appended sequence will usually consistitute one code point, but
+        // in some cases where a truncated sequence is followed by the first
+        // char of another truncated sequence, it will consitute 2 invalid code
+        // points.
+
+    static void randomUtf8String(bsl::string *result,
+                                 unsigned     numSequences,
+                                 Validity     validity);
+        // Create a UTF-8 string and return it in the specified 'result'
+        // containing 'numSequences' sequences, where the terminating '\0'
+        // counts as one sequence.  If the specified 'validity' is 'e_VALID'
+        // the UTF-8 will be valid.  If the specified 'validity' is
+        // 'e_INVALID', the string will be invalid.  The behavior is undefined
+        // if 'numSequences < 1' or if 'numSequences < 2' and
+        // 'validity == e_INVALID'.  Note that in the case of invalid UTF-8,
+        // the number of code points may exceed 'numSequences'.
+
+    static unsigned short randomUtf16NonSurrogate();
+        // Return a random non-zero, non-surrogate UTF-16 word.
+
+    static unsigned short randomUtf16SurrogateLo();
+        // Return a random UTF-8 low-surrogate word.
+
+    static unsigned short randomUtf16SurrogateHi();
+        // Return a random UTF-8 high-surrogate word.
+
+    static void randomInvalidUtf16Vector(
+                                       bsl::vector<unsigned short> *result,
+                                       unsigned                     numWords,
+                                       bdlde::ByteOrder::Enum       byteOrder);
+        // Populate the specified '*result' with an invalid UTF-16 sequence the
+        // specified 'numWords' long.  Note that 'numWords' includes the
+        // terminating 0, and the behavior is undefined if 'numWords < 2'.
+
+
+                                 // TEST CASES
+
+  public:
+    // PUBLIC CLASS METHODS
+    static void testCase16(bdlde::ByteOrder::Enum byteOrder);
+        // Test the calculations of length estimates for UTF-16 containing
+        // errors translated into UTF-8.  The UTF-16 is to be of the specified
+        // 'byteOrder'.
+
+    static void testCase15(bdlde::ByteOrder::Enum byteOrder);
+        // Test the calculations of length estimates for UTF-8 containing
+        // errors translated into UTF-16.  The UTF-16 is to be of the specified
+        // 'byteOrder'.
+
+    static void testCase14(bdlde::ByteOrder::Enum byteOrder);
+        // Test length methods on valid random unicode strings, both for UTF-8
+        // translated to UTF-16, and for UTF-16 translated to UTF-8, where the
+        // byte order of the UTF-16 is determined by the specified 'byteOrder'.
+
     template <class STRING,
               class WSTRING,
               class VECTOR_C,
@@ -4455,10 +4882,1181 @@ struct TestDriver
     static void testCase10();
         // Verify utf8 to utf16 translation.
 };
+RandGen TestDriver::s_randGen;
 
-                                // ----------
-                                // TEST CASES
-                                // ----------
+inline
+unsigned TestDriver::numBitsSet(unsigned value)
+{
+    unsigned ret;
+    for (ret = 0; 0 != value; ++ret) {
+        value &= value - 1;    // clears low-order bit
+    }
+
+    return ret;
+}
+
+inline
+unsigned TestDriver::calculateRandomNumOctets()
+{
+    // By taking 3 random bits, counting the number that are set, and adding 1,
+    // we get 'P(1)' == P(4) == 12.5%' and 'P(2) == P(3) == 37%'.  Single
+    // octets are not very interesting, so we don't want a lot of them, and
+    // quadruple octets are normally very rare in UTF-8.
+
+    unsigned rand3 = s_randGen.bits(3);
+
+    unsigned numOctets = 1 + numBitsSet(rand3);
+    BSLS_ASSERT_SAFE(0 < numOctets && numOctets <= 4);
+
+    return numOctets;
+}
+
+inline
+bool TestDriver::fitsInSingleOctet(UnicodeCodePoint uc)
+{
+    return 0 == (uc & (~UnicodeCodePoint(0) << ONE_OCT_CONT_WID));
+}
+
+inline
+bool TestDriver::fitsInTwoOctets(UnicodeCodePoint uc)
+{
+    return 0 == (uc & (~UnicodeCodePoint(0) << (TWO_OCT_CONT_WID +
+                                                          CONTINUE_CONT_WID)));
+}
+
+inline
+bool TestDriver::fitsInThreeOctets(UnicodeCodePoint uc)
+{
+    return 0 == (uc & (~UnicodeCodePoint(0) << (THREE_OCT_CONT_WID +
+                                                      2 * CONTINUE_CONT_WID)));
+}
+
+inline
+void TestDriver::encodeTwoOctets(char *octBuf, UnicodeCodePoint isoBuf)
+{
+    BSLS_ASSERT_SAFE(fitsInTwoOctets(isoBuf));
+
+    octBuf[1] = static_cast<char>(CONTINUE_TAG |
+                             (isoBuf                       & ~CONTINUE_MASK));
+    octBuf[0] = static_cast<char>(TWO_OCTET_TAG |
+                            ((isoBuf >> CONTINUE_CONT_WID) & ~TWO_OCTET_MASK));
+}
+
+inline
+void TestDriver::encodeThreeOctets(char *octBuf, UnicodeCodePoint isoBuf)
+{
+    BSLS_ASSERT_SAFE(fitsInThreeOctets(isoBuf));
+
+    for (unsigned uu = 0; uu < 2; ++uu) {
+        octBuf[2 - uu] = static_cast<char>(CONTINUE_TAG |
+                        ((isoBuf >> uu * CONTINUE_CONT_WID) & ~CONTINUE_MASK));
+    }
+    octBuf[0] = static_cast<char>(THREE_OCTET_TAG |
+                      ((isoBuf >> 2 * CONTINUE_CONT_WID) & ~THREE_OCTET_MASK));
+}
+
+inline
+void TestDriver::encodeFourOctets(char *octBuf, UnicodeCodePoint isoBuf)
+{
+    for (unsigned uu = 0; uu < 3; ++uu) {
+        octBuf[3 - uu] = static_cast<char>(CONTINUE_TAG |
+                        ((isoBuf >> uu * CONTINUE_CONT_WID) & ~CONTINUE_MASK));
+    }
+    octBuf[0] = static_cast<char>(FOUR_OCTET_TAG |
+                       ((isoBuf >> 3 * CONTINUE_CONT_WID) & ~FOUR_OCTET_MASK));
+}
+
+inline
+bool TestDriver::isContinuation(char c)
+{
+    return (c & CONTINUE_MASK) == CONTINUE_TAG;
+}
+
+                            // ---------------------------
+                            // PRIVATE OUT-OF-LINE METHODS
+                            // ---------------------------
+
+// PRIVATE CLASS METHODS
+void TestDriver::copyUtf16ToWstring(
+                                 bsl::wstring                       *wStr,
+                                 const bsl::vector<unsigned short>&  utf16In,
+                                 bdlde::ByteOrder::Enum              byteOrder)
+{
+    const bsl::size_t len = utf16In.size() - 1;
+
+    wStr->clear();
+    wStr->resize(len);
+
+    wchar_t *pwc = wStr->data();
+    const unsigned short *pu = utf16In.data(), * const end = pu + len;
+    if (sizeof(*pwc) == sizeof(*pu) || bdlde::ByteOrder::e_HOST == byteOrder) {
+        for (; pu < end; ++pu, ++pwc) {
+            *pwc = *pu;
+        }
+    }
+    else {
+        for (; pu < end; ++pu, ++pwc) {
+            const wchar_t w = bsls::ByteOrderUtil::swapBytes(*pu);
+            *pwc = bsls::ByteOrderUtil::swapBytes(w);
+        }
+    }
+    ASSERT(bsl::wcslen(wStr->c_str()) == len);        // no embedded '\0's
+}
+
+void TestDriver::appendRandomInvalidSingleOctet(bsl::string *string)
+    // Append a random invalid single byte to the specified '*string'.  Note
+    // that the byte appended may be legal if it is a continuation byte and the
+    // preceding contents of '*string' is a truncated sequence.
+{
+    enum ErrorType { e_ILLEGAL_CHAR,
+                     e_UNEXPECTED_CONTINUATION,
+                     k_NUM_ERROR_TYPES,
+
+                     k_RAND_BITS = 1u };
+
+    BSLMF_ASSERT((1u << k_RAND_BITS) == k_NUM_ERROR_TYPES);
+
+    const ErrorType errorType = static_cast<ErrorType>(
+                                                  s_randGen.bits(k_RAND_BITS));
+
+    const char c = e_ILLEGAL_CHAR == errorType
+                 ? // Bytes with high 5 bits all set '11111xxx' are never legal
+                   // characters in UTF-8.
+
+                   static_cast<char>(0xf8u | s_randGen.bits(3))
+                 : // unexpected continuation '10xxxxxx'.
+
+                   static_cast<char>(0x80u | s_randGen.bits(6));
+
+    BSLS_ASSERT_SAFE(isContinuation(c) ==
+                                     (errorType == e_UNEXPECTED_CONTINUATION));
+
+    *string += c;
+}
+
+void TestDriver::appendRandomInvalidTwoOctets(bsl::string *string)
+    // Append a random invalid two-octet code point to the specified '*string'.
+{
+    enum ErrorType { e_TRUNC,        // wrong byte appended before sequence
+                                     // completes
+                     e_END,          // sequence ends without finishing
+
+                     e_NON_MINIMAL,  // value should have been represented as
+                                     // single byte
+
+                     k_NUM_ERROR_TYPES,
+
+                     k_RAND_BITS = 2 + k_RAND_FUDGE_BITS };
+
+    BSLMF_ASSERT(k_NUM_ERROR_TYPES * k_RAND_FUDGE_MULTIPLE <
+                                                          (1u << k_RAND_BITS));
+
+    const ErrorType errorType = static_cast<ErrorType>(
+                              s_randGen.bits(k_RAND_BITS) % k_NUM_ERROR_TYPES);
+
+    switch (errorType) {
+      case e_TRUNC:
+      case e_END: {
+        // truncated two-byte sequence
+
+        // first byte is correct start to 2-byte sequence '110xxxxx'
+
+        *string += static_cast<char>(TWO_OCTET_TAG | s_randGen.bits(5));
+
+        if (e_TRUNC == errorType) {
+            unsigned char wrongByte;
+            do {
+                wrongByte = static_cast<unsigned char>(s_randGen.getChar());
+            } while (!wrongByte || isContinuation(wrongByte));
+
+            *string += static_cast<char>(wrongByte);
+        }
+      } break;
+      case e_NON_MINIMAL: {
+        // non-minimal two-byte encoding
+
+        const bsl::size_t len = string->length();
+        string->resize(len + 2);
+
+        const unsigned char asciiByte = static_cast<char>(s_randGen.bits(7));
+        encodeTwoOctets(string->data() + len, asciiByte);
+      } break;
+      default: {
+        ASSERT(0);
+      }
+    }
+}
+
+void TestDriver::appendRandomInvalidThreeOctets(bsl::string *string)
+    // Append a random invalid three-octet code point to the specified
+    // '*string'.
+{
+    enum ErrorType { e_TRUNC,        // wrong byte appended before sequence
+                                     // completes
+
+                     e_END,          // sequence ends without finishing
+
+                     e_NON_MINIMAL,  // value should have been represented as
+                                     // two or fewer octers
+
+                     e_SURROGATE,    // value reserved for surrogate planes in
+                                     // UTF-16
+
+                     k_NUM_ERROR_TYPES,
+
+                     k_RAND_BITS = 2u };
+
+    BSLMF_ASSERT(k_NUM_ERROR_TYPES == (1u << k_RAND_BITS));
+
+    // '% k_NUM_ERROR_TYPES' would be redundant here
+
+    const ErrorType errorType = static_cast<ErrorType>(
+                                                  s_randGen.bits(k_RAND_BITS));
+
+    switch (errorType) {
+      case e_TRUNC:
+      case e_END: {
+        // three-byte sequence truncated before completion
+
+        // first byte is correct start to 3-byte sequence '1110xxxx'
+
+        *string += static_cast<char>(0xe0u | s_randGen.bits(4));
+
+        const bool contByte = s_randGen.bits(1);
+
+        if (contByte) {
+            // append correct continuation
+
+            *string += static_cast<char>(s_randGen.bits(6) | 0x80u);
+        }
+
+        if (e_TRUNC == errorType) {
+            // append non-continuation to interrupt, cause error
+
+            unsigned char wrongByte;
+            do {
+                wrongByte = s_randGen.getChar();
+            } while (!wrongByte || isContinuation(wrongByte));
+            *string += static_cast<char>(wrongByte);
+        }
+      } break;
+      case e_NON_MINIMAL: {
+        enum { k_DATA_BITS = TWO_OCT_CONT_WID + CONTINUE_CONT_WID,
+
+               k_RAND_UC_BITS = k_DATA_BITS };
+
+        const unsigned uc = s_randGen.bits(k_RAND_UC_BITS);
+
+        ASSERT(fitsInTwoOctets(uc));
+
+        const bsl::size_t len = string->length();
+        string->resize(len + 3);
+
+        encodeThreeOctets(string->data() + len , uc);
+      } break;
+      case e_SURROGATE: {
+        enum { k_MIN_SURROGATE = 0xd800u,    // reserved values for
+               k_MAX_SURROGATE = 0xdfffu,    // multi-word UTF-16 sequences
+
+               k_FLOOR = k_MIN_SURROGATE,
+
+               k_MOD   = 1 + k_MAX_SURROGATE - k_FLOOR,
+
+               k_RAND_UC_BITS = 11u };
+
+        BSLMF_ASSERT(k_MOD == (1u << k_RAND_UC_BITS));
+
+        // '% k_MOD' would be redundant below.
+
+        unsigned uc = k_FLOOR + s_randGen.bits(k_RAND_UC_BITS);
+        BSLS_ASSERT_SAFE(uc >= k_MIN_SURROGATE);
+        BSLS_ASSERT_SAFE(uc <= k_MAX_SURROGATE);
+
+        ASSERT(!fitsInTwoOctets(uc));
+        ASSERT(fitsInThreeOctets(uc));
+
+        const bsl::size_t len = string->length();
+        string->resize(len + 3);
+
+        encodeThreeOctets(string->data() + len , uc);
+      } break;
+      default: {
+        ASSERT(0);
+      }
+    }
+}
+
+void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
+    // Append a random invalid four-octet code point to the specified
+    // '*string'.
+{
+    enum ErrorType { e_TRUNC,        // wrong byte appended before sequence
+                                     // completes
+
+                     e_END,          // sequence ends without finishing
+
+                     e_NON_MINIMAL,  // value should have been represented as
+                                     // three or fewer octers
+
+                     e_TOO_HIGH,     // value was above valid unicode
+
+                     k_NUM_ERROR_TYPES,
+
+                     k_RAND_BITS = 2u };
+
+    BSLMF_ASSERT((1u << k_RAND_BITS) == k_NUM_ERROR_TYPES);
+
+    // '% k_NUM_ERROR_TYPES' would be redundant below.
+
+    const ErrorType errorType = static_cast<ErrorType>(
+                                                  s_randGen.bits(k_RAND_BITS));
+
+    switch (errorType) {
+      case e_TRUNC:
+      case e_END: {
+        // first byte of 4-byte sequence '11110xxx'
+
+        *string += static_cast<char>(FOUR_OCTET_TAG | s_randGen.bits(3));
+
+        // Append valid continuation bytes.  The number of continuation bytes
+        // to append is random in the range '[ 0 .. 2 ]'.
+
+        enum { k_CONT_MOD = 3,
+               k_RAND_CONT_BITS = 2 + k_RAND_FUDGE_BITS };
+
+        BSLMF_ASSERT(k_CONT_MOD * k_RAND_FUDGE_MULTIPLE <
+                                                     (1u << k_RAND_CONT_BITS));
+
+        const unsigned contBytes = s_randGen.bits(k_RAND_CONT_BITS) %
+                                                                    k_CONT_MOD;
+        ASSERT(contBytes <= 2);
+
+        for (unsigned uu = 0; uu < contBytes; ++uu) {
+            // continuation byte: '10xxxxxx'
+
+            *string += static_cast<char>(CONTINUE_TAG | s_randGen.bits(6));
+        }
+
+        if (e_TRUNC == errorType) {
+            // append non-continuation to interrupt, cause error
+
+            unsigned char wrongByte;
+            do {
+                wrongByte = s_randGen.getChar();
+            } while (!wrongByte || isContinuation(wrongByte));
+            *string += static_cast<char>(wrongByte);
+        }
+      } break;
+      case e_NON_MINIMAL: {
+        enum { k_3_OCT_BITS   = THREE_OCT_CONT_WID + 2 * CONTINUE_CONT_WID,
+               k_MOD          = 1u << k_3_OCT_BITS,
+               k_RAND_UC_BITS = k_3_OCT_BITS };
+
+        BSLMF_ASSERT(k_MOD == (1u << k_RAND_UC_BITS));
+
+        unsigned uc = s_randGen.bits(k_RAND_UC_BITS);
+
+        ASSERT(fitsInThreeOctets(uc));
+
+        const bsl::size_t len = string->length();
+        string->resize(len + 4);
+
+        encodeFourOctets(string->data() + len, uc);
+      } break;
+      case e_TOO_HIGH: {
+        enum { k_MAX_LEGAL_UNICODE = 0x10ffffu,
+               k_FLOOR = k_MAX_LEGAL_UNICODE + 1,
+               k_DATA_BITS  = FOUR_OCT_CONT_WID + 3 * CONTINUE_CONT_WID,
+               k_MOD = (1 << k_DATA_BITS) - k_FLOOR,
+
+               k_RAND_BITS = k_DATA_BITS + k_RAND_FUDGE_BITS };
+
+        BSLMF_ASSERT(k_RAND_BITS < 32);
+        BSLMF_ASSERT(k_MOD * k_RAND_FUDGE_MULTIPLE < (1u << k_RAND_BITS));
+
+        const unsigned uc = k_FLOOR + s_randGen.bits(k_RAND_BITS) % k_MOD;
+
+        ASSERT(uc < (1 << k_DATA_BITS));
+
+        const bsl::size_t len = string->length();
+        string->resize(len + 4);
+
+        encodeFourOctets(string->data() + len, uc);
+      } break;
+      default: {
+        ASSERT(0);
+      }
+    }
+}
+
+void TestDriver::appendRandomInvalidUtf8CodePoint(bsl::string *string)
+    // Append random invalid UTF-8 to the specified '*string'.  Note that the
+    // appended sequence will usually consistitute one code point, but in some
+    // cases where a truncated sequence is followed by the first char of
+    // another truncated sequence, it will consitute 2 invalid code points.
+{
+    const unsigned numOctets = calculateRandomNumOctets();
+
+    // The optimizer will very probably chain the following calls
+
+    switch (numOctets) {
+      case 1: {
+        appendRandomInvalidSingleOctet(string);
+      } break;
+      case 2: {
+        appendRandomInvalidTwoOctets(  string);
+      } break;
+      case 3: {
+        appendRandomInvalidThreeOctets(string);
+      } break;
+      case 4: {
+        appendRandomInvalidFourOctets( string);
+      } break;
+      default: {
+        ASSERT(0);
+      }
+    }
+}
+
+void TestDriver::appendRandomValidSingleOctet(bsl::string *string)
+{
+    char c;
+    do {
+        c = static_cast<char>(s_randGen.bits(7));
+    } while (!c);
+
+    *string += c;
+}
+
+void TestDriver::appendRandomValidTwoOctets(bsl::string *string)
+{
+    enum { k_FLOOR     = CONTINUE_TAG,
+           k_DATA_BITS = TWO_OCT_CONT_WID + CONTINUE_CONT_WID,
+           k_MOD       = (1u << k_DATA_BITS) - k_FLOOR,
+
+           k_RAND_BITS = k_DATA_BITS + 3 };
+    BSLMF_ASSERT(k_MOD * 8 < (1u << k_RAND_BITS));
+
+    const UnicodeCodePoint uc = k_FLOOR + s_randGen.bits(k_RAND_BITS) % k_MOD;
+
+    ASSERT(k_FLOOR <= uc);
+    ASSERT(fitsInTwoOctets(uc));
+
+    const bsl::size_t len = string->length();
+    string->resize(len + 2);
+
+    encodeTwoOctets(string->data() + len , uc);
+}
+
+void TestDriver::appendRandomValidThreeOctets(bsl::string *string)
+{
+    enum { k_FLOOR     = 1 << (TWO_OCT_CONT_WID + CONTINUE_CONT_WID),
+           k_DATA_BITS = THREE_OCT_CONT_WID + 2 * CONTINUE_CONT_WID,
+           k_MOD       = (1 << k_DATA_BITS) - k_FLOOR,
+
+           k_RAND_BITS = k_DATA_BITS + 3,
+
+           k_MIN_UTF_16_DOUBLE_PLANE = 0xd800u,
+           k_MAX_UTF_16_DOUBLE_PLANE = 0xdfffu };
+
+    BSLMF_ASSERT(k_MOD * 8u < (1u << k_RAND_BITS));
+
+    UnicodeCodePoint uc;
+    do {
+        uc = k_FLOOR + s_randGen.bits(k_RAND_BITS) % k_MOD;
+    } while (k_MIN_UTF_16_DOUBLE_PLANE <= uc &&
+                                              uc <= k_MAX_UTF_16_DOUBLE_PLANE);
+
+    ASSERT(!fitsInTwoOctets(uc));
+    ASSERT(fitsInThreeOctets(uc));
+
+    const bsl::size_t len = string->length();
+    string->resize(len + 3);
+
+    encodeThreeOctets(string->data() + len, uc);
+}
+
+void TestDriver::appendRandomValidFourOctets(bsl::string *string)
+{
+    enum { k_FLOOR_BITS = THREE_OCT_CONT_WID + 2 * CONTINUE_CONT_WID,
+           k_FLOOR      = 1 << k_FLOOR_BITS,
+           k_DATA_BITS  = FOUR_OCT_CONT_WID  + 3 * CONTINUE_CONT_WID,
+           k_MOD        = (1 << k_DATA_BITS) - k_FLOOR,
+
+           k_RAND_BITS  = k_DATA_BITS + k_RAND_FUDGE_BITS,
+
+           k_MAX_LEGAL_UNICODE_POINT = 0x10ffffu };
+
+    BSLMF_ASSERT(k_RAND_BITS < 32);
+    BSLMF_ASSERT(k_MOD * k_RAND_FUDGE_MULTIPLE < (1u << k_RAND_BITS));
+
+    UnicodeCodePoint uc;
+    do {
+        uc = k_FLOOR + s_randGen.bits(k_RAND_BITS) % k_MOD;
+    } while (k_MAX_LEGAL_UNICODE_POINT < uc);
+
+    ASSERT(!fitsInThreeOctets(uc));
+
+    const bsl::size_t len = string->length();
+    string->resize(len + 4);
+
+    encodeFourOctets(string->data() + len, uc);
+}
+
+void TestDriver::appendRandomValidUtf8CodePoint(bsl::string *string)
+{
+    const unsigned numOctets = calculateRandomNumOctets();
+
+    switch (numOctets) {
+      case 1: {
+        appendRandomValidSingleOctet(string);
+      } break;
+      case 2: {
+        appendRandomValidTwoOctets(string);
+      } break;
+      case 3: {
+        appendRandomValidThreeOctets(string);
+      } break;
+      case 4: {
+        appendRandomValidFourOctets(string);
+      } break;
+      default: {
+        ASSERT(0);
+      }
+    }
+}
+
+void TestDriver::randomUtf8String(bsl::string *result,
+                                  unsigned     numSequences,
+                                  Validity     validity)
+{
+    BSLS_ASSERT_SAFE(0 < numSequences);
+    --numSequences;
+
+    switch (validity) {
+      case e_VALID: {
+        result->clear();
+
+        for (unsigned uu = 0; uu < numSequences; ++uu) {
+            appendRandomValidUtf8CodePoint(result);
+        }
+      } break;
+      case e_INVALID: {
+        BSLS_ASSERT_SAFE(0 < numSequences);
+
+        if (1 == numSequences) {
+            result->clear();
+
+            appendRandomInvalidUtf8CodePoint(result);
+        }
+        else {
+            // We want to make an invalid UTF-8 string with multiple code
+            // points, so we want a random mix of valid and invalid code
+            // points.  We always want '*result' to contain an invalid sequence
+            // when this function finishes, but we may randomly not have any
+            // errors, so we are ready to repeat until we get that outcome.
+
+            bool isValid;
+            do {
+                result->clear();
+
+                // These two variables monitor the process of building the
+                // string, and verify whether our assumptions about correct vs
+                // incorrect strings are accurate.
+
+                int  prevErrorIdx   = -1;
+                bool adjacentErrors = false;
+
+                for (unsigned uu = 0; uu < numSequences; ++uu) {
+                    if (s_randGen.bits(1)) {
+                        appendRandomInvalidUtf8CodePoint(result);
+                        adjacentErrors |=
+                                  0 <= prevErrorIdx && prevErrorIdx + 1u == uu;
+                        prevErrorIdx = uu;
+                    }
+                    else {
+                        appendRandomValidUtf8CodePoint(result);
+                    }
+                }
+
+                // There should be no embedded '\0's.
+
+                BSLS_ASSERT_SAFE(bsl::strlen(result->c_str()) ==
+                                                             result->length());
+
+                // The string might not have any errors if we never randomly
+                // chose to put any invalid code points in, or if two adjacent
+                // incomplete code points merged to make a valid code point.
+                // Otherwise the result should always be invalid.
+
+                isValid = bdlde::Utf8Util::isValid(result->c_str());
+
+                BSLS_ASSERT_SAFE(0 <= prevErrorIdx ? !isValid || adjacentErrors
+                                                   :  isValid);
+            } while (isValid);
+
+            return;                                                   // RETURN
+         }
+      } break;
+      default: {
+        ASSERT(0);
+      }
+    }
+
+    // There should be no embedded '\0's.
+
+    BSLS_ASSERT_SAFE(bsl::strlen(result->c_str()) == result->length());
+}
+
+unsigned short TestDriver::randomUtf16NonSurrogate()
+{
+    // In UTf-16, a non-surrogate value is any non-zero 16-bit value outside
+    // the range '[ k_LO_SURROGATE_BASE .. k_SURROGATE_CEILING )'.
+
+    unsigned short ret;
+    bool           isSurrogate;
+    do {
+        ret = static_cast<unsigned short>(s_randGen.bits(16));
+
+        isSurrogate = k_LO_SURROGATE_BASE <= ret && ret < k_SURROGATE_CEILING;
+    } while (!ret || isSurrogate);
+
+    return ret;
+}
+
+unsigned short TestDriver::randomUtf16SurrogateLo()
+{
+    return static_cast<unsigned short>(
+                  k_LO_SURROGATE_BASE + s_randGen.bits(k_SURROGATE_RAND_BITS));
+}
+
+unsigned short TestDriver::randomUtf16SurrogateHi()
+{
+    return static_cast<unsigned short>(
+                  k_HI_SURROGATE_BASE + s_randGen.bits(k_SURROGATE_RAND_BITS));
+}
+
+void TestDriver::randomInvalidUtf16Vector(
+                                        bsl::vector<unsigned short> *result,
+                                        unsigned                     numWords,
+                                        bdlde::ByteOrder::Enum       byteOrder)
+{
+    // The rules for correct UTF-16 are extremely simple -- surrogates are only
+    // allowed to occur in pairs, a lo immediately followed by a hi.  Other
+    // than that, single words can occur anywhere.
+
+    enum WordType { e_SINGLE_WORD,
+                    e_LO_SURROGATE,
+                    e_HI_SURROGATE,
+
+                    k_NUM_WORD_TYPES };
+
+    BSLS_ASSERT_SAFE(1 < numWords);
+    --numWords;
+
+    if (1 == numWords) {
+        // Only way to make an invalid sequence is one surrogate.
+
+        result->clear();
+        const unsigned short w = s_randGen.bits(1) ? randomUtf16SurrogateLo()
+                                                   : randomUtf16SurrogateHi();
+        result->push_back(bdlde::ByteOrder::e_HOST == byteOrder
+                        ? w
+                        : bsls::ByteOrderUtil::swapBytes(w));
+    }
+    else {
+        // We just generate a random sequence of UTF-16 words until we get one
+        // that has at least one error.  The variable 'errorPresent' monitors
+        // the sequence as it's created to see if any errors occurred.
+
+        bool errorPresent;
+        do {
+            result->clear();
+
+            errorPresent = false;
+            WordType prevWordType = e_SINGLE_WORD;  // this sets us up so that
+                                                    // if the first word is a
+                                                    // hi surrogate, we detect
+                                                    // the error
+
+            for (unsigned uu = 0; uu < numWords; ++uu) {
+                // This gives 'e_SINGLE_WORD' twice the probability of the
+                // other 2 word types.  In real UTF-16, surrogates are pretty
+                // rare.
+
+                const WordType thisWordType = static_cast<WordType>(
+                                         s_randGen.bits(2) % k_NUM_WORD_TYPES);
+
+                const unsigned short w = e_SINGLE_WORD == thisWordType
+                                       ? randomUtf16NonSurrogate()
+                                       : e_LO_SURROGATE == thisWordType
+                                       ? randomUtf16SurrogateLo()
+                                       : randomUtf16SurrogateHi();
+
+                result->push_back(bdlde::ByteOrder::e_HOST == byteOrder
+                                ? w
+                                : bsls::ByteOrderUtil::swapBytes(w));
+
+                // If prev was a lo surrogate, and this is not a hi surrogate,
+                // it's an error.  If prev was not a lo surrogate, and this is
+                // a hi surrogate, it's an error.
+
+                errorPresent |= (e_LO_SURROGATE == prevWordType) !=
+                                              (e_HI_SURROGATE == thisWordType);
+
+                prevWordType = thisWordType;
+            }
+
+            // if the last word in the sequence was a lo surrogate, it's an
+            // error
+
+            errorPresent |= e_LO_SURROGATE == prevWordType;
+        } while (!errorPresent);
+    }
+
+    BSLS_ASSERT_SAFE(bsl::find(result->begin(), result->end(), 0) ==
+                                                                result->end());
+    BSLS_ASSERT_SAFE(result->size() == numWords);
+
+    result->push_back(0);
+}
+
+
+                            // -----------------
+                            // PUBLIC TEST CASES
+                            // -----------------
+
+// PUBLIC CLASS METHODS
+void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
+    // ------------------------------------------------------------------------
+    // UTF-8 LENGTH CALCULATION TEST -- INCORRECT UNICODE
+    //
+    // Concerns:
+    //: 1 That 'computeRequiredUtf8Bytes' (both overloads) correctly predicts
+    //:   the length of output when the unicode input has errors.
+    //
+    // Plan:
+    //: 1 Call 'randomInvalidUtf16Vector' to create a 'vector<unsigned short>'
+    //:   contain invalid UTF-16.
+    //:
+    //: 2 Call 'computeRequiredUtf8Bytes' both ways (passing an end ptr, and
+    //:   null-terminated) on the UTF-16 vector to predict the length of the
+    //:   UTF-8.
+    //:   o observe that the values returned by both overloads match.
+    //:
+    //:   o translate back to a new UTF-8 'string' and observe that its length
+    //:     matches the predicted length, and that the string doesn't match the
+    //:     original valid UTF-8 'string'.
+    //:
+    //: 3 Copy the UTF-16 'vector<unsigned short>' to a 'wstring' using
+    //:   'copyUtf16ToWstring'.
+    //:
+    //: 4 Call 'computeRequiredUtf8Bytes' both ways (passing an end ptr, and
+    //:   null-terminated) on the UTF-16 'wstring' to predict the length of the
+    //:   UTF-8.
+    //:   o observe that the values returned by both overloads match the values
+    //:     predicted when the input was a 'vector'.
+    //:
+    //:   o translate back to a new UTF-8 'string' and observe that its length
+    //:     matches the predicted length, and that it doesn't match the
+    //:     original valid UTF-8 'string', and that the string does match the
+    //:     utf8 string translated back from a 'vector'.
+    //
+    // Testing:
+    //   computeRequiredUtf8Bytes(ushort *, ushort *, byteOrder);
+    //   computeRequiredUtf8Bytes(w_char_t *, w_char_t *, byteOrder);
+    // ------------------------------------------------------------------------
+{
+    // No reason to use 'bslma::TestAllocator' in this test -- length
+    // calculation allocates no memory, so we have no need for all the test
+    // allocator's time-wasting recordkeeping.
+
+    bslma::Allocator *alloc = &bslma::NewDeleteAllocator::singleton();
+
+    enum { k_ITERATIONS = 400 * 1000 };
+    for (int ii = 0; ii < k_ITERATIONS; ++ii) {
+        bsl::vector<unsigned short> utf16(alloc);
+        utf16.reserve(4092);
+        const unsigned RANDOM_NUM_WORDS = ii < 10000
+                                        ? (ii < 1000 ? 2 : 3)
+                                        : 4 + s_randGen.bits(3);
+
+        randomInvalidUtf16Vector(&utf16, RANDOM_NUM_WORDS, byteOrder);
+        ASSERT(utf16.size() == RANDOM_NUM_WORDS);
+
+        if (veryVerbose) cout << displayUtf16(utf16.data(), byteOrder) << endl;
+
+        // Calculate the size to translate back to UTF8.
+
+        const bsl::size_t PREDICTED_UTF8_LEN =
+                                    Util::computeRequiredUtf8Bytes(
+                                               utf16.data(),
+                                               utf16.data() + utf16.size() - 1,
+                                               byteOrder);
+        const bsl::size_t PREDICTED_UTF8_LEN_B =
+                                        Util::computeRequiredUtf8Bytes(
+                                              utf16.data(),
+                                              static_cast<unsigned short *>(0),
+                                              byteOrder);
+        ASSERTV(displayUtf16(utf16.data(), byteOrder),
+                                      PREDICTED_UTF8_LEN, PREDICTED_UTF8_LEN_B,
+                                   PREDICTED_UTF8_LEN == PREDICTED_UTF8_LEN_B);
+
+        // Translate the utf16 back to UTF-8
+
+        bsl::size_t utf8CodePointsB = -1;
+        bsl::string utf8B(alloc);
+        utf8B.reserve(4092);
+        int rc = Util::utf16ToUtf8(&utf8B,
+                                   utf16.data(),
+                                   &utf8CodePointsB,
+                                   '?',
+                                   byteOrder);
+        ASSERTV(rc, displayUtf16(utf16.data(), byteOrder), byteOrder,
+                                                               sizeof(wchar_t),
+                          bdlde::CharConvertStatus::k_INVALID_INPUT_BIT == rc);
+        ASSERT(utf8CodePointsB <= RANDOM_NUM_WORDS);
+        ASSERT(PREDICTED_UTF8_LEN == utf8B.length() + 1);
+
+        // Copy UTF-16 'vector' to 'wstring utf16W'
+
+        bsl::wstring utf16W(alloc);
+        copyUtf16ToWstring(&utf16W, utf16, byteOrder);
+
+        // Run both overloads of length prediction of UTF-8, see that they
+        // match the predictions made when predicted based on 'vector'.
+
+        bsl::size_t len = Util::computeRequiredUtf8Bytes(
+                                               utf16W.data(),
+                                               utf16W.data() + utf16W.length(),
+                                               byteOrder);
+        ASSERTV(displayUtf16(utf16W.data(), byteOrder),
+                           PREDICTED_UTF8_LEN, len, PREDICTED_UTF8_LEN == len);
+        len = Util::computeRequiredUtf8Bytes(utf16W.data(),
+                                             (wchar_t *) 0,
+                                             byteOrder);
+        ASSERTV(displayUtf16(utf16W.data(), byteOrder),
+                           PREDICTED_UTF8_LEN, len, PREDICTED_UTF8_LEN == len);
+
+        // Translate 'wstring' back to UTF-8, observe that the length of the
+        // result matches the calculations, and the the value of the UTF-8
+        // matches the value from translating the 'vector'.
+
+        bsl::size_t utf8CodePointsC = -1;
+        std::string utf8C;
+        utf8C.reserve(4092);
+        rc = Util::utf16ToUtf8(&utf8C,
+                               utf16W.data(),
+                               &utf8CodePointsC,
+                               '?',
+                               byteOrder);
+        ASSERTV(displayUtf16(utf16W.data(), byteOrder), rc, byteOrder,
+                          bdlde::CharConvertStatus::k_INVALID_INPUT_BIT == rc);
+        ASSERT(PREDICTED_UTF8_LEN == utf8C.length() + 1);
+        ASSERT(utf8CodePointsB == utf8CodePointsC);
+        ASSERTV(displayUtf8(utf8B), displayUtf8(utf8C), utf8B == utf8C);
+    }
+}
+
+void TestDriver::testCase15(bdlde::ByteOrder::Enum byteOrder)
+    // ------------------------------------------------------------------------
+    // UTF-16 LENGTH CALCULATION TEST -- INCORRECT UNICODE
+    //
+    // Concerns:
+    //: 1 That 'computeRequiredUtf16Words' called both ways (passing an end
+    //:   ptr, and null-terminated) correctly predicts the length of output
+    //:   when the input has UTF-8 errors.
+    //
+    // Plan:
+    //: 1 Use 'randomUtf8String' to get a random substring from the
+    //:   'utf8MultiLang' example containing invalid UTF-8.
+    //:
+    //: 2 Call both overloads 'computeRequiredUtf16Words' both ways, save the
+    //:   values and make sure they match.
+    //:
+    //: 3 Translate to a 'vector<unsigned short>' containing UTF-16 with the
+    //:   error character as '?' and the specified 'byteOrder'
+    //:   o Observe that the error was detected
+    //:
+    //:   o Observe the length of the UTF-16 output matches the predictions.
+    //:
+    //: 4 Translate to a 'wstring' containing UTF-16 with the error character
+    //:   as '?' and the specified 'byteOrder'
+    //:   o Observe that the error was detected
+    //:
+    //:   o Observe the length of the UTF-16 output matches the predictions.
+    //
+    // Testing:
+    //   computeRequiredUtf16Words(char *, char *);
+    // ------------------------------------------------------------------------
+{
+    // No reason to use 'bslma::TestAllocator' in this test -- length
+    // calculation allocates no memory, so we have no need for all the test
+    // allocator's time-wasting recordkeeping.
+
+    bslma::Allocator *alloc = &bslma::NewDeleteAllocator::singleton();
+
+    enum { k_ITERATIONS = 400 * 1000 };
+    for (int ii = 0; ii < k_ITERATIONS; ++ii) {
+        bsl::string utf8(alloc);
+        utf8.reserve(4092);
+
+        // Create a random UTF-8 string with at least one error in it.
+
+        const unsigned RANDOM_CODE_POINTS = ii < 1000
+                                          ? 2
+                                          : 3 + s_randGen.bits(3);
+
+        randomUtf8String(&utf8, RANDOM_CODE_POINTS, e_INVALID);
+
+        if (veryVerbose) cout << displayUtf8(utf8) << endl;
+
+        // predict length of UTF-16 string needed.
+
+        const bsl::size_t PREDICTED_UTF16_LEN =
+                         Util::computeRequiredUtf16Words(
+                                     utf8.data(), utf8.data() + utf8.length());
+        const bsl::size_t PREDICTED_UTF16_LEN_B =
+                                 Util::computeRequiredUtf16Words(utf8.c_str());
+        ASSERT(PREDICTED_UTF16_LEN == PREDICTED_UTF16_LEN_B);
+
+        // translate to a UTF-16 'vector<unsigned short>'.  Note that the
+        // number of code points may be less than 'RANDOM_CODE_POINTS' due to
+        // adjacent incomplete code points merging to make single valid points,
+        // or more than 'RANDOM_CODE_POINTS' due to truncated code points being
+        // terminted by truncated start point.
+
+        bsl::vector<unsigned short> utf16(alloc);
+        utf16.reserve(4092);
+        bsl::size_t utf16CodePoints = -1;
+        int rc = Util::utf8ToUtf16(&utf16,
+                                   utf8,
+                                   &utf16CodePoints,
+                                   '?',
+                                   byteOrder);
+        ASSERT(0 != rc);
+        ASSERT((utf16.size() - 1) / 2 <= utf16CodePoints - 1);
+        ASSERT(utf16CodePoints <= utf16.size());
+
+        // confirm length prediction was accurate
+
+        ASSERT(utf16.size() == PREDICTED_UTF16_LEN);
+
+        // translate to a UTF-16 'wstring'
+
+        bsl::wstring utf16W(alloc);
+        utf16W.reserve(4092);
+        bsl::size_t utf16WCodePoints = -1;
+        rc = Util::utf8ToUtf16(&utf16W,
+                               utf8,
+                               &utf16WCodePoints,
+                               '?',
+                               byteOrder);
+        ASSERT(0 != rc);
+
+        // confirm length prediction was accurate
+
+        ASSERT(utf16W.length() + 1 == PREDICTED_UTF16_LEN);
+        ASSERT(utf16CodePoints == utf16WCodePoints);
+    }
+}
+
+void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
+    // ------------------------------------------------------------------------
+    // UTF-16 & UTF-8 LENGTH CALCULATION TEST -- CORRECT UNICODE
+    //
+    // Concerns:
+    //: 1 That 'computeRequiredUtf16Words' called both ways (passing an end
+    //:   ptr, and null-terminated) correctly predicts the length of output
+    //:   when the unicode is correct.
+    //:
+    //: 2 That 'computeRequiredUtf8Bytes' called both ways (passing an end ptr,
+    //:   and null-terminated) correctly predicts the length of output when the
+    //:   unicode is correct.
+    //
+    // Plan:
+    //: 1 Use 'randomUtf8String' to get a random substring from the
+    //:   'utf8MultiLang' example containing valid UTF-8.
+    //:
+    //: 2 Call both 'utf16BuferLength' both ways, save the values and make
+    //:   sure they match.
+    //:
+    //: 3 Translate to a 'vector<unsigned short>' containing UTF-16 with the
+    //:   error character as '?' and the specified 'byteOrder'.
+    //:   o Observe there were no errors from the return code.
+    //:
+    //:   o Observe the length of the UTF-16 output matches the predictions.
+    //:
+    //: 4 Call 'computeRequiredUtf8Bytes' both ways on the UTF-16 vector to
+    //:   predict the length of the UTF-8, observe that it matches the length
+    //:   of the original UTF-8.
+    //:   o translate back to a new UTF-8 'string' and observe that it matches
+    //:     the original UTF-8 'string'.
+    //:
+    //: 5 Copy the UTF-16 'vector<unsigned short>' to a 'wstring'.
+    //:
+    //: 6 Call 'computeRequiredUtf8Bytes' both ways on the UTF-16 'wstring' to
+    //:   predict the length of the UTF-8, observe that it matches the length
+    //:   of the original UTF-8.
+    //:   o translate back to a new UTF-8 'string' and observe that it matches
+    //:     the original UTF-8 'string'.
+    //
+    // Testing:
+    //   computeRequiredUtf16Words(char *, char *, byteOrder);
+    //   computeRequiredUtf8Bytes(w_char_t *, w_char_t *, byteOrder);
+    //   computeRequiredUtf8Bytes(ushort *, ushort *, byteOrder);
+    // ------------------------------------------------------------------------
+{
+    // No reason to use 'bslma::TestAllocator' in this test -- length
+    // calculation allocates no memory, so we have no need for all the test
+    // allocator's time-wasting recordkeeping.
+
+    bslma::Allocator *alloc = &bslma::NewDeleteAllocator::singleton();
+
+    enum { k_ITERATIONS = 250 * 1000 };
+    for (int ii = 0; ii < k_ITERATIONS; ++ii) {
+        bsl::string utf8(alloc);
+        utf8.reserve(4092);
+
+        // Generate random correct UTF-8 string.
+
+        // 'RANDOM_CODE_POINTS' is the number of code points in the string,
+        // including the terminating '\0'.
+
+        const unsigned RANDOM_CODE_POINTS = ii < 1000
+                                          ? (0 == ii ? 1 : 2)
+                                          : 3 + s_randGen.bits(3);
+
+        randomUtf8String(&utf8, RANDOM_CODE_POINTS, e_VALID);
+
+        if (veryVerbose) cout << displayUtf8(utf8) << endl;
+
+        // Check that our string is as we expect.
+
+        const char *begin = utf8.data();
+        const char *end   = begin + utf8.length();
+        ASSERT(bsl::strlen(begin) == utf8.length());
+        ASSERT(bdlde::Utf8Util::isValid(utf8));
+        {
+            int sts;
+            const char *endTraverse;
+            ASSERT(RANDOM_CODE_POINTS - 1 == bdlde::Utf8Util::advanceIfValid(
+                                                      &sts,
+                                                      &endTraverse,
+                                                      begin,
+                                                      RANDOM_CODE_POINTS - 1));
+            ASSERT(0 == sts);
+            ASSERT(endTraverse == end);
+        }
+        const bsl::size_t UTF8_LEN = utf8.length() + 1;
+
+        // predict length of UTF-16 string needed.
+
+        const bsl::size_t PREDICTED_UTF16_LEN =
+                                   Util::computeRequiredUtf16Words(begin, end);
+        const bsl::size_t PREDICTED_UTF16_LEN_B =
+                                   Util::computeRequiredUtf16Words(begin);
+        ASSERT(PREDICTED_UTF16_LEN == PREDICTED_UTF16_LEN_B);
+
+        // translate to a UTF-16 'vector<unsigned short>'
+
+        bsl::vector<unsigned short> utf16(alloc);
+        utf16.reserve(4092);
+        bsl::size_t utf16CodePoints;
+        int rc = Util::utf8ToUtf16(&utf16,
+                                   utf8,
+                                   &utf16CodePoints,
+                                   '?',
+                                   byteOrder);
+        ASSERT(0 == rc);
+        ASSERTV(displayUtf8(utf8), RANDOM_CODE_POINTS, utf16CodePoints,
+                                        RANDOM_CODE_POINTS == utf16CodePoints);
+
+        if (veryVerbose) cout << displayUtf16(utf16.data(), byteOrder) << endl;
+
+        // confirm length prediction was accurate
+
+        ASSERT(utf16.size() == PREDICTED_UTF16_LEN);
+
+        // Calculate the size to translate back.
+
+        const bsl::size_t PREDICTED_UTF8_LEN =
+                                    Util::computeRequiredUtf8Bytes(
+                                               utf16.data(),
+                                               utf16.data() + utf16.size() - 1,
+                                               byteOrder);
+        ASSERTV(displayUtf16(utf16.data(), byteOrder), displayUtf8(utf8),
+                                             PREDICTED_UTF8_LEN, utf8.length(),
+                                      PREDICTED_UTF8_LEN == utf8.length() + 1);
+        const bsl::size_t PREDICTED_UTF8_LEN_B =
+                                        Util::computeRequiredUtf8Bytes(
+                                              utf16.data(),
+                                              static_cast<unsigned short *>(0),
+                                              byteOrder);
+        ASSERTV(displayUtf16(utf16.data(), byteOrder), displayUtf8(utf8),
+                                      PREDICTED_UTF8_LEN, PREDICTED_UTF8_LEN_B,
+                                   PREDICTED_UTF8_LEN == PREDICTED_UTF8_LEN_B);
+
+        // confirm prediction matches length or original string
+
+        ASSERT(UTF8_LEN == PREDICTED_UTF8_LEN);
+
+        // Translate utf16 back to UTF-8, observe that the result matches
+
+        bsl::size_t utf8CodePoints = -1;
+        std::string utf8B;
+        utf8B.reserve(4092);
+        rc = Util::utf16ToUtf8(&utf8B,
+                               utf16.data(),
+                               &utf8CodePoints,
+                               0,
+                               byteOrder);
+        ASSERT(0 == rc);
+        ASSERT(RANDOM_CODE_POINTS == utf8CodePoints);
+        ASSERTV(displayUtf8(utf8), displayUtf8(utf8B), utf8 == utf8B);
+
+        // translate 'utf8' to a 'wstring'
+
+        bsl::wstring utf16W(alloc);
+        utf16W.reserve(4092);
+        rc = Util::utf8ToUtf16(&utf16W,
+                               utf8,
+                               &utf16CodePoints,
+                               '?',
+                               byteOrder);
+        ASSERT(0 == rc);
+        ASSERT(RANDOM_CODE_POINTS  == utf16CodePoints);
+        ASSERT(utf16W.length() + 1 == utf16.size());
+
+        // Calculate the size to translate the 'wstring' back.
+
+        bsl::size_t len = Util::computeRequiredUtf8Bytes(
+                                               utf16W.data(),
+                                               utf16W.data() + utf16W.length(),
+                                               byteOrder);
+        ASSERTV(displayUtf16(utf16W.data(), byteOrder), displayUtf8(utf8),
+                           PREDICTED_UTF8_LEN, len, PREDICTED_UTF8_LEN == len);
+        len = Util::computeRequiredUtf8Bytes(utf16W.data(),
+                                             (wchar_t *) 0,
+                                             byteOrder);
+        ASSERTV(displayUtf16(utf16W.data(), byteOrder), displayUtf8(utf8),
+                           PREDICTED_UTF8_LEN, len, PREDICTED_UTF8_LEN == len);
+
+        // Translate utf16W back to UTF-8, observe that the result matches
+
+        utf8CodePoints = -1;
+        std::string utf8C;
+        utf8C.reserve(4092);
+        rc = Util::utf16ToUtf8(&utf8C,
+                               utf16W.data(),
+                               &utf8CodePoints,
+                               0,
+                               byteOrder);
+        ASSERT(0 == rc);
+        ASSERT(RANDOM_CODE_POINTS == utf8CodePoints);
+        ASSERTV(displayUtf8(utf8), displayUtf8(utf8C), utf8 == utf8C);
+    }
+}
 
 template <class STRING,
           class WSTRING,
@@ -5651,7 +7249,7 @@ int main(int argc, char**argv)
     bslma::DefaultAllocatorGuard daGuard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         // --------------------------------------------------------------------
@@ -5777,7 +7375,7 @@ int main(int argc, char**argv)
     ASSERT(utf16CodePointsWritten       == uf8CodePointsWritten);
 //..
       } break;
-      case 14: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         // --------------------------------------------------------------------
@@ -5869,6 +7467,48 @@ int main(int argc, char**argv)
     ASSERT('e'  == secondUtf16String[4]);
     ASSERT(0    == secondUtf16String[5]);
 //..
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // UTF-8 LENGTH CALCULATION TEST -- INCORRECT UNICODE
+        //
+        // Documentation at start of 'void testCase16'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                        "UTF-8 LENGTH CALCULATION TEST -- INCORRECT UNICODE\n"
+                        "==================================================\n";
+
+        TestDriver::testCase16(bdlde::ByteOrder::e_LITTLE_ENDIAN);
+        TestDriver::testCase16(bdlde::ByteOrder::e_BIG_ENDIAN);
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // UTF-16 LENGTH CALCULATION TEST -- INCORRECT UNICODE
+        //
+        // Documentation at start of 'void testCase15'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                       "UTF-16 LENGTH CALCULATION TEST -- INCORRECT UNICODE\n"
+                       "===================================================\n";
+
+        TestDriver::testCase15(bdlde::ByteOrder::e_LITTLE_ENDIAN);
+        TestDriver::testCase15(bdlde::ByteOrder::e_BIG_ENDIAN);
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // UTF-16 & UTF-8 LENGTH CALCULATION TEST -- CORRECT UNICODE
+        //
+        // Documentation at start of 'void testCase14'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                 "UTF-16 & UTF-8 LENGTH CALCULATION TEST -- CORRECT UNICODE\n"
+                 "=========================================================\n";
+
+        TestDriver::testCase14(bdlde::ByteOrder::e_LITTLE_ENDIAN);
+        TestDriver::testCase14(bdlde::ByteOrder::e_BIG_ENDIAN);
       } break;
       case 13: {
         // --------------------------------------------------------------------

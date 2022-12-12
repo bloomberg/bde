@@ -320,6 +320,20 @@ struct CharConvertUtf16 {
     // without any special handling.
 
     // CLASS METHODS
+
+                        // -- UTF-8 to UTF-16 Methods
+
+    static bsl::size_t computeRequiredUtf16Words(const char *srcBuffer,
+                                                 const char *endPtr = 0);
+        // Return the number of words required to store the translation of the
+        // specified UTF-8 string 'srcBuffer' into a 0 terminated UTF-16 string
+        // (including the 0 terminating word into the returned count).
+        // Optionally specify 'endPtr', referring to one past the last input
+        // character.  If 'endPtr' is not supplied, or is 0, treat 'srcBuffer'
+        // as 0 terminated.  Note that this function will return the size
+        // 'utf8ToUtf16' will require, assuming the 'errorWord' argument to
+        // 'utf8ToUtf16' is non-zero.
+
     static int utf8ToUtf16(
                           bsl::wstring            *dstWstring,
                           const bsl::string_view&  srcString,
@@ -580,6 +594,27 @@ struct CharConvertUtf16 {
         // will be translated to null words embedded in the output.
 
                         // -- UTF-16 to UTF-8 Methods
+
+    static bsl::size_t computeRequiredUtf8Bytes(
+                                              const wchar_t        *srcBuffer,
+                                              const wchar_t        *endPtr = 0,
+                                              ByteOrder::Enum       byteOrder =
+                                                            ByteOrder::e_HOST);
+    static bsl::size_t computeRequiredUtf8Bytes(
+                                              const unsigned short *srcBuffer,
+                                              const unsigned short *endPtr = 0,
+                                              ByteOrder::Enum       byteOrder =
+                                                            ByteOrder::e_HOST);
+        // Return the length needed in bytes, for a buffer to hold the
+        // null-terminated UTF-8 string translated from the specified UTF-16
+        // string 'srcBuffer' (including the terminating '\0' in the returned
+        // count).  Optionally specify 'endPtr', referring to one past the last
+        // input character.  If 'endPtr' is not supplied, or is 0, treat
+        // 'srcBuffer' as 0 terminated.  Optionally specify 'byteOrder'
+        // indicating the byte order of 'srcBuffer'; if 'byteOrder' is not
+        // supplied, the host byte order is used.  Note that this function will
+        // return the size 'utf16ToUtf8' will require, assuming the 'errryByte'
+        // argument to 'utf16ToUtf8' is non-zero.
 
     static int utf16ToUtf8(bsl::string          *dstString,
                            const unsigned short *srcString,
