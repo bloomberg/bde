@@ -31,8 +31,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //  defaultConstruct              Construct each element in the target range
 //                                by value-initialization, or 'std::memset' if
 //                                type has a trivial default constructor.
-//                                Note that this function is poorly named and
-//                                !does! !not! default-initialization.
+//                                Note that this function *does* *not* perform
+//                                default-initialization, the colloquial 
+//                                terminology "default construct" is maintained
+//                                for backwards compatibility.
 //
 //  uninitializedFillN            Copy construct from value for each element in
 //                                the target range, or 'std::memset' if value
