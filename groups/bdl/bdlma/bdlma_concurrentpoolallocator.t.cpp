@@ -1631,7 +1631,7 @@ int main(int argc, char *argv[])
                                                            &my3_down,
                                                            arg);
                     for (int retryCount = 0;
-                         0 != statusUp && retryCount < RETRY_LIMIT;
+                         0 != statusDown && retryCount < RETRY_LIMIT;
                          ++retryCount) {
                         bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
                         statusDown = bslmt::ThreadUtil::create(&downHandle,
