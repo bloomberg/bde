@@ -140,6 +140,8 @@ struct CaselessStringViewLess {
     typedef bsl::string_view first_argument_type;
     typedef bsl::string_view second_argument_type;
     typedef bool             result_type;
+    typedef void             is_transparent;
+        // Type alias indicating this is a transparent hash functor.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(CaselessStringViewLess,

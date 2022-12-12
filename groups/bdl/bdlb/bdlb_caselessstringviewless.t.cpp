@@ -166,6 +166,7 @@ BSLMF_ASSERT((bsl::is_same<bsl::string_view,
                                            Obj::first_argument_type>::value));
 BSLMF_ASSERT((bsl::is_same<bsl::string_view,
                                            Obj::second_argument_type>::value));
+BSLMF_ASSERT((bsl::is_same<void,           Obj::is_transparent>::value));
 
 // ============================================================================
 //                                 EMPTY TYPE
@@ -590,6 +591,13 @@ int main(int argc, char *argv[])
         ASSERT(!less("z", "A"));
         ASSERT(!less("Z", "a"));
         ASSERT(!less("z", "a"));
+
+        {
+            bsl::set<bsl::string, bdlb::CaselessStringViewLess> stringSet;
+            stringSet.find(                 "some string" );
+            stringSet.find(bsl::string(     "some string"));
+            stringSet.find(bsl::string_view("some string"));
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

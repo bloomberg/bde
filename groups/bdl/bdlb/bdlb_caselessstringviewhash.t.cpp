@@ -22,6 +22,7 @@
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_unordered_map.h>
+#include <bsl_unordered_set.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -168,6 +169,7 @@ BSLMF_ASSERT(bsl::is_trivially_default_constructible<Obj>::value);
 
 BSLMF_ASSERT((bsl::is_same<bsl::size_t,      Obj::result_type>::value));
 BSLMF_ASSERT((bsl::is_same<bsl::string_view, Obj::argument_type>::value));
+BSLMF_ASSERT((bsl::is_same<void,             Obj::is_transparent>::value));
 
 // ============================================================================
 //                                 EMPTY TYPE
@@ -585,6 +587,16 @@ int main(int argc, char *argv[])
 
         ASSERT(hash(a) > 0);
         ASSERT(hash(a) == hash(A));
+
+        {
+            bsl::unordered_set<bsl::string,
+                               bdlb::CaselessStringViewHash,
+                               bdlb::CaselessStringViewEqualTo>
+                stringSet;
+            stringSet.find(                 "some string" );
+            stringSet.find(bsl::string(     "some string"));
+            stringSet.find(bsl::string_view("some string"));
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

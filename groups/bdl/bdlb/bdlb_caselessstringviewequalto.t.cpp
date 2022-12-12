@@ -163,11 +163,12 @@ BSLMF_ASSERT(bsl::is_trivially_default_constructible<Obj>::value);
 //                                  TYPEDEFS
 // ----------------------------------------------------------------------------
 
+BSLMF_ASSERT((bsl::is_same<bool,           Obj::result_type>::value));
 BSLMF_ASSERT((bsl::is_same<bsl::string_view,
                                            Obj::first_argument_type>::value));
 BSLMF_ASSERT((bsl::is_same<bsl::string_view,
                                            Obj::second_argument_type>::value));
-BSLMF_ASSERT((bsl::is_same<bool,           Obj::result_type>::value));
+BSLMF_ASSERT((bsl::is_same<void,           Obj::is_transparent>::value));
 
 // ============================================================================
 //                                 EMPTY TYPE
@@ -501,6 +502,13 @@ int main(int argc, char *argv[])
         ASSERT(!equals(B, a));
         ASSERT(!equals(b, A));
         ASSERT(!equals(B, A));
+
+        ASSERT( equals(a, "A"));
+        ASSERT(!equals(a, "B"));
+
+        ASSERT( equals(a, bsl::string(A)));
+        ASSERT(!equals(a, bsl::string(B)));
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
