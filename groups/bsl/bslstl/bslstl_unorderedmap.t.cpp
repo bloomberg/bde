@@ -10651,13 +10651,14 @@ int main(int argc, char *argv[])
 
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
         // Test noexcept
+#ifndef BSLMF_ISNOTHROWSWAPPABLE_ALWAYS_FALSE
         {
             typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
                                                 false,
                                                 false,
                                                 false,
                                                 false> Alloc;
-            typedef bsl::hash<int> Hash;
+            typedef bsl::hash<int>     Hash;
             typedef bsl::equal_to<int> Equal;
 
             ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
@@ -10672,7 +10673,7 @@ int main(int argc, char *argv[])
                                                 false,
                                                 false> Alloc;
             typedef u::ThrowingSwapHash<int> Hash;
-            typedef bsl::equal_to<int> Equal;
+            typedef bsl::equal_to<int>       Equal;
 
             ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
             ASSERT(!bsl::is_nothrow_swappable<Hash>::value);
@@ -10685,25 +10686,11 @@ int main(int argc, char *argv[])
                                                 false,
                                                 false,
                                                 false> Alloc;
-            typedef bsl::hash<int> Hash;
+            typedef bsl::hash<int>            Hash;
             typedef u::ThrowingSwapEqual<int> Equal;
 
             ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
             ASSERT( bsl::is_nothrow_swappable<Hash>::value);
-            ASSERT(!bsl::is_nothrow_swappable<Equal>::value);
-            TestDriver<int, int, Hash, Equal, Alloc>::testCase8_noexcept();
-        }
-        {
-            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
-                                                false,
-                                                false,
-                                                false,
-                                                false> Alloc;
-            typedef u::ThrowingSwapHash<int> Hash;
-            typedef u::ThrowingSwapEqual<int> Equal;
-
-            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
-            ASSERT(!bsl::is_nothrow_swappable<Hash>::value);
             ASSERT(!bsl::is_nothrow_swappable<Equal>::value);
             TestDriver<int, int, Hash, Equal, Alloc>::testCase8_noexcept();
         }
@@ -10714,7 +10701,7 @@ int main(int argc, char *argv[])
                                                 false,
                                                 false,
                                                 true> Alloc;
-            typedef bsl::hash<int> Hash;
+            typedef bsl::hash<int>     Hash;
             typedef bsl::equal_to<int> Equal;
 
             ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
@@ -10730,7 +10717,7 @@ int main(int argc, char *argv[])
                                                 false,
                                                 true> Alloc;
             typedef u::ThrowingSwapHash<int> Hash;
-            typedef bsl::equal_to<int> Equal;
+            typedef bsl::equal_to<int>       Equal;
 
             ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
             ASSERT(!bsl::is_nothrow_swappable<Hash>::value);
@@ -10744,11 +10731,26 @@ int main(int argc, char *argv[])
                                                 false,
                                                 false,
                                                 true> Alloc;
-            typedef bsl::hash<int> Hash;
+            typedef bsl::hash<int>            Hash;
             typedef u::ThrowingSwapEqual<int> Equal;
 
             ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);
             ASSERT( bsl::is_nothrow_swappable<Hash>::value);
+            ASSERT(!bsl::is_nothrow_swappable<Equal>::value);
+            TestDriver<int, int, Hash, Equal, Alloc>::testCase8_noexcept();
+        }
+#endif
+        {
+            typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
+                                                false,
+                                                false,
+                                                false,
+                                                false> Alloc;
+            typedef u::ThrowingSwapHash<int>  Hash;
+            typedef u::ThrowingSwapEqual<int> Equal;
+
+            ASSERT(!bsl::allocator_traits<Alloc>::is_always_equal::value);
+            ASSERT(!bsl::is_nothrow_swappable<Hash>::value);
             ASSERT(!bsl::is_nothrow_swappable<Equal>::value);
             TestDriver<int, int, Hash, Equal, Alloc>::testCase8_noexcept();
         }
@@ -10759,7 +10761,7 @@ int main(int argc, char *argv[])
                                                 false,
                                                 false,
                                                 true> Alloc;
-            typedef u::ThrowingSwapHash<int> Hash;
+            typedef u::ThrowingSwapHash<int>  Hash;
             typedef u::ThrowingSwapEqual<int> Equal;
 
             ASSERT( bsl::allocator_traits<Alloc>::is_always_equal::value);

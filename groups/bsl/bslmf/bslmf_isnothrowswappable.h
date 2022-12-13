@@ -139,6 +139,8 @@ using std::is_nothrow_swappable_v;
 // unfortunate circumstances, it is therefore safest to assume nothing is
 // nothrow swappable.
 
+#define BSLMF_ISNOTHROWSWAPPABLE_ALWAYS_FALSE 1
+
 template <class TYPE>
 struct is_nothrow_swappable : bsl::false_type {};
 

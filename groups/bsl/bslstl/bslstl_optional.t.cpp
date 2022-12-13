@@ -9636,12 +9636,13 @@ void testCase9()
     testCase9_imp<bsl::optional<SwappableAA>,
                    bsl::optional<SwappableAA> >();
 
-    // Test 'noexcept'
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    // Test 'noexcept'
     ASSERT( bsl::is_nothrow_move_constructible<Swappable>::value);
     ASSERT(!bsl::is_nothrow_swappable<Swappable>::value);
     testCase9_noexcept<Swappable>();
 
+#ifndef BSLMF_ISNOTHROWSWAPPABLE_ALWAYS_FALSE
     ASSERT( bsl::is_nothrow_move_constructible<int>::value);
     ASSERT( bsl::is_nothrow_swappable<int>::value);
     testCase9_noexcept<int>();
@@ -9650,6 +9651,7 @@ void testCase9()
                                         ThrowMoveConstructible<true> >::value);
     ASSERT( bsl::is_nothrow_swappable<ThrowMoveConstructible<true> >::value);
     testCase9_noexcept<ThrowMoveConstructible<true> >();
+#endif
 
     ASSERT(!bsl::is_nothrow_move_constructible<
                                        ThrowMoveConstructible<false> >::value);

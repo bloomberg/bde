@@ -4042,6 +4042,7 @@ int main(int argc, char *argv[])
 
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
         // Test noexcept
+#ifndef BSLMF_ISNOTHROWSWAPPABLE_ALWAYS_FALSE
         {
             typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
                                                 false,
@@ -4067,6 +4068,7 @@ int main(int argc, char *argv[])
             ASSERT( bsl::is_nothrow_swappable<Comp>::value);
             TestDriver<int, int, Comp, Alloc>::testCase8_noexcept();
         }
+#endif
         {
             typedef bsltf::StdStatefulAllocator<bsl::pair<const int, int>,
                                                 false,

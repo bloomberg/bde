@@ -6375,33 +6375,29 @@ int main(int argc, char *argv[])
                                  "========================" "\n");
 
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+#ifndef BSLMF_ISNOTHROWSWAPPABLE_ALWAYS_FALSE
         ASSERT(!bsl::is_nothrow_swappable<vector<int> >::value);
         ASSERT( bsl::is_nothrow_swappable<TestComparator<int> >::value);
-#endif
         TestDriver<int, vector<int>, TestComparator<int> >::testCase22();
 
-#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
         ASSERT( bsl::is_nothrow_swappable<NothrowSwapVector<int> >::value);
         ASSERT( bsl::is_nothrow_swappable<TestComparator<int> >::value);
-#endif
         TestDriver<int, NothrowSwapVector<int>, TestComparator<int> >
                                                                 ::testCase22();
 
-#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-        ASSERT(!bsl::is_nothrow_swappable<vector<int> >::value);
-        ASSERT(!bsl::is_nothrow_swappable<ThrowingSwapComparator<int> >
-                                                                     ::value);
-#endif
-        TestDriver<int, vector<int>, ThrowingSwapComparator<int> >
-                                                                ::testCase22();
-
-#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
         ASSERT( bsl::is_nothrow_swappable<NothrowSwapVector<int> >::value);
         ASSERT(!bsl::is_nothrow_swappable<ThrowingSwapComparator<int> >
                                                                       ::value);
-#endif
         TestDriver<int, NothrowSwapVector<int>, ThrowingSwapComparator<int> >
                                                                 ::testCase22();
+#endif
+
+        ASSERT(!bsl::is_nothrow_swappable<vector<int> >::value);
+        ASSERT(!bsl::is_nothrow_swappable<ThrowingSwapComparator<int> >
+                                                                     ::value);
+        TestDriver<int, vector<int>, ThrowingSwapComparator<int> >
+                                                                ::testCase22();
+#endif
       } break;
       case 21: {
         // --------------------------------------------------------------------

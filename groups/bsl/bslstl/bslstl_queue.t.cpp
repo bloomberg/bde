@@ -5836,13 +5836,13 @@ int main(int argc, char *argv[])
 
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
         ASSERT(!bsl::is_nothrow_swappable<bsl::vector<int> >::value);
-#endif
         TestDriver<int, bsl::vector<int> >::testCase20();
 
-#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+#ifndef BSLMF_ISNOTHROWSWAPPABLE_ALWAYS_FALSE
         ASSERT(bsl::is_nothrow_swappable<NothrowSwapDeque<int> >::value);
-#endif
         TestDriver<int, NothrowSwapDeque<int> >::testCase20();
+#endif
+#endif
 
       } break;
       case 19: {

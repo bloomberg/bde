@@ -8426,7 +8426,9 @@ int main(int argc, char *argv[])
         ASSERT(!std::is_nothrow_move_assignable<   ThrowingComparator>::value);
 #endif
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+#ifndef BSLMF_ISNOTHROWSWAPPABLE_ALWAYS_FALSE
         ASSERT( bsl::is_nothrow_swappable<NonThrowingComparator>::value);
+#endif
         ASSERT(!bsl::is_nothrow_swappable<   ThrowingComparator>::value);
 #endif
 
