@@ -1395,6 +1395,33 @@ void debugprint(const BitwiseNotAssignable& v)
     printf("%d", v.value());
 }
 
+                             // ==================
+                             // class MoveOnlyType
+                             // ==================
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+// This class doesn't make sence for C++03 tests.  Even though we can emulate
+// move-operations, we cannot make them noexcept as 'vector' requires.
+class MoveOnlyType {
+    // Non-copyable but movable type.
+
+    // DATA
+    void *ptr;
+  public:
+    // CREATORS
+    MoveOnlyType() : ptr(0)
+        // Create a 'MoveOnlyType' object.
+    {
+    }
+    MoveOnlyType(MoveOnlyType &&) = default;
+    MoveOnlyType(const MoveOnlyType &) = delete;
+
+    // MANIPULATORS
+    MoveOnlyType &operator=(MoveOnlyType &&) = default;
+    MoveOnlyType &operator=(const MoveOnlyType &) = delete;
+};
+#endif
+
                     // =================================
                     // template class StatelessAllocator
                     // =================================

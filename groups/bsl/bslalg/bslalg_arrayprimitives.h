@@ -1584,32 +1584,6 @@ struct ArrayPrimitives_Imp {
     template <class TARGET_TYPE, class ALLOCATOR>
     static void insert(TARGET_TYPE                               *toBegin,
                        TARGET_TYPE                               *toEnd,
-                       bslmf::MovableRef<TARGET_TYPE>             value,
-                       ALLOCATOR                                  allocator,
-                       bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *);
-    template <class TARGET_TYPE, class ALLOCATOR>
-    static void insert(TARGET_TYPE                               *toBegin,
-                       TARGET_TYPE                               *toEnd,
-                       bslmf::MovableRef<TARGET_TYPE>             value,
-                       ALLOCATOR                                  allocator,
-                       bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *);
-    template <class TARGET_TYPE, class ALLOCATOR>
-    static void insert(TARGET_TYPE                               *toBegin,
-                       TARGET_TYPE                               *toEnd,
-                       bslmf::MovableRef<TARGET_TYPE>             value,
-                       ALLOCATOR                                  allocator,
-                       bslmf::MetaInt<e_NIL_TRAITS>              *);
-        // These functions follow the 'insert' contract.  Note that if
-        // 'TARGET_TYPE' is bit-wise copyable, then this operation is simply
-        // 'memmove' followed by 'bitwiseFillN'.  If 'TARGET_TYPE' is bit-wise
-        // moveable, then this operation can still be optimized using 'memmove'
-        // followed by repeated assignments, but a guard needs to be set up.
-        // The last argument is for removing overload ambiguities and is not
-        // used.
-
-    template <class TARGET_TYPE, class ALLOCATOR>
-    static void insert(TARGET_TYPE                               *toBegin,
-                       TARGET_TYPE                               *toEnd,
                        const TARGET_TYPE&                         value,
                        size_type                                  numElements,
                        ALLOCATOR                                  allocator,
@@ -1724,6 +1698,36 @@ struct ArrayPrimitives_Imp {
         // and is not used.  Note that if 'TARGET_TYPE' is bit-wise moveable,
         // the 'rotate(char*, char*, char*)' can be used, enabling to take the
         // whole implementation out-of-line.
+
+    template <class ALLOCATOR>
+    static void shiftAndInsert(
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      begin,
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      end,
+             bslmf::MovableRef<
+             typename bsl::allocator_traits<ALLOCATOR>::value_type>  value,
+             ALLOCATOR                                               allocator,
+             bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS>              *);
+    template <class ALLOCATOR>
+    static void shiftAndInsert(
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      begin,
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      end,
+             bslmf::MovableRef<
+             typename bsl::allocator_traits<ALLOCATOR>::value_type>  value,
+             ALLOCATOR                                               allocator,
+             bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>              *);
+    template <class ALLOCATOR>
+    static void shiftAndInsert(
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      begin,
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      end,
+             bslmf::MovableRef<
+             typename bsl::allocator_traits<ALLOCATOR>::value_type>  value,
+             ALLOCATOR                                               allocator,
+             bslmf::MetaInt<e_NIL_TRAITS>                           *);
+        // Shift the specified '[begin, end)' sequence one position right, then
+        // insert the specified 'value' at the position pointed by 'begin'.
+        // The specified 'allocator' is used for the element construction.  The
+        // behavior is undefined unless the specified '[begin, end)' sequence
+        // contains at least one element.
 
     // 'bitwise' METHODS
     static void bitwiseRotate(char *begin, char *middle, char *end);
@@ -2586,18 +2590,29 @@ void ArrayPrimitives::insert(
 
     typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
-    enum {
-        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
-              ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TargetType>::value
-                  ? Imp::e_BITWISE_MOVEABLE_TRAITS
-                  : Imp::e_NIL_TRAITS
-    };
-    ArrayPrimitives_Imp::insert(toBegin,
-                                toEnd,
-                                bslmf::MovableRefUtil::move(value),
-                                allocator,
-                                (bslmf::MetaInt<k_VALUE>*)0);
+    if (toBegin != toEnd) {
+        // Insert in the middle.  Note that there is no strong exception
+        // guarantee if copy constructor, move constructor, or assignment
+        // operator throw.
+
+        enum {
+            k_VALUE = bsl::is_trivially_copyable<TargetType>::value
+                ? Imp::e_BITWISE_COPYABLE_TRAITS
+                : bslmf::IsBitwiseMoveable<TargetType>::value
+                    ? Imp::e_BITWISE_MOVEABLE_TRAITS
+                    : Imp::e_NIL_TRAITS
+        };
+
+        ArrayPrimitives_Imp::shiftAndInsert(toBegin,
+                                            toEnd,
+                                            bslmf::MovableRefUtil::move(value),
+                                            allocator,
+                                            (bslmf::MetaInt<k_VALUE>*)0);
+    }
+    else { // toBegin == toEnd
+        bsl::allocator_traits<ALLOCATOR>::construct(
+            allocator, toBegin, bslmf::MovableRefUtil::move(value));
+    }
 }
 
 template <class TARGET_TYPE>
@@ -3841,113 +3856,6 @@ void ArrayPrimitives_Imp::erase(TARGET_TYPE                  *first,
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::insert(
-                          TARGET_TYPE                               *toBegin,
-                          TARGET_TYPE                               *toEnd,
-                          bslmf::MovableRef<TARGET_TYPE>             value,
-                          ALLOCATOR                                  allocator,
-                          bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *)
-{
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
-    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
-
-    TARGET_TYPE& lvalue = value;
-    ArrayPrimitives_Imp::insert(toBegin,
-                                toEnd,
-                                lvalue,
-                                1,
-                                allocator,
-                                (bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS>*)0);
-}
-
-template <class TARGET_TYPE, class ALLOCATOR>
-void ArrayPrimitives_Imp::insert(
-                          TARGET_TYPE                               *toBegin,
-                          TARGET_TYPE                               *toEnd,
-                          bslmf::MovableRef<TARGET_TYPE>             value,
-                          ALLOCATOR                                  allocator,
-                          bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *)
-{
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
-    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
-
-    TARGET_TYPE& lvalue = value;
-    ArrayPrimitives_Imp::insert(toBegin,
-                                toEnd,
-                                lvalue,
-                                1,
-                                allocator,
-                                (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0);
-}
-
-template <class TARGET_TYPE, class ALLOCATOR>
-void ArrayPrimitives_Imp::insert(TARGET_TYPE                    *toBegin,
-                                 TARGET_TYPE                    *toEnd,
-                                 bslmf::MovableRef<TARGET_TYPE>  value,
-                                 ALLOCATOR                       allocator,
-                                 bslmf::MetaInt<e_NIL_TRAITS>   *)
-{
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
-    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
-
-    TARGET_TYPE& lvalue = value;
-
-    // Key to the transformation diagrams:
-    //..
-    //  A...G   original contents of '[toBegin, toEnd)'  ("tail")
-    //  v...v   copies of 'value'                        ("input")
-    //  _____   uninitialized array elements
-    //  [...]   part of array protected by an exception guard object
-    //..
-
-    if (toBegin < toEnd) {
-        // Insert in the middle.  Note that the rvalue reference cannot refer
-        // back to an element in the vector (interpreted in the standard as if
-        // a temporary).  Also note that there is no strong exception guarantee
-        // if copy constructor, move constructor, or assignment operator throw.
-
-        //..
-        //  Transformation: ABCDEFG_[] => ABCDEFG[G].
-        //..
-
-        bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator,
-            toEnd,
-            bslmf::MovableRefUtil::move_if_noexcept(*(toEnd - 1)));
-
-        bslalg::AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(
-                                                  toEnd, toEnd + 1, allocator);
-
-        //..
-        //  Transformation: ABCDEFG[G] => AABCDEF[G].
-        //..
-
-        TARGET_TYPE *destEnd = toEnd;
-        TARGET_TYPE *srcEnd  = toEnd - 1;
-        while (toBegin != srcEnd) {
-            *--destEnd = bslmf::MovableRefUtil::move_if_noexcept(*--srcEnd);
-        }
-
-        //..
-        //  Transformation: AABCDEFG[G] => vABCDEF[G].
-        //..
-
-        *toBegin = bslmf::MovableRefUtil::move(lvalue);
-
-        guard.release();
-    }
-    else {
-        //..
-        //  Transformation: _ => v.
-        //..
-
-        bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toBegin, bslmf::MovableRefUtil::move(lvalue));
-    }
-}
-
-template <class TARGET_TYPE, class ALLOCATOR>
-inline
-void ArrayPrimitives_Imp::insert(
                           TARGET_TYPE                             *toBegin,
                           TARGET_TYPE                             *toEnd,
                           const TARGET_TYPE&                       value,
@@ -4796,6 +4704,159 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
                     //                                 => _W__X__Y__Z_
                     //..
     }
+}
+
+                         // *** 'shiftAndInsert' overloads: ***
+
+template <class ALLOCATOR>
+inline
+void ArrayPrimitives_Imp::shiftAndInsert(
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      begin,
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      end,
+             bslmf::MovableRef<
+             typename bsl::allocator_traits<ALLOCATOR>::value_type>  value,
+             ALLOCATOR                                               allocator,
+             bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS>              *)
+{
+    BSLS_ASSERT_SAFE(begin != end); // the range is non-empty
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type ValueType;
+
+    // ALIASING: If 'value' is a reference into the array '[begin, end)',
+    // then moving the array first might introduce a change in 'value'.
+    // Fortunately we can easily predict its new position after the shift.
+
+    ValueType *valuePtr =
+                     BSLS_UTIL_ADDRESSOF(bslmf::MovableRefUtil::access(value));
+    if (begin <= valuePtr && valuePtr < end) {
+        valuePtr += 1; // new address after the shift
+    }
+
+    // shift
+    std::memmove(begin + 1, begin, (end - begin) * sizeof(ValueType));
+
+    // insert
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                           allocator,
+                           begin,
+                           bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
+}
+
+template <class ALLOCATOR>
+inline
+void ArrayPrimitives_Imp::shiftAndInsert(
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      begin,
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      end,
+             bslmf::MovableRef<
+             typename bsl::allocator_traits<ALLOCATOR>::value_type>  value,
+             ALLOCATOR                                               allocator,
+             bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>              *)
+{
+    BSLS_ASSERT_SAFE(begin != end); // the range is non-empty
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type ValueType;
+
+    // ALIASING: If 'value' is a reference into the array '[begin, end)',
+    // then moving the array first might introduce a change in 'value'.
+    // Fortunately we can easily predict its new position after the shift.
+
+    ValueType *valuePtr =
+                     BSLS_UTIL_ADDRESSOF(bslmf::MovableRefUtil::access(value));
+    if (begin <= valuePtr && valuePtr < end) {
+        valuePtr += 1; // new address after the shift
+    }
+
+    // shift
+    size_t bytesNum = (end - begin) * sizeof(ValueType);
+    std::memmove(begin + 1, begin, bytesNum);
+
+    class ElementsProctor {
+        // Moves the elements back if 'construct' throws.
+
+        // DATA
+        ValueType *d_begin;
+        size_t     d_bytesNum;
+      public:
+        // CREATORS
+        ElementsProctor(ValueType *p, size_t n) : d_begin(p), d_bytesNum(n) {}
+        ~ElementsProctor()
+        {
+            if(d_bytesNum) std::memmove(d_begin, d_begin + 1, d_bytesNum);
+        }
+        // MANIPULATORS
+        void release() { d_bytesNum = 0; }
+    } proctor(begin, bytesNum);
+
+    // insert
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                           allocator,
+                           begin,
+                           bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
+    proctor.release();
+}
+
+template <class ALLOCATOR>
+inline
+void ArrayPrimitives_Imp::shiftAndInsert(
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      begin,
+             typename bsl::allocator_traits<ALLOCATOR>::pointer      end,
+             bslmf::MovableRef<
+             typename bsl::allocator_traits<ALLOCATOR>::value_type>  value,
+             ALLOCATOR                                               allocator,
+             bslmf::MetaInt<e_NIL_TRAITS>                           *)
+{
+    BSLS_ASSERT_SAFE(begin != end); // the range is non-empty
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type ValueType;
+
+    // ALIASING: If 'value' is a reference into the array '[begin, end)',
+    // then moving the array first might introduce a change in 'value'.
+    // Fortunately we can easily predict its new position after the shift.
+
+    ValueType *valuePtr =
+                     BSLS_UTIL_ADDRESSOF(bslmf::MovableRefUtil::access(value));
+    if (begin <= valuePtr && valuePtr < end) {
+        valuePtr += 1; // new address after the shift
+    }
+
+    // Key to the transformation diagrams:
+    //..
+    //  A...G   original contents of '[toBegin, toEnd)'  ("tail")
+    //  a...g   moved-from or copied values
+    //  v       moved 'value'                            ("input")
+    //  _____   uninitialized array elements
+    //  [...]   part of array protected by an exception guard object
+    //..
+
+    //..
+    //  Transformation: ABCDEFG_[] => ABCDEFg[G].
+    //..
+
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                          allocator,
+                          end,
+                          bslmf::MovableRefUtil::move_if_noexcept(*(end - 1)));
+
+    bslalg::AutoArrayDestructor<ValueType, ALLOCATOR> guard(
+                                                      end, end + 1, allocator);
+
+    //..
+    //  Transformation: ABCDEFg[G] => aABCDEF[G].
+    //..
+
+    ValueType *dst = end;
+    ValueType *src = end - 1;
+    while (src != begin) {
+        *--dst = bslmf::MovableRefUtil::move_if_noexcept(*--src);
+    }
+
+    //..
+    //  Transformation: aABCDEFG[G] => vABCDEF[G].
+    //..
+
+    *begin = bslmf::MovableRefUtil::move_if_noexcept(*valuePtr);
+
+    guard.release();
 }
 
 }  // close package namespace

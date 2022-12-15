@@ -1276,7 +1276,7 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
               int N08,
               int N09,
               int N10>
-    static void testCase27a_RunTest(Obj *target);
+    static void testCase26a_RunTest(Obj *target);
         // Call 'emplace_back' on the specified 'target' container.  Forward
         // (template parameter) 'N_ARGS' arguments to the 'emplace' method and
         // ensure 1) that values are properly passed to the constructor of
@@ -1285,14 +1285,14 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
         // arguments are forwarded using copy or move semantics based on
         // integer template parameters 'N01' ... 'N10'.
 
-    static void testCase27();
+    static void testCase26();
         // Test 'emplace_back' other than forwarding of arguments (see '27a').
 
-    static void testCase27a();
+    static void testCase26a();
         // Test forwarding of arguments in 'emplace_back' method.
 
-    static void testCase27_EmplaceDefault(Obj*, bsl::false_type);
-    static void testCase27_EmplaceDefault(Obj* objPtr, bsl::true_type);
+    static void testCase26_EmplaceDefault(Obj*, bsl::false_type);
+    static void testCase26_EmplaceDefault(Obj* objPtr, bsl::true_type);
         // Test that 'emplace_back()' appends a single value-initialized
         // element to the specified 'objPtr' vector.  The bool-constant type
         // indicated whether 'TYPE' is default constructible, and so whether
@@ -1301,11 +1301,11 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
         // in its original state, so the caller can verify that it is is
         // unchanged.
 
-    static void testCase26();
+    static void testCase27();
         // Test 'insert' method that takes a movable ref.
 
     template <class CONTAINER>
-    static void testCase26Range(const CONTAINER&);
+    static void testCase27Range(const CONTAINER&);
         // Test 'insert' method that takes move-only and other awkward types.
 
     static void testCase25();
@@ -3135,7 +3135,7 @@ template <int N_ARGS,
           int N09,
           int N10>
 void
-TestDriver3<TYPE, ALLOC>::testCase27a_RunTest(Obj *target)
+TestDriver3<TYPE, ALLOC>::testCase26a_RunTest(Obj *target)
 {
     DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
     DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
@@ -3346,13 +3346,13 @@ TestDriver3<TYPE, ALLOC>::testCase27a_RunTest(Obj *target)
 
 template <class TYPE, class ALLOC>
 void
-TestDriver3<TYPE, ALLOC>::testCase27_EmplaceDefault(Obj*, bsl::false_type)
+TestDriver3<TYPE, ALLOC>::testCase26_EmplaceDefault(Obj*, bsl::false_type)
 {
     // Do nothing
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver3<TYPE, ALLOC>::testCase27_EmplaceDefault(Obj* objPtr,
+void TestDriver3<TYPE, ALLOC>::testCase26_EmplaceDefault(Obj* objPtr,
                                                          bsl::true_type)
     // This method verifies that 'emplace_back()' will append a single
     // value-initialized element to the specified vector 'obj', and then 'pop'
@@ -3377,7 +3377,7 @@ void TestDriver3<TYPE, ALLOC>::testCase27_EmplaceDefault(Obj* objPtr,
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver3<TYPE, ALLOC>::testCase27()
+void TestDriver3<TYPE, ALLOC>::testCase26()
 {
     // ------------------------------------------------------------------------
     // TESTING 'emplace_back(Args&&...)'
@@ -3402,7 +3402,7 @@ void TestDriver3<TYPE, ALLOC>::testCase27()
     // Plan:
     //: 1 We will use 'value' as the single argument to the 'emplace_back'
     //:   function and will test proper forwarding of constructor arguments
-    //:   in test 'testCase27a'.
+    //:   in test 'testCase26a'.
     //:
     //: 2 For 'emplace_back' we will create objects of varying sizes and
     //:   capacities containing default values, and insert a 'value' at the
@@ -3554,7 +3554,7 @@ void TestDriver3<TYPE, ALLOC>::testCase27()
             // the newly inserted default item, and repeat the previous
             // validation.
 
-            testCase27_EmplaceDefault(&mX, IsDefaultConstructible<TYPE>());
+            testCase26_EmplaceDefault(&mX, IsDefaultConstructible<TYPE>());
             ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));
         }
     }
@@ -3605,7 +3605,7 @@ void TestDriver3<TYPE, ALLOC>::testCase27()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver3<TYPE, ALLOC>::testCase27a()
+void TestDriver3<TYPE, ALLOC>::testCase26a()
 {
     // ------------------------------------------------------------------------
     // TESTING FORWARDING OF ARGUMENTS WITH 'emplace_back'
@@ -3664,70 +3664,70 @@ void TestDriver3<TYPE, ALLOC>::testCase27a()
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest< 0,2,2,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 1,1,2,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 2,1,1,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 3,1,1,1,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 4,1,1,1,1,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 5,1,1,1,1,1,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 6,1,1,1,1,1,1,2,2,2,2>(&mX);
-        testCase27a_RunTest< 7,1,1,1,1,1,1,1,2,2,2>(&mX);
-        testCase27a_RunTest< 8,1,1,1,1,1,1,1,1,2,2>(&mX);
-        testCase27a_RunTest< 9,1,1,1,1,1,1,1,1,1,2>(&mX);
-        testCase27a_RunTest<10,1,1,1,1,1,1,1,1,1,1>(&mX);
+        testCase26a_RunTest< 0,2,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 1,1,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 2,1,1,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 3,1,1,1,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 4,1,1,1,1,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 5,1,1,1,1,1,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 6,1,1,1,1,1,1,2,2,2,2>(&mX);
+        testCase26a_RunTest< 7,1,1,1,1,1,1,1,2,2,2>(&mX);
+        testCase26a_RunTest< 8,1,1,1,1,1,1,1,1,2,2>(&mX);
+        testCase26a_RunTest< 9,1,1,1,1,1,1,1,1,1,2>(&mX);
+        testCase26a_RunTest<10,1,1,1,1,1,1,1,1,1,1>(&mX);
     }
     if (verbose) printf("\tTesting emplace_back 1..10 args, move=0.\n");
     {
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest< 0,2,2,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 1,0,2,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 2,0,0,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 3,0,0,0,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 4,0,0,0,0,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 5,0,0,0,0,0,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 6,0,0,0,0,0,0,2,2,2,2>(&mX);
-        testCase27a_RunTest< 7,0,0,0,0,0,0,0,2,2,2>(&mX);
-        testCase27a_RunTest< 8,0,0,0,0,0,0,0,0,2,2>(&mX);
-        testCase27a_RunTest< 9,0,0,0,0,0,0,0,0,0,2>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,0,0,0,0,0,0>(&mX);
+        testCase26a_RunTest< 0,2,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 1,0,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 2,0,0,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 3,0,0,0,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 4,0,0,0,0,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 5,0,0,0,0,0,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 6,0,0,0,0,0,0,2,2,2,2>(&mX);
+        testCase26a_RunTest< 7,0,0,0,0,0,0,0,2,2,2>(&mX);
+        testCase26a_RunTest< 8,0,0,0,0,0,0,0,0,2,2>(&mX);
+        testCase26a_RunTest< 9,0,0,0,0,0,0,0,0,0,2>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,0,0,0,0,0>(&mX);
     }
     if (verbose) printf("\tTesting emplace_back with 0 args.\n");
     {
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest<0,2,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<0,2,2,2,2,2,2,2,2,2,2>(&mX);
     }
     if (verbose) printf("\tTesting emplace_back with 1 args.\n");
     {
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest<1,0,2,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<1,1,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<1,0,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<1,1,2,2,2,2,2,2,2,2,2>(&mX);
     }
     if (verbose) printf("\tTesting emplace_back with 2 args.\n");
     {
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest<2,0,0,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<2,1,0,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<2,0,1,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<2,1,1,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<2,0,0,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<2,1,0,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<2,0,1,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<2,1,1,2,2,2,2,2,2,2,2>(&mX);
     }
     if (verbose) printf("\tTesting emplace_back with 3 args.\n");
     {
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest<3,0,0,0,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<3,1,0,0,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<3,0,1,0,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<3,0,0,1,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest<3,1,1,1,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<3,0,0,0,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<3,1,0,0,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<3,0,1,0,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<3,0,0,1,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest<3,1,1,1,2,2,2,2,2,2,2>(&mX);
     }
 
     if (verbose) printf("\tTesting emplace_back with 10 args.\n");
@@ -3735,18 +3735,18 @@ void TestDriver3<TYPE, ALLOC>::testCase27a()
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest<10,0,0,0,0,0,0,0,0,0,0>(&mX);
-        testCase27a_RunTest<10,1,0,0,0,0,0,0,0,0,0>(&mX);
-        testCase27a_RunTest<10,0,1,0,0,0,0,0,0,0,0>(&mX);
-        testCase27a_RunTest<10,0,0,1,0,0,0,0,0,0,0>(&mX);
-        testCase27a_RunTest<10,0,0,0,1,0,0,0,0,0,0>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,1,0,0,0,0,0>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,0,1,0,0,0,0>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,0,0,1,0,0,0>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,0,0,0,1,0,0>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,0,0,0,0,1,0>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,0,0,0,0,0,1>(&mX);
-        testCase27a_RunTest<10,1,1,1,1,1,1,1,1,1,1>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,0,0,0,0,0>(&mX);
+        testCase26a_RunTest<10,1,0,0,0,0,0,0,0,0,0>(&mX);
+        testCase26a_RunTest<10,0,1,0,0,0,0,0,0,0,0>(&mX);
+        testCase26a_RunTest<10,0,0,1,0,0,0,0,0,0,0>(&mX);
+        testCase26a_RunTest<10,0,0,0,1,0,0,0,0,0,0>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,1,0,0,0,0,0>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,1,0,0,0,0>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,0,1,0,0,0>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,0,0,1,0,0>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,0,0,0,1,0>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,0,0,0,0,1>(&mX);
+        testCase26a_RunTest<10,1,1,1,1,1,1,1,1,1,1>(&mX);
     }
 #else
     if (verbose) printf("\tTesting emplace_back 1..10 args, move=0.\n");
@@ -3754,23 +3754,23 @@ void TestDriver3<TYPE, ALLOC>::testCase27a()
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         Obj                  mX(&oa);
 
-        testCase27a_RunTest< 0,2,2,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 1,0,2,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 2,0,0,2,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 3,0,0,0,2,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 4,0,0,0,0,2,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 5,0,0,0,0,0,2,2,2,2,2>(&mX);
-        testCase27a_RunTest< 6,0,0,0,0,0,0,2,2,2,2>(&mX);
-        testCase27a_RunTest< 7,0,0,0,0,0,0,0,2,2,2>(&mX);
-        testCase27a_RunTest< 8,0,0,0,0,0,0,0,0,2,2>(&mX);
-        testCase27a_RunTest< 9,0,0,0,0,0,0,0,0,0,2>(&mX);
-        testCase27a_RunTest<10,0,0,0,0,0,0,0,0,0,0>(&mX);
+        testCase26a_RunTest< 0,2,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 1,0,2,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 2,0,0,2,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 3,0,0,0,2,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 4,0,0,0,0,2,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 5,0,0,0,0,0,2,2,2,2,2>(&mX);
+        testCase26a_RunTest< 6,0,0,0,0,0,0,2,2,2,2>(&mX);
+        testCase26a_RunTest< 7,0,0,0,0,0,0,0,2,2,2>(&mX);
+        testCase26a_RunTest< 8,0,0,0,0,0,0,0,0,2,2>(&mX);
+        testCase26a_RunTest< 9,0,0,0,0,0,0,0,0,0,2>(&mX);
+        testCase26a_RunTest<10,0,0,0,0,0,0,0,0,0,0>(&mX);
     }
 #endif
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver3<TYPE, ALLOC>::testCase26()
+void TestDriver3<TYPE, ALLOC>::testCase27()
 {
     // ------------------------------------------------------------------------
     // TESTING 'iterator insert(const_iterator position, T&&)'
@@ -4084,7 +4084,7 @@ void TestDriver3<TYPE, ALLOC>::testCase26()
 }
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
-void TestDriver3<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
+void TestDriver3<TYPE, ALLOC>::testCase27Range(const CONTAINER&)
 {
     // ------------------------------------------------------------------------
     // TESTING INSERTION
@@ -6246,13 +6246,13 @@ int main(int argc, char *argv[])
             printf("This test has not yet been fully implemented.\n");
 
         RUN_EACH_TYPE(TestDriver3,
-                      testCase26,
+                      testCase27,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MoveOnlyAllocTestType,
                       bsltf::WellBehavedMoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(StdBslmaTestDriver3,
-                      testCase26,
+                      testCase27,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
                       bsltf::MoveOnlyAllocTestType,
@@ -6260,7 +6260,7 @@ int main(int argc, char *argv[])
 
 #if 0
         ITER_CONTAINER_RUN_EACH_TYPE(TestDriver3,
-                                     testCase26Range,
+                                     testCase27Range,
                                      bsltf::NonDefaultConstructibleTestType,
                                      bsltf::MoveOnlyAllocTestType,
                                      bsltf::WellBehavedMoveOnlyAllocTestType,
@@ -6268,11 +6268,22 @@ int main(int argc, char *argv[])
                                      BitwiseNotAssignable);
 #else
         ITER_CONTAINER_RUN_EACH_TYPE(TestDriver3,
-                                     testCase26Range,
+                                     testCase27Range,
                                      bsltf::NonDefaultConstructibleTestType,
                                      int,   // dummy, need 4 types
                                      int,   // dummy, need 4 types
                                      int);  // dummy, need 4 types
+#endif
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        // Testing move-only types.  Although we can simulate a move-only type
+        // in C++03, we cannot simulate a noexcept move constructor as vector
+        // requires.
+        {
+            bsl::vector<MoveOnlyType> mX;
+            MoveOnlyType value;
+            mX.insert(mX.end(), MoveUtil::move(value));
+        }
 #endif
       } break;
       case 26: {
@@ -6291,7 +6302,7 @@ int main(int argc, char *argv[])
 
         // TBD: should be 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR'
         RUN_EACH_TYPE(TestDriver3,
-                      testCase27,
+                      testCase26,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType,
 //                      bsltf::MoveOnlyAllocTestType,
@@ -6299,12 +6310,12 @@ int main(int argc, char *argv[])
                      BitwiseNotAssignable);
 
         RUN_EACH_TYPE(TestDriver3,
-                      testCase27a,
+                      testCase26a,
                       bsltf::EmplacableTestType,
                       bsltf::AllocEmplacableTestType);
 
         RUN_EACH_TYPE(StdBslmaTestDriver3,
-                      testCase27,
+                      testCase26,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
 //                   , bsltf::MoveOnlyAllocTestType
