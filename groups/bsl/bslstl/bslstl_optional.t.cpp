@@ -9881,7 +9881,11 @@ void TestDriver<TYPE>::testCase7a_imp()
     //    optional(std::optional<ANY_TYPE>&&);
     // --------------------------------------------------------------------
 
+    if (veryVerbose) printf("testCase7a_imp<%s><%s, %s, %d>\n",
+                 bsls::NameOf<TYPE>().name(), bsls::NameOf<DEST_TYPE>().name(),
+                 bsls::NameOf<SRC_TYPE>().name(), PROPAGATE_ON_MOVE);
     {
+
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator oa("other", veryVeryVeryVerbose);
 
@@ -9992,6 +9996,8 @@ void TestDriver<TYPE>::testCase7a_imp_constmovebug()
 template <class TYPE>
 void TestDriver<TYPE>::testCase7a()
 {
+    if (verbose) printf("testCase7a<%s>\n", bsls::NameOf<TYPE>().name());
+
     testCase7a_imp<TYPE, TYPE, true>();
     testCase7a_imp<TYPE, int, false>();
     testCase7a_imp<TYPE, const TYPE, false>();
