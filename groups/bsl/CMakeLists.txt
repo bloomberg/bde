@@ -19,9 +19,6 @@ endif()
 # To link bsl test drivers that link with package libraries.
 target_link_libraries(bsls INTERFACE bbs_threads bbs_bsl_rt)
 
-# To link external clients with bsl.
-target_link_libraries(${target} PUBLIC bbs_threads bbs_bsl_rt)
-
 # This piece of code controls the entries in the bsl.pc file
 foreach (t bbs_threads bbs_bsl_rt)
     foreach (prop INTERFACE_COMPILE_DEFINITIONS INTERFACE_COMPILE_OPTIONS)

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 DEBHELPER_PATH=$(DISTRIBUTION_REFROOT)/opt/bb/libexec/bde-internal-tools/share/build
-include $(DEBHELPER_PATH)/bde-debhelper.cmake2.mk
+include $(DEBHELPER_PATH)/bbs-debhelper.mk
 
 debian/bde-build-stamp: debian/lintian-overrides-stamp
 debian/lintian-overrides-stamp:
