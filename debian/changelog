@@ -1,5 +1,45 @@
-bsl-internal (3.111.0.0) unstable; urgency=low
+bsl-internal (3.112.0.0) unstable; urgency=low
 
+  * 533415dd9 Bumped version to 3.112.0.0
+  * 6e1a5a7d8 Switch dpkg helper to bbs (#4057)
+  * 3ec16a1e3 Fix dormant UB in the uninitializedFillN. (#4054)
+  * e7b75ee5a C++17 work: Inconsistent move-insert behavior of 'bsl::vector' (DRQS 170573799) (#4031)
+  * c5b224387 bdld_datum: Fix 'createNull' union-member init bug (#4048)
+  * 6202b7d2a C++17 work: MSVC-specific test errors (notably on MSVC 2015/2017) (DRQS 170920968) (#4045)
+  * bdbbd9f9d Add JsonUtil::printError (#4041)
+  * 70f898abf Fix path hashing for clang drqs170949622 (#4044)
+  * faa4ac25a bdlde_charconvertutf16: provide public *BufferLength functions (#3997)
+  * 00729cc82 correct checked variable for retry (#4047)
+  * 242a8ec0b bsl::deque: Support default-insertable types (DRQS 170190873) (#3992)
+  * afa7b8a60 Make bdlb_caselessstringview functors transparent - DRQS 170765229 (#3995)
+  * 9a7c40d64 Fix copy/paste bug in span test (#4039)
+  * 42baa1549 Add hashing for std filesystem path drqs170849276 (#4033)
+  * 169038bdf MSVC 2015 bslstl_string sfinae fix (#4037)
+  * 406cc19ce Restrict C++20 optional workaround to gcc (#4040)
+  * 9c8a15cfe  'bsl::string' support for 'bsl::quoted' has been added #2. DRQS 170016740 (#4025)
+  * 8b6ff8c49 Apply t_ template arg prefix (#4009)
+  * fd80b11b4 Bslh spookyhashalgorithm fix ctor bug test c drqs 170076966 (#3985)
+  * 27c3c739b use old swappability check for MSVC 2017 and earlier (#4024)
+  * 8ef77e449 Replace 'sprintf' calls with 'snprintf' in BSLSTL (#4034)
+  * 2b4f7c536 Fix EAGAIN/EWOULDBLOCK compiler warning in balb_pipecontrolchannel (#4035)
+  * 6cbca7242 Balb pipecontrolchannel doc drqs 170519943 (#3998)
+  * 81a8fdcf5 balb::PipeControlChannel to retry on EAGAIN instead of returning an error - DRQS 170641927 (#3969)
+  * 0668d440a Implement bsl::span (#3833)
+  * ef6e67f80 bdljsn_json suppress unused variable warning (#4029)
+  * 0fb69f42b Add tests for pmr basic string hash append drqs170849228 (#4027)
+  * bc9bc7cd2 Extended bdlbb::BlobUtil API (DRQS 170299378) (#3946)
+  * 4efb790ed 'TimeZoneUtil::convertLocalToUtc' DRQS 170036443 (#3994)
+  * b8fe4f620 C++17 work: map (and variations) noexcept specifications (DRQS 169974283) (#3983)
+  * e4da5df3e 'noexcept' specification has been modified for 'set' containers. DRQS 169974276 (#3988)
+  * a383edd3b C++17 work: bsl::vector::resize adds copies instead of new default-initialized objects (DRQS 170157583) (#3999)
+  * 669a4ec7c removed 'getRandomBytes' invocation from 'reseed' (#4023)
+  * 1b8e04d1f restore baljsn::PrintUtil::printString (#4022)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 21 Dec 2022 13:37:45 -0500
+
+bsl-internal (3.111.0.0) git; urgency=low
+
+  * 8a84ae624 Changelog for version 3.111.0.0
   * c99dfbbf9 Bumped version to 3.111.0.0
   * 838ae31bc Adjust documentation [rebased main] (#4021)
   * d7608aaa8 bdljsn: Remove C11 Limit Macro Use (#4012)
@@ -32,7 +72,7 @@ bsl-internal (3.111.0.0) unstable; urgency=low
   * e2e317ffb bslmf_movableref: Add `BSLMF_MOVABLEREF_DEDUCE` (#3960)
   * a7721830e Bslh wyhashincremental drqs 170005515 (#3934)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 22 Nov 2022 14:37:32 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 22 Nov 2022 14:45:30 -0500
 
 bsl-internal (3.110.0.3) git; urgency=low
 
