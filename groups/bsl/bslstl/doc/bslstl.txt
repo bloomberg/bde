@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 112 components having 10 levels of physical
+ The 'bslstl' package currently has 113 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -260,7 +260,7 @@
 :      Provide a standard-compliant in place construction tag types.
 :
 : 'bslstl_iomanip':
-:      Provide a 'bsl::basic_string' support for 'bsl::quoted'.
+:      Provide BSL implementations for standard <iomanip> features.
 :
 : 'bslstl_iosfwd':
 :      Provide forward declarations for Standard stream classes.
@@ -386,7 +386,7 @@
 :      Provide efficient allocation of memory blocks for a specific type.
 :
 : 'bslstl_span':
-:      Provide an STL-compliant span class.
+:      Provide a (mostly) standard-compliant 'span' class template.
 :
 : 'bslstl_stack':
 :      Provide an STL-compliant stack class.

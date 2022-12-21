@@ -38,10 +38,10 @@
 
    6. bslalg
 
-   5. bsltf
+   5. bslh
+      bsltf
 
-   4. bslh
-      bslma
+   4. bslma
 
    3. bsldoc
       bslmf

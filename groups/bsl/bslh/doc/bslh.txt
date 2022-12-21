@@ -814,12 +814,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslh' package currently has 14 components having 4 levels of physical
+ The 'bslh' package currently has 15 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bslh_hashoptional
+  4. bslh_filesystem
+     bslh_hashoptional
      bslh_hashpair
      bslh_hashtuple
      bslh_hashvariant
@@ -848,6 +849,9 @@
 :
 : 'bslh_fibonaccibadhashwrapper':
 :      Provide a wrapper to improve "bad" hash algorithms.
+:
+: 'bslh_filesystem':
+:      Provide 'hash' for 'std::filesystem::path'.
 :
 : 'bslh_hash':
 :      Provide a struct to run 'bslh' hash algorithms on supported types.
