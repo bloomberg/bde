@@ -3404,15 +3404,6 @@ Datum Datum::createNull()
     result.d_as.d_exponent = k_DOUBLE_MASK | Datum::e_INTERNAL_EXTENDED;
     result.d_as.d_ushort   = e_EXTENDED_INTERNAL_NIL;
 #else   // BSLS_PLATFORM_CPU_32_BIT
-
-    // The following assignment to 'result.d_as.d_int64' is not necessary for
-    // the value representation of the null value, but it initializes the
-    // anonymous union member of 'd_as'.  Leaving this anonymous union member
-    // uninitialized was the source of a bug resulting from compiler
-    // optimizations noticing that a union with no active member was being
-    // copied from when copying from the datum resulting from this function.
-    // See test case 35 for more information.
-    result.d_as.d_int64    = 0;
     result.d_as.d_type     = e_INTERNAL_NIL;
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 

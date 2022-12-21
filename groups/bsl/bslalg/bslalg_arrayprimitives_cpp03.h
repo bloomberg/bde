@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 13 03:35:07 2022
+// Generated on Thu Dec 15 22:06:02 2022
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -5545,32 +5545,13 @@ void ArrayPrimitives_Imp::uninitializedFillN(
         return;                                                       // RETURN
     }
 
-    // Important sub-case: When value is identically (bit-wise) 0, such as
-    // happens for default-constructed values of a type that has a trivial
-    // default constructor, or even the same byte pattern repeated over
-    // 'sizeof value' times, we can use 'memset.
-
-    size_type   index       = 0;
     const char *valueBuffer =
                     reinterpret_cast<const char *>(BSLS_UTIL_ADDRESSOF(value));
-    while (++index < sizeof(TARGET_TYPE)) {
-        if (valueBuffer[index] != valueBuffer[0]) {
-            break;
-        }
-    }
 
-    if (index == sizeof value) {
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numElements != 0)) {
-            std::memset((void *)begin,
-                        valueBuffer[0],
-                        sizeof(TARGET_TYPE) * numElements);
-        }
-    } else {
-        std::memcpy((void *)begin, valueBuffer, sizeof(TARGET_TYPE));
-        bitwiseFillN(reinterpret_cast<char *>(begin),
-                     sizeof(TARGET_TYPE),
-                     sizeof(TARGET_TYPE) * numElements);
-    }
+    std::memcpy((void *)begin, valueBuffer, sizeof(TARGET_TYPE));
+    bitwiseFillN(reinterpret_cast<char *>(begin),
+                 sizeof(TARGET_TYPE),
+                 sizeof(TARGET_TYPE) * numElements);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>

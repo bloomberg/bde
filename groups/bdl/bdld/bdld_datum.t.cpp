@@ -2381,18 +2381,17 @@ int main(int argc, char *argv[])
       case 35: {
         // --------------------------------------------------------------------
         // VECTOR OF NULLS TEST
-        //  This case tests that 'bdld::Datum::createNull' initializes all of
-        //  the data members of the returned datum.  This test became necessary
-        //  as of December 2022, when someone discovered that the Apple M1 ARM
-        //  build of Clang 15 started taking advantage of the fact that
-        //  'createNull' did not initialize the anonymous union member of the
-        //  'd_as' 'TypedAccess' field when in optimized build modes.  Copying
-        //  from this uninitialized union member is undefined behavior.
-        //  Compiler optimizations reliably caused 'bsl::vector<bdld::Datum>'s
-        //  constructor taking a 'count' number of copies of a 'value' to
-        //  produce vectors of datums having erroneous values.  Note that,
-        //  while this issue affected only a specific platform, there's nothing
-        //  platform-specific about the test.
+        //  This test became necessary as of December 2022, when someone
+        //  discovered that the Clang 13 (and later) started taking advantage
+        //  of the dormant UB in the
+        //  'bslalg::ArrayPrimitive::uninitializedFillN' caused by
+        //  uninitialized anonymous union member of the 'd_as' 'TypedAccess'
+        //  field when in optimized build modes.  The utility function was
+        //  accessing uninitialized portion of the  'Datum' for internal
+        //  optimization, resulting in UB.  Compiler optimizations reliably
+        //  caused 'bsl::vector<bdld::Datum>'s constructor taking a 'count'
+        //  number of copies of a 'value' to produce vectors of datums having
+        //  erroneous values.  See {DRQS 170994605} for details.
         //
         //Concerns:
         //: 1 Creating a vector of null datums using the count-and-value
