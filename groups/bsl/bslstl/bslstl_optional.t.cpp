@@ -5231,7 +5231,8 @@ struct ThrowMoveConstructible {
                                 // Test Case 22
                                 // ------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
+   !defined(BSLS_PLATFORM_CMP_CLANG)
 // Ensure that we can do 'bsl::optional<bslma::ManagedPtr<void> > on C++17.  As
 // per DRQS 168171178.  Note that there are differences in implementation
 // between pre-C++17 and C++17.
@@ -12930,7 +12931,8 @@ int main(int argc, char **argv)
         //   bsl::optional<bslma::ManagedPtr<void>>
         //---------------------------------------------------------------------
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
+   !defined(BSLS_PLATFORM_CMP_CLANG)
         typedef bsl::optional<bslma::ManagedPtr<void>> Obj;
 
         BSLMF_ASSERT(!bsl::is_copy_constructible<Obj>::value);
