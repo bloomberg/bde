@@ -74,19 +74,25 @@ void *bslmt_threadutil_namedFuncPtrThunk(void *arg)
     // behavior is undefined if the thread name is empty.
 {
     u::NamedFuncPtrRecord *nfpr_p = static_cast<u::NamedFuncPtrRecord *>(arg);
-    bslma::ManagedPtr<u::NamedFuncPtrRecord> guard(
-                             nfpr_p,
-                             nfpr_p->d_threadName.get_allocator().mechanism());
 
-    BSLS_ASSERT(0 == nfpr_p->d_threadName.empty());     // This function should
-                                                        // never be called
-                                                        // unless the thread is
-                                                        // named.
+    BSLS_ASSERT(! nfpr_p->d_threadName.empty());  // This function should never
+                                                  // be called unless the
+                                                  // thread is named.
+
     bslmt::ThreadUtil::setThreadName(nfpr_p->d_threadName);
 
-    return (*nfpr_p->d_threadFunction)(nfpr_p->d_userData);
-}
+    bslma::Allocator      *alloc_p =
+                              nfpr_p->d_threadName.get_allocator().mechanism();
+    bslmt_ThreadFunction   threadFunction = nfpr_p->d_threadFunction;
+    void                  *userData       = nfpr_p->d_userData;
 
+    alloc_p->deleteObjectRaw(nfpr_p);   // Release 'NameFuncPtrRecord's
+                                        // memory, particularly important if
+                                        // thread is detached and may outlive
+                                        // allocator '*alloc_p'.
+
+    return (*threadFunction)(userData);
+}
 
                             // -----------------
                             // struct ThreadUtil

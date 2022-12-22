@@ -92,6 +92,13 @@ ThreadPoolWaitNode::ThreadPoolWaitNode()
 {
 }
 
+                                // ----------
+                                // ThreadPool
+                                // ----------
+
+// CLASS DATA
+const char ThreadPool::s_defaultThreadName[16] = { "bdl.ThreadPool" };
+
 // PRIVATE MANIPULATORS
 void ThreadPool::doEnqueueJob(const Job& job)
 {
@@ -156,7 +163,9 @@ int ThreadPool::startThreadIfNeeded()
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
-namespace bdlmt {void ThreadPool::initBlockSet()
+namespace bdlmt {
+
+void ThreadPool::initBlockSet()
 {
     sigfillset(&d_blockSet);
 
@@ -183,6 +192,7 @@ namespace bdlmt {void ThreadPool::initBlockSet()
 #endif
 
 namespace bdlmt {
+
 int ThreadPool::startNewThread()
 {
     bslmt::ThreadUtil::Handle handle;
@@ -195,10 +205,12 @@ int ThreadPool::startNewThread()
     pthread_sigmask(SIG_BLOCK, &d_blockSet, &oldset);
 #endif
 
-    int rc = bslmt::ThreadUtil::create(&handle,
-                                       d_threadAttributes,
-                                       ThreadPoolEntry,
-                                       this);
+    bslma::Allocator *alloc = d_queue.get_allocator().mechanism();
+    int rc = bslmt::ThreadUtil::createWithAllocator(&handle,
+                                                    d_threadAttributes,
+                                                    ThreadPoolEntry,
+                                                    this,
+                                                    alloc);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     // Restore the mask
@@ -363,6 +375,10 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
 
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(s_defaultThreadName);
+    }
+
     // Force all threads to be detached.
 
     d_threadAttributes.setDetachedState(
@@ -394,6 +410,10 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
     BSLS_ASSERT(minThreads               <= maxThreads);
     BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
     BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
+
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(s_defaultThreadName);
+    }
 
     // Force all threads to be detached.
 

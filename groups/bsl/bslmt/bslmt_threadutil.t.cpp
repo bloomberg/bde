@@ -274,11 +274,14 @@ bool SleepOnATimeInterval(bsls::Types::Int64 seconds, int nanoseconds)
     ASSERT(bsls::TimeInterval::isValid(seconds, nanoseconds));
     bsls::TimeInterval sleepTime(seconds, nanoseconds);
     bsls::Stopwatch    timer;
-    double             minTime = 1.0e-9 * nanoseconds + seconds;
+    const double       k_TOLERANCE = 0.001;    // 1 ms
+    const double       minTime = 1.0e-9 * nanoseconds +
+                                                  static_cast<double>(seconds);
     timer.start();
     bslmt::ThreadUtil::sleep(sleepTime);
-    double elapsedTime = timer.elapsedTime();
-    return elapsedTime >= minTime;
+    const double elapsedTime = timer.elapsedTime();
+
+    return elapsedTime > minTime - k_TOLERANCE;
 }
 
 //=============================================================================
@@ -764,6 +767,43 @@ void printNumberOfLogicalProcessorsFromCommandLine()
 }  // close unnamed namespace
 
 //-----------------------------------------------------------------------------
+//                       Named Detached Threads Test Case
+//-----------------------------------------------------------------------------
+
+namespace NAMED_DETACHED_THREAD_TEST_CASE {
+
+enum { k_NUM_THREADS = 10 };
+
+bsls::AtomicInt started(0);
+bsls::AtomicInt stopped(-1);
+
+const char *nonDefaultThreadName = "Homer";
+
+extern "C" void *subThread(void *)
+{
+    ++started;
+
+    bsl::string s;
+    Obj::getThreadName(&s);
+#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
+    ASSERT(nonDefaultThreadName == s);
+#else
+    ASSERT(s.empty());
+#endif
+
+    while (stopped < 0) {
+        Obj::yield();
+    }
+
+    ++stopped;
+
+    return 0;
+}
+
+}  // close namespace NAMED_DETACHED_THREAD_TEST_CASE
+
+//-----------------------------------------------------------------------------
 //                    Multipriority Effectiveness Test Case
 //
 // Thread priorities are only usable on some platforms (see component doc), and
@@ -782,16 +822,16 @@ bsls::AtomicInt s_priorityEffectivenessTest_start;
 bsls::AtomicInt s_priorityEffectivenessTest_numFinished;
 u::Mutex        s_priorityEffectivenessTest_mutex;
 
-extern "C" void *priorityEffectivenessTest(void *arg)
+extern "C" void *priorityEffectivenessTestFunc(void *arg)
 {
-    enum {  k_ITER      =     32  };
-    enum {  k_WORK_SIZE = 100000  };
+    enum {  k_ITER      =   128  };
+    enum {  k_WORK_SIZE = 25000  };
 
     while (0 == s_priorityEffectivenessTest_start) {
         bslmt::ThreadUtil::yield();
     }
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined (BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_DARWIN)
 
     // On some operating systems (e.g., Solaris) the thread priority has little
     // effect except on the exit order from a synchronization primitive.
@@ -802,7 +842,8 @@ extern "C" void *priorityEffectivenessTest(void *arg)
         s_priorityEffectivenessTest_mutex.unlock();
     }
 
-    *static_cast<int *>(arg) += ++s_priorityEffectivenessTest_numFinished;
+    *static_cast<bsls::AtomicInt *>(arg) +=
+                                     ++s_priorityEffectivenessTest_numFinished;
 
 #else
 
@@ -821,7 +862,8 @@ extern "C" void *priorityEffectivenessTest(void *arg)
     if (j > 0) {
         // This should always be true; used to help defeat optimizers.
 
-        *static_cast<int *>(arg) += ++s_priorityEffectivenessTest_numFinished;
+        *static_cast<bsls::AtomicInt *>(arg) +=
+                                     ++s_priorityEffectivenessTest_numFinished;
     }
 
 #endif
@@ -884,8 +926,8 @@ void priorityEffectivenessTest()
         s_priorityEffectivenessTest_start       = 0;
         s_priorityEffectivenessTest_numFinished = 0;
 
-        int urgentSum    = 0;
-        int notUrgentSum = 0;
+        bsls::AtomicInt urgentSum(0);
+        bsls::AtomicInt notUrgentSum(0);
 
         for (int j = 0; j < k_NUM_THREADS; ++j) {
             // Since barriers are not available at this level in the dependency
@@ -899,13 +941,13 @@ void priorityEffectivenessTest()
             if (j % 2) {
                 rc = Obj::create(&handles[j],
                                  urgentAttr,
-                                 priorityEffectivenessTest,
+                                 priorityEffectivenessTestFunc,
                                  &urgentSum);
             }
             else {
                 rc = Obj::create(&handles[j],
                                  notUrgentAttr,
-                                 priorityEffectivenessTest,
+                                 priorityEffectivenessTestFunc,
                                  &notUrgentSum);
             }
 
@@ -937,7 +979,7 @@ void priorityEffectivenessTest()
                  << endl;
         }
 
-        ASSERT(urgentSum + 10 <= notUrgentSum);
+        ASSERTV(urgentSum, notUrgentSum, urgentSum + 10 <= notUrgentSum);
     }
 }
 
@@ -1482,6 +1524,57 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 19: {
+        // --------------------------------------------------------------------
+        // NAMED DETACHED THREADS
+        //
+        // Concern:
+        //: 1 That named detached threads can be created without leaking
+        //:   memory.  Note that this is only possible with the
+        //:   'Obj::ThreadFunction' interface, it is not possible with the
+        //:   'INVOKABLE' interface.
+        //
+        // Plan:
+        //: 1 Create a bunch of named threads using the 'Obj::ThreadFunction'
+        //:   interface, that increment atomic 'TC::started' at the beginning
+        //:   of the function.
+        //:
+        //: 2 Once they are all started, verify that allocations have taken
+        //:   place, and that the allocator no longer has any allocated memory.
+        //:
+        //: 3 Signal all threads to stop with the 'stopped' atomic variable.
+        // --------------------------------------------------------------------
+
+        namespace TC = NAMED_DETACHED_THREAD_TEST_CASE;
+
+        bslma::TestAllocator ta;
+
+        Attr attr(&ta);
+        attr.setThreadName(TC::nonDefaultThreadName);
+        attr.setDetachedState(Attr::e_CREATE_DETACHED);
+
+        Obj::Handle handles[TC::k_NUM_THREADS];
+        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+            int rc = Obj::createWithAllocator(&handles[ii],
+                                              attr,
+                                              &TC::subThread,
+                                              0,
+                                              &ta);
+            ASSERT(0 == rc);
+        }
+
+        while (TC::started < TC::k_NUM_THREADS) {
+            Obj::yield();
+        }
+
+        ASSERT(TC::k_NUM_THREADS == ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+
+        TC::stopped = 0;
+        while (TC::stopped < TC::k_NUM_THREADS) {
+            Obj::yield();
+        }
+      } break;
       case 18: {
         // --------------------------------------------------------------------
         // TESTING 'sleep'
@@ -1517,7 +1610,6 @@ int main(int argc, char *argv[])
         ASSERT(SleepOnADuration(microseconds(10000)));
         ASSERT(SleepOnADuration(duration<double>(1.67)));
 #endif
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -1944,6 +2036,15 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Thread Priorities Test\n"
                              "======================\n";
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+        if (isPost_5_10) {
+            // We have been unsuccessful at reproducing any detectable effect
+            // of thread priorities on Solaris after 5.10.
+
+            break;
+        }
+#endif
 
         namespace TC = MULTIPRIORITY_EFFECTIVENESS_TEST_CASE;
 

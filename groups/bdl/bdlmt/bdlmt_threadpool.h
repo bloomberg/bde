@@ -470,6 +470,12 @@ class ThreadPool {
                                            // managed threads
 #endif
 
+    // CLASS DATA
+    static const char    s_defaultThreadName[16];   // default name of threads
+                                                    // if supported and
+                                                    // attributes doesn't
+                                                    // specify another name
+
     // FRIENDS
     friend void* ThreadPoolEntry(void *);
 

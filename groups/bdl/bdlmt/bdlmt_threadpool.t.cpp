@@ -94,6 +94,7 @@ using namespace bsl;  // automatically added by script
 // [12] USAGE EXAMPLE (Functor Interface)
 // [13] TESTING CPU consumption of an idle pool.
 // [15] TESTING MOVING ENQUEUEJOB METHOD
+// [16] THREAD NAMES
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -613,6 +614,38 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 }  // close namespace THREADPOOL_USAGE_EXAMPLE
 
 // ============================================================================
+//                    THREAD NAMES TEST RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace THREAD_NAMES_TEST {
+
+void threadNameCheckJob(void *arg)
+    // Check that the name of the current thread matches 'expectedThreadName',
+    // where 'expectedThreadName' is the specified 'arg'.
+{
+    const char *expectedThreadName = static_cast<const char *>(arg);
+
+    bsl::string name;
+    bslmt::ThreadUtil::getThreadName(&name);
+#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
+    ASSERTV(expectedThreadName, name, expectedThreadName == name);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+    // The threadname will only be visible if we're running on Windows 10,
+    // version 1607 or later, otherwise it will be empty.
+
+    ASSERTV(expectedThreadName, name, expectedThreadName == name ||
+                                                                 name.empty());
+#else
+    // Platform doesn't support thread names.
+
+    ASSERTV(name, name.empty());
+#endif
+}
+
+}  // close namespace THREAD_NAMES_TEST
+
+// ============================================================================
 //                         CASE 14 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
@@ -873,6 +906,95 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0: // 0 is always the first test case
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING THREAD NAMES
+        //
+        // Concerns:
+        //: 1 On platforms that support thread names:
+        //:   o The thread names of subthreads defaults to "bdl.ThreadPool" if
+        //:     no thread name is specified in the thread attributes object.
+        //:
+        //:   o If a thread name is specified in the thread attributes object,
+        //:     that thread name is used.
+        //
+        // Plan:
+        //: 1 Set up a global variable 'expectedThreadName'.
+        //:
+        //: 2 Testing default:
+        //:   o Specify no thread name in the attribute object.
+        //:
+        //:   o Create a threadpool using that attribute object.
+        //:
+        //:   o Submit a bunch of jobs running the function
+        //:     'threadNameCheckJob', with a ptr to the expected default thread
+        //:     name as the argument to the function.  The function then checks
+        //:     that this string matches the thread name.
+        //:
+        //: 3 Testing default:
+        //:   o Specify "bow wow" as the thread name in the attribute object.
+        //:
+        //:   o Create a threadpool using that attribute object.
+        //:
+        //:   o Submit a bunch of jobs running the function
+        //:     'threadNameCheckJob', with a ptr to the string "bow wow" as the
+        //:     argument to the function.  The function then checks that this
+        //:     string matches the thread name.
+        //
+        // Testing:
+        //   THREAD NAMES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING THREAD NAMES\n"
+                             "====================\n";
+
+        namespace TC = THREAD_NAMES_TEST;
+
+        const int k_MIN_THREADS = 1;
+        const int k_MAX_THREADS = 10;
+        const int k_IDLE_TIME   = 0;
+
+        char defaultThreadName[]    = { "bdl.ThreadPool" };
+        char nonDefaultThreadName[] = { "bow wow" };
+
+        if (verbose) cout << "Check default thread name\n";
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   k_IDLE_TIME,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+
+        if (verbose) cout << "Check non-default thread name\n";
+        {
+            bslmt::ThreadAttributes attr;
+            attr.setThreadName(nonDefaultThreadName);
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   k_IDLE_TIME,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, nonDefaultThreadName);
+            }
+
+            mX.stop();
+        }
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING MOVING ENQUEUEJOB METHOD

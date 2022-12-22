@@ -80,11 +80,11 @@ BSLS_IDENT("$Id: $")
 // Solaris 5.10  None.
 //
 // Solaris 5.11  Spawning of threads fails if 'schedulingPolicy' is
-//               'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR'.  Note also that
+//               'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR'.  Thread priorities
+//               should not be used on Solaris 5.11 as it is not clear that
+//               they have any detectable effect.  Note that
 //               'getMinSchedulingPriority' and 'getMaxSchedulingPriority'
-//               return different values than on Solaris 5.10.  Thread
-//               priorities have so little effect on 5.11 that it is barely
-//               detectable.
+//               return different values than on Solaris 5.10.
 //
 // AIX           For non-privileged clients, spawning of threads fails if
 //               'schedulingPolicy' is 'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR'.
