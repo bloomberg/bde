@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 21 15:29:35 2022
+// Generated on Wed Dec 21 19:03:56 2022
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -176,7 +176,7 @@
 
 // We only want the 'derived' macros to be enabled in C++03.
 
-#define BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL(DERIVED)              \
+#define BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED)        \
     typename bsl::enable_if<                                                  \
         BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L &&                          \
         !bsl::is_same<optional, DERIVED>::value &&                            \
@@ -184,8 +184,8 @@
                                                DERIVED>::value,               \
         BloombergLP::bslstl::Optional_OptNoSuchType>::type
 
-#define BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL(DERIVED)             \
-    BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL(DERIVED) =                \
+#define BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED)       \
+    BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED) =          \
                                              BloombergLP::bslstl::optNoSuchType
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_SAME(U, V)                                  \
@@ -244,7 +244,7 @@
 
 // We only want the 'derived' macros to be enabled in C++03.
 
-#define BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED(TYPE, DERIVED)             \
+#define BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED_CPP03(TYPE, DERIVED)       \
     typename bsl::enable_if<                                                  \
         BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L &&                          \
         BloombergLP::bslmf::IsAccessibleBaseOf<bsl::optional<TYPE>,           \
@@ -1002,7 +1002,7 @@ class optional {
 
     template <class DERIVED>
     optional(BloombergLP::bslmf::MovableRef<DERIVED> original,
-             BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL(DERIVED),
+             BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED),
              BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(optional, DERIVED))
              BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                  bsl::is_nothrow_move_constructible<TYPE>::value);  // IMPLICIT
@@ -1545,7 +1545,7 @@ class optional {
     optional(bsl::allocator_arg_t,
              allocator_type                          allocator,
              BloombergLP::bslmf::MovableRef<DERIVED> original,
-             BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL(DERIVED),
+             BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED),
              BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(optional, DERIVED));
         // Create a 'optional' object having the same value as the base class
         // of the specified 'original' object by moving the contents of
@@ -2429,7 +2429,7 @@ class optional {
         // 'rhs' is left in a valid but unspecified state.
 
     template <class DERIVED>
-    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED(TYPE, DERIVED)&
+    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED_CPP03(TYPE, DERIVED)&
     operator=(BloombergLP::bslmf::MovableRef<DERIVED> rhs);
         // Assign to this object the value of the base of the specified 'rhs'
         // object, and return a non-'const' reference to this object.  The
@@ -3014,10 +3014,10 @@ class optional<TYPE, false> {
     optional() BSLS_KEYWORD_NOEXCEPT;
         // Create a disengaged 'optional' object.
 
-    optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;  // IMPLICIT
+    optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;                 // IMPLICIT
         // Create a disengaged 'optional' object.
 
-    optional(const optional& original);  // IMPLICIT
+    optional(const optional& original);                             // IMPLICIT
         // Create an 'optional' object having the value of the specified
         // 'original' object.
 
@@ -3032,7 +3032,7 @@ class optional<TYPE, false> {
     template <class DERIVED>
     optional(
         BloombergLP::bslmf::MovableRef<DERIVED> original,
-        BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL(DERIVED),
+        BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED),
         BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(optional, DERIVED))
              BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                  bsl::is_nothrow_move_constructible<TYPE>::value);  // IMPLICIT
@@ -3854,7 +3854,7 @@ class optional<TYPE, false> {
         // 'rhs' is left in a valid but unspecified state.
 
     template <class DERIVED>
-    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED(TYPE, DERIVED)&
+    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED_CPP03(TYPE, DERIVED)&
     operator=(BloombergLP::bslmf::MovableRef<DERIVED> rhs);
         // Assign to this object the value of the base class of the specified
         // 'rhs' object, and return a non-'const' reference to this object.
@@ -6147,9 +6147,9 @@ template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class DERIVED>
 inline
 optional<TYPE, USES_BSLMA_ALLOC>::optional(
-                      BloombergLP::bslmf::MovableRef<DERIVED> original,
-                      BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL(DERIVED),
-                      BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(optional, DERIVED))
+                BloombergLP::bslmf::MovableRef<DERIVED> original,
+                BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED),
+                BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(optional, DERIVED))
             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                bsl::is_nothrow_move_constructible<TYPE>::value)
 : d_allocator(MoveUtil::access(original).get_allocator())
@@ -6924,11 +6924,11 @@ template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class DERIVED>
 inline
 optional<TYPE, USES_BSLMA_ALLOC>::optional(
-                      bsl::allocator_arg_t,
-                      allocator_type                          allocator,
-                      BloombergLP::bslmf::MovableRef<DERIVED> original,
-                      BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL(DERIVED),
-                      BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(optional, DERIVED))
+                bsl::allocator_arg_t,
+                allocator_type                          allocator,
+                BloombergLP::bslmf::MovableRef<DERIVED> original,
+                BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED),
+                BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(optional, DERIVED))
 : d_allocator(allocator)
 {
     DERIVED&  dvalue = original;
@@ -8419,7 +8419,7 @@ optional<TYPE, USES_BSLMA_ALLOC>& optional<TYPE, USES_BSLMA_ALLOC>::operator=(
 template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class DERIVED>
 inline
-BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED(TYPE, DERIVED)&
+BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED_CPP03(TYPE, DERIVED)&
 optional<TYPE, USES_BSLMA_ALLOC>::operator=(
                                    BloombergLP::bslmf::MovableRef<DERIVED> rhs)
 {
@@ -9188,10 +9188,10 @@ template <class TYPE>
 template <class DERIVED>
 inline
 optional<TYPE, false>::optional(
-                      BloombergLP::bslmf::MovableRef<DERIVED> original,
-                      BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL(DERIVED),
-                      BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(optional, DERIVED))
-                  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                BloombergLP::bslmf::MovableRef<DERIVED> original,
+                BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL_CPP03(DERIVED),
+                BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(optional, DERIVED))
+                BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                bsl::is_nothrow_move_constructible<TYPE>::value)
 {
     DERIVED&  dvalue = original;
@@ -10587,7 +10587,7 @@ optional<TYPE, false>::operator=(BloombergLP::bslmf::MovableRef<optional> rhs)
 template <class TYPE>
 template <class DERIVED>
 inline
-BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED(TYPE, DERIVED)&
+BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED_CPP03(TYPE, DERIVED)&
 optional<TYPE, false>::operator=(BloombergLP::bslmf::MovableRef<DERIVED> rhs)
 {
     DERIVED&  dvalue = rhs;
@@ -12664,8 +12664,8 @@ inline constexpr bool __is_optional_v<bsl::optional<_Tp>> = true;
 #undef BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR
 #undef BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM
 #undef BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM
-#undef BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL
-#undef BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL
+#undef BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL_CPP03
+#undef BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL_CPP03
 #undef BSLSTL_OPTIONAL_DECLARE_IF_SAME
 #undef BSLSTL_OPTIONAL_DEFINE_IF_SAME
 #undef BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME
@@ -12676,7 +12676,7 @@ inline constexpr bool __is_optional_v<bsl::optional<_Tp>> = true;
 #undef BSLSTL_OPTIONAL_DEFINE_IF_NOT_EXPLICIT_CONSTRUCT
 #undef BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_BSL_OPTIONAL
 #undef BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_STD_OPTIONAL
-#undef BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED
+#undef BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_DERIVED_CPP03
 #undef BSLSTL_OPTIONAL_ENABLE_IF_NOT_ALLOCATOR_TAG
 
 #else // if ! defined(DEFINED_BSLSTL_OPTIONAL_H)
