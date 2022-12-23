@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 #else
 
 // ============================================================================
-//                      Section: BSLSTL_OPTIONA_* Macros
+//                      Section: BSLSTL_OPTIONAL_* Macros
 // ============================================================================
 
 # ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -465,7 +465,7 @@ class optional;
 }  // close namespace bsl
 
 // ============================================================================
-//                     Sections: bslstl::Optiona_* types
+//                     Sections: bslstl::Optional_* types
 // ============================================================================
 
 namespace BloombergLP {
@@ -886,12 +886,6 @@ class optional {
         }
     }
 
-    // 'MovableRef' prevents correct type deduction in C++11 when used with
-    // 'optional<ANY_TYPE>'.  These constructors need to be defined in terms of
-    // rvalue reference in C++11.  In C++03, this type deduction issue does not
-    // exist due to the nature of C++03 MovableRef implementation and usage.
-    // Consequently, a 'MovableRef' equivalent constructors needs to be
-    // provided in C++03 (see below).
     template <class ANY_TYPE>
     optional(BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
              BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(TYPE, ANY_TYPE),
