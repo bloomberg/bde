@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Dec 23 13:35:51 2022
+// Generated on Tue Dec 27 13:52:20 2022
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -34,7 +34,9 @@
 
 // This macro is defined as 'std::is_constructible<U, V>::value' in C++11 and
 // later, and as 'DEFAULT' in C++03 with the value of 'DEFAULT' typically
-// chosen to not affect the constraint this macro appears in.
+// chosen to not affect the constraint this macro appears in.  Note that
+// 'is_constructible', unlike 'is_convertible', is 'true' for both implicitly
+// and explicitly constructible conversions.
 #define BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(U, V, DEFAULT)                     \
     std::is_constructible<U, V>::value
 
@@ -1093,8 +1095,26 @@ class optional {
              BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,
                                                                      ANY_TYPE),
              BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR(
-                 TYPE,
-                 ANY_TYPE));
+                                                                     TYPE,
+                                                                     ANY_TYPE),
+             BSLSTL_OPTIONAL_DECLARE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE,
+                                                               ANY_TYPE));
+        // Create a disengaged 'optional' object if the specified 'original'
+        // object is disengaged, and an 'optional' object with the value of
+        // 'original.value()' (of 'ANY_TYPE') converted to 'TYPE' otherwise.
+        // Use the currently installed default allocator to supply memory.
+        // 'original' is left in a valid but unspecified state.
+
+    template <class ANY_TYPE>
+    optional(BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
+             BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(TYPE, ANY_TYPE),
+             BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,
+                                                                     ANY_TYPE),
+             BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR(
+                                                                     TYPE,
+                                                                     ANY_TYPE),
+             BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(TYPE,
+                                                           ANY_TYPE));
         // Create a disengaged 'optional' object if the specified 'original'
         // object is disengaged, and an 'optional' object with the value of
         // 'original.value()' (of 'ANY_TYPE') converted to 'TYPE' otherwise.
@@ -1108,7 +1128,24 @@ class optional {
         BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,
                                                                 ANY_TYPE),
         BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(TYPE,
-                                                                  ANY_TYPE));
+                                                                  ANY_TYPE),
+        BSLSTL_OPTIONAL_DECLARE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE));
+        // Create a disengaged 'optional' object if the specified 'original'
+        // object is disengaged, and an 'optional' object with the value of
+        // 'original.value()' otherwise.  This is a special case constructor
+        // where 'ANY_TYPE' is a non-const version of 'TYPE' and we use the
+        // allocator from 'original' to supply memory.  'original' is left in a
+        // valid but unspecified state.
+
+    template <class ANY_TYPE>
+    optional(
+        BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
+        BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(TYPE, ANY_TYPE),
+        BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,
+                                                                ANY_TYPE),
+        BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(TYPE,
+                                                                  ANY_TYPE),
+        BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE));
         // Create a disengaged 'optional' object if the specified 'original'
         // object is disengaged, and an 'optional' object with the value of
         // 'original.value()' otherwise.  This is a special case constructor
@@ -6208,7 +6245,25 @@ optional<TYPE, USES_BSLMA_ALLOC>::optional(
     BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(TYPE, ANY_TYPE),
     BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE),
     BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR(TYPE,
-                                                                     ANY_TYPE))
+                                                                     ANY_TYPE),
+    BSLSTL_OPTIONAL_DEFINE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
+{
+    optional<ANY_TYPE>& lvalue = original;
+    if (lvalue.has_value()) {
+        emplace(MoveUtil::move(*lvalue));
+    }
+}
+
+template <class TYPE, bool USES_BSLMA_ALLOC>
+template <class ANY_TYPE>
+inline
+optional<TYPE, USES_BSLMA_ALLOC>::optional(
+    BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
+    BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(TYPE, ANY_TYPE),
+    BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE),
+    BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR(TYPE,
+                                                                     ANY_TYPE),
+    BSLSTL_OPTIONAL_DEFINE_IF_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
 {
     optional<ANY_TYPE>& lvalue = original;
     if (lvalue.has_value()) {
@@ -6223,7 +6278,25 @@ optional<TYPE, USES_BSLMA_ALLOC>::optional(
    BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
    BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(TYPE, ANY_TYPE),
    BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE),
-   BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(TYPE, ANY_TYPE))
+   BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(TYPE, ANY_TYPE),
+   BSLSTL_OPTIONAL_DEFINE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
+: d_allocator(MoveUtil::access(original).get_allocator())
+{
+    optional<ANY_TYPE>& lvalue = original;
+    if (lvalue.has_value()) {
+        emplace(MoveUtil::move(*lvalue));
+    }
+}
+
+template <class TYPE, bool USES_BSLMA_ALLOC>
+template <class ANY_TYPE>
+inline
+optional<TYPE, USES_BSLMA_ALLOC>::optional(
+   BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
+   BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(TYPE, ANY_TYPE),
+   BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE),
+   BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(TYPE, ANY_TYPE),
+   BSLSTL_OPTIONAL_DEFINE_IF_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
 : d_allocator(MoveUtil::access(original).get_allocator())
 {
     optional<ANY_TYPE>& lvalue = original;
