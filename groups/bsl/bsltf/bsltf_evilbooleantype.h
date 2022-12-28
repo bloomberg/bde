@@ -101,9 +101,19 @@ struct EvilBooleanType {
         // Create a 'EvilBooleanType' object having the attribute value defined
         // by the specified 'value'.
 
-    //! EvilBooleanType(const EvilBooleanType& original) = default;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // To avoid warnings about future incompatibility due to the deleted copy
+    // assignment operator we declare the copy constructor as implicitly
+    // generated.  For consistency the destructor was also placed here and
+    // declared to be explicitly generated.
+
+    EvilBooleanType(const EvilBooleanType& original) = default;
         // Create a 'EvilBooleanType' object having the same value as the
         // specified 'original' object.
+
+    ~EvilBooleanType() = default;
+        // Destroy this object.
+#endif
 
     // ACCESSORS
     operator BoolResult() const;

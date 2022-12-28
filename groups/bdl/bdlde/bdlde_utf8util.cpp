@@ -306,7 +306,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
 
             const int value = get3ByteValue(string);
             if (UNLIKELY((value < k_MIN_3_BYTE_VALUE)
-                       | isSurrogateValue(value))) {
+                      || isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
@@ -343,7 +343,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
 
             const int value = get4ByteValue(string);
             if (UNLIKELY((value < k_MIN_4_BYTE_VALUE)
-                       | (value > k_MAX_VALID))) {
+                      || (value > k_MAX_VALID))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = string;
@@ -418,7 +418,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
           case 0xd: {
             const int value = get2ByteValue(pc);
             if (UNLIKELY(isNotContinuation(pc[1])
-                       | (value < k_MIN_2_BYTE_VALUE))) {
+                      || (value < k_MIN_2_BYTE_VALUE))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
@@ -432,14 +432,14 @@ static int validateAndCountCodePoints(const char             **invalidString,
           case 0xe: {
             const int value = get3ByteValue(pc);
             if (UNLIKELY(isNotContinuation(pc[1])
-                       | isNotContinuation(pc[2])
-                       | (value < k_MIN_3_BYTE_VALUE)
-                       | isSurrogateValue(value))) {
+                      || isNotContinuation(pc[2])
+                      || (value < k_MIN_3_BYTE_VALUE)
+                      || isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
 
-                if (isNotContinuation(pc[1]) | isNotContinuation(pc[2])) {
+                if (isNotContinuation(pc[1]) || isNotContinuation(pc[2])) {
                     return k_NON_CONTINUATION_OCTET;                  // RETURN
                 }
 
@@ -452,11 +452,11 @@ static int validateAndCountCodePoints(const char             **invalidString,
           case 0xf: {
             const int value = get4ByteValue(pc);
             if (UNLIKELY(bool(0x8 & *pc)
-                       | isNotContinuation(pc[1])
-                       | isNotContinuation(pc[2])
-                       | isNotContinuation(pc[3])
-                       | (value < k_MIN_4_BYTE_VALUE)
-                       | (value > k_MAX_VALID))) {
+                      || isNotContinuation(pc[1])
+                      || isNotContinuation(pc[2])
+                      || isNotContinuation(pc[3])
+                      || (value < k_MIN_4_BYTE_VALUE)
+                      || (value > k_MAX_VALID))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
@@ -465,7 +465,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
                     return k_INVALID_INITIAL_OCTET;                   // RETURN
                 }
 
-                if (isNotContinuation(pc[1]) | isNotContinuation(pc[2]) |
+                if (isNotContinuation(pc[1]) || isNotContinuation(pc[2]) ||
                                                 isNotContinuation(pc[3])) {
                     return k_NON_CONTINUATION_OCTET;                  // RETURN
                 }
@@ -524,7 +524,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             const int value = get2ByteValue(pc);
             if (UNLIKELY(isNotContinuation(pc[1])
-                       | (value < k_MIN_2_BYTE_VALUE))) {
+                      || (value < k_MIN_2_BYTE_VALUE))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
@@ -548,13 +548,13 @@ static int validateAndCountCodePoints(const char             **invalidString,
 
             const int value = get3ByteValue(pc);
             if (UNLIKELY(isNotContinuation(pc[1])
-                       | isNotContinuation(pc[2])
-                       | (value < k_MIN_3_BYTE_VALUE)
-                       | isSurrogateValue(value))) {
+                      || isNotContinuation(pc[2])
+                      || (value < k_MIN_3_BYTE_VALUE)
+                      || isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *invalidString = pc;
-                return (isNotContinuation(pc[1]) | isNotContinuation(pc[2]))
+                return (isNotContinuation(pc[1]) || isNotContinuation(pc[2]))
                       ? k_NON_CONTINUATION_OCTET
                       : value < k_MIN_3_BYTE_VALUE
                       ? k_OVERLONG_ENCODING
@@ -1372,7 +1372,7 @@ bool Utf8Util::isValidCodePoint(int        *status,
 
         int value = get4ByteValue(codePoint);
 
-        if (UNLIKELY((k_MAX_VALID < value) | (value < k_MIN_4_BYTE_VALUE))) {
+        if (UNLIKELY((k_MAX_VALID < value) || (value < k_MIN_4_BYTE_VALUE))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             *status = k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
@@ -1617,7 +1617,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
             const int value = get2ByteValue(tmpBuf);
             if (UNLIKELY(isNotContinuation(tmpBuf[1])
-                       | (value < k_MIN_2_BYTE_VALUE))) {
+                       || (value < k_MIN_2_BYTE_VALUE))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = isNotContinuation(tmpBuf[1]) ? k_NON_CONTINUATION_OCTET
@@ -1649,8 +1649,8 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
             const int value = get3ByteValue(tmpBuf);
             if (UNLIKELY((0 != rc)
-                       | (value < k_MIN_3_BYTE_VALUE)
-                       | isSurrogateValue(value))) {
+                      || (value < k_MIN_3_BYTE_VALUE)
+                      || isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = rc ? rc : value < k_MIN_3_BYTE_VALUE
@@ -1693,8 +1693,8 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
             const int value = get4ByteValue(tmpBuf);
             if (UNLIKELY((0 != rc)
-                       | (value < k_MIN_4_BYTE_VALUE)
-                       | (value > k_MAX_VALID))) {
+                      || (value < k_MIN_4_BYTE_VALUE)
+                      || (value > k_MAX_VALID))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = rc ? rc

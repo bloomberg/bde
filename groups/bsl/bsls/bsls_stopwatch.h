@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 // 'bsls::Stopwatch' may be slow or inconsistent on some Windows machines.  See
 // the 'Accuracy and Precision' section of 'bsls_timeutil.h'.
 //
-///Usage
-///-----
+///Usage Examples
+///--------------
 // The following snippets of code illustrate basic use of a 'bsls::Stopwatch'
 // object.  First we create a stopwatch and note that the accumulated times are
 // all initially 0.0:
@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //  const double t2u = s.accumulatedUserTime();    assert(t1u == t2u);
 //  const double t2w = s.accumulatedWallTime();    assert(t1w <= t2w);
 //
-//  s.start(true);
+//  s.start(bsls::Stopwatch::k_COLLECT_ALSO_CPU_TIMES);
 //  const double t3s = s.accumulatedSystemTime();  assert(t2s <= t3s);
 //  const double t3u = s.accumulatedUserTime();    assert(t2u <= t3u);
 //  const double t3w = s.accumulatedWallTime();    assert(t2w <= t3w);
@@ -157,18 +157,32 @@ class Stopwatch {
         // 'd_startWallTime' and the specified 'rawWallTime'.
 
   public:
+    // PUBLIC CONSTANTS
+    static const bool k_COLLECT_WALL_TIME_ONLY     = false;
+    static const bool k_COLLECT_WALL_AND_CPU_TIMES = true;
+        // For readability/ease of understanding of code that calls the
+        // 'start(bool)' method use these constants as arguments.
+
     // CREATORS
     Stopwatch();
         // Create a stopwatch in the STOPPED state having total accumulated
         // system, user, and wall times all equal to 0.0.
 
-    //! Stopwatch(const Stopwatch& other) = default;
-        // Create a stopwatch having the state and total accumulated system,
-        // user, and wall time of the specified 'other' object.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // To avoid warnings about future incompatibility due to the deleted copy
+    // assignment operator we declare the copy constructor as implicitly
+    // generated.  For consistency the destructor was also placed here and
+    // declared to be explicitly generated.
 
-    //! ~Stopwatch();
+    Stopwatch(const Stopwatch& other) = default;
+        // Create a stopwatch having the state and total accumulated system,
+        // user, and wall time of the specified 'other' object.  Note that this
+        // method's definition is compiler generated.
+
+    ~Stopwatch() = default;
         // Destroy this stopwatch.  Note that this method's definition is
         // compiler generated.
+#endif
 
     // MANIPULATORS
     void reset();
@@ -184,7 +198,10 @@ class Stopwatch {
         // are *not* collected.  Note that the instantaneous total elapsed
         // times are available from the RUNNING state.  Also note that
         // disabling collection of CPU times will result in fewer systems calls
-        // and faster measurements.
+        // and therefore faster measurements.  Also note that 'collectCpuTimes'
+        // may be expressed using the one of the class level constants
+        // 'k_COLLECT_WALL_TIME_ONLY', and 'k_COLLECT_WALL_AND_CPU_TIMES' for
+        // easier immediate understanding of the meaning of the client code.
 
     void stop();
         // Place this stopwatch in the STOPPED state, unconditionally stopping

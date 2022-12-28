@@ -56,6 +56,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
 namespace BloombergLP {
@@ -97,15 +98,22 @@ class AssertTestException {
         // will remain unmodified for the lifetime of this object (e.g., string
         // literals).
 
-    //! AssertTestException(const AssertTestException& original);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // To avoid warnings about future incompatibility due to the deleted copy
+    // assignment operator we declare the copy constructor as implicitly
+    // generated.  For consistency the destructor was also placed here and
+    // declared to be explicitly generated.
+
+    AssertTestException(const AssertTestException& original) = default;
         // Create a 'AssertTestException' object that is a copy of the
         // specified 'original', having the same value for the 'expression',
         // 'filename', and 'lineNumber' attributes.  Note that this trivial
         // constructor's definition is compiler generated.
 
-    //! ~AssertTestException();
-        // Destroy this 'AssertTestException' object.  Note that this trivial
-        // destructor's definition is compiler generated.
+    ~AssertTestException() = default;
+        // Destroy this object.  Note that this trivial destructor's definition
+        // is compiler generated.
+#endif
 
     // ACCESSORS
     const char *expression() const;

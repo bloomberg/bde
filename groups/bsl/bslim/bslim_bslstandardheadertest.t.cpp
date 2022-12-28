@@ -1,6 +1,24 @@
 // bslim_bslstandardheadertest.t.cpp                                  -*-C++-*-
 #include <bslim_bslstandardheadertest.h>
 
+#include <bsls_platform.h>
+
+// These need to be define as early as possible to silence warnings, but after
+// detection/configuration headers were included.
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    #define _SILENCE_CXX17_C_HEADER_DEPRECATION_WARNING
+    #define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
+#endif
+
+#include <bsls_libraryfeatures.h>
+
+// These need to be define as early as possible to silence warnings, but after
+// detection/configuration headers were included.
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__DEPRECATED)
+    #define BSLIM_BSLSTANDARDHEADERTEST_GNU_DEPRECATED_WAS_SET
+    #undef __DEPRECATED
+#endif
+
 #include <bslim_testutil.h>
 
 #include <bslma_constructionutil.h>
@@ -14,17 +32,15 @@
 #include <bslmf_movableref.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 #include <bsls_util.h>
 
 #include <bsltf_templatetestfacility.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-#include <bslh_hashtuple.h>
-#include <tuple>     // 'std::tuple', 'std::make_tuple'
+    #include <bslh_hashtuple.h>
+    #include <tuple>     // 'std::tuple', 'std::make_tuple'
 #endif //  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
 // #include all of the headers defined in bsl+bslhdrs.
@@ -49,9 +65,8 @@
 #include <bsl_c_string.h>
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-// The POSIX header <sys/time.h> is not available from Visual Studio.
-
-#include <bsl_c_sys_time.h>
+    // The POSIX header <sys/time.h> is not available from Visual Studio.
+    #include <bsl_c_sys_time.h>
 #endif
 
 #include <bsl_c_time.h>
@@ -77,9 +92,8 @@
 #include <bsl_ctime.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900)
-// The standard header <cuchar> is not available on most platforms.
-
-#include <bsl_cuchar.h>
+    // The standard header <cuchar> is not available on most platforms.
+    #include <bsl_cuchar.h>
 #endif
 
 #include <bsl_cwchar.h>
@@ -122,45 +136,44 @@
 #include <bsl_valarray.h>
 #include <bsl_vector.h>
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// stlport containers are deprecated and are not forwarded in the opensource
-// distribution
+#if !defined(BDE_OPENSOURCE_PUBLICATION) \
+ && !defined(BDE_OMIT_INTERNAL_DEPRECATED)
+    // stlport containers are deprecated and are not forwarded in the
+    // opensource distribution
 
-#include <bsl_hash_map.h>
-#include <bsl_hash_set.h>
-#include <bsl_slist.h>
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OPENSOURCE_PUBLICATION
+    #include <bsl_hash_map.h>
+    #include <bsl_hash_set.h>
+    #include <bsl_slist.h>
+#endif  // ndef BDE_OMIT_INTERNAL_DEPRECATED && ndef BDE_OPENSOURCE_PUBLICATION
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <bsl_atomic.h>
-#include <bsl_cfenv.h>
-#include <bsl_chrono.h>
-#include <bsl_cinttypes.h>
-#include <bsl_condition_variable.h>
-#include <bsl_cstdbool.h>
-#include <bsl_ctgmath.h>
-#include <bsl_forward_list.h>
-#include <bsl_future.h>
-#include <bsl_initializer_list.h>
-#include <bsl_mutex.h>
-#include <bsl_random.h>
-#include <bsl_ratio.h>
-#include <bsl_regex.h>
-#include <bsl_scoped_allocator.h>
-#include <bsl_thread.h>
-#include <bsl_tuple.h>
+    #include <bsl_atomic.h>
+    #include <bsl_cfenv.h>
+    #include <bsl_chrono.h>
+    #include <bsl_cinttypes.h>
+    #include <bsl_condition_variable.h>
+    #include <bsl_cstdbool.h>
+    #include <bsl_ctgmath.h>
+    #include <bsl_forward_list.h>
+    #include <bsl_future.h>
+    #include <bsl_initializer_list.h>
+    #include <bsl_mutex.h>
+    #include <bsl_random.h>
+    #include <bsl_ratio.h>
+    #include <bsl_regex.h>
+    #include <bsl_scoped_allocator.h>
+    #include <bsl_thread.h>
+    #include <bsl_tuple.h>
 #endif
 
 #include <bsl_type_traits.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-#include <bsl_shared_mutex.h>
+    #include <bsl_shared_mutex.h>
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
-#include <bsl_filesystem.h>
+    #include <bsl_filesystem.h>
 #endif
 
 #include <utility>     // 'std::pair'
@@ -169,8 +182,15 @@
                        // include 'snprintf']
 #include <stdlib.h>    // 'atoi'
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
+// Finished including potentially deprecated headers, rest of deprecations
+// should be reported.
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    #define snprintf _snprintf
+    #undef _SILENCE_CXX17_C_HEADER_DEPRECATION_WARNING
+    #undef _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
+#endif
+#ifdef BSLIM_BSLSTANDARDHEADERTEST_GNU_DEPRECATED_WAS_SET
+    #define __DEPRECATED
 #endif
 
 using namespace BloombergLP;
@@ -706,7 +726,6 @@ struct IsEven {
         return 0 == (x & 1);
     }
 };
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 namespace {
 
@@ -724,6 +743,8 @@ struct CountingFunctor {
 
 size_t CountingFunctor::s_count = 0;
 }  // close unnamed namespace
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 //=============================================================================
 //                              MAIN PROGRAM

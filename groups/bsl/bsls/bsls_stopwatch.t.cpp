@@ -5,7 +5,7 @@
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>   // getTimer() (used in delay generation)
 
-#include <stdio.h>           // printf()
+#include <stdio.h>           // printf(), puts()
 #include <stdlib.h>          // atoi()
 
 // The following OS-dependent includes are for the 'osSystemCall' helper
@@ -105,6 +105,30 @@ void aSsErT(bool b, const char *s, int i)
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                     LOCAL HELPER MACROS FOR READABLE CODE
+//-----------------------------------------------------------------------------
+
+#define u_DBGPRINT(lead, expr, trail)                                         \
+    bsls::BslTestUtil::callDebugprint(expr, lead, trail "\n")
+    // Print the specified 'expr' value with the specified 'lead' string
+    // literal as prefix, and the specified 'trail' string literal with an
+    // appended newline character as postfix using
+    // 'bsls::BslTestUtil::callDebugprint'.
+
+#define u_VDBGPRINT(lead, expr, trail)                                        \
+    do { if (verbose) { u_DBGPRINT(lead, expr, trail); } } while (false)
+    // If 'verbose' print the specified 'expr' value with the specified 'lead'
+    // string literal as prefix, and the specified 'trail' string literal with
+    // an appended newline character as postfix using
+    // 'bsls::BslTestUtil::callDebugprint'.
+
+#define u_VVDBGPREFPRINT(lead, expr) do { if (veryVerbose) {                  \
+    bsls::BslTestUtil::callDebugprint(expr, lead, "\n"); } } while (false)
+    // If 'veryVerbose' print the specified 'expr' value with the specified
+    // 'lead' string literal as prefix, and a newline character as postfix
+    // using 'bsls::BslTestUtil::callDebugprint'.
+
+//=============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -120,6 +144,22 @@ typedef double (*ResourceBurningFunction)(double optionalUserData);
 typedef Int64 (*LoopBodyFunction)(RawTimerFunction timerFn);
 
 //=============================================================================
+//            VOLATILE GLOBALS AGAINST OPTIMIZATION OF BENCHMARKS
+//-----------------------------------------------------------------------------
+
+static volatile unsigned busyFunctionSink = 0;
+    // See 'busyFunction()' below.
+
+static volatile double dblSink = 0.0;
+    // Used in 'main' benchmark cases.
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+static volatile pid_t   pidSink;
+static volatile clock_t clockSink;
+#endif
+
+
+//=============================================================================
 //                             HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
 
@@ -130,10 +170,9 @@ Int64 emptyFunction(RawTimerFunction timerFn)
 
 void busyFunction()
 {
-    for (int i = 0; i < 10; ++i) {
-        for (int j  = 0;j < 10; ++j) {
-            int k = i*j+ j*i;
-            (void) k;
+    for (unsigned i = 0; i < 10; ++i) {
+        for (unsigned j  = 0;j < 10; ++j) {
+            busyFunctionSink = busyFunctionSink + i*j+ j*i;
         }
     }
 }
@@ -174,11 +213,9 @@ Int64 osUserCall(RawTimerFunction timerFn)
 Int64 osSystemCall(RawTimerFunction timerFn)
 {
 #if defined BSLS_PLATFORM_OS_UNIX
-    pid_t p = getpid();
+    pidSink = getpid();
     struct tms tt;
-    clock_t c = times(&tt);
-    (void) p;
-    (void) c;
+    clockSink = times(&tt);
 #elif defined BSLS_PLATFORM_OS_WINDOWS
     HANDLE ph = ::GetCurrentProcess();
     FILETIME crtnTm, exitTm, krnlTm, userTm;
@@ -208,7 +245,10 @@ static void shortDelay(double                  delayTime,
     volatile double x = 0;
 
     while ((*rawTimerFunction)() < tEnd) {
-        x += (*burnFunction)(delayTime);
+        // Not using 'x += ...;' because:
+        // WARNING: compound assignment to object of volatile-qualified type
+        // 'volatile double' is deprecated
+        x = x + (*burnFunction)(delayTime);
     }
 
     if (veryVeryVeryVerbose) {
@@ -245,7 +285,10 @@ static double burnMinimalUserTime(double delayTime)
     volatile double x = delayTime;
 
     for (int i = 0; i < 100000; ++i) {
-        x += delayTime / frac;    // expensive operation
+        // Not using 'x += ...;' because:
+        // WARNING: compound assignment to object of volatile-qualified type
+        // 'volatile double' is deprecated
+        x = x + delayTime / frac;    // expensive operation
     }
 
     return x;
@@ -282,6 +325,48 @@ static inline Int64 delaySystem(double delayTime)
 }
 
 // ============================================================================
+//                               TEST DATA TYPE
+// ----------------------------------------------------------------------------
+
+struct TimeMethods {
+
+    // PUBLIC DATA
+    AccumulatedTimeMethod   d_timeMethod;
+    Int64                 (*d_delayFunction_p)(double);
+    const char             *d_timeMethodName_p;
+
+    // PUBLIC ACCESSORS
+    double accumulated(const Obj& stopWatch) const
+        // Return the type of accumulated time of this object from the
+        // specified 'stopWatch'.
+    {
+        return (stopWatch.*(d_timeMethod))();
+    }
+
+    Int64 delay(double delayTime) const
+        // Call the delay function of this object with the specified
+        // 'delayTime' and return its result.
+    {
+        return (*d_delayFunction_p)(delayTime);
+    }
+
+    bool isWallTime() const
+        // Return 'true' if this object's time method collects wall time,
+        // otherwise, if it collects CPU time, return 'false'.
+    {
+        return (d_timeMethod == &Obj::accumulatedWallTime);
+    }
+
+    const char *timeMethodName() const
+        // Return the name of the accumulated time method of this object.
+    {
+        return d_timeMethodName_p;
+    }
+
+};
+
+
+// ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -300,21 +385,13 @@ int main(int argc, char *argv[])
 
     // This used to be a top-level static array above main, but that caused
     // an internal compiler failure in aCC
-    struct {
-        AccumulatedTimeMethod d_method;
-        Int64 (*d_delayFunction)(double);
-        const char           *d_methodName;
-    } const TimeMethods[] = {
-        { &Obj::accumulatedSystemTime, &delaySystem,
-                                                 "accumulatedSystemTime" },
-        { &Obj::accumulatedUserTime,   &delayUser,
-                                                 "accumulatedUserTime"   },
-        { &Obj::accumulatedWallTime,   &delayWall,
-                                                 "accumulatedWallTime"   }
+    const TimeMethods TIME_METHODS[] = {
+        { &Obj::accumulatedSystemTime, &delaySystem, "accumulatedSystemTime" },
+        { &Obj::accumulatedUserTime,   &delayUser,   "accumulatedUserTime"   },
+        { &Obj::accumulatedWallTime,   &delayWall,   "accumulatedWallTime"   }
     };
 
-    size_t const TimeMethodsCount =
-                                  sizeof TimeMethods / sizeof *TimeMethods;
+    const size_t NUM_TIME_METHODS = sizeof TIME_METHODS / sizeof *TIME_METHODS;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -334,8 +411,8 @@ int main(int argc, char *argv[])
         //   USAGE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Usage Example"
-                            "\n=====================\n");
+        if (verbose) puts("\nTesting Usage Example"
+                          "\n=====================");
 
         bsls::Stopwatch s;
         const double t0s = s.accumulatedSystemTime();  ASSERT(0.0 == t0s);
@@ -352,7 +429,7 @@ int main(int argc, char *argv[])
         const double t2u = s.accumulatedUserTime();  ASSERT(isEqual(t1u, t2u));
         const double t2w = s.accumulatedWallTime();  ASSERT(t1w <= t2w);
 
-        s.start(true);
+        s.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
         const double t3s = s.accumulatedSystemTime();  ASSERT(t2s <= t3s);
         const double t3u = s.accumulatedUserTime();    ASSERT(t2u <= t3u);
         const double t3w = s.accumulatedWallTime();    ASSERT(t2w <= t3w);
@@ -377,8 +454,9 @@ int main(int argc, char *argv[])
         //   Call bsls::Stopwatch many times and see if it ever returns a
         //   negative time.
         // --------------------------------------------------------------------
-        if (verbose) printf("\nAttempt to reproduce negative times bug"
-                            "\n=======================================\n");
+
+        if (verbose) puts("\nAttempt to reproduce negative times bug"
+                          "\n=======================================");
 
         bsls::Stopwatch mX;    const bsls::Stopwatch& X = mX;
 
@@ -391,7 +469,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 100; ++i) {
             for (int j = 0; j < 3; ++j) {
                 mX.reset();
-                mX.start(true);
+                mX.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
 
                 // Use up a tiny bit of one of the three time resources.  The
                 // idea here is that we want to keep the accumulated times as
@@ -447,7 +525,7 @@ int main(int argc, char *argv[])
         } // i
 
         if (verbose) {
-            P_(totalSTime);    P_(totalUTime);    P(totalWTime);
+            P_(totalSTime); P_(totalUTime); P(totalWTime);
         }
       } break;
       case 5: {
@@ -469,12 +547,12 @@ int main(int argc, char *argv[])
         //   void accumulatedTimes(double*, double*, double*) const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'accumulatedTimes'"
-                            "\n==========================\n");
+        if (verbose) puts("\nTESTING 'accumulatedTimes'"
+                          "\n==========================");
 
-        double const delayTime = 2; // seconds
-        double const precision = 1e-3; // 1 msec
-        double const finePrecision = 1e-5; // 10 usecs
+        double const delayTime     = 2;    //  2 seconds
+        double const precision     = 1e-3; //  1 milliseconds
+        double const finePrecision = 1e-5; // 10 microseconds
 
         // Note that the 'finePrecision' value is a heuristic meant to be
         // greater than the expected cumulative cost of: 'Stopwatch::start',
@@ -503,7 +581,7 @@ int main(int argc, char *argv[])
         double st, ut, wt; pt.accumulatedTimes(&st, &ut, &wt);
         ASSERT(0 == st && 0 == ut && 0 == wt);
 
-        pt.start(true);
+        pt.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
         delayWall(delayTime);
 
         double st1, ut1, wt1;
@@ -563,31 +641,28 @@ int main(int argc, char *argv[])
         //   double elapsedTime() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING accumulated time functions"
-                            "\n==================================\n");
+        if (verbose) puts("\nTESTING accumulated time functions"
+                          "\n==================================");
 
-        for (size_t t = 0; t < TimeMethodsCount; ++t) {
-            if (verbose) bsls::BslTestUtil::callDebugprint(
-                                               TimeMethods[t].d_methodName,
-                                               "\nTesting '",
-                                               "'\n=======================\n");
+        for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
+            const TimeMethods& METHODS     = TIME_METHODS[t];
+            const char * const METHOD_NAME = METHODS.timeMethodName();
 
-            if (verbose) bsls::BslTestUtil::callDebugprint(
-                                         TimeMethods[t].d_methodName,
-                                         "\"\nConfirm the value returned by '",
-                                         "'.\n");
+            u_VDBGPRINT("\nTesting '", METHOD_NAME, "'\n"
+                                                    "=======================");
+
+            u_VDBGPRINT("\tConfirm the value returned by '", METHOD_NAME,"'.");
             {
-                const double TIME_STEP = 0.20;
+                const double TIME_STEP = 0.125;
                 const int    NUM_STEPS = 5;
 
                 Obj x;  const Obj& X = x;
 
-                if (verbose) printf("\tFrom the RUNNING state:\n");
+                if (veryVerbose) puts("\tFrom the RUNNING state:");
                 for (int i = 1; i <= NUM_STEPS; ++i) {
-                    x.start(true);
-                    TimeMethods[t].d_delayFunction(TIME_STEP);
-                    const double elapsedTime =
-                        (X.*(TimeMethods[t].d_method))();
+                    x.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
+                    METHODS.delay(TIME_STEP);
+                    const double elapsedTime = METHODS.accumulated(X);
                     x.stop();
 
                     if (veryVerbose) {
@@ -606,19 +681,17 @@ int main(int argc, char *argv[])
                     // conditions.
                 }
 
-                if (verbose) printf("\tAfter 'reset':\n");
+                if (veryVerbose) puts("\tAfter 'reset':");
                 x.reset();
-                if (veryVerbose)
-                    { T_;  T_;  P((X.*(TimeMethods[t].d_method))()); }
-                ASSERT(0.0 == (X.*(TimeMethods[t].d_method))());
+                if (veryVerbose) { T_  T_  P(METHODS.accumulated(X)); }
+                ASSERT(0.0 == METHODS.accumulated(X));
 
-                if (verbose) printf("\tFrom the STOPPED state:\n");
-                x.start(true);
+                if (veryVerbose) puts("\tFrom the STOPPED state:");
+                x.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
                 for (int j = 1; j <= NUM_STEPS; ++j) {
-                    TimeMethods[t].d_delayFunction(TIME_STEP);
+                    METHODS.delay(TIME_STEP);
                     x.stop();
-                    const double elapsedTime =
-                        (X.*(TimeMethods[t].d_method))();
+                    const double elapsedTime = METHODS.accumulated(X);
 
                     if (veryVerbose) {
                         T_;  T_;  P_(j * TIME_STEP);  P(elapsedTime);
@@ -635,11 +708,10 @@ int main(int argc, char *argv[])
                     // can take longer than expected due to scheduling
                     // conditions.
 
-                    x.start(true);
+                    x.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
                 }
             }
         }
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -666,73 +738,137 @@ int main(int argc, char *argv[])
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'start', 'stop', and 'reset'"
-                            "\n====================================\n");
+        if (verbose) puts("\nTesting 'start', 'stop', and 'reset'"
+                          "\n====================================");
 
-        const double DELAY_TIME = 0.05;
+        static const double DELAY_TIME = 0.05;
 
-        if (verbose) printf("\nConfirm the behavior of 'start()\n");
+        if (verbose) puts("\nConfirm the behavior of the 'start' method");
         {
-            for (size_t t = 0; t < TimeMethodsCount; ++t) {
+            for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
+                const TimeMethods& METHODS     = TIME_METHODS[t];
+                const char * const METHOD_NAME = METHODS.timeMethodName();
+
                 Obj x;  const Obj& X = x;
 
-                x.start(true);
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                const double t1 = (X.*(TimeMethods[t].d_method))();
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                const double t2 = (X.*(TimeMethods[t].d_method))();
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                const double t3 = (X.*(TimeMethods[t].d_method))();
+                if (veryVerbose) { T_;  P(METHOD_NAME); }
 
-                if (veryVerbose) { T_;  P_(t1);  P_(t2);  P(t3); }
-                LOOP_ASSERT(t,  0 < t1);
-                LOOP_ASSERT(t, t1 < t2);
-                LOOP_ASSERT(t, t2 < t3);
+                x.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
+                METHODS.delay(DELAY_TIME);
+                const double t1 = METHODS.accumulated(X);
+                METHODS.delay(DELAY_TIME);
+                const double t2 = METHODS.accumulated(X);
+                METHODS.delay(DELAY_TIME);
+                const double t3 = METHODS.accumulated(X);
+
+                ASSERTV(METHOD_NAME, t1,     0.0 < t1);
+                ASSERTV(METHOD_NAME, t1, t2,  t1 < t2);
+                ASSERTV(METHOD_NAME, t2, t3,  t2 < t3);
             }
         }
 
-        if (verbose) printf("\nConfirm the behavior of 'stop()\n");
+        if (verbose) puts("\nConfirm behavior of the 'start(bool)' argument");
         {
-            for (size_t t = 0; t < TimeMethodsCount; ++t) {
+
+            // Default does not collect user & system, 'false' is the default
+            for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
+                const TimeMethods& METHODS     = TIME_METHODS[t];
+                const char * const METHOD_NAME = METHODS.timeMethodName();
+
+                Obj x;  const Obj& X = x;  // 'start()'
+                Obj y;  const Obj& Y = y;  // 'start(false)'
+
+                if (veryVerbose) { T_;  P(METHOD_NAME); }
+
+                x.start();  y.start(false);
+                METHODS.delay(DELAY_TIME);
+                const double tx1 = METHODS.accumulated(X);
+                const double ty1 = METHODS.accumulated(Y);
+                METHODS.delay(DELAY_TIME);
+                const double tx2 = METHODS.accumulated(X);
+                const double ty2 = METHODS.accumulated(Y);
+                METHODS.delay(DELAY_TIME);
+                const double tx3 = METHODS.accumulated(X);
+                const double ty3 = METHODS.accumulated(Y);
+
+                if (METHODS.isWallTime()) {  // Wall is time collected
+                    ASSERTV(METHOD_NAME,      tx1, 0.0 < tx1);
+                    ASSERTV(METHOD_NAME, tx1, tx2, tx1 < tx2);
+                    ASSERTV(METHOD_NAME, tx2, tx3, tx2 < tx3);
+
+                    ASSERTV(METHOD_NAME,      ty1, 0.0 < ty1);
+                    ASSERTV(METHOD_NAME, ty1, ty2, ty1 < ty2);
+                    ASSERTV(METHOD_NAME, ty2, ty3, ty2 < ty3);
+                }
+                else {                           // CPU times are not collected
+                    ASSERTV(METHOD_NAME, tx1, 0.0 == tx1);
+                    ASSERTV(METHOD_NAME, tx2, 0.0 == tx2);
+                    ASSERTV(METHOD_NAME, tx3, 0.0 == tx3);
+
+                    ASSERTV(METHOD_NAME, ty1, 0.0 == ty1);
+                    ASSERTV(METHOD_NAME, ty2, 0.0 == ty2);
+                    ASSERTV(METHOD_NAME, ty3, 0.0 == ty3);
+                }
+            }
+
+            // 'k_COLLECT_WALL_TIME_ONLY' is identical to 'false'.
+            ASSERT(false == Obj::k_COLLECT_WALL_TIME_ONLY);
+
+            // 'start(true)' has been tested here earlier to collect all times.
+
+            // 'k_COLLECT_WALL_AND_CPU_TIMES ' is identical to 'true'.
+            ASSERT(true == Obj::k_COLLECT_WALL_AND_CPU_TIMES);
+        }
+
+        if (verbose) puts("\nConfirm the behavior of the 'stop' method");
+        {
+            for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
+                const TimeMethods& METHODS     = TIME_METHODS[t];
+                const char * const METHOD_NAME = METHODS.timeMethodName();
+
                 Obj x;  const Obj& X = x;
 
-                x.start(true);
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
+                if (veryVerbose) { T_;  P(METHOD_NAME); }
+
+                x.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
+                METHODS.delay(DELAY_TIME);
                 x.stop();
-                const double t1 = (X.*(TimeMethods[t].d_method))();
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                const double t2 = (X.*(TimeMethods[t].d_method))();
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                const double t3 = (X.*(TimeMethods[t].d_method))();
+                const double t1 = METHODS.accumulated(X);
+                METHODS.delay(DELAY_TIME);
+                const double t2 = METHODS.accumulated(X);
+                METHODS.delay(DELAY_TIME);
+                const double t3 = METHODS.accumulated(X);
 
-                if (veryVerbose) { T_;  P_(t1);  P_(t2);  P(t3); }
-                LOOP_ASSERT(t,  0 <  t1);
-                LOOP_ASSERT(t, isEqual(t1, t2));
-                LOOP_ASSERT(t, isEqual(t2, t3));
+                ASSERTV(METHOD_NAME, t1,            0.0 < t1);
+                ASSERTV(METHOD_NAME, t1, t2, isEqual(t1, t2));
+                ASSERTV(METHOD_NAME, t2, t3, isEqual(t2, t3));
             }
         }
 
-        if (verbose) printf("\nConfirm the behavior of 'reset()\n");
+        if (verbose) puts("\nConfirm the behavior of the 'reset' method");
         {
-            for (size_t t = 0; t < TimeMethodsCount; ++t) {
+            for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
+                const TimeMethods& METHODS     = TIME_METHODS[t];
+                const char * const METHOD_NAME = METHODS.timeMethodName();
+
                 Obj x;  const Obj& X = x;
 
-                x.start(true);
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                x.reset();
-                const double t1 = (X.*(TimeMethods[t].d_method))();
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                const double t2 = (X.*(TimeMethods[t].d_method))();
-                TimeMethods[t].d_delayFunction(DELAY_TIME);
-                const double t3 = (X.*(TimeMethods[t].d_method))();
+                if (veryVerbose) { T_;  P(METHOD_NAME); }
 
-                if (veryVerbose) { T_;  P_(t1);  P_(t2);  P(t3); }
-                LOOP_ASSERT(t, 0 == t1);
-                LOOP_ASSERT(t, 0 == t2);
-                LOOP_ASSERT(t, 0 == t3);
+                x.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
+                METHODS.delay(DELAY_TIME);
+                x.reset();
+                const double t1 = METHODS.accumulated(X);
+                METHODS.delay(DELAY_TIME);
+                const double t2 = METHODS.accumulated(X);
+                METHODS.delay(DELAY_TIME);
+                const double t3 = METHODS.accumulated(X);
+
+                ASSERTV(METHOD_NAME, t1, 0.0 == t1);
+                ASSERTV(METHOD_NAME, t2, 0.0 == t2);
+                ASSERTV(METHOD_NAME, t3, 0.0 == t3);
             }
         }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -753,11 +889,11 @@ int main(int argc, char *argv[])
         //   bool isRunning();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nState Transition Tests"
-                            "\n======================\n");
+        if (verbose) puts("\nState Transition Tests"
+                          "\n======================");
 
-        if (verbose) printf("\nConfirm the object state after"
-                            "'start', 'stop', and 'reset'.\n");
+        if (verbose) puts("\nConfirm the object state after"
+                           " 'start', 'stop', and 'reset'.");
 
         {
             Obj x;  const Obj& X = x;  ASSERT(false == X.isRunning());
@@ -776,7 +912,7 @@ int main(int argc, char *argv[])
             Obj x;  const Obj& X = x;  ASSERT(false == X.isRunning());
             x.stop();                  ASSERT(false == X.isRunning());
 
-            x.start(true);
+            x.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
             delayWall(0.2);
             delayUser(0.2);
             delaySystem(0.2);
@@ -823,7 +959,6 @@ int main(int argc, char *argv[])
             x.reset();  x.stop();      ASSERT(false == X.isRunning());
             x.reset();  x.reset();     ASSERT(false == X.isRunning());
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -840,10 +975,10 @@ int main(int argc, char *argv[])
         //   This test *exercises* basic functionality.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
+        if (verbose) puts("\nBREATHING TEST"
+                          "\n==============");
 
-        if (verbose) printf("\nCreate and exercise three objects.\n");
+        if (verbose) puts("\nCreate and exercise three objects.");
 
         Obj x1;  const Obj& X1 = x1;
         Obj x2;  const Obj& X2 = x2;
@@ -866,10 +1001,10 @@ int main(int argc, char *argv[])
 
             x1.stop();
 
-            for (size_t t = 0; t < TimeMethodsCount; ++t) {
-                t1 = (X1.*(TimeMethods[t].d_method))();
-                t2 = (X2.*(TimeMethods[t].d_method))();
-                t3 = (X3.*(TimeMethods[t].d_method))();
+            for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
+                t1 = TIME_METHODS[t].accumulated(X1);
+                t2 = TIME_METHODS[t].accumulated(X2);
+                t3 = TIME_METHODS[t].accumulated(X3);
 
                 if (verbose) {
                     T_;  P(i);  T_;  P_(t1);  P_(t2); P(t3);
@@ -881,10 +1016,10 @@ int main(int argc, char *argv[])
         x2.reset();
         x3.reset();
 
-        for (size_t t = 0; t < TimeMethodsCount; ++t) {
-            LOOP_ASSERT(t, 0.0 == (X1.*(TimeMethods[t].d_method))());
-            LOOP_ASSERT(t, 0.0 == (X2.*(TimeMethods[t].d_method))());
-            LOOP_ASSERT(t, 0.0 == (X3.*(TimeMethods[t].d_method))());
+        for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
+            LOOP_ASSERT(t, 0.0 == TIME_METHODS[t].accumulated(X1));
+            LOOP_ASSERT(t, 0.0 == TIME_METHODS[t].accumulated(X2));
+            LOOP_ASSERT(t, 0.0 == TIME_METHODS[t].accumulated(X3));
         }
 
         ASSERT(false == X1.isRunning());
@@ -900,13 +1035,12 @@ int main(int argc, char *argv[])
 
         v = X1.accumulatedWallTime() - X4.accumulatedWallTime();
         ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
-
       } break;
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST I: USING WALL TIME TO MEASURE PERFORMANCE
         //
-        // Concerns: The various system calls used by bsls::Stopwatch can be
+        // Concerns: The various system calls used by 'bsls::Stopwatch' can be
         //           expensive, so their costs should be measured.
         //
         // Plan:
@@ -942,15 +1076,14 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                 "\nProfiling using start() (wall-time mode) to *measure*:\n");
+        if (verbose) puts("\nProfiling 'start(false)': wall time only mode");
 
         const int    numTrials     = verbose ? atoi(argv[2]) : 10000;
         const double toNanoseconds = 1.0e9 / (double)numTrials;
 
         // Reference (baseline) loop -- using wall-time mode for timing
         bsls::Stopwatch baselineWatch;
-        baselineWatch.start();
+        baselineWatch.start(Obj::k_COLLECT_WALL_TIME_ONLY);
         for (int i = 0; i < numTrials; ++i) {
             busyFunction();
         }
@@ -958,33 +1091,37 @@ int main(int argc, char *argv[])
         const double baselineTime = baselineWatch.elapsedTime();
 
         {
-            if (verbose) printf(
-                         "\tProfiling use of start()/stop()/elapsedTime():\n");
+            if (verbose) puts("\tProfiling the sequence\n"
+                              "\t  1. 'start(true)'\n"
+                              "\t  2. {delay}\n"
+                              "\t  3. 'stop()'\n"
+                              "\t  4. 'elapsedTime()'");
             bsls::Stopwatch watch;
-            watch.start();
+            watch.start(Obj::k_COLLECT_WALL_TIME_ONLY);
             for (int i = 0; i < numTrials; ++i) {
                 bsls::Stopwatch w;
-                w.start();
+                w.start(Obj::k_COLLECT_WALL_TIME_ONLY);
                 busyFunction();
                 w.stop();
-                double d = w.elapsedTime();
-                (void) d;
+                dblSink = dblSink + w.elapsedTime();
             }
             watch.stop();
             const double testTime = watch.elapsedTime();
-            if (verbose) bsls::BslTestUtil::callDebugprint(
-                                     (testTime - baselineTime) * toNanoseconds,
-                                     "\t  + Net cost per loop iteration is ",
-                                     " nsec\n");
+            u_VDBGPRINT("\t  + Net cost per loop iteration is ",
+                           (testTime - baselineTime) * toNanoseconds, " nsec");
         }
+
         {
-            if (verbose) printf(
-                "\tProfiling use of start(true)/stop()/accumulatedTimes():\n");
+            if (verbose) puts("\tProfiling the sequence\n"
+                              "\t  1. 'start(true)'\n"
+                              "\t  2. {delay}\n"
+                              "\t  3. 'stop()'\n"
+                              "\t  4. 'accumulatedTimes()'");
             bsls::Stopwatch watch;
-            watch.start();
+            watch.start(Obj::k_COLLECT_WALL_TIME_ONLY);
             bsls::Stopwatch w;
             for (int i = 0; i < numTrials; ++i) {
-                w.start(true);
+                w.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
                 busyFunction();
                 w.stop();
                 double d, u, s;
@@ -992,10 +1129,8 @@ int main(int argc, char *argv[])
             }
             watch.stop();
             const double testTime = watch.elapsedTime();
-            if (verbose) bsls::BslTestUtil::callDebugprint(
-                                     (testTime - baselineTime) * toNanoseconds,
-                                     "\t  + Net cost per loop iteration is ",
-                                     " nsec\n");
+            u_VDBGPRINT("\t  + Net cost per loop iteration is ",
+                           (testTime - baselineTime) * toNanoseconds, " nsec");
         }
       } break;
       case -2: {
@@ -1025,7 +1160,7 @@ int main(int argc, char *argv[])
         //       loop iterations to obtain the per-loop cost of the
         //       instrumentation.
         //
-        //   NOTE: Because of the ower precision of the CPU-time mode, this
+        //   NOTE: Because of the lower precision of the CPU-time mode, this
         //         benchmark requires a much larger number of loop iterations
         //         to converge to an accurate answer than does the wall-time
         //         mode.
@@ -1036,15 +1171,14 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-              "\nProfiling using start(true) (CPU-time mode) to *measure*:\n");
+        if (verbose) puts("\nProfiling 'start(true)': wall & CPU time mode");
 
         const int    numTrials     = verbose ? atoi(argv[2]) : 10000;
         const double toNanoseconds = 1.0e9 / (double)numTrials;
 
         // Reference (baseline) loop --  using CPU-time mode for timing
         bsls::Stopwatch baselineWatch;
-        baselineWatch.start(true);
+        baselineWatch.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
         for (int i = 0; i < numTrials; ++i) {
             busyFunction();
         }
@@ -1053,45 +1187,43 @@ int main(int argc, char *argv[])
         const double baselineTimeUser = baselineWatch.accumulatedUserTime();
         const double baselineTime     = baselineTimeSys + baselineTimeUser;
 
-        if (veryVerbose) bsls::BslTestUtil::callDebugprint(
-                                                   baselineTime,
-                                                   "\tTotal reference time = ",
-                                                   "\n");
+        u_VVDBGPREFPRINT("\tTotal reference time = ", baselineTime);
 
         {
-            printf("\tProfiling use of start()/stop()/elapsedTime():\n");
+            puts("\tProfiling the sequence\n"
+                 "\t  1. 'start(true)'\n"
+                 "\t  2. {delay}\n"
+                 "\t  3. 'stop()'\n"
+                 "\t  4. 'elapsedTime()'");
             bsls::Stopwatch testWatch;
-            testWatch.start(true);
+            testWatch.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
             for (int i = 0; i < numTrials; ++i) {
                 bsls::Stopwatch w;
                 w.start();
                 busyFunction();
                 w.stop();
-                double d = w.elapsedTime();
-                (void) d;
+                dblSink = dblSink + w.elapsedTime();
             }
             testWatch.stop();
             const double testTimeSys  = testWatch.accumulatedSystemTime();
             const double testTimeUser = testWatch.accumulatedUserTime();
             const double testTime     = testTimeSys + testTimeUser;
 
-            if (veryVerbose) bsls::BslTestUtil::callDebugprint(
-                                                        testTime,
-                                                        "\tTotal test time = ",
-                                                        "\n");
-            bsls::BslTestUtil::callDebugprint(
-                                     (testTime - baselineTime) * toNanoseconds,
-                                     "\t  + Net cost per loop iteration is ",
-                                     " nsec\n");
+            u_VVDBGPREFPRINT("\tTotal test time = ", testTime);
+            u_DBGPRINT("\t  + Net cost per loop iteration is ",
+                           (testTime - baselineTime) * toNanoseconds, " nsec");
         }
         {
-            printf(
-                "\tProfiling use of start(true)/stop()/accumulatedTimes():\n");
+            puts("\tProfiling the sequence\n"
+                 "\t  1. 'start(true)'\n"
+                 "\t  2. {delay}\n"
+                 "\t  3. 'stop()'\n"
+                 "\t  4. 'accumulatedTimes()'");
             bsls::Stopwatch testWatch;
-            testWatch.start(true);
+            testWatch.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
             bsls::Stopwatch w;
             for (int i = 0; i < numTrials; ++i) {
-                w.start(true);
+                w.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
                 busyFunction();
                 w.stop();
                 double d, u, s;
@@ -1101,14 +1233,9 @@ int main(int argc, char *argv[])
             const double testTimeSys  = testWatch.accumulatedSystemTime();
             const double testTimeUser = testWatch.accumulatedUserTime();
             const double testTime     = testTimeSys + testTimeUser;
-            if (veryVerbose) bsls::BslTestUtil::callDebugprint(
-                                                        testTime,
-                                                        "\tTotal test time = ",
-                                                        "\n");
-            bsls::BslTestUtil::callDebugprint(
-                                     (testTime - baselineTime) * toNanoseconds,
-                                     "\t  + Net cost per loop iteration is ",
-                                     " nsec\n");
+            u_VVDBGPREFPRINT("\tTotal test time = ", testTime);
+            u_DBGPRINT("\t  + Net cost per loop iteration is ",
+                           (testTime - baselineTime) * toNanoseconds, " nsec");
         }
       } break;
       default: {

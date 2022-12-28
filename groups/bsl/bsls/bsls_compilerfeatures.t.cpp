@@ -2220,7 +2220,16 @@ will not improve the flavor.
             }
         };
 
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
+
         std::set_unexpected(&LocalClass::throwBadException);
+
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 
         bool caughtBadException = false;
         try {

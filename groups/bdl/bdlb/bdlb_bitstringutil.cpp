@@ -13,6 +13,7 @@ BSLS_IDENT_RCSID(bdlb_bitstringutil_cpp,"$Id$ $CSID$")
 #include <bsls_alignmentfromtype.h>
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -184,9 +185,21 @@ class BitPtrDiff {
         // initializing 'd_hi' and 'd_lo' respectively.  The behavior is
         // undefined unless 'lo < k_BITS_PER_UINT64'.
 
-    // BitPtrDiff(const BitPtrDiff&) = default;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // To avoid warnings about future incompatibility due to the deleted copy
+    // assignment operator we declare the copy constructor as implicitly
+    // generated.  For consistency the destructor was also placed here and
+    // declared to be explicitly generated.
 
-    // ~BitPtrDiff() = default;
+    BitPtrDiff(const BitPtrDiff& original) = default;
+        // Create a 'BitPtrDiff' object that is a copy of the specified
+        // 'original'.  Note that this trivial constructor's definition is
+        // compiler generated.
+
+    ~BitPtrDiff() = default;
+        // Destroy this object.  Note that this trivial destructor's definition
+        // is compiler generated.
+#endif
 
     // ACCESSORS
     BitPtrDiff operator-() const;

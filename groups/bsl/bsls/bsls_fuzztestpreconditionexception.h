@@ -59,8 +59,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //..
 
-#include <bsls_keyword.h>
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 
 namespace BloombergLP {
 
@@ -93,16 +94,23 @@ class FuzzTestPreconditionException {
         // Create a 'FuzzTestPreconditionException' object with the specified
         // 'assertViolation'.
 
-    //! FuzzTestPreconditionException(const FuzzTestPreconditionException&
-    //                                                                original)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // To avoid warnings about future incompatibility due to the deleted copy
+    // assignment operator we declare the copy constructor as implicitly
+    // generated.  For consistency the destructor was also placed here and
+    // declared to be explicitly generated.
+
+    FuzzTestPreconditionException(
+                      const FuzzTestPreconditionException& original) = default;
         // Create a 'FuzzTestPreconditionException' object that is a copy of
         // the specified 'original', having the same value for the
         // 'assertViolation' attribute.  Note that this trivial constructor's
         // definition is compiler generated.
 
-    //! ~FuzzTestPreconditionException();
-        // Destroy this 'FuzzTestPreconditionException' object.  Note that this
-        // trivial destructor's definition is compiler generated.
+    ~FuzzTestPreconditionException() = default;
+        // Destroy this object.  Note that this trivial destructor's definition
+        // is compiler generated.
+#endif
 
     // ACCESSORS
     const AssertViolation& assertViolation() const;

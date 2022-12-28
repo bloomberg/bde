@@ -396,7 +396,7 @@ void transformAndTestValue(Uint64 seedValue)
                     failed = true;
                 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
                 namespace imp = BloombergLP::bslstl;
 
                 char iBuffer[1000];
@@ -415,7 +415,7 @@ void transformAndTestValue(Uint64 seedValue)
                 else {
                     ASSERT(bsl::errc::value_too_large == iSts.ec);
                 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
             }
 
             ASSERT(succeeded);
@@ -619,27 +619,35 @@ int main(int argc, char *argv[])
         if (verbose) printf("FROM_CHARS FOR C++17 TEST\n"
                             "=========================\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
-        const char              *numStr = "123";
-        const char              *numStrEnd = numStr + strlen(numStr);
-        int                      val;
-        bsl::from_chars_result   res;
-        const bsl::chars_format  fmt = bsl::chars_format::general;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
+        const char             *numStr = "123.654";
+        const char             *intStrEnd = std::strchr(numStr, '.');
+        int                     val = -42;
+        bsl::from_chars_result  res;
 
-        res = bsl::from_chars(numStr, numStrEnd, val, 10);
+        res = bsl::from_chars(numStr, intStrEnd, val, 10);
+        ASSERT(bsl::errc{} == res.ec);
         ASSERT(123 == val);
-        ASSERT(res.ptr == numStrEnd);
+        ASSERT(res.ptr == intStrEnd);
 
-        res = bsl::from_chars(numStr, numStrEnd, val, 16);
+        res = bsl::from_chars(numStr, intStrEnd, val, 16);
+        ASSERT(bsl::errc{} == res.ec);
         ASSERT(0x123 == val);
-        ASSERT(res.ptr == numStrEnd);
+        ASSERT(res.ptr == intStrEnd);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+        const char *numStrEnd = numStr + strlen(numStr);
 
         double dVal;
-        res = bsl::from_chars(numStr, numStrEnd, dVal, fmt);
-        ASSERT(123.0 == dVal);
+        res = bsl::from_chars(numStr,
+                              numStrEnd,
+                              dVal,
+                              bsl::chars_format::general);
+        ASSERT(bsl::errc{} == res.ec);
+        ASSERT(123.654 == dVal);
         ASSERT(res.ptr == numStrEnd);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
-
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1233,7 +1241,7 @@ int main(int argc, char *argv[])
                     ASSERT(digit < base);
                 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
                 namespace imp = BloombergLP::bslstl;
 
                 char iBuffer[1000];
@@ -1249,7 +1257,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == std::memcmp(toCharsBuffer,
                                         iBuffer,
                                         iSts.ptr - iBuffer));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
 
                 if (value != 0) {
                     const Int64 len = result.ptr - toCharsBuffer;
@@ -1326,7 +1334,7 @@ int main(int argc, char *argv[])
                                     toCharsBufferS + 1,
                                     result.ptr - toCharsBuffer));
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
                 iSts = imp::to_chars(iBuffer,
                                      iBuffer + sizeof(iBuffer),
                                      svalue,
@@ -1336,7 +1344,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == std::memcmp(toCharsBufferS,
                                         iBuffer,
                                         iSts.ptr - iBuffer));
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
             }
         }
 

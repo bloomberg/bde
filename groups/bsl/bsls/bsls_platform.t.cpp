@@ -73,7 +73,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 #define STRINGIFY2(...) "" #__VA_ARGS__
-#define STRINGIFY(a) STRINGIFY2(a)
+#define STRINGIFY(...) STRINGIFY2(__VA_ARGS__)
 
 // ============================================================================
 //                   SUPPORTING FUNCTIONS USED FOR TESTING
@@ -135,32 +135,92 @@ bool isLittleEndian()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+namespace {
+
+template <size_t t_MAX_SIZE>
+class StaticStringsTable {
+    // A statically-sized table for pointers to C strings for collecting
+    // information about macros.
+
+  public:
+    // PUBLIC CONSTANTS
+    static const size_t k_MAX_SIZE = t_MAX_SIZE;
+
+  private:
+    // DATA
+    const char *d_name_p;          // Name for this table
+
+    const char *d_table[k_MAX_SIZE];
+    size_t      d_index;
+
+  public:
+    // CREATORS
+    explicit StaticStringsTable(const char *name)
+        // Create a new 'StaticStringsTable' with the specified 'name'.  The
+        // behavior is undefined unless 'name' outlives the created object.
+    : d_name_p(name)
+    , d_index(0)
+    {
+    }
+
+    // MANIPULATORS
+    void pushBack(const char *string)
+        // If there are no more free locations in the table report that error
+        // to 'stdout'.  Otherwise store the specified 'string' to the next
+        // free location then increment the next free location.
+    {
+        if (k_MAX_SIZE == d_index) {
+            fputs(d_name_p, stdout);
+            fputs(" table is full, could not store ", stdout);
+            puts(string);
+            aSsErT(true, "Could not store string.", __LINE__);
+            return;                                                   // RETURN
+        }
+
+        d_table[d_index++] = string;
+    }
+
+    // ACCESSORS
+    const char *operator[](size_t idx) const
+        // Return the string pointer at the specified 'idx' position or return
+        // an error if 'idx' is out of bounds.
+    {
+        ASSERT(idx < count());
+        if (idx >= count()) {
+            return "-<[* Out of Bound Access to String Table *]>-";   // RETURN
+        }
+        return d_table[idx];
+    }
+
+    size_t count() const
+        // Return the number of string pointers store in this object.
+    {
+        return d_index;
+    }
+};
+
+}  // close unnamed namespace
+
 static void printFlags()
     // Print a diagnostic message to standard output if any of the preprocessor
     // flags of interest are defined, and their value if a value had been set.
     // An "Enter" and "Leave" message is printed unconditionally so there is
     // some report even if all of the flags are undefined.
 {
-    enum { UNDEF_TABLE_SIZE = 256 };
-
-    const char *undefinedMacros[UNDEF_TABLE_SIZE] = {};
-    size_t      undefinedCount                    = 0;
+    StaticStringsTable<512> undefinedMacros("undefinedMacros");
 
     puts("printFlags: Enter");
 
     puts("\n  printFlags: Configuration Macros");
     puts(  "  --------------------------------");
 
-
-#define D_MACRO(X) undefinedMacros[undefinedCount++] = #X;
+#define D_MACRO(X) undefinedMacros.pushBack(#X);
     // Add the specified macro named by 'X' to the list of macros to report as
     // not defined.
 
 #define P_MACRO(X) printf("\t  %s:\t%s\n", #X, STRINGIFY(X));
     // Print the name of the specified object-like macro named by 'X', and the
     // source it expands to.
-
-    const int FIRST_LINE = __LINE__;
 
 #if defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
     P_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
@@ -180,10 +240,9 @@ static void printFlags()
     D_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
 #endif
 
-    if (4 == undefinedCount) {
+    if (4 == undefinedMacros.count()) {
         puts("\n      None defined");
     }
-
 
     puts("\n  printFlags: Consistency Check Macros");
     puts(  "  ------------------------------------");
@@ -574,6 +633,48 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_OS_WINXP);
 #endif
 
+#if defined(BSLS_PLATFORM_OS_WINS03)
+    P_MACRO(BSLS_PLATFORM_OS_WINS03);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WINS03);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINS08)
+    P_MACRO(BSLS_PLATFORM_OS_WINS08);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WINS08);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINVISTA)
+    P_MACRO(BSLS_PLATFORM_OS_WINVISTA);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WINVISTA);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WIN7)
+    P_MACRO(BSLS_PLATFORM_OS_WIN7);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WIN7);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WIN8)
+    P_MACRO(BSLS_PLATFORM_OS_WIN8);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WIN8);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINBLUE)
+    P_MACRO(BSLS_PLATFORM_OS_WINBLUE);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WINBLUE);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WIN10)
+    P_MACRO(BSLS_PLATFORM_OS_WIN10);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WIN10);
+#endif
+
 
     puts("\n  printFlags: Feature Detection Macros");
     puts(  "  ------------------------------------");
@@ -892,6 +993,7 @@ static void printFlags()
     puts("\n  printFlags: platform macros of interest to our configuration");
     puts(  "  ------------------------------------------------------------");
 
+                      // AIX platform specific macros
 #if defined(_AIX)
     P_MACRO(_AIX);
 #else
@@ -970,10 +1072,29 @@ static void printFlags()
     D_MACRO(_LP64);
 #endif
 
+             // Microsoft Visual Studio compiler specific macros
+
+    // Source for compiler specific predefined macros was
+    //: https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
+    // at 2020-12-13 03:15-05:00 (EST/New York).  Please visit that page for
+    // interpretation of the Microsoft specific macros/values.
+
 #if defined(_MSC_VER)
     P_MACRO(_MSC_VER);
 #else
     D_MACRO(_MSC_VER);
+#endif
+
+#if defined(_MSC_FULL_VER)
+    P_MACRO(_MSC_FULL_VER);
+#else
+    D_MACRO(_MSC_FULL_VER);
+#endif
+
+#if defined(_MSC_BUILD)
+    P_MACRO(_MSC_BUILD);
+#else
+    D_MACRO(_MSC_BUILD);
 #endif
 
 #if defined(_MSVC_LANG)
@@ -981,6 +1102,202 @@ static void printFlags()
 #else
     D_MACRO(_MSVC_LANG);
 #endif
+
+#if defined(__INTELLISENSE__)
+    P_MACRO(__INTELLISENSE__);
+#else
+    D_MACRO(__INTELLISENSE__);
+#endif
+
+#if defined(_INTEGRAL_MAX_BITS)
+    P_MACRO(_INTEGRAL_MAX_BITS);
+#else
+    D_MACRO(_INTEGRAL_MAX_BITS);
+#endif
+
+    // Microsoft Visual Studio implementation-defined-feature detection
+
+#if defined(_CHAR_UNSIGNED)
+    P_MACRO(_CHAR_UNSIGNED);
+#else
+    D_MACRO(_CHAR_UNSIGNED);
+#endif
+
+    // Microsoft Visual Studio floating point mode feature detection
+
+#if defined(_M_FP_CONTRACT)
+    P_MACRO(_M_FP_CONTRACT);
+#else
+    D_MACRO(_M_FP_CONTRACT);
+#endif
+
+#if defined(_M_FP_EXCEPT)
+    P_MACRO(_M_FP_EXCEPT);
+#else
+    D_MACRO(_M_FP_EXCEPT);
+#endif
+
+#if defined(_M_FP_FAST)
+    P_MACRO(_M_FP_FAST);
+#else
+    D_MACRO(_M_FP_FAST);
+#endif
+
+#if defined(_M_FP_PRECISE)
+    P_MACRO(_M_FP_PRECISE);
+#else
+    D_MACRO(_M_FP_PRECISE);
+#endif
+
+#if defined(_M_FP_STRICT)
+    P_MACRO(_M_FP_STRICT);
+#else
+    D_MACRO(_M_FP_STRICT);
+#endif
+
+    // Microsoft Visual Studio optional-feature detection
+
+#if defined(_MT)
+    P_MACRO(_MT);
+#else
+    D_MACRO(_MT);
+#endif
+
+#if defined(_OPENMP)
+    P_MACRO(_OPENMP);
+#else
+    D_MACRO(_OPENMP);
+#endif
+
+#if defined(_MSC_EXTENSIONS)
+    P_MACRO(_MSC_EXTENSIONS);
+#else
+    D_MACRO(_MSC_EXTENSIONS);
+#endif
+
+#if defined(_MSVC_TRADITIONAL)
+    P_MACRO(_MSVC_TRADITIONAL);
+#else
+    D_MACRO(_MSVC_TRADITIONAL);
+#endif
+
+#if defined(_NATIVE_WCHAR_T_DEFINED)
+    P_MACRO(_NATIVE_WCHAR_T_DEFINED);
+#else
+    D_MACRO(_NATIVE_WCHAR_T_DEFINED);
+#endif
+
+#if defined(_WCHAR_T_DEFINED)
+    P_MACRO(_WCHAR_T_DEFINED);
+#else
+    D_MACRO(_WCHAR_T_DEFINED);
+#endif
+
+#if defined(_CPPRTTI)
+    P_MACRO(_CPPRTTI);
+#else
+    D_MACRO(_CPPRTTI);
+#endif
+
+#if defined(_CPPUNWIND)
+    P_MACRO(_CPPUNWIND);
+#else
+    D_MACRO(_CPPUNWIND);
+#endif
+
+#if defined(_ISO_VOLATILE)
+    P_MACRO(_ISO_VOLATILE);
+#else
+    D_MACRO(_ISO_VOLATILE);
+#endif
+
+#if defined(_KERNEL_MODE)
+    P_MACRO(_KERNEL_MODE);
+#else
+    D_MACRO(_KERNEL_MODE);
+#endif
+
+    // Microsoft Visual Studio security features detection
+
+#if defined(_CONTROL_FLOW_GUARD)
+    P_MACRO(_CONTROL_FLOW_GUARD);
+#else
+    D_MACRO(_CONTROL_FLOW_GUARD);
+#endif
+
+#if defined(_MSVC_RUNTIME_CHECKS)
+    P_MACRO(_MSVC_RUNTIME_CHECKS);
+#else
+    D_MACRO(_MSVC_RUNTIME_CHECKS);
+#endif
+
+    // Microsoft Visual Studio sanitizer related
+
+#if defined(__SANITIZE_ADDRESS__)
+    P_MACRO(__SANITIZE_ADDRESS__);
+#else
+    D_MACRO(__SANITIZE_ADDRESS__);
+#endif
+
+    // Microsoft Visual Studio build configuration specific
+
+#if defined(_DLL)
+    P_MACRO(_DLL);
+#else
+    D_MACRO(_DLL);
+#endif
+
+#if defined(_PREFAST_)
+    P_MACRO(_PREFAST_);
+#else
+    D_MACRO(_PREFAST_);
+#endif
+
+#if defined(_VC_NODEFAULTLIB)
+    P_MACRO(_VC_NODEFAULTLIB);
+#else
+    D_MACRO(_VC_NODEFAULTLIB);
+#endif
+
+    // Microsoft CLR, CLI, and .NET specific macros
+
+#if defined(__CLR_VER)
+    P_MACRO(__CLR_VER);
+#else
+    D_MACRO(__CLR_VER);
+#endif
+
+#if defined(__cplusplus_cli)
+    P_MACRO(__cplusplus_cli);
+#else
+    D_MACRO(__cplusplus_cli);
+#endif
+
+#if defined(_MANAGED)
+    P_MACRO(_MANAGED);
+#else
+    D_MACRO(_MANAGED);
+#endif
+
+#if defined(_M_CEE)
+    P_MACRO(_M_CEE);
+#else
+    D_MACRO(_M_CEE);
+#endif
+
+#if defined(_M_CEE_PURE)
+    P_MACRO(_M_CEE_PURE);
+#else
+    D_MACRO(_M_CEE_PURE);
+#endif
+
+#if defined(_M_CEE_SAFE)
+    P_MACRO(_M_CEE_SAFE);
+#else
+    D_MACRO(_M_CEE_SAFE);
+#endif
+
+    // Microsoft Visual Studio hardware platform detection
 
 #if defined(_M_ALPHA)
     P_MACRO(_M_ALPHA);
@@ -1006,6 +1323,116 @@ static void printFlags()
     D_MACRO(_M_IX86);
 #endif
 
+#if defined(_M_X64)
+    P_MACRO(_M_X64);
+#else
+    D_MACRO(_M_X64);
+#endif
+
+    // Macros predefined for x86 or x64 MSVC targets only -- BEGIN vvv
+
+#if defined(_M_IX86_FP)
+    P_MACRO(_M_IX86_FP);
+#else
+    D_MACRO(_M_IX86_FP);
+#endif
+
+#if defined(__ATOM__)
+    P_MACRO(__ATOM__);
+#else
+    D_MACRO(__ATOM__);
+#endif
+
+#if defined(__AVX__)
+    P_MACRO(__AVX__);
+#else
+    D_MACRO(__AVX__);
+#endif
+
+#if defined(__AVX2__)
+    P_MACRO(__AVX2__);
+#else
+    D_MACRO(__AVX2__);
+#endif
+
+#if defined(__AVX__)
+    P_MACRO(__AVX__);
+#else
+    D_MACRO(__AVX__);
+#endif
+
+#if defined(__AVX512BW__)
+    P_MACRO(__AVX512BW__);
+#else
+    D_MACRO(__AVX512BW__);
+#endif
+
+#if defined(__AVX512CD__)
+    P_MACRO(__AVX512CD__);
+#else
+    D_MACRO(__AVX512CD__);
+#endif
+
+#if defined(__AVX512DQ__)
+    P_MACRO(__AVX512DQ__);
+#else
+    D_MACRO(__AVX512DQ__);
+#endif
+
+#if defined(__AVX512F__)
+    P_MACRO(__AVX512F__);
+#else
+    D_MACRO(__AVX512F__);
+#endif
+
+#if defined(__AVX512VL__)
+    P_MACRO(__AVX512VL__);
+#else
+    D_MACRO(__AVX512VL__);
+#endif
+
+    // Macros predefined for x86 or x64 MSVC targets only -- END ^^^
+
+    // Microsoft Visual Studio ARM related hardware detection
+
+#if defined(_ARM)
+    P_MACRO(_ARM);
+#else
+    D_MACRO(_ARM);
+#endif
+
+#if defined(_ARM_ARMV7VE)
+    P_MACRO(_ARM_ARMV7VE);
+#else
+    D_MACRO(_ARM_ARMV7VE);
+#endif
+
+#if defined(_ARM_FP)
+    P_MACRO(_ARM_FP);
+#else
+    D_MACRO(_ARM_FP);
+#endif
+
+#if defined(_ARM64)
+    P_MACRO(_ARM64);
+#else
+    D_MACRO(_ARM64);
+#endif
+
+#if defined(_ARM64EC)
+    P_MACRO(_ARM64EC);
+#else
+    D_MACRO(_ARM64EC);
+#endif
+
+    // Microsoft Visual Studio miscellaneous hardware detection
+
+#if defined(_POWER)
+    P_MACRO(_POWER);
+#else
+    D_MACRO(_POWER);
+#endif
+
 #if defined(_M_MRX000)
     P_MACRO(_M_MRX000);
 #else
@@ -1022,6 +1449,20 @@ static void printFlags()
     P_MACRO(_POWER);
 #else
     D_MACRO(_POWER);
+#endif
+
+    // Microsoft Windows platform specific macros
+
+#if defined(__cplusplus_winrt)
+    P_MACRO(__cplusplus_winrt);
+#else
+    D_MACRO(__cplusplus_winrt);
+#endif
+
+#if defined(_WINRT_DLL)
+    P_MACRO(_WINRT_DLL);
+#else
+    D_MACRO(_WINRT_DLL);
 #endif
 
 #if defined(_WIN16)
@@ -1059,6 +1500,8 @@ static void printFlags()
 #else
     D_MACRO(__64BIT__);
 #endif
+
+                // clang compiler platform specific macros
 
 #if defined(__APPLE__)
     P_MACRO(__APPLE__);
@@ -1132,17 +1575,24 @@ static void printFlags()
     D_MACRO(__CHAR_UNSIGNED__);
 #endif
 
-#if defined(__CYGWIN__)
-    P_MACRO(__CYGWIN__);
-#else
-    D_MACRO(__CYGWIN__);
-#endif
+                 // EDG compiler platform specific macros
 
 #if defined(__EDG__)
     P_MACRO(__EDG__);
 #else
     D_MACRO(__EDG__);
 #endif
+
+                    // CygWin platform specific macros
+
+#if defined(__CYGWIN__)
+    P_MACRO(__CYGWIN__);
+#else
+    D_MACRO(__CYGWIN__);
+#endif
+
+                     // OSS platform specific macros
+
 
 #if defined(__FreeBSD__)
     P_MACRO(__FreeBSD__);
@@ -1540,23 +1990,10 @@ static void printFlags()
     D_MACRO(WINVER);
 #endif
 
-    const int LAST_LINE = __LINE__;
-
-
-    char STATIC_CHECK[UNDEF_TABLE_SIZE - ((LAST_LINE - FIRST_LINE) / 6)];
-    (void)STATIC_CHECK;
-        // Compile-time assertion that the table for undefined macros is likely
-        // to overflow.  Each macro is tested with a six line block, and the
-        // computation will slightly overestimate the maximum number of entries
-        // needed by ignoring several lines supporting text formatting etc.
-        // There should be a margin for error of around 4 macros when this
-        // check fires.
-
-
     puts("\n\n  printFlags: UNDEFINED MACROS:");
     puts(    "  -----------------------------");
 
-    for (size_t i = 0; i != undefinedCount; ++i) {
+    for (size_t i = 0; i != undefinedMacros.count(); ++i) {
         printf("\t  %s\n", undefinedMacros[i]);
     }
 
@@ -1969,6 +2406,27 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_OS_WINXP)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_WINXP, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_OS_WINS03)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_WINS03, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_OS_WINS08)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_WINS08, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_OS_WINVISTA)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_WINVISTA, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_OS_WIN7)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_WIN7, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_OS_WIN8)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_WIN8, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_OS_WINBLUE)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_WINBLUE, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_OS_WIN10)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_WIN10, 1);
         #endif
         #if defined(BSLS_PLATFORM_OS_VER_MAJOR)
             MACRO_TESTGT(BSLS_PLATFORM_OS_VER_MAJOR, 0);

@@ -5,94 +5,98 @@
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_platform.h>
 
 #include <stddef.h>  // for 'size_t'
 #include <stdio.h>   // for 'printf'
 #include <stdlib.h>  // for 'atoi'
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
+    #include <string.h>  // for 'strchr'
+#endif
+
+// Verify assumption that the BASELINE C++11 library includes all of the new
+// library headers not covered by a more specific macro.  Note that we actively
+// #include each header to check for errors, though this could switch to using
+// '__has_include(<header>)' now that we no longer mess with standard include
+// files with intercept headers.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-    // Verify assumption that the BASELINE C++11 library includes all of the
-    // new library headers not covered by a more specific macro.  Note that we
-    // actively #include each header to check for errors, though this could
-    // switch to using '__has_include(<header>)' now that we no longer mess
-    // with standard include files with intercept headers.
-# include <array>
-# include <atomic>
-# include <chrono>
-# include <codecvt>
-# include <condition_variable>
-# include <forward_list>
-# include <future>
-//include <initializer_list>
-//                       BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-# include <mutex>
-# include <random>
-# include <regex>
-# include <scoped_allocator>
-# include <system_error>
-# include <thread>
-//include <tuple>               // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-//include <type_traits>         // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-# include <typeindex>
-# include <unordered_map>
-# include <unordered_set>
+    #include <array>
+    #include <atomic>
+    #include <chrono>
+    #include <codecvt>
+    #include <condition_variable>
+    #include <forward_list>
+    #include <future>
+//  #include <initializer_list>
+                      // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+    #include <mutex>
+    #include <random>
+    #include <regex>
+    #include <scoped_allocator>
+    #include <system_error>
+    #include <thread>
+//  #include <tuple>             // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+//  #include <type_traits>       // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+    #include <typeindex>
+    #include <unordered_map>
+    #include <unordered_set>
 #endif
 
+// Verify assumption that the BASELINE C++14 library includes all of the new
+// library headers not covered by a more specific macro.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
-    // Verify assumption that the BASELINE C++14 library includes all of the
-    // new library headers not covered by a more specific macro.
-# include <shared_mutex>
+    #include <shared_mutex>
 #endif
 
+// Verify assumption that <cstdlib> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC)
-    // Verify assumption that <cstdlib> is includeable.
-# include <cstdlib>
+    #include <cstdlib>
 #endif
 
+// Verify assumption that the BASELINE C++17 library includes all of the new
+// library headers not covered by a more specific macro.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
-    // Verify assumption that the BASELINE C++17 library includes all of the
-    // new library headers not covered by a more specific macro.
-# include <any>
-//include <charconv>        // LIBRARYFEATURES_HAS_CPP17_CHARCONV
-//include <execution>       // LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
-//include <filesystem>      // LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
-//include <memory_resource> // LIBRARYFEATURES_HAS_CPP17_PMR
-# include <optional>
-# include <string_view>
-# include <variant>
+    #include <any>
+//  #include <charconv>        // LIBRARYFEATURES_HAS_CPP17_CHARCONV
+//  #include <execution>       // LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
+//  #include <filesystem>      // LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
+//  #include <memory_resource> // LIBRARYFEATURES_HAS_CPP17_PMR
+    #include <optional>
+    #include <string_view>
+    #include <variant>
 #endif
 
+// Verify assumption that <charconv> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)                      \
- || defined(BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV)         \
  || defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
-    // Verify assumption that <charconv> is includeable.
-# include <charconv>
+    #include <charconv>
 #endif
 
+// Verify assumption that <execution> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS)
-    // Verify assumption that <execution> is includeable.
-# include <execution>
+    #include <execution>
 #endif
 
+// Verify assumption that <filesystem> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM)
-    // Verify assumption that <filesystem> is includeable.
-# include <filesystem>
+    #include <filesystem>
 #endif
 
+// Verify assumption that <memory_resource> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
-    // Verify assumption that <memory_resource> is includeable.
-# include <memory_resource>
+    #include <memory_resource>
 #endif
 
+// Verify assumption that <ctime> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET)
-    // Verify assumption that <ctime> is includeable.
-# include <ctime>
+    #include <ctime>
 #endif
 
+// Verify assumption that the BASELINE C++20 library includes all of the new
+// library headers not covered by a more specific macro.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-    // Verify assumption that the BASELINE C++20 library includes all of the
-    // new library headers not covered by a more specific macro.
-# include <span>
+    #include <span>
 #endif
 
 // ============================================================================
@@ -177,6 +181,8 @@
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
 // [15] BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+// [18] BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
+// [18] BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
 // [17] BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
@@ -188,7 +194,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [18] USAGE EXAMPLE
+// [19] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -322,6 +328,20 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
                                                                           true;
 #else
                                                                          false;
@@ -831,11 +851,18 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined =
 
                     // case 1
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR) ||\
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR) || \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_FORCE)
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
     #include <memory>
     std::auto_ptr<int> ap;
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
 #endif
 
@@ -1154,15 +1181,6 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV: ");
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV
-    printf(
-          "%s\n",
-          STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV));
-#else
-    printf("UNDEFINED\n");
-#endif
-
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
     printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV) );
@@ -1435,7 +1453,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1455,6 +1473,265 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING CHARCONV RELATED MACROS
+        //
+        // Concerns:
+        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV' is defined
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV' is also defined as
+        //:   they represent levels of support.
+        //:
+        //: 3 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV' is defined
+        //:   both 'std::to_chars' and 'std::from_chars' overloads exist for
+        //:   all signed and unsigned standard integer types and 'char', as
+        //:   well as the 'std::to_chars_result' and 'std::from_chars_result'
+        //:   types are defined.
+        //:
+        //: 4 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV' is defined the
+        //:   'std::chars_format' type, as well as 'std::from_chars' and
+        //:   'std::to_chars' overloads exists for all 3 standard floating
+        //:   point types ('float', 'double', 'long double').
+        //
+        // Plan:
+        //: 1 Macro dependency tests (C-1) use the 'u_*_defined' variables.
+        //: 2 Presence of functions is tested by defining calling lambdas.
+        //: 3 Presence of result types is tested by declarations.
+        //: 4 'std::chars_format' is used as argument in the float lambdas.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING CHARCONV RELATED MACROS\n"
+                            "===============================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV_defined);
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV_defined);
+        }
+
+        // C-1
+        ASSERT(!u_BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV_defined ||
+               u_BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV_defined);
+
+        // C-2
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
+        // 'std::to_chars' for singed/unsigned integers plus 'char'
+        {
+            char *FIRST = nullptr;
+            char *LAST  = nullptr;
+
+            std::to_chars_result r1, r2;
+
+            auto ch = [FIRST, LAST, &r1, &r2](char v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)ch;
+
+            auto sch = [FIRST, LAST, &r1, &r2](signed char v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)sch;
+
+            auto uch = [FIRST, LAST, &r1, &r2](unsigned char v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)uch;
+
+            auto ss = [FIRST, LAST, &r1, &r2](signed short v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)ss;
+
+            auto us = [FIRST, LAST, &r1, &r2](unsigned short v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)us;
+
+            auto si = [FIRST, LAST, &r1, &r2](signed int v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)si;
+
+            auto ui = [FIRST, LAST, &r1, &r2](unsigned int v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)ui;
+
+            auto sl = [FIRST, LAST, &r1, &r2](signed long v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)sl;
+
+            auto ul = [FIRST, LAST, &r1, &r2](unsigned long v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)ul;
+
+            auto sll = [FIRST, LAST, &r1, &r2](signed long long v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)sll;
+
+            auto ull = [FIRST, LAST, &r1, &r2](unsigned long long v) {
+                r1 = std::to_chars(FIRST, LAST, v, 16);
+                r2 = std::to_chars(FIRST, LAST, v);
+            };
+            (void)ull;
+        }
+
+        // 'std::from_chars' for singed/unsigned integers plus 'char'
+        {
+            const char *FIRST = nullptr;
+            const char *LAST  = nullptr;
+
+            std::from_chars_result r1, r2;
+
+            auto ch = [FIRST, LAST, &r1, &r2](char v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)ch;
+
+            auto sch = [FIRST, LAST, &r1, &r2](signed char v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)sch;
+
+            auto uch = [FIRST, LAST, &r1, &r2](unsigned char v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)uch;
+
+            auto ss = [FIRST, LAST, &r1, &r2](signed short v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)ss;
+
+            auto us = [FIRST, LAST, &r1, &r2](unsigned short v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)us;
+
+            auto si = [FIRST, LAST, &r1, &r2](signed int v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)si;
+
+            auto ui = [FIRST, LAST, &r1, &r2](unsigned int v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)ui;
+
+            auto sl = [FIRST, LAST, &r1, &r2](signed long v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)sl;
+
+            auto ul = [FIRST, LAST, &r1, &r2](unsigned long v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)ul;
+
+            auto sll = [FIRST, LAST, &r1, &r2](signed long long v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)sll;
+
+            auto ull = [FIRST, LAST, &r1, &r2](unsigned long long v) {
+                r1 = std::from_chars(FIRST, LAST, v, 16);
+                r2 = std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)ull;
+        }
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
+
+        // C-3
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+        // 'std::to_chars' - for 'float', 'double', and 'long double'
+        {
+            char *FIRST = nullptr;
+            char *LAST  = nullptr;
+
+            auto fpf = [FIRST, LAST](float v) {
+                std::to_chars(FIRST, LAST, v, std::chars_format::hex);
+                std::to_chars(FIRST, LAST, v);
+            };
+            (void)fpf;
+
+            auto fpd = [FIRST, LAST](double v) {
+                std::to_chars(FIRST, LAST, v, std::chars_format::hex);
+                std::to_chars(FIRST, LAST, v);
+            };
+            (void)fpd;
+
+            auto fpld = [FIRST, LAST](long double v) {
+                std::to_chars(FIRST, LAST, v, std::chars_format::hex);
+                std::to_chars(FIRST, LAST, v);
+            };
+            (void)fpld;
+        }
+
+        // 'std::from_chars' - for 'float', 'double', and 'long double'
+        {
+            const char *FIRST = nullptr;
+            const char *LAST  = nullptr;
+
+            auto fpf = [FIRST, LAST](float v) {
+                std::from_chars(FIRST, LAST, v, std::chars_format::hex);
+                std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)fpf;
+
+            auto fpd = [FIRST, LAST](double v) {
+                std::from_chars(FIRST, LAST, v, std::chars_format::hex);
+                std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)fpd;
+
+            auto fpld = [FIRST, LAST](long double v) {
+                std::from_chars(FIRST, LAST, v, std::chars_format::hex);
+                std::from_chars(FIRST, LAST, v);
+                return v;
+            };
+            (void)fpld;
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -2403,11 +2680,18 @@ int main(int argc, char *argv[])
         }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+    #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    #endif
         std::auto_ptr<int> x(new int);
         *x = 42;
         std::auto_ptr<int> y = x;
         ASSERT(!x.get());
         ASSERT(42 == *y);
+    #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+        #pragma GCC diagnostic pop
+    #endif
 #endif
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
@@ -2462,7 +2746,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 201 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

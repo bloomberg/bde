@@ -779,6 +779,87 @@ BSLS_IDENT("$Id: $")
 //:   o clang 3.4
 //:   o Visual Studio 2015 version 14.0 (_MSC_VER 1900)
 //:   o Oracle CC 12.4
+//
+/// Microsoft Visual Studio versions mapping
+///-----------------------------------------
+// Microsoft Visual C++ in Microsoft Visual Studio has *many* different
+// associated versions:
+//
+//: o Microsoft Visual Studio release name (such as 2015, 2019, 2022 etc.)
+//: o Microsoft Visual Studio update number (such as Update 6)
+//: o Microsoft Visual Studio version number (such as 15.6.1)
+//: o Microsoft Visual C++ Toolset version number (such as 14.30)
+//: o C++ compiler version number and '_MSVC_VER' (such as 19.32 and 1932)
+//: o C++ compiler '_MSVC_FULL_VER' (such as 193231329)
+//
+// The following table shows the mapping between the different version numbers.
+// The source for the table was
+//: https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nd
+// and the '_MSC_VER' entry on
+//: https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
+// at 2020-12-13 20:00-05:00 (EST/New York).
+//
+//..
+// +-------------------+----------+---------+----------+---------------+
+// | Visual Studio name & version | Toolset | _MSC_VER | _MSC_FULL_VER |
+// +===================+==========+=========+==========+===============+
+// | 2015              | 14.0     | 14.0    | 1900     |  190023026    |
+// | 2015 Update 1     | 14.0     | 14.0    | 1900     |  190023506    |
+// | 2015 Update 2     | 14.0     | 14.0    | 1900     |  190023918    |
+// | 2015 Update 3     | 14.0     | 14.0    | 1900     |  190024210    |
+// +-------------------+----------+---------+----------+---------------+
+// | 2017              | 15.0     | 14.10   | 1910     |  191025017    |
+// | 2017 Update 1     | 15.1     | 14.10   | 1910     |  191025017    |
+// | 2017 Update 2     | 15.2     | 14.10   | 1910     |  191025017    |
+// | 2017 Update 3     | 15.3.3   | 14.11   | 1911     |  191125507    |
+// | 2017 Update 4     | 15.4.4   | 14.11   | 1911     |  191125542    |
+// |      Update 4(*)  | 15.4.5   | 14.11   | 1911     |  191125547    |
+// | 2017 Update 5     | 15.5.2   | 14.12   | 1912     |  191225831    |
+// |      Update 5(*)  | 15.5.3   | 14.12   | 1912     |  191225834    |
+// |      Update 5(*)  | 15.5.4   | 14.12   | 1912     |  191225834    |
+// |      Update 5(*)  | 15.5.6   | 14.12   | 1912     |  191225835    |
+// |      Update 5(*)  | 15.5.7   | 14.12   | 1912     |  191225835    |
+// | 2017 Update 6     | 15.6.0   | 14.13   | 1913     |  191326128    |
+// |      Update 6(*)  | 15.6.1   | 14.13   | 1913     |  191326128    |
+// |      Update 6(*)  | 15.6.2   | 14.13   | 1913     |  191326128    |
+// |      Update 6(*)  | 15.6.3   | 14.13   | 1913     |  191326129    |
+// |      Update 6(*)  | 15.6.4   | 14.13   | 1913     |  191326129    |
+// |      Update 6(*)  | 15.6.6   | 14.13   | 1913     |  191326131    |
+// |      Update 6(*)  | 15.6.7   | 14.13   | 1913     |  191326132    |
+// | 2017 Update 7     | 15.7.1   | 14.14   | 1914     |  191426428    |
+// |      Update 7(*)  | 15.7.2   | 14.14   | 1914     |  191426429    |
+// |      Update 7(*)  | 15.7.3   | 14.14   | 1914     |  191426430    |
+// |      Update 7(*)  | 15.7.5   | 14.14   | 1914     |  191426433    |
+// | 2017 Update 8     | 15.8.0   | 14.15   | 1915     |      ?        |
+// | 2017 Update 9     | 15.9.0   | 14.16   | 1916     |      ?        |
+// |      Update 9(*)  | 15.9.1   | 14.16   | 1916     |  191627023    |
+// |      Update 9(*)  | 15.9.4   | 14.16   | 1916     |  191627025    |
+// |      Update 9(*)  | 15.9.5   | 14.16   | 1916     |  191627026    |
+// |      Update 9(*)  | 15.9.7   | 14.16   | 1916     |  191627027    |
+// |      Update 9(*)  | 15.9.11  | 14.16   | 1916     |  191627030    |
+// +-------------------+----------+---------+----------+---------------+
+// | 2019              | 16.0     | 14.20   | 1920     |  192027508    |
+// | 2019 Update  1    | 16.1.2   | 14.21   | 1921     |  192127702    |
+// | 2019 Update  2    | 16.2.3   | 14.21   | 1922     |  192227905    |
+// | 2019 Update  3    | 16.3.2   | 14.21   | 1923     |  192328105    |
+// | 2019 Update  4    | 16.4.0   | 14.24   | 1924     |  192428314    |
+// | 2019 Update  5    | 16.5.1   | 14.25   | 1925     |  192528611    |
+// | 2019 Update  6    | 16.6.2   | 14.26   | 1926     |  192628806    |
+// | 2019 Update  7    | 16.7     | 14.27   | 1927     |  192729112    |
+// | 2019 Update  8    | 16.8.1   | 14.28   | 1928     |  192829333    |
+// |      Update  8(*) | 16.8.2   | 14.28   | 1928     |  192829334    |
+// | 2019 Update  9    | 16.9.2   | 14.28   | 1928     |  192829913    |
+// | 2019 Update 11    | 16.11.2  | 14.28   | 1929     |  192930133    |
+// +-------------------+----------+---------+----------+---------------+
+// | 2020              | 17.0.1   | 14.30   | 1930     |  193030705    |
+// | 2020(*)           | 17.0.2   | 14.30   | 1930     |  193030706    |
+// | 2020(*)           | 17.2.2   | 14.30   | 1932     |  193231329    |
+// | 2020(*)           | 17.3.4   | 14.30   | 1933     |  193331630    |
+// +-------------------+----------+---------+----------+---------------+
+//..
+// (*) Visual Studio may receive interim updates that do not contribute into
+//     the Visual Studio "human friendly" version, but are visible in other
+//     version numbers.
 
 #include <bsls_platform.h>
 #include <bsls_macrorepeat.h>
@@ -850,13 +931,13 @@ BSLS_IDENT("$Id: $")
 // as bugs compared to the final standard.  Therefore, BDE does not attempt to
 // support C++11 in GCC compilers prior to the 4.8 release.
 #if defined(BSLS_PLATFORM_CMP_GNU)
-# define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
 
 # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
 # if BSLS_PLATFORM_CMP_VERSION >= 30300
 #  define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 # endif
+
 # if BSLS_PLATFORM_CMP_VERSION >= 50000
 //   GCC provides this support prior to C++17, independent of language dialect.
 #    ifndef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
@@ -864,6 +945,11 @@ BSLS_IDENT("$Id: $")
 #    endif
 #    define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 # endif
+
+# if BSLS_PLATFORM_CMP_VERSION < 120000
+#  define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
+# endif
+
 // GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
 # if defined(__GXX_EXPERIMENTAL_CXX0X__)
 #  if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L

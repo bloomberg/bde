@@ -46,10 +46,19 @@ BSLS_IDENT("$Id: $")
 //                      @_OS_CYGWIN
 //                      @_OS_DARWIN
 //
-//  @_OS_WINDOWS        @_OS_WIN9X
-//                      @_OS_WINNT
+//  @_OS_WINDOWS        @_OS_WINNT
+//                      @_OS_WIN9X
 //                      @_OS_WIN2K
 //                      @_OS_WINXP
+//                      @_OS_WINS03
+//                      @_OS_WINS08 -- alias to Vista
+//                      @_OS_WINVISTA
+//                      @_OS_WIN7
+//                      @_OS_WIN8
+//                      @_OS_WINBLUE
+//                      @_OS_WIN10
+//
+// Please see also {Windows Subtypes Explained}.
 //
 //  ============================================================
 //                              PROCESSOR
@@ -110,6 +119,8 @@ BSLS_IDENT("$Id: $")
 // operating system, processor, or compiler).  Note that supplying a minor
 // version number implies that the major version is also defined.
 //
+///Aggressive Inlining
+///-------------------
 // The aggressive inlining macro 'BSLS_PLATFORM_AGGRESSIVE_INLINE' is defined
 // as the 'inline' keyword on all compilers except 'BSLS_PLATFORM_CMP_IBM' and
 // 'BSLS_PLATFORM_CMP_SUN', where it is left empty.  This is required for some
@@ -118,6 +129,8 @@ BSLS_IDENT("$Id: $")
 // if 'BDE_BUILD_TARGET_AGGRESSIVE_INLINE' is passed in via the '-D' option of
 // the compiler.
 //
+///Forcing a Compiler Error
+///------------------------
 // The compiler-error triggering macro 'BSLS_PLATFORM_COMPILER_ERROR' is
 // defined to a sequence of tokens that guarantees a compilation error on every
 // supported compiler.  This is necessary because not all compilers will
@@ -127,6 +140,28 @@ BSLS_IDENT("$Id: $")
 // only about diagnostic messages).  Code using 'bsls_platform' macros will
 // often want to prevent compilation for unsupported platforms, hence this
 // component provides a macro that can be used to ensure that.
+//
+///Windows Subtypes Explained
+//---------------------------
+// Windows Subtypes describe what API variation the code is built to target,
+// not the actual operating system it will run on, with the following mapping
+// between the macro names and Windows API versions:
+//..
+//  MACRO           Targeted API Version & Notes   Officially supported?
+//  -------------   ----------------------------   ---------------------
+//  @_OS_WINNT      NT 4.0                         NO
+//  @_OS_WIN9X      95, 98, ME                     NO
+//  @_OS_WIN2K      2000                           NO
+//  @_OS_WINXP      XP                             NO
+//  @_OS_WINS03     Server 2003                    NO
+//  @_OS_WINS08     Server 2008, same as Vista     yes
+//  @_OS_WINVISTA   Vista                          yes
+//  @_OS_WIN7       7                              yes
+//  @_OS_WIN8       8                              yes
+//  @_OS_WINBLUE    8.1                            yes
+//  @_OS_WIN10      10                             yes
+//..
+// Note that Vista is the default targeted API.
 //
 ///Usage
 ///-----
@@ -202,11 +237,10 @@ struct bsls_Platform_Assert;
 
 // Use this macro to trigger a compile-time error if '#error' is not supported.
 #ifdef __cplusplus
-#   define BSLS_PLATFORM_COMPILER_ERROR                        \
-        char die[sizeof(::BloombergLP::bsls_Platform_Assert)]
+    #define BSLS_PLATFORM_COMPILER_ERROR                                      \
+                          char die[sizeof(::BloombergLP::bsls_Platform_Assert)]
 #else
-#   define BSLS_PLATFORM_COMPILER_ERROR                        \
-        char die[sizeof(bsls_Platform_Assert)]
+    #define BSLS_PLATFORM_COMPILER_ERROR char die[sizeof(bsls_Platform_Assert)]
 #endif
 
                         // Automatic Configuration
@@ -227,21 +261,21 @@ struct bsls_Platform_Assert;
 
 // ----------------------------------------------------------------------------
 #if defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)
-    #define BSLS_PLATFORM_CMP_IBM 1
+    #define BSLS_PLATFORM_CMP_IBM                                             1
     #define BSLS_PLATFORM_CMP_VERSION __xlC__
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    #define BSLS_PLATFORM_CMP_AIX 1
+    #define BSLS_PLATFORM_CMP_AIX                                             1
          // DEPRECATED: use 'BSLS_PLATFORM_CMP_IBM' instead.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // which OS -- this compiler should only be used on AIX
-    #define BSLS_PLATFORM_OS_UNIX 1
+    #define BSLS_PLATFORM_OS_UNIX                                             1
     #if defined(_AIX)                          // must be defined
-        #define BSLS_PLATFORM_OS_AIX 1
+        #define BSLS_PLATFORM_OS_AIX                                          1
         #define BSLS_PLATFORM_OS_VER_MAJOR _AIX
     #elif defined(__linux__)
-        #define BSLS_PLATFORM_OS_LINUX 1
+        #define BSLS_PLATFORM_OS_LINUX                                        1
     #else
         #error "AIX compiler appears to be in use on non-AIX OS."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -269,15 +303,15 @@ struct bsls_Platform_Assert;
         BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
-    #define BSLS_PLATFORM_CPU_POWERPC 1
+    #define BSLS_PLATFORM_CPU_POWERPC                                         1
     #if defined (__64BIT__)
-        #define BSLS_PLATFORM_CPU_64_BIT 1
+        #define BSLS_PLATFORM_CPU_64_BIT                                      1
     #else
-        #define BSLS_PLATFORM_CPU_32_BIT 1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
     #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #elif defined(_MSC_VER)
-    #define BSLS_PLATFORM_CMP_MSVC 1
+    #define BSLS_PLATFORM_CMP_MSVC                                            1
     #define BSLS_PLATFORM_CMP_VERSION _MSC_VER
 
     // which OS -- should be some flavor of Windows
@@ -285,7 +319,7 @@ struct bsls_Platform_Assert;
     //  - 16-bit versions of Windows (3.x)
     //  - Windows CE
     #if defined(_WIN64) || defined(_WIN32)
-        #define BSLS_PLATFORM_OS_WINDOWS 1
+        #define BSLS_PLATFORM_OS_WINDOWS                                      1
     #elif defined(_WIN16)
         #error "16-bit Windows platform not supported."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -294,20 +328,35 @@ struct bsls_Platform_Assert;
         BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
-    // which version of Windows
-    #if _WIN32_WINNT >= 0x0501
-        #define BSLS_PLATFORM_OS_WINXP 1
+    // which version of Windows, source sampled 2022.Dec.26 18:00EST:
+    // https://learn.microsoft.com/en-us/cpp/porting/ ...
+    //                                     ... modifying-winver-and-win32-winnt
+    #if _WIN32_WINNT >= 0x0A00
+        #define BSLS_PLATFORM_OS_WIN10                                        1
+    #elif _WIN32_WINNT >= 0x0603
+        #define BSLS_PLATFORM_OS_WINBLUE                                      1
+    #elif _WIN32_WINNT >= 0x0602
+        #define BSLS_PLATFORM_OS_WIN8                                         1
+    #elif _WIN32_WINNT >= 0x0601
+        #define BSLS_PLATFORM_OS_WIN7                                         1
+    #elif _WIN32_WINNT >= 0x0600
+        #define BSLS_PLATFORM_OS_WINVISTA                                     1
+        #define BSLS_PLATFORM_OS_WINS08                                       1
+    #elif _WIN32_WINNT >= 0x0502
+        #define BSLS_PLATFORM_OS_WINS03                                       1
+    #elif _WIN32_WINNT >= 0x0501
+        #define BSLS_PLATFORM_OS_WINXP                                        1
     #elif _WIN32_WINNT >= 0x0500
-        #define BSLS_PLATFORM_OS_WIN2K 1
+        #define BSLS_PLATFORM_OS_WIN2K                                        1
     #elif _WIN32_WINNT >= 0x0410
-        #define BSLS_PLATFORM_OS_WIN9X 1
+        #define BSLS_PLATFORM_OS_WIN9X                                        1
     #elif _WIN32_WINNT >= 0x0400
-        #define BSLS_PLATFORM_OS_WINNT 1
-    #elif defined(WINVER) && WINVER >= 0x0400 \
+        #define BSLS_PLATFORM_OS_WINNT                                        1
+    #elif defined(WINVER) && WINVER >= 0x0400                                 \
         || defined(_WIN32_WINDOWS) && _WIN32_WINDOWS >= 0x401
-        #define BSLS_PLATFORM_OS_WIN9X 1
-    #else
-        #define BSLS_PLATFORM_OS_WINNT 1      // default
+        #define BSLS_PLATFORM_OS_WIN9X                                        1
+    #else  // default when detection fails
+        #define BSLS_PLATFORM_OS_WINVISTA                                     1
     #endif
 
     // set Version flags
@@ -328,34 +377,34 @@ struct bsls_Platform_Assert;
     // which CPU
     //  since WinCE is not supported, neither is the HITACHI CPU
     #if defined(_M_ALPHA)
-        #define BSLS_PLATFORM_CPU_ALPHA 1
+        #define BSLS_PLATFORM_CPU_ALPHA                                       1
     #elif defined(_M_IX86)
-        #define BSLS_PLATFORM_CPU_X86 1
-        #define BSLS_PLATFORM_CPU_32_BIT 1
+        #define BSLS_PLATFORM_CPU_X86                                         1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
         #define BSLS_PLATFORM_CPU_VER_MAJOR _M_IX86
     #elif defined(_M_IA64)
-        #if defined(_WIN64)
-            #define BSLS_PLATFORM_CPU_IA64 1
-            #define BSLS_PLATFORM_CPU_64_BIT 1 // native mode
-        #else
-            #define BSLS_PLATFORM_CPU_X86 1
-            #define BSLS_PLATFORM_CPU_32_BIT 1 // emulated
+        #if defined(_WIN64)  // native mode
+            #define BSLS_PLATFORM_CPU_IA64                                    1
+            #define BSLS_PLATFORM_CPU_64_BIT                                  1
+        #else                // emulated
+            #define BSLS_PLATFORM_CPU_X86                                     1
+            #define BSLS_PLATFORM_CPU_32_BIT                                  1
         #endif
         #define BSLS_PLATFORM_CPU_VER_MAJOR _M_IA64
     #elif defined(_M_AMD64)
-        #if defined(_WIN64)
-            #define BSLS_PLATFORM_CPU_X86_64 1
-            #define BSLS_PLATFORM_CPU_64_BIT 1 // native mode
-        #else
-            #define BSLS_PLATFORM_CPU_X86 1
-            #define BSLS_PLATFORM_CPU_32_BIT 1 // emulated
+        #if defined(_WIN64)  // native mode
+            #define BSLS_PLATFORM_CPU_X86_64                                  1
+            #define BSLS_PLATFORM_CPU_64_BIT                                  1
+        #else                // emulated
+            #define BSLS_PLATFORM_CPU_X86                                     1
+            #define BSLS_PLATFORM_CPU_32_BIT                                  1
         #endif
         #define BSLS_PLATFORM_CPU_VER_MAJOR _M_AMD64
     #elif defined(_M_PPC)
-        #define BSLS_PLATFORM_CPU_POWERPC 1
+        #define BSLS_PLATFORM_CPU_POWERPC                                     1
         #define BSLS_PLATFORM_CPU_VER_MAJOR _M_PPC
     #elif defined(_M_MRX000)
-        #define BSLS_PLATFORM_CPU_MIPS 1
+        #define BSLS_PLATFORM_CPU_MIPS                                        1
         #define BSLS_PLATFORM_CPU_VER_MAJOR _M_MRX000
     #else
         #error "Unable to identify CPU on which the MSVC compiler is running."
@@ -383,44 +432,45 @@ struct bsls_Platform_Assert;
         // 'BSLS_PLATFORM_CMP_VERSION' must be used, then '__APPLE_CC__' can be
         // tested to determine if 'BSLS_PLATFORM_CMP_VERSION' represents Clang
         // LLVM or Apple Xcode version.
-        #define BSLS_PLATFORM_CMP_CLANG 1
-        #define BSLS_PLATFORM_CMP_VERSION ( __clang_major__ * 10000          \
-                                          + __clang_minor__ * 100            \
+
+        #define BSLS_PLATFORM_CMP_CLANG                                       1
+        #define BSLS_PLATFORM_CMP_VERSION ( __clang_major__ * 10000           \
+                                          + __clang_minor__ * 100             \
                                           + __clang_patchlevel__ )
     #elif defined (__GNUC__)
-        #define BSLS_PLATFORM_CMP_GNU 1
+        #define BSLS_PLATFORM_CMP_GNU                                         1
         #if defined(__GNUC_PATCHLEVEL__)
-            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
+            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000               \
                         + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
         #else
-            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
+            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000               \
                         + __GNUC_MINOR__ * 100)
         #endif
     #else
-        #define BSLS_PLATFORM_CMP_EDG 1
+        #define BSLS_PLATFORM_CMP_EDG                                         1
         #define BSLS_PLATFORM_CMP_VERSION __EDG_VERSION__
     #endif
 
     // which OS -- GNU and EDG/Como are implemented almost everywhere
     #if defined(_AIX)
-        #define BSLS_PLATFORM_OS_AIX 1
+        #define BSLS_PLATFORM_OS_AIX                                          1
     #elif defined(__CYGWIN__) || defined(cygwin) || defined(__cygwin)
-        #define BSLS_PLATFORM_OS_CYGWIN 1
+        #define BSLS_PLATFORM_OS_CYGWIN                                       1
     #elif defined(linux) || defined(__linux)
-        #define BSLS_PLATFORM_OS_LINUX 1
+        #define BSLS_PLATFORM_OS_LINUX                                        1
     #elif defined(__FreeBSD__)
-        #define BSLS_PLATFORM_OS_FREEBSD 1
+        #define BSLS_PLATFORM_OS_FREEBSD                                      1
     #elif defined(sun) || defined(__sun)
         #if defined(__SVR4) || defined(__svr4__)
-            #define BSLS_PLATFORM_OS_SOLARIS 1
+            #define BSLS_PLATFORM_OS_SOLARIS                                  1
         #else
-            #define BSLS_PLATFORM_OS_SUNOS 1
+            #define BSLS_PLATFORM_OS_SUNOS                                    1
         #endif
-    #elif defined(_WIN32) || defined(__WIN32__) && \
-          ! (defined(cygwin) || defined(__cygwin))
-        #define BSLS_PLATFORM_OS_WINDOWS 1
+    #elif defined(_WIN32) || defined(__WIN32__) &&                            \
+          !(defined(cygwin) || defined(__cygwin))
+        #define BSLS_PLATFORM_OS_WINDOWS                                      1
     #elif defined(__APPLE__)
-        #define BSLS_PLATFORM_OS_DARWIN 1
+        #define BSLS_PLATFORM_OS_DARWIN                                       1
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which OS the compiler is running."
@@ -431,69 +481,69 @@ struct bsls_Platform_Assert;
     #endif
 
     #if !defined(BSLS_PLATFORM_OS_WINDOWS)
-        #define BSLS_PLATFORM_OS_UNIX 1
+        #define BSLS_PLATFORM_OS_UNIX                                         1
     #endif
 
     // which CPU -- GNU and EDG/Como are implemented almost everywhere
     #if defined(__alpha__)
-        #define BSLS_PLATFORM_CPU_ALPHA 1
+        #define BSLS_PLATFORM_CPU_ALPHA                                       1
     #elif defined(__x86_64) || defined(__x86_64__)
-        #define BSLS_PLATFORM_CPU_X86_64 1
-        #define BSLS_PLATFORM_CPU_64_BIT 1
-    #elif defined(__i386) || defined(__i386__) \
+        #define BSLS_PLATFORM_CPU_X86_64                                      1
+        #define BSLS_PLATFORM_CPU_64_BIT                                      1
+    #elif defined(__i386) || defined(__i386__)                                \
         || defined(__ix86) || defined(__ix86__)
-        #define BSLS_PLATFORM_CPU_X86 1
-        #define BSLS_PLATFORM_CPU_32_BIT 1
-    #elif defined(__ia64) || defined(__ia64__) || defined(_IA64) \
+        #define BSLS_PLATFORM_CPU_X86                                         1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
+    #elif defined(__ia64) || defined(__ia64__) || defined(_IA64)              \
           || defined(__IA64__)
-        #define BSLS_PLATFORM_CPU_IA64 1
+        #define BSLS_PLATFORM_CPU_IA64                                        1
         #if defined(_LP64) || defined(__LP64__)
-            #define BSLS_PLATFORM_CPU_64_BIT 1
+            #define BSLS_PLATFORM_CPU_64_BIT                                  1
         #else  // defined(_ILP32)
-            #define BSLS_PLATFORM_CPU_32_BIT 1
+            #define BSLS_PLATFORM_CPU_32_BIT                                  1
         #endif
     #elif defined(__mips__)
-        #define BSLS_PLATFORM_CPU_MIPS 1
+        #define BSLS_PLATFORM_CPU_MIPS                                        1
     #elif defined(__hppa__) || defined(__hppa)
-        #define BSLS_PLATFORM_CPU_HPPA 1
-    #elif defined(__powerpc) || defined(__powerpc__) \
+        #define BSLS_PLATFORM_CPU_HPPA                                        1
+    #elif defined(__powerpc) || defined(__powerpc__)                          \
           || defined(__POWERPC__) || defined(__ppc__) || defined(_POWER)
-        #define BSLS_PLATFORM_CPU_POWERPC 1
+        #define BSLS_PLATFORM_CPU_POWERPC                                     1
         #if defined(__64BIT__) || defined(_LP64) || defined(__LP64__)
-            #define BSLS_PLATFORM_CPU_64_BIT 1
+            #define BSLS_PLATFORM_CPU_64_BIT                                  1
         #else  // defined(_ILP32)
-            #define BSLS_PLATFORM_CPU_32_BIT 1
+            #define BSLS_PLATFORM_CPU_32_BIT                                  1
         #endif
     #elif defined(__sparc__) || defined(__sparc_v9__) || defined(__sparcv9)
-        #define BSLS_PLATFORM_CPU_SPARC 1
+        #define BSLS_PLATFORM_CPU_SPARC                                       1
         #if defined(__sparc_v9__) || defined(__sparcv9) || defined(__arch64__)
-            #define BSLS_PLATFORM_CPU_SPARC_V9 1
-            #define BSLS_PLATFORM_CPU_64_BIT 1
+            #define BSLS_PLATFORM_CPU_SPARC_V9                                1
+            #define BSLS_PLATFORM_CPU_64_BIT                                  1
         #else
-            #define BSLS_PLATFORM_CPU_SPARC_32 1
+            #define BSLS_PLATFORM_CPU_SPARC_32                                1
         #endif
     #elif defined(__arm__) || defined(__arm64__)
-        #define BSLS_PLATFORM_CPU_ARM 1
+        #define BSLS_PLATFORM_CPU_ARM                                         1
         #if defined(__arm64__)
-            #define BSLS_PLATFORM_CPU_64_BIT 1
+            #define BSLS_PLATFORM_CPU_64_BIT                                  1
         #endif
         #if defined(__ARM_ARCH)
             #if __ARM_ARCH == 6
-                #define BSLS_PLATFORM_CPU_ARM_V6
+                #define BSLS_PLATFORM_CPU_ARM_V6                              1
             #elif __ARM_ARCH == 7
-                #define BSLS_PLATFORM_CPU_ARM_V7
+                #define BSLS_PLATFORM_CPU_ARM_V7                              1
             #elif __ARM_ARCH == 8
-                #define BSLS_PLATFORM_CPU_ARM_V8
+                #define BSLS_PLATFORM_CPU_ARM_V8                              1
             #endif
-        #elif defined(__ARM_ARCH_5T__)                                       \
-            || defined(__ARM_ARCH_5TE__)                                     \
+        #elif defined(__ARM_ARCH_5T__)                                        \
+            || defined(__ARM_ARCH_5TE__)                                      \
             || defined(__ARM_ARCH_5TEJ__)
             #define BSLS_PLATFORM_CPU_ARM_V5
         #elif defined(__ARM_ARCH_6__) || defined (__ARM_ARCH_6ZK__)
             #define BSLS_PLATFORM_CPU_ARM_V6
-        #elif defined(__ARM_ARCH_7__)                                        \
-            || defined(__ARM_ARCH_7A__)                                      \
-            || defined(__ARM_ARCH_7M__)                                      \
+        #elif defined(__ARM_ARCH_7__)                                         \
+            || defined(__ARM_ARCH_7A__)                                       \
+            || defined(__ARM_ARCH_7M__)                                       \
             || defined(__ARM_ARCH_7R__)
             #define BSLS_PLATFORM_CPU_ARM_V7
         #elif defined(__ARM64_ARCH_8__)                                       \
@@ -514,12 +564,12 @@ struct bsls_Platform_Assert;
     #endif
 
     #if !defined(BSLS_PLATFORM_CPU_64_BIT)
-        #define BSLS_PLATFORM_CPU_32_BIT 1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
     #endif
 // ----------------------------------------------------------------------------
 #elif defined(__SUNPRO_CC) || defined(__SUNPRO_C)
 
-    #define BSLS_PLATFORM_CMP_SUN 1
+    #define BSLS_PLATFORM_CMP_SUN                                             1
     #if defined(__cplusplus)
         #define BSLS_PLATFORM_CMP_VERSION __SUNPRO_CC
     #else
@@ -527,9 +577,9 @@ struct bsls_Platform_Assert;
     #endif
 
     // which OS
-    #define BSLS_PLATFORM_OS_UNIX 1
+    #define BSLS_PLATFORM_OS_UNIX                                             1
     #if defined(sun) || defined(__sun)
-        #define BSLS_PLATFORM_OS_SOLARIS 1
+        #define BSLS_PLATFORM_OS_SOLARIS                                      1
         #if defined(__SVR4) || defined(__svr4__)
             #if defined(__SunOS_5_7)
                 #define BSLS_PLATFORM_OS_VER_MAJOR 7
@@ -555,7 +605,7 @@ struct bsls_Platform_Assert;
             BSLS_PLATFORM_COMPILER_ERROR;
         #endif
     #elif defined(__SVR4) || defined(__svr4__)
-        #define BSLS_PLATFORM_OS_SUNOS 1
+        #define BSLS_PLATFORM_OS_SUNOS                                        1
         #if defined(__SunOS_5_7)
             #define BSLS_PLATFORM_OS_VER_MAJOR 7
             #define BSLS_PLATFORM_OS_VER_MINOR 0
@@ -575,19 +625,19 @@ struct bsls_Platform_Assert;
 
     // determine which CPU
     #if defined(__x86_64) || defined(__x86_64__)
-        #define BSLS_PLATFORM_CPU_X86_64 1
-        #define BSLS_PLATFORM_CPU_64_BIT 1
+        #define BSLS_PLATFORM_CPU_X86_64                                      1
+        #define BSLS_PLATFORM_CPU_64_BIT                                      1
     #elif defined(i386) || defined(__i386)
-        #define BSLS_PLATFORM_CPU_X86 1
-        #define BSLS_PLATFORM_CPU_32_BIT 1
+        #define BSLS_PLATFORM_CPU_X86                                         1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
     #elif defined(__sparc64) || defined(__sparcv9)
-        #define BSLS_PLATFORM_CPU_SPARC 1
-        #define BSLS_PLATFORM_CPU_SPARC_V9 1
-        #define BSLS_PLATFORM_CPU_64_BIT 1
+        #define BSLS_PLATFORM_CPU_SPARC                                       1
+        #define BSLS_PLATFORM_CPU_SPARC_V9                                    1
+        #define BSLS_PLATFORM_CPU_64_BIT                                      1
     #elif defined(sparc) || defined(__sparc)
-        #define BSLS_PLATFORM_CPU_SPARC 1
-        #define BSLS_PLATFORM_CPU_SPARC_32 1
-        #define BSLS_PLATFORM_CPU_32_BIT 1
+        #define BSLS_PLATFORM_CPU_SPARC                                       1
+        #define BSLS_PLATFORM_CPU_SPARC_32                                    1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
     #else
         #error "Cannot determine CPU on which the SUN compiler is running."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -601,47 +651,47 @@ struct bsls_Platform_Assert;
 
 // Determine endianness.
 
-// Glibc or Linux or Cygwin
-#if defined(__GLIBC__) ||                                                     \
-    defined(BSLS_PLATFORM_OS_LINUX) ||                                        \
-    defined(BSLS_PLATFORM_OS_CYGWIN)
-#include <endian.h>
-#if (__BYTE_ORDER == __LITTLE_ENDIAN)
-#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
-#elif (__BYTE_ORDER == __BIG_ENDIAN)
-#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
-#endif
+// GNU libc or Linux or Cygwin
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)       \
+    || defined(__GLIBC__)
+
+    #include <endian.h>
+    #if (__BYTE_ORDER == __LITTLE_ENDIAN)
+        #define BSLS_PLATFORM_IS_LITTLE_ENDIAN                                1
+    #elif (__BYTE_ORDER == __BIG_ENDIAN)
+        #define BSLS_PLATFORM_IS_BIG_ENDIAN                                   1
+    #endif
 
 // AIX
 #elif defined(BSLS_PLATFORM_OS_AIX)
-#include <sys/machine.h>
-#if BYTE_ORDER == LITTLE_ENDIAN
-#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
-#elif BYTE_ORDER == BIG_ENDIAN
-#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
-#endif
+    #include <sys/machine.h>
+    #if BYTE_ORDER == LITTLE_ENDIAN
+        #define BSLS_PLATFORM_IS_LITTLE_ENDIAN                                1
+    #elif BYTE_ORDER == BIG_ENDIAN
+        #define BSLS_PLATFORM_IS_BIG_ENDIAN                                   1
+    #endif
 
 // Sun/Solaris
 #elif defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
-#include <sys/isa_defs.h>
-#if defined(_LITTLE_ENDIAN)
-#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
-#elif defined(_BIG_ENDIAN)
-#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
-#endif
+    #include <sys/isa_defs.h>
+    #if defined(_LITTLE_ENDIAN)
+        #define BSLS_PLATFORM_IS_LITTLE_ENDIAN                                1
+    #elif defined(_BIG_ENDIAN)
+        #define BSLS_PLATFORM_IS_BIG_ENDIAN                                   1
+    #endif
 
 // Darwin
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
-#include <machine/endian.h>
-#if BYTE_ORDER == LITTLE_ENDIAN
-#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
-#elif BYTE_ORDER == BIG_ENDIAN
-#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
-#endif
+    #include <machine/endian.h>
+    #if BYTE_ORDER == LITTLE_ENDIAN
+        #define BSLS_PLATFORM_IS_LITTLE_ENDIAN                                1
+    #elif BYTE_ORDER == BIG_ENDIAN
+        #define BSLS_PLATFORM_IS_BIG_ENDIAN                                   1
+    #endif
 
 // MSVC and Windows
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
-#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+    #define BSLS_PLATFORM_IS_LITTLE_ENDIAN                                    1
 #endif
 
 // Endianness sanity check is done further in this header.
@@ -657,31 +707,31 @@ struct bsls_Platform_Assert;
 #elif defined(BSLS_PLATFORM_CMP_EDG)
     // No minimum supported compiler version has been identified yet.
 #elif defined(BSLS_PLATFORM_CMP_HP)
-#  if BSLS_PLATFORM_CMP_VERSION < 62500
-#    error This early compiler is not supported by BDE
-#  endif
+    #if BSLS_PLATFORM_CMP_VERSION < 62500
+        #error This early compiler is not supported by BDE
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_IBM)
     // Require at least xlC 12 for AIX.
-#  if BSLS_PLATFORM_CMP_VERSION < 0x0c01
-#    error This early compiler is not supported by BDE
-#  endif
+    #if BSLS_PLATFORM_CMP_VERSION < 0x0c01
+        #error This early compiler is not supported by BDE
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_SUN)
-#  if BSLS_PLATFORM_CMP_VERSION < 0x5120
-#    error This early compiler is not supported by BDE
-#  endif
+    #if BSLS_PLATFORM_CMP_VERSION < 0x5120
+        #error This early compiler is not supported by BDE
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_GNU)
     // Test GNU late, as so many compilers offer a GNU compatibility mode.
-#  if BSLS_PLATFORM_CMP_VERSION < 40102
-#    error This early compiler is not supported by BDE
-#  endif
+    #if BSLS_PLATFORM_CMP_VERSION < 40102
+        #error This early compiler is not supported by BDE
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     // Test MSVC last, as many compilers targeting Windows offer a Microsoft
     // compatibility mode.
-#  if BSLS_PLATFORM_CMP_VERSION < 1800
-#    error This early compiler is not supported by BDE
-#  endif
+    #if BSLS_PLATFORM_CMP_VERSION < 1800
+        #error This early compiler is not supported by BDE
+    #endif
 #else
-#  error This compiler is not recognized by BDE
+    #error This compiler is not recognized by BDE
 #endif
 
 #endif
@@ -695,19 +745,24 @@ struct bsls_Platform_Assert;
                         // Miscellaneous Platform Macros
 
 #if defined(BSLS_PLATFORM_CMP_GNU) && !defined(__GXX_EXPERIMENTAL_CXX0X__)
-    #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
+    #define BSLS_PLATFORM_NO_64_BIT_LITERALS                                  1
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CPU_64_BIT)
-    #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
+    #define BSLS_PLATFORM_NO_64_BIT_LITERALS                                  1
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
                                     || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
+    #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC                           1
+    #if defined(BSLS_PLATFORM_CMP_CLANG)
+        #define BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG                     1
+    #else
+        #define BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC                       1
+    #endif
 #endif
 
-#if !(defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN)) \
+#if !(defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN))       \
                                 || defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
     #define BSLS_PLATFORM_AGGRESSIVE_INLINE inline
 #else
@@ -721,7 +776,7 @@ struct bsls_Platform_Assert;
     //     #pragma pop_macro("NAME")    // Restore macro definition of NAME
     // Note that if NAME is undefined, the sequence push/define NAME/pop may
     // leave NAME defined at the end, depending on compiler version.
-    #define BSLS_PLATFORM_HAS_MACRO_PUSH_POP 1
+    #define BSLS_PLATFORM_HAS_MACRO_PUSH_POP                                  1
 #endif
 
 ///Implementation Note
@@ -743,33 +798,33 @@ struct bsls_Platform_Assert;
 // detect whether most x86 instruction set extensions are enabled.
 
 #if defined(_MSC_VER)
-    #define BSLS_PLATFORM_CPU_SSE  1
-    #define BSLS_PLATFORM_CPU_SSE2 1
-    #define BSLS_PLATFORM_CPU_SSE3 1
+    #define BSLS_PLATFORM_CPU_SSE                                             1
+    #define BSLS_PLATFORM_CPU_SSE2                                            1
+    #define BSLS_PLATFORM_CPU_SSE3                                            1
 #elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
     #if defined(__SSE__)
-        #define BSLS_PLATFORM_CPU_SSE  1
+        #define BSLS_PLATFORM_CPU_SSE                                         1
     #endif
     #if defined(__SSE2__)
-        #define BSLS_PLATFORM_CPU_SSE2 1
+        #define BSLS_PLATFORM_CPU_SSE2                                        1
     #endif
     #if defined(__SSE3__)
-        #define BSLS_PLATFORM_CPU_SSE3 1
+        #define BSLS_PLATFORM_CPU_SSE3                                        1
     #endif
     #if defined(__SSE4_1__)
-        #define BSLS_PLATFORM_CPU_SSE4_1 1
+        #define BSLS_PLATFORM_CPU_SSE4_1                                      1
     #endif
     #if defined(__SSE4_2__)
-        #define BSLS_PLATFORM_CPU_SSE4_2 1
+        #define BSLS_PLATFORM_CPU_SSE4_2                                      1
     #endif
 #endif
 
 // ----------------------------------------------------------------------------
 
-                                 // Validation
+                           // Self Validation
 
 // Unix flag must be set by the compiler if Unix detected (except for AIX).
-#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX) && \
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX) &&       \
                                       !defined(BSLS_PLATFORM_OS_DARWIN)
     #if !defined(unix) && !defined(__unix__) && !defined(__unix)
         #error "Unix platform assumed, but unix flag not set by compiler"
@@ -778,67 +833,77 @@ struct bsls_Platform_Assert;
 #endif
 
 // Exactly one 'CMP' type.
-#if BSLS_PLATFORM_CMP_EDG                                                    \
-  + BSLS_PLATFORM_CMP_CLANG                                                  \
-  + BSLS_PLATFORM_CMP_GNU                                                    \
-  + BSLS_PLATFORM_CMP_HP                                                     \
-  + BSLS_PLATFORM_CMP_IBM                                                    \
-  + BSLS_PLATFORM_CMP_MSVC                                                   \
+#if BSLS_PLATFORM_CMP_EDG                                                     \
+  + BSLS_PLATFORM_CMP_CLANG                                                   \
+  + BSLS_PLATFORM_CMP_GNU                                                     \
+  + BSLS_PLATFORM_CMP_HP                                                      \
+  + BSLS_PLATFORM_CMP_IBM                                                     \
+  + BSLS_PLATFORM_CMP_MSVC                                                    \
   + BSLS_PLATFORM_CMP_SUN != 1
     #error "Exactly one compiler must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 // Exactly one 'OS' type.
-#if BSLS_PLATFORM_OS_UNIX \
+#if BSLS_PLATFORM_OS_UNIX                                                     \
   + BSLS_PLATFORM_OS_WINDOWS != 1
     #error "Exactly one operating system must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 // At most one 'OS' subtype.
-
-#define BSLS_PLATFORM_OS_SUBTYPE_COUNT                                       \
-    BSLS_PLATFORM_OS_AIX                                                     \
-  + BSLS_PLATFORM_OS_DARWIN                                                  \
-  + BSLS_PLATFORM_OS_LINUX                                                   \
-  + BSLS_PLATFORM_OS_FREEBSD                                                 \
-  + BSLS_PLATFORM_OS_SOLARIS                                                 \
-  + BSLS_PLATFORM_OS_SUNOS                                                   \
-  + BSLS_PLATFORM_OS_CYGWIN                                                  \
-  + BSLS_PLATFORM_OS_WIN9X                                                   \
-  + BSLS_PLATFORM_OS_WINNT                                                   \
-  + BSLS_PLATFORM_OS_WIN2K                                                   \
-  + BSLS_PLATFORM_OS_WINXP
+#define BSLS_PLATFORM_OS_SUBTYPE_COUNT                                        \
+    BSLS_PLATFORM_OS_AIX                                                      \
+  + BSLS_PLATFORM_OS_DARWIN                                                   \
+  + BSLS_PLATFORM_OS_LINUX                                                    \
+  + BSLS_PLATFORM_OS_FREEBSD                                                  \
+  + BSLS_PLATFORM_OS_SOLARIS                                                  \
+  + BSLS_PLATFORM_OS_SUNOS                                                    \
+  + BSLS_PLATFORM_OS_CYGWIN                                                   \
+  + BSLS_PLATFORM_OS_WIN9X                                                    \
+  + BSLS_PLATFORM_OS_WINNT                                                    \
+  + BSLS_PLATFORM_OS_WIN2K                                                    \
+  + BSLS_PLATFORM_OS_WINXP                                                    \
+  + BSLS_PLATFORM_OS_WINS03                                                   \
+  + BSLS_PLATFORM_OS_WINVISTA                                                 \
+  + BSLS_PLATFORM_OS_WIN7                                                     \
+  + BSLS_PLATFORM_OS_WIN8                                                     \
+  + BSLS_PLATFORM_OS_WINBLUE                                                  \
+  + BSLS_PLATFORM_OS_WIN10
 #if BSLS_PLATFORM_OS_SUBTYPE_COUNT > 1
     #error "At most one operating system subtype must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
+// Windows Server 2008 API is the same as Vista
+#if defined(BSLS_PLATFORM_OS_WINVISTA) != defined(BSLS_PLATFORM_OS_WINS08)
+    #error "Windows Vista and Server 2008 are the same API."
+    BSLS_PLATFORM_COMPILER_ERROR;
+#endif
+
 // Exactly one 'CPU' type.
-#if BSLS_PLATFORM_CPU_88000                                                  \
-  + BSLS_PLATFORM_CPU_ALPHA                                                  \
-  + BSLS_PLATFORM_CPU_HPPA                                                   \
-  + BSLS_PLATFORM_CPU_IA64                                                   \
-  + BSLS_PLATFORM_CPU_X86                                                    \
-  + BSLS_PLATFORM_CPU_X86_64                                                 \
-  + BSLS_PLATFORM_CPU_MIPS                                                   \
-  + BSLS_PLATFORM_CPU_POWERPC                                                \
-  + BSLS_PLATFORM_CPU_SPARC                                                  \
+#if BSLS_PLATFORM_CPU_88000                                                   \
+  + BSLS_PLATFORM_CPU_ALPHA                                                   \
+  + BSLS_PLATFORM_CPU_HPPA                                                    \
+  + BSLS_PLATFORM_CPU_IA64                                                    \
+  + BSLS_PLATFORM_CPU_X86                                                     \
+  + BSLS_PLATFORM_CPU_X86_64                                                  \
+  + BSLS_PLATFORM_CPU_MIPS                                                    \
+  + BSLS_PLATFORM_CPU_POWERPC                                                 \
+  + BSLS_PLATFORM_CPU_SPARC                                                   \
   + BSLS_PLATFORM_CPU_ARM != 1
     #error "Exactly one processor must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 // Exactly one kind of "endian-ness".
-#if BSLS_PLATFORM_IS_BIG_ENDIAN \
+#if BSLS_PLATFORM_IS_BIG_ENDIAN                                               \
   + BSLS_PLATFORM_IS_LITTLE_ENDIAN != 1
     #error "Exactly one kind of endian-ness must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
-#if defined(BSLS_PLATFORM_OS_VER_MAJOR) \
-         && BSLS_PLATFORM_OS_SUBTYPE_COUNT != 1
+#if defined(BSLS_PLATFORM_OS_VER_MAJOR) && BSLS_PLATFORM_OS_SUBTYPE_COUNT != 1
         // For OS, MAJOR VERSION implies SUBTYPE.
     #error "Operating system major version but not subtype defined."
     BSLS_PLATFORM_COMPILER_ERROR;
@@ -846,8 +911,7 @@ struct bsls_Platform_Assert;
 
 #undef BSLS_PLATFORM_OS_SUBTYPE_COUNT
 
-#if defined(BSLS_PLATFORM_OS_VER_MINOR) && \
-   !defined(BSLS_PLATFORM_OS_VER_MAJOR)
+#if defined(BSLS_PLATFORM_OS_VER_MINOR) && !defined(BSLS_PLATFORM_OS_VER_MAJOR)
     #error "Operating System minor but not major version defined."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
@@ -972,7 +1036,7 @@ struct Platform {
         typedef CpuX86_64  Cpu;
     #endif
     #if defined(BSLS_PLATFORM_CPU_POWERPC)
-        #if defined(BSLS_PLATFORM_CPU_VER_MAJOR) &&  \
+        #if defined(BSLS_PLATFORM_CPU_VER_MAJOR) &&                           \
                                     (BSLS_PLATFORM_CPU_VER_MAJOR == _ARCH_601)
             typedef CpuPowerpc_601 Cpu;
         #else
