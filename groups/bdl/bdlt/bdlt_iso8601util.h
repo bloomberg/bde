@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //
 ///ISO 8601 String Parsing
 ///-----------------------
-// The parse functions accept *all* strings that are produced by the generate
+// The 'parse' functions accept *all* strings that are produced by the generate
 // functions.  In addition, the parse functions accept some variation in the
 // generated strings, the details of which are discussed next.  Note that the
 // parse methods are not configurable like the generate methods (i.e., via an
@@ -144,6 +144,13 @@ BSLS_IDENT("$Id: $")
 // automatically accept '.' or ',' as the decimal sign in fractional seconds,
 // and treat '+00:00', '+0000', 'Z', and 'z' as equivalent zone designators
 // (all denoting UTC).
+//
+// The 'parseRelaxed' functions accept "relaxed" ISO 8601 format that is a
+// superset of the strict ISO 8601 format, meaning this function will parse
+// ISO 8601 values as well as supporting some common variations.  Currently
+// this allows a SPACE character to be used as an alternative separator between
+// date and time elements (where strict ISO 8601 requires a 'T'), but the set
+// of extensions may grow in the future.
 //
 ///Zone Designators
 /// - - - - - - - -
@@ -1448,6 +1455,170 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
+    static int parseRelaxed(Datetime *result, const char *string, int length);
+        // Parse the specified initial 'length' characters of the specified
+        // "relaxed" ISO 8601 'string' as a 'Datetime' value, and load the
+        // value into the specified 'result'.  Return 0 on success, and a
+        // non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
+        //..
+        //  YYYY-MM-DD(T| )hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // The "relaxed" format parsed by this function is a superset of the
+        // strict ISO 8601 format, currently allowing a SPACE character to be
+        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
+        // 'length' characters are parsed; parsing will fail if a proper prefix
+        // of 'string' matches the expected format, but the entire 'length'
+        // characters do not.  If an optional fractional second having more
+        // than six digits is present in 'string', it is rounded to the nearest
+        // value in microseconds.  If the optional zone designator is present
+        // in 'string', the resulting 'Datetime' value is converted to the
+        // equivalent UTC value; if the zone designator is absent, UTC is
+        // assumed.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // zone designator must be absent or indicate UTC.  The behavior is
+        // undefined unless '0 <= length'.
+
+    static int parseRelaxed(DatetimeTz *result,
+                            const char *string,
+                            int         length);
+        // Parse the specified initial 'length' characters of the specified
+        // "relaxed" ISO 8601 'string' as a 'DatetimeTz' value, and load the
+        // value into the specified 'result'.  Return 0 on success, and a
+        // non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
+        //..
+        //  YYYY-MM-DD(T| )hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // The "relaxed" format parsed by this function is a superset of the
+        // strict ISO 8601 format, currently allowing a SPACE character to be
+        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
+        // 'length' characters are parsed; parsing will fail if a proper prefix
+        // of 'string' matches the expected format, but the entire 'length'
+        // characters do not.  If an optional fractional second having more
+        // than six digits is present in 'string', it is rounded to the nearest
+        // value in microseconds.  If the optional zone designator is not
+        // present in 'string', UTC is assumed.  If a leap second is detected
+        // (i.e., the parsed value of the 'second' attribute is 60; see {Leap
+        // Seconds}), the 'second' attribute is taken to be 59, then an
+        // additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the zone designator must be absent
+        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
+
+    static int parseRelaxed(DatetimeOrDatetimeTz *result,
+                            const char           *string,
+                            int                   length);
+        // Parse the specified initial 'length' characters of the specified
+        // "relaxed" ISO 8601 'string' as a 'Datetime' or 'DatetimeTz' value,
+        // depending on the presence of a zone designator, and load the value
+        // into the specified 'result'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
+        //..
+        //  YYYY-MM-DD(T| )hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // The "relaxed" format parsed by this function is a superset of the
+        // strict ISO 8601 format, currently allowing a SPACE character to be
+        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
+        // 'length' characters are parsed;    parsing will fail if a proper
+        // prefix of 'string' matches the expected format, but the entire
+        // 'length' characters do not.  If an optional fractional second having
+        // more than six digits is present in 'string', it is rounded to the
+        // nearest value in microseconds.  If the optional zone designator is
+        // present in the 'string', the input is parsed as a 'DatetimeTz'
+        // value, and as a 'Datetime' value otherwise.  If a leap second is
+        // detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the zone designator must be absent
+        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
+
+    static int parseRelaxed(Datetime *result, const bsl::string_view& string);
+        // Parse the specified "relaxed" ISO 8601 'string' as a 'Datetime'
+        // value, and load the value into the specified 'result'.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.  'string'
+        // is assumed to be of the form:
+        //..
+        //  YYYY-MM-DD(T| )hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // The "relaxed" format parsed by this function is a superset of the
+        // strict ISO 8601 format, currently allowing a SPACE character to be
+        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
+        // 'string.length()' characters are parsed; parsing will fail if a
+        // proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
+        // the optional zone designator is present in 'string', the resulting
+        // 'Datetime' value is converted to the equivalent UTC value; if the
+        // zone designator is absent, UTC is assumed.  If a leap second is
+        // detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the zone designator must be absent
+        // or indicate UTC.  The behavior is undefined unless 'string.data()'
+        // is non-null.
+
+    static int parseRelaxed(DatetimeTz              *result,
+                            const bsl::string_view&  string);
+        // Parse the specified "relaxed" ISO 8601 'string' as a 'DatetimeTz'
+        // value, and load the value into the specified 'result'.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.  'string'
+        // is assumed to be of the form:
+        //..
+        //  YYYY-MM-DD(T| )hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // The "relaxed" format parsed by this function is a superset of the
+        // strict ISO 8601 format, currently allowing a SPACE character to be
+        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
+        // 'string.length()' characters are parsed; parsing will fail if a
+        // proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
+        // the optional zone designator is not present in 'string', UTC is
+        // assumed.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // zone designator must be absent or indicate UTC.  The behavior is
+        // undefined unless 'string.data()' is non-null.
+
+    static int parseRelaxed(DatetimeOrDatetimeTz    *result,
+                            const bsl::string_view&  string);
+        // Parse the specified "relaxed" ISO 8601 'string' as a 'Datetime' or
+        // 'DatetimeTz' value, depending on the presence of a zone designator,
+        // and load the value into the specified 'result'.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.  'string'
+        // is assumed to be of the form:
+        //..
+        //  YYYY-MM-DD(T| )hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // The "relaxed" format parsed by this function is a superset of the
+        // strict ISO 8601 format, currently allowing a SPACE character to be
+        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
+        // 'string.length()' characters are parsed; parsing will fail if a
+        // proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
+        // the optional zone designator is present in the 'string', the input
+        // is parsed as a 'DatetimeTz' value, and as a 'Datetime' value
+        // otherwise.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // zone designator must be absent or indicate UTC.  The behavior is
+        // undefined unless 'string.data()' is non-null.
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static int generate(char              *buffer,
                         const Date&        object,
@@ -2267,6 +2438,38 @@ int Iso8601Util::parse(DatetimeOrDatetimeTz    *result,
     BSLS_ASSERT_SAFE(string.data());
 
     return parse(result, string.data(), static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parseRelaxed(Datetime *result, const bsl::string_view& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parseRelaxed(result,
+                        string.data(),
+                        static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parseRelaxed(DatetimeTz              *result,
+                              const bsl::string_view&  string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parseRelaxed(result,
+                        string.data(),
+                        static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parseRelaxed(DatetimeOrDatetimeTz    *result,
+                              const bsl::string_view&  string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parseRelaxed(result,
+                        string.data(),
+                        static_cast<int>(string.length()));
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

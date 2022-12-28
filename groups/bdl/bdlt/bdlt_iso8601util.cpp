@@ -829,14 +829,17 @@ int parseDatetime(Datetime   *datetime,
                   int        *tzOffset,
                   bool       *hasZoneDesignator,
                   const char *string,
-                  int         length)
+                  int         length,
+                  bool        allowSpaceInsteadOfT = false)
     // Parse the specified initial 'length' characters of the specified ISO
     // 8601 'string' as a 'Datetime' value, and load the value into the
     // specified 'datetime'.  If zone designator is presented in the input,
     // load into the specified 'tzOffset' the indicated offset (in minutes)
     // from UTC and set the variable pointed by the specified
-    // 'hasZoneDesignator' to 'true'.  Return 0 on success, and a non-zero
-    // value (with no effect on the 'datetime') otherwise.
+    // 'hasZoneDesignator' to 'true'.  Optionally specify a
+    // 'allowSpaceInsteadOfT' to allow usage of a SPACE character instead of
+    // 'T'.  Return 0 on success, and a non-zero value (with no effect on the
+    // 'datetime') otherwise.
 {
 
     // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
@@ -858,13 +861,15 @@ int parseDatetime(Datetime   *datetime,
     int month = 0;
     int day   = 0;
 
-    if (0 != u::parseDateRaw(&shuttle, &year, &month, &day, shuttle, end)
-     || shuttle == end
-     || ('T' != *shuttle && 't' != *shuttle)) {
-
+    if (0 != u::parseDateRaw(&shuttle, &year, &month, &day, shuttle, end)) {
         return -1;                                                    // RETURN
     }
-    ++shuttle;  // skip 'T' or 't'
+    if (shuttle == end || !('T' == *shuttle || 't' == *shuttle ||
+                                  (allowSpaceInsteadOfT && ' ' == *shuttle))) {
+        // If 'shuttle' is not a valid date-time separator.
+        return -1;                                                    // RETURN
+    }
+    ++shuttle;  // skip 'T', 't' or ' '
 
     // 2. Parse time.
 
@@ -969,6 +974,111 @@ int parseDatetime(Datetime   *datetime,
         }
 
         *datetime += resultAdjustment;
+    }
+
+    return 0;
+}
+
+int parseImp(Datetime   *result,
+             const char *string,
+             int         length,
+             bool        allowSpaceInsteadOfT = false)
+{
+    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
+    //
+    // The fractional second and zone designator are independently optional.
+
+    // 1. Parse as a 'DatetimeTz'.
+
+    Datetime localDatetime;
+    int      tzOffset          = 0;      // minutes from UTC
+    bool     hasZoneDesignator = false;
+
+    if (0 != u::parseDatetime(&localDatetime,
+                              &tzOffset,
+                              &hasZoneDesignator,
+                              string,
+                              length,
+                              allowSpaceInsteadOfT)) {
+        return -1;                                                    // RETURN
+    }
+
+    // 2. Account for edge cases.
+
+    if (tzOffset > 0) {
+        Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000, 000);
+
+        minDatetime.addMinutes(tzOffset);
+
+        if (minDatetime > localDatetime) {
+            return -1;                                                // RETURN
+        }
+    }
+    else if (tzOffset < 0) {
+        Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
+
+        maxDatetime.addMinutes(tzOffset);
+
+        if (maxDatetime < localDatetime) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    if (tzOffset) {
+         localDatetime.addMinutes(-tzOffset);
+    }
+
+    *result = localDatetime;
+
+    return 0;
+}
+
+int parseImp(DatetimeTz *result,
+             const char *string,
+             int         length,
+             bool        allowSpaceInsteadOfT = false)
+{
+    Datetime localDatetime;
+    int      tzOffset          = 0;      // minutes from UTC
+    bool     hasZoneDesignator = false;
+
+    if (0 != u::parseDatetime(&localDatetime,
+                              &tzOffset,
+                              &hasZoneDesignator,
+                              string,
+                              length,
+                              allowSpaceInsteadOfT)) {
+        return -1;                                                    // RETURN
+    }
+
+    result->setDatetimeTz(localDatetime, tzOffset);
+
+    return 0;
+}
+
+int parseImp(Iso8601Util::DatetimeOrDatetimeTz *result,
+             const char                        *string,
+             int                                length,
+             bool                               allowSpaceInsteadOfT = false)
+{
+    Datetime localDatetime;
+    int      tzOffset          = 0;      // minutes from UTC
+    bool     hasZoneDesignator = false;
+
+    if (0 != u::parseDatetime(&localDatetime,
+                              &tzOffset,
+                              &hasZoneDesignator,
+                              string,
+                              length,
+                              allowSpaceInsteadOfT)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (hasZoneDesignator) {
+        result->createInPlace<DatetimeTz>(localDatetime, tzOffset);
+    }
+    else {
+        result->assign<Datetime>(localDatetime);
     }
 
     return 0;
@@ -2343,52 +2453,7 @@ int Iso8601Util::parse(Datetime *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
-    //
-    // The fractional second and zone designator are independently optional.
-
-    // 1. Parse as a 'DatetimeTz'.
-
-    Datetime localDatetime;
-    int      tzOffset          = 0;      // minutes from UTC
-    bool     hasZoneDesignator = false;
-
-    if (0 != u::parseDatetime(&localDatetime,
-                              &tzOffset,
-                              &hasZoneDesignator,
-                              string,
-                              length)) {
-        return -1;                                                    // RETURN
-    }
-
-    // 2. Account for edge cases.
-
-    if (tzOffset > 0) {
-        Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000, 000);
-
-        minDatetime.addMinutes(tzOffset);
-
-        if (minDatetime > localDatetime) {
-            return -1;                                                // RETURN
-        }
-    }
-    else if (tzOffset < 0) {
-        Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
-
-        maxDatetime.addMinutes(tzOffset);
-
-        if (maxDatetime < localDatetime) {
-            return -1;                                                // RETURN
-        }
-    }
-
-    if (tzOffset) {
-         localDatetime.addMinutes(-tzOffset);
-    }
-
-    *result = localDatetime;
-
-    return 0;
+    return u::parseImp(result, string, length);
 }
 
 int Iso8601Util::parse(DateTz *result, const char *string, int length)
@@ -2442,21 +2507,8 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    Datetime localDatetime;
-    int      tzOffset          = 0;      // minutes from UTC
-    bool     hasZoneDesignator = false;
 
-    if (0 != u::parseDatetime(&localDatetime,
-                              &tzOffset,
-                              &hasZoneDesignator,
-                              string,
-                              length)) {
-        return -1;                                                    // RETURN
-    }
-
-    result->setDatetimeTz(localDatetime, tzOffset);
-
-    return 0;
+    return u::parseImp(result, string, length);
 }
 
 int Iso8601Util::parse(DateOrDateTz *result, const char *string, int length)
@@ -2523,26 +2575,38 @@ int Iso8601Util::parse(DatetimeOrDatetimeTz *result,
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    Datetime localDatetime;
-    int      tzOffset          = 0;      // minutes from UTC
-    bool     hasZoneDesignator = false;
+    return u::parseImp(result, string, length);
+}
 
-    if (0 != u::parseDatetime(&localDatetime,
-                              &tzOffset,
-                              &hasZoneDesignator,
-                              string,
-                              length)) {
-        return -1;                                                    // RETURN
-    }
+int Iso8601Util::parseRelaxed(Datetime *result, const char *string, int length)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
-    if (hasZoneDesignator) {
-        result->createInPlace<DatetimeTz>(localDatetime, tzOffset);
-    }
-    else {
-        result->assign<Datetime>(localDatetime);
-    }
+    return u::parseImp(result, string, length, true);
+}
 
-    return 0;
+int Iso8601Util::parseRelaxed(DatetimeTz *result,
+                              const char *string,
+                              int         length)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
+
+    return u::parseImp(result, string, length, true);
+}
+
+int Iso8601Util::parseRelaxed(DatetimeOrDatetimeTz *result,
+                              const char           *string,
+                              int                   length)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
+
+    return u::parseImp(result, string, length, true);
 }
 
 }  // close package namespace
