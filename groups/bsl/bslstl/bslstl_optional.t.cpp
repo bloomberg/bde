@@ -12921,16 +12921,21 @@ int main(int argc, char **argv)
         // bsl::optional<bslma::ManagedPtr<void>>
         //
         // Concern:
-        //: o That, on C++17 at least, 'optional<bslma::ManagedPtr<void>>'
-        //:   works as per DRQS 168171178.  Note that there are differences in
-        //:   implementation between pre-C++17 and C++17.
+        //: 1 That 'bsl::optional<bslma::ManagedPtr<void>>' can be explicitly
+        //:   instantiated on C++17 when implementation of 'bsl::optional' is
+        //:   delegated to 'std::optional' for non-allocator-aware types (see
+        //:   DRQS 168171178).  Note that we omit this test for clang with
+        //:   libstdc++ where the explicit instantiation of
+        //:   'std::optional<bslma::ManagedPtr<void>>' fails to compile.
         //
         // Plan:
         //: 1 Do 'template class ...' declarations at file scope and see if
         //:   they compile on C++17.
         //:
-        //: 2 Use 'BSLMF_ASSERT' to examine type traits in this 'case' to
-        //:   see if they turn out OK.
+        //: 2 Use 'BSLMF_ASSERT' to examine type traits to verify that
+        //:   'optional<bslma::ManagedPtr>' is neither copy-constructible nor
+        //:   copy-assignable (due to the standard maintaining that the
+        //:   corresponding functions having a const-reference argument).
         //
         // Testing:
         //   bsl::optional<bslma::ManagedPtr<void>>
