@@ -5228,11 +5228,12 @@ struct ThrowMoveConstructible {
 };
 
                                 // ------------
-                                // Test Case 22
+                                // Test Case 25
                                 // ------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
-   !defined(BSLS_PLATFORM_CMP_CLANG)
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_GNU))
 // Ensure that we can do 'bsl::optional<bslma::ManagedPtr<void> > on C++17.  As
 // per DRQS 168171178.  Note that there are differences in implementation
 // between pre-C++17 and C++17.
@@ -5242,6 +5243,10 @@ struct ThrowMoveConstructible {
 template class bsl::optional<bslma::ManagedPtr<void>>;
 template class std::optional<bslma::ManagedPtr<void>>;
 #endif
+
+                                // ------------
+                                // Test Case 22
+                                // ------------
 
 namespace BloombergLP {
 namespace bslh {
@@ -12931,8 +12936,21 @@ int main(int argc, char **argv)
         //   bsl::optional<bslma::ManagedPtr<void>>
         //---------------------------------------------------------------------
 
+        if (verbose) printf("TEST bsl::optional<bslma::ManagedPtr<void>>\n"
+                            "===========================================\n");
+
+        if (veryVerbose) {
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+            printf("stdcpp_gnu\n");
+#endif
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+            printf("stdcpp_llvm\n");
+#endif
+        }
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
-   !defined(BSLS_PLATFORM_CMP_CLANG)
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_GNU))
         typedef bsl::optional<bslma::ManagedPtr<void>> Obj;
 
         BSLMF_ASSERT(!bsl::is_copy_constructible<Obj>::value);
