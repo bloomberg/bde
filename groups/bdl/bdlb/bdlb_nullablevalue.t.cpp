@@ -6524,10 +6524,9 @@ int main(int argc, char *argv[])
         // Comparison of 'tuples' -- DRQS 170454046
         //
         // Concern:
-        //: 1 Let's word this more like a concern.  Something like "That
-        //:   comparisons of 'tuple's containing 'optional's or
+        //: 1 That comparisons of 'tuple's containing 'optional's or
         //:   'NullableValue's, particularly will null values, functions
-        //:   correctly in C++20 due to resolution of DRQS 170388558."
+        //:   correctly in C++20 due to resolution of DRQS 170388558.
         //
         // Plan:
         //: 1 Create an 'optional<int>' and a 'NullableValue<int>' with no
