@@ -23,17 +23,20 @@ namespace bdljsn {
                              // -----------------
 
 // CONSTANTS
+const bool ReadOptions::s_DEFAULT_INITIALIZER_ALLOW_TRAILING_TEXT = false;
 const int ReadOptions::s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH = 64;
 
 // CREATORS
 
 ReadOptions::ReadOptions()
-: d_maxNestedDepth(s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH)
+: d_allowTrailingText(s_DEFAULT_INITIALIZER_ALLOW_TRAILING_TEXT)
+, d_maxNestedDepth(s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH)
 {
 }
 
 ReadOptions::ReadOptions(const ReadOptions& original)
-: d_maxNestedDepth(original.d_maxNestedDepth)
+: d_allowTrailingText(original.d_allowTrailingText)
+, d_maxNestedDepth(original.d_maxNestedDepth)
 {
 }
 
@@ -48,6 +51,7 @@ ReadOptions&
 ReadOptions::operator=(const ReadOptions& rhs)
 {
     if (this != &rhs) {
+        d_allowTrailingText = rhs.d_allowTrailingText;
         d_maxNestedDepth = rhs.d_maxNestedDepth;
     }
 
@@ -56,6 +60,7 @@ ReadOptions::operator=(const ReadOptions& rhs)
 
 void ReadOptions::reset()
 {
+    d_allowTrailingText = s_DEFAULT_INITIALIZER_ALLOW_TRAILING_TEXT;
     d_maxNestedDepth = s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH;
 }
 
@@ -69,6 +74,7 @@ bsl::ostream& ReadOptions::print(bsl::ostream& stream,
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
+    printer.printAttribute("allowTrailingText", d_allowTrailingText);
     printer.printAttribute("maxNestedDepth", d_maxNestedDepth);
     printer.end();
     return stream;

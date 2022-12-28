@@ -56,7 +56,7 @@ namespace BloombergLP {
 namespace {
 
 static const char *g_WHITESPACE = " \n\t\v\f\r";
-static const char *g_TOKENS     = "{}[]:,";
+static const char *g_TOKENS     = "{}[]:,\"";
 
 }  // close unnamed namespace
 

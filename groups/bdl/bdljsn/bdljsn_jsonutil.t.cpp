@@ -25,6 +25,7 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -132,6 +133,12 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_ BSLIM_TESTUTIL_L_  // current Line number
 
 #define WS "   \t       \n      \v       \f       \r       "
+
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                   MACROS FOR TESTING WORKAROUNDS
@@ -1527,11 +1534,18 @@ R"JSON(    {
         // Concerns:
         //: 1 Verify that that overloads of 'read' forward to the principal
         //:   'read' method correctly.
+        //:
+        //: 2 If 'allowTrailingText' is 'true' a 'streambuf' will refer to
+        //:   the character immediately following the JSON document.
         //
         // Plan:
         //: 1 Test each overload making sure the arguments are passed through
         //:   correctly using the same set of table-based inputs.
         //:   (C-1)
+        //:
+        //: 2 Perform a table based test, with a variety of JSON document with
+        //:  'allowTrailingText' as 'true', verify the
+        //:   the 'streambuf' refers to the expected character after 'read'.
         //
         // Testing:
         //   static int read(Json*, istream&);
@@ -1951,6 +1965,87 @@ R"JSON(    {
                     err.message().length(),
                     0 == err.message().length());
         }
+
+        if (verbose)
+            cout << "\n\tTest next input position after 'read'"
+                 << endl;
+        {
+            const char k_EOF = 0;
+            static const struct {
+                int         d_line;
+                const char *d_text;
+                char        d_nextChar;
+            } DATA[] = {
+              // L  TEXT          NEXT CHAR
+              //== =============  =========
+              { L_, "null",        k_EOF }
+            , { L_, "null ",         ' ' }
+            , { L_, "null a",        ' ' }
+            , { L_, "null{",         '{' }
+            , { L_, "true",        k_EOF }
+            , { L_, "true ",         ' ' }
+            , { L_, "true a",        ' ' }
+            , { L_, "true{",         '{' }
+            , { L_, "1e1",         k_EOF }
+            , { L_, "1e1 ",          ' ' }
+            , { L_, "1e1 e",         ' ' }
+            , { L_, "1e1{",          '{' }
+            , { L_, "[]",          k_EOF }
+            , { L_, "[] ",           ' ' }
+            , { L_, "[] a",          ' ' }
+            , { L_, "[]a",           'a' }
+            , { L_, "[]{",           '{' }
+            , { L_, "{}",          k_EOF }
+            , { L_, "{} ",           ' ' }
+            , { L_, "{} a",          ' ' }
+            , { L_, "{}a",           'a' }
+            , { L_, "{}{",           '{' }
+            , { L_, "\"text\"",    k_EOF }
+            , { L_, "\"text\" ",     ' ' }
+            , { L_, "\"text\" a",    ' ' }
+            , { L_, "\"text\"a",     'a' }
+            , { L_, "\"text\"{",     '{' }
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE      = DATA[ti].d_line;
+                const char *TEXT      = DATA[ti].d_text;
+                const char  NEXT_CHAR = DATA[ti].d_nextChar;
+
+                const int NEXT_CHAR_INT =
+                           NEXT_CHAR == k_EOF
+                               ? bdlsb::FixedMemInStreamBuf::traits_type::eof()
+                               : static_cast<int>(NEXT_CHAR);
+
+                bdlsb::FixedMemInStreamBuf input(TEXT, bsl::strlen(TEXT));
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(TEXT) P(NEXT_CHAR_INT);
+                }
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Json        json(&scratch);
+                Error       err(&scratch);
+                ReadOptions ro;
+
+                ro.setAllowTrailingText(true);
+
+                int rc = Util::read(&json, &err, &input, ro);
+
+                ASSERTV(LINE, TEXT, err, rc, 0 == rc);
+
+                int nextC = input.sgetc();
+
+                ASSERTV(LINE,
+                        TEXT,
+                        nextC,
+                        NEXT_CHAR_INT,
+                        nextC == NEXT_CHAR_INT);
+            }
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1968,6 +2063,13 @@ R"JSON(    {
         //:   return code is non-0, and the 'Json*' object is left unchanged.
         //:
         //: 4 The 'readOptions.maxNestedDepth()' argument is honored.
+        //:
+        //: 5 If 'allowTrailingText' is 'true', 'read' will succeed if their
+        //:   are tokens following a valid JSON document as long as they are
+        //:   separated by a delimiter.
+        //:
+        //: 6 If 'allowTrailingText' is 'false', 'read' will fail if their
+        //:   are tokens other than white space after a valid JSON.
         //
         // Plan:
         //: 1 Test each 'simple' subtype ('null', 'boolean', 'number',
@@ -1990,10 +2092,12 @@ R"JSON(    {
         //:
         //: 6 Ensure that the 'Error*' argument is correctly populated when an
         //:   error occurs.
+        //:
+        //: 7 Perform a table based test for a variety of input with
+        //:  'allowTrailingText' both 'true' and 'false'.
         //
         // Testing:
-        //   static int read(Json*, Error*, const string_view&,
-        //                   const ReadOptions&);
+        //   static int read(Json*, Error*, string_view&,const ReadOptions&);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3264,6 +3368,144 @@ R"JSON(    {
             rc = Util::read(&json, &err, json65DeepObject, ro);
             ASSERTV(rc, 0 == rc);
             ASSERTV(json.isObject(), true == json.isObject());
+        }
+        if (verbose)
+            cout << "\n\tTest 'allowTrailingText' option"
+                 << endl;
+        {
+            static const struct {
+                int         d_line;
+                const char *d_text;
+                bool        d_isValidAllowTrailingText;
+                bool        d_isValidNoTrailingText;
+            } DATA[] = {
+              // L  TEXT          VAID_TT VALID_NO_TT
+              //== =============  ======= ============
+              { L_, "null",       true,     true }
+            , { L_, "null ",      true,     true }
+            , { L_, "null a",     true,    false }
+            , { L_, "nulla",     false,    false }
+            , { L_, "null{",      true,    false }
+            , { L_, "null}",      true,    false }
+            , { L_, "null[",      true,    false }
+            , { L_, "null]",      true,    false }
+            , { L_, "null,",      true,    false }
+            , { L_, "null\"",     true,    false }
+            , { L_, "true",       true,     true }
+            , { L_, "true ",      true,     true }
+            , { L_, "true a",     true,    false }
+            , { L_, "truea",     false,    false }
+            , { L_, "true{",      true,    false }
+            , { L_, "true}",      true,    false }
+            , { L_, "true[",      true,    false }
+            , { L_, "true]",      true,    false }
+            , { L_, "true,",      true,    false }
+            , { L_, "true\"",     true,    false }
+            , { L_, "1e1",        true,     true }
+            , { L_, "1e1 ",       true,     true }
+            , { L_, "1e1 e",      true,    false }
+            , { L_, "1e1e",      false,    false }
+            , { L_, "1e1{",       true,    false }
+            , { L_, "1e1}",       true,    false }
+            , { L_, "1e1[",       true,    false }
+            , { L_, "1e1]",       true,    false }
+            , { L_, "1e1,",       true,    false }
+            , { L_, "1e1\"",      true,    false }
+            , { L_, "[]",         true,     true }
+            , { L_, "[] ",        true,     true }
+            , { L_, "[] a",       true,    false }
+            , { L_, "[]a",        true,    false }
+            , { L_, "[]{",        true,    false }
+            , { L_, "[]}",        true,    false }
+            , { L_, "[][",        true,    false }
+            , { L_, "[]]",        true,    false }
+            , { L_, "[],",        true,    false }
+            , { L_, "[]\"",       true,    false }
+            , { L_, "{}",         true,     true }
+            , { L_, "{} ",        true,     true }
+            , { L_, "{} a",       true,    false }
+            , { L_, "{}a",        true,    false }
+            , { L_, "{}{",        true,    false }
+            , { L_, "{}}",        true,    false }
+            , { L_, "{}[",        true,    false }
+            , { L_, "{}]",        true,    false }
+            , { L_, "{},",        true,    false }
+            , { L_, "{}\"",       true,    false }
+            , { L_, "\"text\"",   true,     true }
+            , { L_, "\"text\" ",  true,     true }
+            , { L_, "\"text\" a", true,    false }
+            , { L_, "\"text\"a",  true,    false }
+            , { L_, "\"text\"{",  true,    false }
+            , { L_, "\"text\"}",  true,    false }
+            , { L_, "\"text\"[",  true,    false }
+            , { L_, "\"text\"]",  true,    false }
+            , { L_, "\"text\",",  true,    false }
+            , { L_, "\"text\"\"", true,    false }
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE        = DATA[ti].d_line;
+                const char *TEXT        = DATA[ti].d_text;
+                const bool  IS_VALID_TT = DATA[ti].d_isValidAllowTrailingText;
+                const bool  IS_VALID_NO_TT = DATA[ti].d_isValidNoTrailingText;
+
+                const bsl::string_view INPUT(TEXT);
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(INPUT) P_(IS_VALID_TT) P(IS_VALID_NO_TT);
+                }
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                {
+                    Json        json(&scratch);
+                    Error       err(&scratch);
+                    ReadOptions ro;
+
+                    ro.setAllowTrailingText(false);
+
+                    int rc = Util::read(&json, &err, INPUT, ro);
+
+                    ASSERTV(LINE,
+                            INPUT,
+                            IS_VALID_NO_TT,
+                            rc,
+                            IS_VALID_NO_TT == (0 == rc));
+                }
+
+                {
+                    Json        json(&scratch);
+                    Error       err(&scratch);
+                    ReadOptions ro;
+
+                    ro.setAllowTrailingText(true);
+
+                    int rc = Util::read(&json, &err, INPUT, ro);
+
+                    ASSERTV(LINE,
+                            INPUT,
+                            IS_VALID_TT,
+                            rc,
+                            IS_VALID_TT == (0 == rc));
+                }
+            }
+        }
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            bdljsn::Json result;
+            bsl::string_view input("false");
+            Error error;
+
+            if (veryVerbose) cout << "\tread" << endl;
+            {
+                ASSERT_PASS(Util::read(&result, &error, input));
+                ASSERT_FAIL(Util::read(0, &error, input));
+                ASSERT_FAIL(Util::read(0, &error, input));
+            }
         }
       } break;
       case 1: {

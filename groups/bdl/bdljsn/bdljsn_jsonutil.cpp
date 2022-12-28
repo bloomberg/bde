@@ -672,7 +672,10 @@ int JsonUtil::read(Json               *result,
                    bsl::streambuf     *input,
                    const ReadOptions&  options)
 {
+    BSLS_ASSERT(result);
     BSLS_ASSERT(errorDescription);
+    BSLS_ASSERT(input);
+
     Error *error = errorDescription;
 
     bdlma::LocalSequentialAllocator<8 * 1024> bsa;
@@ -698,18 +701,19 @@ int JsonUtil::read(Json               *result,
         return rc;                                                    // RETURN
     }
 
-    rc = tokenizer.advanceToNextToken();
-    if (0 == rc) {
-        // The tokenizer should report an error if there 'advanceToNextToken'
-        // is advanced in an invalid state.
+    if (!options.allowTrailingText()) {
+        rc = tokenizer.advanceToNextToken();
+        if (0 == rc) {
+            // The tokenizer should report an error if there 'advanceToNextToken'
+            // is advanced in an invalid state.
 
-        BSLS_ASSERT(false);
-        u::setError(error, tokenizer, "Additional text found after document");
-        return -1;                                                    // RETURN
-    }
-    else if (Tokenizer::k_EOF != tokenizer.readStatus()) {
-        u::setError(error, tokenizer, "Additional text found after document");
-        return -1;                                                    // RETURN
+            u::setError(error, tokenizer, "Additional text found after document");
+            return -1;                                                    // RETURN
+        }
+        else if (Tokenizer::k_EOF != tokenizer.readStatus()) {
+            u::setError(error, tokenizer, "Additional text found after document");
+            return -1;                                                    // RETURN
+        }
     }
     tokenizer.resetStreamBufGetPointer();
     result->swap(json);
@@ -719,6 +723,8 @@ bsl::ostream& JsonUtil::printError(bsl::ostream&   stream,
                                    bsl::streambuf *input,
                                    const Error&    error)
 {
+    BSLS_ASSERT(input);
+
     typedef bdlde::Utf8Util::Uint64 Uint64;
 
     Uint64 line, column, byteOffset;

@@ -37,9 +37,11 @@ using namespace bsl;
 // conventions: 'setAttributeName' and 'attributeName'.
 //
 // Primary Manipulator:
+//: o 'setAllowTrailingText'
 //: o 'setMaxNestedDepth'
 //
 // Basic Accessor:
+//: o 'allowTrailingText'
 //: o 'maxNestedDepth'
 //
 // Certain standard value-semantic-type test cases are omitted:
@@ -65,11 +67,12 @@ using namespace bsl;
 // MANIPULATORS
 // [ 9] operator=(const bdljsn::ReadOptions & rhs);
 // [ 3] reset();
+// [ 3] setAllowTrailingText(bool value);
 // [ 3] setMaxNestedDepth(int value);
 //
 // ACCESSORS
+// [ 4] bool allowTrailingText() const;
 // [ 4] int maxNestedDepth() const;
-//
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
@@ -161,21 +164,24 @@ typedef bdljsn::ReadOptions                     Obj;
 struct DefaultDataRow {
     int          d_line;                // source line number
     int          d_maxNestedDepth;
+    bool         d_allowTrailingText;
 };
 
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
 
-//LINE  MAXND
-//----  -----
+//LINE  MAXND   ATT
+//----  -----   ---
 
 // default (must be first)
-{ L_,      64 },
+{ L_,      64, false },
 
-//    'maxNestedDepth'
-{ L_,       1 },
-{ L_, INT_MAX },
+//
+{ L_,       1 , false },
+{ L_, INT_MAX , false },
+{ L_,       5 ,  true },
+{ L_, INT_MAX ,  true },
 
 };
 
@@ -241,7 +247,9 @@ int main(int argc, char *argv[])
     const int MAX_NESTED_DEPTH = 16;
 
     bdljsn::ReadOptions options;
-    ASSERT(64 == options.maxNestedDepth());
+    ASSERT(64    == options.maxNestedDepth());
+    ASSERT(false == options.allowTrailingText());
+
 //..
 // Finally, we populate that object to limit the maximum nested depth using a
 // pre-defined limit:
@@ -356,14 +364,17 @@ int main(int argc, char *argv[])
                          "\nCopy-assign every value into every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE1    = DATA[ti].d_line;
-            const int   DEPTH1  = DATA[ti].d_maxNestedDepth;
+            const int   LINE1  = DATA[ti].d_line;
+            const int   DEPTH1 = DATA[ti].d_maxNestedDepth;
+            const bool  ATT1   = DATA[ti].d_allowTrailingText;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setMaxNestedDepth(DEPTH1);
+            mZ.setAllowTrailingText(ATT1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setMaxNestedDepth(DEPTH1);
+            mZZ.setAllowTrailingText(ATT1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -379,9 +390,11 @@ int main(int argc, char *argv[])
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int   LINE2   = DATA[tj].d_line;
                 const int   DEPTH2  = DATA[tj].d_maxNestedDepth;
+                const bool  ATT2    = DATA[tj].d_allowTrailingText;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setMaxNestedDepth(DEPTH2);
+                mX.setAllowTrailingText(ATT2);
 
                 if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -399,9 +412,11 @@ int main(int argc, char *argv[])
             {
                 Obj mX;
                 mX.setMaxNestedDepth(DEPTH1);
+                mX.setAllowTrailingText(ATT1);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setMaxNestedDepth(DEPTH1);
+                mZZ.setAllowTrailingText(ATT1);
 
                 const Obj& Z = mX;
 
@@ -619,13 +634,22 @@ int main(int argc, char *argv[])
         // ---------------
 
         typedef int   T1;        // 'maxNestedDepth'
+        typedef bool  T2;        // 'allowTrailingText'
 
-                 // ----------------------------------------
+                 // ------------------------------------
                  // Attribute 1 Values: 'maxNestedDepth'
-                 // ----------------------------------------
+                 // ------------------------------------
 
         const T1 A1 = 64;               // baseline
         const T1 B1 = INT_MAX;
+
+                 // ---------------------------------------
+                 // Attribute 1 Values: 'allowTrailingText'
+                 // ---------------------------------------
+
+        const T2 A2 = false;            // baseline
+        const T2 B2 = true;
+
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -633,6 +657,7 @@ int main(int argc, char *argv[])
         static const struct {
             int   d_line;        // source line number
             int   d_maxNestedDepth;
+            bool  d_allowTrailingText;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -643,8 +668,10 @@ int main(int argc, char *argv[])
        //LINE  MAXND
        //----  -----
 
-        { L_,    A1 }, // baseline
-        { L_,    B1 },
+        { L_,    A1, A2 }, // baseline
+        { L_,    B1, A2 },
+        { L_,    A1, B2 },
+        { L_,    B1, B2 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -654,9 +681,9 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1    = DATA[ti].d_line;
             const int   DEPTH1   = DATA[ti].d_maxNestedDepth;
-
+            const bool  ATT1     = DATA[ti].d_allowTrailingText;
             if (veryVerbose) {
-                T_ P_(LINE1) P(DEPTH1)
+                T_ P_(LINE1) P_(ATT1) P(DEPTH1)
             }
 
             // Ensure an object compares correctly with itself (alias test).
@@ -664,17 +691,19 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
 
                 mX.setMaxNestedDepth(DEPTH1);
+                mX.setAllowTrailingText(ATT1);
 
-                LOOP2_ASSERT(LINE1, X,   X == X);
-                LOOP2_ASSERT(LINE1, X, !(X != X));
+                ASSERTV(LINE1, X,   X == X);
+                ASSERTV(LINE1, X, !(X != X));
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int   LINE2   = DATA[tj].d_line;
                 const int   DEPTH2  = DATA[tj].d_maxNestedDepth;
+                const int   ATT2    = DATA[tj].d_allowTrailingText;
 
                 if (veryVerbose) {
-                    T_ P_(LINE1) P(DEPTH2)
+                    T_ P_(LINE1) P_(ATT2) P(DEPTH2)
                 }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
@@ -683,8 +712,10 @@ int main(int argc, char *argv[])
                 Obj mY;  const Obj& Y = mY;
 
                 mX.setMaxNestedDepth(DEPTH1);
+                mX.setAllowTrailingText(ATT1);
 
                 mY.setMaxNestedDepth(DEPTH2);
+                mY.setAllowTrailingText(ATT2);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -787,8 +818,8 @@ int main(int argc, char *argv[])
             int         d_line;           // source line number
             int         d_level;
             int         d_spl;
-
             int         d_maxNestedDepth;
+            bool        d_allowTrailingText;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -800,94 +831,107 @@ int main(int argc, char *argv[])
    // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L  SPL  MAXND                EXP
-//----  -  ---  -----                ---
+//LINE  L  SPL  MAXND  ATT              EXP
+//----  -  ---  -----  ---              ---
 
-{ L_,  0,  0,      64,               "["                              NL
-
-                          "maxNestedDepth = 64"                       NL
-                                 "]"                                  NL
+{ L_,  0,  0,      64, false,
+                        "["                                           NL
+                        "allowTrailingText = false"                   NL
+                        "maxNestedDepth = 64"                         NL
+                        "]"                                           NL
                                                                       },
 
-{ L_,  0,  1,      89,              "["                               NL
-
-                          " maxNestedDepth = 89"                      NL
-                                "]"                                   NL
+{ L_,  0,  1,      89, true,
+                        "["                                           NL
+                        " allowTrailingText = true"                   NL
+                        " maxNestedDepth = 89"                        NL
+                        "]"                                           NL
                                                                       },
 
-{ L_,  0,  -1,     89,              "["                               SP
-
-                          "maxNestedDepth = 89"                       SP
-                                "]"
+{ L_,  0,  -1,     89, true,
+                        "["                                           SP
+                        "allowTrailingText = true"                    SP
+                        "maxNestedDepth = 89"                         SP
+                        "]"
                                                                       },
 
    // ------------------------------------------------------------------
    // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L  SPL  MAXND                EXP
-//----  -  ---  -----                ---
-{ L_,  3,   0,    89,               "["                                      NL
+//LINE  L  SPL  MAXND  ATT               EXP
+//----  -  ---  -----  ---              ---
+{ L_,  3,   0,    89,  true,    "["                                         NL
+                                "allowTrailingText = true"                  NL
+                                "maxNestedDepth = 89"                       NL
+                                "]"                                         NL
+                                                                            },
 
-                                 "maxNestedDepth = 89"                       NL
-                                       "]"                                   NL
+{ L_,  3,   2,    89, true,
+                            "      ["                                       NL
+                            "        allowTrailingText = true"              NL
+                            "        maxNestedDepth = 89"                   NL
+                            "      ]"                                       NL
+                                                                            },
+
+{ L_,  3,  -2,    89,  true,
+                            "      ["                                       SP
+                            "allowTrailingText = true"                      SP
+                            "maxNestedDepth = 89"                           SP
+                            "]"
                                                                              },
 
-{ L_,  3,   2,    89,
-                               "      ["                                     NL
-                         "        maxNestedDepth = 89"                       NL
-                               "      ]"                                     NL
-                                                                             },
+{ L_, -3,   0,    89,  true,
+                            "["                                             NL
+                            "allowTrailingText = true"                      NL
+                            "maxNestedDepth = 89"                           NL
+                            "]"                                             NL
+                                                                            },
 
-{ L_,  3,  -2,    89,              "      ["                         SP
+{ L_, -3,   2,    89,  true,
+                            "["                                             NL
+                            "        allowTrailingText = true"              NL
+                            "        maxNestedDepth = 89"                   NL
+                            "      ]"                                       NL
+                                                                            },
 
-                                 "maxNestedDepth = 89"                       SP
-                                       "]"
-                                                                             },
-
-{ L_, -3,   0,    89,              "["                                       NL
-                                 "maxNestedDepth = 89"                       NL
-                                       "]"                                   NL
-                                                                             },
-
-{ L_, -3,   2,    89,              "["                               NL
-
-                         "        maxNestedDepth = 89"                       NL
-                               "      ]"                                     NL
-                                                                             },
-
-{ L_, -3,  -2,    89,              "["                               SP
-                                 "maxNestedDepth = 89"                       SP
-                                       "]"
+{ L_, -3,  -2,    89,  true,
+                            "["                                              SP
+                            "allowTrailingText = true"                       SP
+                            "maxNestedDepth = 89"                            SP
+                            "]"
                                                                              },
 
    // -----------------------------------------------------------------
    // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
    // -----------------------------------------------------------------
 
-//LINE  L  SPL  MAXND                EXP
-//----  -  ---  -----                ---
+//LINE  L  SPL  MAXND  ATT             EXP
+//----  -  ---  -----  ---              ---
 
-{ L_,  2,   3,     89,
+{ L_,  2,   3,     89, true,
                          "      ["                                           NL
+                         "         allowTrailingText = true"                 NL
                          "         maxNestedDepth = 89"                      NL
-                               "      ]"                                     NL
+                         "      ]"                                           NL
                                                                              },
 
         // -----------------------------------------------------------------
         // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
         // -----------------------------------------------------------------
 
-//LINE  L  SPL  MAXND                EXP
-//----  -  ---  -----                ---
+//LINE  L  SPL  MAXND  ATT              EXP
+//----  -  ---  -----  ---              ---
 
-{ L_, -9,  -9,    89,
+{ L_, -9,  -9,    89,  true,
                                  "["                                         SP
+                                 "allowTrailingText = true"                  SP
                                  "maxNestedDepth = 89"                       SP
                                  "]" },
 
-{ L_, -9,  -9,     7,
+{ L_, -9,  -9,     7,  false,
                                  "["                                         SP
+                                 "allowTrailingText = false"                 SP
                                  "maxNestedDepth = 7"                        SP
                                  "]" },
 
@@ -906,6 +950,7 @@ int main(int argc, char *argv[])
                 const int   S    = DATA[ti].d_spl;
 
                 const int   MAXND    = DATA[ti].d_maxNestedDepth;
+                const bool  ATT      = DATA[ti].d_allowTrailingText;
 
                 const char *const EXP    = DATA[ti].d_expected_p;
 
@@ -915,6 +960,7 @@ int main(int argc, char *argv[])
 
                 Obj mX;  const Obj& X = mX;
                 mX.setMaxNestedDepth(MAXND);
+                mX.setAllowTrailingText(ATT);
 
                 ostringstream os;
 
@@ -970,6 +1016,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int maxNestedDepth() const;
+        //   bool allowTrailingText() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -979,6 +1026,7 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef int   T1;        // 'maxNestedDepth'
+        typedef bool  T2;        // 'allowTrailingText'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -987,12 +1035,14 @@ int main(int argc, char *argv[])
           // -----------------------------------------------------
 
         const int   D1   = 64;                   // 'maxNestedDepth'
+        const int   D2   = false;                // 'allowTrailingText'
 
                         // ----------------------------
                         // 'A' values: Boundary values.
                         // ----------------------------
 
         const int   A1   = INT_MAX;              // 'maxNestedDepth'
+        const int   A2   = true;                 // 'allowTrailingText'
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1002,9 +1052,11 @@ int main(int argc, char *argv[])
                 "\nVerify all basic accessors report expected values." << endl;
         {
             const T1& initialMaxNestedDepth = X.maxNestedDepth();
-            LOOP2_ASSERT(D1,
-                         initialMaxNestedDepth,
-                         D1 == initialMaxNestedDepth);
+            ASSERTV(D1, initialMaxNestedDepth, D1 == initialMaxNestedDepth);
+
+            const T2& initialAllowTrailingText = X.allowTrailingText();
+            ASSERTV(D2, initialAllowTrailingText,
+                    D2 == initialAllowTrailingText);
         }
 
         if (verbose) cout <<
@@ -1014,10 +1066,13 @@ int main(int argc, char *argv[])
         {
             mX.setMaxNestedDepth(A1);
 
-            const T1& initialMaxNestedDepth = X.maxNestedDepth();
-            LOOP2_ASSERT(A1,
-                         initialMaxNestedDepth,
-                         A1 == initialMaxNestedDepth);
+            const T1& maxNestedDepth = X.maxNestedDepth();
+            ASSERTV(A1, maxNestedDepth, A1 == maxNestedDepth);
+
+            mX.setAllowTrailingText(A2);
+            const T2& allowTrailingText = X.allowTrailingText();
+            ASSERTV(A2, allowTrailingText, A2 == allowTrailingText);
+
         }
       } break;
       case 3: {
@@ -1069,6 +1124,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   reset();
         //   setMaxNestedDepth(int value);
+        //   setAllowTrailingText(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1077,9 +1133,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'A' values.
+        // 'D' values.
+        const int  D1 = 64;      // 'maxNestedDepth'
+        const bool D2 = false;   // 'allowTrailingText'
 
-        const int   A1   = 1;                    // 'maxNestedDepth'
+        // 'A' values.
+        const int   A1   = 1;    // 'maxNestedDepth'
+        const bool  A2   = true; // 'allowTrailingText'
 
         Obj                 mX;
         const Obj&          X = mX;
@@ -1089,17 +1149,28 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                "Verify that each attribute is independently settable." << endl;
 
-        // --------------------
+        // ----------------
         // 'maxNestedDepth'
-        // --------------------
+        // ----------------
         {
             mX.setMaxNestedDepth(A1);
-            ASSERT(A1  == X.maxNestedDepth());
+            ASSERT(A1 == X.maxNestedDepth());
+            ASSERT(D2 == X.allowTrailingText());
 
             mX.reset();
             ASSERT(X   == defaultObj);
         }
+        // -------------------
+        // 'allowTrailingText'
+        // -------------------
+        {
+            mX.setAllowTrailingText(A2);
+            ASSERT(D1 == X.maxNestedDepth());
+            ASSERT(A2 == X.allowTrailingText());
 
+            mX.reset();
+            ASSERT(X   == defaultObj);
+        }
         if (verbose) cout << "Corroborate attribute independence." << endl;
         {
             // ---------------------------------------
@@ -1109,6 +1180,17 @@ int main(int argc, char *argv[])
             mX.setMaxNestedDepth(A1);
 
             ASSERT(A1  == X.maxNestedDepth());
+            ASSERT(D2  == X.allowTrailingText());
+
+            mX.setAllowTrailingText(A2);
+
+            ASSERT(A1  == X.maxNestedDepth());
+            ASSERT(A2  == X.allowTrailingText());
+
+            mX.setMaxNestedDepth(D1);
+
+            ASSERT(D1  == X.maxNestedDepth());
+            ASSERT(A2  == X.allowTrailingText());
 
             mX.reset();
             ASSERT(X   == defaultObj);
@@ -1158,6 +1240,7 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
 
         const int   D1   = 64;                   // 'maxNestedDepth'
+        const bool  D2   = false;                // 'allowTrailingText'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1170,7 +1253,8 @@ int main(int argc, char *argv[])
                   // Verify the object's attribute values.
                   // -------------------------------------
 
-        LOOP2_ASSERT(D1, X.maxNestedDepth(), D1 == X.maxNestedDepth());
+        ASSERTV(D1, X.maxNestedDepth(), D1 == X.maxNestedDepth());
+        ASSERTV(D2, X.allowTrailingText(), D2 == X.allowTrailingText());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1203,11 +1287,16 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef int   T1;        // 'maxNestedDepth'
+        typedef bool  T2;        // 'allowTrailingText'
 
         // Attribute 1 Values: 'maxNestedDepth'
 
         const T1 D1 = 64;       // default value
         const T1 A1 = 4;
+
+        const T2 D2 = false;   // default value;
+        const T2 A2 = true;
+
 
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1220,7 +1309,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
-        ASSERT(D1  == W.maxNestedDepth());
+        ASSERT(D1 == W.maxNestedDepth());
+        ASSERT(D2 == W.allowTrailingText());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -1237,7 +1327,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(D1  == X.maxNestedDepth());
+        ASSERT(D1 == X.maxNestedDepth());
+        ASSERT(D2 == X.allowTrailingText());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1251,11 +1342,13 @@ int main(int argc, char *argv[])
                              "\t\t{ w:D x:A         }" << endl;
 
         mX.setMaxNestedDepth(A1);
+        mX.setAllowTrailingText(A2);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(A1  == X.maxNestedDepth());
+        ASSERT(A1 == X.maxNestedDepth());
+        ASSERT(A2 == X.allowTrailingText());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1270,11 +1363,13 @@ int main(int argc, char *argv[])
 
         Obj mY;  const Obj& Y = mY;
         mY.setMaxNestedDepth(A1);
+        mY.setAllowTrailingText(A2);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
-        ASSERT(A1  == Y.maxNestedDepth());
+        ASSERT(A1 == Y.maxNestedDepth());
+        ASSERT(A2 == Y.allowTrailingText());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -1293,7 +1388,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
-        ASSERT(A1  == Z.maxNestedDepth());
+        ASSERT(A1 == Z.maxNestedDepth());
+        ASSERT(A2 == Z.allowTrailingText());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1309,11 +1405,13 @@ int main(int argc, char *argv[])
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
 
         mZ.setMaxNestedDepth(D1);
+        mZ.setAllowTrailingText(D2);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1  == Z.maxNestedDepth());
+        ASSERT(D2  == Z.allowTrailingText());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1333,6 +1431,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1  == W.maxNestedDepth());
+        ASSERT(A2  == W.allowTrailingText());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1352,6 +1451,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1  == W.maxNestedDepth());
+        ASSERT(D2  == W.allowTrailingText());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1371,6 +1471,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1  == X.maxNestedDepth());
+        ASSERT(A2  == X.allowTrailingText());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

@@ -68,6 +68,41 @@ BSLS_IDENT("$Id: $")
 // that preserving the value of the first key is consistent with the behavior
 // of the existing 'baljsn::DatumUtil' component.
 //
+///Allowing Trailing Text
+///----------------------
+// By default, 'bdljsn::JsonUtil::read' will report an error for input where a
+// valid JSON document is followed by additional text unless the trailing text
+// consists solely of white space characters.  This behavior is configured by the
+// 'bdljsn::ReadOptions' attribute, "allowTrailingText" (which defaults to 'false').
+//
+// If "allowTrailingText" is 'true', then 'bdljsn::JsonUtil::read' will return
+// success where a valid JSON document is followed by additional text as long
+// as that text is separated from the valid JSON by a delimiter character
+// (i.e., either the JSON text ends in a delimiter, or the text that follows
+// starts with a delimiter).  Here, delimiters are white-space characters,
+// '[',']','{','}',',', or '"'.  Per RFC 8259, white space characters are
+// Space (0x20), Horizontal tab (0x09), New Line (0x0A), and Carriage Return
+// (0x0D).
+//
+// The table below shows some examples:
+//..
+//  * "ATT" = "allowTrailingText"
+//  * Document is only valid where the result is SUCCESS
+//
+//  +-----------+------------------------+-------------+-----------+
+//  | Input     | ATT = false (default)  | ATT = true  | Document  |
+//  +===========+========================+=============+===========+
+//  | '[]'      | SUCCESS                | SUCCESS     | []        |
+//  | '[] '     | SUCCESS                | SUCCESS     | []        |
+//  | '[],'     | ERROR                  | SUCCESS     | []        |
+//  | '[]a'     | ERROR                  | SUCCESS     | []        |
+//  | 'false '  | SUCCESS                | SUCCESS     | false     |
+//  | 'false,'  | ERROR                  | SUCCESS     | false     |
+//  | 'falsea'  | ERROR                  | ERROR       |           |
+//  | '"a"x'    | ERROR                  | SUCCESS     | "a"       |
+//  +-----------+------------------------+-------------+-----------+
+//..
+//
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
@@ -296,7 +331,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 
-namespace BloombergLP {
+    namespace BloombergLP {
 namespace bdljsn {
 
                               // ===============
@@ -353,9 +388,16 @@ struct JsonUtil {
         // description of the error.  Optionally specify 'options' which allow
         // altering the maximum nesting depth.  Return 0 on success, and a
         // non-zero value if 'input' does not consist of valid JSON text or an
-        // error occurs when reading from 'input'.  Note that trailing
-        // (non-whitespace) contents after an otherwise valid JSON text will
-        // result in failure.
+        // error occurs when reading from 'input'.  If
+        // 'options.allowTrailingText()' is 'false' (the default), then an
+        // error will be reported if a valid JSON text is followed by any text
+        // that does not consist solely of white-space characters.  If
+        // 'options.allowTrailingText()' is 'true', then this function will
+        // return success where a valid JSON document is followed by additional
+        // text as long as that text is separated from the valid JSON by a
+        // delimiter character (i.e., either the JSON text ends in a delimiter,
+        // or the text that follows starts with a delimiter).  Here, delimiters
+        // are white-space characters, '[',']','{','}',',', or '"'.
 
     static bsl::ostream& printError(bsl::ostream&          stream,
                                     bsl::istream&           input,

@@ -22,6 +22,7 @@ BSLS_IDENT("$Id: $")
 //  Name                Type           Default         Simple Constraints
 //  ------------------  -----------    -------         ------------------
 //  maxNestedDepth      int            64              > 0
+//  allowTrailingText   bool           false
 //..
 //: o 'maxNestedDepth': the maximum depth to which JSON objects and arrays are
 //:   allowed to be nested before the JSON decoder reports an error.  For
@@ -29,6 +30,14 @@ BSLS_IDENT("$Id: $")
 //:   brackets ('[') then decoding will return an error.  This option can be
 //:   used to prevent poorly formed (or malicious) JSON text from causing a
 //:   stack overflow.
+//:
+//: o 'allowTrailingText': whether a read operation will report an error
+//:   if any non-white space text follows a valid JSON document.  By default
+//:   this option is 'false', indicating the user expects the input to contain
+//:   a single valid JSON document (without any subsequent text).  When
+//:   set to 'true' a 'read' operation will return success if there is text
+//:   following a valid JSON document, assuming that text is separated by
+//:   a delimeter.  See 'bdljsn_jsonutil' for details.
 //
 ///Usage
 ///-----
@@ -45,7 +54,8 @@ BSLS_IDENT("$Id: $")
 //  const int MAX_NESTED_DEPTH = 16;
 //
 //  bdljsn::ReadOptions options;
-//  assert(64 == options.maxNestedDepth());
+//  assert(64    == options.maxNestedDepth());
+//  assert(false == options.allowTrailingText());
 //..
 // Finally, we populate that object to limit the maximum nested depth using a
 // pre-defined limit:
@@ -80,12 +90,16 @@ class ReadOptions {
     // constraints on the individual attributes.
 
     // INSTANCE DATA
+    bool d_allowTrailingText;
+        // whether to permit text after a valid JSON document
+
     int d_maxNestedDepth;
         // maximum nesting level for JSON objects and arrays
 
   public:
     // CONSTANTS
-    static const int s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH;
+    static const bool s_DEFAULT_INITIALIZER_ALLOW_TRAILING_TEXT;
+    static const int  s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH;
 
   public:
     // CREATORS
@@ -107,13 +121,22 @@ class ReadOptions {
         // Reset this object to the default value (i.e., its value upon default
         // construction).
 
+    void setAllowTrailingText(bool value);
+        // Set the "allowTrailingText" attribute of this object to the
+        // specified 'value'.
+
     void setMaxNestedDepth(int value);
         // Set the "maxNestedDepth" attribute of this object to the specified
         // 'value'.
 
+
     // ACCESSORS
+    bool allowTrailingText() const;
+        // Return the "allowTrailingText" attribute of this object.
+
     int maxNestedDepth() const;
         // Return the "maxNestedDepth" attribute of this object.
+
 
                                   // Aspects
 
@@ -162,6 +185,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ReadOptions& rhs);
                              // class ReadOptions
                              // -----------------
 
+// MANIPULATORS
+inline
+void ReadOptions::setAllowTrailingText(bool value)
+{
+    d_allowTrailingText = value;
+}
+
 inline
 void ReadOptions::setMaxNestedDepth(int value)
 {
@@ -171,6 +201,12 @@ void ReadOptions::setMaxNestedDepth(int value)
 }
 
 // ACCESSORS
+inline
+bool ReadOptions::allowTrailingText() const
+{
+    return d_allowTrailingText;
+}
+
 inline
 int ReadOptions::maxNestedDepth() const
 {
@@ -185,14 +221,16 @@ inline
 bool bdljsn::operator==(const bdljsn::ReadOptions& lhs,
                         const bdljsn::ReadOptions& rhs)
 {
-    return lhs.maxNestedDepth() == rhs.maxNestedDepth();
+    return lhs.maxNestedDepth()    == rhs.maxNestedDepth()
+        && lhs.allowTrailingText() == rhs.allowTrailingText();
 }
 
 inline
 bool bdljsn::operator!=(const bdljsn::ReadOptions& lhs,
                         const bdljsn::ReadOptions& rhs)
 {
-    return lhs.maxNestedDepth() != rhs.maxNestedDepth();
+    return lhs.maxNestedDepth()    != rhs.maxNestedDepth()
+        || lhs.allowTrailingText() != rhs.allowTrailingText();
 }
 
 inline
