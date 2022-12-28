@@ -12,6 +12,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -70,6 +71,7 @@ using namespace bsl;
 // TYPEDEFS
 // [15] typedef TYPE ValueType;
 // [15] typename bsl::allocator<char> allocator_type;
+// [22] bsl::optional<bslma::ManagedPtr<void>>
 //
 // TRAITS
 // [15] bsl::is_trivially_copyable
@@ -5224,6 +5226,27 @@ struct ThrowMoveConstructible {
         (void) b;
     }
 };
+
+                                // ------------
+                                // Test Case 25
+                                // ------------
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_GNU))
+// Ensure that we can do 'bsl::optional<bslma::ManagedPtr<void> > on C++17.  As
+// per DRQS 168171178.  Note that there are differences in implementation
+// between pre-C++17 and C++17.
+
+// This is a compile-only test, and only test on C++17.
+
+template class bsl::optional<bslma::ManagedPtr<void>>;
+template class std::optional<bslma::ManagedPtr<void>>;
+#endif
+
+                                // ------------
+                                // Test Case 22
+                                // ------------
 
 namespace BloombergLP {
 namespace bslh {
@@ -12895,6 +12918,57 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 25: {
+        //---------------------------------------------------------------------
+        // bsl::optional<bslma::ManagedPtr<void>>
+        //
+        // Concern:
+        //: 1 That 'bsl::optional<bslma::ManagedPtr<void>>' can be explicitly
+        //:   instantiated on C++17 when implementation of 'bsl::optional' is
+        //:   delegated to 'std::optional' for non-allocator-aware types (see
+        //:   DRQS 168171178).  Note that we omit this test for clang with
+        //:   libstdc++ where the explicit instantiation of
+        //:   'std::optional<bslma::ManagedPtr<void>>' fails to compile.
+        //
+        // Plan:
+        //: 1 Do 'template class ...' declarations at file scope and see if
+        //:   they compile on C++17.
+        //:
+        //: 2 Use 'BSLMF_ASSERT' to examine type traits to verify that
+        //:   'optional<bslma::ManagedPtr>' is neither copy-constructible nor
+        //:   copy-assignable (due to the standard maintaining that the
+        //:   corresponding functions having a const-reference argument).
+        //
+        // Testing:
+        //   bsl::optional<bslma::ManagedPtr<void>>
+        //---------------------------------------------------------------------
+
+        if (verbose) printf("TEST bsl::optional<bslma::ManagedPtr<void>>\n"
+                            "===========================================\n");
+
+        if (veryVerbose) {
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+            printf("stdcpp_gnu\n");
+#endif
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+            printf("stdcpp_llvm\n");
+#endif
+        }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
+   !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                      \
+     defined(BSLS_LIBRARYFEATURES_STDCPP_GNU))
+        typedef bsl::optional<bslma::ManagedPtr<void>> Obj;
+
+        BSLMF_ASSERT(!bsl::is_copy_constructible<Obj>::value);
+        BSLMF_ASSERT(!std::is_copy_assignable<Obj>::value);
+
+        typedef std::optional<bslma::ManagedPtr<void>> SObj;
+
+        BSLMF_ASSERT(!bsl::is_copy_constructible<SObj>::value);
+        BSLMF_ASSERT(!std::is_copy_assignable<SObj>::value);
+#endif
+      } break;
       case 24: {
         RUN_EACH_TYPE(TestDriver,
                       testCase24,
