@@ -905,6 +905,7 @@ class optional {
         // 'original' is left in a valid but unspecified state.
 
     template <class ANY_TYPE>
+    explicit
     optional(BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
              BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(TYPE, ANY_TYPE),
              BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,
@@ -937,6 +938,7 @@ class optional {
         // valid but unspecified state.
 
     template <class ANY_TYPE>
+    explicit
     optional(
         BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
         BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(TYPE, ANY_TYPE),

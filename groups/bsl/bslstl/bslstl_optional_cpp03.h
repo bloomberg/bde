@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 27 13:52:20 2022
+// Generated on Tue Dec 27 19:54:16 2022
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -1106,6 +1106,7 @@ class optional {
         // 'original' is left in a valid but unspecified state.
 
     template <class ANY_TYPE>
+    explicit
     optional(BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
              BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(TYPE, ANY_TYPE),
              BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,
@@ -1138,6 +1139,7 @@ class optional {
         // valid but unspecified state.
 
     template <class ANY_TYPE>
+    explicit
     optional(
         BSLMF_MOVABLEREF_DEDUCE(optional<ANY_TYPE>) original,
         BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(TYPE, ANY_TYPE),

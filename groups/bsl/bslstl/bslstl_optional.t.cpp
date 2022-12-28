@@ -5228,7 +5228,7 @@ struct ThrowMoveConstructible {
 };
 
                                 // ------------
-                                // Test Case 25
+                                // Test Case 26
                                 // ------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
@@ -5895,6 +5895,83 @@ bool hasSameAllocator(const TYPE& obj1, const TYPE& obj2)
 {
     return Test_Util<TYPE>::hasSameAllocator(obj1, obj2);
 }
+
+                                // ------------
+                                // Test Case 25
+                                // ------------
+
+namespace TEST_CASE_25 {
+
+struct Src {};
+
+struct ImplicitDst {
+    ImplicitDst(const Src&) {}
+    ImplicitDst(bslmf::MovableRef<Src>) {}
+};
+
+struct ImplicitDstAlloc {
+    BSLMF_NESTED_TRAIT_DECLARATION(ImplicitDstAlloc,
+                                   bslma::UsesBslmaAllocator);
+
+    ImplicitDstAlloc(const Src&) {}
+    ImplicitDstAlloc(bslmf::MovableRef<Src>) {}
+};
+
+struct ExplicitDst {
+    explicit ExplicitDst(const Src&) {}
+    explicit ExplicitDst(bslmf::MovableRef<Src>) {}
+};
+
+struct ExplicitDstAlloc {
+    BSLMF_NESTED_TRAIT_DECLARATION(ExplicitDstAlloc,
+                                   bslma::UsesBslmaAllocator);
+
+    explicit ExplicitDstAlloc(const Src&) {}
+    explicit ExplicitDstAlloc(bslmf::MovableRef<Src>) {}
+};
+
+void testCase25()
+{
+    ASSERT(( bsl::is_convertible<Src, ImplicitDst>::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<Src>, ImplicitDst>::value));
+
+    ASSERT(( bsl::is_convertible<Src, ImplicitDstAlloc>::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 ImplicitDstAlloc>::value));
+
+    ASSERT((!bsl::is_convertible<Src, ExplicitDst>::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<Src>, ExplicitDst>::value));
+
+    ASSERT((!bsl::is_convertible<Src, ExplicitDstAlloc>::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 ExplicitDstAlloc>::value));
+
+    using bsl::optional;
+
+    ASSERT(( bsl::is_convertible<optional<Src>,
+                                 optional<ImplicitDst> >::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ImplicitDst> >::value));
+
+    ASSERT(( bsl::is_convertible<optional<Src>,
+                                 optional<ImplicitDstAlloc> >::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ImplicitDstAlloc> >::value));
+
+    ASSERT((!bsl::is_convertible<optional<Src>,
+                                 optional<ExplicitDst> >::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ExplicitDst> >::value));
+
+    ASSERT((!bsl::is_convertible<optional<Src>,
+                                 optional<ExplicitDstAlloc> >::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ExplicitDstAlloc> >::value));
+}
+
+}  // close namespace TEST_CASE_25
+
+
 
                               // ---------------
                               // Test Case 23-24
@@ -12924,7 +13001,7 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
-      case 25: {
+      case 26: {
         //---------------------------------------------------------------------
         // bsl::optional<bslma::ManagedPtr<void>>
         //
@@ -12974,6 +13051,9 @@ int main(int argc, char **argv)
         BSLMF_ASSERT(!bsl::is_copy_constructible<SObj>::value);
         BSLMF_ASSERT(!std::is_copy_assignable<SObj>::value);
 #endif
+      } break;
+      case 25: {
+        TEST_CASE_25::testCase25();
       } break;
       case 24: {
         RUN_EACH_TYPE(TestDriver,
