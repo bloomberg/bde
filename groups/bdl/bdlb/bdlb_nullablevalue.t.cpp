@@ -49,15 +49,20 @@
 #include <bsl_functional.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_typeinfo.h>
 #include <bsl_vector.h>
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+# include <bsl_tuple.h>
+#endif
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-#include <optional>
-#include <string>
-#include <variant>
+# include <optional>
+# include <string>
+# include <variant>
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 using namespace BloombergLP;
@@ -6470,7 +6475,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6513,6 +6518,268 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // Comparison of 'tuples' -- DRQS 170454046
+        //
+        // Concern:
+        //: 1 That comparisons of 'tuple's containing 'optional's or
+        //:   'NullableValue's, particularly will null values, functions
+        //:   correctly in C++20 due to resolution of DRQS 170388558.
+        //
+        // Plan:
+        //: 1 Create an 'optional<int>' and a 'NullableValue<int>' with no
+        //:   values assigned, and use 'bsl::tie' to create tuples of lvalue
+        //:   references to them, and check that comparisons between them
+        //:   turn out as expected.
+        //:
+        //: 2 Assign values to the 'optional<int>' and to the
+        //:   'NullableValue<int>' and again, check that comparisons turn out
+        //:   as expected.
+        //:
+        //: 3 Repeat P-1 and P-2, only using 'bsl::forward_as_tuple' to create
+        //:   tuples of rvalue references instead of lvalue references.
+        // --------------------------------------------------------------------
+
+#define PP(exp)    if (!verbose) ; else P(exp)
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        {
+            bsl::optional<int> o;
+
+            PP(BSLS_COMPILERFEATURES_CPLUSPLUS);
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            auto comp = bsl::tie(o) <=> bsl::tie(o);
+            int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::tie(o) == bsl::tie(o));
+            PP(bsl::tie(o) == bsl::tie(o));
+            ASSERT(!(bsl::tie(o) < bsl::tie(o)));
+            PP(bsl::tie(o) < bsl::tie(o));
+            ASSERT(!(bsl::tie(o) > bsl::tie(o)));
+            PP(bsl::tie(o) > bsl::tie(o));
+            if (verbose) cout << endl;
+
+            bdlb::NullableValue<int> nv;
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::tie(nv) <=> bsl::tie(nv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::tie(nv) == bsl::tie(nv));
+            PP(bsl::tie(nv) == bsl::tie(nv));
+            ASSERT(!(bsl::tie(nv) < bsl::tie(nv)));
+            PP(bsl::tie(nv) < bsl::tie(nv));
+            ASSERT(!(bsl::tie(nv) > bsl::tie(nv)));
+            PP(bsl::tie(nv) > bsl::tie(nv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::tie(o) <=> bsl::tie(nv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::tie(o) == bsl::tie(nv));
+            PP(bsl::tie(o) == bsl::tie(nv));
+            ASSERT(!(bsl::tie(o) < bsl::tie(nv)));
+            PP(bsl::tie(o) < bsl::tie(nv));
+            ASSERT(!(bsl::tie(o) > bsl::tie(nv)));
+            PP(bsl::tie(o) > bsl::tie(nv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::tie(nv) <=> bsl::tie(o);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::tie(nv) == bsl::tie(o));
+            PP(bsl::tie(nv) == bsl::tie(o));
+            ASSERT(!(bsl::tie(nv) < bsl::tie(o)));
+            PP(bsl::tie(nv) < bsl::tie(o));
+            ASSERT(!(bsl::tie(nv) > bsl::tie(o)));
+            PP(bsl::tie(nv) > bsl::tie(o));
+            if (verbose) cout << endl;
+
+            o = INT_MIN;    P(*o);
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::tie(o) <=> bsl::tie(nv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::tie(o) == bsl::tie(nv)));
+            PP(bsl::tie(o) == bsl::tie(nv));
+            ASSERT(!(bsl::tie(o) < bsl::tie(nv)));
+            PP(bsl::tie(o) < bsl::tie(nv));
+            ASSERT(bsl::tie(o) > bsl::tie(nv));
+            PP(bsl::tie(o) > bsl::tie(nv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::tie(nv) <=> bsl::tie(o);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(-1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::tie(nv) == bsl::tie(o)));
+            PP(bsl::tie(nv) == bsl::tie(o));
+            ASSERT(bsl::tie(nv) < bsl::tie(o));
+            PP(bsl::tie(nv) < bsl::tie(o));
+            ASSERT(!(bsl::tie(nv) > bsl::tie(o)));
+            PP(bsl::tie(nv) > bsl::tie(o));
+            if (verbose) cout << endl;
+
+            nv = INT_MAX;    P(*nv);
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::tie(o) <=> bsl::tie(nv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(-1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::tie(o) == bsl::tie(nv)));
+            PP(bsl::tie(o) == bsl::tie(nv));
+            ASSERT(bsl::tie(o) < bsl::tie(nv));
+            PP(bsl::tie(o) < bsl::tie(nv));
+            ASSERT(!(bsl::tie(o) > bsl::tie(nv)));
+            PP(bsl::tie(o) > bsl::tie(nv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::tie(nv) <=> bsl::tie(o);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::tie(nv) == bsl::tie(o)));
+            PP(bsl::tie(nv) == bsl::tie(o));
+            ASSERT(!(bsl::tie(nv) < bsl::tie(o)));
+            PP(bsl::tie(nv) < bsl::tie(o));
+            ASSERT(bsl::tie(nv) > bsl::tie(o));
+            PP(bsl::tie(nv) > bsl::tie(o));
+            if (verbose) cout << endl;
+        }
+
+        {
+            bsl::optional<int> o;
+            bsl::optional<int>&& mo = std::move(o);
+
+            PP(BSLS_COMPILERFEATURES_CPLUSPLUS);
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            auto comp = bsl::forward_as_tuple(mo) <=>
+                                                     bsl::forward_as_tuple(mo);
+            int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mo));
+            PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mo));
+            ASSERT(!(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(o));
+            ASSERT(!(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mo));
+            if (verbose) cout << endl;
+
+            bdlb::NullableValue<int> nv;
+            bdlb::NullableValue<int>&& mnv = std::move(nv);
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(mnv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mnv));
+            PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mnv));
+            ASSERT(!(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mnv));
+            ASSERT(!(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mnv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::forward_as_tuple(mo) <=> bsl::forward_as_tuple(mnv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
+            PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
+            ASSERT(!(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(mnv));
+            ASSERT(!(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mnv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(o);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(0 == ii);    PP(ii);
+#endif
+            ASSERT(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
+            PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
+            ASSERT(!(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mo));
+            ASSERT(!(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mo));
+            if (verbose) cout << endl;
+
+            o = INT_MIN;    P(*mo);
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::forward_as_tuple(mo) <=> bsl::forward_as_tuple(mnv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
+            ASSERT(!(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(mnv));
+            ASSERT(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mnv));
+            PP(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mnv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(o);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(-1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
+            ASSERT(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mo));
+            PP(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mo));
+            ASSERT(!(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mo));
+            if (verbose) cout << endl;
+
+            nv = INT_MAX;    P(*mnv);
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::forward_as_tuple(mo) <=> bsl::forward_as_tuple(mnv);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(-1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
+            ASSERT(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(mnv));
+            PP(bsl::forward_as_tuple(mo) < bsl::forward_as_tuple(mnv));
+            ASSERT(!(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mnv)));
+            PP(bsl::forward_as_tuple(mo) > bsl::forward_as_tuple(mnv));
+            if (verbose) cout << endl;
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(mo);
+            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+            ASSERT(1 == ii);    PP(ii);
+#endif
+            ASSERT(!(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
+            ASSERT(!(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mo)));
+            PP(bsl::forward_as_tuple(mnv) < bsl::forward_as_tuple(mo));
+            ASSERT(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mo));
+            PP(bsl::forward_as_tuple(mnv) > bsl::forward_as_tuple(mo));
+            if (verbose) cout << endl;
+        }
+#endif
+#undef PP
       } break;
       case 36: {
         // --------------------------------------------------------------------
