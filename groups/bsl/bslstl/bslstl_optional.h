@@ -387,8 +387,8 @@ BSLS_IDENT("$Id: $")
         !::BloombergLP::bslmf::IsAccessibleBaseOf<                            \
             bsl::optional<TYPE>,                                              \
             typename bsl::remove_cvref<ANY_TYPE>::type>::value &&             \
-            !(bsl::is_same<ANY_TYPE,                                          \
-                           typename bsl::decay<TYPE>::type>::value &&         \
+            !(bsl::is_same<TYPE,                                              \
+                           typename bsl::decay<ANY_TYPE>::type>::value &&     \
               std::is_scalar<TYPE>::value) &&                                 \
             BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&         \
             BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true),             \

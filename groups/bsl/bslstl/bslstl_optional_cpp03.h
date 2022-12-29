@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 27 19:54:16 2022
+// Generated on Thu Dec 29 13:21:24 2022
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -259,8 +259,8 @@
         !::BloombergLP::bslmf::IsAccessibleBaseOf<                            \
             bsl::optional<TYPE>,                                              \
             typename bsl::remove_cvref<ANY_TYPE>::type>::value &&             \
-            !(bsl::is_same<ANY_TYPE,                                          \
-                           typename bsl::decay<TYPE>::type>::value &&         \
+            !(bsl::is_same<TYPE,                                              \
+                           typename bsl::decay<ANY_TYPE>::type>::value &&     \
               std::is_scalar<TYPE>::value) &&                                 \
             BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&         \
             BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true),             \
