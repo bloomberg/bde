@@ -1013,11 +1013,10 @@ class Bind_BoundTupleValue {
     // passed to the creators is passed through to the value if it uses an
     // allocator, using the 'bslalg::ConstructorProxy' mechanism.
 
-    // PRIVATE TYPES
-    typedef typename bslmf::ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
+    BSLMF_ASSERT(!bslmf::MovableRefUtil::IsReference<TYPE>::value);
 
     // PRIVATE INSTANCE DATA
-    bslalg::ConstructorProxy<STORAGE_TYPE> d_value;
+    bslalg::ConstructorProxy<TYPE> d_value;
 
   public:
     // CREATORS
@@ -1030,6 +1029,18 @@ class Bind_BoundTupleValue {
     {
     }
 
+    Bind_BoundTupleValue(
+                bslmf::MovableRef<Bind_BoundTupleValue<TYPE> >  original,
+                bslma::Allocator                               *basicAllocator)
+        // Create a 'Bind_BoundTupleValue' object holding a copy of the
+        // specified 'original' value, using 'basicAllocator' to supply any
+        // memory.
+    : d_value(bslmf::MovableRefUtil::move(
+                              bslmf::MovableRefUtil::access(original).d_value),
+              basicAllocator)
+    {
+    }
+
     Bind_BoundTupleValue(const TYPE&       value,
                          bslma::Allocator *basicAllocator)
         // Create a 'Bind_BoundTupleValue' object holding a copy of the
@@ -1038,21 +1049,20 @@ class Bind_BoundTupleValue {
     {
     }
 
-    template <class BDE_OTHER_TYPE>
-    Bind_BoundTupleValue(const BDE_OTHER_TYPE&  value,
-                         bslma::Allocator      *basicAllocator)
+    Bind_BoundTupleValue(bslmf::MovableRef<TYPE>  value,
+                         bslma::Allocator        *basicAllocator)
         // Create a 'Bind_BoundTupleValue' object holding a copy of the
         // specified 'value', using 'basicAllocator' to supply any memory.
-    : d_value(value, basicAllocator)
+    : d_value(bslmf::MovableRefUtil::move(value), basicAllocator)
     {
     }
 
     // MANIPULATORS
-    STORAGE_TYPE& value() { return d_value.object(); }
+    TYPE& value() { return d_value.object(); }
         // Return a reference to the modifiable object held by this proxy.
 
     // ACCESSORS
-    const STORAGE_TYPE& value() const { return d_value.object(); }
+    const TYPE& value() const { return d_value.object(); }
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
@@ -1099,8 +1109,22 @@ struct Bind_BoundTuple1 : bslmf::TypeList1<A1>
     {
     }
 
+    Bind_BoundTuple1(bslmf::MovableRef<Bind_BoundTuple1<A1> >  orig,
+                     bslma::Allocator                         *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                                     bslmf::MovableRefUtil::access(orig).d_a1),
+           allocator)
+    {
+    }
+
     explicit Bind_BoundTuple1(A1 const& a1, bslma::Allocator *allocator = 0)
     : d_a1(a1, allocator)
+    {
+    }
+
+    explicit Bind_BoundTuple1(bslmf::MovableRef<A1>  a1,
+                              bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
     {
     }
 };
@@ -1137,12 +1161,36 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
     {
     }
 
+    Bind(typename bslmf::ForwardingType<FUNC>::Type  func,
+         bslmf::MovableRef<LIST>                     list,
+         bslma::Allocator                           *allocator = 0)
+        // Create a 'Bind' object that is bound to the specified 'func'
+        // invocable object.  Optionally specify an 'allocator' used to supply
+        // memory.  If 'allocator' is 0, the currently installed default
+        // allocator is used.
+    : Base(func, bslmf::MovableRefUtil::move(list), allocator)
+    {
+    }
+
     Bind(const Bind& other, bslma::Allocator *allocator = 0)
         // Create a 'Bind' object that is bound to the same invocable object
         // with the same bound parameters as the specified 'other'.  Optionally
         // specify an 'allocator' used to supply memory.  If 'allocator' is 0,
         // the currently installed default allocator is used.
     : Base(other, allocator)
+    {
+    }
+
+    // NOTE: This should probably be conditionally noexcept based on
+    // bsl::is_nothrow_move_constructible for FUNC and LIST.  Not sure if
+    // Bind_BoundTupleValue could be made conditionally nothrow move
+    // constructible though due to its use of ConstructorProxy
+    Bind(bslmf::MovableRef<Bind> other, bslma::Allocator *allocator = 0)
+        // Create a 'Bind' object that is bound to the same invocable object
+        // with the same bound parameters as the specified 'other'.  Optionally
+        // specify an 'allocator' used to supply memory.  If 'allocator' is 0,
+        // the currently installed default allocator is used.
+    : Base(bslmf::MovableRefUtil::move(other), allocator)
     {
     }
 };
@@ -1643,14 +1691,23 @@ struct BindUtil {
     }
 
     template <class FUNC, class P1>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
-    bind(FUNC func, P1 const&p1)
+    static Bind<
+        bslmf::Nil,
+        FUNC,
+        Bind_BoundTuple1<typename bslmf::MovableRefUtil::Decay<P1>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with one parameter.
     {
-        return Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
-                   (func, Bind_BoundTuple1<P1>(p1));
+        typedef Bind_BoundTuple1<
+            typename bslmf::MovableRefUtil::Decay<P1>::type>
+            ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(
+                                           func,
+                                           bslmf::MovableRefUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2>
@@ -3475,6 +3532,19 @@ class Bind_Impl {
     {
     }
 
+    Bind_Impl(typename bslmf::ForwardingType<FUNC>::Type  func,
+              bslmf::MovableRef<LIST>                     list,
+              bslma::Allocator                           *basicAllocator = 0)
+    // Construct a 'Bind_Impl' object bound to the specified invocable
+    // object 'func' using the invocation parameters specified in 'list'.
+    // Optionally specify a 'basicAllocator' used to supply memory.  If
+    // 'basicAllocator' is 0, the currently installed default allocator is
+    // used.
+    : d_func(func, basicAllocator)
+    , d_list(bslmf::MovableRefUtil::move(list), basicAllocator)
+    {
+    }
+
     Bind_Impl(const Bind_Impl& other, bslma::Allocator *basicAllocator = 0)
         // Construct a 'Bind_Impl' object bound to the same invocable object
         // 'func' and using the same invocation parameters as the specified
@@ -3483,6 +3553,22 @@ class Bind_Impl {
         // default allocator is used.
     : d_func(other.d_func, basicAllocator)
     , d_list(other.d_list, basicAllocator)
+    {
+    }
+
+    Bind_Impl(bslmf::MovableRef<Bind_Impl>  other,
+              bslma::Allocator             *basicAllocator = 0)
+        // Construct a 'Bind_Impl' object bound to the same invocable object
+        // 'func' and using the same invocation parameters as the specified
+        // 'other' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+    : d_func(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_func)),
+             basicAllocator)
+    , d_list(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_list)),
+             basicAllocator)
     {
     }
 
@@ -4054,10 +4140,31 @@ class Bind_ImplExplicit {
     {
     }
 
+    Bind_ImplExplicit(typename bslmf::ForwardingType<FUNC>::Type  func,
+                      bslmf::MovableRef<LIST>                     list,
+                      bslma::Allocator                           *allocator)
+        // Construct a 'Bind_Impl' object bound to the specified invocable
+        // object 'func' using the invocation parameters specified in 'list'.
+    : d_func(func, allocator)
+    , d_list(bslmf::MovableRefUtil::move(list), allocator)
+    {
+    }
+
     Bind_ImplExplicit(const Bind_ImplExplicit&  other,
                       bslma::Allocator         *allocator)
     : d_func(other.d_func, allocator)
     , d_list(other.d_list, allocator)
+    {
+    }
+
+    Bind_ImplExplicit(bslmf::MovableRef<Bind_ImplExplicit>  other,
+                      bslma::Allocator                     *basicAllocator = 0)
+    : d_func(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_func)),
+             basicAllocator)
+    , d_list(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_list)),
+             basicAllocator)
     {
     }
 
