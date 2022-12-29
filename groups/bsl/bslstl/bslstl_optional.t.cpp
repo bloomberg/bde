@@ -71,7 +71,7 @@ using namespace bsl;
 // TYPEDEFS
 // [15] typedef TYPE ValueType;
 // [15] typename bsl::allocator<char> allocator_type;
-// [22] bsl::optional<bslma::ManagedPtr<void>>
+// [26] bsl::optional<bslma::ManagedPtr<void>>
 //
 // TRAITS
 // [15] bsl::is_trivially_copyable
