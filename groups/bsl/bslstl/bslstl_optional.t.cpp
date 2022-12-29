@@ -71,7 +71,7 @@ using namespace bsl;
 // TYPEDEFS
 // [15] typedef TYPE ValueType;
 // [15] typename bsl::allocator<char> allocator_type;
-// [22] bsl::optional<bslma::ManagedPtr<void>>
+// [26] bsl::optional<bslma::ManagedPtr<void>>
 //
 // TRAITS
 // [15] bsl::is_trivially_copyable
@@ -208,6 +208,7 @@ using namespace bsl;
 // [21] CLASS TEMPLATE DEDUCTION GUIDES
 // [23] TESTING DERIVED -- 'TYPE' ALLOCATES
 // [24] TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
+// [25] IMPLICIT/EXPLICIT C'TORS TEST
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -5228,7 +5229,7 @@ struct ThrowMoveConstructible {
 };
 
                                 // ------------
-                                // Test Case 25
+                                // Test Case 26
                                 // ------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
@@ -5895,6 +5896,161 @@ bool hasSameAllocator(const TYPE& obj1, const TYPE& obj2)
 {
     return Test_Util<TYPE>::hasSameAllocator(obj1, obj2);
 }
+
+                                // ------------
+                                // Test Case 25
+                                // ------------
+
+namespace TEST_CASE_25 {
+
+struct Src {};
+
+struct ImplicitDst {
+    // Non-allocating class implicitly constructible and move-constructible
+    // from 'Src'.
+
+    ImplicitDst(const Src&) {}
+    ImplicitDst(bslmf::MovableRef<Src>) {}
+};
+
+struct ImplicitDstAlloc {
+    // Allocating class implicitly constructible and move-constructible from
+    // 'Src'.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(ImplicitDstAlloc,
+                                   bslma::UsesBslmaAllocator);
+
+    ImplicitDstAlloc(const Src&) {}
+    ImplicitDstAlloc(bslmf::MovableRef<Src>) {}
+};
+
+struct ExplicitDst {
+    // Non-allocating class explicitly constructible and move-constructible
+    // from 'Src'.
+
+    explicit ExplicitDst(const Src&) {}
+    explicit ExplicitDst(bslmf::MovableRef<Src>) {}
+};
+
+struct ExplicitDstAlloc {
+    // Allocating class explicitly constructible and move-constructible from
+    // 'Src'.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(ExplicitDstAlloc,
+                                   bslma::UsesBslmaAllocator);
+
+    explicit ExplicitDstAlloc(const Src&) {}
+    explicit ExplicitDstAlloc(bslmf::MovableRef<Src>) {}
+};
+
+void testCase25()
+{
+    ASSERT(( bsl::is_convertible<Src, ImplicitDst>::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<Src>, ImplicitDst>::value));
+
+    ASSERT(( bsl::is_convertible<Src, ImplicitDstAlloc>::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 ImplicitDstAlloc>::value));
+
+    ASSERT((!bsl::is_convertible<Src, ExplicitDst>::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<Src>, ExplicitDst>::value));
+
+    ASSERT((!bsl::is_convertible<Src, ExplicitDstAlloc>::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 ExplicitDstAlloc>::value));
+
+    using bsl::optional;
+
+    ASSERT(( bsl::is_convertible<Src, optional<Src> >::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 optional<Src> >::value));
+
+    ASSERT(( bsl::is_convertible<Src, optional<ImplicitDst> >::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 optional<ImplicitDst> >::value));
+
+    ASSERT(( bsl::is_convertible<Src, optional<ImplicitDstAlloc> >::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 optional<ImplicitDstAlloc> >::value));
+
+    ASSERT((!bsl::is_convertible<Src, optional<ExplicitDst> >::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 optional<ExplicitDst> >::value));
+
+    ASSERT((!bsl::is_convertible<Src, optional<ExplicitDstAlloc> >::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<Src>,
+                                 optional<ExplicitDstAlloc> >::value));
+
+    ASSERT(( bsl::is_convertible<optional<Src>,
+                                 optional<ImplicitDst> >::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ImplicitDst> >::value));
+
+    ASSERT(( bsl::is_convertible<optional<Src>,
+                                 optional<ImplicitDstAlloc> >::value));
+    ASSERT(( bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ImplicitDstAlloc> >::value));
+
+    ASSERT((!bsl::is_convertible<optional<Src>,
+                                 optional<ExplicitDst> >::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ExplicitDst> >::value));
+
+    ASSERT((!bsl::is_convertible<optional<Src>,
+                                 optional<ExplicitDstAlloc> >::value));
+    ASSERT((!bsl::is_convertible<bslmf::MovableRef<optional<Src> >,
+                                 optional<ExplicitDstAlloc> >::value));
+
+#if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
+    ASSERT(( std::is_constructible<optional<Src>, Src>::value));
+    ASSERT(( std::is_constructible<optional<Src>,
+                                   bslmf::MovableRef<Src> >::value));
+
+    ASSERT(( std::is_constructible<optional<ImplicitDst>, Src>::value));
+    ASSERT(( std::is_constructible<optional<ImplicitDst>,
+                                   bslmf::MovableRef<Src> >::value));
+
+    ASSERT(( std::is_constructible<optional<ImplicitDstAlloc>, Src>::value));
+    ASSERT(( std::is_constructible<optional<ImplicitDstAlloc>,
+                                   bslmf::MovableRef<Src> >::value));
+
+    ASSERT(( std::is_constructible<optional<ExplicitDst>, Src>::value));
+    ASSERT(( std::is_constructible<optional<ExplicitDst>,
+                                   bslmf::MovableRef<Src> >::value));
+
+    ASSERT(( std::is_constructible<optional<ExplicitDstAlloc>, Src>::value));
+    ASSERT(( std::is_constructible<optional<ExplicitDstAlloc>,
+                                   bslmf::MovableRef<Src> >::value));
+
+    ASSERT(( std::is_constructible<optional<ImplicitDst>,
+                                   optional<Src> >::value));
+    ASSERT(( std::is_constructible<optional<ImplicitDst>,
+                                   bslmf::MovableRef<optional<Src> > >
+                                                                     ::value));
+
+    ASSERT(( std::is_constructible<optional<ImplicitDstAlloc>,
+                                   optional<Src> >::value));
+    ASSERT(( std::is_constructible<optional<ImplicitDstAlloc>,
+                                   bslmf::MovableRef<optional<Src> > >
+                                                                     ::value));
+
+    ASSERT(( std::is_constructible<optional<ExplicitDst>,
+                                   optional<Src> >::value));
+    ASSERT(( std::is_constructible<optional<ExplicitDst>,
+                                   bslmf::MovableRef<optional<Src> > >
+                                                                     ::value));
+
+    ASSERT(( std::is_constructible<optional<ExplicitDstAlloc>,
+                                   optional<Src> >::value));
+    ASSERT(( std::is_constructible<optional<ExplicitDstAlloc>,
+                                   bslmf::MovableRef<optional<Src> > >
+                                                                     ::value));
+#endif
+}
+
+}  // close namespace TEST_CASE_25
+
+
 
                               // ---------------
                               // Test Case 23-24
@@ -9881,7 +10037,11 @@ void TestDriver<TYPE>::testCase7a_imp()
     //    optional(std::optional<ANY_TYPE>&&);
     // --------------------------------------------------------------------
 
+    if (veryVerbose) printf("testCase7a_imp<%s><%s, %s, %d>\n",
+                 bsls::NameOf<TYPE>().name(), bsls::NameOf<DEST_TYPE>().name(),
+                 bsls::NameOf<SRC_TYPE>().name(), PROPAGATE_ON_MOVE);
     {
+
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator oa("other", veryVeryVeryVerbose);
 
@@ -9992,6 +10152,8 @@ void TestDriver<TYPE>::testCase7a_imp_constmovebug()
 template <class TYPE>
 void TestDriver<TYPE>::testCase7a()
 {
+    if (verbose) printf("testCase7a<%s>\n", bsls::NameOf<TYPE>().name());
+
     testCase7a_imp<TYPE, TYPE, true>();
     testCase7a_imp<TYPE, int, false>();
     testCase7a_imp<TYPE, const TYPE, false>();
@@ -12918,7 +13080,7 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
-      case 25: {
+      case 26: {
         //---------------------------------------------------------------------
         // bsl::optional<bslma::ManagedPtr<void>>
         //
@@ -12968,6 +13130,52 @@ int main(int argc, char **argv)
         BSLMF_ASSERT(!bsl::is_copy_constructible<SObj>::value);
         BSLMF_ASSERT(!std::is_copy_assignable<SObj>::value);
 #endif
+      } break;
+      case 25: {
+        //---------------------------------------------------------------------
+        // IMPLICIT/EXPLICIT C'TORS TEST
+        //
+        // Concern:
+        //: 1 That constructors that should be explicit are explicit, and those
+        //:   that should be implicit are implicit.
+        //:
+        // Plan:
+        //: 1 Declare a source type 'Src'.
+        //:
+        //: 2 Declare a destination type 'ImplicitDst', a non-allocating type
+        //:   which can be implicitly constructed from 'Src'.
+        //:
+        //: 3 Declare a destination type 'ImplicitDstAlloc', an allocating type
+        //:   which can be implicitly constructed from 'Src'.
+        //:
+        //: 4 Declare a destination type 'ExplicitDst', a non-allocating type
+        //:   which can be explicitly constructed from 'Src'.
+        //:
+        //: 5 Declare a destination type 'ExplicitDstAlloc', an allocating type
+        //:   which can be implicitly constructed from 'Src'.
+        //:
+        //: 6 Use 'bsl::is_convertible' to verify that 'optional<ImplicitDst>'
+        //:   and 'optional<ImplicitDstAlloc>' are implicitly constructible and
+        //:   move-constructible from 'Src', and that 'optional<ExplicitDst>'
+        //:   and 'optional<ExplicitDstAlloc>' are not.
+        //:
+        //: 7 Use 'bsl::is_convertible' to verify that 'optional<ImplicitDst>'
+        //:   and 'optional<ImplicitDstAlloc>' are implicitly constructible and
+        //:   move-constructible from 'optional<Src>', and that
+        //:   'optional<ExplicitDst>' and 'optional<ExplicitDstAlloc>' are not.
+        //:
+        //: 8 Use 'std::is_constructible' to verify that all of the above
+        //:   conversions in '6' and '7' are either implicitly or explicitly
+        //:   possible.
+        //
+        // Testing:
+        //   IMPLICIT/EXPLICIT C'TORS TEST
+        //---------------------------------------------------------------------
+
+        if (verbose) printf("IMPLICIT/EXPLICIT C'TORS TEST\n"
+                            "=============================\n");
+
+        TEST_CASE_25::testCase25();
       } break;
       case 24: {
         RUN_EACH_TYPE(TestDriver,
