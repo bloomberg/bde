@@ -145,16 +145,17 @@ BSLS_IDENT("$Id: $")
 // in the thread pool, matching the "void function/void pointer" interface.
 // The single 'void *' argument is received and cast to point to a 'struct
 // my_FastSearchJobInfo', which then points to the search string and a single
-// file to be searched.  Note that different 'my_FastSearchInfo' structures for
-// the same search request will differ only in the attribute 'd_path', which
-// points to a specific filename among the set of files to be searched; other
-// fields will be identical across all structures for a given Fast Search.
+// file to be searched.  Note that different 'my_FastSearchJobInfo' structures
+// for the same search request will differ only in the attribute 'd_path',
+// which points to a specific filename among the set of files to be searched;
+// other fields will be identical across all structures for a given Fast
+// Search.
 //
 // See the following section for an illustration of the functor interface.
 //..
 //   static void myFastSearchJob(void *arg)
 //   {
-//       myFastSearchJobInfo *job =  (myFastSearchJobInfo*)arg;
+//       my_FastSearchJobInfo *job =  (my_FastSearchJobInfo*)arg;
 //       FILE *file;
 //
 //       file = fopen(job->d_path->c_str(), "r");
