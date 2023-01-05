@@ -161,14 +161,13 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Using Our List Set For a Custom Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to have a list set containing objects of a custom type.  We
-// can specialize the 'equal_to' comparator to also work on our custom type
-// as well.  We will re-use the 'ListSet' template class from example 1, and
+// can declare an 'operator==' for our custom type, and 'equal_to' will use
+// that.  We will re-use the 'ListSet' template class from example 1, and
 // create a new custom type.
 //
 // First, we define a type 'StringThing', which will contain a 'const char *'
 // pointer, it will be a very simple type, that is implicitly castable to or
-// from a 'const char *'.  It has no 'operator==' defined, so 'equal_to' will
-// need to be explicitly specialized for it:
+// from a 'const char *'.
 //..
 //  class StringThing {
 //      // This class holds a pointer to zero-terminated string.  It is
@@ -196,20 +195,14 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Then, we specialize 'equal_to' to be able to compare two 'StringThing's.
+// Then, we create an 'operator==' for StringThings
 //..
-//  namespace bsl {
 //
-//  template <>
-//  struct equal_to<StringThing> {
-//      bool operator()(const StringThing& lhs,
-//                      const StringThing& rhs) const
+//  bool operator==(const StringThing& lhs, const StringThing& rhs)
 //      {
 //          return !strcmp(lhs, rhs);
 //      }
-//  };
 //
-//  }  // close namespace bsl
 //..
 // Next, in 'main', we declare a 'ListSet' containing 'StringThing's:
 //..
@@ -247,8 +240,15 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
+
+#include <bsla_nodiscard.h>
+
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
+
+#include <utility> // for std::forward
 
 namespace bsl {
 
@@ -256,14 +256,14 @@ namespace bsl {
                        // struct equal_to
                        // ===============
 
-template<class VALUE_TYPE>
+template<class VALUE_TYPE = void>
 struct equal_to {
     // This 'struct' defines a binary comparison functor applying 'operator=='
     // to two 'VALUE_TYPE' objects.  This class conforms to the C++11 standard
     // specification of 'std::equal_to' that does not require inheriting from
     // 'std::binary_function'.  Note that this class is an empty POD type.
 
-    // PUBLIC TYPES -- STANDARD TYPEDEFS
+    // PUBLIC TYPES
     typedef VALUE_TYPE first_argument_type;
     typedef VALUE_TYPE second_argument_type;
     typedef bool       result_type;
@@ -272,9 +272,8 @@ struct equal_to {
         // Create a 'equal_to' object.
 
     //! equal_to(const equal_to& original) = default;
-        // Create a 'equal_to' object.  Note that as
-        // 'equal_to' is an empty (stateless) type, this operation
-        // will have no observable effect.
+        // Create a 'equal_to' object.  Note that as 'equal_to' is an empty
+        // (stateless) type, this operation will have no observable effect.
 
     //! ~equal_to() = default;
         // Destroy this object.
@@ -283,13 +282,65 @@ struct equal_to {
     //! equal_to& operator=(const equal_to&) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // a return a reference providing modifiable access to this object.
-        // Note that as 'equal_to' is an empty (stateless) type,
-        // this operation will have no observable effect.
+        // Note that as 'equal_to' is an empty (stateless) type, this operation
+        // will have no observable effect.
 
     // ACCESSORS
-    bool operator()(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs) const;
+    BSLA_NODISCARD BSLS_KEYWORD_CONSTEXPR bool
+    operator()(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs) const;
         // Return 'true' if the specified 'lhs' compares equal to the specified
         // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
+};
+
+template<>
+struct equal_to<void> {
+    // This 'struct' defines a binary comparison functor applying 'operator=='
+    // to two objects of (possibly different) types.  Note that this class is
+    // an empty POD type.
+
+    // PUBLIC TYPES
+    typedef void is_transparent;
+
+    //! equal_to() = default;
+        // Create a 'equal_to' object.
+
+    //! equal_to(const equal_to& original) = default;
+        // Create a 'equal_to' object.  Note that as 'equal_to<void>' is an
+        // empty (stateless) type, this operation will have no observable
+        // effect.
+
+    //! ~equal_to() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! equal_to& operator=(const equal_to&) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // a return a reference providing modifiable access to this object.
+        // Note that as 'equal_to' is an empty (stateless) type, this
+        // operation will have no observable effect.
+
+    // ACCESSORS
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+    template<class TYPE1, class TYPE2>
+    BSLA_NODISCARD BSLS_KEYWORD_CONSTEXPR inline
+    auto operator()(TYPE1&& lhs, TYPE2&& rhs) const
+      noexcept(noexcept(std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs)))
+      -> decltype(      std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs))
+        // Return 'true' if the specified 'lhs' compares equal to the specified
+        // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
+        // Implemented inline because of all the duplication of
+        // 'std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs)'.
+    { return            std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs); }
+#else
+    template<class TYPE1, class TYPE2>
+    inline bool operator()(const TYPE1& lhs, const TYPE2& rhs) const
+        // Return 'true' if the specified 'lhs' compares equal to the specified
+        // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
+        // Implemented inline because of compiler errors (AIX, SUN).
+    {
+        return lhs == rhs;
+    }
+#endif
 };
 
 }  // close namespace bsl
@@ -306,13 +357,12 @@ namespace bsl {
 
 // ACCESSORS
 template<class VALUE_TYPE>
-inline
+BSLA_NODISCARD BSLS_KEYWORD_CONSTEXPR inline
 bool equal_to<VALUE_TYPE>::operator()(const VALUE_TYPE& lhs,
                                       const VALUE_TYPE& rhs) const
 {
     return lhs == rhs;
 }
-
 }  // close namespace bsl
 
 // ============================================================================
