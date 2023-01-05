@@ -20,6 +20,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 
@@ -6984,6 +6985,8 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT((bsl::is_same<IStack, IDStack>::value));
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
         // Verify that if a container is specified, the first template
         // argument is ignored.
 
@@ -7000,6 +7003,7 @@ int main(int argc, char *argv[])
         ASSERT(2 == VIVS.size());
         ASSERT(!VIVS.empty());
         vivs.pop();             ASSERT(4 == VIVS.top());
+#endif
       }  break;
       case 12: {
         // --------------------------------------------------------------------

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Oct 30 11:35:55 2022
+// Generated on Wed Dec  7 18:22:06 2022
 // Command line: sim_cpp11_features.pl bslstl_stack.h
 
 #ifdef COMPILING_BSLSTL_STACK_H
@@ -45,6 +45,11 @@ class stack {
     // everything, which means that if 'CONTAINER' is specified, then 'VALUE'
     // is ignored.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // STATIC CHECK: Type mismatch is UB per C++17
+    BSLMF_ASSERT((is_same<VALUE, typename CONTAINER::value_type>::value));
+#endif
+
   private:
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
@@ -58,6 +63,7 @@ class stack {
     typedef typename CONTAINER::const_reference const_reference;
     typedef typename CONTAINER::size_type       size_type;
     typedef          CONTAINER                  container_type;
+
 
   protected:
     // PROTECTED DATA

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov  1 08:34:10 2022
+// Generated on Wed Dec  7 18:22:06 2022
 // Command line: sim_cpp11_features.pl bslstl_queue.h
 
 #ifdef COMPILING_BSLSTL_QUEUE_H
@@ -39,6 +39,11 @@ class queue {
     // 'VALUE' type, to provide a first-in-first-out queue data structure.  The
     // container object held by a 'queue' class object is referenced as 'c' in
     // the following function-level documentation.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // STATIC CHECK: Type mismatch is UB per C++17
+    BSLMF_ASSERT((is_same<VALUE, typename CONTAINER::value_type>::value));
+#endif
 
     // FRIENDS
     template <class VALUE2, class CONTAINER2>
