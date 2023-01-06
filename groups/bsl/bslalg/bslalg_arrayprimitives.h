@@ -4749,7 +4749,13 @@ void ArrayPrimitives_Imp::shiftAndInsert(
 
     // shift
     size_t bytesNum = (end - begin) * sizeof(ValueType);
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
     std::memmove(begin + 1, begin, bytesNum);
+
 
     class ElementsProctor {
         // Moves the elements back if 'construct' throws.
@@ -4768,12 +4774,16 @@ void ArrayPrimitives_Imp::shiftAndInsert(
         void release() { d_bytesNum = 0; }
     } proctor(begin, bytesNum);
 
+
     // insert
     bsl::allocator_traits<ALLOCATOR>::construct(
                            allocator,
                            begin,
                            bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
     proctor.release();
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 }
 
 template <class ALLOCATOR>

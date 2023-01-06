@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 15 22:06:02 2022
+// Generated on Thu Dec 29 15:12:18 2022
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -8975,7 +8975,13 @@ void ArrayPrimitives_Imp::shiftAndInsert(
 
     // shift
     size_t bytesNum = (end - begin) * sizeof(ValueType);
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
     std::memmove(begin + 1, begin, bytesNum);
+
 
     class ElementsProctor {
         // Moves the elements back if 'construct' throws.
@@ -8994,12 +9000,16 @@ void ArrayPrimitives_Imp::shiftAndInsert(
         void release() { d_bytesNum = 0; }
     } proctor(begin, bytesNum);
 
+
     // insert
     bsl::allocator_traits<ALLOCATOR>::construct(
                            allocator,
                            begin,
                            bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
     proctor.release();
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 }
 
 template <class ALLOCATOR>
