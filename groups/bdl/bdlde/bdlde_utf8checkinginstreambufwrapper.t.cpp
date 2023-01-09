@@ -3825,7 +3825,7 @@ if (verbose) {
         if (verbose) cout << "Read to the end and seek 1/4 of the way back\n";
 
         pos = sb.sgetn(buf, sizeof(buf));
-        ASSERTV(pos, k_ASCII_STR_LEN == pos);
+        ASSERTV(pos, std::streamsize(k_ASCII_STR_LEN) == pos);
         buf[static_cast<size_t>(pos)] = 0;
         ASSERT(0 == SB.errorStatus());
         ASSERT(SB.isValid());

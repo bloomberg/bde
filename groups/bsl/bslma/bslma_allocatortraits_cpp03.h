@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Aug 25 06:09:46 2022
+// Generated on Thu Dec 15 11:14:32 2022
 // Command line: sim_cpp11_features.pl bslma_allocatortraits.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORTRAITS_H
@@ -507,9 +507,19 @@ struct AllocatorTraits_RebindAlloc<
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 template <class T, class = void>
 struct AllocatorTraits_CallMaxSize {
+
+    // PUBLIC TYPES
     typedef typename AllocatorTraits_SizeType<T>::type SizeType;
 
-    static SizeType max_size(const T&);
+    // PUBLIC CLASS METHODS
+    static SizeType max_size(const T &)
+        // Return the maximum size of the specified (template) parameter 'T'.
+        // Also note that this method is defined inline to work around a
+        // Windows compiler bug with SFINAE functions.
+    {
+        return std::numeric_limits<SizeType>::max() /
+               sizeof(typename T::value_type);
+    }
 };
 
 // Due to the dependence on expression SFINAE to detect the presence of a
@@ -517,11 +527,20 @@ struct AllocatorTraits_CallMaxSize {
 // platforms.
 template <class T>
 struct AllocatorTraits_CallMaxSize<
-           T,
-           BSLMF_VOIDTYPE(decltype(bslmf::Util::declval<T>().max_size()))> {
+    T,
+    BSLMF_VOIDTYPE(decltype(bslmf::Util::declval<T>().max_size()))> {
+
+    // PUBLIC TYPES
     typedef typename AllocatorTraits_SizeType<T>::type SizeType;
 
-    static SizeType max_size(const T& alloc);
+    // PUBLIC CLASS METHODS
+    static SizeType max_size(const T &alloc)
+        // Return the maximum size of the specified 'alloc'.  Also note that
+        // this method is defined inline to work around a Windows compiler bug
+        // with SFINAE functions.
+    {
+        return alloc.max_size();
+    }
 };
 #endif
 
@@ -1118,38 +1137,6 @@ struct allocator_traits<ALLOCATOR_TYPE *> {
 //          INLINE AND TEMPLATE STATIC MEMBER FUNCTION DEFINITIONS
 // ============================================================================
 
-namespace BloombergLP {
-namespace bslma {
-
-                     // ---------------------------------
-                     // class AllocatorTraits_CallMaxSize
-                     // ---------------------------------
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
-template <class T, class U>
-inline
-typename AllocatorTraits_SizeType<T>::type
-AllocatorTraits_CallMaxSize<T,U>::max_size(const T&)
-{
-    return
-        std::numeric_limits<SizeType>::max() / sizeof(typename T::value_type);
-
-}
-
-template <class T>
-inline
-typename AllocatorTraits_SizeType<T>::type
-AllocatorTraits_CallMaxSize<
-    T,
-    BSLMF_VOIDTYPE(decltype(bslmf::Util::declval<T>().max_size()))>
-::max_size(const T&alloc) {
-    return alloc.max_size();
-}
-#endif
-
-
-} // close namespace bslma
-} // close enterprise namespace
 
 namespace bsl {
 

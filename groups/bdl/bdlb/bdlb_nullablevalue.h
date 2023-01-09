@@ -1823,16 +1823,28 @@ bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 
 }  // close enterprise namespace
 
-#ifdef  BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
+#ifdef BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
 // This hack works around a bug in gcc's defintion for is-optional.  See
 // bslstl_optional.h for more information.
 
 namespace std {
 template <typename _Tp>
-inline
-constexpr bool __is_optional_v<BloombergLP::bdlb::NullableValue<_Tp> > = true;
+inline constexpr bool __is_optional_v<BloombergLP::bdlb::NullableValue<_Tp>> =
+    true;
 }
-#endif  // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
+#endif // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
+
+#ifdef BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_MSVC_WORKAROUND_NEEDED
+// This hack works around a bug in MSVC's C++20 defintion for is-optional. See
+// bslstl_optional.h for more information.
+
+namespace std {
+template <typename _Tp>
+inline
+constexpr bool _Is_specialization_v<BloombergLP::bdlb::NullableValue<_Tp>,
+                                    std::optional> = true;
+}
+#endif  // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_MSVC_WORKAROUND_NEEDED
 
 #endif // End C++11 code
 

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct  5 08:34:38 2022
+// Generated on Wed Dec 14 12:21:08 2022
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -655,7 +655,8 @@ class vector : public  vectorBase<VALUE_TYPE>
         // 'VALUE_TYPE' be 'copy-assignable' and 'copy-insertable' into this
         // vector (see {Requirements on 'VALUE_TYPE'}).
 
-    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+    vector& operator=(
+            BloombergLP::bslmf::MovableRef<vector<VALUE_TYPE, ALLOCATOR> > rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
               AllocatorTraits::propagate_on_container_move_assignment::value ||
               AllocatorTraits::is_always_equal::value);
@@ -2124,7 +2125,8 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
     // MANIPULATORS
     vector& operator=(const vector& rhs);
-    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+    vector& operator=(
+          BloombergLP::bslmf::MovableRef<vector<VALUE_TYPE *, ALLOCATOR> > rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                        d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl)));
 
@@ -2218,7 +2220,7 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     iterator erase(const_iterator position);
     iterator erase(const_iterator first, const_iterator last);
 
-    void swap(vector& other)
+    void swap(vector<VALUE_TYPE *, ALLOCATOR>& other)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                                                    d_impl.swap(other.d_impl)));
 
@@ -3543,9 +3545,8 @@ vector<VALUE_TYPE, ALLOCATOR>::operator=(const vector& rhs)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>&
-vector<VALUE_TYPE, ALLOCATOR>::operator=(
-                                    BloombergLP::bslmf::MovableRef<vector> rhs)
+vector<VALUE_TYPE, ALLOCATOR>& vector<VALUE_TYPE, ALLOCATOR>::operator=(
+            BloombergLP::bslmf::MovableRef<vector<VALUE_TYPE, ALLOCATOR> > rhs)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
               AllocatorTraits::propagate_on_container_move_assignment::value ||
               AllocatorTraits::is_always_equal::value)
@@ -5123,8 +5124,9 @@ vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
-                                    BloombergLP::bslmf::MovableRef<vector> rhs)
+vector<VALUE_TYPE *, ALLOCATOR>&
+vector<VALUE_TYPE *, ALLOCATOR>::operator=(
+          BloombergLP::bslmf::MovableRef<vector<VALUE_TYPE *, ALLOCATOR> > rhs)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                         d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl)))
 {
@@ -5447,7 +5449,8 @@ vector<VALUE_TYPE *, ALLOCATOR>::erase(const_iterator first,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE *, ALLOCATOR>::swap(vector& other)
+void vector<VALUE_TYPE *, ALLOCATOR>::swap(
+                                        vector<VALUE_TYPE *, ALLOCATOR>& other)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                                                     d_impl.swap(other.d_impl)))
 {
