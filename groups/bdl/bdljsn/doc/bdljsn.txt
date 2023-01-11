@@ -188,11 +188,13 @@ Then, we can observe the following printed to standard output:
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdljsn' package currently has 13 components having 4 levels of physical
+ The 'bdljsn' package currently has 14 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  5. bdljsn_jsonliterals
+
   4. bdljsn_jsonutil
 
   3. bdljsn_json
@@ -218,6 +220,9 @@ Then, we can observe the following printed to standard output:
 :
 : 'bdljsn_json':
 :      Provide an in-memory representation of a JSON document.
+:
+: 'bdljsn_jsonliterals':
+:      Provide user-defined literals for 'bdljsn::Json' objects.
 :
 : 'bdljsn_jsonnull':
 :      Provide a type that represents the JSON 'null' value.
