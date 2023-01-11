@@ -1,5 +1,27 @@
-bsl-internal (3.112.0.0) unstable; urgency=low
+bsl-internal (3.113.0.0) unstable; urgency=low
 
+  * 1281f4946 Bumped version to 3.113.0.0
+  * 7857d977c MSVC cpp20 build issues drqs 170985992 (#4049)
+  * f14a58e5d silence warning about memmove for non-trivially copyable types (#4067)
+  * 86e8bbbd6 Add bdljsn user defined literals (#4063)
+  * c107edb62 drqs-169974338: the three adapators: Update mismatch behavior for C++17 (#4032)
+  * 60b40effd Implement equal_to<void> (#4059)
+  * 13a7a5909 replace various mispellings of my_FastSearchJobInfo (#4064)
+  * d12e72488 Merge pull request #4065 from bchapman/bslstl_optional-assign-from-fwd-drqs-171048733
+  * 7cb3a50c0 Merge pull request #4052 from bchapman/bslstl_optional_deduce-drqs-170935671
+  * 0d08d32bf Merge pull request #3555 from bchapman/bslstl_optional-cpp17-only-support-ManagedPtr-drqs-168171178
+  * 55755cd75 LibraryFeatures, charconv & cleanup. (#4043)
+  * d86cbee1e Bdljsn allow trailing text (#4060)
+  * f46e6d0a0 Add support of RFC 3339 datetime format to ISO-8601 parser (DRQS 170838199) (#4058)
+  * 27296c262 Merge pull request #4042 from bchapman/bslstl_optional-spaceship-drqs-170454046
+  * 1b3ba8634 Merge pull request #3979 from bchapman/bslh_hash_adlref-B-drqs-170259221
+  * e194f5d0e Bslmt threadutil detched allocating threads drqs 170584998 (#4001)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 11 Jan 2023 13:24:07 -0500
+
+bsl-internal (3.112.0.0) git; urgency=low
+
+  * 75ccd01b6 Changelog for version 3.112.0.0
   * 533415dd9 Bumped version to 3.112.0.0
   * 6e1a5a7d8 Switch dpkg helper to bbs (#4057)
   * 3ec16a1e3 Fix dormant UB in the uninitializedFillN. (#4054)
@@ -35,7 +57,7 @@ bsl-internal (3.112.0.0) unstable; urgency=low
   * 669a4ec7c removed 'getRandomBytes' invocation from 'reseed' (#4023)
   * 1b8e04d1f restore baljsn::PrintUtil::printString (#4022)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 21 Dec 2022 13:37:45 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 21 Dec 2022 13:42:34 -0500
 
 bsl-internal (3.111.0.0) git; urgency=low
 
