@@ -3,6 +3,7 @@ bslma_aatypeutil
 bslma_allocator
 bslma_allocatoradaptor
 bslma_allocatortraits
+bslma_allocatortraits_cpp03
 bslma_allocatorutil
 bslma_autodeallocator
 bslma_autodestructor
