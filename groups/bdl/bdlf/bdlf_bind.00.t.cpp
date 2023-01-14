@@ -27,6 +27,10 @@
 
 #include <bsla_unused.h>
 
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_movabletesttype.h>
+#include <bsltf_moveonlyalloctesttype.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -37,7 +41,6 @@
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
-
 #include <bslmf_nil.h>
 
 #include <bsls_bsltestutil.h>
@@ -48,6 +51,7 @@
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -1164,6 +1168,219 @@ struct TestFunctionsAlloc {
     L14(FN)
 };
 
+                        // =====================
+                        // class TestMoveFunctor
+                        // =====================
+
+struct TestHomogMoveFunctor {
+    // The 'operator()' overloads in this 'struct' are homogenous, all of a
+    // single, moveonly type to ensure that all arguments can be moved into
+    // a 'Bind' object.
+
+    // TYPES
+    typedef int ResultType;
+
+    typedef bslmf::MovableRefUtil MoveUtil;
+
+    // CREATORS
+    TestHomogMoveFunctor(bslma::Allocator * = 0)
+    {}
+
+    TestHomogMoveFunctor(const TestHomogMoveFunctor&, bslma::Allocator * = 0)
+    {}
+
+    // ACCESSOR
+#undef  U_ARG_RES_FN
+#define U_ARG_RES_FN(n)      (n == arg##n.data())
+
+#undef  U_ARG_DECL_FN
+#define U_ARG_DECL_FN(n)     const bsltf::MoveOnlyAllocTestType& arg##n
+
+#undef  U_ACCESS_ARG_FN
+#define U_ACCESS_ARG_FN(n)                                                    \
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == bsltf::getMovedFrom(arg##n)); \
+        ASSERT(bsltf::MoveState::e_MOVED     == bsltf::getMovedInto(arg##n)); \
+        ASSERTV(arg##n.data(), n == arg##n.data());
+
+#undef  U_OPERATOR_FN
+#define U_OPERATOR_FN(n)                                                      \
+    int operator()(C##n(U_ARG_DECL_FN)) const                                 \
+    {                                                                         \
+        S##n(U_ACCESS_ARG_FN, )                                               \
+                                                                              \
+        return S##n(U_ARG_RES_FN,+);                                          \
+    }
+
+    L14(U_OPERATOR_FN)
+
+#undef  U_ARG_FN
+#undef  U_ARG_DECL_FN
+#undef  U_ACCESS_ARG_FN
+#undef  U_OPERATOR_FN
+};
+
+struct TestHeteroMoveFunctor {
+    // The arguments to the 'operator()' overloads in this 'struct' are
+    // heterogeneous, of varying types that are movable and move-aware which
+    // are incompatible with one another, to ensure that the bind methods are
+    // not getting different arguments confused with one another.
+
+    // TYPES
+    typedef int ResultType;
+
+    typedef bslmf::MovableRefUtil MoveUtil;
+
+    typedef bsltf::MoveOnlyAllocTestType  Type1;
+    typedef bsltf::MovableAllocTestType   Type2;
+    typedef bsltf::MovableTestType        Type3;
+    typedef bsltf::MoveOnlyAllocTestType  Type4;
+    typedef bsltf::MovableAllocTestType   Type5;
+    typedef bsltf::MovableTestType        Type6;
+    typedef bsltf::MoveOnlyAllocTestType  Type7;
+    typedef bsltf::MovableAllocTestType   Type8;
+    typedef bsltf::MovableTestType        Type9;
+    typedef bsltf::MoveOnlyAllocTestType  Type10;
+    typedef bsltf::MovableAllocTestType   Type11;
+    typedef bsltf::MovableTestType        Type12;
+    typedef bsltf::MoveOnlyAllocTestType  Type13;
+    typedef bsltf::MovableAllocTestType   Type14;
+
+    // CREATORS
+    TestHeteroMoveFunctor(bslma::Allocator * = 0)
+    {}
+
+    TestHeteroMoveFunctor(const TestHeteroMoveFunctor&, bslma::Allocator * = 0)
+    {}
+
+    // ACCESSOR
+#undef  U_ARG_RES_FN
+#define U_ARG_RES_FN(n)      (n == arg##n.data())
+
+#undef  U_ARG_DECL_FN
+#define U_ARG_DECL_FN(n)     const Type##n& arg##n
+
+#undef  U_ACCESS_ARG_FN
+#define U_ACCESS_ARG_FN(n)                                                    \
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == bsltf::getMovedFrom(arg##n)); \
+        ASSERT(bsltf::MoveState::e_MOVED     == bsltf::getMovedInto(arg##n)); \
+        ASSERTV(arg##n.data(), n == arg##n.data());
+
+#undef  U_OPERATOR_FN
+#define U_OPERATOR_FN(n)                                                      \
+    int operator()(C##n(U_ARG_DECL_FN)) const                                 \
+    {                                                                         \
+        S##n(U_ACCESS_ARG_FN, )                                               \
+                                                                              \
+        return S##n(U_ARG_RES_FN,+);                                          \
+    }
+
+    L14(U_OPERATOR_FN)
+
+#undef  U_ARG_FN
+#undef  U_ARG_DECL_FN
+#undef  U_ACCESS_ARG_FN
+#undef  U_OPERATOR_FN
+};
+
+void testMoveFunc()
+{
+    typedef bsltf::MoveOnlyAllocTestType MOTT;
+
+    bslma::TestAllocator ta;
+    bsl::vector<MOTT> motts(&ta);
+    motts.resize(15);
+
+    bsltf::MoveOnlyAllocTestType  v1(&ta);
+    bsltf::MovableAllocTestType   v2(&ta);
+    bsltf::MovableTestType        v3;
+    bsltf::MoveOnlyAllocTestType  v4(&ta);
+    bsltf::MovableAllocTestType   v5(&ta);
+    bsltf::MovableTestType        v6;
+    bsltf::MoveOnlyAllocTestType  v7(&ta);
+    bsltf::MovableAllocTestType   v8(&ta);
+    bsltf::MovableTestType        v9;
+    bsltf::MoveOnlyAllocTestType  v10(&ta);
+    bsltf::MovableAllocTestType   v11(&ta);
+    bsltf::MovableTestType        v12;
+    bsltf::MoveOnlyAllocTestType  v13(&ta);
+    bsltf::MovableAllocTestType   v14(&ta);
+
+    int rc, rcH;
+
+#undef  U_ARG_FN
+#define U_ARG_FN(n)           bslmf::MovableRefUtil::move(motts[n])
+
+#undef  U_HETERO_ARG_FN
+#define U_HETERO_ARG_FN(n)    bslmf::MovableRefUtil::move(v##n)
+
+#undef  U_SET_VAR
+#define U_SET_VAR(n)    { v##n.setData(n); motts[n].setData(n); }
+
+#undef  U_CALL_FN
+#define U_CALL_FN(n)                                                          \
+    {                                                                         \
+        S##n(U_SET_VAR, )                                                     \
+        TestHomogMoveFunctor func;                                            \
+        bdlf::BindUtil::bind(func, C##n(U_ARG_FN))();                         \
+        TestHeteroMoveFunctor hFunc;                                          \
+        bdlf::BindUtil::bind(hFunc, C##n(U_HETERO_ARG_FN))();                 \
+    }
+
+    L14(U_CALL_FN);
+
+#undef  U_CALL_FN
+#define U_CALL_FN(n)                                                          \
+    {                                                                         \
+        S##n(U_SET_VAR, )                                                     \
+        TestHomogMoveFunctor func;                                            \
+        rc = bdlf::BindUtil::bindR<int>(func, C##n(U_ARG_FN))();              \
+        ASSERTV(rc, n == rc);                                                 \
+        TestHeteroMoveFunctor hFunc;                                          \
+        rcH = bdlf::BindUtil::bindR<int>(hFunc, C##n(U_HETERO_ARG_FN))();     \
+        ASSERTV(rcH, n == rcH);                                               \
+    }
+
+    L14(U_CALL_FN);
+
+#undef  U_CALL_ALLOC_FN
+#define U_CALL_ALLOC_FN(n)                                                    \
+    {                                                                         \
+        S##n(U_SET_VAR, )                                                     \
+        TestHomogMoveFunctor func;                                            \
+        bdlf::BindUtil::bindS(&ta, func, C##n(U_ARG_FN))();                   \
+        TestHeteroMoveFunctor hFunc;                                          \
+        bdlf::BindUtil::bindS(&ta, hFunc, C##n(U_HETERO_ARG_FN))();           \
+    }
+
+    bslma::TestAllocator         da;
+    bslma::DefaultAllocatorGuard allocGuard(&da);
+
+    L14(U_CALL_ALLOC_FN);
+
+#undef  U_CALL_ALLOC_FN
+#define U_CALL_ALLOC_FN(n)                                                    \
+    {                                                                         \
+        S##n(U_SET_VAR, )                                                     \
+        TestHomogMoveFunctor func;                                            \
+        rc = bdlf::BindUtil::bindSR<int>(&ta, func, C##n(U_ARG_FN))();        \
+        ASSERTV(rc, n == rc);                                                 \
+        TestHeteroMoveFunctor hFunc;                                          \
+        rcH = bdlf::BindUtil::bindSR<int>(                                    \
+                                     &ta, hFunc, C##n(U_HETERO_ARG_FN))();    \
+        ASSERTV(rcH, n == rcH);                                               \
+    }
+
+    L14(U_CALL_ALLOC_FN);
+
+#undef  U_ARG_FN
+#undef  U_HETERO_ARG_FN
+#undef  U_SET_VAR
+#undef  U_CALL_FN
+#undef  U_CALL_ALLOC_FN
+
+    ASSERT(da.numAllocations() == 0);
+}
+
                             // --------------
                             // class TestUtil
                             // --------------
@@ -2054,6 +2271,16 @@ const NoAllocTestArg14 I14 BSLA_UNUSED = 14;
 // ----------------------------------------------------------------------------
 
 #ifdef BDLF_BIND_00T_AS_GENERATOR
+
+DEFINE_TEST_CASE(19) {
+        if (verbose) printf("Testing move semantics\n"
+                            "======================\n");
+
+        (void) veryVerbose;
+        (void) veryVeryVerbose;
+
+        testMoveFunc();
+}
 
 DEFINE_TEST_CASE(18) {
         // ------------------------------------------------------------------
@@ -5857,6 +6084,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+      CASE(19);
       CASE(18);
       CASE(17);
       CASE(16);
