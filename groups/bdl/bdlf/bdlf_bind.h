@@ -887,6 +887,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_memberfunctionpointertraits.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
+#include <bslmf_removecv.h>
 #include <bslmf_resulttype.h>
 #include <bslmf_tag.h>
 #include <bslmf_typelist.h>
@@ -1694,6 +1695,25 @@ class BindUtil {
     // object for which a result type cannot be automatically determined.
 
     // PRIVATE TYPES
+    template <class TYPE>
+    class Storage_Type {
+        // Decay the type of the argument to the 'bind*' function into the type
+        // of storage needed to store in in the 'Bind_BoundTuple'.  We cannot
+        // just use 'bslmf::MovableRefUtil::Decay' because it will turn
+        // 'const Type(&)[]' into 'Type *' which cannot be constructed from
+        // 'const Type(&)[]', so we use 'ArrayToConstPointer' to turn such
+        // arrays into 'const Type *'.
+
+        // PRIVATE TYPES
+        typedef typename bslmf::MovableRefUtil::RemoveReference<TYPE>::type
+                                                                         TypeA;
+        typedef typename bslmf::ArrayToConstPointer<TypeA>::Type TypeB;
+
+      public:
+        // PUBLIC TYPES
+        typedef typename bsl::remove_cv<TypeB>::type type;
+    };
+
     typedef bslmf::MovableRefUtil    MoveUtil;
 
   public:
@@ -1716,30 +1736,32 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type> >
+         Bind_BoundTuple1<typename Storage_Type<P1>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with one parameter.
     {
-        typedef Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type>  ListType;
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1));
 
-        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
+        return Bind<bslmf::Nil,
+                    FUNC,
+                    ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2>
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type> >
+         Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                                       BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with two parameters.
     {
-        typedef Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type> ListType;
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2));
@@ -1751,18 +1773,18 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type> >
+         Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with three parameters.
     {
-        typedef Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type> ListType;
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -1775,10 +1797,10 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type> >
+         Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -1786,10 +1808,10 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with four parameters.
     {
-        typedef Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type> ListType;
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -1803,11 +1825,11 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type> >
+         Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -1816,11 +1838,11 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with five parameters.
     {
-        typedef Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type> ListType;
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -1836,12 +1858,12 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type> >
+         Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -1851,12 +1873,12 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with six parameters.
     {
-        typedef Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type> ListType;
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -1873,13 +1895,13 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type,
-                          typename MoveUtil::Decay<P7>::type> >
+         Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -1890,13 +1912,13 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with seven parameters.
     {
-        typedef Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type> ListType;
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -1914,14 +1936,14 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type,
-                          typename MoveUtil::Decay<P7>::type,
-                          typename MoveUtil::Decay<P8>::type> >
+         Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -1933,14 +1955,14 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with eight parameters.
     {
-        typedef Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type> ListType;
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -1959,15 +1981,15 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type,
-                          typename MoveUtil::Decay<P7>::type,
-                          typename MoveUtil::Decay<P8>::type,
-                          typename MoveUtil::Decay<P9>::type> >
+         Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type,
+                          typename Storage_Type<P9>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -1980,15 +2002,15 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with nine parameters.
     {
-        typedef Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type,
-                                 typename MoveUtil::Decay<P9>::type> ListType;
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2008,16 +2030,16 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type> >
+         Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2031,17 +2053,16 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with ten parameters.
     {
-        typedef Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2062,17 +2083,17 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type> >
+         Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2087,18 +2108,17 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with eleven parameters.
     {
-        typedef Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2121,18 +2141,18 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type,
-                           typename MoveUtil::Decay<P12>::type> >
+         Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2148,19 +2168,18 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with twelve parameters.
     {
-        typedef Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2184,19 +2203,19 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type,
-                           typename MoveUtil::Decay<P12>::type,
-                           typename MoveUtil::Decay<P13>::type> >
+         Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2213,20 +2232,19 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with thirteen parameters.
     {
-        typedef Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2251,20 +2269,20 @@ class BindUtil {
     static
     Bind<bslmf::Nil,
          FUNC,
-         Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type,
-                           typename MoveUtil::Decay<P12>::type,
-                           typename MoveUtil::Decay<P13>::type,
-                           typename MoveUtil::Decay<P14>::type> >
+         Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type,
+                           typename Storage_Type<P14>::type> >
     bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2282,21 +2300,20 @@ class BindUtil {
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with fourteen parameters.
     {
-        typedef Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type,
-                                  typename MoveUtil::Decay<P14>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2334,13 +2351,13 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type> >
+         Bind_BoundTuple1<typename Storage_Type<P1>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with one parameter and returns a
         // value of type 'RET'.
     {
-        typedef Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type>  ListType;
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1));
 
         return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
@@ -2350,16 +2367,16 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type> >
+         Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                                       BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with two parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type> ListType;
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2));
@@ -2371,9 +2388,9 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type> >
+         Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3)
@@ -2381,9 +2398,9 @@ class BindUtil {
         // object 'func', which can be invoked with three parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type> ListType;
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2396,10 +2413,10 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type> >
+         Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -2408,10 +2425,10 @@ class BindUtil {
         // object 'func', which can be invoked with four parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type> ListType;
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2426,11 +2443,11 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type> >
+         Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -2440,11 +2457,11 @@ class BindUtil {
         // object 'func', which can be invoked with five parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type> ListType;
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2460,12 +2477,12 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type> >
+         Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -2476,12 +2493,12 @@ class BindUtil {
         // object 'func', which can be invoked with six parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type> ListType;
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2498,13 +2515,13 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type,
-                          typename MoveUtil::Decay<P7>::type> >
+         Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -2516,13 +2533,13 @@ class BindUtil {
         // object 'func', which can be invoked with seven parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type> ListType;
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2540,14 +2557,14 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type,
-                          typename MoveUtil::Decay<P7>::type,
-                          typename MoveUtil::Decay<P8>::type> >
+         Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -2560,14 +2577,14 @@ class BindUtil {
         // object 'func', which can be invoked with eight parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type> ListType;
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2586,15 +2603,15 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                          typename MoveUtil::Decay<P2>::type,
-                          typename MoveUtil::Decay<P3>::type,
-                          typename MoveUtil::Decay<P4>::type,
-                          typename MoveUtil::Decay<P5>::type,
-                          typename MoveUtil::Decay<P6>::type,
-                          typename MoveUtil::Decay<P7>::type,
-                          typename MoveUtil::Decay<P8>::type,
-                          typename MoveUtil::Decay<P9>::type> >
+         Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type,
+                          typename Storage_Type<P9>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
@@ -2608,15 +2625,15 @@ class BindUtil {
         // object 'func', which can be invoked with nine parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type,
-                                 typename MoveUtil::Decay<P9>::type> ListType;
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -2636,16 +2653,16 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type> >
+         Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2660,17 +2677,16 @@ class BindUtil {
         // object 'func', which can be invoked with ten parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2692,17 +2708,17 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type> >
+         Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2718,18 +2734,17 @@ class BindUtil {
         // object 'func', which can be invoked with eleven parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2752,18 +2767,18 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type,
-                           typename MoveUtil::Decay<P12>::type> >
+         Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2780,19 +2795,18 @@ class BindUtil {
         // object 'func', which can be invoked with twelve parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2816,19 +2830,19 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type,
-                           typename MoveUtil::Decay<P12>::type,
-                           typename MoveUtil::Decay<P13>::type> >
+         Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2846,20 +2860,19 @@ class BindUtil {
         // object 'func', which can be invoked with thirteen parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2884,20 +2897,20 @@ class BindUtil {
     static
     Bind<RET,
          FUNC,
-         Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                           typename MoveUtil::Decay<P2>::type,
-                           typename MoveUtil::Decay<P3>::type,
-                           typename MoveUtil::Decay<P4>::type,
-                           typename MoveUtil::Decay<P5>::type,
-                           typename MoveUtil::Decay<P6>::type,
-                           typename MoveUtil::Decay<P7>::type,
-                           typename MoveUtil::Decay<P8>::type,
-                           typename MoveUtil::Decay<P9>::type,
-                           typename MoveUtil::Decay<P10>::type,
-                           typename MoveUtil::Decay<P11>::type,
-                           typename MoveUtil::Decay<P12>::type,
-                           typename MoveUtil::Decay<P13>::type,
-                           typename MoveUtil::Decay<P14>::type> >
+         Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type,
+                           typename Storage_Type<P14>::type> >
     bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
                      BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
@@ -2916,21 +2929,20 @@ class BindUtil {
         // object 'func', which can be invoked with fourteen parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type,
-                                  typename MoveUtil::Decay<P14>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -2967,14 +2979,14 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type> >
+                Bind_BoundTuple1<typename Storage_Type<P1>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameters.
     {
-        typedef Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type>  ListType;
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1), allocator);
 
         return BindWrapper<bslmf::Nil, FUNC, ListType>
@@ -2985,8 +2997,8 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type> >
+                Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -2994,8 +3006,8 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters.
     {
-        typedef Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type> ListType;
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3009,9 +3021,9 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type> >
+                Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> >
     bindS(bslma::Allocator                      *allocator,
           FUNC                                   func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -3020,9 +3032,9 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three parameters.
     {
-        typedef Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type> ListType;
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3037,10 +3049,10 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type> >
+                Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3050,10 +3062,10 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters.
     {
-        typedef Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type> ListType;
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3069,11 +3081,11 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type> >
+                Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3084,11 +3096,11 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters.
     {
-        typedef Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type> ListType;
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3106,12 +3118,12 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type> >
+                Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC             func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3123,12 +3135,12 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters.
     {
-        typedef Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type> ListType;
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3147,13 +3159,13 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type> >
+                Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3166,13 +3178,13 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with seven parameters.
     {
-        typedef Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type> ListType;
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3192,14 +3204,14 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type> >
+                Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3213,14 +3225,14 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with eight parameters.
     {
-        typedef Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type> ListType;
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3241,15 +3253,15 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type,
-                                 typename MoveUtil::Decay<P9>::type> >
+                Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3264,15 +3276,15 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with nine parameters.
     {
-        typedef Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type,
-                                 typename MoveUtil::Decay<P9>::type> ListType;
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3294,16 +3306,16 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type> >
+                Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -3319,17 +3331,16 @@ class BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with ten parameters.
     {
-        typedef Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -3352,17 +3363,17 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type> >
+                Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -3380,18 +3391,17 @@ class BindUtil {
         // invocable object 'func', which can be invoked with eleven
         // parameters.
     {
-        typedef Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -3416,18 +3426,18 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type> >
+                Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -3446,19 +3456,18 @@ class BindUtil {
         // invocable object 'func', which can be invoked with twelve
         // parameters.
     {
-        typedef Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -3484,19 +3493,19 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type> >
+                Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -3516,20 +3525,19 @@ class BindUtil {
         // invocable object 'func', which can be invoked with thirteen
         // parameters.
     {
-        typedef Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -3556,20 +3564,20 @@ class BindUtil {
     static
     BindWrapper<bslmf::Nil,
                 FUNC,
-                Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type,
-                                  typename MoveUtil::Decay<P14>::type> >
+                Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> >
     bindS(bslma::Allocator *allocator,
           FUNC              func,
           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -3590,21 +3598,20 @@ class BindUtil {
         // invocable object 'func', which can be invoked with fourteen
         // parameters.
     {
-        typedef Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type,
-                                  typename MoveUtil::Decay<P14>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -3644,7 +3651,7 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type> >
+                Bind_BoundTuple1<typename Storage_Type<P1>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
@@ -3652,7 +3659,7 @@ class BindUtil {
         // invocable object 'func', which can be invoked with one parameter and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple1<typename MoveUtil::Decay<P1>::type>  ListType;
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1), allocator);
 
         return BindWrapper<RET, FUNC, ListType>
@@ -3663,8 +3670,8 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type> >
+                Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3673,8 +3680,8 @@ class BindUtil {
         // invocable object 'func', which can be invoked with two parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple2<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type> ListType;
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3688,9 +3695,9 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type> >
+                Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> >
     bindSR(bslma::Allocator                      *allocator,
            FUNC                                   func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -3700,9 +3707,9 @@ class BindUtil {
         // invocable object 'func', which can be invoked with three parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple3<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type> ListType;
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3717,10 +3724,10 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type> >
+                Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3731,10 +3738,10 @@ class BindUtil {
         // invocable object 'func', which can be invoked with four parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple4<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type> ListType;
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3751,11 +3758,11 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type> >
+                Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3767,11 +3774,11 @@ class BindUtil {
         // invocable object 'func', which can be invoked with five parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple5<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type> ListType;
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3789,12 +3796,12 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type> >
+                Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC             func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3807,12 +3814,12 @@ class BindUtil {
         // invocable object 'func', which can be invoked with six parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple6<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type> ListType;
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3831,13 +3838,13 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type> >
+                Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3851,13 +3858,13 @@ class BindUtil {
         // invocable object 'func', which can be invoked with seven parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple7<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type> ListType;
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3877,14 +3884,14 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type> >
+                Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3899,14 +3906,14 @@ class BindUtil {
         // invocable object 'func', which can be invoked with eight parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple8<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type> ListType;
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3927,15 +3934,15 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type,
-                                 typename MoveUtil::Decay<P9>::type> >
+                Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
@@ -3951,15 +3958,15 @@ class BindUtil {
         // invocable object 'func', which can be invoked with nine parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple9<typename MoveUtil::Decay<P1>::type,
-                                 typename MoveUtil::Decay<P2>::type,
-                                 typename MoveUtil::Decay<P3>::type,
-                                 typename MoveUtil::Decay<P4>::type,
-                                 typename MoveUtil::Decay<P5>::type,
-                                 typename MoveUtil::Decay<P6>::type,
-                                 typename MoveUtil::Decay<P7>::type,
-                                 typename MoveUtil::Decay<P8>::type,
-                                 typename MoveUtil::Decay<P9>::type> ListType;
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2, p2),
@@ -3981,16 +3988,16 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type> >
+                Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -4007,17 +4014,16 @@ class BindUtil {
         // invocable object 'func', which can be invoked with ten parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple10<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -4041,17 +4047,17 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type> >
+                Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -4069,18 +4075,17 @@ class BindUtil {
         // invocable object 'func', which can be invoked with eleven parameters
         // and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple11<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -4105,18 +4110,18 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type> >
+                Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -4135,19 +4140,18 @@ class BindUtil {
         // invocable object 'func', which can be invoked with twelve parameters
         // and returns a value of type 'RET'.
     {
-         typedef Bind_BoundTuple12<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type>
-                                                                      ListType;
+         typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                   typename Storage_Type<P2>::type,
+                                   typename Storage_Type<P3>::type,
+                                   typename Storage_Type<P4>::type,
+                                   typename Storage_Type<P5>::type,
+                                   typename Storage_Type<P6>::type,
+                                   typename Storage_Type<P7>::type,
+                                   typename Storage_Type<P8>::type,
+                                   typename Storage_Type<P9>::type,
+                                   typename Storage_Type<P10>::type,
+                                   typename Storage_Type<P11>::type,
+                                   typename Storage_Type<P12>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -4173,19 +4177,19 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type> >
+                Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -4205,20 +4209,19 @@ class BindUtil {
         // invocable object 'func', which can be invoked with thirteen
         // parameters and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple13<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
@@ -4245,20 +4248,20 @@ class BindUtil {
     static
     BindWrapper<RET,
                 FUNC,
-                Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type,
-                                  typename MoveUtil::Decay<P14>::type> >
+                Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> >
     bindSR(bslma::Allocator *allocator,
            FUNC              func,
            BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
@@ -4279,21 +4282,20 @@ class BindUtil {
         // invocable object 'func', which can be invoked with fourteen
         // parameters and returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple14<typename MoveUtil::Decay<P1>::type,
-                                  typename MoveUtil::Decay<P2>::type,
-                                  typename MoveUtil::Decay<P3>::type,
-                                  typename MoveUtil::Decay<P4>::type,
-                                  typename MoveUtil::Decay<P5>::type,
-                                  typename MoveUtil::Decay<P6>::type,
-                                  typename MoveUtil::Decay<P7>::type,
-                                  typename MoveUtil::Decay<P8>::type,
-                                  typename MoveUtil::Decay<P9>::type,
-                                  typename MoveUtil::Decay<P10>::type,
-                                  typename MoveUtil::Decay<P11>::type,
-                                  typename MoveUtil::Decay<P12>::type,
-                                  typename MoveUtil::Decay<P13>::type,
-                                  typename MoveUtil::Decay<P14>::type>
-                                                                      ListType;
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
 
         ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
                       BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
