@@ -661,7 +661,7 @@ uint8_t *WyHashIncrementalAlgorithm::prePad()
 {
     BSLMF_ASSERT(sizeof(d_last16AtEnd) == 1);    // see implementation doc
 
-    return d_buffer - 1;
+    return static_cast<uint8_t *>(d_buffer) - 1;
 }
 
 inline
