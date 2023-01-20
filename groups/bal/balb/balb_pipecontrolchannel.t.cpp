@@ -42,7 +42,20 @@
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 
-#ifdef BSLS_PLATFORM_OS_UNIX
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <bdlde_charconvertutf16.h>
+
+#include <windows.h>
+#include <winerror.h>
+#else
+#include <bdlde_utf8util.h>
+
 #include <bsl_c_signal.h>
 
 #include <errno.h>
@@ -97,6 +110,8 @@ using namespace bsl;  // automatically added by script
 // [11] CONCERN: 'shutdown' does not deadlock on Windows.
 // [12] int start(const bsl::string&, const bslmt::ThreadAttributes&);
 // [13] EAGAIN HANDLING
+// [14] TESTING CONCERN: STOP DOES NOT DEADLOCK WHEN WRITE END STILL OPEN
+// [15] TESTING CONCERN: MESSAGE BOUNDARIES ARE STRICTLY NEWLINES
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -503,6 +518,79 @@ class IllegalReader {
 };
 #endif
 
+void testCase14(const string& pipeName);
+    // Start a 'ControlServer' on the specified UTF-8 'pipeName', open a handle
+    // to the named pipe, write the message "EXIT\n" to it to ask it to shut
+    // down the 'PipeControlChannel', and then stop the server *before* closing
+    // the handle.  This used to hang on Windows (see {DRQS 170252895}).
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+void testCase14(const string& pipeName)
+{
+    ControlServer server;
+
+    const int rc = server.start(pipeName);
+    if (0 != rc) {
+        ASSERT(!"Failed to start pipe control channel");
+        return;                                                       // RETURN
+    }
+
+    wstring wPipeName;
+    bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName);
+
+    HANDLE pipe;
+    do {
+        WaitNamedPipeW(wPipeName.data(), NMPWAIT_WAIT_FOREVER);
+        pipe = CreateFileW(wPipeName.data(), GENERIC_WRITE, 0, NULL,
+                           OPEN_EXISTING, 0, NULL);
+    } while (INVALID_HANDLE_VALUE == pipe);
+
+    DWORD mode = PIPE_READMODE_MESSAGE;
+    SetNamedPipeHandleState(pipe, &mode, NULL, NULL);
+
+    DWORD dummy;
+    if (!WriteFile(pipe, "EXIT\n", 5, &dummy, 0)) {
+        ASSERT(!"Failed to send EXIT message");
+        return;                                                       // RETURN
+    }
+
+    if (veryVerbose) {
+        cout << "Stopping control server..." << endl;
+    }
+
+    server.stop();
+    CloseHandle(pipe);
+}
+#else  // UNIX implementation
+void testCase14(const string& pipeName)
+{
+    ControlServer server;
+
+    const int rc = server.start(pipeName);
+    if (0 != rc) {
+        ASSERT(!"Failed to start pipe control channel");
+        return;                                                       // RETURN
+    }
+
+    const int pipe = open(pipeName.c_str(), O_WRONLY);
+    if (pipe < 0) {
+        ASSERT(!"Failed to open the pipe for writing");
+        return;                                                       // RETURN
+    }
+
+    if (write(pipe, "EXIT\n", 5) <= static_cast<ssize_t>(0)) {
+        ASSERT(!"Failed to send EXIT message");
+        return;                                                       // RETURN
+    }
+
+    if (veryVerbose) {
+        cout << "Stopping control server..." << endl;
+    }
+
+    server.stop();
+    close(pipe);
+}
+#endif
 }  // close unnamed namespace
 
 extern "C"
@@ -605,8 +693,103 @@ int main(int argc, char *argv[])
     sigset(SIGPIPE, onSigPipe);
 #endif
 
-    switch (test) {
-      case 0:
+    switch (test) { case 0:
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING LINE BUFFERING
+        //
+        // Concerns:
+        //: 1 If multiple newlines are written to the pipe, then several
+        //:   separate messages are dispatched to the callback, one per
+        //:   newline.
+        //:
+        //: 2 As an exception to C-1, empty messages (i.e., newlines that are
+        //:   not preceded by any non-newline character) are not dispatched.
+        //:
+        //: 3 If a string is written to the pipe that contains no newline, it
+        //:   is not treated as a complete message, and is buffered until a
+        //:   newline is written.
+        //:
+        //: 4 After the callback has called 'shutdown', it is not invoked
+        //:   again, even if data is left in the 'PipeControlChannel' buffer.
+        //
+        // Plan:
+        //: 1 Start a 'PipeControlChannel'.
+        //:
+        //: 2 Using 'bdls::PipeUtil::send', write a string that contains no
+        //:   newline characters.
+        //:
+        //: 3 Using 'bdls::PipeUtil::send', write a string that contains
+        //:   multiple newline characters, including two in a row.
+        //:
+        //: 4 Shut down and stop the 'PipeControlChannel' by sending a message
+        //:   that starts with "EXIT\n" but also contains another line.
+        //:
+        //: 5 Verify that each nonempty maximal contiguous sequence of
+        //:   non-newline characters preceded by a newline has been dispatched
+        //:   to the callback as one message, but nothing following the string
+        //:   "EXIT\n".  (C-1..4)
+        //
+        // Testing:
+        //   TESTING CONCERN: MESSAGE BOUNDARIES ARE STRICTLY NEWLINES
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING LINE BUFFERING" "\n"
+                    "======================" "\n";
+        }
+
+        int rc;
+
+        ControlServer server;
+
+        rc = server.start(pipeName);
+        if (0 != rc) {
+            cout << "ERROR: Failed to start pipe control channel" << endl;
+        }
+
+        rc = bdls::PipeUtil::send(pipeName, "Hello");
+        ASSERT(0 == rc);
+        rc = bdls::PipeUtil::send(pipeName, ",\nworld\n\n!\n");
+        ASSERT(0 == rc);
+        rc = bdls::PipeUtil::send(pipeName, "EXIT\nSome garbage\n");
+        ASSERT(0 == rc);
+        // The server shuts down once it processes the "EXIT" control message.
+        server.stop();  // block until shutdown
+
+        // Finally, let's ensure the server received all messages sent, where
+        // a message is considered to end on a newline.  Note that
+        // 'ControlServer' does not store the "EXIT" message.
+        ASSERT(3 == server.numMessages());
+        ASSERT(bsl::string("Hello,") == server.message(0));
+        ASSERT(bsl::string("world")  == server.message(1));
+        ASSERT(bsl::string("!")      == server.message(2));
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // 'stop' DOES NOT DEADLOCK WHEN WRITE END STILL OPEN
+        //
+        // Concerns:
+        //: 1 The 'stop' method closes the channel and returns after 'shutdown'
+        //:   has been called, even if the write end of the pipe has not been
+        //:   closed yet.  {DRQS 170252895}
+        //
+        // Plan:
+        //: 1 Call the function 'testCase13' to open a channel, open the named
+        //:   pipe for writing, write a message to it, and then call 'stop'
+        //:   without first closing the write end.  Note that 'shutdown' will
+        //:   be called when 'ControlServer::onMessage' gets called back.
+        //:   (C-1)
+        //
+        // Testing:
+        //   TESTING CONCERN: STOP DOES NOT DEADLOCK WHEN WRITE END STILL OPEN
+        // --------------------------------------------------------------------
+        if (verbose) {
+            cout << "'stop' DOES NOT DEADLOCK WHEN WRITE END STILL OPEN\n"
+                    "==================================================\n";
+        }
+        testCase14(pipeName);
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // EAGAIN HANDLING
@@ -704,7 +887,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
 #endif
       } break;
-
       case 12: {
         // --------------------------------------------------------------------
         // TESTING START, THREAD ATTRIBUTES PASSING

@@ -279,7 +279,14 @@ class PipeControlChannel {
         // success, and a non-zero value otherwise.
 
     void dispatchMessageUpTo(const bsl::vector<char>::iterator& iter);
-        // Dispatch the message that extends up to the specified 'iter'.
+        // Dispatch the message that extends up to (but not including) the
+        // specified 'iter' (which is an iterator into 'd_buffer'), then erase
+        // the prefix that extends up to (and including) 'iter'.
+
+    bool dispatchLeftoverMessage();
+        // If there is a newline character in 'd_buffer', call
+        // 'dispatchMessageUpTo' with the location of that newline character
+        // and return 'true'; otherwise, return 'false'.
 
     void destroyNamedPipe();
         // Close the named pipe.
