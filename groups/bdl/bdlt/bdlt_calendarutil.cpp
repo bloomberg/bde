@@ -273,15 +273,15 @@ int CalendarUtil::shiftModifiedFollowingIfValid(
     // go in reverse
     date = original;
     while (true) {
-        if (calendar.isBusinessDay(date)) {
-            *result = date;
-            return e_SUCCESS;                                         // RETURN
-        }
-
         if (date == calendar.firstDate()) {
             return e_OUT_OF_RANGE;                                    // RETURN
         }
         --date;
+
+        if (calendar.isBusinessDay(date)) {
+            *result = date;
+            return e_SUCCESS;                                         // RETURN
+        }
     }
 
     return e_NOT_FOUND;
@@ -328,15 +328,15 @@ int CalendarUtil::shiftModifiedPrecedingIfValid(
 
     date = original;
     while (true) {
-        if (calendar.isBusinessDay(date)) {
-            *result = date;
-            return e_SUCCESS;                                         // RETURN
-        }
-
         if (date == calendar.lastDate()){
             return e_OUT_OF_RANGE;                                    // RETURN
         }
         ++date;
+
+        if (calendar.isBusinessDay(date)) {
+            *result = date;
+            return e_SUCCESS;                                         // RETURN
+        }
     }
 
     return e_NOT_FOUND;
