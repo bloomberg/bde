@@ -250,16 +250,12 @@ int TimeZoneUtilImp::initLocalTime(bdlt::DatetimeTz        *result,
     }
 
     Zoneinfo::TransitionConstIterator iter;
-
-    const int rc2 = resolveLocalTime(result,
-                                     resultValidity,
-                                     &iter,
-                                     localTime,
-                                     dstPolicy,
-                                     *timeZone);
-    if (0 != rc2) {
-        return rc2;                                                   // RETURN
-    }
+    resolveLocalTime(result,
+                     resultValidity,
+                     &iter,
+                     localTime,
+                     dstPolicy,
+                     *timeZone);
     return 0;
 }
 
@@ -288,7 +284,7 @@ int TimeZoneUtilImp::loadLocalTimePeriodForUtc(
     return 0;
 }
 
-int TimeZoneUtilImp::resolveLocalTime(
+void TimeZoneUtilImp::resolveLocalTime(
                              bdlt::DatetimeTz                  *result,
                              LocalTimeValidity::Enum           *resultValidity,
                              Zoneinfo::TransitionConstIterator *transitionIter,
@@ -347,10 +343,7 @@ int TimeZoneUtilImp::resolveLocalTime(
 
     const int utcOffsetInMinutes = utcOffsetInSeconds / 60;
     bdlt::Datetime resolvedUtcTime = localTime;
-    int rc = resolvedUtcTime.addMinutesIfValid(-utcOffsetInMinutes);
-    if (0 != rc) {
-        return ErrorCode::k_OUT_OF_RANGE;                             // RETURN
-    }
+    resolvedUtcTime.addMinutes(-utcOffsetInMinutes);
 
     // Assign 'transitionIter' to the transition, from the two relevant
     // transitions determined earlier, describing the properties of local time
@@ -372,7 +365,6 @@ int TimeZoneUtilImp::resolveLocalTime(
     bdlt::Datetime resultTime = resolvedUtcTime;
     resultTime.addMinutes(resultOffsetInMinutes);
     result->setDatetimeTz(resultTime, resultOffsetInMinutes);
-    return 0;
 }
 
 void TimeZoneUtilImp::createLocalTimePeriod(
