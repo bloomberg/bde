@@ -6661,6 +6661,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase23();
         TestDriver<wchar_t>::testCase23();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase23();
+# endif
+
+        TestDriver<char16_t>::testCase23();
+        TestDriver<char32_t>::testCase23();
+#endif
       } break;
       case 22: {
 
@@ -6684,6 +6693,10 @@ int main(int argc, char *argv[])
 #if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
         TestDriver<char>::testCase21();
         TestDriver<wchar_t>::testCase21();
+
+        TestDriver<char8_t>::testCase21();
+        TestDriver<char16_t>::testCase21();
+        TestDriver<char32_t>::testCase21();
 #else
         if (verbose) printf ("Methods not available prior to C++20\n");
 #endif
@@ -6695,6 +6708,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase20();
         TestDriver<wchar_t>::testCase20();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase20();
+# endif
+
+        TestDriver<char16_t>::testCase20();
+        TestDriver<char32_t>::testCase20();
+#endif
       } break;
       case 19: {
 
@@ -6703,6 +6725,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase19();
         TestDriver<wchar_t>::testCase19();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase19();
+# endif
+
+        TestDriver<char16_t>::testCase19();
+        TestDriver<char32_t>::testCase19();
+#endif
       } break;
       case 18: {
 
@@ -6711,6 +6742,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase18();
         TestDriver<wchar_t>::testCase18();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase18();
+# endif
+
+        TestDriver<char16_t>::testCase18();
+        TestDriver<char32_t>::testCase18();
+#endif
       } break;
       case 17: {
 
@@ -6719,6 +6759,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase17();
         TestDriver<wchar_t>::testCase17();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase17();
+# endif
+
+        TestDriver<char16_t>::testCase17();
+        TestDriver<char32_t>::testCase17();
+#endif
       } break;
       case 16: {
 
@@ -6728,6 +6777,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase16();
         TestDriver<wchar_t>::testCase16();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase16();
+# endif
+
+        TestDriver<char16_t>::testCase16();
+        TestDriver<char32_t>::testCase16();
+#endif
       } break;
       case 15: {
 
@@ -6736,6 +6794,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase15();
         TestDriver<wchar_t>::testCase15();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase15();
+# endif
+
+        TestDriver<char16_t>::testCase15();
+        TestDriver<char32_t>::testCase15();
+#endif
       } break;
       case 14: {
 
@@ -6744,6 +6811,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase14();
         TestDriver<wchar_t>::testCase14();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase14();
+# endif
+
+        TestDriver<char16_t>::testCase14();
+        TestDriver<char32_t>::testCase14();
+#endif
       } break;
       case 13: {
 
@@ -6752,6 +6828,14 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase13();
         TestDriver<wchar_t>::testCase13();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase13();
+# endif
+        TestDriver<char16_t>::testCase13();
+        TestDriver<char32_t>::testCase13();
+#endif
       } break;
       case 12: {
 
@@ -6760,6 +6844,14 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase12();
         TestDriver<wchar_t>::testCase12();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase12();
+# endif
+        TestDriver<char16_t>::testCase12();
+        TestDriver<char32_t>::testCase12();
+#endif
       } break;
       case 11: {
 
@@ -6768,6 +6860,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase11();
         TestDriver<wchar_t>::testCase11();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase11();
+# endif
+
+        TestDriver<char16_t>::testCase11();
+        TestDriver<char32_t>::testCase11();
+#endif
       } break;
       case 10: {
 
@@ -6776,6 +6877,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase10();
         TestDriver<wchar_t>::testCase10();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase10();
+# endif
+
+        TestDriver<char16_t>::testCase10();
+        TestDriver<char32_t>::testCase10();
+#endif
       } break;
       case 9: {
 
@@ -6784,6 +6894,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase9();
         TestDriver<wchar_t>::testCase9();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase9();
+# endif
+
+        TestDriver<char16_t>::testCase9();
+        TestDriver<char32_t>::testCase9();
+#endif
       } break;
       case 8: {
 
@@ -6792,6 +6911,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase8();
         TestDriver<wchar_t>::testCase8();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase8();
+# endif
+
+        TestDriver<char16_t>::testCase8();
+        TestDriver<char32_t>::testCase8();
+#endif
       } break;
       case 7: {
         if (verbose) printf ("\nTESTING COPY-ASSIGNMENT OPERATOR"
@@ -6799,6 +6927,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase7();
         TestDriver<wchar_t>::testCase7();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase7();
+# endif
+
+        TestDriver<char16_t>::testCase7();
+        TestDriver<char32_t>::testCase7();
+#endif
       } break;
       case 6: {
 
@@ -6807,6 +6944,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase6();
         TestDriver<wchar_t>::testCase6();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase6();
+# endif
+
+        TestDriver<char16_t>::testCase6();
+        TestDriver<char32_t>::testCase6();
+#endif
       } break;
       case 5: {
 
@@ -6815,6 +6961,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase5();
         TestDriver<wchar_t>::testCase5();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase5();
+# endif
+
+        TestDriver<char16_t>::testCase5();
+        TestDriver<char32_t>::testCase5();
+#endif
       } break;
       case 4: {
 
@@ -6823,6 +6978,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase4();
         TestDriver<wchar_t>::testCase4();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase4();
+# endif
+
+        TestDriver<char16_t>::testCase4();
+        TestDriver<char32_t>::testCase4();
+#endif
       } break;
       case 3: {
 
@@ -6831,6 +6995,18 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase3();
         TestDriver<wchar_t>::testCase3();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase3();
+# endif
+
+        // The facets of 'char16_t' and 'char32_t' are such that they throw on
+        // this test.
+
+//      TestDriver<char16_t>::testCase3();
+//      TestDriver<char32_t>::testCase3();
+#endif
       } break;
       case 2: {
 
@@ -6839,6 +7015,15 @@ int main(int argc, char *argv[])
 
         TestDriver<char>::testCase2();
         TestDriver<wchar_t>::testCase2();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        TestDriver<char8_t>::testCase2();
+# endif
+
+        TestDriver<char16_t>::testCase2();
+        TestDriver<char32_t>::testCase2();
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
