@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Aug 17 09:36:31 2022
+// Generated on Mon Oct 17 12:29:55 2022
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -296,10 +296,6 @@ class shared_ptr {
     // TYPES
     typedef ELEMENT_TYPE element_type;
         // 'element_type' is an alias to the 'ELEMENT_TYPE' template parameter.
-        // Note that 'element_type' refers to the same type as 'ElementType'.
-
-    typedef ELEMENT_TYPE ElementType;
-        // 'ElementType' is an alias to the 'ELEMENT_TYPE' template parameter.
 
     typedef weak_ptr<ELEMENT_TYPE> weak_type;
         // 'weak_type' is an alias to a weak pointer with the same element type
@@ -2957,12 +2953,6 @@ class weak_ptr {
     typedef ELEMENT_TYPE element_type;
         // 'element_type' is an alias for the 'ELEMENT_TYPE' parameter of this
         // class template.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef ELEMENT_TYPE ElementType;
-        // 'ElementType' is an alias for the 'ELEMENT_TYPE' parameter of this
-        // class template, and is equivalent to 'element_type'.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CREATORS
     BSLS_KEYWORD_CONSTEXPR
