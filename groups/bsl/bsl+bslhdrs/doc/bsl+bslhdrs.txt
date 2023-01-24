@@ -80,6 +80,7 @@
      bsl_queue.h
      bsl_set.h
      bsl_slist.h
+     bsl_span.h
      bsl_sstream.h
      bsl_stack.h
      bsl_stdexcept.h

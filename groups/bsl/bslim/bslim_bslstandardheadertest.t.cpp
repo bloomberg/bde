@@ -120,6 +120,7 @@
 #include <bsl_ostream.h>
 #include <bsl_queue.h>
 #include <bsl_set.h>
+#include <bsl_span.h>
 #include <bsl_sstream.h>
 #include <bsl_stack.h>
 #include <bsl_stdexcept.h>
@@ -206,6 +207,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [21] CONCERN: 'bsl::span' is available and usable
 // [20] CONCERN: 'bsl::invoke' is usable when available.
 // [20] CONCERN: 'bsl::not_fn' is usable when available.
 // [19] C++17 <bsl_filesystem.h>
@@ -765,6 +767,53 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 <BSL_SPAN.H> ADDITION
+        //
+        // Concerns:
+        //: 1 The 'span' type exists in the 'bsl' namespace and, for C++20, is
+        //:   an alias to the standard library type.
+        //:
+        //: 2 'dynamic_extent' is defined in the 'bsl' namespace and, for
+        //:   C++20, is an alias to the standard library type.
+        //
+        // Plan:
+        //: 1 Attempt to construct both static extent and dynamic extent 'span'
+        //:   types.
+        //:
+        //: 2 Check the integer value of 'dynamic_extent' is as expected.
+        //:
+        //: 3 For C++20, check that 'span' and 'dynamic_extent' have the same
+        //:   types whether accessed via the 'bsl' or the 'std' namespaces.
+        //:
+        //: 4 For C++20 check that 'bsl::dynamic_extent' and
+        //:   'std::dynamic_extent' have the same value.
+        //
+        // Testing
+        //   CONCERN: 'bsl::span' is available and usable.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING C++20 <BSL_SPAN.H> ADDITION"
+                   "\n===================================\n");
+        int               arr[5] = {0, 1, 2, 3, 4};
+        bsl::span<int, 5> ss0(arr);
+        bsl::span<int>    sd0(&arr[0], 5);
+        ASSERT(5 == ss0.size());
+        ASSERT(5 == sd0.size());
+
+        ASSERT(bsl::dynamic_extent == size_t(-1));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT((bsl::is_same_v<std::span<int, 99>, bsl::span<int, 99> >));
+        ASSERT((bsl::is_same_v<std::span<int>,     bsl::span<int>     >));
+        ASSERT((bsl::is_same_v<decltype(bsl::dynamic_extent),
+                               decltype(std::dynamic_extent)>));
+        ASSERT(bsl::dynamic_extent == std::dynamic_extent);
+#endif
+
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_FUNCTIONAL.H> ADDITIONS

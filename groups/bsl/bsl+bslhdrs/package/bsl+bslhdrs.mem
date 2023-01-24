@@ -115,3 +115,6 @@ bsl_shared_mutex.h
 # C++17 headers
 bsl_execution.h
 bsl_string_view.h
+
+# C++20 headers
+bsl_span.h
