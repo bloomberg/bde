@@ -462,7 +462,6 @@ bool NumberUtil::areEqual(const bsl::string_view& lhs,
         }
     }
 
-
     if (rIt != rend || lIt != lend) {
         return false;                                                 // RETURN
     }
@@ -552,6 +551,10 @@ bool NumberUtil::isValidNumber(const bsl::string_view& value)
     if ('.' == *iter) {
         ++iter;
 
+        if (end == iter) {  // Nothing after '.'
+            return false;                                             // RETURN
+        }
+
         if (!bdlb::CharType::isDigit(*iter)) {
             // Require 1 digit after decimal.
             return false;                                             // RETURN
@@ -560,6 +563,10 @@ bool NumberUtil::isValidNumber(const bsl::string_view& value)
         while (iter != end && bdlb::CharType::isDigit(*iter)) {
             ++iter;
         }
+    }
+
+    if (end == iter) {
+        return true;                                                  // RETURN
     }
 
     if ('e' == *iter || 'E' == *iter) {
@@ -571,6 +578,10 @@ bool NumberUtil::isValidNumber(const bsl::string_view& value)
 
         if ('-' == *iter || '+' == *iter) {
             ++iter;
+        }
+
+        if (end == iter) {  // Nothing after '+' or '-' sign.
+            return false;                                             // RETURN
         }
 
         if (!bdlb::CharType::isDigit(*iter)) {

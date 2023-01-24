@@ -255,7 +255,6 @@ struct NumberUtil {
         // Load into the specified 'result' a string representation of
         // specified numerical 'value'.
 
-
            // comparison
 
     static bool areEqual(const bsl::string_view& lhs,

@@ -4,6 +4,9 @@
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_decimalutil.h>
+
+#include <bdlma_guardingallocator.h>
+
 #include <bdlb_numericparseutil.h>
 #include <bdlb_string.h>
 
@@ -16,6 +19,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
@@ -26,6 +30,8 @@
 #include <bsls_types.h>
 #include <bsltf_templatetestfacility.h>
 
+#include <bsl_cstddef.h>  // 'bsl::size_t'
+#include <bsl_cstring.h>  // 'bsl::strlen', 'bsl::memcpy'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
@@ -1828,6 +1834,7 @@ int main(int argc, char *argv[])
                 const bool  R_EXP   = JSON_SUITE_DATA[j].d_isValid;
                 const char *R_INPUT = JSON_SUITE_DATA[j].d_input;
                 const char *R_NAME  = JSON_SUITE_DATA[j].d_testName;
+
                 if (!R_EXP) {
                     // Ignore invalid JSON numbers.
 
@@ -2864,6 +2871,9 @@ int main(int argc, char *argv[])
         //:
         //: 12 'isValidNumber' accepts characters with a huge number of
         //:    exponent digits.
+        //:
+        //: 13 'isValidNumber' does not reference data past the end of the
+        //;    given input.
         //
         // Plan:
         //: 1 For a test table that tests a range of varied input,
@@ -2874,6 +2884,10 @@ int main(int argc, char *argv[])
         //:   ad verify it against an expected result.
         //:
         //: 3 Test strings with embedded 0s return 'false'.
+        //:
+        //: 4 For each test of 'isValidNumber' provide input in memory acquired
+        //:   from 'bslma::GuardingAllocator' configured so that any reference
+        //:   past the end of the valid input triggers a segmentation fault.
         //
         // Testing:
         //   bool isValidNumber(const bsl::string_view& );
@@ -2896,6 +2910,9 @@ int main(int argc, char *argv[])
         const char *HUGE_EXP = "1e11111111111111111111111111111111111111111111"
                                "111111111111111111111"
                                "1111111111111111111111111111111111111";
+
+        typedef bdlma::GuardingAllocator GA;
+        GA ga(GA::e_AFTER_USER_BLOCK);
 
         if (verbose)
             bsl::cout << "\tTest with hand created test data"
@@ -2955,8 +2972,26 @@ int main(int argc, char *argv[])
                 const char         *STRING     = DATA[i].d_string;
                 const bool          IS_VALID   = DATA[i].d_isValid;
 
-                bool rc = Obj::isValidNumber(STRING);
+                if (veryVerbose) {
+                    P_(LINE) P_(STRING) P(IS_VALID);
+                }
+
+                const bsl::size_t  STRLEN     = bsl::strlen(STRING);
+                const bsl::size_t  paddedSize =
+                        bsls::AlignmentUtil::roundUpToMaximalAlignment(STRLEN);
+                char              *block      = static_cast<char *>(
+                                                      ga.allocate(paddedSize));
+                char *firstProtectedAddress   = block + paddedSize;
+                char *data                    = firstProtectedAddress - STRLEN;
+
+                bsl::memcpy(data, STRING, STRLEN);
+
+                bsl::string_view input(data, STRLEN);
+
+                bool rc = Obj::isValidNumber(input);
                 ASSERTV(LINE, STRING, rc, IS_VALID, IS_VALID == rc);
+
+                ga.deallocate(block);
             }
         }
 
@@ -2969,8 +3004,26 @@ int main(int argc, char *argv[])
             const char *INPUT = JSON_SUITE_DATA[i].d_input;
             const char *NAME  = JSON_SUITE_DATA[i].d_testName;
 
-            bool rc = Obj::isValidNumber(INPUT);
+            if (veryVerbose) {
+                P_(LINE) P_(EXP) P_(INPUT) P(NAME);
+            }
+
+            const bsl::size_t  LENGTH     = bsl::strlen(INPUT);
+            const bsl::size_t  paddedSize =
+                        bsls::AlignmentUtil::roundUpToMaximalAlignment(LENGTH);
+            char              *block      = static_cast<char *>(
+                                                      ga.allocate(paddedSize));
+            char *firstProtectedAddress   = block + paddedSize;
+            char *data                    = firstProtectedAddress - LENGTH;
+
+            bsl::memcpy(data, INPUT, LENGTH);
+
+            bsl::string_view input(data, LENGTH);
+
+            bool rc = Obj::isValidNumber(input);
             ASSERTV(LINE, NAME, INPUT, EXP, rc,  EXP == rc);
+
+            ga.deallocate(block);
         }
 
         if (verbose)
