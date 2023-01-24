@@ -6300,7 +6300,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bslma::UsesBslmaAllocator<bsl::u8string>::value);
         ASSERT(bslmf::IsBitwiseMoveable<bsl::u8string>::value);
-        ASSERT(bslalg::HasStlIterators<bsl::u*string>::value);
+        ASSERT(bslalg::HasStlIterators<bsl::u8string>::value);
         ASSERT(EXP_NOTHROW ==
                      bsl::is_nothrow_move_constructible<bsl::u8string>::value);
 # endif
