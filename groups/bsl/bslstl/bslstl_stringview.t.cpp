@@ -6996,13 +6996,13 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase3();
         TestDriver<wchar_t>::testCase3();
 
+        // The facets of 'char8_t', 'char16_t' and 'char32_t' are such that
+        // they throw on this test.
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 # if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-        TestDriver<char8_t>::testCase3();
+//      TestDriver<char8_t>::testCase3();
 # endif
-
-        // The facets of 'char16_t' and 'char32_t' are such that they throw on
-        // this test.
 
 //      TestDriver<char16_t>::testCase3();
 //      TestDriver<char32_t>::testCase3();
