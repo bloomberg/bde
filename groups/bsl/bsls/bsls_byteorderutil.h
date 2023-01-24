@@ -149,7 +149,7 @@ ByteOrderUtil::swapBytes(signed char    x)
     return x;
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 inline
 char8_t
 ByteOrderUtil::swapBytes(char8_t         x)
