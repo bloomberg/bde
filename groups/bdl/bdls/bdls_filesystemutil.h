@@ -928,7 +928,7 @@ struct FilesystemUtil {
     static int read(FileDescriptor descriptor, void *buffer, int numBytes);
         // Read the specified 'numBytes' bytes beginning at the file pointer of
         // the file with the specified 'descriptor' into the specified
-        // 'bufffer'.  Return 'numBytes' on success; the number of bytes read
+        // 'buffer'.  Return 'numBytes' on success; the number of bytes read
         // if there were not enough available; or a negative number on some
         // other error.
 
