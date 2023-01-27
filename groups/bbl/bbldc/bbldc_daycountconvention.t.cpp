@@ -121,7 +121,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bbldc::DayCountConvention Obj;
 typedef Obj::Enum                 Enum;
 
-enum { k_ABOVE_ENUM_RANGE = Obj::e_NL_365 + 1 };
+enum { k_ABOVE_ENUM_RANGE = Obj::e_ACTUAL_365_25 + 1 };
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
@@ -307,15 +307,16 @@ int main(int argc, char *argv[])
 
         // Scalar object values used in various stream tests.
         const Enum VA(Obj::e_ACTUAL_360);
-        const Enum VB(Obj::e_ACTUAL_365_FIXED);
-        const Enum VC(Obj::e_ISDA_ACTUAL_ACTUAL);
-        const Enum VD(Obj::e_ISMA_30_360);
-        const Enum VE(Obj::e_PSA_30_360_EOM);
-        const Enum VF(Obj::e_SIA_30_360_EOM);
-        const Enum VG(Obj::e_SIA_30_360_NEOM);
+        const Enum VB(Obj::e_ACTUAL_365_25);
+        const Enum VC(Obj::e_ACTUAL_365_FIXED);
+        const Enum VD(Obj::e_ISDA_ACTUAL_ACTUAL);
+        const Enum VE(Obj::e_ISMA_30_360);
+        const Enum VF(Obj::e_PSA_30_360_EOM);
+        const Enum VG(Obj::e_SIA_30_360_EOM);
+        const Enum VH(Obj::e_SIA_30_360_NEOM);
 
         // Array object used in various stream tests.
-        const Enum VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
+        const Enum VALUES[]   = { VA, VB, VC, VD, VE, VF, VG, VH };
         const int  NUM_VALUES = static_cast<int>(  sizeof VALUES
                                                  / sizeof *VALUES);
 
@@ -598,12 +599,12 @@ int main(int argc, char *argv[])
 
                     // Verify the objects are in a valid state.
 
-                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360 <= T1
-                                   && Obj::e_SIA_30_360_NEOM >= T1);
-                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360 <= T2
-                                   && Obj::e_SIA_30_360_NEOM >= T2);
-                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360 <= T3
-                                   && Obj::e_SIA_30_360_NEOM >= T3);
+                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360    <= T1
+                                   && Obj::e_ACTUAL_365_25 >= T1);
+                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360    <= T2
+                                   && Obj::e_ACTUAL_365_25 >= T2);
+                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360    <= T3
+                                   && Obj::e_ACTUAL_365_25 >= T3);
 
                 } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
@@ -766,6 +767,7 @@ int main(int argc, char *argv[])
                 //----  -------------------------  -------  ---  -------
                 { L_,   Obj::e_ACTUAL_360,               1,   1,  "\x00" },
                 { L_,   Obj::e_ACTUAL_365_FIXED,         1,   1,  "\x01" },
+                { L_,   Obj::e_ACTUAL_365_25,            1,   1,  "\x0D" },
                 { L_,   Obj::e_ISDA_ACTUAL_ACTUAL,       1,   1,  "\x03" },
                 { L_,   Obj::e_ISMA_30_360,              1,   1,  "\x05" },
                 { L_,   Obj::e_PSA_30_360_EOM,           1,   1,  "\x06" },
@@ -932,6 +934,7 @@ int main(int argc, char *argv[])
             //----    -----------------------     ---------------
             { L_,     Obj::e_ACTUAL_360,          "ACTUAL_360"         },
             { L_,     Obj::e_ACTUAL_365_FIXED,    "ACTUAL_365_FIXED"   },
+            { L_,     Obj::e_ACTUAL_365_25,       "ACTUAL_365_25"      },
             { L_,     Obj::e_ISDA_ACTUAL_ACTUAL,  "ISDA_ACTUAL_ACTUAL" },
             { L_,     Obj::e_ISMA_30_360,         "ISMA_30_360"        },
             { L_,     Obj::e_PSA_30_360_EOM,      "PSA_30_360_EOM"     },
@@ -1057,6 +1060,7 @@ int main(int argc, char *argv[])
             //--  --  --  -------------------------  ------------------
             { L_,  0,  4, Obj::e_ACTUAL_360,         "ACTUAL_360" NL         },
             { L_,  0,  4, Obj::e_ACTUAL_365_FIXED,   "ACTUAL_365_FIXED" NL   },
+            { L_,  0,  4, Obj::e_ACTUAL_365_25,      "ACTUAL_365_25" NL      },
             { L_,  0,  4, Obj::e_ISDA_ACTUAL_ACTUAL, "ISDA_ACTUAL_ACTUAL" NL },
             { L_,  0,  4, Obj::e_ISMA_30_360,        "ISMA_30_360" NL        },
             { L_,  0,  4, Obj::e_PSA_30_360_EOM,     "PSA_30_360_EOM" NL     },
@@ -1231,6 +1235,7 @@ int main(int argc, char *argv[])
             {  L_, Obj::e_CALENDAR_BUS_252,            1, "CALENDAR_BUS_252" },
             {  L_, Obj::e_ISDA_30_360_EOM,             1, "ISDA_30_360_EOM"  },
             {  L_, Obj::e_NL_365,                      1, "NL_365"           },
+            {  L_, Obj::e_ACTUAL_365_25,               1, "ACTUAL_365_25"    },
             {  L_, -1,                                 0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, k_ABOVE_ENUM_RANGE,                   0,
@@ -1291,7 +1296,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

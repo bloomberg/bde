@@ -21,6 +21,7 @@ BSLS_IDENT("$Id: $")
 //  Name                         Description
 //  ---------------------------  ----------------------------------------------
 //  e_ACTUAL_360                 Convention is Actual/360.
+//  e_ACTUAL_365_25              Convention is Actual/365.25.
 //  e_ACTUAL_365_FIXED           Convention is Actual/365 (fixed).
 //  e_ISDA_ACTUAL_ACTUAL         Convention is ISDA Actual/Actual.
 //  e_ISMA_30_360                Convention is ISMA 30/360.
@@ -100,7 +101,8 @@ struct DayCountConvention {
         e_PERIOD_ICMA_ACTUAL_ACTUAL =  9,
         e_CALENDAR_BUS_252          = 10,
         e_ISDA_30_360_EOM           = 11,
-        e_NL_365                    = 12
+        e_NL_365                    = 12,
+        e_ACTUAL_365_25             = 13
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BBEDC_ACTUAL_360         = e_ACTUAL_360,
@@ -187,9 +189,9 @@ struct DayCountConvention {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  The behavior is
         // undefined unless 'value' is in the range
-        // '[e_ACTUAL_360 .. e_NL_365]'.  See 'toAscii' for what constitutes
-        // the string representation of a 'bbldc::DayCountConvention::Enum'
-        // value.
+        // '[e_ACTUAL_360 .. e_ACTUAL_365_35]'.  See 'toAscii' for what
+        // constitutes the string representation of a
+        // 'bbldc::DayCountConvention::Enum' value.
 
     static const char *toAscii(Enum convention);
         // Return the abbreviated character-string representation of the
@@ -295,8 +297,8 @@ STREAM& DayCountConvention::bdexStreamIn(STREAM&                   stream,
             char newValue;
             stream.getInt8(newValue);
             if (   stream
-                && e_ACTUAL_360 <= newValue
-                && e_NL_365     >= newValue) {
+                && e_ACTUAL_360    <= newValue
+                && e_ACTUAL_365_25 >= newValue) {
                 variable = static_cast<DayCountConvention::Enum>(newValue);
             }
             else {
@@ -386,7 +388,7 @@ int bbldc::maxSupportedBdexVersion(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -95,6 +95,7 @@ typedef bbldc::BasicDayCountUtil        Util;
 typedef bbldc::DayCountConvention::Enum Enum;
 
 const Enum ACTUAL_360         = bbldc::DayCountConvention::e_ACTUAL_360;
+const Enum ACTUAL_365_25      = bbldc::DayCountConvention::e_ACTUAL_365_25;
 const Enum ACTUAL_365_FIXED   = bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
 const Enum INVALID_CONVENTION = static_cast<Enum>(2);
 const Enum ISDA_30_360_EOM     = bbldc::DayCountConvention::e_ISDA_30_360_EOM;
@@ -222,6 +223,9 @@ int main(int argc, char *argv[])
     //----  ------------------  ----  ----- ---  ----  ----- ---  --------
     { L_,   ACTUAL_360,         1993,   12,  15, 1993,   12,  31, 0.0444444 },
     { L_,   ACTUAL_360,         2003,    2,  28, 2004,    2,  29, 1.01667   },
+
+    { L_,   ACTUAL_365_25,      1993,   12,  15, 1993,   12,  31, 0.0438056 },
+    { L_,   ACTUAL_365_25,      2003,    2,  28, 2004,    2,  29, 1.0020567 },
 
     { L_,   ACTUAL_365_FIXED,   1993,   12,  15, 1993,   12,  31, 0.0438356 },
     { L_,   ACTUAL_365_FIXED,   2003,    2,  28, 2004,    2,  29, 1.00274   },
@@ -387,6 +391,9 @@ int main(int argc, char *argv[])
     { L_,   ACTUAL_360,         1993,    12,  15, 1993,    12,  31,      16 },
     { L_,   ACTUAL_360,         2003,     2,  28, 2004,     2,  29,     366 },
 
+    { L_,   ACTUAL_365_25,      1993,    12,  15, 1993,    12,  31,      16 },
+    { L_,   ACTUAL_365_25,      2003,     2,  28, 2004,     2,  29,     366 },
+
     { L_,   ACTUAL_365_FIXED,   1993,    12,  15, 1993,    12,  31,      16 },
     { L_,   ACTUAL_365_FIXED,   2003,     2,  28, 2004,     2,  29,     366 },
 
@@ -430,8 +437,10 @@ int main(int argc, char *argv[])
                         const Enum CONV2 = DATA[j].d_type;
                         if (CONV1 != CONV2) {
                             if (CONV1 == ACTUAL_360 ||
+                                CONV1 == ACTUAL_365_25 ||
                                 CONV1 == ACTUAL_365_FIXED ||
                                 CONV2 == ACTUAL_360 ||
+                                CONV2 == ACTUAL_365_25 ||
                                 CONV2 == ACTUAL_365_FIXED) {
                                 continue;
                             }
@@ -531,6 +540,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 1000; ++i) {
             const Enum convention = static_cast<Enum>(i);
             ASSERT((   ACTUAL_360         == convention
+                    || ACTUAL_365_25      == convention
                     || ACTUAL_365_FIXED   == convention
                     || ISDA_30_360_EOM    == convention
                     || ISDA_ACTUAL_ACTUAL == convention
@@ -555,7 +565,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
