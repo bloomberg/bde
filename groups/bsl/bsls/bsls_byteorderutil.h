@@ -81,7 +81,7 @@ struct ByteOrderUtil {
     static unsigned char  swapBytes(unsigned char  x);
     static signed char    swapBytes(signed char    x);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-    static char           swapBytes(char8_t        x);
+    static char8_t        swapBytes(char8_t        x);
 #endif
     static wchar_t        swapBytes(wchar_t        x);
     static short          swapBytes(short          x);
