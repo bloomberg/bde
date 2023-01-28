@@ -472,10 +472,9 @@ class WyHashIncrementalAlgorithm {
         // 'p', where 'k' is in the range '[ 1 .. 3 ]'.
 
     // PRIVATE MANIPULATORS
-    uint8_t *prePad();
-        // Return a ptr to the beginning of the 'prePad' area of the buffer.
-        // Note that '&prePad()[0] == &d_buffer[-1]' and that byte is never to
-        // be accessed through 'prePad'.
+    uint8_t *prePadAt(ptrdiff_t offset);
+        // Return a ptr to the address at the specfied 'offset' after the
+        // beginning of the 'prepad' area of the buffer.
 
     void process48ByteSection(const uint8_t *buffer);
         // Process the specified 'k_REPEAT_LENGTH'-byte 'buffer'.  Note that
@@ -657,11 +656,12 @@ uint64_t WyHashIncrementalAlgorithm::_wyr3(const uint8_t *p, size_t k)
 
 // PRIVATE MANIPULATORS
 inline
-uint8_t *WyHashIncrementalAlgorithm::prePad()
+uint8_t *WyHashIncrementalAlgorithm::prePadAt(ptrdiff_t offset)
 {
     BSLMF_ASSERT(sizeof(d_last16AtEnd) == 1);    // see implementation doc
+    BSLS_ASSERT_SAFE(1 <= offset);
 
-    return static_cast<uint8_t *>(d_buffer) - 1;
+    return d_buffer + offset - 1;
 }
 
 inline
@@ -792,7 +792,7 @@ void WyHashIncrementalAlgorithm::operator()(const void *data, size_t numBytes)
             // the latter caused an inaccurate warning which could not be
             // silenced via pragmas.
 
-            memcpy(prePad() + remOffset, p + remOffset - 16, 16);
+            memcpy(prePadAt(remOffset), p + remOffset - 16, 16);
 
             return;                                                   // RETURN
         }
