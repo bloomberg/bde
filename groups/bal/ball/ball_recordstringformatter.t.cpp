@@ -9,6 +9,7 @@
 
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
 #include <bdlt_iso8601util.h>
 #include <bdlt_localtimeoffset.h>
 
@@ -913,7 +914,8 @@ int main(int argc, char *argv[])
                     if (veryVerbose) {
                         T_ P_(LINE); P_(SPEC); P_(oss.str()); P(EXPECTED);
                     }
-                    ASSERTV(LINE, SPEC, oss.str(), EXPECTED, oss.str() == EXPECTED);
+                    ASSERTV(LINE, SPEC, oss.str(), EXPECTED,
+                            oss.str() == EXPECTED);
                 }
             }
         }
@@ -937,6 +939,25 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator("objectAllocator",
                                            veryVeryVeryVerbose);
         Obj::allocator_type  oa(&testAllocator);
+
+        static const struct {
+            int         d_lineNum;   // source line number
+            int         d_hours;     // offset hours
+            int         d_minutes;   // offset minutes
+            const char *d_output_p;  // expected output
+        } DATA[] = {
+            //LINE  HOURS  MINUTES  EXPECTED
+            //----  -----  -------  --------
+            { L_,    -23,     -59,   "-2359" },
+            { L_,    -15,     -26,   "-1526" },
+            { L_,     -7,      -8,   "-0708" },
+            { L_,      0,      -9,   "-0009" },
+            { L_,      0,       0,   "+0000" },
+            { L_,      9,       9,   "+0909" },
+            { L_,     11,      40,   "+1140" },
+            { L_,     23,      59,   "+2359" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         const int   lineNum   = 542;
         const char *filename  = "subdir/process.cpp";
@@ -995,7 +1016,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"%%\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("%%");
             X(oss1, record);
             {
@@ -1009,7 +1029,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"%d\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("%d");
             X(oss1, record);
 
@@ -1030,7 +1049,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"%D\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("%D");
             X(oss1, record);
 
@@ -1047,6 +1065,154 @@ int main(int argc, char *argv[])
                 ASSERT(oss1.str() == EXP);
             }
         }
+
+        if (verbose) cout << "\n  Testing \"%dtz\"." << endl;
+        {
+            mX.setFormat("%dtz");
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE       = DATA[i].d_lineNum;
+                const int   HOURS      = DATA[i].d_hours;
+                const int   MINUTES    = DATA[i].d_minutes;
+                const char *EXP_OFFSET = DATA[i].d_output_p;
+
+                if (veryVerbose) {
+                    T_ P(LINE) P_(HOURS) P_(MINUTES) P(EXP_OFFSET);
+                }
+
+                oss1.str("");
+                bdlt::DatetimeInterval offset(0, HOURS, MINUTES);
+                mX.setTimestampOffset(offset);
+                X(oss1, record);
+
+                const bdlt::Datetime& timestamp =
+                                     record.fixedFields().timestamp() + offset;
+                const int             SIZE = 64;
+                char                  buffer[SIZE];
+                timestamp.printToBuffer(buffer, SIZE, 3);
+
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    bsl::string                  EXP(buffer);
+                    EXP += EXP_OFFSET;
+                    if (veryVerbose) { P_(oss1.str());  P(EXP) }
+                    ASSERT(oss1.str() == EXP);
+                }
+
+                mX.setTimestampOffset(bdlt::DatetimeInterval());
+            }
+        }
+
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        // Although an offset greater than 24 hours is undefined behavior, such
+        // invalid 'DatetimeTz' objects still can be created under certain
+        // circumstances.  We want to enable clients to detect these errors as
+        // quickly as possible (DRQS 12693813).
+
+        if (verbose) cout << "\n  Testing special scenario of \"%dtz\"."
+                          << endl;
+        {
+            oss1.str("");
+            mX.setFormat("%dtz");
+
+            bdlt::DatetimeInterval offset(0, -100, 0);
+            mX.setTimestampOffset(offset);
+            X(oss1, record);
+
+            const bdlt::Datetime& timestamp =
+                                     record.fixedFields().timestamp() + offset;
+            const int             SIZE = 64;
+            char                  buffer[SIZE];
+            timestamp.printToBuffer(buffer, SIZE, 3);
+
+            {
+                bslma::TestAllocator          da;
+                bslma::DefaultAllocatorGuard  guard(&da);
+                const char                   *EXP_OFFSET = "-XX00";
+                bsl::string                   EXP(buffer);
+                EXP += EXP_OFFSET;
+                if (veryVerbose) { P_(oss1.str());  P(EXP) }
+                ASSERTV(EXP, oss1.str(), EXP == oss1.str());
+            }
+
+            mX.setTimestampOffset(bdlt::DatetimeInterval());
+        }
+#endif
+
+        if (verbose) cout << "\n  Testing \"%Dtz\"." << endl;
+        {
+            mX.setFormat("%Dtz");
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE       = DATA[i].d_lineNum;
+                const int   HOURS      = DATA[i].d_hours;
+                const int   MINUTES    = DATA[i].d_minutes;
+                const char *EXP_OFFSET = DATA[i].d_output_p;
+
+                if (veryVerbose) {
+                    T_ P(LINE) P_(HOURS) P_(MINUTES) P(EXP_OFFSET);
+                }
+
+                oss1.str("");
+                bdlt::DatetimeInterval offset(0, HOURS, MINUTES);
+                mX.setTimestampOffset(offset);
+                X(oss1, record);
+
+                const bdlt::Datetime& timestamp =
+                                     record.fixedFields().timestamp() + offset;
+                const int             SIZE = 64;
+                char                  buffer[SIZE];
+                timestamp.printToBuffer(buffer, SIZE, 6);
+
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    bsl::string                  EXP(buffer);
+                    EXP += EXP_OFFSET;
+                    if (veryVerbose) { P_(oss1.str());  P(EXP) }
+                    ASSERT(oss1.str() == EXP);
+                }
+
+                mX.setTimestampOffset(bdlt::DatetimeInterval());
+            }
+        }
+
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        // Although an offset greater than 24 hours is undefined behavior, such
+        // invalid 'DatetimeTz' objects still can be created under certain
+        // circumstances.  We want to enable clients to detect these errors as
+        // quickly as possible (DRQS 12693813).
+
+        if (verbose) cout << "\n  Testing special scenario of \"%Dtz\"."
+                          << endl;
+        {
+            oss1.str("");
+            mX.setFormat("%Dtz");
+
+            bdlt::DatetimeInterval offset(0, 100, 0);
+            mX.setTimestampOffset(offset);
+            X(oss1, record);
+
+            const bdlt::Datetime& timestamp =
+                                     record.fixedFields().timestamp() + offset;
+            const int             SIZE = 64;
+            char                  buffer[SIZE];
+            timestamp.printToBuffer(buffer, SIZE, 6);
+
+            {
+                bslma::TestAllocator          da;
+                bslma::DefaultAllocatorGuard  guard(&da);
+                const char                   *EXP_OFFSET = "+XX00";
+                bsl::string                   EXP(buffer);
+                EXP += EXP_OFFSET;
+                if (veryVerbose) { P_(oss1.str());  P(EXP) }
+                ASSERTV(EXP, oss1.str(), EXP == oss1.str());
+            }
+
+            mX.setTimestampOffset(bdlt::DatetimeInterval());
+        }
+#endif
 
         if (verbose) cout << "\n  Testing \"%i\"." << endl;
         {
@@ -1174,59 +1340,79 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"%i\" with local timestamp."
                           << endl;
         {
-            oss1.str("");
-            oss2.str("");
             mX.setFormat("%i");
-            bdlt::DatetimeInterval offset(0, 2);   // an offset of 2 hours
-            mX.setTimestampOffset(offset);
-            bdlt::Datetime localTime = timestamp + offset;
-            X(oss1, record);
-            oss2 << bsl::setw(4) << bsl::setfill('0') << localTime.year()
-                << '-'
-                << bsl::setw(2) << bsl::setfill('0') << localTime.month()
-                << '-'
-                << bsl::setw(2) << bsl::setfill('0') << localTime.day()
-                << 'T'
-                << bsl::setw(2) << bsl::setfill('0') << localTime.hour()
-                << ':'
-                << bsl::setw(2) << bsl::setfill('0') << localTime.minute()
-                << ':'
-                << bsl::setw(2) << bsl::setfill('0') << localTime.second()
-                << (offset < bdlt::DatetimeInterval(0) ? '-' : '+')
-                << bsl::setw(2) << bsl::setfill('0')
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE       = DATA[i].d_lineNum;
+                const int   HOURS      = DATA[i].d_hours;
+                const int   MINUTES    = DATA[i].d_minutes;
+
+                if (veryVerbose) {
+                    T_ P(LINE) P_(HOURS) P(MINUTES);
+                }
+
+                oss1.str("");
+                oss2.str("");
+                bdlt::DatetimeInterval offset(0, HOURS, MINUTES);
+                mX.setTimestampOffset(offset);
+                bdlt::Datetime localTime = timestamp + offset;
+                X(oss1, record);
+
+                oss2 << bsl::setw(4) << bsl::setfill('0') << localTime.year()
+                    << '-'
+                    << bsl::setw(2) << bsl::setfill('0') << localTime.month()
+                    << '-'
+                    << bsl::setw(2) << bsl::setfill('0') << localTime.day()
+                    << 'T'
+                    << bsl::setw(2) << bsl::setfill('0') << localTime.hour()
+                    << ':'
+                    << bsl::setw(2) << bsl::setfill('0') << localTime.minute()
+                    << ':'
+                    << bsl::setw(2) << bsl::setfill('0') << localTime.second();
+
+                if (HOURS || MINUTES) {
+                    oss2 << (offset < bdlt::DatetimeInterval(0) ? '-' : '+')
+                         << bsl::setw(2) << bsl::setfill('0')
                                                     << bsl::abs(offset.hours())
-                << ':'
-                << bsl::setw(2) << bsl::setfill('0')
+                         << ':'
+                         << bsl::setw(2) << bsl::setfill('0')
                                                  << bsl::abs(offset.minutes());
+                }
+                else {
+                    oss2 << 'Z';
+                }
 
-            {
-                bslma::TestAllocator         da;
-                bslma::DefaultAllocatorGuard guard(&da);
-                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-                ASSERT(oss1.str() == oss2.str());
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                    ASSERT(oss1.str() == oss2.str());
 
-                // Is the resulting string parseable?
-                bdlt::DatetimeTz dt;
-                int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
-                int rc = bdlt::Iso8601Util::parse(&dt,
-                                                  oss1.str().c_str(),
-                                                  len);
-                bdlt::Datetime truncatedLocalTime = localTime;
-                truncatedLocalTime.setMillisecond(0);
-                    // "%i" => no msecs printed
-                truncatedLocalTime.setMicrosecond(0);
-                    // "%i" => no usecs printed
+                    // Is the resulting string parseable?
+                    bdlt::DatetimeTz dt;
 
-                bdlt::DatetimeTz adjustedTimestamp(
+                    int len =
+                             static_cast<int>(bsl::strlen(oss1.str().c_str()));
+                    int rc  = bdlt::Iso8601Util::parse(&dt,
+                                                       oss1.str().c_str(),
+                                                       len);
+                    bdlt::Datetime truncatedLocalTime = localTime;
+                    truncatedLocalTime.setMillisecond(0);
+                        // "%i" => no msecs printed
+                    truncatedLocalTime.setMicrosecond(0);
+                        // "%i" => no usecs printed
+
+                    bdlt::DatetimeTz adjustedTimestamp(
                                       truncatedLocalTime,
                                       static_cast<int>(offset.totalMinutes()));
 
-                if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
-                ASSERT(0                 == rc);
-                ASSERT(adjustedTimestamp == dt);
-            }
+                    if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
+                    ASSERT(0                 == rc);
+                    ASSERT(adjustedTimestamp == dt);
+                }
 
-            mX.setTimestampOffset(bdlt::DatetimeInterval());
+                mX.setTimestampOffset(bdlt::DatetimeInterval());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%p\"." << endl;
@@ -1367,13 +1553,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"%c\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("%c");
             X(oss1, record);
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);
-                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                if (veryVerbose) { P(oss1.str()); }
                 ASSERT(oss1.str() == "FOO.BAR.BAZ");
             }
         }
@@ -1381,13 +1566,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"%m\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("%m");
             X(oss1, record);
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);
-                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                if (veryVerbose) { P(oss1.str()); }
                 ASSERT(oss1.str() == MSG);
             }
         }
@@ -1589,12 +1773,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"\\n\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("\\n");  X(oss1, record);
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);
-                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                if (veryVerbose) { P(oss1.str()); }
                 ASSERT(oss1.str() == "\n");
             }
         }
@@ -1602,13 +1785,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"\\t\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("\\t");
             X(oss1, record);
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);
-                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                if (veryVerbose) { P(oss1.str()); }
                 ASSERT(oss1.str() == "\t");
             }
         }
@@ -1616,13 +1798,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing \"\\\\\"." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("\\\\");
             X(oss1, record);
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);
-                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                if (veryVerbose) { P(oss1.str()); }
                 ASSERT(oss1.str() == "\\");
             }
         }
@@ -1630,14 +1811,39 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n  Testing an arbitrary string." << endl;
         {
             oss1.str("");
-            oss2.str("");
             mX.setFormat("log this");
             X(oss1, record);
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);
-                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                if (veryVerbose) { P(oss1.str()); }
                 ASSERT(oss1.str() == "log this");
+            }
+        }
+
+        if (verbose) cout << "\n Testing a composite string." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%dtz %l %f log this");
+            X(oss1, record);
+
+            const bdlt::Datetime& timestamp = record.fixedFields().timestamp();
+            const int             SIZE = 64;
+            char                  buffer[SIZE];
+            timestamp.printToBuffer(buffer, SIZE, 3);
+
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                bsl::string                  expectedTimestamp(buffer);
+                expectedTimestamp += "+0000";
+                oss2 << expectedTimestamp << " "
+                     << lineNum << " "
+                     << filename << " "
+                     << "log this";
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERTV(oss2.str(), oss1.str(), oss2.str() == oss1.str());
             }
         }
 
@@ -2246,33 +2452,40 @@ int main(int argc, char *argv[])
                 int         d_secs;
                 int         d_msecs;
             } VALUES[] = {
-                //line fmt  days hrs mins secs msecs
-                //---- ---  ---- --- ---- ---- -----
-                { L_, "%%",  0,   0,   0,   0,   0   },
-                { L_, "%d", -1,  -1,  -1,  -1,   -1  },
-                { L_, "%i",  0,   0,   0,   0,  999  },
-                { L_, "%p",  0,   0,   0,   0, -999  },
-                { L_, "%t",  0,   0,  59,   0,   0   },
-                { L_, "%s",  0,   0,   0, -59,   0   },
-                { L_, "%f",  0,   0,  59,   0,   0   },
-                { L_, "%l",  0,   0, -59,   0,   0   },
-                { L_, "%c",  0,  23,   0,   0,   0   },
-                { L_, "%m",  0, -23,   0,   0,   0   },
-                { L_, "%x",  0, -23,   0,   0,   0   },
-                { L_, "%u",  5,   0,   0,   0,   0   },
-                { L_, "",   -5,   0,   0,   0,   0   },
-                { L_, "",    5,  23,  22,  21,  209  },
-                { L_, "",   -5, -23, -59, -59, -999  },
+                //line format       days  hrs mins secs msecs
+                //---- ------------ ----  --- ---- ---- -----
+                { L_, "%%",            0,   0,   0,   0,   0   },
+                { L_, "%d",           -1,  -1,  -1,  -1,   -1  },
+                { L_, "%D",           -1,  -1,  -1,  -1,   -1  },
+                { L_, "%dtz",          1,   1,   1,   1,    1  },
+                { L_, "%Dtz",          2,   2,   2,   2,    2  },
+                { L_, "%i",            0,   0,   0,   0,  999  },
+                { L_, "%I",            0,   0,   0,   0,  998  },
+                { L_, "%O",            0,   0,   0,   0,  997  },
+                { L_, "%p",            0,   0,   0,   0, -999  },
+                { L_, "%t",            0,   0,  59,   0,   0   },
+                { L_, "%s",            0,   0,   0, -59,   0   },
+                { L_, "%f",            0,   0,  59,   0,   0   },
+                { L_, "%l",            0,   0, -59,   0,   0   },
+                { L_, "%c",            0,  23,   0,   0,   0   },
+                { L_, "%m",            0, -23,   0,   0,   0   },
+                { L_, "%x",            0, -23,   0,   0,   0   },
+                { L_, "%u",            5,   0,   0,   0,   0   },
+                { L_, "%d%f",          0,   1,   2,   3,   4   },
+                { L_, "%Dtz %l text",  0,  -1,  -2,  -3,  -4   },
+                { L_, "",             -5,   0,   0,   0,   0   },
+                { L_, "",              5,  23,  22,  21,  209  },
+                { L_, "",             -5, -23, -59, -59, -999  },
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const bdlt::DatetimeInterval interval(VALUES[i].d_days,
-                                                     VALUES[i].d_hrs,
-                                                     VALUES[i].d_mins,
-                                                     VALUES[i].d_secs,
-                                                     VALUES[i].d_msecs);
+                                                      VALUES[i].d_hrs,
+                                                      VALUES[i].d_mins,
+                                                      VALUES[i].d_secs,
+                                                      VALUES[i].d_msecs);
 
                 Obj mX(oa);  const Obj& X = mX;
                 mX.setFormat(VALUES[i].d_format);
@@ -2285,10 +2498,10 @@ int main(int argc, char *argv[])
             // reverse the order of two set* functions
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const bdlt::DatetimeInterval interval(VALUES[i].d_days,
-                                                     VALUES[i].d_hrs,
-                                                     VALUES[i].d_mins,
-                                                     VALUES[i].d_secs,
-                                                     VALUES[i].d_msecs);
+                                                      VALUES[i].d_hrs,
+                                                      VALUES[i].d_mins,
+                                                      VALUES[i].d_secs,
+                                                      VALUES[i].d_msecs);
 
                 Obj mX(oa);  const Obj& X = mX;
                 mX.setTimestampOffset(interval);

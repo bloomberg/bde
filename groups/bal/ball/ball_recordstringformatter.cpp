@@ -42,6 +42,7 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 #include <bsl_climits.h>   // for 'INT_MAX'
+#include <bsl_cstdio.h>    // for 'bsl::sprintf'
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
 #include <bsl_c_stdio.h>   // for 'snprintf'
@@ -107,6 +108,14 @@ struct PrintUtil {
         e_FSP_MICROSECONDS = 6
     };
 
+    enum TimestampFormat {
+        // Enumeration used to distinguish among different formats of
+        // timestamp representation.
+        e_TF_DATETIME           = 0,
+        e_TF_DATETIME_TZ_OFFSET = 1,
+        e_TF_ISO8601            = 2
+    };
+
     // CLASS METHODS
     static void appendAttribute(bsl::string             *result,
                                 const ManagedAttribute&  attribute,
@@ -126,13 +135,13 @@ struct PrintUtil {
     static void appendDatetime(bsl::string                  *result,
                                const Record&                 record,
                                const bdlt::DatetimeInterval *timestampOffset,
-                               bool                          iso8601,
+                               TimestampFormat               timestampFormat,
                                FractionalSecondPrecision     secondPrecision);
         // Append to the specified 'result' the datetime provided by the
-        // specified 'record' in ISO 8601 format if the specified 'iso8601' is
-        // 'true', having the specified fractional 'secondPrecision' numbers,
-        // and the specified 'timestampOffset'.  Note that this method is
-        // invoked when processing "%d", "%D", "%i", "%I" or  "%O" specifiers.
+        // specified 'record' in the specified 'timestampFormat', having the
+        // specified fractional 'secondPrecision' numbers, and the specified
+        // 'timestampOffset'.  Note that this method is invoked when processing
+        // "%d", "%D", "%dtz", "%Dtz", "%i", "%I" or  "%O" specifiers.
 
     static void appendFilename(bsl::string   *result,
                                bool           fullPath,
@@ -379,7 +388,7 @@ void PrintUtil::appendCategory(bsl::string *result, const Record& record)
 void PrintUtil::appendDatetime(bsl::string                  *result,
                                const Record&                 record,
                                const bdlt::DatetimeInterval *timestampOffset,
-                               bool                          iso8601,
+                               TimestampFormat               timestampFormat,
                                FractionalSecondPrecision     secondPrecision)
 {
     bdlt::DatetimeInterval  offset;
@@ -396,10 +405,12 @@ void PrintUtil::appendDatetime(bsl::string                  *result,
         offset = *timestampOffset;
     }
 
+    int              offsetInMinutes = static_cast<int>(offset.totalMinutes());
     bdlt::DatetimeTz timestamp(record.fixedFields().timestamp() + offset,
-                               static_cast<int>(offset.totalMinutes()));
+                               offsetInMinutes);
 
-    if (iso8601) {
+    switch (timestampFormat) {
+      case e_TF_ISO8601: {
         bdlt::Iso8601UtilConfiguration config;
 
         if (secondPrecision) {
@@ -427,14 +438,48 @@ void PrintUtil::appendDatetime(bsl::string                  *result,
         else {
             result->append(buffer, outputLength);
         }
-    }
-    else {
+      } break;
+      case e_TF_DATETIME: {
         char buffer[32];
 
         timestamp.localDatetime().printToBuffer(buffer,
                                                 sizeof buffer,
                                                 secondPrecision);
         *result += buffer;
+      } break;
+      case e_TF_DATETIME_TZ_OFFSET: {
+        char buffer[64];
+
+        // Printing local time.
+
+        int numChars = timestamp.localDatetime().printToBuffer(
+                                                              buffer,
+                                                              sizeof buffer,
+                                                              secondPrecision);
+
+        // Printing offset.
+
+        char       *offsetBuffer = buffer + numChars;
+        const char  sign         = offsetInMinutes < 0 ? '-' : '+';
+        offsetInMinutes          = offsetInMinutes < 0 ? -offsetInMinutes
+                                                       :  offsetInMinutes;
+        const int   hours        = offsetInMinutes / 60;
+        const int   minutes      = offsetInMinutes % 60;
+
+        // Although an offset greater than 24 hours is undefined behavior, such
+        // invalid 'DatetimeTz' objects still can be created under certain
+        // circumstances.  We want to enable clients to detect these errors as
+        // quickly as possible (DRQS 12693813).
+
+        if (hours < 100) {
+            bsl::sprintf(offsetBuffer, "%c%02d%02d", sign, hours, minutes);
+        }
+        else {
+            bsl::sprintf(offsetBuffer, "%cXX%02d",   sign,        minutes);
+        }
+
+        *result += buffer;
+      } break;
     }
 }
 
@@ -860,22 +905,52 @@ void RecordStringFormatter::parseFormatSpecification()
                 text = i;
               } break;
               case 'd': {  // ---------------- Datetime -----------------------
-                d_fieldFormatters.emplace_back(
+                if (end !=  (i + 1) &&
+                    't' == *(i + 1) &&
+                    end !=  (i + 2) &&
+                    'z' == *(i + 2)) {  //  Datetime + timezone offset ('%dtz')
+                    i += 2;
+                    d_fieldFormatters.emplace_back(
+                       bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
+                                            _1,
+                                            _2,
+                                            &d_timestampOffset,
+                                            PrintUtil::e_TF_DATETIME_TZ_OFFSET,
+                                            PrintUtil::e_FSP_MILLISECONDS));
+                }
+                else {
+                    d_fieldFormatters.emplace_back(
                           bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
                                                _1,
                                                _2,
                                                &d_timestampOffset,
-                                               false,
+                                               PrintUtil::e_TF_DATETIME,
                                                PrintUtil::e_FSP_MILLISECONDS));
+                }
               } break;
               case 'D': {  // ---------------- Datetime -----------------------
-                d_fieldFormatters.emplace_back(
+                if (end !=  (i + 1) &&
+                    't' == *(i + 1) &&
+                    end !=  (i + 2) &&
+                    'z' == *(i + 2)) {  //  Datetime + timezone offset ('%Dtz')
+                    i += 2;
+                    d_fieldFormatters.emplace_back(
+                        bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
+                                            _1,
+                                            _2,
+                                            &d_timestampOffset,
+                                            PrintUtil::e_TF_DATETIME_TZ_OFFSET,
+                                            PrintUtil::e_FSP_MICROSECONDS));
+                }
+                else {
+                    d_fieldFormatters.emplace_back(
                           bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
                                                _1,
                                                _2,
                                                &d_timestampOffset,
-                                               false,
+                                               PrintUtil::e_TF_DATETIME,
                                                PrintUtil::e_FSP_MICROSECONDS));
+                }
               } break;
               case 'i': {  // ---------------- Datetime ISO 8601 --------------
                 d_fieldFormatters.emplace_back(
@@ -883,7 +958,7 @@ void RecordStringFormatter::parseFormatSpecification()
                                                _1,
                                                _2,
                                                &d_timestampOffset,
-                                               true,
+                                               PrintUtil::e_TF_ISO8601,
                                                PrintUtil::e_FSP_NONE));
               } break;
               case 'I': {  // ---------------- Datetime ISO 8601 --------------
@@ -892,7 +967,7 @@ void RecordStringFormatter::parseFormatSpecification()
                                                _1,
                                                _2,
                                                &d_timestampOffset,
-                                               true,
+                                               PrintUtil::e_TF_ISO8601,
                                                PrintUtil::e_FSP_MILLISECONDS));
               } break;
               case 'O': {  // ---------------- Datetime ISO 8601 --------------
@@ -901,7 +976,7 @@ void RecordStringFormatter::parseFormatSpecification()
                                                _1,
                                                _2,
                                                &d_timestampOffset,
-                                               true,
+                                               PrintUtil::e_TF_ISO8601,
                                                PrintUtil::e_FSP_MICROSECONDS));
               } break;
               case 'p': {  // ---------------- Process ID ---------------------
