@@ -292,11 +292,6 @@ extern "C" {
 #include <time.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
-#include <immintrin.h>
-#include <emmintrin.h>
-#endif
-
 namespace BloombergLP {
 namespace bsls {
 
@@ -449,12 +444,6 @@ void SpinLock::doBackoff(int *count) {
     ++(*count);
 }
 
-inline
-void SpinLock::pause() {
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
-    _mm_pause();
-#endif
-}
 
 inline
 void SpinLock::sleepMillis(int milliseconds)
