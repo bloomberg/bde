@@ -708,11 +708,6 @@ struct hash<bsl::error_condition> : BloombergLP::bslh::Hash<>
 
 }  // close namespace bsl
 
-#ifdef std
-#undef std
-#define BSLSTL_ERROR_STD_DEFINED
-#endif
-
 namespace std {
 
 #if !defined(BSLS_PLATFORM_OS_DARWIN) || defined (BSLS_PLATFORM_CMP_GNU)
@@ -734,11 +729,6 @@ struct hash<bsl::error_condition> : BloombergLP::bslh::Hash<>
 {
 };
 }  // close namespace std
-
-#ifdef BSLSTL_ERROR_STD_DEFINED
-#undef BSLSTL_ERROR_STD_DEFINED
-#define std bsl
-#endif
 
 #endif
 #endif
