@@ -395,10 +395,9 @@ class AttributeContainer {
         // not valid on entry, this operation has no effect.
 
     virtual void visitAttributes(
-             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+         const bsl::function<void(const ball::Attribute&)>& visitor) const = 0;
         // Invoke the specified 'visitor' function for all attributes in this
-        // container.  Note that derived classes must override this method and
-        // provide proper attribute visitation logic.
+        // container.
 };
 
 // FREE OPERATORS
@@ -415,13 +414,6 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
                     // ------------------------
                     // class AttributeContainer
                     // ------------------------
-
-// ACCESSORS
-inline
-void AttributeContainer::visitAttributes(
-                     const bsl::function<void(const ball::Attribute&)> &) const
-{
-}
 
 }  // close package namespace
 

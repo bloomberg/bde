@@ -267,6 +267,11 @@ bslma::TestAllocator testAllocator;
             // Format this object to the specified output 'stream' at the
             // (absolute value of) the optionally specified indentation 'level'
             // and return a reference to 'stream'.
+
+        virtual void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+        // Invoke the specified 'visitor' function for all attributes in this
+        // container.
     };
 
                         // ------------------
@@ -330,6 +335,15 @@ bslma::TestAllocator testAllocator;
         return stream;
     }
 
+    void AttributeSet::visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const
+    {
+        bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
+        for (; it != d_set.end(); ++it) {
+            visitor(*it);
+        }
+    }
+
                         // ========================
                         // class TestPrintContainer
                         // ========================
@@ -371,6 +385,11 @@ class TestPrintContainer : public ball::AttributeContainer {
         // Format this object to the specified output 'stream' at the
         // (absolute value of) the optionally specified indentation 'level'
         // and return a reference to 'stream'.
+
+    virtual void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+        // Invoke the specified 'visitor' function for all attributes in this
+        // container.
 };
 
 bsl::ostream& TestPrintContainer::print(bsl::ostream& stream,
@@ -386,6 +405,13 @@ bsl::ostream& TestPrintContainer::print(bsl::ostream& stream,
     stream << "]" << EL;
     return stream;
 }
+
+void TestPrintContainer::visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const
+{
+    (void) visitor;
+}
+
 
 //=============================================================================
 //                          FUNCTIONS FOR TESTING

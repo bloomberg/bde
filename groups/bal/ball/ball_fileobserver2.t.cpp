@@ -1803,6 +1803,11 @@ int main(int argc, char *argv[])
         RotCb cb(&ta);
         mX->setOnFileRotationCallback(cb);
 
+        // Set the format to include the message only for better control over
+        // rotation events. The long filename part in the logs can lead to
+        // unexpected rotations during the test.
+        mX->setLogFileFunctor(ball::RecordStringFormatter("%m\n"));
+
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             bdls::TempDirectoryGuard tempDirGuard("ball_");
@@ -1818,7 +1823,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(1 == FsUtil::exists(fileName.c_str()));
 
-                ASSERT(2 == getNumLines(fileName.c_str()));
+                ASSERT(1 == getNumLines(fileName.c_str()));
                 ASSERT(0 == cb.numInvocations());
             }
 

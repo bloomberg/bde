@@ -214,16 +214,24 @@ bool veryVeryVerbose;
             // not a member of this set.
 
         // ACCESSORS
-        virtual bool hasValue(const ball::Attribute& value) const;
+        bool hasValue(const ball::Attribute& value)
+                                                   const BSLS_KEYWORD_OVERRIDE;
             // Return 'true' if the attribute having specified 'value' exists
             // in this object, and 'false' otherwise.
 
-        virtual bsl::ostream& print(bsl::ostream& stream,
-                                    int           level = 0,
-                                    int           spacesPerLevel = 4) const;
+        bsl::ostream& print(bsl::ostream& stream,
+                            int           level = 0,
+                            int           spacesPerLevel = 4)
+                                                   const BSLS_KEYWORD_OVERRIDE;
             // Format this object to the specified output 'stream' at the
             // (absolute value of) the optionally specified indentation 'level'
             // and return a reference to 'stream'.
+
+        void visitAttributes(
+                const bsl::function<void(const ball::Attribute&)>& visitor)
+                                                   const BSLS_KEYWORD_OVERRIDE;
+        // Invoke the specified 'visitor' function for all attributes in this
+        // container.
     };
 
 //..
@@ -277,6 +285,15 @@ bool veryVeryVerbose;
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]" << EL;
         return stream;
+    }
+
+    void AttributeSet::visitAttributes(
+            const bsl::function<void(const ball::Attribute&)>& visitor) const
+    {
+        bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
+        for (; it != d_set.end(); ++it) {
+            visitor(*it);
+        }
     }
 
 // ============================================================================
