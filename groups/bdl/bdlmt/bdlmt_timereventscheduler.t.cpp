@@ -585,6 +585,65 @@ struct TestClass1 {
     }
 };
 
+                              // ================
+                              // class TestClass2
+                              // ================
+
+struct TestClass2 {
+    // This class define a function 'callback' that is used as a callback for a
+    // clock or an event.  The class keeps track of number of times the
+    // callback has been executed.  Unlike 'TestClass1', it does not support a
+    // delay, but instead supports synchronization using up to 2 barriers.
+
+    bsls::AtomicInt  d_numExecuted;
+    bslmt::Barrier  *d_startBarrier_p;
+    bslmt::Barrier  *d_finishBarrier_p;
+
+    // CREATORS
+    TestClass2(bslmt::Barrier *startBarrier, bslmt::Barrier *finishBarrier)
+        // Create a 'TestClass2' object that uses the specified 'startBarrier'
+        // (if non-null) and the specified 'finishBarrier' (if non-null) for
+        // synchronization.
+    : d_numExecuted(0)
+    , d_startBarrier_p(startBarrier)
+    , d_finishBarrier_p(finishBarrier)
+    {
+    }
+
+    // MANIPULATORS
+    void callback()
+        // Arrive and wait at 'd_startBarrier_p' (if non-null), then increment
+        // 'd_numExecuted', and finally arrive and wait at 'd_finishBarrier_p'
+        // (if non-null).
+    {
+        bsl::string threadName;
+        bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+        ASSERTV(threadName, threadName == "bdl.TimerEvent" ||
+                                                    threadName == "OtherName");
+#else
+        ASSERTV(threadName, threadName.empty());
+#endif
+
+        if (d_startBarrier_p) {
+            d_startBarrier_p->wait();
+        }
+
+        ++d_numExecuted;
+
+        if (d_finishBarrier_p) {
+            d_finishBarrier_p->wait();
+        }
+    }
+
+    // ACCESSORS
+    int numExecuted() const
+    {
+        return d_numExecuted;
+    }
+};
+
                             // ====================
                             // class TestPrintClass
                             // ====================
@@ -1868,7 +1927,32 @@ void test6_c()
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5
 {
+struct Unblock {
+    Obj            *d_scheduler_p;
+    bslmt::Barrier *d_startBarrier_p;
+    bslmt::Barrier *d_finishBarrier_p;
 
+    Unblock(Obj            *scheduler,
+            bslmt::Barrier *startBarrier,
+            bslmt::Barrier *finishBarrier)
+    : d_scheduler_p(scheduler)
+    , d_startBarrier_p(startBarrier)
+    , d_finishBarrier_p(finishBarrier)
+    {
+    }
+
+    void operator()()
+        // Arrive and wait at '*d_startBarrier_p'.  Wait until '*d_scheduler_p'
+        // no longer has any scheduled clocks, then arrive at
+        // '*d_finishBarrier_p' in order to unblock the main thread.
+    {
+        d_startBarrier_p->wait();
+        while (d_scheduler_p->numClocks()) {
+            bslmt::ThreadUtil::yield();
+        }
+        d_finishBarrier_p->arrive();
+    }
+};
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5
 // ============================================================================
 //                          CASE 4 RELATED ENTITIES
@@ -4665,17 +4749,19 @@ int main(int argc, char *argv[])
         //   sleeping enough time before starting the scheduler), cancel
         //   c2 before it's callback is dispatched and verify the result.
         //
-        //   Schedule a clock (whose callback executes for T5 time)
-        //   starting at T.  Let its first execution be started (by
-        //   sleeping for T2 time), cancel it without wait argument,
-        //   verify that its execution has not yet completed, make sure
-        //   that it is cancelled after this execution.
+        //   Schedule a clock starting at T and an event at 3T.  Wait for the
+        //   first execution of the clock to start, cancel it with 'wait'
+        //   argument equal to false while it is running, and wait for the
+        //   event to start.  Verify that the clock was only executed once (not
+        //   a second time at 2T).
         //
-        //   Schedule a clock (whose callback executes for T5 time)
-        //   starting at T.  Let its first execution be started (by
-        //   sleeping for T2 time), cancel it with wait argument, verify
-        //   that its execution has completed, make sure that it is
-        //   cancelled after this execution.
+        //   Schedule a clock starting at T.  Wait for the first execution of
+        //   the clock to start, and cancel it with 'wait' argument equal to
+        //   true while it is running.  Because this will block the main
+        //   thread, another thread is used to unblock the clock callback after
+        //   the clock's cancellation has completed.  Verify that the clock has
+        //   been executed once, and schedule an event at 3T.  Wait for the
+        //   event to start, and verify that the clock was not executed again.
         //
         // Testing:
         //   int cancelClock(Handle handle, bool wait=false);
@@ -4751,70 +4837,93 @@ int main(int argc, char *argv[])
         }
 
         {
-            // Schedule a clock (whose callback executes for T5 time) starting
-            // at T.  Let its first execution be started (by sleeping for T2
-            // time), cancel it without wait argument, verify that its
-            // execution has not yet completed, make sure that it is cancelled
-            // after this execution.
+            // Schedule a clock starting at T and an event at 3T.  Wait for the
+            // first execution of the clock to start, cancel it with 'wait'
+            // argument equal to false while it is running, and wait for the
+            // event to start.  Verify that the clock was only executed once
+            // (not a second time at 2T).
 
-            const int mT = DECI_SEC_IN_MICRO_SEC / 10;  // 10ms
-            bsls::TimeInterval T(1 * DECI_SEC);
-            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
-            const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
+            bsls::TimeInterval T(0.01);  // 10ms
+            bsls::TimeInterval T2(0.02);
+            bsls::TimeInterval T3(0.03);
+
             bslma::TestAllocator ta(veryVeryVerbose);
-            Obj x(&ta);
-            x.start();
+            Obj                  x(&ta);
 
-            TestClass1 testObj(T5);
+            bslmt::Barrier startBarrier1(2);
+            bslmt::Barrier finishBarrier1(2);
+            TestClass2     testObj1(&startBarrier1, &finishBarrier1);
+            bslmt::Barrier startBarrier2(2);
+            TestClass2     testObj2(&startBarrier2, 0);
 
-            double start = dnow();
             Handle h = x.startClock(
-                      T,
-                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
-
-            myMicroSleep(T2, 0);
+                     T,
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj1));
+            bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
+            (void)x.scheduleEvent(now + T3,
+                                  bdlf::MemFnUtil::memFn(&TestClass2::callback,
+                                                         &testObj2));
+            x.start();
+            startBarrier1.wait();
             ASSERT(0 == x.cancelClock(h));
-            if (dnow() - start < 0.59) {
-                ASSERT(0 == testObj.numExecuted());
-                myMicroSleep(T5, 0);
-                makeSureTestObjectIsExecuted(testObj, mT, 100);
-                ASSERT(1 == testObj.numExecuted());
-            }
+            finishBarrier1.wait();
+            int numExecuted = testObj1.numExecuted();
+            ASSERTV(numExecuted, 1 == numExecuted);
+            startBarrier2.wait();
+            numExecuted = testObj1.numExecuted();
+            ASSERTV(numExecuted, 1 == numExecuted);
+            x.stop();
         }
 
         {
-            // Schedule a clock (whose callback executes for T5 time) starting
-            // at T.  Let its first execution be started (by sleeping for T2
-            // time), cancel it with wait argument, verify that its execution
-            // has completed, make sure that it is cancelled after this
-            // execution.
+            // Schedule a clock starting at T.  Wait for the first execution of
+            // the clock to start, and cancel it with 'wait' argument equal to
+            // true while it is running.  Because this will block the main
+            // thread, another thread is used to unblock the clock callback
+            // after the clock's cancellation has completed.  Verify that the
+            // clock has been executed once, and schedule an event at 3T.  Wait
+            // for the event to start, and verify that the clock was not
+            // executed again.  (Note that we have to be careful not to
+            // schedule the event until after the 'cancelClock' call returns.
+            // Otherwise, a deadlock can occur.)
 
-            const int mT = DECI_SEC_IN_MICRO_SEC / 10;  // 10ms
-            bsls::TimeInterval T(1 * DECI_SEC);
-            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
-            const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
+            bsls::TimeInterval T(0.01);  // 10ms
+            bsls::TimeInterval T2(0.02);
+            bsls::TimeInterval T3(0.03);
+
             bslma::TestAllocator ta(veryVeryVerbose);
-            Obj x(&ta);
-            x.start();
+            Obj                  x(&ta);
 
-            TestClass1 testObj(T5);
+            bslmt::Barrier startBarrier1(3);
+            bslmt::Barrier finishBarrier1(2);
+            TestClass2     testObj1(&startBarrier1, &finishBarrier1);
+            bslmt::Barrier startBarrier2(2);
+            TestClass2     testObj2(&startBarrier2, 0);
 
-            double start = dnow();
+            bslmt::ThreadUtil::Handle unblockThreadHandle;
+            ASSERT(0 == bslmt::ThreadUtil::createWithAllocator(
+                                &unblockThreadHandle,
+                                Unblock(&x, &startBarrier1, &finishBarrier1),
+                                &ta));
+
             Handle h = x.startClock(
-                      T,
-                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
-
-            myMicroSleep(T2, 0);
-            int wait = 1;
+                     T,
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj1));
+            x.start();
+            startBarrier1.wait();
+            const int wait = 1;
             ASSERT(0 == x.cancelClock(h, wait));
-            int numEx = testObj.numExecuted();
-            if (dnow() - start < 0.59) {
-                ASSERTV(testObj.numExecuted(), 1 == numEx);
-            }
-            myMicroSleep(T5, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
-            ASSERTV(numEx, testObj.numExecuted(),
-                    numEx == testObj.numExecuted());
+            int numExecuted = testObj1.numExecuted();
+            ASSERTV(numExecuted, 1 == numExecuted);
+            bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
+            (void)x.scheduleEvent(now + T3,
+                                  bdlf::MemFnUtil::memFn(&TestClass2::callback,
+                                                         &testObj2));
+            startBarrier2.wait();
+            numExecuted = testObj1.numExecuted();
+            ASSERTV(numExecuted, 1 == numExecuted);
+            x.stop();
+            bslmt::ThreadUtil::join(unblockThreadHandle);
         }
       } break;
       case 4: {
