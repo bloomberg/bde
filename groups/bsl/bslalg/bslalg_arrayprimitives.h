@@ -4713,6 +4713,12 @@ void ArrayPrimitives_Imp::shiftAndInsert(
         valuePtr += 1; // new address after the shift
     }
 
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+// clang does not support this pragma
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+
     // shift
     std::memmove(begin + 1, begin, (end - begin) * sizeof(ValueType));
 
@@ -4721,6 +4727,10 @@ void ArrayPrimitives_Imp::shiftAndInsert(
                            allocator,
                            begin,
                            bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
+
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+#pragma GCC diagnostic pop
+#endif
 }
 
 template <class ALLOCATOR>
@@ -4750,7 +4760,9 @@ void ArrayPrimitives_Imp::shiftAndInsert(
     // shift
     size_t bytesNum = (end - begin) * sizeof(ValueType);
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+// clang does not support this pragma
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
@@ -4781,7 +4793,7 @@ void ArrayPrimitives_Imp::shiftAndInsert(
                            begin,
                            bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
     proctor.release();
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
 #pragma GCC diagnostic pop
 #endif
 }
