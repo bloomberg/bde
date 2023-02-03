@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Mon Dec 12 10:21:11 2022
+// Generated on Tue Jan 24 11:16:43 2023
 // Command line: sim_cpp11_features.pl bslstl_queue.t.cpp
 
 // Expanded test driver only when compiling bslstl_queue.cpp
@@ -344,6 +344,7 @@ class NonAllocContainer {
 
     // CREATORS
     NonAllocContainer() : d_deque(&bslma::MallocFreeAllocator::singleton()) {}
+    NonAllocContainer(const NonAllocContainer& rhs) : d_deque(rhs.d_deque) {}
 
     ~NonAllocContainer() {}
 
@@ -6850,7 +6851,7 @@ int main() {
 #endif // defined(COMPILING_BSLSTL_QUEUE_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

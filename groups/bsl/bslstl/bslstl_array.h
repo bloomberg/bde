@@ -606,6 +606,13 @@ namespace bsl {
                                 // -----------
 
 // MANIPULATORS
+
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
 template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::fill(const VALUE_TYPE& value)
 {
@@ -624,6 +631,11 @@ void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
         swap(d_data[i], rhs.d_data[i]);
     }
 }
+
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
 // ACCESSORS
 template <class VALUE_TYPE, size_t SIZE>
@@ -847,6 +859,13 @@ array<VALUE_TYPE, SIZE>::data() const BSLS_KEYWORD_NOEXCEPT
 }
 
 // HASH SPECIALIZATIONS
+
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
 template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
 void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input)
 {
@@ -859,6 +878,10 @@ void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input)
     }
 }
 
+// suppress comparison of 'unsigned' expression is always false warnings
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 }  // close namespace bsl
 
 // FREE OPERATORS

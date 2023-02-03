@@ -372,6 +372,7 @@ class NonAllocContainer {
 
     // CREATORS
     NonAllocContainer() : d_deque(&bslma::MallocFreeAllocator::singleton()) {}
+    NonAllocContainer(const NonAllocContainer& rhs) : d_deque(rhs.d_deque) {}
 
     ~NonAllocContainer() {}
 
