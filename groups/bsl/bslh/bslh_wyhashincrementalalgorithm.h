@@ -473,8 +473,9 @@ class WyHashIncrementalAlgorithm {
 
     // PRIVATE MANIPULATORS
     uint8_t *prePadAt(ptrdiff_t offset);
-        // Return a ptr to the address at the specfied 'offset' after the
-        // beginning of the 'prepad' area of the buffer.
+        // Return a ptr to the address at the specified 'offset' after the
+        // beginning of the 'prepad' area of the buffer.  The behavior is
+        // undefined unless '1 <= offset'.
 
     void process48ByteSection(const uint8_t *buffer);
         // Process the specified 'k_REPEAT_LENGTH'-byte 'buffer'.  Note that
