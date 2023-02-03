@@ -39,4 +39,5 @@ bbs_install_target(${target})
 bbs_emit_pkg_config(${target})
 
 set_target_properties(${target} PROPERTIES BB_UOR_PARTITION thirdparty)
+set_target_properties(${target} PROPERTIES BB_UOR_IS_GROUP FALSE)
 bbs_emit_bde_metadata(${target})
