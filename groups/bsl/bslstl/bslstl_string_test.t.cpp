@@ -584,12 +584,13 @@ template <>
 struct ExpectedShortBufferCapacity<wchar_t>
     : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_WCHAR_T> {};
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
 template <>
 struct ExpectedShortBufferCapacity<char8_t>
     : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_CHAR8_T> {};
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
 template <>
 struct ExpectedShortBufferCapacity<char16_t>
     : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_CHAR16_T> {};
@@ -628,19 +629,7 @@ void debugprint(const bsl::basic_string<CHAR_TYPE, TRAITS, ALLOC>& v)
 }  // close namespace bsl
 
 // Legacy debug print support.
-inline
-void dbg_print(const char *s) { printf("\"%s\"", s); }
-void dbg_print(const wchar_t *s)
-{
-    putchar('"');
-    while (*s) {
-        printf("%lc", wint_t(*s));
-        ++s;
-    }
-    putchar('"');
-}
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 template <class CHAR_TYPE>
 void dbg_print_impl(const CHAR_TYPE *s)
 {
@@ -657,18 +646,34 @@ void dbg_print_impl(const CHAR_TYPE *s)
     putchar('"');
 }
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+inline
+void dbg_print(const char *s)
+{
+    dbg_print_impl(s);
+}
+
+inline
+void dbg_print(const wchar_t *s)
+{
+    dbg_print_impl(s);
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+inline
 void dbg_print(const char8_t *s)
 {
     dbg_print_impl(s);
 }
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+inline
 void dbg_print(const char16_t *s)
 {
     dbg_print_impl(s);
 }
 
+inline
 void dbg_print(const char32_t *s)
 {
     dbg_print_impl(s);
@@ -773,13 +778,14 @@ void debugprint(const std::initializer_list<wchar_t>& v)
     debugprint_impl(v);
 }
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
 void debugprint(const std::initializer_list<char8_t>& v)
 {
     debugprint_impl(v);
 }
 # endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
 void debugprint(const std::initializer_list<char16_t>& v)
 {
     debugprint_impl(v);
@@ -789,6 +795,7 @@ void debugprint(const std::initializer_list<char32_t>& v)
 {
     debugprint_impl(v);
 }
+# endif
 
 }  // close namespace std
 
@@ -20073,7 +20080,24 @@ int main(int argc, char *argv[])
         //   bsl::u32string
         // --------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+        const char8_t arr8A[] = { 'a', 'b', 'c', 'd', 0 };
+
+        bsl::u8string s8A(arr8A), s8B;
+
+        ASSERT(!s8A.empty());
+        ASSERT( s8B.empty());
+        ASSERT(4 == s8A.length());
+        ASSERT(s8A != s8B);
+
+        s8B = s8A;
+
+        ASSERT(!s8B.empty());
+        ASSERT(4 == s8B.length());
+        ASSERT(s8A == s8B);
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         const char16_t arr16A[] = { 'a', 'b', 'c', 'd', 0 };
 
         bsl::u16string s16A(arr16A), s16B;
@@ -20103,23 +20127,6 @@ int main(int argc, char *argv[])
         ASSERT(!s32B.empty());
         ASSERT(4 == s32B.length());
         ASSERT(s32A == s32B);
-
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-        const char8_t arr8A[] = { 'a', 'b', 'c', 'd', 0 };
-
-        bsl::u8string s8A(arr8A), s8B;
-
-        ASSERT(!s8A.empty());
-        ASSERT( s8B.empty());
-        ASSERT(4 == s8A.length());
-        ASSERT(s8A != s8B);
-
-        s8B = s8A;
-
-        ASSERT(!s8B.empty());
-        ASSERT(4 == s8B.length());
-        ASSERT(s8A == s8B);
-# endif
 #endif
       } break;
       case 39: {
@@ -20165,17 +20172,17 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase39();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase39();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase39();
 
         if (verbose) printf("\n... with 'char32_t'.\n");
         TestDriver<char32_t>::testCase39();
-
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-        if (verbose) printf("\n... with 'char8_t'.\n");
-        TestDriver<char8_t>::testCase39();
-# endif
 #endif
       } break;
       case 38: {
@@ -20303,11 +20310,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase36();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase36();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase36();
 
@@ -20383,11 +20391,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase35();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase35();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase35();
 
@@ -20761,10 +20770,11 @@ int main(int argc, char *argv[])
         TestDriver<char    >::testCase33();
         TestDriver<wchar_t >::testCase33();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t >::testCase33();
-#   endif
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase33();
         TestDriver<char32_t>::testCase33();
 # endif
@@ -22683,11 +22693,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase29();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase29();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase29();
         if (verbose) printf("\n... with 'char32_t'.\n");
@@ -22792,11 +22803,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase26();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase26();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase26();
 
@@ -22831,11 +22843,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase25();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase25();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase25();
 
@@ -22887,12 +22900,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase24();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase24();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase24();
 
@@ -22910,11 +22923,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase24Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase24Negative();
-#   endif
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase24Negative();
 
@@ -22944,12 +22958,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase23();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase23();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase23();
 
@@ -22967,12 +22981,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase23Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase23Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase23Negative();
 
@@ -23030,12 +23044,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase22();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase22();
 # endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase22();
 
@@ -23053,12 +23067,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase22Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase22Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase22Negative();
 
@@ -23089,11 +23103,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase21();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase21();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase21();
 
@@ -23144,19 +23159,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase20();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
         if (verbose) {
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
             if (verbose) printf("\n... with 'char8_t'.\n");
             TestDriver<char8_t>::testCase20();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
             if (verbose) printf("\n... with 'char16_t'.\n");
             TestDriver<char16_t>::testCase20();
 
             if (verbose) printf("\n... with 'char32_t'.\n");
             TestDriver<char32_t>::testCase20();
-        }
 #endif
+        }
 
 
         if (verbose) printf("\n... with 'char' & matching integral types.\n");
@@ -23165,14 +23181,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t' & matching integ types.\n");
         TestDriver<wchar_t>::testCase20MatchTypes();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
         if (verbose) {
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
             if (verbose) printf(
                           "\n... with 'char8_t' & matching integral types.\n");
             TestDriver<char8_t>::testCase20MatchTypes();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
             if (verbose) printf(
                          "\n... with 'char16_t' & matching integral types.\n");
             TestDriver<char16_t>::testCase20MatchTypes();
@@ -23180,8 +23196,8 @@ int main(int argc, char *argv[])
             if (verbose) printf(
                          "\n... with 'char32_t' & matching integral types.\n");
             TestDriver<char32_t>::testCase20MatchTypes();
-        }
 #endif
+        }
 
         if (verbose) printf("\nTesting 'replace' with range"
                             "\n============================\n");
@@ -23202,9 +23218,8 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase20Range(CharArray<wchar_t>());
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
         if (verbose) {
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
             if (verbose) printf("\n... with 'char8_t' "
                                 "and arbitrary input iterator.\n");
             TestDriver<char8_t>::testCase20Range(CharList<char8_t>());
@@ -23212,8 +23227,9 @@ int main(int argc, char *argv[])
             if (verbose) printf("\n... with 'char8_t' "
                                 "and arbitrary random-access iterator.\n");
             TestDriver<char8_t>::testCase20Range(CharArray<char8_t>());
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
             if (verbose) printf("\n... with 'char16_t' "
                                 "and arbitrary input iterator.\n");
             TestDriver<char16_t>::testCase20Range(CharList<char16_t>());
@@ -23229,8 +23245,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("\n... with 'char32_t' "
                                 "and arbitrary random-access iterator.\n");
             TestDriver<char32_t>::testCase20Range(CharArray<char32_t>());
-        }
 #endif
+        }
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing 'replace'"
@@ -23242,12 +23258,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase20Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase20Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase20Negative();
 
@@ -23279,12 +23295,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase19();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase19();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase19();
 
@@ -23302,11 +23318,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase19Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase19Negative();
-#   endif
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase19Negative();
 
@@ -23346,12 +23363,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase18();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase18();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase18();
 
@@ -23378,8 +23395,7 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase18Range(CharArray<wchar_t>());
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase18Range(CharList<char8_t>());
@@ -23387,8 +23403,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'char8_t' "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char8_t>::testCase18Range(CharArray<char8_t>());
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase18Range(CharList<char16_t>());
@@ -23417,12 +23434,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase18Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase18Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase18Negative();
 
@@ -23465,11 +23482,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase17();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase17();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase17();
 
@@ -23496,8 +23514,7 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase17Range(CharArray<wchar_t>());
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase17Range(CharList<char8_t>());
@@ -23505,8 +23522,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'char8_t' "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char8_t>::testCase17Range(CharArray<char8_t>());
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase17Range(CharList<char16_t>());
@@ -23534,12 +23552,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase17Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase17Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase17Negative();
 
@@ -23576,12 +23594,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase16();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase16();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase16();
 
@@ -23614,12 +23632,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase15();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase15();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase15();
 
@@ -23637,12 +23655,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase15Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase15Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase15Negative();
 
@@ -23677,12 +23695,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase14();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase14();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase14();
 
@@ -23721,12 +23739,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase13();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase13();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase13();
 
@@ -23770,8 +23788,7 @@ int main(int argc, char *argv[])
                             "and 'StringViewLike' object.\n");
         TestDriver<wchar_t>::testCase13StrViewLike();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase13InputIterator();
@@ -23787,8 +23804,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'char8_t' "
                             "and 'StringViewLike' object.\n");
         TestDriver<char8_t>::testCase13StrViewLike();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase13InputIterator();
@@ -23833,12 +23851,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase13Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase13Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase13Negative();
 
@@ -23874,12 +23892,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase12();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase12();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase12();
 
@@ -23908,8 +23926,7 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase12Range(CharArray<wchar_t>());
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase12Range(CharList<char8_t>());
@@ -23919,6 +23936,7 @@ int main(int argc, char *argv[])
         TestDriver<char8_t>::testCase12Range(CharArray<char8_t>());
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t' "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase12Range(CharList<char16_t>());
@@ -23948,12 +23966,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase12Negative();
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase12Negative();
-#   endif
+# endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("\n... with 'char16_t'.\n");
         TestDriver<char16_t>::testCase12Negative();
 

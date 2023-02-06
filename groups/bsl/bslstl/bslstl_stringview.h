@@ -214,11 +214,6 @@ BSLS_IDENT("$Id: $")
 #include <string>      // for 'std::char_traits'
 #include <functional>  // for 'std::less', 'std::greater_equal'
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) &&               \
-                      !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
-# include <cuchar>     // for 'char16_t', 'char32_t'
-#endif
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 # include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -229,7 +224,7 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DISABLE_CPP17_ABI
 # ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-# include <string_view>
+#   include <string_view>
 
 namespace bsl {
 
@@ -237,7 +232,7 @@ using std::basic_string_view;
 using std::string_view;
 using std::wstring_view;
 
-#   ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
 using std::u8string_view;
 #   endif
 
@@ -929,11 +924,14 @@ class basic_string_view {
 };
 
 // TYPEDEFS
-typedef basic_string_view<char>       string_view;
-typedef basic_string_view<wchar_t>   wstring_view;
+typedef basic_string_view<char>         string_view;
+typedef basic_string_view<wchar_t>     wstring_view;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) &&               \
-                      !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+typedef basic_string_view<char8_t>    u8string_view;
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
 typedef basic_string_view<char16_t>  u16string_view;
 typedef basic_string_view<char32_t>  u32string_view;
 #endif

@@ -6662,11 +6662,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase23();
         TestDriver<wchar_t>::testCase23();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase23();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase23();
         TestDriver<char32_t>::testCase23();
 #endif
@@ -6709,11 +6709,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase20();
         TestDriver<wchar_t>::testCase20();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase20();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase20();
         TestDriver<char32_t>::testCase20();
 #endif
@@ -6726,11 +6726,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase19();
         TestDriver<wchar_t>::testCase19();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase19();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase19();
         TestDriver<char32_t>::testCase19();
 #endif
@@ -6743,11 +6743,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase18();
         TestDriver<wchar_t>::testCase18();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase18();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase18();
         TestDriver<char32_t>::testCase18();
 #endif
@@ -6760,11 +6760,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase17();
         TestDriver<wchar_t>::testCase17();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase17();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase17();
         TestDriver<char32_t>::testCase17();
 #endif
@@ -6778,11 +6778,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase16();
         TestDriver<wchar_t>::testCase16();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase16();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase16();
         TestDriver<char32_t>::testCase16();
 #endif
@@ -6795,11 +6795,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase15();
         TestDriver<wchar_t>::testCase15();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase15();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase15();
         TestDriver<char32_t>::testCase15();
 #endif
@@ -6812,11 +6812,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase14();
         TestDriver<wchar_t>::testCase14();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase14();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase14();
         TestDriver<char32_t>::testCase14();
 #endif
@@ -6829,10 +6829,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase13();
         TestDriver<wchar_t>::testCase13();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase13();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase13();
         TestDriver<char32_t>::testCase13();
 #endif
@@ -6845,10 +6846,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase12();
         TestDriver<wchar_t>::testCase12();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase12();
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase12();
         TestDriver<char32_t>::testCase12();
 #endif
@@ -6861,11 +6863,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase11();
         TestDriver<wchar_t>::testCase11();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase11();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase11();
         TestDriver<char32_t>::testCase11();
 #endif
@@ -6878,11 +6880,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase10();
         TestDriver<wchar_t>::testCase10();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase10();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase10();
         TestDriver<char32_t>::testCase10();
 #endif
@@ -6895,11 +6897,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase9();
         TestDriver<wchar_t>::testCase9();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase9();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase9();
         TestDriver<char32_t>::testCase9();
 #endif
@@ -6912,11 +6914,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase8();
         TestDriver<wchar_t>::testCase8();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase8();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase8();
         TestDriver<char32_t>::testCase8();
 #endif
@@ -6928,11 +6930,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase7();
         TestDriver<wchar_t>::testCase7();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase7();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase7();
         TestDriver<char32_t>::testCase7();
 #endif
@@ -6945,11 +6947,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase6();
         TestDriver<wchar_t>::testCase6();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase6();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase6();
         TestDriver<char32_t>::testCase6();
 #endif
@@ -6962,11 +6964,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase5();
         TestDriver<wchar_t>::testCase5();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase5();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase5();
         TestDriver<char32_t>::testCase5();
 #endif
@@ -6979,11 +6981,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase4();
         TestDriver<wchar_t>::testCase4();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase4();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase4();
         TestDriver<char32_t>::testCase4();
 #endif
@@ -6999,11 +7001,11 @@ int main(int argc, char *argv[])
         // The facets of 'char8_t', 'char16_t' and 'char32_t' are such that
         // they throw on this test.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
 //      TestDriver<char8_t>::testCase3();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
 //      TestDriver<char16_t>::testCase3();
 //      TestDriver<char32_t>::testCase3();
 #endif
@@ -7016,11 +7018,11 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase2();
         TestDriver<wchar_t>::testCase2();
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
         TestDriver<char8_t>::testCase2();
-# endif
+#endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase2();
         TestDriver<char32_t>::testCase2();
 #endif
@@ -7121,15 +7123,17 @@ int main(int argc, char *argv[])
         ASSERTV(X1.compare(3, 3, "klm", 3), 0 >  X1.compare(3, 3, "klm", 3));
         ASSERTV(X1.compare(3, 3, "klm")   , 0 >  X1.compare(3, 3, "klm")   );
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         // Testing u16string_view and u32string_view
 
         bsl::u16string_view sv16;
         bsl::u32string_view sv32;
         ASSERT(0 == sv16.size());
         ASSERT(0 == sv32.size());
-        ASSERT((bsl::is_same_v<char16_t, bsl::u16string_view::value_type>));
-        ASSERT((bsl::is_same_v<char32_t, bsl::u32string_view::value_type>));
+        ASSERT((bsl::is_same<char16_t,
+                             bsl::u16string_view::value_type>::value));
+        ASSERT((bsl::is_same<char32_t,
+                             bsl::u32string_view::value_type>::value));
 #endif
 
         // Testing literals.

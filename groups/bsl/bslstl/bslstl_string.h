@@ -718,10 +718,11 @@ class basic_string;
 typedef basic_string<char>     string;
 typedef basic_string<wchar_t>  wstring;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
 typedef basic_string<char8_t>  u8string;
-# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
 typedef basic_string<char16_t> u16string;
 typedef basic_string<char32_t> u32string;
 #endif
@@ -7970,15 +7971,16 @@ extern template class bsl::String_Imp<wchar_t, bsl::wstring::size_type>;
 extern template class bsl::basic_string<char>;
 extern template class bsl::basic_string<wchar_t>;
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+extern template class bsl::String_Imp<char8_t, bsl::u8string::size_type>;
+extern template class bsl::basic_string<char8_t>;
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
 extern template class bsl::String_Imp<char16_t, bsl::u16string::size_type>;
 extern template class bsl::String_Imp<char32_t, bsl::u32string::size_type>;
 extern template class bsl::basic_string<char16_t>;
 extern template class bsl::basic_string<char32_t>;
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-extern template class bsl::String_Imp<char8_t, bsl::u8string::size_type>;
-extern template class bsl::basic_string<char8_t>;
-#   endif
 # endif
 
 #endif
