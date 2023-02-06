@@ -91,16 +91,16 @@ namespace bslmf {
                              // struct IsClass_Imp
                              // ==================
 
-template <class TYPE, class = void>
-struct IsClass_Imp  : bsl::false_type {
+template <class t_TYPE, class = void>
+struct IsClass_Imp : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a class type.
+    // (template parameter) 't_TYPE' is a class type.
 };
 
-template <class TYPE>
-struct IsClass_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>  : bsl::true_type {
+template <class t_TYPE>
+struct IsClass_Imp<t_TYPE, BSLMF_VOIDTYPE(int t_TYPE::*)> : bsl::true_type {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a class type.
+    // (template parameter) 't_TYPE' is a class type.
 };
 
 }  // close package namespace
@@ -112,11 +112,11 @@ namespace bsl {
                              // struct is_class
                              // ===============
 
-template <class TYPE>
-struct is_class : BloombergLP::bslmf::IsClass_Imp<TYPE>::type {
+template <class t_TYPE>
+struct is_class : BloombergLP::bslmf::IsClass_Imp<t_TYPE>::type {
     // This 'struct' template implements the 'is_class' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 'TYPE' is a class.  Note that for implementations without
+    // parameter) 't_TYPE' is a class.  Note that for implementations without
     // native library support, this component will mis-diagnose 'union' types
     // as classes.  This would be correct according to the core language
     // definition of a class type, but is an error according to the standard
@@ -124,9 +124,9 @@ struct is_class : BloombergLP::bslmf::IsClass_Imp<TYPE>::type {
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_class_v = is_class<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_class_v =
+                                                       is_class<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_class' meta-function.
 #endif
@@ -139,10 +139,10 @@ namespace bslmf {
                             // struct IsClass
                             // ==============
 
-template <class TYPE>
-struct IsClass : bsl::is_class<TYPE>::type {
+template <class t_TYPE>
+struct IsClass : bsl::is_class<t_TYPE>::type {
     // This meta-function derives from 'bsl::true_type' if the (template
-    // parameter) 'TYPE' is a class type, or a reference to a class type, and
+    // parameter) 't_TYPE' is a class type, or a reference to a class type, and
     // from 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally identical to

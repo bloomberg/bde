@@ -19,6 +19,7 @@
 #include <wchar.h>
 
 using namespace BloombergLP;
+using namespace bslh;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -73,7 +74,7 @@ using namespace BloombergLP;
 // [ 3] void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 // [ 6] IsBitwiseMovable trait
 // [ 6] is_trivially_copyable trait
 // [ 6] is_trivially_default_constructible trait
@@ -520,89 +521,6 @@ static bool binaryCompare(const char *first, const char *second, size_t size)
     return true;
 }
 
-namespace WeirdPlace {
-
-class BslhLikeHashingAlgorithm {
-  public:
-    // PUBLIC TYPES
-    typedef size_t result_type;
-
-  private:
-    // DATA
-    result_type d_value;
-
-  public:
-    // CREATORS
-    BslhLikeHashingAlgorithm() : d_value(0) {}
-
-    // MANIPULATORS
-    void operator()(const void *input, size_t numBytes)
-    {
-        const unsigned char *p = static_cast<unsigned const char *>(input);
-        const unsigned char *end = p + numBytes;
-        while (p < end) {
-            d_value += *p++;
-            d_value *= 99991;    // highest prime below 100,000
-        }
-    }
-
-    result_type computeHash()
-    {
-        return d_value;
-    }
-};
-
-}  // close namespace WeirdPlace
-
-namespace OtherWeirdPlace {
-
-struct StrangeStruct {
-    int d_a, d_b, d_c;
-};
-
-struct StrangeStruct2 {
-    int d_a, d_b, d_c;
-};
-
-struct StrangeStruct3 {
-    int d_a, d_b, d_c;
-};
-
-void hashAppend(bslh::DefaultHashAlgorithm& hashAlg, const StrangeStruct3& x)
-{
-    hashAlg(&x.d_a, sizeof(int));
-    hashAlg(&x.d_b, sizeof(int));
-    hashAlg(&x.d_c, sizeof(int));
-}
-
-}  // close namespace OtherWeirdPlace
-
-namespace BloombergLP {
-namespace bslh {
-
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM&                       hashAlg,
-                const OtherWeirdPlace::StrangeStruct& x)
-{
-    hashAlg(&x.d_a, sizeof(int));
-    hashAlg(&x.d_b, sizeof(int));
-    hashAlg(&x.d_c, sizeof(int));
-}
-
-void hashAppend(DefaultHashAlgorithm&                  hashAlg,
-                const OtherWeirdPlace::StrangeStruct2& x)
-{
-    hashAlg(&x.d_a, sizeof(int));
-    hashAlg(&x.d_b, sizeof(int));
-    hashAlg(&x.d_c, sizeof(int));
-}
-
-}  // close namespace bslh
-}  // close enterprise namespace
-
-namespace BloombergLP {
-namespace bslh {
-
 class MockHashingAlgorithm {
     // This class implements a mock hashing algorithm that provides a way to
     // examine data that is being passed into hashing algorithms by
@@ -702,12 +620,6 @@ class MockAccumulatingHashingAlgorithm {
         return d_length;
     }
 };
-
-}  // close namespace bslh
-}  // close enterprise namespace
-
-using bslh::MockHashingAlgorithm;
-using bslh::MockAccumulatingHashingAlgorithm;
 
 template<class TYPE>
 class TestDriver {
@@ -860,17 +772,11 @@ class TypeChecker {
     // Provides a member function to determine if passed data is of the same
     // type as the (template parameter) 'EXPECTED_TYPE'
   public:
-    static bool isCorrectType(EXPECTED_TYPE type);
-    template<class BDE_OTHER_TYPE>
-    static bool isCorrectType(BDE_OTHER_TYPE type);
-        // Return true if the specified 'type' is of the same type as the
-        // (template parameter) 'EXPECTED_TYPE'.
-
-    static bool isCorrectTypeRef(const EXPECTED_TYPE& type);
-    template<class BDE_OTHER_TYPE>
-    static bool isCorrectTypeRef(const BDE_OTHER_TYPE& type);
-        // Return true if the specified 'type' is of the same type as the
-        // (template parameter) 'EXPECTED_TYPE'.
+      static bool isCorrectType(EXPECTED_TYPE type);
+      template<class BDE_OTHER_TYPE>
+      static bool isCorrectType(BDE_OTHER_TYPE type);
+          // Return true if the specified 'type' is of the same type as the
+          // (template parameter) 'EXPECTED_TYPE'.
 };
 
 template<class EXPECTED_TYPE>
@@ -881,19 +787,6 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE /*type*/) {
 template<class EXPECTED_TYPE>
 template<class BDE_OTHER_TYPE>
 bool TypeChecker<EXPECTED_TYPE>::isCorrectType(BDE_OTHER_TYPE /*type*/) {
-    return false;
-}
-
-template<class EXPECTED_TYPE>
-bool TypeChecker<EXPECTED_TYPE>::isCorrectTypeRef(
-                                               const EXPECTED_TYPE& /*type*/) {
-    return true;
-}
-
-template<class EXPECTED_TYPE>
-template<class BDE_OTHER_TYPE>
-bool TypeChecker<EXPECTED_TYPE>::isCorrectTypeRef(
-                                              const BDE_OTHER_TYPE& /*type*/) {
     return false;
 }
 
@@ -910,26 +803,6 @@ namespace X {
         // ADL.
     {
         (void) hashAlg;
-        (void) &a;
-    }
-}  // close namespace X
-
-namespace XX {
-    struct A
-        // Empty struct for testing.
-    {
-    };
-
-    template<class HASH_ALGORITHM>
-    void hashAppend(HASH_ALGORITHM& hashAlg, A a)
-        // Check that 'hashAlg' is 'DefaultHashAlgorithm'.  This is to check
-        // that 'bslh::Hash<>()(a)' will pick up the right 'hashAppend'.
-    {
-        // We have to use 'isCorrectTypeRef' and not 'isCorrectType' because
-        // the default hash algorithm has no copy c'tor.
-
-        ASSERT(TypeChecker<BloombergLP::bslh::DefaultHashAlgorithm>::
-                                                    isCorrectTypeRef(hashAlg));
         (void) &a;
     }
 }  // close namespace X
@@ -955,15 +828,6 @@ namespace Z {
         MockHashingAlgorithm alg = MockHashingAlgorithm();
         hashAppend(alg, a);  // Should compile and not assert
     }
-
-    void testHashDefault()
-        // Test that 'bslh::Hash<>()(a)' picks up the 'hashAppend' in 'a's
-        // namespace, and that it uses the 'DefaultHashAlgorithm' and not
-        // 'Hash_AdlWrapper<DefaultHashAlgorithm>'.
-    {
-        XX::A a;
-        (void) BloombergLP::bslh::Hash<>()(a);
-    }
 }  // close namespace Z
 
 
@@ -984,7 +848,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be applied to user defined types which
@@ -1039,69 +903,6 @@ int main(int argc, char *argv[])
         ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
 
       } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // TESTING HASH_ADLWRAPPER
-        //
-        // Concerns:
-        //: 1 That 'bslh::Hash' can hash an object where the object's type is
-        //:   in some namespace that is neither 'std' nor 'bslh', the hash
-        //:   algorithm is in neither 'bslh' nor the namespace where the type
-        //:   being hashed is declared, and the 'hashAppend' function is in
-        //:   bslh.
-        //
-        // Plan:
-        //: 1 Define a bslh-style hash algorithm in the namespace 'WeirdPlace'.
-        //:
-        //: 2 Define a type 'StrangeStruct' in namespace 'OtherWeirdPlace'.
-        //:
-        //: 3 Define a 'hashAppend' function for
-        //:   'OtherWeirdPlace::StrangeStruct' in namespace 'bslh'.
-        //:
-        //: 4 See if 'bslh::Hash' can cope.
-        //
-        // Testing:
-        //   bslh::Hash_AdlWrapper
-        // --------------------------------------------------------------------
-
-        {
-            OtherWeirdPlace::StrangeStruct x = { 1, 2, 3 };
-
-            const size_t y =
-                         bslh::Hash<WeirdPlace::BslhLikeHashingAlgorithm>()(x);
-
-            ++x.d_c;
-
-            const size_t z =
-                         bslh::Hash<WeirdPlace::BslhLikeHashingAlgorithm>()(x);
-
-            ASSERT(y != z);
-        }
-
-        {
-            OtherWeirdPlace::StrangeStruct2 x = { 1, 2, 3 };
-
-            const size_t y = bslh::Hash<bslh::DefaultHashAlgorithm>()(x);
-
-            ++x.d_c;
-
-            const size_t z = bslh::Hash<bslh::DefaultHashAlgorithm>()(x);
-
-            ASSERT(y != z);
-        }
-
-        {
-            OtherWeirdPlace::StrangeStruct3 x = { 1, 2, 3 };
-
-            const size_t y = bslh::Hash<bslh::DefaultHashAlgorithm>()(x);
-
-            ++x.d_c;
-
-            const size_t z = bslh::Hash<bslh::DefaultHashAlgorithm>()(x);
-
-            ASSERT(y != z);
-        }
-      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING QOI: IS AN EMPTY TYPE
@@ -1133,7 +934,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING QOI: IS AN EMPTY TYPE"
                             "\n=============================\n");
 
-        typedef bslh::DefaultHashAlgorithm TYPE;
+        typedef DefaultHashAlgorithm TYPE;
 
         if (verbose) printf("Define two non-empty classes with no padding, one"
                             " of which is derived from 'hash'.  Assert that"
@@ -1144,7 +945,7 @@ int main(int argc, char *argv[])
                 int b;
             };
 
-            struct DerivedInts : bslh::Hash<TYPE> {
+            struct DerivedInts : Hash<TYPE> {
                 int a;
                 int b;
             };
@@ -1161,7 +962,7 @@ int main(int argc, char *argv[])
         {
 
             struct IntsWithMember {
-                bslh::Hash<TYPE> dummy;
+                Hash<TYPE> dummy;
                 int              a;
                 int              b;
             };
@@ -1197,10 +998,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("ASSERT the presence of each trait using the"
                             " 'bslalg::HasTrait' metafunction. (C-1..3)\n");
         {
-            ASSERT(bslmf::IsBitwiseMoveable<bslh::Hash<> >::value);
-            ASSERT(bsl::is_trivially_copyable<bslh::Hash<> >::value);
-            ASSERT(bsl::is_trivially_default_constructible<
-                                                        bslh::Hash<> >::value);
+            ASSERT(bslmf::IsBitwiseMoveable<Hash<> >::value);
+            ASSERT(bsl::is_trivially_copyable<Hash<> >::value);
+            ASSERT(bsl::is_trivially_default_constructible<Hash<> >::value);
         }
 
       } break;
@@ -1233,8 +1033,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING 'result_type' TYPEDEF"
                             "\n=============================\n");
-
-        using namespace bslh;
 
         if (verbose) printf("ASSERT the 'typedef' accessibly aliases the"
                             " correct type using 'bslmf::IsSame' for a number"
@@ -1424,8 +1222,6 @@ int main(int argc, char *argv[])
         //: 9 'hashAppend' can be called with 'const' qualified types.
         //:
         //: 10 'hashAppend' is correctly detected by ADL.
-        //:
-        //: 11 'bslh::Hash<>()' uses the default allocator.
         //
         // Plan:
         //: 1 Use a mock hashing algorithm to test that 'hashAppend' inputs the
@@ -1939,12 +1735,6 @@ int main(int argc, char *argv[])
                             " used.  (C-10)\n");
         {
             Z::testHashAppendADL();
-        }
-
-        if (verbose) printf("Check that 'bslh::Hash<>()' selects the default"
-                            " allocator.  (C-11)\n");
-        {
-            Z::testHashDefault();
         }
       } break;
       case 2: {

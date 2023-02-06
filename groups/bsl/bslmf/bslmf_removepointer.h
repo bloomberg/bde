@@ -71,124 +71,123 @@ namespace bslmf {
                          // struct RemovePointer_Imp
                          // ========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct RemovePointer_Imp {
     // This 'struct' template provides an alias 'Type' that refers to the type
-    // pointed to by the (template parameter) 'TYPE' if 'TYPE' is a
-    // (non-cv-qualified) pointer type; otherwise, 'Type' refers to 'TYPE'.
-    // This generic default template's 'Type' always refers to 'TYPE'.  A
-    // template specialization (below) handles the case where 'TYPE' is a
+    // pointed to by the (template parameter) 't_TYPE' if 't_TYPE' is a
+    // (non-cv-qualified) pointer type; otherwise, 'Type' refers to 't_TYPE'.
+    // This generic default template's 'Type' always refers to 't_TYPE'.  A
+    // template specialization (below) handles the case where 't_TYPE' is a
     // pointer type.
 
     // PUBLIC TYPES
-    typedef TYPE Type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+    typedef t_TYPE Type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
-                         // ================================
-                         // struct RemovePointer_Imp<TYPE *>
-                         // ================================
+                     // ==================================
+                     // struct RemovePointer_Imp<t_TYPE *>
+                     // ==================================
 
-template <class TYPE>
-struct RemovePointer_Imp<TYPE *> {
-     // This partial specialization of 'RemovePointer_Imp', for when the
-     // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
-     // that refers to the type pointed to by 'TYPE'.
+template <class t_TYPE>
+struct RemovePointer_Imp<t_TYPE *> {
+    // This partial specialization of 'RemovePointer_Imp', for when the
+    // (template parameter) 't_TYPE' is a pointer type, provides an alias
+    // 'Type' that refers to the type pointed to by 't_TYPE'.
 
     // PUBLIC TYPES
-    typedef TYPE Type;
+    typedef t_TYPE Type;
         // This 'typedef' is an alias to the type pointed to by the (template
-        // parameter) 'TYPE'.
+        // parameter) 't_TYPE'.
 };
 
-template <class TYPE>
-struct RemovePointer_Imp<TYPE *const> {
-     // This partial specialization of 'RemovePointer_Imp', for when the
-     // (template parameter) 'TYPE' is a 'const'-qualified pointer type,
-     // provides an alias 'Type' that refers to the type pointed to by 'TYPE'.
-     // Note that this is specifically for 'const'-qualified pointers, and not
-     // for pointers-to-'const'-type.
+template <class t_TYPE>
+struct RemovePointer_Imp<t_TYPE *const> {
+    // This partial specialization of 'RemovePointer_Imp', for when the
+    // (template parameter) 't_TYPE' is a 'const'-qualified pointer type,
+    // provides an alias 'Type' that refers to the type pointed to by 't_TYPE'.
+    // Note that this is specifically for 'const'-qualified pointers, and not
+    // for pointers-to-'const'-type.
 
     // PUBLIC TYPES
-    typedef TYPE Type;
+    typedef t_TYPE Type;
         // This 'typedef' is an alias to the type pointed to by the (template
-        // parameter) 'TYPE'.
+        // parameter) 't_TYPE'.
 };
 
-template <class TYPE>
-struct RemovePointer_Imp<TYPE *volatile> {
-     // This partial specialization of 'RemovePointer_Imp', for when the
-     // (template parameter) 'TYPE' is a 'volatile'-qualified pointer type,
-     // provides an alias 'Type' that refers to the type pointed to by 'TYPE'.
-     // Note that this is specifically for 'volatile'-qualified pointers, and
-     // not for pointers-to-'volatile'-type.
+template <class t_TYPE>
+struct RemovePointer_Imp<t_TYPE *volatile> {
+    // This partial specialization of 'RemovePointer_Imp', for when the
+    // (template parameter) 't_TYPE' is a 'volatile'-qualified pointer type,
+    // provides an alias 'Type' that refers to the type pointed to by 't_TYPE'.
+    // Note that this is specifically for 'volatile'-qualified pointers, and
+    // not for pointers-to-'volatile'-type.
 
     // PUBLIC TYPES
-    typedef TYPE Type;
+    typedef t_TYPE Type;
         // This 'typedef' is an alias to the type pointed to by the (template
-        // parameter) 'TYPE'.
+        // parameter) 't_TYPE'.
 };
 
-template <class TYPE>
-struct RemovePointer_Imp<TYPE *const volatile> {
-     // This partial specialization of 'RemovePointer_Imp', for when the
-     // (template parameter) 'TYPE' is a 'const volatile'-qualified pointer
-     // type, provides an alias 'Type' that refers to the type pointed to by
-     // 'TYPE'.  Note that this is specifically for 'const volatile'-qualified
-     // pointers, and not for pointers-to-'const volatile'-type.
+template <class t_TYPE>
+struct RemovePointer_Imp<t_TYPE *const volatile> {
+    // This partial specialization of 'RemovePointer_Imp', for when the
+    // (template parameter) 't_TYPE' is a 'const volatile'-qualified pointer
+    // type, provides an alias 'Type' that refers to the type pointed to by
+    // 't_TYPE'.  Note that this is specifically for 'const volatile'-qualified
+    // pointers, and not for pointers-to-'const volatile'-type.
 
     // PUBLIC TYPES
-    typedef TYPE Type;
+    typedef t_TYPE Type;
         // This 'typedef' is an alias to the type pointed to by the (template
-        // parameter) 'TYPE'.
+        // parameter) 't_TYPE'.
 };
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-template <class TYPE, bool isFunctionPtr>
-struct RemovePointer_Aix : RemovePointer_Imp<TYPE> {
+template <class t_TYPE, bool isFunctionPtr>
+struct RemovePointer_Aix : RemovePointer_Imp<t_TYPE> {
     // The implementation of the 'RemovePointer_Imp' for the AIX xlC 11
     // compiler uses the generic mechanism for non-function types, but see
     // below for a specialization for pointer-to-function types.
 };
 
-template <class TYPE>
-struct RemovePointer_Aix<TYPE, true> {
+template <class t_TYPE>
+struct RemovePointer_Aix<t_TYPE, true> {
     // The implementation of the 'RemovePointer_Imp' for the AIX xlC 11
-    // compiler when 'TYPE' is a pointer-to-function.  xlC 11 has a bug
-    // specializing on 'TYPE*' where 'TYPE' is was deduced from the address of
-    // a function with default arguments. To workaround the bug, this
-    // specialization uses 'FunctionPointerTraits' to obtain the function
-    // type by somewhat more complicated means.
+    // compiler when 't_TYPE' is a pointer-to-function.  xlC 11 has a bug
+    // specializing on 't_TYPE*' where 't_TYPE' is was deduced from the address
+    // of a function with default arguments. To workaround the bug, this
+    // specialization uses 'FunctionPointerTraits' to obtain the function type
+    // by somewhat more complicated means.
 
-    typedef typename FunctionPointerTraits<TYPE>::FuncType Type;
+    typedef typename FunctionPointerTraits<t_TYPE>::FuncType Type;
 };
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-template <class TYPE, bool isFunctionPtr = IsFunctionPointer<TYPE>::VALUE>
-struct RemovePointer_Msvc : RemovePointer_Imp<TYPE> {
+template <class t_TYPE, bool isFunctionPtr = IsFunctionPointer<t_TYPE>::VALUE>
+struct RemovePointer_Msvc : RemovePointer_Imp<t_TYPE> {
     // The implementation of the 'RemovePointer_Imp' for the Microsoft Visual
     // C++ compiler which has a bug matching a 'T * const' template parameter
     // with a cv-qualified function pointer type.  To workaround the bug, we
-    // provide additional partial specializations predicated on 'TYPE' being a
-    // function pointer type to first strip the cv-qualifier, and then delegate
-    // to the regular 'RemovePointer_Imp'.  This yields the correct result
-    // withough accidentally stripping the cv-qualifier from non-pointer types.
+    // provide additional partial specializations predicated on 't_TYPE' being
+    // a function pointer type to first strip the cv-qualifier, and then
+    // delegate to the regular 'RemovePointer_Imp'.  This yields the correct
+    // result withough accidentally stripping the cv-qualifier from non-pointer
+    // types.
 };
 
-template <class TYPE>
-struct RemovePointer_Msvc<TYPE const, true>
-     : RemovePointer_Imp<TYPE> {
+template <class t_TYPE>
+struct RemovePointer_Msvc<t_TYPE const, true> : RemovePointer_Imp<t_TYPE> {
 };
 
-template <class TYPE>
-struct RemovePointer_Msvc<TYPE volatile, true>
-     : RemovePointer_Imp<TYPE> {
+template <class t_TYPE>
+struct RemovePointer_Msvc<t_TYPE volatile, true> : RemovePointer_Imp<t_TYPE> {
 };
 
-template <class TYPE>
-struct RemovePointer_Msvc<TYPE const volatile, true>
-     : RemovePointer_Imp<TYPE> {
+template <class t_TYPE>
+struct RemovePointer_Msvc<t_TYPE const volatile, true>
+: RemovePointer_Imp<t_TYPE> {
 };
 #endif
 
@@ -201,24 +200,26 @@ namespace bsl {
                          // struct remove_pointer
                          // =====================
 
-template <class TYPE>
+template <class t_TYPE>
 struct remove_pointer {
     // This 'struct' template implements the 'remove_pointer' meta-function
     // defined in the C++11 standard [meta.trans.ptr], providing an alias,
-    // 'type', that returns the result.  If the (template parameter) 'TYPE' is
-    // a (possibly cv-qualified) pointer type, then 'type' is an alias to the
-    // type pointed to by 'TYPE'; otherwise, 'type' is an alias to 'TYPE'.
+    // 'type', that returns the result.  If the (template parameter) 't_TYPE'
+    // is a (possibly cv-qualified) pointer type, then 'type' is an alias to
+    // the type pointed to by 't_TYPE'; otherwise, 'type' is an alias to
+    // 't_TYPE'.
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-    typedef typename BloombergLP::bslmf::RemovePointer_Aix<TYPE,
-                BloombergLP::bslmf::IsFunctionPointer<TYPE>::VALUE>::Type type;
+    typedef typename BloombergLP::bslmf::RemovePointer_Aix<
+        t_TYPE,
+        BloombergLP::bslmf::IsFunctionPointer<t_TYPE>::VALUE>::Type type;
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
-    typedef typename BloombergLP::bslmf::RemovePointer_Msvc<TYPE>::Type type;
+    typedef typename BloombergLP::bslmf::RemovePointer_Msvc<t_TYPE>::Type type;
 #else
-    typedef typename BloombergLP::bslmf::RemovePointer_Imp<TYPE>::Type type;
+    typedef typename BloombergLP::bslmf::RemovePointer_Imp<t_TYPE>::Type type;
         // This 'typedef' is an alias to the type pointed to by the (template
-        // parameter) 'TYPE' if 'TYPE' is a (possibly cv-qualified) pointer
-        // type; otherwise, 'type' is an alias to 'TYPE'.
+        // parameter) 't_TYPE' if 't_TYPE' is a (possibly cv-qualified) pointer
+        // type; otherwise, 'type' is an alias to 't_TYPE'.
 
 #endif
 };
@@ -226,8 +227,8 @@ struct remove_pointer {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using remove_pointer_t = typename remove_pointer<TYPE>::type;
+template <class t_TYPE>
+using remove_pointer_t = typename remove_pointer<t_TYPE>::type;
     // 'remove_pointer_t' is an alias to the return type of the
     // 'bsl::remove_pointer' meta-function.  Note, that the 'remove_pointer_t'
     // avoids the '::type' suffix and 'typename' prefix when we want to use the

@@ -34,13 +34,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <class TYPE>
+template <class t_TYPE>
 struct HasPointerSemantics
-    : bsl::integral_constant<bool,
-                             bsl::is_pointer<TYPE>::value
-                             || DetectNestedTrait<TYPE,
-                                                  HasPointerSemantics>::value>
-{};
+: bsl::integral_constant<
+      bool,
+      bsl::is_pointer<t_TYPE>::value ||
+          DetectNestedTrait<t_TYPE, HasPointerSemantics>::value> {
+};
 
 }  // close package namespace
 }  // close enterprise namespace

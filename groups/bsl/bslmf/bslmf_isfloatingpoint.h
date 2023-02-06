@@ -81,59 +81,61 @@ namespace bsl {
                          // struct is_floating_point
                          // ========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_floating_point : bsl::false_type {
     // This 'struct' template implements the 'is_floating_point' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 'TYPE' is a floating-point type.  This 'struct'
-    // derives from 'bsl::true_type' if the 'TYPE' is a floating-point type,
+    // (template parameter) 't_TYPE' is a floating-point type.  This 'struct'
+    // derives from 'bsl::true_type' if the 't_TYPE' is a floating-point type,
     // and 'bsl::false_type' otherwise.
 };
 
 template <>
 struct is_floating_point<float> : bsl::true_type {
-     // This explicit specialization of 'is_floating_point', for when the
-     // (template parameter) 'TYPE' is 'float', derives from 'bsl::true_type'.
+    // This explicit specialization of 'is_floating_point', for when the
+    // (template parameter) 't_TYPE' is 'float', derives from 'bsl::true_type'.
 };
 
 template <>
 struct is_floating_point<double> : bsl::true_type {
-     // This explicit specialization of 'is_floating_point', for when the
-     // (template parameter) 'TYPE' is 'double', derives from 'bsl::true_type'.
+    // This explicit specialization of 'is_floating_point', for when the
+    // (template parameter) 't_TYPE' is 'double', derives from
+    // 'bsl::true_type'.
 };
 
 template <>
 struct is_floating_point<long double> : bsl::true_type {
-     // This explicit specialization of 'is_floating_point', for when the
-     // (template parameter) 'TYPE' is 'long double', derives from
-     // 'bsl::true_type'.
+    // This explicit specialization of 'is_floating_point', for when the
+    // (template parameter) 't_TYPE' is 'long double', derives from
+    // 'bsl::true_type'.
 };
 
-template <class TYPE>
-struct is_floating_point<const TYPE> : is_floating_point<TYPE>::type {
-     // This partial specialization of 'is_floating_point', for when the
-     // (template parameter) 'TYPE' is 'const'-qualified delegates to the
-     // non-cv-qualified primary template.
+template <class t_TYPE>
+struct is_floating_point<const t_TYPE> : is_floating_point<t_TYPE>::type {
+    // This partial specialization of 'is_floating_point', for when the
+    // (template parameter) 't_TYPE' is 'const'-qualified delegates to the
+    // non-cv-qualified primary template.
 };
 
-template <class TYPE>
-struct is_floating_point<volatile TYPE> : is_floating_point<TYPE>::type {
-     // This partial specialization of 'is_floating_point', for when the
-     // (template parameter) 'TYPE' is 'volatile'-qualified delegates to the
-     // non-cv-qualified primary template.
+template <class t_TYPE>
+struct is_floating_point<volatile t_TYPE> : is_floating_point<t_TYPE>::type {
+    // This partial specialization of 'is_floating_point', for when the
+    // (template parameter) 't_TYPE' is 'volatile'-qualified delegates to the
+    // non-cv-qualified primary template.
 };
 
-template <class TYPE>
-struct is_floating_point<const volatile TYPE> : is_floating_point<TYPE>::type {
-     // This partial specialization of 'is_floating_point', for when the
-     // (template parameter) 'TYPE' is 'const volatile'-qualified delegates to
-     // the non-cv-qualified primary template.
+template <class t_TYPE>
+struct is_floating_point<const volatile t_TYPE>
+: is_floating_point<t_TYPE>::type {
+    // This partial specialization of 'is_floating_point', for when the
+    // (template parameter) 't_TYPE' is 'const volatile'-qualified delegates to
+    // the non-cv-qualified primary template.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_floating_point_v = is_floating_point<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_floating_point_v =
+                                              is_floating_point<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_floating_point' meta-function.
 #endif

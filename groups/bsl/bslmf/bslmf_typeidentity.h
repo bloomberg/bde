@@ -18,12 +18,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a trivial template metafunction class,
 // 'bsl::type_identity' that takes one type template argument and produces the
-// argument type as its result; i.e., 'bsl::type_identity<TYPE>::type' is
-// simply an alias for 'TYPE'.  This metafunction is used in situations where a
-// no-op metafunction is desired or where template type deduction should be
+// argument type as its result; i.e., 'bsl::type_identity<t_TYPE>::type' is
+// simply an alias for 't_TYPE'.  This metafunction is used in situations where
+// a no-op metafunction is desired or where template type deduction should be
 // suppressed.  This component also provides, for C++11 and later, an alias,
-// 'bsl::type_identity_t' such that 'bsl::type_identity_t<TYPE>' is short hand
-// for 'typename bsl::type_identity<TYPE>::type'.
+// 'bsl::type_identity_t' such that 'bsl::type_identity_t<t_TYPE>' is short
+// hand for 'typename bsl::type_identity<t_TYPE>::type'.
 //
 // The templates in this component have identical functionality to the standard
 // templates, 'std::type_identity' and 'std::type_identity_t' defined in the
@@ -52,8 +52,8 @@ BSLS_IDENT("$Id: $")
 // Next, we'll define 'implicitCastNAIVE', a naive and insufficient attempt at
 // defining 'implicitCast':
 //..
-//  template <class TYPE>
-//  TYPE implicitCastNAIVE(TYPE arg)
+//  template <class t_TYPE>
+//  t_TYPE implicitCastNAIVE(t_TYPE arg)
 //  {
 //      return arg;
 //  }
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // does, fail to compile because 'const char*' is not implicitly convertible to
 // 'TestType'.  In the third invocation, we forgot the '<TestType>' template
 // parameter.  Surprisingly (for the user), the code compiles anyway because
-// 'implicitCastNAIVE' *deduced* 'TYPE' to be 'const char*' and returns its
+// 'implicitCastNAIVE' *deduced* 't_TYPE' to be 'const char*' and returns its
 // argument unmodified, i.e., doing no casting whatsoever:
 //..
 //  TestType v1(implicitCastNAIVE<TestType>(5));      // OK
@@ -73,8 +73,8 @@ BSLS_IDENT("$Id: $")
 // Now, we implement 'implicitCast' correctly, using 'bsl::type_identity' to
 // prevent implicit template-argument deduction:
 //..
-//  template <class TYPE>
-//  TYPE implicitCast(typename bsl::type_identity<TYPE>::type arg)
+//  template <class t_TYPE>
+//  t_TYPE implicitCast(typename bsl::type_identity<t_TYPE>::type arg)
 //  {
 //      return arg;
 //  }
@@ -83,16 +83,16 @@ BSLS_IDENT("$Id: $")
 // before, the first invocation below correctly casts an 'int' to 'TestType'
 // and second invocation correctly fails to compile.  Unlike the
 // 'implicitCastNAIVE' example, however, the third invocation correctly fails
-// to compile because 'TYPE' is not deduceable for a parameter of type
-// 'bsl::type_identity<TYPE>::type'.
+// to compile because 't_TYPE' is not deduceable for a parameter of type
+// 'bsl::type_identity<t_TYPE>::type'.
 //..
 //  TestType v4(implicitCast<TestType>(5));      // OK
 //  TestType v5(implicitCast<TestType>("bye"));  // Fails correctly.
 //  TestType v6(implicitCast("hello"));          // Fails correctly.
 //..
-// Note that 'typename bsl::type_identity<TYPE>::type' can be replaced by the
-// more concise 'bsl::type_identity_t<TYPE>' (compatible with C++11 and later)
-// or 'BSLMF_TYPEIDENTITY_T(TYPE)' (compatible with all C++ versions).
+// Note that 'typename bsl::type_identity<t_TYPE>::type' can be replaced by the
+// more concise 'bsl::type_identity_t<t_TYPE>' (compatible with C++11 and
+// later) or 'BSLMF_TYPEIDENTITY_T(t_TYPE)' (compatible with all C++ versions).
 //
 ///Example 2: preventing ambiguous argument deduction in function templates
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -155,12 +155,12 @@ namespace bsl {
                     // class template type_identity
                     // ============================
 
-template <class TYPE>
+template <class t_TYPE>
 struct type_identity {
-    // Metafunction returning 'TYPE' unchanged.
+    // Metafunction returning 't_TYPE' unchanged.
 
     // TYPES
-    typedef TYPE type;
+    typedef t_TYPE type;
 };
 
                     // ==============================
@@ -169,10 +169,10 @@ struct type_identity {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-template <class TYPE>
-using type_identity_t = typename type_identity<TYPE>::type;
-    // Metafunction returning 'TYPE' unchanged.  Shorthand alias for
-    // 'type_identity<TYPE>::type'.
+template <class t_TYPE>
+using type_identity_t = typename type_identity<t_TYPE>::type;
+    // Metafunction returning 't_TYPE' unchanged.  Shorthand alias for
+    // 'type_identity<t_TYPE>::type'.
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 

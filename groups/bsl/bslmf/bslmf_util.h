@@ -19,8 +19,8 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // The function 'forward' emulates the C++ standard utility function
 // 'std::forward' with the addition that on compilers that don't support
-// r-value references (i.e., C++03) a 'bslmf::MovableRef<T>' is forwarded
-// as a 'bslmf::MovableRef<T>'.  This operation is typically used via
+// r-value references (i.e., C++03) a 'bslmf::MovableRef<t_T>' is forwarded as
+// a 'bslmf::MovableRef<t_T>'.  This operation is typically used via
 // 'BSLS_COMPILERFEATURES_FORWARD' (along with
 // 'BSLS_COMPILERFEATURES_FORWARD_REF') when forwarding arguments in a generic
 // context.  See {Usage}.
@@ -29,11 +29,11 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------
 // The function 'forwardAsReference', like 'forward', emulates the C++ standard
 // utility function 'std::forward' with the difference that on compilers that
-// don't support r-value references (C++03) a 'bslmf::MovableRef<T>' is
-// forwarded as 'const T&' (instead of 'bslmf::MovableRef<T>').  This operation
-// is intended to be used when forwarding a 'MovableRef<T>' where that
-// 'MovableRef' is being supplied to a function that does not support 'move'
-// emulation, but will support true C++11 r-value references (e.g.,
+// don't support r-value references (C++03) a 'bslmf::MovableRef<t_T>' is
+// forwarded as 'const t_T&' (instead of 'bslmf::MovableRef<t_T>').  This
+// operation is intended to be used when forwarding a 'MovableRef<t_T>' where
+// that 'MovableRef' is being supplied to a function that does not support
+// 'move' emulation, but will support true C++11 r-value references (e.g.,
 // 'bdlf::BindUtil::bind').
 //
 ///'bslmf::Util::moveIfSupported'
@@ -144,77 +144,70 @@ struct Util {
 
     // CLASS METHODS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&  t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&& t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static t_TYPE&& forward(
+        typename bsl::remove_reference<t_TYPE>::type& t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static t_TYPE&& forward(
+       typename bsl::remove_reference<t_TYPE>::type&& t) BSLS_KEYWORD_NOEXCEPT;
 #else
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static const TYPE& forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT;
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static MovableRef<TYPE> forward(MovableRef<TYPE> t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static const t_TYPE& forward(
+                                        const t_TYPE& t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static MovableRef<t_TYPE> forward(
+                                   MovableRef<t_TYPE> t) BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Correctly forward the specified 't' argument based on the current
         // compilation environment.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static typename bsl::add_rvalue_reference<TYPE>::type declval()
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static
+        typename bsl::add_rvalue_reference<t_TYPE>::type
+        declval() BSLS_KEYWORD_NOEXCEPT;
 #else
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static typename bsl::add_lvalue_reference<TYPE>::type declval()
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static
+        typename bsl::add_lvalue_reference<t_TYPE>::type
+        declval() BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // This function has no implementation.  It exists to allow for the
         // appearance of a temporary object of the specified type that can be
         // used in unevaluated contexts.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static TYPE&& forwardAsReference(
-        typename bsl::remove_reference<TYPE>::type&  t) BSLS_KEYWORD_NOEXCEPT;
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static TYPE&& forwardAsReference(
-        typename bsl::remove_reference<TYPE>::type&& t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static t_TYPE&& forwardAsReference(
+        typename bsl::remove_reference<t_TYPE>::type& t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static t_TYPE&& forwardAsReference(
+       typename bsl::remove_reference<t_TYPE>::type&& t) BSLS_KEYWORD_NOEXCEPT;
 #else
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static const TYPE& forwardAsReference(
-                                         const TYPE& t) BSLS_KEYWORD_NOEXCEPT;
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static const TYPE& forwardAsReference(
-                                    MovableRef<TYPE> t) BSLS_KEYWORD_NOEXCEPT;
-#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static const t_TYPE& forwardAsReference(
+                                        const t_TYPE& t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static const t_TYPE& forwardAsReference(
+                                   MovableRef<t_TYPE> t) BSLS_KEYWORD_NOEXCEPT;
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Correctly forward the specified 't' argument as a reference type
         // based on the current compilation environment.  Note that this
         // function differs from 'forward' in that when using a C++03 compiler,
-        // 'MovableRef<T>' is forwarded as 'const T&' (rather than
-        // 'MovableRef<T>'), which is important when forwarding to a facility
+        // 'MovableRef<t_T>' is forwarded as 'const t_T&' (rather than
+        // 'MovableRef<t_T>'), which is important when forwarding to a facility
         // (e.g., 'bdlf::BindUtil::bind') which does not support
         // 'bslmf::MovableRef'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static typename bsl::remove_reference<TYPE>::type&& moveIfSupported(
-                                               TYPE&& t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static
+        typename bsl::remove_reference<t_TYPE>::type&&
+        moveIfSupported(t_TYPE&& t) BSLS_KEYWORD_NOEXCEPT;
 #else
-    template <class TYPE>
-    BSLS_KEYWORD_CONSTEXPR
-    static typename bsl::remove_reference<TYPE>::type& moveIfSupported(
-                                                TYPE& t) BSLS_KEYWORD_NOEXCEPT;
+    template <class t_TYPE>
+    BSLS_KEYWORD_CONSTEXPR static typename bsl::remove_reference<t_TYPE>::type&
+    moveIfSupported(t_TYPE& t) BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Return an r-value reference to the specified 't' argument.  If
         // r-value references are not supported, return an l-value reference.
@@ -226,102 +219,92 @@ struct Util {
 
 // CLASS METHODS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+t_TYPE&& Util::forward(
+         typename bsl::remove_reference<t_TYPE>::type& t) BSLS_KEYWORD_NOEXCEPT
 {
-    return static_cast<TYPE&&>(t);
+    return static_cast<t_TYPE&&>(t);
 }
 
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type&& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+t_TYPE&& Util::forward(
+        typename bsl::remove_reference<t_TYPE>::type&& t) BSLS_KEYWORD_NOEXCEPT
 {
-    return static_cast<TYPE&&>(t);
+    return static_cast<t_TYPE&&>(t);
 }
 
 #else
 
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-const TYPE& Util::forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+const t_TYPE& Util::forward(const t_TYPE& t) BSLS_KEYWORD_NOEXCEPT
 {
     return t;
 }
 
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-bslmf::MovableRef<TYPE> Util::forward(bslmf::MovableRef<TYPE> t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+bslmf::MovableRef<t_TYPE> Util::forward(
+                             bslmf::MovableRef<t_TYPE> t) BSLS_KEYWORD_NOEXCEPT
 {
     return t;
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-TYPE&& Util::forwardAsReference(typename bsl::remove_reference<TYPE>::type& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+t_TYPE&& Util::forwardAsReference(
+         typename bsl::remove_reference<t_TYPE>::type& t) BSLS_KEYWORD_NOEXCEPT
 {
-    return static_cast<TYPE&&>(t);
+    return static_cast<t_TYPE&&>(t);
 }
 
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-TYPE&& Util::forwardAsReference(typename bsl::remove_reference<TYPE>::type&& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+t_TYPE&& Util::forwardAsReference(
+        typename bsl::remove_reference<t_TYPE>::type&& t) BSLS_KEYWORD_NOEXCEPT
 {
-    return static_cast<TYPE&&>(t);
+    return static_cast<t_TYPE&&>(t);
 }
 
 #else
 
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-const TYPE& Util::forwardAsReference(const TYPE& t) BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+const t_TYPE& Util::forwardAsReference(const t_TYPE& t) BSLS_KEYWORD_NOEXCEPT
 {
     return t;
 }
 
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
-inline
-const TYPE& Util::forwardAsReference(bslmf::MovableRef<TYPE> t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+const t_TYPE& Util::forwardAsReference(
+                             bslmf::MovableRef<t_TYPE> t) BSLS_KEYWORD_NOEXCEPT
 {
     return bslmf::MovableRefUtil::access(t);
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class T>
-BSLS_KEYWORD_CONSTEXPR
-inline
-typename bsl::remove_reference<T>::type&& Util::moveIfSupported(
-                                                   T&& t) BSLS_KEYWORD_NOEXCEPT
+template <class t_T>
+BSLS_KEYWORD_CONSTEXPR inline
+typename bsl::remove_reference<t_T>::type&& Util::moveIfSupported(
+                                                 t_T&& t) BSLS_KEYWORD_NOEXCEPT
 {
-    return static_cast<typename bsl::remove_reference<T>::type&&>(t);
+    return static_cast<typename bsl::remove_reference<t_T>::type&&>(t);
 }
 
 #else
 
-template <class T>
-BSLS_KEYWORD_CONSTEXPR
-inline
-typename bsl::remove_reference<T>::type& Util::moveIfSupported(
-                                                    T& t) BSLS_KEYWORD_NOEXCEPT
+template <class t_T>
+BSLS_KEYWORD_CONSTEXPR inline
+typename bsl::remove_reference<t_T>::type& Util::moveIfSupported(
+                                                  t_T& t) BSLS_KEYWORD_NOEXCEPT
 {
-    return static_cast<typename bsl::remove_reference<T>::type&>(t);
+    return static_cast<typename bsl::remove_reference<t_T>::type&>(t);
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 

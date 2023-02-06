@@ -29,13 +29,13 @@ BSLS_IDENT("$Id: $")
 // In order to deduce the types of 'func1' and 'd_int', we will use
 // 'bslmf::MemberPointerTraits'.
 //..
-//  template <class MEMBER, class CLASS, class TYPE>
-//  void checkMemberPointer(TYPE pointer)
+//  template <class MEMBER, class CLASS, class t_TYPE>
+//  void checkMemberPointer(t_TYPE pointer)
 //  {
 //      (void) pointer;
-//      typedef typename bslmf::MemberPointerTraits<TYPE>::MemberType
+//      typedef typename bslmf::MemberPointerTraits<t_TYPE>::MemberType
 //          MemberType;
-//      typedef typename bslmf::MemberPointerTraits<TYPE>::ClassType
+//      typedef typename bslmf::MemberPointerTraits<t_TYPE>::ClassType
 //          ClassType;
 //      assert(1 == (bsl::is_same<MemberType, MEMBER>::value));
 //      assert(1 == (bsl::is_same<ClassType, CLASS>::value));
@@ -57,22 +57,23 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <class TYPE>
+template <class t_TYPE>
 struct MemberPointerTraits_Imp;
 
                          // =========================
                          // class MemberPointerTraits
                          // =========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct MemberPointerTraits
-: public MemberPointerTraits_Imp<typename bsl::remove_cv<TYPE>::type> {
+: public MemberPointerTraits_Imp<typename bsl::remove_cv<t_TYPE>::type> {
     // This utility 'struct' template provides the following nested typedefs:
-    //: 'ClassType':  The type of the class for which the specified 'TYPE' is a
-    //:               pointer to member object.
+    //: 'ClassType':  The type of the class for which the specified 't_TYPE' is
+    //:               a pointer to member object.
     //: 'MemberType': The type of the member object of the class for which the
-    //:               specified 'TYPE' is a pointer to member object.
-    // These typedefs will only be defined if 'TYPE' is a
+    //:               specified 't_TYPE' is a pointer to member object.
+    // These typedefs will only be defined if 't_TYPE' is a
+
     // pointer-to-member-object type.  The primary (unspecialized)
     // MemberPointerTraits_Imp template is defined and empty.
 };
@@ -81,19 +82,19 @@ struct MemberPointerTraits
                        // class MemberPointerTraits_Imp
                        // =============================
 
-template <class TYPE>
+template <class t_TYPE>
 struct MemberPointerTraits_Imp {
     // Empty
 };
 
-template <class MEMBER_TYPE, class CLASS_TYPE>
-struct MemberPointerTraits_Imp<MEMBER_TYPE CLASS_TYPE::*> {
+template <class t_MEMBER_TYPE, class t_CLASS_TYPE>
+struct MemberPointerTraits_Imp<t_MEMBER_TYPE t_CLASS_TYPE::*> {
     // TYPES
-    typedef CLASS_TYPE ClassType;
+    typedef t_CLASS_TYPE ClassType;
         // 'ClassType' is an alias to the type of the class for which the
-        // specified 'TYPE' is a pointer to member object.
+        // specified 't_TYPE' is a pointer to member object.
 
-    typedef MEMBER_TYPE MemberType;
+    typedef t_MEMBER_TYPE MemberType;
         // 'MemberType' is an alias to the type of object to which the member
         // object points.
 };

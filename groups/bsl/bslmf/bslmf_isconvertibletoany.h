@@ -29,9 +29,9 @@ BSLS_IDENT("$Id: $")
 // First, we define a type with the template conversion operator:
 //..
 //  struct TypeWithTemplateConversion {
-//      template <class TYPE>
-//      operator TYPE() {
-//          return TYPE();
+//      template <class t_TYPE>
+//      operator t_TYPE() {
+//          return t_TYPE();
 //      }
 //  };
 //..
@@ -54,11 +54,11 @@ namespace bslmf {
                           // struct IsConvertibleToAny
                           // =========================
 
-template <class TYPE>
+template <class t_TYPE>
 class IsConvertibleToAny_Imp {
     // This class template implements a component-private meta-function to
-    // determine if the (template parameter) 'TYPE' is convertible to any other
-    // type.
+    // determine if the (template parameter) 't_TYPE' is convertible to any
+    // other type.
 
     struct UniqueType {
         // A type convertible to this private type must have a template
@@ -66,16 +66,16 @@ class IsConvertibleToAny_Imp {
     };
 
   public:
-    typedef typename bsl::is_convertible<TYPE, UniqueType>::type Type;
-        // 'Type' is defined as 'bsl::true_type' if 'TYPE' is convertible to
+    typedef typename bsl::is_convertible<t_TYPE, UniqueType>::type Type;
+        // 'Type' is defined as 'bsl::true_type' if 't_TYPE' is convertible to
         // 'UniqueType' and 'bsl::false_type' otherwise.
 };
 
-template <class TYPE>
-struct IsConvertibleToAny : IsConvertibleToAny_Imp<TYPE>::Type {
+template <class t_TYPE>
+struct IsConvertibleToAny : IsConvertibleToAny_Imp<t_TYPE>::Type {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is convertible to any other type.  This
-    // 'struct' derives from 'bsl::true_type' if 'TYPE' is convertible to any
+    // (template parameter) 't_TYPE' is convertible to any other type.  This
+    // 'struct' derives from 'bsl::true_type' if 't_TYPE' is convertible to any
     // type, and 'bsl::false_type' otherwise.
 };
 

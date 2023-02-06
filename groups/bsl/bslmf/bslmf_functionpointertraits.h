@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // component for that), and some information about this function type.  The
 // meta-function 'bslmf::IsFunctionPointer' provides an enumerated 'value'
 // which can be either 1 or 0 depending on whether or not the template argument
-// 'PROTOTYPE' is a pointer to a free function or class method.  In the
+// 't_PROTOTYPE' is a pointer to a free function or class method.  In the
 // affirmative, the class 'bslmf::FunctionPointerTraits' also provides
 // information regarding the function type, such as its argument list type and
 // its return type.
@@ -91,9 +91,9 @@ struct FunctionPointerCLinkage {
                         // class FunctionPointerTraits
                         // ===========================
 
-template <class PROTOTYPE>
+template <class t_PROTOTYPE>
 struct FunctionPointerTraits {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
@@ -105,13 +105,14 @@ struct FunctionPointerTraits {
                           // class IsFunctionPointer
                           // =======================
 
-template <class PROTOTYPE>
+template <class t_PROTOTYPE>
 struct IsFunctionPointer
-: bsl::integral_constant<bool,
-                      FunctionPointerTraits<PROTOTYPE>::IS_FUNCTION_POINTER> {
-    // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
+: bsl::integral_constant<
+      bool,
+      FunctionPointerTraits<t_PROTOTYPE>::IS_FUNCTION_POINTER> {
+    // This template determines if the specified 't_PROTOTYPE' is a free (i.e.,
     // non-member) function pointer.  'value' is defined as 1 if the specified
-    // 'PROTOTYPE' is a function pointer type, and a zero value otherwise.
+    // 't_PROTOTYPE' is a function pointer type, and a zero value otherwise.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----
@@ -130,15 +131,17 @@ struct IsFunctionPointer
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
-// This pragma is not supported by older versions of Apple Clang {DRQS 169716845<GO>}
-#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN) || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
+// This pragma is not supported by older versions of Apple Clang
+// {DRQS 169716845<GO>}
+#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN)    \
+        || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...)> {
-    // Specialization for function pointers that return 'BSLMF_RETURN' and
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...)> {
+    // Specialization for function pointers that return 't_BSLMF_RETURN' and
     // accept a fixed number of arguments
 
     enum {
@@ -146,15 +149,15 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...)> {
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...)> {
-    // Specialization for function pointers that return 'BSLMF_RETURN' and
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...,...)> {
+    // Specialization for function pointers that return 't_BSLMF_RETURN' and
     // accept variable (C-style varargs) number of arguments
 
     enum {
@@ -162,9 +165,9 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...)> {
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
@@ -181,55 +184,55 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...)> {
 // instantiate more traits than necessary when testing pointer traits of
 // cv-qualified types that are not function pointers?
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE const>
-     : FunctionPointerTraits<PROTOTYPE> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE const>
+: FunctionPointerTraits<t_PROTOTYPE> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE volatile>
-     : FunctionPointerTraits<PROTOTYPE> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE volatile>
+: FunctionPointerTraits<t_PROTOTYPE> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE const volatile>
-     : FunctionPointerTraits<PROTOTYPE> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE const volatile>
+: FunctionPointerTraits<t_PROTOTYPE> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 #else
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE * const>
-     : FunctionPointerTraits<PROTOTYPE *> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE *const>
+: FunctionPointerTraits<t_PROTOTYPE *> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE * volatile>
-     : FunctionPointerTraits<PROTOTYPE *> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE *volatile>
+: FunctionPointerTraits<t_PROTOTYPE *> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE * const volatile>
-     : FunctionPointerTraits<PROTOTYPE *> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE *const volatile>
+: FunctionPointerTraits<t_PROTOTYPE *> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
@@ -244,35 +247,36 @@ struct FunctionPointerTraits<PROTOTYPE * const volatile>
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...) noexcept> {
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...) noexcept> {
     // Specialization for 'noexcept' function pointers that return
-    // 'BSLMF_RETURN' and accept a fixed number of arguments
+    // 't_BSLMF_RETURN' and accept a fixed number of arguments
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 1
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...) noexcept;
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...) noexcept;
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...) noexcept> {
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...,...) noexcept> {
     // Specialization for 'noexcept' function pointers that return
-    // 'BSLMF_RETURN' and accept variable (C-style varargs) number of arguments
+    // 't_BSLMF_RETURN' and accept variable (C-style varargs) number of
+    // arguments
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 1
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...,...) noexcept;
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...,...) noexcept;
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 

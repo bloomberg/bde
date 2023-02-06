@@ -30,24 +30,24 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Pass C-array as a parameter to a function with variadic template
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to initialize a C-Array of known size 'N' with data read
+// Suppose we want to initialize a C-Array of known size 't_N' with data read
 // from a data source using a library class that provides a variadic template
 // interface that loads a data of variable length into the supplied parameter
 // pack.
 //
 // First, define a class template 'DataReader',
 //..
-// template <std::size_t N>
+// template <std::size_t t_N>
 // class DataReader {
 //   public:
 //..
 // Then, implement a method that loads the specified parameter pack 'args' with
 // data read from a data source.
 //..
-//     template <class ...T>
-//     void read(T*... args) const
+//     template <class ...t_T>
+//     void read(t_T*... args) const
 //     {
-//         static_assert(sizeof...(args) == N, "");
+//         static_assert(sizeof...(args) == t_N, "");
 //         read_impl(args...);
 //     }
 //..
@@ -56,11 +56,11 @@ BSLS_IDENT("$Id: $")
 // element to 'stdout'.
 //..
 // private:
-//     template <class U, class ...T>
-//     void read_impl(U*, T*... args) const
+//     template <class U, class ...t_T>
+//     void read_impl(U*, t_T*... args) const
 //     {
 //         printf("read element #%i\n",
-//                static_cast<int>(N - 1 - sizeof...(args)));
+//                static_cast<int>(t_N - 1 - sizeof...(args)));
 //         read_impl(args...);
 //     }
 //..
@@ -76,9 +76,9 @@ BSLS_IDENT("$Id: $")
 // method of the specified 'reader' object.
 //..
 // namespace {
-// template<class R, class T, std::size_t... I>
+// template<class R, class t_T, std::size_t... I>
 // void readData(const R&  reader,
-//               T        *data,
+//               t_T      *data,
 //               bslmf::IntegerSequence<std::size_t, I...>)
 // {
 //     reader.read(&data[I]...);
@@ -87,21 +87,21 @@ BSLS_IDENT("$Id: $")
 //         //             &data[1],
 //         //             &data[2],
 //         //             ...
-//         //             &data[N-1]);
+//         //             &data[t_N-1]);
 // }
 // }
 //..
 // Now, define function template 'readData' that invokes the helper function
-// Note, that the 'bslmf::MakeIntegerSequence<std::size_t, N>' function
+// Note, that the 'bslmf::MakeIntegerSequence<std::size_t, t_N>' function
 // generates an object of an integer sequence class instantiated with a
 // template parameter pack of integers that will be expanded and used as an
 // array's indices in the helper function when calling the
-// 'Reader::read(T*...)' variadic template function.
+// 'Reader::read(t_T*...)' variadic template function.
 //..
-// template<class T, std::size_t N>
-// void readData(const DataReader<N>& reader, T *data)
+// template<class t_T, std::size_t t_N>
+// void readData(const DataReader<t_N>& reader, t_T *data)
 // {
-//     readData(reader, data, bslmf::MakeIntegerSequence<std::size_t, N>());
+//     readData(reader, data, bslmf::MakeIntegerSequence<std::size_t, t_N>());
 // }
 //..
 // Finally, define a 'data' C-Array and 'reader' variables and pass them to the
@@ -139,155 +139,155 @@ namespace bslmf {
                      // private struct MakeIntegerSequence_ConcatUtil
                      // =============================================
 
-template <class S1, class S2>
+template <class t_S1, class t_S2>
 struct MakeIntegerSequence_ConcatUtil;
     // This component-private class template provides a specialization that
     // concatenates two integer sequences.  This template is not defined unless
-    // the (template parameter) types 'S1' and 'S2' are specializations of the
-    // class template 'bslmf::IntegerSequence'.
+    // the (template parameter) types 't_S1' and 't_S2' are specializations of
+    // the class template 'bslmf::IntegerSequence'.
 
-template <class T, T... I1, T... I2>
-struct MakeIntegerSequence_ConcatUtil<bslmf::IntegerSequence<T, I1...>,
-                                      bslmf::IntegerSequence<T, I2...>>
+template <class t_T, t_T... t_I1, t_T... t_I2>
+struct MakeIntegerSequence_ConcatUtil<bslmf::IntegerSequence<t_T, t_I1...>,
+                                      bslmf::IntegerSequence<t_T, t_I2...> >
     // This partial specialization of 'bslmf::MakeIntegerSequence_ConcatUtil'
-    // appends all indices from the specified 'I2' sequence at the end of the
-    // indices of the specified 'I1' sequence.
+    // appends all indices from the specified 't_I2' sequence at the end of the
+    // indices of the specified 't_I1' sequence.
 {
-    using type = bslmf::IntegerSequence<T, I1..., (sizeof...(I1) + I2)...>;
+    using type =
+             bslmf::IntegerSequence<t_T, t_I1..., (sizeof...(t_I1) + t_I2)...>;
         // 'type' is an alias to an integer sequence type that represents the
-        // result of concatenation of two integer sequences 'I1' and 'I2'.
+        // result of concatenation of two integer sequences 't_I1' and 't_I2'.
         //
-        // Consider 'I1 = {0, 1, 2}' and 'I2 = {0, 1, 2}', then the result of
-        // concatenation is 'type = {0, 1, 2, 3 + 0, 3 + 1, 3 + 2}'. That is
+        // Consider 't_I1 = {0, 1, 2}' and 't_I2 = {0, 1, 2}', then the result
+        // of concatenation is 'type = {0, 1, 2, 3 + 0, 3 + 1, 3 + 2}'. That is
         // 'type = {0, 1, 2, 3, 4, 5}'.
 };
 
-template <class S1, class S2>
+template <class t_S1, class t_S2>
 using MakeIntegerSequence_ConcatUtil_t =
-                         typename MakeIntegerSequence_ConcatUtil<S1, S2>::type;
+                     typename MakeIntegerSequence_ConcatUtil<t_S1, t_S2>::type;
     // 'bslmf::MakeIntegerSequence_ConcatUtil_t' is an alias to the result type
     // of the 'bslmf::MakeIntegerSequence_ConcatUtil' meta-function.
 
-                     // =======================================
-                     // private struct MakeIntegerSequence_Impl
-                     // =======================================
+                  // =======================================
+                  // private struct MakeIntegerSequence_Impl
+                  // =======================================
 
-template <class T, class N>
+template <class t_T, class t_N>
 struct MakeIntegerSequence_Impl
     // This is recursive meta-function that generates a sequence of increasing
-    // integer values in a range of [0..N::value) having the specified length
-    // 'N::value'.
+    // integer values in a range of [0..t_N::value) having the specified length
+    // 't_N::value'.
 {
-    using FirstPart  = bsl::integral_constant<std::size_t, N::value/2>;
+    using FirstPart = bsl::integral_constant<std::size_t, t_N::value / 2>;
     using SecondPart =
-                    bsl::integral_constant<std::size_t, N::value - N::value/2>;
+              bsl::integral_constant<std::size_t, t_N::value - t_N::value / 2>;
 
     using type = MakeIntegerSequence_ConcatUtil_t<
-                       typename MakeIntegerSequence_Impl<T, FirstPart >::type,
-                       typename MakeIntegerSequence_Impl<T, SecondPart>::type>;
+        typename MakeIntegerSequence_Impl<t_T, FirstPart>::type,
+        typename MakeIntegerSequence_Impl<t_T, SecondPart>::type>;
         // 'type' is an alias to the result of the
         // 'bslmf::MakeIntegerSequence_ConcatUtil_t' meta-function instantiated
-        // with two integer sequences of two lengths 'N/2' and 'N - N/2', that
-        // implies logarithmic depth of the 'bslmf::MakeIntegerSequence_Impl'
-        // meta-function instantiation.
+        // with two integer sequences of two lengths 't_N/2' and 't_N - t_N/2',
+        // that implies logarithmic depth of the
+        // 'bslmf::MakeIntegerSequence_Impl' meta-function instantiation.
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 0> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 0> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an empty integer
     // sequence.
 {
-    using type = bslmf::IntegerSequence<T>;
+    using type = bslmf::IntegerSequence<t_T>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 1> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 1> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 1.
 {
-    using type = bslmf::IntegerSequence<T, 0>;
+    using type = bslmf::IntegerSequence<t_T, 0>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 2> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 2> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 2.
 {
-    using type = bslmf::IntegerSequence<T, 0, 1>;
+    using type = bslmf::IntegerSequence<t_T, 0, 1>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 3> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 3> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 3.
 {
-    using type = bslmf::IntegerSequence<T, 0, 1, 2>;
+    using type = bslmf::IntegerSequence<t_T, 0, 1, 2>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 4> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 4> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 4.
 {
-    using type = bslmf::IntegerSequence<T, 0, 1, 2, 3>;
+    using type = bslmf::IntegerSequence<t_T, 0, 1, 2, 3>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 5> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 5> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 5.
 {
-    using type = bslmf::IntegerSequence<T, 0, 1 ,2, 3, 4>;
+    using type = bslmf::IntegerSequence<t_T, 0, 1, 2, 3, 4>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 6> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 6> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 6.
 {
-    using type = bslmf::IntegerSequence<T, 0, 1, 2, 3, 4, 5>;
+    using type = bslmf::IntegerSequence<t_T, 0, 1, 2, 3, 4, 5>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 7> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 7> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 7.
 {
-    using type = bslmf::IntegerSequence<T, 0, 1, 2, 3, 4, 5, 6>;
+    using type = bslmf::IntegerSequence<t_T, 0, 1, 2, 3, 4, 5, 6>;
 };
 
-template <class T>
-struct MakeIntegerSequence_Impl<T, bsl::integral_constant<std::size_t, 8> >
+template <class t_T>
+struct MakeIntegerSequence_Impl<t_T, bsl::integral_constant<std::size_t, 8> >
     // This partial specialization of the 'bslmf::MakeIntegerSequence_Impl'
     // meta-function is a recursion break condition for an integer sequence
     // having the length 8.
 {
-    using type = bslmf::IntegerSequence<T, 0, 1, 2, 3, 4, 5, 6, 7>;
+    using type = bslmf::IntegerSequence<t_T, 0, 1, 2, 3, 4, 5, 6, 7>;
 };
 
 // ALIASES
-template <class T, class N>
+template <class t_T, class t_N>
 using MakeIntegerSequence_Impl_t =
-                                 typename MakeIntegerSequence_Impl<T, N>::type;
+                             typename MakeIntegerSequence_Impl<t_T, t_N>::type;
     // 'bslmf::MakeIntegerSequence_Impl_t' is an alias to the result type of
     // the 'bslmf::MakeIntegerSequence_Impl' meta-function.
 
-template <class T, T N>
-using MakeIntegerSequence = BloombergLP::bslmf::MakeIntegerSequence_Impl_t<
-                                      T,
-                                      bsl::integral_constant<std::size_t, N> >;
+template <class t_T, t_T t_N>
+using MakeIntegerSequence = BloombergLP::bslmf::
+    MakeIntegerSequence_Impl_t<t_T, bsl::integral_constant<std::size_t, t_N> >;
     // 'MakeIntegerSequence' is defined to simplify creation of
     // 'bslmf::IntegerSequence' type that represents a collection of increasing
-    // integer values of the specified type 'T' in a range of [0..N) having the
-    // specified N-value length.
+    // integer values of the specified type 't_T' in a range of [0..t_N) having
+    // the specified t_N-value length.
 
 }  // close package namespace
 }  // close enterprise namespace

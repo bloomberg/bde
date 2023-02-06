@@ -51,11 +51,11 @@ BSLS_IDENT("$Id: $")
 // Suppose that we want to implement a simple 'swap' function template to
 // exchange two arbitrary values, as if defined below:
 //..
-//  template<class TYPE>
-//  void DummySwap(TYPE& a, TYPE& b)
+//  template<class t_TYPE>
+//  void DummySwap(t_TYPE& a, t_TYPE& b)
 //      // Exchange the values of the specified objects, 'a' and 'b'.
 //  {
-//      TYPE temp(a);
+//      t_TYPE temp(a);
 //      a = b;
 //      b = temp;
 //  }
@@ -65,39 +65,39 @@ BSLS_IDENT("$Id: $")
 // implementer to indicate that their class supports an optimized member-swap
 // method:
 //..
-//  template<class TYPE>
+//  template<class t_TYPE>
 //  struct HasMemberSwap : bsl::false_type {
-//      // This traits class indicates whether the (template parameter) 'TYPE'
-//      // has a public 'swap' method to exchange values.
+//      // This traits class indicates whether the (template parameter)
+//      // 't_TYPE' has a public 'swap' method to exchange values.
 //  };
 //..
 // Now, we implement a generic 'swap' function template that will invoke the
 // member swap operation for any type that specialized our trait.  The use of
 // 'bsl::enable_if' to declare the result type causes an attempt to deduce the
-// type 'TYPE' to fail unless the specified condition is 'true', and this falls
-// under the "Substitution Failure Is Not An Error" (SFINAE) clause of the C++
-// standard, so the compiler will look for a more suitable overload rather than
-// fail with an error.  Note that we provide two overloaded declarations that
-// appear to differ only in their return type, which would normally raise an
-// ambiguity error.  This works, and is in fact required, in this case as the
-// "enable-if" conditions are mutually exclusive, so that only one overload
-// will ever be present in an overload set.  Also note that the 'type'
-// 'typedef' of 'bsl::enable_if' is an alias to 'void' when the (template
-// parameter) type is unspecified and the (template parameter) condition value
-// is 'true'.
+// type 't_TYPE' to fail unless the specified condition is 'true', and this
+// falls under the "Substitution Failure Is Not An Error" (SFINAE) clause of
+// the C++ standard, so the compiler will look for a more suitable overload
+// rather than fail with an error.  Note that we provide two overloaded
+// declarations that appear to differ only in their return type, which would
+// normally raise an ambiguity error.  This works, and is in fact required, in
+// this case as the "enable-if" conditions are mutually exclusive, so that only
+// one overload will ever be present in an overload set.  Also note that the
+// 'type' 'typedef' of 'bsl::enable_if' is an alias to 'void' when the
+// (template parameter) type is unspecified and the (template parameter)
+// condition value is 'true'.
 //..
-//  template<class TYPE>
-//  typename bsl::enable_if<HasMemberSwap<TYPE>::value>::type
-//  swap(TYPE& a, TYPE& b)
+//  template<class t_TYPE>
+//  typename bsl::enable_if<HasMemberSwap<t_TYPE>::value>::type
+//  swap(t_TYPE& a, t_TYPE& b)
 //  {
 //      a.swap(b);
 //  }
 //
-//  template<class TYPE>
-//  typename bsl::enable_if< ! HasMemberSwap<TYPE>::value>::type
-//  swap(TYPE& a, TYPE& b)
+//  template<class t_TYPE>
+//  typename bsl::enable_if< ! HasMemberSwap<t_TYPE>::value>::type
+//  swap(t_TYPE& a, t_TYPE& b)
 //  {
-//      TYPE temp(a);
+//      t_TYPE temp(a);
 //      a = b;
 //      b = temp;
 //  }
@@ -106,13 +106,13 @@ BSLS_IDENT("$Id: $")
 // 'swap' operation by merely swapping the internal pointer to the array of
 // elements rather than exchanging each element:
 //..
-//  template<class TYPE>
+//  template<class t_TYPE>
 //  class MyContainer {
 //      // This is a simple container implementation for demonstration purposes
 //      // that is modeled after 'std::vector'.
 //
 //      // DATA
-//      TYPE *d_storage;
+//      t_TYPE *d_storage;
 //      size_t d_length;
 //
 //      // Copy operations are declared private and not defined.
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //      MyContainer& operator=(const MyContainer&);
 //
 //    public:
-//      MyContainer(const TYPE& value, int n);
+//      MyContainer(const t_TYPE& value, int n);
 //          // Create a 'MyContainer' object having the specified 'n' copies of
 //          // the specified 'value'.  The behavior is undefined unless
 //          // '0 <= n'.
@@ -138,7 +138,7 @@ BSLS_IDENT("$Id: $")
 //          // exceptions are thrown.
 //
 //      // ACCESSORS
-//      const TYPE& front() const;
+//      const t_TYPE& front() const;
 //          // Return a reference providing non-modifiable access to the first
 //          // element in this container.  The behavior is undefined if this
 //          // container is empty.
@@ -149,16 +149,16 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we specialize our 'HasMemberSwap' trait for this new container type.
 //..
-//  template<class TYPE>
-//  struct HasMemberSwap<MyContainer<TYPE> > : bsl::true_type {
+//  template<class t_TYPE>
+//  struct HasMemberSwap<MyContainer<t_TYPE> > : bsl::true_type {
 //  };
 //..
 // Next, we implement the methods of this class:
 //..
 //  // CREATORS
-//  template<class TYPE>
-//  MyContainer<TYPE>::MyContainer(const TYPE& value, int n)
-//  : d_storage(new TYPE[n])
+//  template<class t_TYPE>
+//  MyContainer<t_TYPE>::MyContainer(const t_TYPE& value, int n)
+//  : d_storage(new t_TYPE[n])
 //  , d_length(n)
 //  {
 //      for (int i = 0; i != n; ++i) {
@@ -166,29 +166,29 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  template<class TYPE>
-//  MyContainer<TYPE>::~MyContainer()
+//  template<class t_TYPE>
+//  MyContainer<t_TYPE>::~MyContainer()
 //  {
 //      delete[] d_storage;
 //  }
 //
 //  // MANIPULATORS
-//  template<class TYPE>
-//  void MyContainer<TYPE>::swap(MyContainer& other)
+//  template<class t_TYPE>
+//  void MyContainer<t_TYPE>::swap(MyContainer& other)
 //  {
 //      ::swap(d_storage, other.d_storage);
 //      ::swap(d_length,  other.d_length);
 //  }
 //
 //  // ACCESSORS
-//  template<class TYPE>
-//  const TYPE& MyContainer<TYPE>::front() const
+//  template<class t_TYPE>
+//  const t_TYPE& MyContainer<t_TYPE>::front() const
 //  {
 //      return d_storage[0];
 //  }
 //
-//  template<class TYPE>
-//  size_t MyContainer<TYPE>::size() const
+//  template<class t_TYPE>
+//  size_t MyContainer<t_TYPE>::size() const
 //  {
 //      return d_length;
 //  }
@@ -343,13 +343,13 @@ BSLS_IDENT("$Id: $")
 // function) to decorate, so we add an extra dummy argument using a pointer
 // type (produced from 'bsl::enable_if::type') with a default null argument:
 //..
-//  template<class TYPE>
+//  template<class t_TYPE>
 //  class MyVector {
 //      // This is a simple container implementation for demonstration purposes
 //      // that is modeled after 'std::vector'.
 //
 //      // DATA
-//      TYPE   *d_storage;
+//      t_TYPE *d_storage;
 //      size_t  d_length;
 //
 //      // NOT IMPLEMENTED
@@ -358,7 +358,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      MyVector(const TYPE& value, int n);
+//      MyVector(const t_TYPE& value, int n);
 //          // Create a 'MyVector' object having the specified 'n' copies of
 //          // the specified 'value'.  The behavior is undefined unless
 //          // '0 <= n'.
@@ -372,9 +372,9 @@ BSLS_IDENT("$Id: $")
 //          // found in the range described by the specified iterators
 //          // '[first, last)'.  The behavior is undefined unless 'first' and
 //          // 'last' refer to a sequence of values of the (template parameter)
-//          // type 'TYPE' where 'first' is at a position at or before 'last'.
-//          // Note that this function is currently defined inline to work
-//          // around an issue with the Microsoft Visual Studio compiler.
+//          // type 't_TYPE' where 'first' is at a position at or before
+//          // 'last'.  Note that this function is currently defined inline to
+//          // work around an issue with the Microsoft Visual Studio compiler.
 //
 //      {
 //          d_length = 0;
@@ -382,7 +382,7 @@ BSLS_IDENT("$Id: $")
 //               ++d_length;
 //          }
 //
-//          d_storage = new TYPE[d_length];
+//          d_storage = new t_TYPE[d_length];
 //          for (size_t i = 0; i != d_length; ++i) {
 //               d_storage[i] = *first;
 //               ++first;
@@ -394,7 +394,7 @@ BSLS_IDENT("$Id: $")
 //          // allocated memory.
 //
 //      // ACCESSORS
-//      const TYPE& operator[](int index) const;
+//      const t_TYPE& operator[](int index) const;
 //          // Return a reference providing non-modifiable access to the
 //          // element held by this container at the specified 'index'.  The
 //          // behavior is undefined unless 'index < size()'.
@@ -408,9 +408,9 @@ BSLS_IDENT("$Id: $")
 // not fundamental (such as 'int') must be passing iterators.  Now that we have
 // defined the class template, we implement its methods:
 //..
-//  template<class TYPE>
-//  MyVector<TYPE>::MyVector(const TYPE& value, int n)
-//  : d_storage(new TYPE[n])
+//  template<class t_TYPE>
+//  MyVector<t_TYPE>::MyVector(const t_TYPE& value, int n)
+//  : d_storage(new t_TYPE[n])
 //  , d_length(n)
 //  {
 //      for (int i = 0; i != n; ++i) {
@@ -418,21 +418,21 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  template<class TYPE>
-//  MyVector<TYPE>::~MyVector()
+//  template<class t_TYPE>
+//  MyVector<t_TYPE>::~MyVector()
 //  {
 //      delete[] d_storage;
 //  }
 //
 //  // ACCESSORS
-//  template<class TYPE>
-//  const TYPE& MyVector<TYPE>::operator[](int index) const
+//  template<class t_TYPE>
+//  const t_TYPE& MyVector<t_TYPE>::operator[](int index) const
 //  {
 //      return d_storage[index];
 //  }
 //
-//  template<class TYPE>
-//  size_t MyVector<TYPE>::size() const
+//  template<class t_TYPE>
+//  size_t MyVector<t_TYPE>::size() const
 //  {
 //      return d_length;
 //  }
@@ -469,37 +469,37 @@ namespace bsl {
                          // struct enable_if
                          // ================
 
-template <bool COND, class TYPE = void>
+template <bool t_COND, class t_TYPE = void>
 struct enable_if {
     // This 'struct' template implements the 'enable_if' meta-function defined
     // in the C++11 standard [meta.trans.ptr].  This 'struct' template provides
-    // a 'typedef' 'type' that is an alias to the (template parameter) 'TYPE'
-    // if the (template parameter) 'COND' is 'true'; otherwise, 'type' is not
-    // provided.  If 'TYPE' is not specified, it is set to 'void'.  Note that
-    // this generic default template provides 'type' for when 'COND' is 'true';
-    // a template specialization is provided (below) that omits 'type' for when
-    // 'COND' is 'false'.
+    // a 'typedef' 'type' that is an alias to the (template parameter) 't_TYPE'
+    // if the (template parameter) 't_COND' is 'true'; otherwise, 'type' is not
+    // provided.  If 't_TYPE' is not specified, it is set to 'void'.  Note that
+    // this generic default template provides 'type' for when 't_COND' is
+    // 'true'; a template specialization is provided (below) that omits 'type'
+    // for when 't_COND' is 'false'.
 
-    typedef TYPE type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+    typedef t_TYPE type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
-                         // =============================
-                         // struct enable_if<false, TYPE>
-                         // =============================
+                      // ===============================
+                      // struct enable_if<false, t_TYPE>
+                      // ===============================
 
-template <class TYPE>
-struct enable_if<false, TYPE> {
+template <class t_TYPE>
+struct enable_if<false, t_TYPE> {
     // This partial specialization of 'enable_if', for when the (template
-    // parameter) 'COND' is 'false', guarantees that no 'typedef' 'type' is
+    // parameter) 't_COND' is 'false', guarantees that no 'typedef' 'type' is
     // supplied.  Note that this class definition is intentionally empty.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <bool COND, class TYPE = void>
-using enable_if_t = typename enable_if<COND, TYPE>::type;
+template <bool t_COND, class t_TYPE = void>
+using enable_if_t = typename enable_if<t_COND, t_TYPE>::type;
     // 'enable_if_t' is an alias to the return type of the 'bsl::enable_if'
     // meta-function.  Note, that the 'enable_if_t' avoids the '::type' suffix
     // and 'typename' prefix when we want to use the result of the
@@ -517,27 +517,27 @@ namespace bslmf {
                                // struct EnableIf
                                // ===============
 
-template<bool COND, class TYPE = void>
+template <bool t_COND, class t_TYPE = void>
 struct EnableIf {
     // This 'struct' template implements a meta-function that provides a
-    // 'typedef' 'type' that is an alias to the (template parameter) 'TYPE' if
-    // the (template parameter) 'COND' is 'true'; otherwise, 'type' is not
-    // provided.  If 'TYPE' is not specified, it is set to 'void'.  Note that
-    // this generic default template provides 'type' for when 'COND' is 'true';
-    // a template specialization is provided (below) that omits 'type' for when
-    // 'COND' is 'false'.
+    // 'typedef' 'type' that is an alias to the (template parameter) 't_TYPE'
+    // if the (template parameter) 't_COND' is 'true'; otherwise, 'type' is not
+    // provided.  If 't_TYPE' is not specified, it is set to 'void'.  Note that
+    // this generic default template provides 'type' for when 't_COND' is
+    // 'true'; a template specialization is provided (below) that omits 'type'
+    // for when 't_COND' is 'false'.
     //
     // Also note that although this 'struct' is functionally identical to
     // 'bsl::enable_if', the use of 'bsl::enable_if' should be preferred.
 
-    typedef TYPE type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+    typedef t_TYPE type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
-template<class TYPE>
-struct EnableIf <false, TYPE> {
+template <class t_TYPE>
+struct EnableIf<false, t_TYPE> {
     // This partial specialization of 'EnableIf', for when the (template
-    // parameter) 'COND' is 'false', guarantees that no 'typedef' 'type' is
+    // parameter) 't_COND' is 'false', guarantees that no 'typedef' 'type' is
     // supplied.  Note that this class definition is intentionally empty.
 };
 

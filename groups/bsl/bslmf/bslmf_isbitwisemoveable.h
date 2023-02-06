@@ -14,21 +14,22 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single trait metafunction,
 // 'bslmf::IsBitwiseMoveable', which allows generic code to determine whether
-// 'TYPE' can be destructively moved using 'memcpy'.  Given a pointer, 'p1', to
-// an object of 'TYPE', and a pointer 'p2' of the same type pointing to
+// 't_TYPE' can be destructively moved using 'memcpy'.  Given a pointer, 'p1',
+// to an object of 't_TYPE', and a pointer 'p2' of the same type pointing to
 // allocated but uninitialized storage, a destructive move from 'p1' to 'p2'
 // comprises the following pair of operations:
 //..
-//  new ((void*) p2) TYPE(*p1);  // Or new ((void*) p2) TYPE(std::move(*p1));
-//  p1->~TYPE();
+//  new ((void*) p2) t_TYPE(*p1);// Or new ((void*) p2) t_TYPE(std::move(*p1));
+//  p1->~t_TYPE();
 //..
-// An object of a 'TYPE' is *bitwise* *moveable*, if the above operation can be
-// replaced by the following operation without affecting correctness:
+// An object of a 't_TYPE' is *bitwise* *moveable*, if the above operation can
+// be replaced by the following operation without affecting correctness:
 //..
-//  std::memcpy(p2, p1, sizeof(TYPE));
+//  std::memcpy(p2, p1, sizeof(t_TYPE));
 //..
-// If 'IsBitwiseMoveable<TYPE>::value' inherits from 'true_type' for a given
-// 'TYPE', then a generic algorithm can infer that 'TYPE' is bitwise moveable.
+// If 'IsBitwiseMoveable<t_TYPE>::value' inherits from 'true_type' for a given
+// 't_TYPE', then a generic algorithm can infer that 't_TYPE' is bitwise
+// moveable.
 //
 // This trait is used by various components for providing optimizations for
 // types that can be bitwise moved.  The major benefit of this trait is not for
@@ -36,10 +37,10 @@ BSLS_IDENT("$Id: $")
 // operations can be replaced by a single call to 'memcpy'.  This replacement
 // is not only faster, but is guaranteed not to throw an exception.
 //
-// 'IsBitwiseMoveable<TYPE>' will inherit from 'true_type' if 'TYPE' is a
+// 'IsBitwiseMoveable<t_TYPE>' will inherit from 'true_type' if 't_TYPE' is a
 // fundamental object type, enumeration type, or pointer type.  Most
 // user-defined classes are bitwise moveable, but generic code must assume that
-// an arbitrary 'TYPE' is not bitwise-moveable, as bitwise moving a type that
+// an arbitrary 't_TYPE' is not bitwise-moveable, as bitwise moving a type that
 // is not bitwise moveable is likely to result in a dangling pointer.  Thus, it
 // is necessary to explicitly associate the bitwise moveable trait with a class
 // (via template specialization or by use of the 'BSLMF_DECLARE_NESTED_TRAIT'
@@ -84,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //: o Very few types have their own address as a salient attribute.
 //:
 //: o It is not possible for an object to store a pointer to itself in only one
-//:   byte. It is difficult to conceive of why an object would store a
+//:   byte.  It is difficult to conceive of why an object would store a
 //:   (compressed) encoding of own address in one byte.
 //:
 //: o Static registries of objects of any size are rare and are almost never a
@@ -140,25 +141,25 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace BloombergLP {
 //
-//  template <class TYPE>
-//  void destructiveMoveArrayImp(TYPE *to,
-//                               TYPE *from,
+//  template <class t_TYPE>
+//  void destructiveMoveArrayImp(t_TYPE *to,
+//                               t_TYPE *from,
 //                               int   size,
 //                               bsl::true_type)
 //  {
 //      // Bitwise moveable types can be moved using memcpy
-//      memcpy(static_cast<void *>(to), from, size * sizeof(TYPE));
+//      memcpy(static_cast<void *>(to), from, size * sizeof(t_TYPE));
 //  }
 //
-//  template <class TYPE>
-//  void destructiveMoveArrayImp(TYPE *to,
-//                               TYPE *from,
+//  template <class t_TYPE>
+//  void destructiveMoveArrayImp(t_TYPE *to,
+//                               t_TYPE *from,
 //                               int   size,
 //                               bsl::false_type)
 //  {
 //      for (int i = 0; i < size; ++i) {
-//          ::new(to + i) TYPE(from[i]);
-//          from[i].~TYPE();
+//          ::new(to + i) t_TYPE(from[i]);
+//          from[i].~t_TYPE();
 //      }
 //  }
 //..
@@ -166,11 +167,11 @@ BSLS_IDENT("$Id: $")
 // 'IsBitwiseMoveable' trait metafunction to determine at compile time which of
 // the implementations should be used:
 //..
-//  template <class TYPE>
-//  void destructiveMoveArray(TYPE *to, TYPE *from, int size)
+//  template <class t_TYPE>
+//  void destructiveMoveArray(t_TYPE *to, t_TYPE *from, int size)
 //  {
 //      destructiveMoveArrayImp(to, from, size,
-//                              bslmf::IsBitwiseMoveable<TYPE>());
+//                              bslmf::IsBitwiseMoveable<t_TYPE>());
 //  }
 //..
 // Next, to check our work, we create three classes that we will use to
@@ -404,25 +405,25 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace BloombergLP {
 //
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct NonMoveableTemplate
 //  {
-//      TYPE d_p;
+//      t_TYPE d_p;
 //  };
 //..
 // Second, we define a 'MoveableTemplate1', which uses partial template
 // specialization to associate the 'IsBitwiseMoveable' trait with each
 // instantiation:
 //..
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct MoveableTemplate1
 //  {
-//      TYPE *d_p;
+//      t_TYPE *d_p;
 //  };
 //
 //  namespace bslmf {
-//      template <class TYPE>
-//      struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : bsl::true_type {
+//      template <class t_TYPE>
+//      struct IsBitwiseMoveable<MoveableTemplate1<t_TYPE> > : bsl::true_type {
 //      };
 //  }  // close namespace bslmf
 //..
@@ -430,30 +431,31 @@ BSLS_IDENT("$Id: $")
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the 'IsBitwiseMoveable'
 // trait with each instantiation:
 //..
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct MoveableTemplate2
 //  {
-//      TYPE *d_p;
+//      t_TYPE *d_p;
 //
 //      BSLMF_NESTED_TRAIT_DECLARATION(MoveableTemplate2,
 //                                     bslmf::IsBitwiseMoveable);
 //  };
 //..
 // Fourth, we define 'MoveableTemplate3', which is bit-wise moveable iff its
-// 'TYPE' template parameter is bit-wise moveable.  There is no way to get this
-// effect using 'BSLMF_NESTED_TRAIT_DECLARATION', so we use partial
-// specialization combined with inheritance to "inherit" the trait from 'TYPE':
+// 't_TYPE' template parameter is bit-wise moveable.  There is no way to get
+// this effect using 'BSLMF_NESTED_TRAIT_DECLARATION', so we use partial
+// specialization combined with inheritance to "inherit" the trait from
+// 't_TYPE':
 //..
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct MoveableTemplate3
 //  {
-//      TYPE d_p;
+//      t_TYPE d_p;
 //  };
 //
 //  namespace bslmf {
-//      template <class TYPE>
-//      struct IsBitwiseMoveable<MoveableTemplate3<TYPE> > :
-//          IsBitwiseMoveable<TYPE>::type { };
+//      template <class t_TYPE>
+//      struct IsBitwiseMoveable<MoveableTemplate3<t_TYPE> > :
+//          IsBitwiseMoveable<t_TYPE>::type { };
 //  }  // close namespace bslmf
 //..
 // Now, we check that the traits are correctly associated by instantiating each
@@ -590,11 +592,12 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsBitwiseMoveable;
 
-template <class TYPE, bool = bsl::is_reference<TYPE>::value
-                          || bsl::is_function<TYPE>::value>
+template <class t_TYPE,
+          bool = bsl::is_reference<t_TYPE>::value ||
+                 bsl::is_function<t_TYPE>::value>
 struct IsBitwiseMoveable_Imp : bsl::false_type {
     // Function types and reference types are not object types, and so are not
     // bitwise-movable.  Both categories of types must be explicitly handled by
@@ -603,8 +606,8 @@ struct IsBitwiseMoveable_Imp : bsl::false_type {
     // result for other (object) types.
 };
 
-template <class TYPE>
-struct IsBitwiseMoveable_Imp<TYPE, false> {
+template <class t_TYPE>
+struct IsBitwiseMoveable_Imp<t_TYPE, false> {
     // Core implementation of the 'IsBitwiseMoveable' trait.  A class is
     // detected as being bitwise moveable iff it is trivially copyable or it
     // has a nested trait declaration for the 'IsBitwiseMoveable' trait.  In
@@ -618,12 +621,12 @@ struct IsBitwiseMoveable_Imp<TYPE, false> {
 
   private:
     static const bool k_NestedBitwiseMoveableTrait =
-        DetectNestedTrait<TYPE, IsBitwiseMoveable>::value;
+                           DetectNestedTrait<t_TYPE, IsBitwiseMoveable>::value;
 
   public:
-    static const bool value = bsl::is_trivially_copyable<TYPE>::value
-                           || k_NestedBitwiseMoveableTrait
-                           || sizeof(TYPE) == 1;
+    static const bool value = bsl::is_trivially_copyable<t_TYPE>::value ||
+                              k_NestedBitwiseMoveableTrait ||
+                              sizeof(t_TYPE) == 1;
 
     typedef bsl::integral_constant<bool, value> type;
 
@@ -631,23 +634,25 @@ struct IsBitwiseMoveable_Imp<TYPE, false> {
     defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
     // In C++11 and beyond, we can accurately detect trivial-copiable types
     // which would allow us to remove the one-byte heuristic used above.
-    // Testing with gcc-5 on Bloomberg production software indicates that
-    // there are many 1-byte types, which are conceptually bitwise moveable,
-    // that are not correctly marked bitwise moveable (for example, any 1-byte
-    // code-generated type).  For the moment we have decided not to enable
-    // more conservative logic for automatically deducing the
+    // Testing with gcc-5 on Bloomberg production software indicates that there
+    // are many 1-byte types, which are conceptually bitwise moveable, that are
+    // not correctly marked bitwise moveable (for example, any 1-byte
+    // code-generated type).  For the moment we have decided not to enable more
+    // conservative logic for automatically deducing the
     // 'IsBitwiseMoveableTrait'.  The more conservative logic is shown below
     // for future reference:
 
-    static_assert(!bsl::is_reference<TYPE>::value,
-   "This imp-detail instantiation should not be selected for reference types");
-    static_assert(!bsl::is_function<TYPE>::value,
-    "This imp-detail instantiation should not be selected for function types");
+    static_assert(!bsl::is_reference<t_TYPE>::value,
+                  "This imp-detail instantiation should not be selected for "
+                  "reference types");
+    static_assert(!bsl::is_function<t_TYPE>::value,
+                  "This imp-detail instantiation should not be selected for "
+                  "function types");
 
     static const bool k_ValueWithoutOnebyteHeuristic =
-                  bsl::is_trivially_copyable<TYPE>::value
-               || std::is_empty<TYPE>::value   // required for gcc < 5.0
-               || k_NestedBitwiseMoveableTrait;
+                        bsl::is_trivially_copyable<t_TYPE>::value ||
+                        std::is_empty<t_TYPE>::value  // required for gcc < 5.0
+                        || k_NestedBitwiseMoveableTrait;
 #endif
 };
 
@@ -655,12 +660,12 @@ struct IsBitwiseMoveable_Imp<TYPE, false> {
                         // struct IsBitwiseMoveable
                         // ========================
 
-template <class TYPE>
-struct IsBitwiseMoveable : IsBitwiseMoveable_Imp<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable : IsBitwiseMoveable_Imp<t_TYPE>::type {
     // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bitwise moveable.  If 'IsBitwiseMoveable<TYPE>' is derived
-    // from 'bsl::true_type' then 'TYPE' is bitwise moveable.  Otherwise,
-    // bitwise moveability cannot be inferred for 'TYPE'.  This trait can be
+    // 't_TYPE' is bitwise moveable.  If 'IsBitwiseMoveable<t_TYPE>' is derived
+    // from 'bsl::true_type' then 't_TYPE' is bitwise moveable.  Otherwise,
+    // bitwise moveability cannot be inferred for 't_TYPE'.  This trait can be
     // associated with a bitwise moveable user-defined class by specializing
     // this class or by using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
 };
@@ -673,66 +678,63 @@ struct IsBitwiseMoveable<void> : bsl::false_type {
     // 'IsBitwiseMoveable_Imp' template robust for 'void' types.
 };
 
-template <class TYPE>
-struct IsBitwiseMoveable<const TYPE> : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable<const t_TYPE> : IsBitwiseMoveable<t_TYPE>::type {
     // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bitwise moveable by stripping off the 'const' qualifier and
+    // 't_TYPE' is bitwise moveable by stripping off the 'const' qualifier and
     // forwarding to the base-case of 'IsBitwiseMoveable'.
 };
 
-template <class TYPE>
-struct IsBitwiseMoveable<volatile TYPE> : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable<volatile t_TYPE> : IsBitwiseMoveable<t_TYPE>::type {
     // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bitwise moveable by stripping off the 'volatile' qualifier
+    // 't_TYPE' is bitwise moveable by stripping off the 'volatile' qualifier
     // and forwarding to the base-case of 'IsBitwiseMoveable'.
 };
 
-template <class TYPE>
-struct IsBitwiseMoveable<const volatile TYPE> : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable<const volatile t_TYPE>
+: IsBitwiseMoveable<t_TYPE>::type {
     // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bitwise moveable by stripping off the 'const' and 'volatile'
+    // 't_TYPE' is bitwise moveable by stripping off the 'const' and 'volatile'
     // qualifiers and forwarding to the base-case of 'IsBitwiseMoveable'.
 };
 
-template <class TYPE, size_t LEN>
-struct IsBitwiseMoveable<TYPE[LEN]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseMoveable<t_TYPE[t_LEN]> : IsBitwiseMoveable<t_TYPE>::type {
 };
 
-template <class TYPE, size_t LEN>
-struct IsBitwiseMoveable<const TYPE[LEN]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseMoveable<const t_TYPE[t_LEN]>
+: IsBitwiseMoveable<t_TYPE>::type {
 };
 
-template <class TYPE, size_t LEN>
-struct IsBitwiseMoveable<volatile TYPE[LEN]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseMoveable<volatile t_TYPE[t_LEN]>
+: IsBitwiseMoveable<t_TYPE>::type {
 };
 
-template <class TYPE, size_t LEN>
-struct IsBitwiseMoveable<const volatile TYPE[LEN]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseMoveable<const volatile t_TYPE[t_LEN]>
+: IsBitwiseMoveable<t_TYPE>::type {
 };
 
 #if !defined(BSLMF_ISBITWISEMOVEABLE_NO_SUPPORT_FOR_ARRAY_OF_UNKNOWN_BOUND)
-template <class TYPE>
-struct IsBitwiseMoveable<TYPE[]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable<t_TYPE[]> : IsBitwiseMoveable<t_TYPE>::type {
 };
 
-template <class TYPE>
-struct IsBitwiseMoveable<const TYPE[]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable<const t_TYPE[]> : IsBitwiseMoveable<t_TYPE>::type {
 };
 
-template <class TYPE>
-struct IsBitwiseMoveable<volatile TYPE[]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable<volatile t_TYPE[]> : IsBitwiseMoveable<t_TYPE>::type {
 };
 
-template <class TYPE>
-struct IsBitwiseMoveable<const volatile TYPE[]>
-   : IsBitwiseMoveable<TYPE>::type {
+template <class t_TYPE>
+struct IsBitwiseMoveable<const volatile t_TYPE[]>
+: IsBitwiseMoveable<t_TYPE>::type {
 };
 #endif // BSLMF_ISBITWISEMOVEABLE_NO_SUPPORT_FOR_ARRAY_OF_UNKNOWN_BOUND
 

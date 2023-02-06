@@ -91,14 +91,14 @@ namespace bsl {
                        // struct is_member_object_pointer
                        // ===============================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_member_object_pointer : false_type {
     // This 'struct' template implements the 'is_member_object_pointer'
     // meta-function defined in the C++11 standard [meta.unary.cat] to
-    // determine if the (template parameter) 'TYPE' is a pointer to non-static
-    // data member type.  This 'struct' derives from 'bsl::true_type' if the
-    // 'TYPE' is a pointer to non-static data member type, and from
-    // 'bsl::false_type' otherwise.
+    // determine if the (template parameter) 't_TYPE' is a pointer to
+    // non-static data member type.  This 'struct' derives from
+    // 'bsl::true_type' if the 't_TYPE' is a pointer to non-static data member
+    // type, and from 'bsl::false_type' otherwise.
 };
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -106,9 +106,9 @@ struct is_member_object_pointer : false_type {
 # pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
 #endif
 
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::*>
-    : is_const<const TYPE>::type {
+template <class t_TYPE, class t_CLASS>
+struct is_member_object_pointer<t_TYPE t_CLASS::*>
+: is_const<const t_TYPE>::type {
     // Partial specialization relies on the principle that only object types
     // can be 'const'-qualified.  Reference-types and function-types do not
     // retain the 'const' qualifier when added in this manner, and there are
@@ -119,35 +119,32 @@ struct is_member_object_pointer<TYPE CLASS::*>
 # pragma warning(pop)
 #endif
 
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::* const>
-    : is_const<const TYPE>::type {
+template <class t_TYPE, class t_CLASS>
+struct is_member_object_pointer<t_TYPE t_CLASS::*const>
+: is_const<const t_TYPE>::type {
     // Partial specialization relies on the principle that only object types
     // can be 'const'-qualified.  Reference-types and function-types do not
     // retain the 'const' qualifier when added in this manner, and there are
     // no 'void' class members.
 };
 
-
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::* volatile>
-    : is_const<const TYPE>::type {
+template <class t_TYPE, class t_CLASS>
+struct is_member_object_pointer<t_TYPE t_CLASS::*volatile>
+: is_const<const t_TYPE>::type {
     // Partial specialization relies on the principle that only object types
     // can be 'const'-qualified.  Reference-types and function-types do not
     // retain the 'const' qualifier when added in this manner, and there are
     // no 'void' class members.
 };
 
-
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::* const volatile>
-    : is_const<const TYPE>::type {
+template <class t_TYPE, class t_CLASS>
+struct is_member_object_pointer<t_TYPE t_CLASS::*const volatile>
+: is_const<const t_TYPE>::type {
     // Partial specialization relies on the principle that only object types
     // can be 'const'-qualified.  Reference-types and function-types do not
     // retain the 'const' qualifier when added in this manner, and there are
     // no 'void' class members.
 };
-
 
 }  // close namespace bsl
 #else
@@ -165,23 +162,21 @@ namespace bslmf {
                        // struct IsPointerToMemberData_Imp
                        // ================================
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsPointerToMemberData_Imp : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a pointer to non-static data member type.
-    // This generic default template derives from 'bsl::false_type'.  A
+    // (template parameter) 't_TYPE' is a pointer to non-static data member
+    // type.  This generic default template derives from 'bsl::false_type'.  A
     // template specialization is provided (below) that derives from
     // 'bsl::true_type'.
 };
 
-template <class TYPE, class CLASS>
-struct IsPointerToMemberData_Imp<TYPE CLASS::*>
-    :  bsl::integral_constant<bool,
-                             !bsl::is_function<TYPE>::value
-                             > {
-     // This partial specialization of 'IsPointerToMemberData_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a pointer
-     // to non-static data member type.
+template <class t_TYPE, class t_CLASS>
+struct IsPointerToMemberData_Imp<t_TYPE t_CLASS::*>
+: bsl::integral_constant<bool, !bsl::is_function<t_TYPE>::value> {
+    // This partial specialization of 'IsPointerToMemberData_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a pointer
+    // to non-static data member type.
 };
 
 }  // close package namespace
@@ -193,34 +188,34 @@ namespace bsl {
                        // struct is_member_object_pointer
                        // ===============================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_member_object_pointer
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
+: BloombergLP::bslmf::IsPointerToMemberData_Imp<t_TYPE>::type {
     // This 'struct' template implements the 'is_member_object_pointer'
     // meta-function defined in the C++11 standard [meta.unary.cat] to
-    // determine if the (template parameter) 'TYPE' is a pointer to non-static
-    // data member type.  This 'struct' derives from 'bsl::true_type' if the
-    // 'TYPE' is a pointer to non-static data member type, and from
-    // 'bsl::false_type' otherwise.
+    // determine if the (template parameter) 't_TYPE' is a pointer to
+    // non-static data member type.  This 'struct' derives from
+    // 'bsl::true_type' if the 't_TYPE' is a pointer to non-static data member
+    // type, and from 'bsl::false_type' otherwise.
 };
 
-template <class TYPE>
-struct is_member_object_pointer<const TYPE>
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
+template <class t_TYPE>
+struct is_member_object_pointer<const t_TYPE>
+: BloombergLP::bslmf::IsPointerToMemberData_Imp<t_TYPE>::type {
     // Partial specialization to handle 'const'-qualified pointer-to-member
     // objects.
 };
 
-template <class TYPE>
-struct is_member_object_pointer<volatile TYPE>
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
+template <class t_TYPE>
+struct is_member_object_pointer<volatile t_TYPE>
+: BloombergLP::bslmf::IsPointerToMemberData_Imp<t_TYPE>::type {
     // Partial specialization to handle 'volatile'-qualified pointer-to-member
     // objects.
 };
 
-template <class TYPE>
-struct is_member_object_pointer<const volatile TYPE>
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
+template <class t_TYPE>
+struct is_member_object_pointer<const volatile t_TYPE>
+: BloombergLP::bslmf::IsPointerToMemberData_Imp<t_TYPE>::type {
     // Partial specialization to handle 'const volatile'-qualified
     // pointer-to-member objects.
 };
@@ -231,10 +226,9 @@ struct is_member_object_pointer<const volatile TYPE>
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 namespace bsl {
 
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_member_object_pointer_v =
-                                         is_member_object_pointer<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_member_object_pointer_v =
+                                       is_member_object_pointer<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_member_object_pointer' meta-function.
 }  // close namespace bsl

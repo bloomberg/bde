@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jun 29 08:32:24 2022
+// Generated on Mon Dec 19 14:09:56 2022
 // Command line: sim_cpp11_features.pl bslmf_functionpointertraits.h
 
 #ifdef COMPILING_BSLMF_FUNCTIONPOINTERTRAITS_H
@@ -41,9 +41,9 @@ struct FunctionPointerCLinkage {
                         // class FunctionPointerTraits
                         // ===========================
 
-template <class PROTOTYPE>
+template <class t_PROTOTYPE>
 struct FunctionPointerTraits {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
@@ -55,13 +55,14 @@ struct FunctionPointerTraits {
                           // class IsFunctionPointer
                           // =======================
 
-template <class PROTOTYPE>
+template <class t_PROTOTYPE>
 struct IsFunctionPointer
-: bsl::integral_constant<bool,
-                      FunctionPointerTraits<PROTOTYPE>::IS_FUNCTION_POINTER> {
-    // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
+: bsl::integral_constant<
+      bool,
+      FunctionPointerTraits<t_PROTOTYPE>::IS_FUNCTION_POINTER> {
+    // This template determines if the specified 't_PROTOTYPE' is a free (i.e.,
     // non-member) function pointer.  'value' is defined as 1 if the specified
-    // 'PROTOTYPE' is a function pointer type, and a zero value otherwise.
+    // 't_PROTOTYPE' is a function pointer type, and a zero value otherwise.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----
@@ -88,1216 +89,1217 @@ struct IsFunctionPointer
 #define BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN) || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
+#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN)    \
+        || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
-template <class BSLMF_RETURN>
-struct FunctionPointerTraits<BSLMF_RETURN (*)()> {
+template <class t_BSLMF_RETURN>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)()> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
+    typedef t_BSLMF_RETURN                     ResultType;
     typedef typename TypeList<>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType();
+    typedef t_BSLMF_RETURN                   FuncType();
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 1
-template <class BSLMF_RETURN, class ARGS_01>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 1
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 2
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 2
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 3
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 3
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 4
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 4
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 5
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 5
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 6
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 6
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 7
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 7
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 8
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 8
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 9
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 9
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 10
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 10
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 11
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 11
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 12
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11,
-                              class ARGS_12>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11,
-                                              ARGS_12)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11,
+                                class t_ARGS_12>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11,
+                                                t_ARGS_12)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11,
-                              ARGS_12>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11,
+                              t_ARGS_12>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11,
+                                                      t_ARGS_12);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 12
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 13
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11,
-                              class ARGS_12,
-                              class ARGS_13>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11,
-                                              ARGS_12,
-                                              ARGS_13)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11,
+                                class t_ARGS_12,
+                                class t_ARGS_13>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11,
+                                                t_ARGS_12,
+                                                t_ARGS_13)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11,
-                              ARGS_12,
-                              ARGS_13>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12,
-                                                      ARGS_13);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11,
+                              t_ARGS_12,
+                              t_ARGS_13>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11,
+                                                      t_ARGS_12,
+                                                      t_ARGS_13);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 13
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 14
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11,
-                              class ARGS_12,
-                              class ARGS_13,
-                              class ARGS_14>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11,
-                                              ARGS_12,
-                                              ARGS_13,
-                                              ARGS_14)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11,
+                                class t_ARGS_12,
+                                class t_ARGS_13,
+                                class t_ARGS_14>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11,
+                                                t_ARGS_12,
+                                                t_ARGS_13,
+                                                t_ARGS_14)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11,
-                              ARGS_12,
-                              ARGS_13,
-                              ARGS_14>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12,
-                                                      ARGS_13,
-                                                      ARGS_14);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11,
+                              t_ARGS_12,
+                              t_ARGS_13,
+                              t_ARGS_14>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11,
+                                                      t_ARGS_12,
+                                                      t_ARGS_13,
+                                                      t_ARGS_14);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 14
 
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
-template <class BSLMF_RETURN>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(...)> {
+template <class t_BSLMF_RETURN>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
+    typedef t_BSLMF_RETURN                     ResultType;
     typedef typename TypeList<>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(...);
+    typedef t_BSLMF_RETURN                   FuncType(...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 1
-template <class BSLMF_RETURN, class ARGS_01>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 1
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 2
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 2
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 3
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 3
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 4
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 4
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 5
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 5
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 6
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 6
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 7
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 7
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 8
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 8
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 9
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 9
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 10
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 10
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 11
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 11
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 12
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11,
-                              class ARGS_12>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11,
-                                              ARGS_12,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11,
+                                class t_ARGS_12>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11,
+                                                t_ARGS_12,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11,
-                              ARGS_12>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11,
+                              t_ARGS_12>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11,
+                                                      t_ARGS_12,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 12
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 13
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11,
-                              class ARGS_12,
-                              class ARGS_13>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11,
-                                              ARGS_12,
-                                              ARGS_13,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11,
+                                class t_ARGS_12,
+                                class t_ARGS_13>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11,
+                                                t_ARGS_12,
+                                                t_ARGS_13,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11,
-                              ARGS_12,
-                              ARGS_13>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12,
-                                                      ARGS_13,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11,
+                              t_ARGS_12,
+                              t_ARGS_13>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11,
+                                                      t_ARGS_12,
+                                                      t_ARGS_13,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 13
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 14
-template <class BSLMF_RETURN, class ARGS_01,
-                              class ARGS_02,
-                              class ARGS_03,
-                              class ARGS_04,
-                              class ARGS_05,
-                              class ARGS_06,
-                              class ARGS_07,
-                              class ARGS_08,
-                              class ARGS_09,
-                              class ARGS_10,
-                              class ARGS_11,
-                              class ARGS_12,
-                              class ARGS_13,
-                              class ARGS_14>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10,
-                                              ARGS_11,
-                                              ARGS_12,
-                                              ARGS_13,
-                                              ARGS_14,...)> {
+template <class t_BSLMF_RETURN, class t_ARGS_01,
+                                class t_ARGS_02,
+                                class t_ARGS_03,
+                                class t_ARGS_04,
+                                class t_ARGS_05,
+                                class t_ARGS_06,
+                                class t_ARGS_07,
+                                class t_ARGS_08,
+                                class t_ARGS_09,
+                                class t_ARGS_10,
+                                class t_ARGS_11,
+                                class t_ARGS_12,
+                                class t_ARGS_13,
+                                class t_ARGS_14>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
+                                                t_ARGS_02,
+                                                t_ARGS_03,
+                                                t_ARGS_04,
+                                                t_ARGS_05,
+                                                t_ARGS_06,
+                                                t_ARGS_07,
+                                                t_ARGS_08,
+                                                t_ARGS_09,
+                                                t_ARGS_10,
+                                                t_ARGS_11,
+                                                t_ARGS_12,
+                                                t_ARGS_13,
+                                                t_ARGS_14,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS_01,
-                              ARGS_02,
-                              ARGS_03,
-                              ARGS_04,
-                              ARGS_05,
-                              ARGS_06,
-                              ARGS_07,
-                              ARGS_08,
-                              ARGS_09,
-                              ARGS_10,
-                              ARGS_11,
-                              ARGS_12,
-                              ARGS_13,
-                              ARGS_14>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12,
-                                                      ARGS_13,
-                                                      ARGS_14,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS_01,
+                              t_ARGS_02,
+                              t_ARGS_03,
+                              t_ARGS_04,
+                              t_ARGS_05,
+                              t_ARGS_06,
+                              t_ARGS_07,
+                              t_ARGS_08,
+                              t_ARGS_09,
+                              t_ARGS_10,
+                              t_ARGS_11,
+                              t_ARGS_12,
+                              t_ARGS_13,
+                              t_ARGS_14>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS_01,
+                                                      t_ARGS_02,
+                                                      t_ARGS_03,
+                                                      t_ARGS_04,
+                                                      t_ARGS_05,
+                                                      t_ARGS_06,
+                                                      t_ARGS_07,
+                                                      t_ARGS_08,
+                                                      t_ARGS_09,
+                                                      t_ARGS_10,
+                                                      t_ARGS_11,
+                                                      t_ARGS_12,
+                                                      t_ARGS_13,
+                                                      t_ARGS_14,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 14
@@ -1310,36 +1312,37 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN) || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
+#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN)    \
+        || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...)> {
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...)> {
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...,...)> {
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 0
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...,...);
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
@@ -1357,55 +1360,55 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...)> {
 // instantiate more traits than necessary when testing pointer traits of
 // cv-qualified types that are not function pointers?
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE const>
-     : FunctionPointerTraits<PROTOTYPE> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE const>
+: FunctionPointerTraits<t_PROTOTYPE> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE volatile>
-     : FunctionPointerTraits<PROTOTYPE> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE volatile>
+: FunctionPointerTraits<t_PROTOTYPE> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE const volatile>
-     : FunctionPointerTraits<PROTOTYPE> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE const volatile>
+: FunctionPointerTraits<t_PROTOTYPE> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 #else
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE * const>
-     : FunctionPointerTraits<PROTOTYPE *> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE *const>
+: FunctionPointerTraits<t_PROTOTYPE *> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE * volatile>
-     : FunctionPointerTraits<PROTOTYPE *> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE *volatile>
+: FunctionPointerTraits<t_PROTOTYPE *> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
 };
 
-template <class PROTOTYPE>
-struct FunctionPointerTraits<PROTOTYPE * const volatile>
-     : FunctionPointerTraits<PROTOTYPE *> {
-    // This class gives information about the specified 'PROTOTYPE'.  The
+template <class t_PROTOTYPE>
+struct FunctionPointerTraits<t_PROTOTYPE *const volatile>
+: FunctionPointerTraits<t_PROTOTYPE *> {
+    // This class gives information about the specified 't_PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
     // 'ArgumentList', and 'Linkage'.
@@ -1420,35 +1423,36 @@ struct FunctionPointerTraits<PROTOTYPE * const volatile>
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...) noexcept> {
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...) noexcept> {
     // Specialization for 'noexcept' function pointers that return
-    // 'BSLMF_RETURN' and accept a fixed number of arguments
+    // 't_BSLMF_RETURN' and accept a fixed number of arguments
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 1
     };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...) noexcept;
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...) noexcept;
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
-template <class BSLMF_RETURN, class...ARGS>
-struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...) noexcept> {
+template <class t_BSLMF_RETURN, class... t_ARGS>
+struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...,...) noexcept> {
     // Specialization for 'noexcept' function pointers that return
-    // 'BSLMF_RETURN' and accept variable (C-style varargs) number of arguments
+    // 't_BSLMF_RETURN' and accept variable (C-style varargs) number of
+    // arguments
 
     enum {
         IS_FUNCTION_POINTER = 1,
         IS_NOEXCEPT = 1
     };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-    typedef BSLMF_RETURN                     FuncType(ARGS...,...) noexcept;
+    typedef t_BSLMF_RETURN                     ResultType;
+    typedef typename TypeList<t_ARGS...>::Type ArgumentList;
+    typedef t_BSLMF_RETURN                   FuncType(t_ARGS...,...) noexcept;
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 

@@ -89,43 +89,43 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-template <class TYPE>
+template <class t_TYPE>
 struct remove_reference {
     // This 'struct' template implements the 'remove_reference' meta-function
     // defined in the C++11 standard [meta.trans.ref], providing an alias,
     // 'type', that returns the result.  'type' has the same type as the
-    // (template parameter) 'TYPE' except with reference-ness removed.  Note
+    // (template parameter) 't_TYPE' except with reference-ness removed.  Note
     // that this generic default template provides a 'type' that is an alias to
-    // 'TYPE' for when 'TYPE' is not a reference.  A template specialization is
-    // provided (below) that removes reference-ness for when 'TYPE' is a
-    // reference.
+    // 't_TYPE' for when 't_TYPE' is not a reference.  A template
+    // specialization is provided (below) that removes reference-ness for when
+    // 't_TYPE' is a reference.
 
-    typedef TYPE type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+    typedef t_TYPE type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
-template <class TYPE>
-struct remove_reference<TYPE&> {
+template <class t_TYPE>
+struct remove_reference<t_TYPE&> {
     // This partial specialization of 'bsl::remove_reference', for when the
-    // (template parameter) 'TYPE' is an rvalue reference, provides a
-    // 'typedef', 'type', that has reference-ness of 'TYPE' removed.
+    // (template parameter) 't_TYPE' is an rvalue reference, provides a
+    // 'typedef', 'type', that has reference-ness of 't_TYPE' removed.
 
-    typedef TYPE type;
+    typedef t_TYPE type;
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE' except with the reference-ness removed.
+        // parameter) 't_TYPE' except with the reference-ness removed.
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template <class TYPE>
-struct remove_reference<TYPE&&> {
+template <class t_TYPE>
+struct remove_reference<t_TYPE&&> {
     // This partial specialization of 'bsl::remove_reference', for when the
-    // (template parameter) 'TYPE' is a reference, provides a 'typedef',
-    // 'type', that has reference-ness of 'TYPE' removed.
+    // (template parameter) 't_TYPE' is a reference, provides a 'typedef',
+    // 'type', that has reference-ness of 't_TYPE' removed.
 
-    typedef TYPE type;
+    typedef t_TYPE type;
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE' except with the reference-ness removed.
+        // parameter) 't_TYPE' except with the reference-ness removed.
 };
 
 #endif
@@ -133,8 +133,8 @@ struct remove_reference<TYPE&&> {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
 // ALIASES
-template <class TYPE>
-using remove_reference_t = typename remove_reference<TYPE>::type;
+template <class t_TYPE>
+using remove_reference_t = typename remove_reference<t_TYPE>::type;
     // 'remove_reference_t' is an alias to the return type of the
     // 'bsl::remove_reference' meta-function.  Note, that the
     // 'remove_reference_t' avoids the '::type' suffix and 'typename' prefix
@@ -150,16 +150,17 @@ namespace bslmf {
                          // struct RemoveReference
                          // ======================
 
-template <class TYPE>
+template <class t_TYPE>
 struct RemoveReference {
     // This 'struct' template implements a meta-function to remove the
-    // reference-ness from the (template parameter) 'TYPE'.  Note that although
-    // this 'struct' is functionally equivalent to 'bsl::remove_reference', the
-    // use of 'bsl::remove_reference' should be preferred.
+    // reference-ness from the (template parameter) 't_TYPE'.  Note that
+    // although this 'struct' is functionally equivalent to
+    // 'bsl::remove_reference', the use of 'bsl::remove_reference' should be
+    // preferred.
 
-    typedef typename bsl::remove_reference<TYPE>::type Type;
+    typedef typename bsl::remove_reference<t_TYPE>::type Type;
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE' except with any reference-ness removed.
+        // parameter) 't_TYPE' except with any reference-ness removed.
 };
 
 }  // close package namespace

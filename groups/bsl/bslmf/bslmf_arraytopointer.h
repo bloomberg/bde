@@ -49,50 +49,50 @@ namespace bslmf {
                             // struct ArrayToPointer
                             // =====================
 
-template <class TYPE, class ORIGINAL_TYPE>
+template <class t_TYPE, class t_ORIGINAL_TYPE>
 struct ArrayToPointer_Imp;
 
-template <class TYPE>
+template <class t_TYPE>
 struct ArrayToPointer {
-    typedef typename ArrayToPointer_Imp<TYPE, TYPE>::Type Type;
+    typedef typename ArrayToPointer_Imp<t_TYPE, t_TYPE>::Type Type;
 };
 
-template <class TYPE>
-struct ArrayToPointer<TYPE &> {
-    typedef typename ArrayToPointer_Imp<TYPE, TYPE &>::Type Type;
+template <class t_TYPE>
+struct ArrayToPointer<t_TYPE&> {
+    typedef typename ArrayToPointer_Imp<t_TYPE, t_TYPE&>::Type Type;
 };
 
                           // ==========================
                           // struct ArrayToConstPointer
                           // ==========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct ArrayToConstPointer {
-    typedef typename ArrayToPointer_Imp<const TYPE, TYPE>::Type Type;
+    typedef typename ArrayToPointer_Imp<const t_TYPE, t_TYPE>::Type Type;
 };
 
-template <class TYPE>
-struct ArrayToConstPointer<TYPE &> {
-    typedef typename ArrayToPointer_Imp<const TYPE, TYPE &>::Type Type;
+template <class t_TYPE>
+struct ArrayToConstPointer<t_TYPE&> {
+    typedef typename ArrayToPointer_Imp<const t_TYPE, t_TYPE&>::Type Type;
 };
 
                          // =========================
                          // struct ArrayToPointer_Imp
                          // =========================
 
-template <class TYPE, class ORIGINAL_TYPE>
+template <class t_TYPE, class t_ORIGINAL_TYPE>
 struct ArrayToPointer_Imp {
-    typedef ORIGINAL_TYPE Type;
+    typedef t_ORIGINAL_TYPE Type;
 };
 
-template <class TYPE, std::size_t NUM_ELEMENTS, class UNUSED>
-struct ArrayToPointer_Imp<TYPE [NUM_ELEMENTS], UNUSED> {
-    typedef TYPE *Type;
+template <class t_TYPE, std::size_t t_NUM_ELEMENTS, class t_UNUSED>
+struct ArrayToPointer_Imp<t_TYPE[t_NUM_ELEMENTS], t_UNUSED> {
+    typedef t_TYPE *Type;
 };
 
-template <class TYPE, class UNUSED>
-struct ArrayToPointer_Imp<TYPE [], UNUSED> {
-    typedef TYPE *Type;
+template <class t_TYPE, class t_UNUSED>
+struct ArrayToPointer_Imp<t_TYPE[], t_UNUSED> {
+    typedef t_TYPE *Type;
 };
 
 }  // close package namespace

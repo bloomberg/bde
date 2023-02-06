@@ -55,41 +55,42 @@ namespace bslmf {
                         // class template UsesAllocatorArgT
                         // ================================
 
-template <class TYPE>
-struct UsesAllocatorArgT : DetectNestedTrait<TYPE, UsesAllocatorArgT>::type {
-    // User-specialized trait type indicating that the constructor of 'TYPE'
+template <class t_TYPE>
+struct UsesAllocatorArgT : DetectNestedTrait<t_TYPE, UsesAllocatorArgT>::type {
+    // User-specialized trait type indicating that the constructor of 't_TYPE'
     // can be invoked using 'bsl::allocator_arg' as its first argument and an
     // allocator object as its second argument.
 };
 
-template <class TYPE>
-struct UsesAllocatorArgT<const TYPE> : UsesAllocatorArgT<TYPE>::type {
-    // Trait metafunction that determines whether the constructor of 'TYPE' can
-    // be invoked using 'bsl::allocator_arg' as its first argument and an
+template <class t_TYPE>
+struct UsesAllocatorArgT<const t_TYPE> : UsesAllocatorArgT<t_TYPE>::type {
+    // Trait metafunction that determines whether the constructor of 't_TYPE'
+    // can be invoked using 'bsl::allocator_arg' as its first argument and an
     // allocator object as its second argument.  The value is computed by
     // stripping off the cv-qualifier and forwading to
-    // 'UsesAllocatorArgT<TYPE>', which is user-specialized for the appropriate
-    // types.
+    // 'UsesAllocatorArgT<t_TYPE>', which is user-specialized for the
+    // appropriate types.
 };
 
-template <class TYPE>
-struct UsesAllocatorArgT<volatile TYPE> : UsesAllocatorArgT<TYPE>::type {
-    // Trait metafunction that determines whether the constructor of 'TYPE' can
-    // be invoked using 'bsl::allocator_arg' as its first argument and an
+template <class t_TYPE>
+struct UsesAllocatorArgT<volatile t_TYPE> : UsesAllocatorArgT<t_TYPE>::type {
+    // Trait metafunction that determines whether the constructor of 't_TYPE'
+    // can be invoked using 'bsl::allocator_arg' as its first argument and an
     // allocator object as its second argument.  The value is computed by
     // stripping off the cv-qualifier and forwading to
-    // 'UsesAllocatorArgT<TYPE>', which is user-specialized for the appropriate
-    // types.
+    // 'UsesAllocatorArgT<t_TYPE>', which is user-specialized for the
+    // appropriate types.
 };
 
-template <class TYPE>
-struct UsesAllocatorArgT<const volatile TYPE> : UsesAllocatorArgT<TYPE>::type {
-    // Trait metafunction that determines whether the constructor of 'TYPE' can
-    // be invoked using 'bsl::allocator_arg' as its first argument and an
+template <class t_TYPE>
+struct UsesAllocatorArgT<const volatile t_TYPE>
+: UsesAllocatorArgT<t_TYPE>::type {
+    // Trait metafunction that determines whether the constructor of 't_TYPE'
+    // can be invoked using 'bsl::allocator_arg' as its first argument and an
     // allocator object as its second argument.  The value is computed by
     // stripping off the cv-qualifier and forwading to
-    // 'UsesAllocatorArgT<TYPE>', which is user-specialized for the appropriate
-    // types.
+    // 'UsesAllocatorArgT<t_TYPE>', which is user-specialized for the
+    // appropriate types.
 };
 
 }  // close package namespace

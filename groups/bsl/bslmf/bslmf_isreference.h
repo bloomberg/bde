@@ -87,39 +87,40 @@ namespace bsl {
 // Sun where the compiler was reporting that the maximum depth of template
 // expansion was being exceeded.
 
-template <class TYPE> struct is_reference : false_type {
+template <class t_TYPE>
+struct is_reference : false_type {
     // This 'struct' template implements the 'is_reference' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
-    // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.
+    // (template parameter) 't_TYPE' is a (lvalue or rvalue) reference type.
     //
     // This 'struct' derives from 'bsl::false_type' with specializations to
     // follow for lvalue and rvalue references.
 };
 
-template <class TYPE>
-struct is_reference<TYPE&> : true_type {
+template <class t_TYPE>
+struct is_reference<t_TYPE&> : true_type {
     // This 'struct' template implements the 'is_reference' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
-    // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.
+    // (template parameter) 't_TYPE' is a (lvalue or rvalue) reference type.
     //
     // This specialization for lvalue references derives from 'bsl::true_type'.
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class TYPE>
-struct is_reference<TYPE&&> : true_type {
+template <class t_TYPE>
+struct is_reference<t_TYPE&&> : true_type {
     // This 'struct' template implements the 'is_reference' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
-    // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.
+    // (template parameter) 't_TYPE' is a (lvalue or rvalue) reference type.
     //
     // This specialization for rvalue references derives from 'bsl::true_type.
 };
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_reference_v = is_reference<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_reference_v =
+                                                   is_reference<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_reference' meta-function.
 #endif

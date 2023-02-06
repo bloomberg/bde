@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Fri Dec 16 11:47:20 2022
 // Command line: sim_cpp11_features.pl bslmf_nthparameter.h
 
 #ifdef COMPILING_BSLMF_NTHPARAMETER_H
@@ -46,850 +46,850 @@ struct NthParameter_Sentinel;  // Declared but not defined
 #define BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A BSLMF_NTHPARAMETER_VARIADIC_LIMIT
 #endif
 
-template <std::size_t N,
-          class FIRST_PARAM = NthParameter_Sentinel
+template <std::size_t t_N,
+          class t_FIRST_PARAM = NthParameter_Sentinel
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 0
-        , class PARAMS_0 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_0 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 0
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 1
-        , class PARAMS_1 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_1 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 1
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 2
-        , class PARAMS_2 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_2 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 2
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 3
-        , class PARAMS_3 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_3 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 3
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 4
-        , class PARAMS_4 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_4 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 4
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 5
-        , class PARAMS_5 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_5 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 5
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 6
-        , class PARAMS_6 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_6 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 6
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 7
-        , class PARAMS_7 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_7 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 7
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 8
-        , class PARAMS_8 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_8 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 8
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 9
-        , class PARAMS_9 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_9 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 9
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 10
-        , class PARAMS_10 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_10 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 10
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 11
-        , class PARAMS_11 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_11 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 11
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 12
-        , class PARAMS_12 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_12 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 12
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 13
-        , class PARAMS_13 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_13 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 13
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 14
-        , class PARAMS_14 = BSLS_COMPILERFEATURES_NILT
+        , class t_PARAMS_14 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 14
         , class = BSLS_COMPILERFEATURES_NILT>
 struct NthParameter;
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 0
-template <std::size_t N, class FIRST_PARAM>
-struct NthParameter<N, FIRST_PARAM> {
+template <std::size_t t_N, class t_FIRST_PARAM>
+struct NthParameter<t_N, t_FIRST_PARAM> {
 
-    typedef typename NthParameter<N - 1>::Type Type;
+    typedef typename NthParameter<t_N - 1>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 0
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 1
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 1
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 2
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 2
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 3
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 3
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 4
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 4
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 5
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 5
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 6
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 6
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 7
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 7
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 8
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 8
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 9
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08,
-                                            class PARAMS_09>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08,
+                                                class t_PARAMS_09>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08,
+                                        t_PARAMS_09> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08,
-                                         PARAMS_09>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08,
+                                           t_PARAMS_09>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 9
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 10
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08,
-                                            class PARAMS_09,
-                                            class PARAMS_10>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08,
+                                                class t_PARAMS_09,
+                                                class t_PARAMS_10>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08,
+                                        t_PARAMS_09,
+                                        t_PARAMS_10> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08,
-                                         PARAMS_09,
-                                         PARAMS_10>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08,
+                                           t_PARAMS_09,
+                                           t_PARAMS_10>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 10
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 11
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08,
-                                            class PARAMS_09,
-                                            class PARAMS_10,
-                                            class PARAMS_11>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08,
+                                                class t_PARAMS_09,
+                                                class t_PARAMS_10,
+                                                class t_PARAMS_11>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08,
+                                        t_PARAMS_09,
+                                        t_PARAMS_10,
+                                        t_PARAMS_11> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08,
-                                         PARAMS_09,
-                                         PARAMS_10,
-                                         PARAMS_11>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08,
+                                           t_PARAMS_09,
+                                           t_PARAMS_10,
+                                           t_PARAMS_11>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 11
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 12
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08,
-                                            class PARAMS_09,
-                                            class PARAMS_10,
-                                            class PARAMS_11,
-                                            class PARAMS_12>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08,
+                                                class t_PARAMS_09,
+                                                class t_PARAMS_10,
+                                                class t_PARAMS_11,
+                                                class t_PARAMS_12>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08,
+                                        t_PARAMS_09,
+                                        t_PARAMS_10,
+                                        t_PARAMS_11,
+                                        t_PARAMS_12> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08,
-                                         PARAMS_09,
-                                         PARAMS_10,
-                                         PARAMS_11,
-                                         PARAMS_12>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08,
+                                           t_PARAMS_09,
+                                           t_PARAMS_10,
+                                           t_PARAMS_11,
+                                           t_PARAMS_12>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 12
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 13
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08,
-                                            class PARAMS_09,
-                                            class PARAMS_10,
-                                            class PARAMS_11,
-                                            class PARAMS_12,
-                                            class PARAMS_13>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12,
-                                    PARAMS_13> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08,
+                                                class t_PARAMS_09,
+                                                class t_PARAMS_10,
+                                                class t_PARAMS_11,
+                                                class t_PARAMS_12,
+                                                class t_PARAMS_13>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08,
+                                        t_PARAMS_09,
+                                        t_PARAMS_10,
+                                        t_PARAMS_11,
+                                        t_PARAMS_12,
+                                        t_PARAMS_13> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08,
-                                         PARAMS_09,
-                                         PARAMS_10,
-                                         PARAMS_11,
-                                         PARAMS_12,
-                                         PARAMS_13>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08,
+                                           t_PARAMS_09,
+                                           t_PARAMS_10,
+                                           t_PARAMS_11,
+                                           t_PARAMS_12,
+                                           t_PARAMS_13>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 13
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 14
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08,
-                                            class PARAMS_09,
-                                            class PARAMS_10,
-                                            class PARAMS_11,
-                                            class PARAMS_12,
-                                            class PARAMS_13,
-                                            class PARAMS_14>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12,
-                                    PARAMS_13,
-                                    PARAMS_14> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08,
+                                                class t_PARAMS_09,
+                                                class t_PARAMS_10,
+                                                class t_PARAMS_11,
+                                                class t_PARAMS_12,
+                                                class t_PARAMS_13,
+                                                class t_PARAMS_14>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08,
+                                        t_PARAMS_09,
+                                        t_PARAMS_10,
+                                        t_PARAMS_11,
+                                        t_PARAMS_12,
+                                        t_PARAMS_13,
+                                        t_PARAMS_14> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08,
-                                         PARAMS_09,
-                                         PARAMS_10,
-                                         PARAMS_11,
-                                         PARAMS_12,
-                                         PARAMS_13,
-                                         PARAMS_14>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08,
+                                           t_PARAMS_09,
+                                           t_PARAMS_10,
+                                           t_PARAMS_11,
+                                           t_PARAMS_12,
+                                           t_PARAMS_13,
+                                           t_PARAMS_14>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 14
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 15
-template <std::size_t N, class FIRST_PARAM, class PARAMS_01,
-                                            class PARAMS_02,
-                                            class PARAMS_03,
-                                            class PARAMS_04,
-                                            class PARAMS_05,
-                                            class PARAMS_06,
-                                            class PARAMS_07,
-                                            class PARAMS_08,
-                                            class PARAMS_09,
-                                            class PARAMS_10,
-                                            class PARAMS_11,
-                                            class PARAMS_12,
-                                            class PARAMS_13,
-                                            class PARAMS_14,
-                                            class PARAMS_15>
-struct NthParameter<N, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12,
-                                    PARAMS_13,
-                                    PARAMS_14,
-                                    PARAMS_15> {
+template <std::size_t t_N, class t_FIRST_PARAM, class t_PARAMS_01,
+                                                class t_PARAMS_02,
+                                                class t_PARAMS_03,
+                                                class t_PARAMS_04,
+                                                class t_PARAMS_05,
+                                                class t_PARAMS_06,
+                                                class t_PARAMS_07,
+                                                class t_PARAMS_08,
+                                                class t_PARAMS_09,
+                                                class t_PARAMS_10,
+                                                class t_PARAMS_11,
+                                                class t_PARAMS_12,
+                                                class t_PARAMS_13,
+                                                class t_PARAMS_14,
+                                                class t_PARAMS_15>
+struct NthParameter<t_N, t_FIRST_PARAM, t_PARAMS_01,
+                                        t_PARAMS_02,
+                                        t_PARAMS_03,
+                                        t_PARAMS_04,
+                                        t_PARAMS_05,
+                                        t_PARAMS_06,
+                                        t_PARAMS_07,
+                                        t_PARAMS_08,
+                                        t_PARAMS_09,
+                                        t_PARAMS_10,
+                                        t_PARAMS_11,
+                                        t_PARAMS_12,
+                                        t_PARAMS_13,
+                                        t_PARAMS_14,
+                                        t_PARAMS_15> {
 
-    typedef typename NthParameter<N - 1, PARAMS_01,
-                                         PARAMS_02,
-                                         PARAMS_03,
-                                         PARAMS_04,
-                                         PARAMS_05,
-                                         PARAMS_06,
-                                         PARAMS_07,
-                                         PARAMS_08,
-                                         PARAMS_09,
-                                         PARAMS_10,
-                                         PARAMS_11,
-                                         PARAMS_12,
-                                         PARAMS_13,
-                                         PARAMS_14,
-                                         PARAMS_15>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS_01,
+                                           t_PARAMS_02,
+                                           t_PARAMS_03,
+                                           t_PARAMS_04,
+                                           t_PARAMS_05,
+                                           t_PARAMS_06,
+                                           t_PARAMS_07,
+                                           t_PARAMS_08,
+                                           t_PARAMS_09,
+                                           t_PARAMS_10,
+                                           t_PARAMS_11,
+                                           t_PARAMS_12,
+                                           t_PARAMS_13,
+                                           t_PARAMS_14,
+                                           t_PARAMS_15>::Type Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 15
 
 
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 0
-template <class FIRST_PARAM>
-struct NthParameter<0, FIRST_PARAM> {
+template <class t_FIRST_PARAM>
+struct NthParameter<0, t_FIRST_PARAM> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 0
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 1
-template <class FIRST_PARAM, class PARAMS_01>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01> {
+template <class t_FIRST_PARAM, class t_PARAMS_01>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 1
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 2
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 2
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 3
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 3
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 4
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 4
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 5
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 5
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 6
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 6
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 7
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 7
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 8
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 8
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 9
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08,
-                             class PARAMS_09>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08,
+                               class t_PARAMS_09>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08,
+                                      t_PARAMS_09> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 9
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 10
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08,
-                             class PARAMS_09,
-                             class PARAMS_10>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08,
+                               class t_PARAMS_09,
+                               class t_PARAMS_10>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08,
+                                      t_PARAMS_09,
+                                      t_PARAMS_10> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 10
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 11
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08,
-                             class PARAMS_09,
-                             class PARAMS_10,
-                             class PARAMS_11>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08,
+                               class t_PARAMS_09,
+                               class t_PARAMS_10,
+                               class t_PARAMS_11>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08,
+                                      t_PARAMS_09,
+                                      t_PARAMS_10,
+                                      t_PARAMS_11> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 11
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 12
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08,
-                             class PARAMS_09,
-                             class PARAMS_10,
-                             class PARAMS_11,
-                             class PARAMS_12>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08,
+                               class t_PARAMS_09,
+                               class t_PARAMS_10,
+                               class t_PARAMS_11,
+                               class t_PARAMS_12>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08,
+                                      t_PARAMS_09,
+                                      t_PARAMS_10,
+                                      t_PARAMS_11,
+                                      t_PARAMS_12> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 12
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 13
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08,
-                             class PARAMS_09,
-                             class PARAMS_10,
-                             class PARAMS_11,
-                             class PARAMS_12,
-                             class PARAMS_13>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12,
-                                    PARAMS_13> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08,
+                               class t_PARAMS_09,
+                               class t_PARAMS_10,
+                               class t_PARAMS_11,
+                               class t_PARAMS_12,
+                               class t_PARAMS_13>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08,
+                                      t_PARAMS_09,
+                                      t_PARAMS_10,
+                                      t_PARAMS_11,
+                                      t_PARAMS_12,
+                                      t_PARAMS_13> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 13
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 14
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08,
-                             class PARAMS_09,
-                             class PARAMS_10,
-                             class PARAMS_11,
-                             class PARAMS_12,
-                             class PARAMS_13,
-                             class PARAMS_14>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12,
-                                    PARAMS_13,
-                                    PARAMS_14> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08,
+                               class t_PARAMS_09,
+                               class t_PARAMS_10,
+                               class t_PARAMS_11,
+                               class t_PARAMS_12,
+                               class t_PARAMS_13,
+                               class t_PARAMS_14>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08,
+                                      t_PARAMS_09,
+                                      t_PARAMS_10,
+                                      t_PARAMS_11,
+                                      t_PARAMS_12,
+                                      t_PARAMS_13,
+                                      t_PARAMS_14> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 14
 
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 15
-template <class FIRST_PARAM, class PARAMS_01,
-                             class PARAMS_02,
-                             class PARAMS_03,
-                             class PARAMS_04,
-                             class PARAMS_05,
-                             class PARAMS_06,
-                             class PARAMS_07,
-                             class PARAMS_08,
-                             class PARAMS_09,
-                             class PARAMS_10,
-                             class PARAMS_11,
-                             class PARAMS_12,
-                             class PARAMS_13,
-                             class PARAMS_14,
-                             class PARAMS_15>
-struct NthParameter<0, FIRST_PARAM, PARAMS_01,
-                                    PARAMS_02,
-                                    PARAMS_03,
-                                    PARAMS_04,
-                                    PARAMS_05,
-                                    PARAMS_06,
-                                    PARAMS_07,
-                                    PARAMS_08,
-                                    PARAMS_09,
-                                    PARAMS_10,
-                                    PARAMS_11,
-                                    PARAMS_12,
-                                    PARAMS_13,
-                                    PARAMS_14,
-                                    PARAMS_15> {
+template <class t_FIRST_PARAM, class t_PARAMS_01,
+                               class t_PARAMS_02,
+                               class t_PARAMS_03,
+                               class t_PARAMS_04,
+                               class t_PARAMS_05,
+                               class t_PARAMS_06,
+                               class t_PARAMS_07,
+                               class t_PARAMS_08,
+                               class t_PARAMS_09,
+                               class t_PARAMS_10,
+                               class t_PARAMS_11,
+                               class t_PARAMS_12,
+                               class t_PARAMS_13,
+                               class t_PARAMS_14,
+                               class t_PARAMS_15>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS_01,
+                                      t_PARAMS_02,
+                                      t_PARAMS_03,
+                                      t_PARAMS_04,
+                                      t_PARAMS_05,
+                                      t_PARAMS_06,
+                                      t_PARAMS_07,
+                                      t_PARAMS_08,
+                                      t_PARAMS_09,
+                                      t_PARAMS_10,
+                                      t_PARAMS_11,
+                                      t_PARAMS_12,
+                                      t_PARAMS_13,
+                                      t_PARAMS_14,
+                                      t_PARAMS_15> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 #endif  // BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 15
 
@@ -897,18 +897,19 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-template <std::size_t N, class FIRST_PARAM = NthParameter_Sentinel,
-          class... PARAMS>
+template <std::size_t t_N,
+          class t_FIRST_PARAM = NthParameter_Sentinel,
+          class... t_PARAMS>
 struct NthParameter {
 
-    typedef typename NthParameter<N - 1, PARAMS...>::Type Type;
+    typedef typename NthParameter<t_N - 1, t_PARAMS...>::Type Type;
 };
 
 
-template <class FIRST_PARAM, class... PARAMS>
-struct NthParameter<0, FIRST_PARAM, PARAMS...> {
+template <class t_FIRST_PARAM, class... t_PARAMS>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS...> {
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
 };
 
 // }}} END GENERATED CODE
@@ -916,8 +917,8 @@ struct NthParameter<0, FIRST_PARAM, PARAMS...> {
 
 template <>
 struct NthParameter<0, NthParameter_Sentinel> {
-    // Specialization of 'NthParameter' for when 'N' exceeds the actual number
-    // of parameters.
+    // Specialization of 'NthParameter' for when 't_N' exceeds the actual
+    // number of parameters.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // No 'Type' member is defined.
@@ -942,7 +943,7 @@ struct NthParameter<0, NthParameter_Sentinel> {
 #endif // ! defined(INCLUDED_BSLMF_NTHPARAMETER_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

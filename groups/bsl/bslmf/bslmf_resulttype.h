@@ -17,14 +17,14 @@ BSLS_IDENT("$Id: $")
 // this 'typedef' 'result_type' whereas BDE types name this 'typedef'
 // 'ResultType'.  This component facilitates writing code that depends on these
 // 'typedef's by providing a uniform interface, 'bslmf::ResultType', for
-// extracting the correct alias.  'bslmf::ResultType<FUNC>::type' is identical
-// to 'FUNC::result_type' if such a type exists; otherwise, it is identical to
-// 'FUNC::ResultType' if that type exists; otherwise, it is undefined.  A
-// fallback type can be optionally specified such that
-// 'bslmf::ResultType<FUNC, FALLBACK>::type' is identical to 'FALLBACK' if
-// neither 'FUNC::result_type' nor 'FUNC::ResultType' is defined.
+// extracting the correct alias.  'bslmf::ResultType<t_FUNC>::type' is
+// identical to 't_FUNC::result_type' if such a type exists; otherwise, it is
+// identical to 't_FUNC::ResultType' if that type exists; otherwise, it is
+// undefined.  A fallback type can be optionally specified such that
+// 'bslmf::ResultType<t_FUNC, t_FALLBACK>::type' is identical to 't_FALLBACK'
+// if neither 't_FUNC::result_type' nor 't_FUNC::ResultType' is defined.
 //
-// Note that 'ResultType' checks only for a nested type within its 'FUNC'
+// Note that 'ResultType' checks only for a nested type within its 't_FUNC'
 // parameter; it does not attempt to deduce the return type of calling
 // 'operator()' the way C++11 'std::result_of' does.
 //
@@ -35,27 +35,27 @@ BSLS_IDENT("$Id: $")
 ///Usage Example 1
 ///- - - - - - - -
 // In this example, we write a C++03-compatible function template,
-// 'wrapInvoke<FUNC>(A1 a1, A2 a2)', that constructs an instance of functor
-// 'FUNC', invokes it with arguments 'a1' and 'a2', and translates any thrown
-// exception to a generic exception type.
+// 'wrapInvoke<t_FUNC>(t_A1 a1, t_A2 a2)', that constructs an instance of
+// functor 't_FUNC', invokes it with arguments 'a1' and 'a2', and translates
+// any thrown exception to a generic exception type.
 //
 // First, we declare the generic exception type:
 //..
 //  struct InvocationException { };
 //..
 // Now, we declare 'wrapInvoke'.  The return type of 'wrapInvoke' should be the
-// same as the return type of invoking an object of type 'FUNC'.  There is no
-// non-intrusive way to deduce the return type of 'FUNC' in C++03.  We
-// therefore require that 'FUNC' provide either a 'result_type' nested type
+// same as the return type of invoking an object of type 't_FUNC'.  There is no
+// non-intrusive way to deduce the return type of 't_FUNC' in C++03.  We
+// therefore require that 't_FUNC' provide either a 'result_type' nested type
 // (the idiom used in standard library functors) or a 'ResultType' nested type
 // (the idiom used in BDE library functors).  We use 'bslmf::ResultType' to
 // automatically select the correct idiom:
 //..
-//  template <class FUNC, class A1, class A2>
-//  typename bslmf::ResultType<FUNC>::type
-//  wrapInvoke(A1 a1, A2 a2)
+//  template <class t_FUNC, class t_A1, class t_A2>
+//  typename bslmf::ResultType<t_FUNC>::type
+//  wrapInvoke(t_A1 a1, t_A2 a2)
 //  {
-//      FUNC f;
+//      t_FUNC f;
 //      try {
 //          return f(a1, a2);                                         // RETURN
 //      }
@@ -143,14 +143,14 @@ BSLS_IDENT("$Id: $")
 //..
 // To make 'wrapInvoke' usable in these situations, we define a new version,
 // 'wrapInvoke2', that will fall back to a 'void' return type if neither
-// 'FUNC::result_type' nor 'FUNC::ResultType' is defined:
+// 't_FUNC::result_type' nor 't_FUNC::ResultType' is defined:
 //..
-//  template <class FUNC, class A1, class A2>
-//  typename bslmf::ResultType<FUNC, void>::type
-//  wrapInvoke2(A1 a1, A2 a2)
+//  template <class t_FUNC, class t_A1, class t_A2>
+//  typename bslmf::ResultType<t_FUNC, void>::type
+//  wrapInvoke2(t_A1 a1, t_A2 a2)
 //  {
-//      typedef typename bslmf::ResultType<FUNC, void>::type RetType;
-//      FUNC f;
+//      typedef typename bslmf::ResultType<t_FUNC, void>::type RetType;
+//      t_FUNC f;
 //      try {
 //          // C-style cast needed for some compilers
 //          return (RetType)f(a1, a2);                                // RETURN
@@ -180,40 +180,42 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <class FUNC, class FALLBACK, class = void>
+template <class t_FUNC, class t_FALLBACK, class = void>
 struct ResultType_BdeIdiom;
 
                         // ================
                         // class ResultType
                         // ================
 
-template <class FUNC, class FALLBACK = bslmf::Nil, class = void>
-struct ResultType : ResultType_BdeIdiom<FUNC, FALLBACK> {
+template <class t_FUNC, class t_FALLBACK = bslmf::Nil, class = void>
+struct ResultType : ResultType_BdeIdiom<t_FUNC, t_FALLBACK> {
     // Metafunction to return the result type of the specified functor type
-    // 'FUNC'.  The nested 'type' is identical to 'FUNC::result_type' if such a
-    // type exists; otherwise, it is identical to 'FUNC::ResultType' if that
-    // type exists; otherwise, it is identical to the 'FALLBACK' template
-    // parameter if it was specified; otherwise, it is undefined.
+    // 't_FUNC'.  The nested 'type' is identical to 't_FUNC::result_type' if
+    // such a type exists; otherwise, it is identical to 't_FUNC::ResultType'
+    // if that type exists; otherwise, it is identical to the 't_FALLBACK'
+    // template parameter if it was specified; otherwise, it is undefined.
 };
 
-template <class FUNC, class FALLBACK>
-struct ResultType<FUNC, FALLBACK, BSLMF_VOIDTYPE(typename FUNC::result_type)> {
-    // Specialization of 'ResultType' for when 'FUNC::result_type' exists,
+template <class t_FUNC, class t_FALLBACK>
+struct ResultType<t_FUNC,
+                  t_FALLBACK,
+                  BSLMF_VOIDTYPE(typename t_FUNC::result_type)> {
+    // Specialization of 'ResultType' for when 't_FUNC::result_type' exists,
     // i.e., when the C++ standard idiom for 'result_type' is used.
 
-    typedef typename FUNC::result_type type;
+    typedef typename t_FUNC::result_type type;
 };
 
 // ============================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
-template <class FALLBACK>
+template <class t_FALLBACK>
 struct ResultType_Fallback {
-    // Metafunction that defines 'type' to be the specified 'FALLBACK' type
-    // unless 'FALLBACK' is 'bslmf::Nil'.
+    // Metafunction that defines 'type' to be the specified 't_FALLBACK' type
+    // unless 't_FALLBACK' is 'bslmf::Nil'.
 
-    typedef FALLBACK type;
+    typedef t_FALLBACK type;
 };
 
 template <>
@@ -222,25 +224,25 @@ struct ResultType_Fallback<bslmf::Nil> {
     // 'bslmf::Nil' is specified as the fallback parameter.
 };
 
-template <class FUNC, class FALLBACK, class>
-struct ResultType_BdeIdiom : ResultType_Fallback<FALLBACK> {
+template <class t_FUNC, class t_FALLBACK, class>
+struct ResultType_BdeIdiom : ResultType_Fallback<t_FALLBACK> {
     // Metafunction to detect the BDE 'ResultType' idiom as part of the
     // implementation of 'bslmf::ResultType'.  This 'struct' is instantiated
-    // when 'FUNC::result_type' doesn't exist.  This primary template is
-    // matched when 'FUNC::ResultType' also does not exist.  The 'FALLBACK'
+    // when 't_FUNC::result_type' doesn't exist.  This primary template is
+    // matched when 't_FUNC::ResultType' also does not exist.  The 't_FALLBACK'
     // type, if any, is produced.
 };
 
-template <class FUNC, class FALLBACK>
-struct ResultType_BdeIdiom<FUNC,
-                           FALLBACK,
-                           BSLMF_VOIDTYPE(typename FUNC::ResultType)> {
+template <class t_FUNC, class t_FALLBACK>
+struct ResultType_BdeIdiom<t_FUNC,
+                           t_FALLBACK,
+                           BSLMF_VOIDTYPE(typename t_FUNC::ResultType)> {
     // Metafunction to detect the BDE 'ResultType' idiom as part of the
     // implementation of 'bslmf::ResultType'.  This specialization is
-    // instantiated by 'ResultType' only if 'FUNC::result_type' does not exist
-    // and 'FUNC::ResultType' does exist.
+    // instantiated by 'ResultType' only if 't_FUNC::result_type' does not
+    // exist and 't_FUNC::ResultType' does exist.
 
-    typedef typename FUNC::ResultType type;
+    typedef typename t_FUNC::ResultType type;
 };
 
 }  // close package namespace

@@ -70,30 +70,30 @@ namespace bsl {
                          // struct add_cv
                          // =============
 
-template <class TYPE>
+template <class t_TYPE>
 struct add_cv {
     // This 'struct' template implements the 'add_cv' meta-function defined in
     // the C++11 standard [meta.trans.cv], providing an alias, 'type', that
-    // returns the result.  If the (template parameter) 'TYPE' is not a
+    // returns the result.  If the (template parameter) 't_TYPE' is not a
     // reference type, nor a function type, nor already 'const'-qualified and
-    // 'volatile'-qualified at the top-level, then 'type' is an alias to 'TYPE'
-    // with a top-level 'const'-qualifier and a 'volatile'-qualifier added;
-    // otherwise, 'type' is an alias to 'TYPE'.
+    // 'volatile'-qualified at the top-level, then 'type' is an alias to
+    // 't_TYPE' with a top-level 'const'-qualifier and a 'volatile'-qualifier
+    // added; otherwise, 'type' is an alias to 't_TYPE'.
 
     // PUBLIC TYPES
-    typedef typename add_const<typename add_volatile<TYPE>::type>::type type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE' with a
-        // top-level 'const'-qualifier and 'volatile'-qualifier added if 'TYPE'
-        // is not a reference type, nor a function type, nor already
+    typedef typename add_const<typename add_volatile<t_TYPE>::type>::type type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE' with
+        // a top-level 'const'-qualifier and 'volatile'-qualifier added if
+        // 't_TYPE' is not a reference type, nor a function type, nor already
         // 'const'-qualified and 'volatile'-qualified at the top-level;
-        // otherwise, 'type' is an alias to 'TYPE'.
+        // otherwise, 'type' is an alias to 't_TYPE'.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using add_cv_t = typename add_cv<TYPE>::type;
+template <class t_TYPE>
+using add_cv_t = typename add_cv<t_TYPE>::type;
     // 'add_cv_t' is an alias to the return type of the 'bsl::add_cv'
     // meta-function.  Note, that the 'add_cv_t' avoids the '::type' suffix and
     // 'typename' prefix when we want to use the result of the 'bsl::add_cv' in

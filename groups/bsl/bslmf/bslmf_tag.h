@@ -21,9 +21,9 @@ BSLS_IDENT("$Id: $")
 // so that 'bslmf::Tag<0>' is a distinct type from 'bslmf::Tag<1>', which, in
 // turn, is also distinct from 'bslmf::Tag<2>', and so on.
 //
-// This component also provides two macros for mapping a 'bslmf::Tag<N>'
-// instance to the integral value 'N' ('BSLMF_TAG_TO_INT'), and to the boolean
-// value 'N != 0' ('BSLMF_TAG_TO_BOOL').
+// This component also provides two macros for mapping a 'bslmf::Tag<t_N>'
+// instance to the integral value 't_N' ('BSLMF_TAG_TO_INT'), and to the
+// boolean value 't_N != 0' ('BSLMF_TAG_TO_BOOL').
 //
 ///Macro Summary
 ///-------------
@@ -41,6 +41,7 @@ BSLS_IDENT("$Id: $")
 //:     value 'true' or 'false', depending on the boolean value of 'V'.  'EXPR'
 //:     is not evaluated at run-time.
 //
+
 ///Usage
 ///-----
 // The most common use of this structure is to perform static function
@@ -84,11 +85,11 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that an alternative design would be to use template partial
 // specialization instead of standard function overloading to avoid the cost of
-// passing a 'bslmf::Tag<N>' pointer.
+// passing a 'bslmf::Tag<t_N>' pointer.
 //
 // The value of the integral parameter supplied to an instantiation of
-// 'bslmf::Tag<N>' is "recoverable" by using the 'BSLMF_TAG_TO_INT' macro.  For
-// example:
+// 'bslmf::Tag<t_N>' is "recoverable" by using the 'BSLMF_TAG_TO_INT' macro.
+// For example:
 //..
 //  bslmf::Tag<7> tag;
 //  assert( 7 == BSLMF_TAG_TO_INT(tag));
@@ -109,11 +110,11 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-                           // =============
-                           // struct Tag<N>
-                           // =============
+                              // ===============
+                              // struct Tag<t_N>
+                              // ===============
 
-template <unsigned N>
+template <unsigned t_N>
 struct Tag {
     // This template class is never intended to produce a run-time instance.
     // The only useful attribute of a tag is its size (which is, of course,
@@ -122,8 +123,8 @@ struct Tag {
     // into 2 data members.
 
     // DATA
-    char d_upperSizeArray[(N >> 16)        + 1];
-    char d_lowerSizeArray[(N & 0x0000FFFF) + 1];
+    char d_upperSizeArray[(t_N >> 16) + 1];
+    char d_lowerSizeArray[(t_N&  0x0000FFFF) + 1];
 };
 
 }  // close package namespace

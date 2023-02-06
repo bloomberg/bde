@@ -90,19 +90,19 @@ struct IsFunction_Imp {
         char d_dummy[17];  // Member to guarantee 'sizeof(FalseType) > 1'
     };
 
-    template <class TYPE>
-    static FalseType test(int TYPE::*, void *);
+    template <class t_TYPE>
+    static FalseType test(int t_TYPE::*, void *);
         // This function will match any class type, including abstract types.
 
-    template <class TYPE>
-    static FalseType test(TYPE (*)[2], ...);
+    template <class t_TYPE>
+    static FalseType test(t_TYPE (*)[2], ...);
         // This function will match all types other than those that cannot be
         // used to form an array.  This includes function types, reference
         // types, void types, and abstract types.  Further overloads and
         // specializations will filter the reference, array, and abstract
         // types.
 
-    template <class TYPE>
+    template <class t_TYPE>
     static char test(...);
         // This function, when called with '0' in a non-evaluated context, will
         // match anything that the previous overloads fail to match, which will
@@ -115,25 +115,27 @@ struct IsFunction_Imp {
 
 namespace bsl {
 
-template <class TYPE>
-struct is_function : integral_constant<bool,
-           sizeof(BloombergLP::bslmf::IsFunction_Imp::test<TYPE>(0, 0)) == 1> {
+template <class t_TYPE>
+struct is_function
+: integral_constant<
+      bool,
+      sizeof(BloombergLP::bslmf::IsFunction_Imp::test<t_TYPE>(0, 0)) == 1> {
     // This 'struct' template implements the 'is_function' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 'TYPE' is a function type.  This 'struct' derives
-    // from 'bsl::true_type' if the 'TYPE' is a function type, and
-    // from 'bsl::false_type' otherwise.
+    // (template parameter) 't_TYPE' is a function type.  This 'struct' derives
+    // from 'bsl::true_type' if the 't_TYPE' is a function type, and from
+    // 'bsl::false_type' otherwise.
 };
 
-template <class TYPE>
-struct is_function<TYPE []> : false_type {
+template <class t_TYPE>
+struct is_function<t_TYPE[]> : false_type {
     // Array types are, self-evidently, never function types.  Arrays of
     // unknown bound will be misdiagnosed by the 'IsFunction_Imp' detector, so
     // this template is partially specialized to resolve such cases.
 };
 
-template <class TYPE>
-struct is_function<TYPE &> : false_type {
+template <class t_TYPE>
+struct is_function<t_TYPE&> : false_type {
     // Reference types are, self-evidently, never function types.  This
     // template is partially specialized to resolve such cases, as the
     // detection idiom embodied in 'IsFunction_Imp' would yield the wrong
@@ -178,24 +180,24 @@ namespace bsl {
 # pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
 #endif
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_function
-    :  bsl::integral_constant<bool, !is_const<const TYPE>::value> {
+: bsl::integral_constant<bool, !is_const<const t_TYPE>::value> {
     // This 'struct' template implements the 'is_function' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 'TYPE' is a function type.  This 'struct' derives
-    // from 'bsl::true_type' if the 'TYPE' is a function type, and from
+    // (template parameter) 't_TYPE' is a function type.  This 'struct' derives
+    // from 'bsl::true_type' if the 't_TYPE' is a function type, and from
     // 'bsl::false_type' otherwise.  This implementation relies on the fact
     // that neither function types nor reference types can be cv-qualified so
-    // that 'is_const<const TYPE>' will actually yield 'false'.
+    // that 'is_const<const t_TYPE>' will actually yield 'false'.
 };
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
 # pragma warning(pop)
 #endif
 
-template <class TYPE>
-struct is_function<TYPE &> : false_type {
+template <class t_TYPE>
+struct is_function<t_TYPE&> : false_type {
     // Reference types are, self-evidently, never function types.  The idiom
     // for detecting function types in this component is that a function is a
     // type that is the same as the const-qualified version of that same type.
@@ -203,9 +205,9 @@ struct is_function<TYPE &> : false_type {
     // with this partial specialization.
 };
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class TYPE>
-struct is_function<TYPE &&> : false_type {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class t_TYPE>
+struct is_function<t_TYPE&&> : false_type {
     // Reference types are, self-evidently, never function types.  The idiom
     // for detecting function types in this component is that a function is a
     // type that is the same as the const-qualified version of that same type.
@@ -215,9 +217,9 @@ struct is_function<TYPE &&> : false_type {
 # endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_function_v = is_function<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_function_v =
+                                                    is_function<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_function' meta-function.
 #endif
