@@ -748,7 +748,7 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // we need to normalize 'input' to ensure that we do not pass two different
     // binary representations of 'true' true into our hashing algorithm.
 
-    unsigned char normalizedData = !!input;
+    unsigned char normalizedData = input;
 
     hashAlg(static_cast<void *>(&normalizedData), sizeof(normalizedData));
 }
