@@ -35,8 +35,10 @@ BSLS_IDENT("$Id: $")
 // https://www.rfc-editor.org/rfc/rfc8259#section-6.  The equivalent regular
 // expression is:
 //..
-//  /^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?$/
+//  /^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?\z/
 //..
+// Note that "\z" matches end-of-string but not a preceding '\n'.
+//
 // For example:
 //..
 //   1

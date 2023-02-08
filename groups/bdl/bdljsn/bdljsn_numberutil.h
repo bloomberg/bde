@@ -332,7 +332,6 @@ struct NumberUtil_ImpUtil {
         // implementation.  These functions are documented by
         // 'NumberUtil::asInteger'.
 
-
     static void decompose(
                       bool                             *isNegative,
                       bsl::string_view::const_iterator *integerBegin,
@@ -432,7 +431,6 @@ double NumberUtil::asDouble(const bsl::string_view& value)
     return result;
 }
 
-
 inline
 float NumberUtil::asFloat(const bsl::string_view& value)
 {
@@ -518,7 +516,6 @@ int NumberUtil_ImpUtil::asIntegerDispatchImp(
     bsls::Types::Uint64 tmp;
 
     const int rc = NumberUtil::asUint64(&tmp, positiveValue);
-
 
     if (isNegative) {
         if (tmp > maxValue + 1) {

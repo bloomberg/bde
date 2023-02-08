@@ -21,7 +21,6 @@ BSLS_IDENT_RCSID(bdljsn_numberutil_cpp, "$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
-
 namespace BloombergLP {
 namespace bdljsn {
 namespace {
@@ -93,7 +92,6 @@ static bool skipIfIsValidUint(bsl::string_view::const_iterator *iter,
 
     return true;
 }
-
 
 struct DecomposedNumber {
     // This struct holds a  data members for each of the  decomposed elements
@@ -167,8 +165,6 @@ static bool compareNumberTextFallback(const DecomposedNumber& lhs,
     if (lSignificand != rSignificand) {
         return false;                                                 // RETURN
     }
-
-
 
     bsl::string_view lExp(&*lhs.d_exponentBegin,
                           lhs.d_value.end() - lhs.d_exponentBegin);
@@ -268,7 +264,6 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         return k_NOT_INTEGRAL;                                        // RETURN
     }
 
-
     bsl::string_view::const_iterator adjustedSigEnd = sigEnd;
     if (exponent < 0) {
         // This value will not be an integer, but we still must compute the
@@ -333,7 +328,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         BSLS_ASSERT(exponent <= 9);  // sanity. tested above
 
         const bsls::Types::Uint64 uExponentMultiple =
-                                        u::POWER_OF_TEN_LOOKUP[exponent];
+                                              u::POWER_OF_TEN_LOOKUP[exponent];
 
         if (u::UINT64_MAX_VALUE / uExponentMultiple >= tmp) {
             tmp *= uExponentMultiple;
@@ -705,7 +700,6 @@ void NumberUtil::stringify(bsl::string *result, const bdldfp::Decimal64& value)
     result->assign(buffer, numChars);
 }
 
-
                          // -------------------------
                          // struct NumberUtil_ImpUtil
                          // -------------------------
@@ -885,7 +879,6 @@ void NumberUtil_ImpUtil::logUnparseableJsonNumber(
     bsl::string text(stream.str());
     BSLS_LOG_FATAL(text.c_str());
 }
-
 
 }  // close package namespace
 }  // close enterprise namespace

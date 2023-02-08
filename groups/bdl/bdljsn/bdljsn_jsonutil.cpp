@@ -230,7 +230,6 @@ int read(Json *result, Error *error, Tokenizer *tokenizer, int maxNestedDepth)
     return 0;
 }
 
-
                                 // Write Implementation
 
 // Implementation Note:  The write implementation below uses the visitor
@@ -254,7 +253,6 @@ void write(bsl::ostream&  stream,
     // for a 'Json' object with the supplied 'visitor' (this free function is
     // needed because 'Json' itself does not have a 'visit' function at this
     // time).
-
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 template <typename T>
@@ -704,15 +702,19 @@ int JsonUtil::read(Json               *result,
     if (!options.allowTrailingText()) {
         rc = tokenizer.advanceToNextToken();
         if (0 == rc) {
-            // The tokenizer should report an error if there 'advanceToNextToken'
-            // is advanced in an invalid state.
+            // The tokenizer should report an error if there
+            // 'advanceToNextToken' is advanced in an invalid state.
 
-            u::setError(error, tokenizer, "Additional text found after document");
-            return -1;                                                    // RETURN
+            u::setError(error,
+                        tokenizer,
+                        "Additional text found after document");
+            return -1;                                                // RETURN
         }
         else if (Tokenizer::k_EOF != tokenizer.readStatus()) {
-            u::setError(error, tokenizer, "Additional text found after document");
-            return -1;                                                    // RETURN
+            u::setError(error,
+                        tokenizer,
+                        "Additional text found after document");
+            return -1;                                                // RETURN
         }
     }
     tokenizer.resetStreamBufGetPointer();
