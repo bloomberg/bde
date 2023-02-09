@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //                       signed char month = 1,
 //                       signed char day   = 1);
 //          // Create a 'my_Date' object having the optionally specified 'day',
-//          // 'month', and 'year'. Each, if unspecified, will default to 1.
+//          // 'month', and 'year'.  Each, if unspecified, will default to 1.
 //  };
 //
 //  bool operator<(const my_Date& lhs, const my_Date& rhs);
@@ -95,43 +95,50 @@ BSLS_IDENT("$Id: $")
 //             10000 * rhs.d_year + 100 * rhs.d_month + rhs.d_day;
 //  }
 //..
-// Then, we create our TemperatureMap, which is a map of dates to a map of zip
-// codes to a 'PackedIntArray' of temperatures.  Each 'PackedIntArray' has
+// Then, we create our 'temperatureMap', which is a map of dates to a map of
+// zip codes to a 'PackedIntArray' of temperatures.  Each 'PackedIntArray' has
 // entries for each temperature from 12 A.M, to 11 P.M for each city in each
-// zip code.  Notice that we use a 'PackedIntArray' to hold the data
-// compactly.
+// zip code.  Notice that we use a 'PackedIntArray' to hold the data compactly.
 //..
-//  bsl::map<my_Date, bsl::map<int, bdlc::PackedIntArray<int> > >
+//  bsl::map<my_Date, bsl::map<bsl::string, bdlc::PackedIntArray<int> > >
 //                                                              temperatureMap;
 //..
 // Next, we add data to the map (provided by the National Weather Service) for
 // a normal case, and the extreme.
 //..
 //  bdlc::PackedIntArray<int>& nyc
-//                         = temperatureMap[my_Date(2013, 9, 06)][10023];
+//                         = temperatureMap[my_Date(2013, 9,  6)]["10023"];
 //  bdlc::PackedIntArray<int>& dValley
-//                         = temperatureMap[my_Date(1913, 7, 10)][92328];
+//                         = temperatureMap[my_Date(1913, 7, 10)]["92328"];
+//  bdlc::PackedIntArray<int>& boston
+//                         = temperatureMap[my_Date(2013, 9,  6)]["02202"];
 //
-//  int nycTemperatures[24]  = {60,  58, 57,  56, 55,  54,  54,  55,
-//                              56,  59, 61,  64, 66,  67,  69,  69,
-//                              70,  70, 68,  67, 65,  63,  61,  60};
+//  int nycTemperatures[24]  = { 60,  58, 57,  56,  55,  54,  54,  55,
+//                               56,  59, 61,  64,  66,  67,  69,  69,
+//                               70,  70, 68,  67,  65,  63,  61,  60};
 //
-//  int deathValleyTemps[24] = {65,  55, 50, 47,  62,  75,  77,  89,
-//                              91,  92, 95, 110, 113, 121, 134, 126,
-//                              113, 99, 96, 84,  79,  81,  73,  69};
+//  int deathValleyTemps[24] = { 65,  55, 50,  47,  62,  75,  77,  89,
+//                               91,  92, 95, 110, 113, 121, 134, 126,
+//                              113,  99, 96,  84,  79,  81,  73,  69};
+//
+//  int bostonTemps[24]      = { 55,  53, 52,  51,  50,  49,  49,  50,
+//                               51,  54, 56,  59,  61,  62,  64,  64,
+//                               65,  65, 63,  62,  60,  58,  56,  55};
 //..
 // Then, since the size of the data set is known at design time, as well as
 // extreme values for the areas, we can use the 'reserveCapacity()' method to
 // give the container hints about the data to come.
 //..
-//  nyc.reserveCapacity(    24, 50, 108);
-//  dValley.reserveCapacity(24, 45, 134);
+//  nyc.reserveCapacity    (24, 54,  70);
+//  dValley.reserveCapacity(24, 47, 134);
+//  boston.reserveCapacity (24, 49,  65);
 //..
-// Now, we add the data to the respective containers.
+// Now we add the data to the respective containers.
 //..
 //  for (bsl::size_t i= 0; i < 24; ++i) {
 //      nyc.append(nycTemperatures[i]);
-//      dValley.append(deathValleyTemps[i])
+//      dValley.append(deathValleyTemps[i]);
+//      boston.append(bostonTemps[i]);
 //  }
 //..
 // Finally, notice that in order to represent these values in a
@@ -1323,7 +1330,7 @@ void PackedIntArrayImp_Signed::bdexGet8(STREAM& stream, bsl::int8_t& variable)
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexGet16(STREAM& stream,
+void PackedIntArrayImp_Signed::bdexGet16(STREAM&       stream,
                                          bsl::int16_t& variable)
 {
     short v = 0;
@@ -1332,7 +1339,7 @@ void PackedIntArrayImp_Signed::bdexGet16(STREAM& stream,
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexGet32(STREAM& stream,
+void PackedIntArrayImp_Signed::bdexGet32(STREAM&       stream,
                                          bsl::int32_t& variable)
 {
     int v = 0;
@@ -1341,7 +1348,7 @@ void PackedIntArrayImp_Signed::bdexGet32(STREAM& stream,
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexGet64(STREAM& stream,
+void PackedIntArrayImp_Signed::bdexGet64(STREAM&       stream,
                                          bsl::int64_t& variable)
 {
     bsls::Types::Int64 v = 0;
@@ -1378,7 +1385,7 @@ void PackedIntArrayImp_Signed::bdexPut64(STREAM& stream, bsl::int64_t value)
                      // ---------------------------------
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet8(STREAM& stream,
+void PackedIntArrayImp_Unsigned::bdexGet8(STREAM&       stream,
                                           bsl::uint8_t& variable)
 {
     unsigned char v;
@@ -1387,7 +1394,7 @@ void PackedIntArrayImp_Unsigned::bdexGet8(STREAM& stream,
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet16(STREAM& stream,
+void PackedIntArrayImp_Unsigned::bdexGet16(STREAM&        stream,
                                            bsl::uint16_t& variable)
 {
     unsigned short v;
@@ -1396,7 +1403,7 @@ void PackedIntArrayImp_Unsigned::bdexGet16(STREAM& stream,
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet32(STREAM& stream,
+void PackedIntArrayImp_Unsigned::bdexGet32(STREAM&        stream,
                                            bsl::uint32_t& variable)
 {
     unsigned int v;
@@ -1405,7 +1412,7 @@ void PackedIntArrayImp_Unsigned::bdexGet32(STREAM& stream,
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet64(STREAM& stream,
+void PackedIntArrayImp_Unsigned::bdexGet64(STREAM&        stream,
                                            bsl::uint64_t& variable)
 {
     bsls::Types::Uint64 v;
