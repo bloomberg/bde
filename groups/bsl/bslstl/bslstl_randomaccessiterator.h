@@ -278,14 +278,10 @@ class RandomAccessIterator
         // compiler generated.
 
     // MANIPULATORS
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-    RandomAccessIterator& operator=(const RandomAccessIterator& rhs) = default;
+    RandomAccessIterator& operator=(
+                  const RandomAccessIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
         // Copy the value of the specified 'rhs' to this iterator.  Return a
-        // reference to this modifiable iterator.  Note that this method's
-        // definition is compiler generated.
-#else
-    //! RandomAccessIterator& operator=(const RandomAccessIterator& rhs);
-#endif
+        // reference to this modifiable iterator.
 
     RandomAccessIterator& operator++();
         // Increment to the next element.  Return a reference to this
@@ -461,6 +457,16 @@ RandomAccessIterator(
 }
 
 // MANIPULATORS
+template <class T, class ITER_IMP, class TAG_TYPE>
+inline
+RandomAccessIterator<T,ITER_IMP,TAG_TYPE>&
+RandomAccessIterator<T,ITER_IMP,TAG_TYPE>::operator=(
+                   const RandomAccessIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other)
+{
+    this->imp() = other.imp();
+    return *this;
+}
+
 template <class T, class ITER_IMP, class TAG_TYPE>
 inline
 RandomAccessIterator<T,ITER_IMP,TAG_TYPE>&

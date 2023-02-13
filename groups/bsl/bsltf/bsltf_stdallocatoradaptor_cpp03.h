@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Fri Feb 10 08:55:48 2023
 // Command line: sim_cpp11_features.pl bsltf_stdallocatoradaptor.h
 
 #ifdef COMPILING_BSLTF_STDALLOCATORADAPTOR_H
@@ -679,7 +679,7 @@ class StdAllocatorAdaptor : public ALLOCATOR {
     StdAllocatorAdaptor(const StdAllocatorAdaptor<ANY_TYPE>& other);
         // Create a copy of the specified 'other' allocator adaptor.
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     StdAllocatorAdaptor(const StdAllocatorAdaptor& original) = default;
         // Create a copy of the specified 'original' allocator adaptor.
 #else
@@ -690,10 +690,16 @@ class StdAllocatorAdaptor : public ALLOCATOR {
         // Destroy this object.
 
     // MANIPULATORS
-    //! StdAllocatorAdaptor& operator=(const StdAllocatorAdaptor& rhs) =
-    //!                                                                default;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    StdAllocatorAdaptor& operator=(const StdAllocatorAdaptor& original) =
+                                                                       default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
+#else
+    //! StdAllocatorAdaptor& operator=(const StdAllocatorAdaptor& rhs) =
+    //!                                                                default;
+#endif
+
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bsltf_stdallocatoradaptor.h
@@ -2700,7 +2706,7 @@ bool operator!=(const bsltf::StdAllocatorAdaptor<TYPE1>& lhs,
 #endif // ! defined(INCLUDED_BSLTF_STDALLOCATORADAPTOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
