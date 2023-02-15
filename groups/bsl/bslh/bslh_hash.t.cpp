@@ -1207,7 +1207,7 @@ int main(int argc, char *argv[])
         //:   'bool' variable and observe that the result is NOT
         //:   'k_BOOL_EXPECTED'. but rather 'k_VOID_EXPECTED'.
         //:
-        //: 3 Call 'AlienNamespace::PortableHash::operator()' directly on a
+        //: 4 Call 'AlienNamespace::PortableHash::operator()' directly on a
         //:   'bool' variable and observe that the result is 'k_BOOL_EXPECTED'.
         //
         // Testing:

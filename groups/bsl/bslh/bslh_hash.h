@@ -67,9 +67,10 @@ BSLS_IDENT("$Id: $")
 // A client will thus customize their hashing of any custom 'struct', 'class',
 // or 'union' by providing an appropriate 'hashAppend'.  In some very rare
 // cases, a client will want to provide special behavior when hashing
-// fundamental types such as integral types, pointers, or enums, and the best
-// way of doing this is to provide an appropriate typed 'operator()' overload
-// of your own hash function.
+// fundamental types such as integral types, pointers, or enums, and this can
+// be done by providing an appropriate typed 'operator()' overload of your own
+// hash function.  Support for doing this is not provided for ther types, or
+// for 'bool'.
 //
 // Some types may require more subtle implementations for 'hashAppend', such as
 // types containing C-strings which are salient to hashing.  These C-strings
