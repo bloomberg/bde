@@ -1,5 +1,40 @@
-bsl-internal (3.113.0.0) unstable; urgency=low
+bsl-internal (3.114.0.1) unstable; urgency=low
 
+  * f53f784e5 Bumped version to 3.114.0.0
+  * 70705d8ee Merge pull request #4112 from bchapman/bslh_hash-adlref-start-over-drqs-170259221
+  * 61cf6021b Make bslmt::ThreadAttributes printable (DRQS 171145179) (#4071)
+  * 4cf353b6e Fix some mismatches between implicitly-defined and explicitly defaulted copy constructors and assignment operators (#4119)
+  * a3c614db7 drqs-171341636: 'bdljsn': Zip code examples having leading '0'. (#4116)
+  * 222cb2ae3 drqs-171235016: 'bdlma_guardingallocator': Doc max alignment; add Exa… (#4091)
+  * 5df0239da Bdljsn fuzz drqs 171167141.1 (#4115)
+  * fad3abf96 Switch template arguments to use a t_ prefix (#4055)
+  * 0aac32888 Fix ryu metadata (#4108)
+  * 459148c19 Merge pull request #4081 from bchapman/bslh_wyhash-ubsan-cleanup-drqs-171179722
+  * c22b90620 BDE Warning suppression Jan-2023 (#4087)
+  * bb72e9067 Make AttributeContainer a protocol class (#4061)
+  * 0ce458327 Suppress unknown gcc pragma on clang (#4094)
+  * 7579e449c Fix race condition in bdlmt_timereventscheduler.t case 5 (DRQS 170729977) (#4088)
+  * dac81359e Merge pull request #4097 from jberne4/bslstd_cleaning
+  * 8aaba4d28 Spinlock - move impl to .cpp (#4080)
+  * 8abe4f8f7 New datetime specifier has been added to the 'RecordStringFormatter'. DRQS 171110126 (#4079)
+  * 6dd0501f5 add Actual/365.25 (#4090)
+  * 63f874aa0 Fix typo (#2627)
+  * 8607ebe1d drqs-171149816: 'bdljsn_numberutil': Dereference 'end' iterator (3 bugs) (#4072)
+  * 4bebe057d new bsl_span.h header (#4077)
+  * d12a94213 Remove typedef 'ElementType' from shared/weak/managed_ptr (#3951)
+  * 38e511808 CalendarUtil::shiftModifiedFollowingIfValid() optimization (#4070)
+  * fd50d637c Revert "'TimeZoneUtil::convertLocalToUtc' DRQS 170036443 (#3994)" (#4085)
+  * bc8206918 Fix balb_pipecontrolchannel hang bug on Windows and make it line-buffered (DRQS 170252895) (#4046)
+  * b180133b0 Merge pull request #4082 from afeher/drqs-171214206-fix-default-windows-api-level-missing-macro-definition
+  * 83bc2e464 Fix include guard termination (#4078)
+  * 70f7a526d Add bde metadata generation. (#4075)
+  * 81cd272d8 Fix opt, sun test build failures for bdlt_iso8601util (#4074)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 15 Feb 2023 17:02:44 -0500
+
+bsl-internal (3.113.0.0) git; urgency=low
+
+  * 79034fcaa Changelog for version 3.113.0.0
   * 1281f4946 Bumped version to 3.113.0.0
   * 7857d977c MSVC cpp20 build issues drqs 170985992 (#4049)
   * f14a58e5d silence warning about memmove for non-trivially copyable types (#4067)
@@ -17,7 +52,7 @@ bsl-internal (3.113.0.0) unstable; urgency=low
   * 1b3ba8634 Merge pull request #3979 from bchapman/bslh_hash_adlref-B-drqs-170259221
   * e194f5d0e Bslmt threadutil detched allocating threads drqs 170584998 (#4001)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 11 Jan 2023 13:24:07 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 11 Jan 2023 13:25:34 -0500
 
 bsl-internal (3.112.0.0) git; urgency=low
 
