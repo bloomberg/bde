@@ -1121,25 +1121,20 @@ int main(int argc, char *argv[])
             printf("\nTESTING FREE COMPARISON OPERATORS"
                    "\n=================================\n");
 
+        const int k_no_link   = static_cast<int>(errc::no_link);
+        const int k_timed_out = static_cast<int>(errc::timed_out);
+
         const bsl::error_code      codes[4] = {
-            bsl::error_code(static_cast<int>(bsl::errc::no_link),
-                            generic_category()),
-            bsl::error_code(static_cast<int>(bsl::errc::timed_out),
-                            generic_category()),
-            bsl::error_code(static_cast<int>(bsl::errc::no_link),
-                            system_category()),
-            bsl::error_code(static_cast<int>(bsl::errc::timed_out),
-                            system_category()),
+            bsl::error_code(k_no_link,   bsl::generic_category()),
+            bsl::error_code(k_timed_out, bsl::generic_category()),
+            bsl::error_code(k_no_link,   bsl::system_category()),
+            bsl::error_code(k_timed_out, bsl::system_category())
         };
         const bsl::error_condition conditions[4] = {
-            bsl::error_condition(static_cast<int>(bsl::errc::no_link),
-                                 generic_category()),
-            bsl::error_condition(static_cast<int>(bsl::errc::timed_out),
-                                 generic_category()),
-            bsl::error_condition(static_cast<int>(bsl::errc::no_link),
-                                 system_category()),
-            bsl::error_condition(static_cast<int>(bsl::errc::timed_out),
-                                 system_category()),
+            bsl::error_condition(k_no_link,   bsl::generic_category()),
+            bsl::error_condition(k_timed_out, bsl::generic_category()),
+            bsl::error_condition(k_no_link,   bsl::system_category()),
+            bsl::error_condition(k_timed_out, bsl::system_category())
         };
 
         if (veryVerbose) {
@@ -1215,17 +1210,25 @@ int main(int argc, char *argv[])
                            j, cj.category().name(), cj.value(),
                            ci == cj, ci != cj, cj == ci, cj != ci);
                 }
-                if (ci.value() == cj.value() &&
-                    ci.category() == system_category() &&
-                    cj.category() == generic_category()) {
+
+                // if you're comparing an error_code and an error_condition,
+                // and they have different categories, you're into system-
+                // specific behavior.  On Windows, the system_category remaps
+                // error numbers to match the values that Windows uses.  This
+                // happens inside 'operator==', where a temporary
+                // error_condition is created from the error_code, and then
+                // *that* is compared to the other error_condition.  The
+                // generic category doesn't do any such remapping.  Since we
+                // are only testing values from 'system_category' and
+                // 'generic_category' here, it is sufficient to check if the
+                // categories differ.
+                if (ci.category() != cj.category()) {
                     if (veryVeryVerbose) {
                         printf("\tskipping system-dependent comparison\n");
                     }
                     continue;
                 }
-                bool equal = ci.value() == cj.value() &&
-                             (ci.category() == system_category() ||
-                              cj.category() == generic_category());
+                bool equal = ci.value() == cj.value();
                 ASSERTV(ci, cj, ci == cj, equal == (ci == cj));
                 ASSERTV(ci, cj, cj == ci, equal == (cj == ci));
                 ASSERTV(ci, cj, ci != cj, !equal == (ci != cj));
