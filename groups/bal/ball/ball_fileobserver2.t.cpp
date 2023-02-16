@@ -236,21 +236,6 @@ void enableFileLogging(
     }
 }
 
-bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
-    // Replace the second space character (' ') in the specified string 's'
-    // with the specified 'value'.  Return the index position of the character
-    // that was replaced on success, and 'bsl::string::npos' otherwise.
-{
-    bsl::string::size_type index = s->find(' ');
-    if (bsl::string::npos != index) {
-        index = s->find(' ', index + 1);
-        if (bsl::string::npos != index) {
-            (*s)[index] = value;
-        }
-    }
-    return index;
-}
-
 bdlt::Datetime getCurrentLocalTime()
     // Return current local time as a 'bdlt::Datetime' value.
 {
@@ -3060,10 +3045,11 @@ int main(int argc, char *argv[])
         // Plan:
         //:  1 We will set up the observer and check if logged messages are in
         //:    the expected format and contain the expected data by comparing
-        //:    the output of this observer with 'ball::StreamObserver', that we
-        //:    slightly modify.  Then, we will use different manipulators and
-        //:    functors to affect output format and verify that it has changed
-        //:    where expected.
+        //:    the output of this observer with 'ball::StreamObserver' with a
+        //:    record formatter matching the expected default format of
+        //:    'ball::FileObserver2'.  Then, we will use different manipulators
+        //:    and functors to affect output format and verify that it has
+        //:    changed where expected.
         //
         // Testing:
         //   FileObserver(ball::Severity::Level, bslma::Allocator);
@@ -3148,6 +3134,9 @@ int main(int argc, char *argv[])
                 bsl::shared_ptr<ball::StreamObserver>
                                 refX(new (ta) ball::StreamObserver(&dos), &ta);
 
+                refX->setRecordFormatFunctor(
+                  ball::RecordStringFormatter("\n%d %p:%t %s %f:%l %c %m \n"));
+
                 ASSERT(0 == manager.registerObserver(mX,   "testObserver"));
                 ASSERT(0 == manager.registerObserver(refX, "refObserver"));
 
@@ -3158,15 +3147,7 @@ int main(int argc, char *argv[])
                 bsl::string os;
                 ASSERT(2 == readFileIntoString(__LINE__, fileName, os));
 
-                // Replace the spaces after pid, __FILE__
-                {
-                    bsl::string temp = dos.str();
-                    temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
-                    replaceSecondSpace(&temp, ':');
-                    dos.str(temp);
-                }
-
-                ASSERT(dos.str() == os);
+                ASSERTV(os, dos.str(), dos.str() == os);
                 mX->disableFileLogging();
 
                 // Deregister here as we used local allocator for the observer.
@@ -3200,6 +3181,9 @@ int main(int argc, char *argv[])
                 bsl::shared_ptr<ball::StreamObserver>
                                 refX(new (ta) ball::StreamObserver(&dos), &ta);
 
+                refX->setRecordFormatFunctor(
+                  ball::RecordStringFormatter("\n%d %p:%t %s %f:%l %c %m \n"));
+
                 ASSERT(0 == manager.registerObserver(mX,   "testObserver"));
                 ASSERT(0 == manager.registerObserver(refX, "refObserver"));
 
@@ -3207,21 +3191,28 @@ int main(int argc, char *argv[])
 
                 BALL_LOG_FATAL << "log FATAL";
 
+                testOs << " "
+                       << bdls::ProcessUtil::getProcessId() << ":"
+                       << bslmt::ThreadUtil::selfIdAsUint64()
+                       << " FATAL " << __FILE__ << ":" << __LINE__ - 5 <<
+                          " TestCategory log FATAL " << "\n";
+
                 bsl::string os;
                 ASSERT(2 == readFileIntoString(__LINE__, fileName, os));
 
-                testOs << "\nFATAL " << __FILE__ << ":" << __LINE__ - 1 <<
-                          " ball::FileObserverTest log FATAL " << "\n";
-                // Replace the spaces after pid, __FILE__
-                {
-                    bsl::string temp = dos.str();
-                    temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
-                    replaceSecondSpace(&temp, ':');
-                    dos.str(temp);
-                }
+                // Verify the log message after the timestamp.
+                bsl::string fileOutput(os);
+                bsl::string streamOutput(dos.str());
+                bsl::string logMessageExpected(testOs.str());
 
-                ASSERTV(dos.str(), os, dos.str() != os);
-                ASSERT(testOs.str() != os);
+                fileOutput = fileOutput.substr(fileOutput.find(" "));
+                streamOutput = streamOutput.substr(streamOutput.find(" "));
+
+                ASSERTV(fileOutput, logMessageExpected,
+                        fileOutput == logMessageExpected);
+                ASSERTV(streamOutput, logMessageExpected,
+                        streamOutput == logMessageExpected);
+
 
                 // Now let's verify the actual difference.
                 int defaultObsHour = 0;
