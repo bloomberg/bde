@@ -104,7 +104,8 @@ using namespace bsl;  // automatically added by script
 // [ 1] ~bdlmt::EventScheduler();
 //
 // MANIPULATORS
-// [ 4] void cancelAllEvents(bool wait=false);
+// [ 4] void cancelAllEvents();
+// [ 4] void cancelAllEventsAndWait();
 //
 // [ 3] int cancelEvent(Handle handle, bool wait=false);
 //
@@ -629,6 +630,66 @@ struct TestClass1 {
 
     // ACCESSORS
     int numExecuted()
+    {
+        return d_numExecuted;
+    }
+};
+
+                              // ================
+                              // class TestClass2
+                              // ================
+
+struct TestClass2 {
+    // This class defines a function 'callback' that is used as a callback for
+    // a clock or an event.  The class keeps track of number of times the
+    // callback has been executed.
+
+    // DATA
+    bsls::AtomicInt d_numExecuted;
+    bslmt::Barrier *d_startBarrier_p;
+    bslmt::Barrier *d_finishBarrier_p;
+
+    // CREATORS
+    TestClass2(bslmt::Barrier *startBarrier, bslmt::Barrier *finishBarrier) :
+        d_numExecuted(0),
+        d_startBarrier_p(startBarrier),
+        d_finishBarrier_p(finishBarrier)
+        // Create a 'TestClass2' object that, each time the 'callback' method
+        // is called, will arrive and wait at the specified 'startBarrier' if
+        // non-null, increment 'd_numExecuted', and finally arrive and wait at
+        // the specified 'finishBarrier' if non-null.
+    {
+    }
+
+    // MANIPULATORS
+    void callback()
+    {
+        bsl::string threadName;
+        bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+        ASSERTV(threadName, threadName == "bdl.EventSched" ||
+                                                    threadName == "OtherName");
+#else
+        ASSERTV(threadName, threadName.empty());
+#endif
+
+        if (veryVerbose) {
+            ET_("TestClass2::callback"); PT_(threadName); PT_(this);
+            PT(u::now());
+        }
+
+        if (d_startBarrier_p) {
+            d_startBarrier_p->wait();
+        }
+        ++d_numExecuted;
+        if (d_finishBarrier_p) {
+            d_finishBarrier_p->wait();
+        }
+    }
+
+    // ACCESSORS
+    int numExecuted() const
     {
         return d_numExecuted;
     }
@@ -2226,31 +2287,26 @@ struct Test4_1 {
     Test4_1() {}
 
     void operator()()
+        // Execute step 2 of the plan for test case 4.
     {
-        // Schedule events e1, e2 and e3 at T, T2 and T8 respectively.  Let the
-        // scheduler to start executing e1 (this is done by sleeping enough
-        // time before starting the scheduler).  Invoke 'cancelAllEvents' and
-        // ensure that it cancels e2 and e3 and does not wait for e1 to
-        // complete its execution.
-
-        const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-        bsls::TimeInterval  T(1 * DECI_SEC);
-        const bsls::TimeInterval T2(2 * DECI_SEC);
-        const bsls::TimeInterval T8(8 * DECI_SEC);
-            // This will not be put onto the pending list.
-
-        const int TM3  =  3 * DECI_SEC_IN_MICRO_SEC;
-        const int TM20 = 20 * DECI_SEC_IN_MICRO_SEC;
+        const bsls::TimeInterval T(0.01);  // 10ms
+        const bsls::TimeInterval T8(0.08);
+        const bsls::TimeInterval T9(0.09);
 
         Obj x(pta);
 
-        TestClass1 testObj1(TM20);
-        TestClass1 testObj2;
-        TestClass1 testObj3;
+        bslmt::Barrier startBarrier1(2);
+        bslmt::Barrier startBarrier2(2);
+        bslmt::Barrier finishBarrier(2);
+        TestClass2     testObj1(&startBarrier1, &finishBarrier);
+        TestClass1     testObj2;
+        TestClass1     testObj3;
+        TestClass2     testObj4(&startBarrier2, 0);
+
         bsls::TimeInterval now = u::now();
         x.scheduleEvent(
                      now - T,
-                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj1));
 
         x.scheduleEvent(
                      now,
@@ -2261,53 +2317,66 @@ struct Test4_1 {
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3));
 
         x.start();
-        microSleep(TM3, 0);     // give enough time to put on pending list
-        x.cancelAllEvents();    // testObj1 is pending, 2 & 3 get killed
-        if ((u::now() - now).totalSecondsAsDouble() < 2.0) {
-            LOOP_ASSERT(testObj1.numExecuted(), 0 == testObj1.numExecuted());
-            LOOP_ASSERT(testObj2.numExecuted(), 0 == testObj2.numExecuted());
-            LOOP_ASSERT(testObj3.numExecuted(), 0 == testObj3.numExecuted());
-        }
-        else if (verbose) {
-            ET("Test4_1: timed out");
-        }
+        startBarrier1.wait();  // ensure 'testObj1' has started executing
+        x.cancelAllEvents();   // 2 & 3 get killed
+        x.scheduleEvent(
+                     now + T9,
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj4));
+        finishBarrier.wait();
+        startBarrier2.wait();  // ensure 'testObj4' has started executing
+        x.stop();
 
-        makeSureTestObjectIsExecuted(testObj1, mT, 400);
         LOOP_ASSERT(testObj1.numExecuted(), 1 == testObj1.numExecuted());
         LOOP_ASSERT(testObj2.numExecuted(), 0 == testObj2.numExecuted());
         LOOP_ASSERT(testObj3.numExecuted(), 0 == testObj3.numExecuted());
-        x.stop();
+        LOOP_ASSERT(testObj4.numExecuted(), 1 == testObj4.numExecuted());
     }
 };
 
 struct Test4_2 {
     Test4_2() {}
 
+    struct Unblock {
+        Obj            *d_scheduler_p;
+        bslmt::Barrier *d_finishBarrier_p;
+
+        Unblock(Obj *scheduler, bslmt::Barrier *finishBarrier)
+            : d_scheduler_p(scheduler), d_finishBarrier_p(finishBarrier) {}
+
+        void operator()()
+            // Wait for '*d_obj_p' to finish cancelling all its events, then
+            // arrive at '*d_finishBarrier_p' (in order to unblock the thread
+            // that has called 'cancelAllEventsAndWait').
+        {
+            while (d_scheduler_p->numEvents()) {
+                bslmt::ThreadUtil::yield();
+            }
+            d_finishBarrier_p->arrive();
+        }
+    };
+
     void operator()()
+        // Execute step 3 of the plan for test case 4.
     {
-        // Schedule events e1, e2 and e3 at T, T2 and T8 respectively.  Let the
-        // scheduler to start executing e1 (this is done by sleeping enough
-        // time before starting the scheduler).  Invoke 'cancelAllEvents' with
-        // wait argument and ensure that it cancels e3 and e2 wait for e1 to
-        // complete its execution.
-
-        bsls::TimeInterval  T(1 * DECI_SEC);
-        const bsls::TimeInterval T2(2 * DECI_SEC);
-        const bsls::TimeInterval T5(5 * DECI_SEC);
-        const bsls::TimeInterval T8(8 * DECI_SEC);
-
-        const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
-        const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
+        const bsls::TimeInterval T(0.01);  // 10ms
+        const bsls::TimeInterval T2(0.02);
+        const bsls::TimeInterval T5(0.05);
+        const bsls::TimeInterval T6(0.06);
 
         Obj x(pta);
 
-        TestClass1 testObj1(T10);
-        TestClass1 testObj2;
-        TestClass1 testObj3;
+        bslmt::Barrier startBarrier1(2);
+        bslmt::Barrier startBarrier2(2);
+        bslmt::Barrier finishBarrier(2);
+        TestClass2     testObj1(&startBarrier1, &finishBarrier);
+        TestClass1     testObj2;
+        TestClass1     testObj3;
+        TestClass2     testObj4(&startBarrier2, 0);
+
         bsls::TimeInterval now = u::now();
         x.scheduleEvent(
                      now - T2,
-                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj1));
 
         x.scheduleEvent(
                      now - T,
@@ -2318,22 +2387,28 @@ struct Test4_2 {
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3));
 
         x.start();
-        microSleep(T3, 0); // give enough time to put on pending list
-        bsls::TimeInterval elapsed = u::now() - now;
-        x.cancelAllEventsAndWait();
-        ASSERT( 1 == testObj1.numExecuted() );
-        if (elapsed < T8) {
-            ASSERT( 0 == testObj2.numExecuted() );
-            ASSERT( 0 == testObj3.numExecuted() );
-            x.stop();
-            ASSERT( 1 == testObj1.numExecuted() );
-            ASSERT( 0 == testObj2.numExecuted() );
-            ASSERT( 0 == testObj3.numExecuted() );
-        }
-        else if (verbose) {
-            ET("Test4_2: timed out");
-        }
+        startBarrier1.wait();  // ensure that e1 has started
+        bslmt::ThreadUtil::Handle arriveThreadHandle;
+        // Launch a new thread that will wait for this thread to cancel e2 and
+        // e3 and then unblock e1 so that 'cancelAllEventsAndWait' can return.
+        ASSERT(0 == bslmt::ThreadUtil::create(&arriveThreadHandle,
+                                              Unblock(&x, &finishBarrier)));
+        x.cancelAllEventsAndWait();  // cancel e2 and e3
+        // Check that e1 has completed.  We can't directly check that control
+        // has actually returned from the callback to the dispatcher thread, so
+        // instead just check that the second barrier has been passed.
+        ASSERT(2 == finishBarrier.numArrivals());
+        x.scheduleEvent(
+                     now + T6,
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj4));
+        startBarrier2.wait();
         x.stop();
+        bslmt::ThreadUtil::join(arriveThreadHandle);
+
+        ASSERT(1 == testObj1.numExecuted());
+        ASSERT(0 == testObj2.numExecuted());
+        ASSERT(0 == testObj3.numExecuted());
+        ASSERT(1 == testObj4.numExecuted());
     }
 };
 
@@ -5534,51 +5609,63 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'cancelAllEvents':
-        //   Verifying 'cancelAllEvents'.
+        // TESTING 'cancelAllEvents' AND 'cancelAllEventsAndWait'
+        //   Ensure that 'cancelAllEvents' cancels all events, including
+        //   pending events, that have not already been executed and are not
+        //   currently being executed.  Ensure that 'cancelAllEventsAndWait'
+        //   behaves similarly but also does not return until any currently
+        //   executing event has completed.
         //
         // Concerns:
-        //   That if no event has yet been put onto the pending list, then
-        //   invoking 'cancelAllEvents' should be able to cancel all
-        //   events.
-        //
-        //   That 'cancelAllEvents' without wait argument should
-        //   immediately cancel the events not yet put onto the pending
-        //   list and should not wait for events on the pending list to be
-        //   executed.
-        //
-        //   That 'cancelAllEvents' with wait argument should cancel the
-        //   events not yet put onto the pending list and should wait for
-        //   events on the pending list to be executed.
+        //: 1 If no event has yet been put onto the pending list, then
+        //:   invoking 'cancelAllEvents' cancels all events.
+        //:
+        //: 2 'cancelAllEvents' immediately cancels all events other than the
+        //:   currently executing event, including events whose scheduled times
+        //:   are earlier than the time of the call, and does not wait for
+        //:   the currently executing event to complete.
+        //:
+        //: 3 'cancelAllEventsAndWait' immediately cancels all events other
+        //:   than the currently executing event, including events whose
+        //:   scheduled times are earlier than the time of the call, and waits
+        //:   for the currently executing event to complete.
         //
         // Plan:
-        //   Define T, T2, T3, T4 .. as time intervals such that T2 = T * 2,
-        //   T3 = T * 3,  T4 = T * 4,  and so on.
-        //
-        //   Schedule events at T, T2 and T3, invoke 'cancelAllEvents' and
-        //   verify the result.
-        //
-        //   Schedule events e1, e2 and e3 at T, T2 and T8 respectively.
-        //   Let both e1 and e2 be simultaneously put onto the pending
-        //   list (this is done by sleeping enough time before starting
-        //   the scheduler).  Invoke 'cancelAllEvents' and ensure that it
-        //   cancels e3 and does not wait for e1 and e2 to complete their
-        //   execution.
-        //
-        //   Schedule events e1, e2 and e3 at T, T2 and T8 respectively.
-        //   Let both e1 and e2 be simultaneously put onto the pending
-        //   list (this is done by sleeping enough time before starting
-        //   the scheduler).  Invoke 'cancelAllEvents' with wait argument
-        //   and ensure that it cancels e3 and wait for e1 and e2 to
-        //   complete their execution.
+        //: 1 Schedule events at T, 2T, and 3T, where T is an interval of time
+        //:   (measured from just before the first 'scheduleEvent' call).
+        //:   Invoke 'cancelAllEvents', then invoke 'cancelEvent' on each
+        //:   event individually to check that it was already cancelled.  (C-1)
+        //:
+        //: 2 Schedule events e1, e2 and e3 at -T, 0, and 8T, respectively
+        //:   (measured from just before the first 'scheduleEvent' call).
+        //:   Wait for the scheduler to start executing e1, then invoke
+        //:   'cancelAllEvents' and schedule a fourth event, e4, at 9T, then
+        //:   allow e1 to complete.  Finally, wait for e4 to start executing,
+        //:   and verify that e2 and e3 are still unexecuted.  Note that if
+        //:   'cancelAllEvents' were to wait for e1 to complete, a deadlock
+        //:   would occur.  (C-2)
+        //:
+        //: 3 Schedule events e1, e2 and e3 at -2T, -T, and 5T, respectively
+        //:   (measured from just before the first 'scheduleEvent' call).
+        //:   Wait for the scheduler to start executing e1, then spawn an
+        //:   auxiliary thread that will allow e1 to complete once it sees that
+        //:   the scheduler has no remaining events.  From the main thread,
+        //:   invoke 'cancelAllEventsAndWait'.  Ensure that e1 has completed,
+        //:   and schedule a fourth event, e4, at 6T, and finally wait for e4
+        //:   to start executing, and verify that e2 and e3 are still
+        //:   unexecuted.  (C-3)
         //
         // Testing:
-        //   void cancelAllEvents(bool wait=false);
+        //   void cancelAllEvents();
+        //   void cancelAllEventsAndWait();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'cancelAllEvents' (1)" << endl
-                          << "=============================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING 'cancelAllEvents' AND 'cancelAllEventsAndWait'"
+                 << endl
+                 << "======================================================"
+                 << endl;
 
         using namespace EVENTSCHEDULER_TEST_CASE_4;
         bslma::TestAllocator ta(veryVeryVerbose);
