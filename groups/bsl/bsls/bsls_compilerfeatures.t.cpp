@@ -8,6 +8,7 @@
 #include <exception>    // testing exception specifications
 
 #include <stdio.h>      // 'printf'
+#include <string.h>
 #include <stdlib.h>     // 'atoi'
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2480,14 +2481,14 @@ will not improve the flavor.
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined only
         //:   when the 8-bit 'char8_t' type is defined.
-
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
+        //:
+        //: 2 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
         //:   only when the compiler supports unicode character types unicode
         //:   character literals, and unicode string literals.
         //:
-        //: 2 Both 16-bit and 32-bit unicode are supported.
+        //: 3 Both 16-bit and 32-bit unicode are supported in C++11.
         //:
-        //: 3 8-bit unicode is a C++17 feature and is not tested.
+        //: 4 Type 'char8_t' is supported in C++20.
         //
         // Plan:
         //: 1 For concern 1, if
@@ -2519,15 +2520,36 @@ will not improve the flavor.
 #else
         if (verbose) printf("Testing 'char8_t'\n");
 
-        const char8_t pound        = u8'\xa3';
-        const char8_t half         = u8'\xbd';
-        const char8_t poundHalf[]  = u8"\xa3\xbd";
+        const char8_t *pound        = u8"\xc2\xa3";
+        const char8_t *euro         = u8"\xe2\x82\xac";
+        const char8_t *poundEuro    = u8"\xc2\xa3\xe2\x82\xac";
 
-        ASSERT(0xa3  == pound);
-        ASSERT(0xbd  == half);
-        ASSERT(pound == poundHalf[0]);
-        ASSERT(half  == poundHalf[1]);
-        ASSERT(0     == poundHalf[2]);
+        ASSERT(0xc2 == pound[0]);
+        ASSERT(0xa3 == pound[1]);
+        ASSERT(0    == pound[2]);
+        
+        ASSERT(0xe2 == euro[0]);
+        ASSERT(0x82 == euro[1]);
+        ASSERT(0xac == euro[2]);
+        ASSERT(0    == euro[3]);
+
+        // 'printf("...%s...")' expects a 'char *' or 'const char *', and there
+        // are no equivalents of 'strcmp' or 'strncmp' for dealing with
+        // 'const char8_t *' strings.
+
+        const char *cPound     = reinterpret_cast<const char *>(pound);
+        const char *cEuro      = reinterpret_cast<const char *>(euro);
+        const char *cPoundEuro = reinterpret_cast<const char *>(poundEuro);
+
+        if (veryVerbose) {
+            printf("Pound: %s, euro: %s, poundEuro: %s\n", cPound, cEuro, 
+                                                                   cPoundEuro);
+        }
+
+        ASSERT(!strcmp("\xc2\xa3", cPound));
+        ASSERT(!strcmp("\xe2\x82\xac", cEuro));
+        ASSERT(!strcmp(cEuro, cPoundEuro + 2));
+        ASSERT(!strncmp(cPound, cPoundEuro, 2));
 #endif
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
