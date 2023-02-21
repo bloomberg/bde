@@ -55,7 +55,6 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that the user-defined literal operator will unconditionally invoke
 // the 'bsls::Assert' handler if the literal text is not valid JSON.
-//..
 
 #include <bdlscm_version.h>
 
