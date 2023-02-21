@@ -338,8 +338,8 @@ BSLS_IDENT("$Id: $")
 //      //: 1 Test for range overflow and underflow by positioning test data in
 //      //:   memory obtained from 'bdlma::GuardingAllocator' objects.  Each
 //      //:   test is run twice, once with the guard page below the test data,
-//      //;   and again with the guard page above the test data.
-//
+//      //:   and again with the guard page above the test data.
+//..
 // First, create a set of test data for thoroughly testing all concerns of
 // 'myIntSort', and a framework for running through those tests:
 //..
