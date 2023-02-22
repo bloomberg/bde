@@ -2476,7 +2476,7 @@ will not improve the flavor.
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 8, 16, 32-bit UNICODE CHAR TYPES
+        // TESTING 'char8_t', 'char16_t', and 'char32_t' TYPES
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined only
