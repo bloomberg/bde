@@ -221,21 +221,21 @@ class BroadcastObserver : public Observer {
         // 'observerName' in the registry of this broadcast observer, and an
         // empty shared pointer if there is no such observer otherwise.
 
-    template <class OBSERVER>
-    int findObserver(bsl::shared_ptr<OBSERVER> *result,
-                     const bsl::string_view&    observerName,
-                     typename bsl::enable_if<
-                         bsl::is_convertible<OBSERVER *,
-                                             ball::Observer *>::value,
-                         void *>::type = 0)
+    template <class t_OBSERVER>
+    int findObserver(
+                bsl::shared_ptr<t_OBSERVER> *result,
+                const bsl::string_view&      observerName,
+                typename bsl::enable_if<
+                    bsl::is_convertible<t_OBSERVER *, ball::Observer *>::value,
+                    void *>::type = 0)
         // Load into the specified 'result' a shared pointer to the observer of
-        // (template parameter) 'OBSERVER' type having the specified
+        // (template parameter) 't_OBSERVER' type having the specified
         // 'observerName' in the registry of this broadcast observer, and an
         // empty shared pointer if there is no such observer otherwise.  Return
         // 0 if a non-empty shared pointer was loaded, and a non-zero value
         // otherwise.  Note that an empty shared pointer will be loaded if
         // either no observer having 'observerName' is in the registry or the
-        // observer registered with that name is not of 'OBSERVER' type.
+        // observer registered with that name is not of 't_OBSERVER' type.
         //
         // The implementation is placed here in the class definition to work
         // around a Microsoft C++ compiler (version 16) bug where the
@@ -274,10 +274,10 @@ class BroadcastObserver : public Observer {
         // this operation should be called if resources underlying the
         // previously provided shared pointers must be released.
 
-    template <class VISITOR>
-    void visitObservers(VISITOR& visitor);
+    template <class t_VISITOR>
+    void visitObservers(t_VISITOR& visitor);
         // Invoke the specified 'visitor' functor of (template parameter)
-        // 'VISITOR' type on each element in the registry of this broadcast
+        // 't_VISITOR' type on each element in the registry of this broadcast
         // observer, supplying that functor modifiable access to each observer.
         // 'visitor' must be a functor that can be called as if it had the
         // following signature:
@@ -293,21 +293,21 @@ class BroadcastObserver : public Observer {
         // 'observerName' in the registry of this broadcast observer, and an
         // empty shared pointer if there is no such observer otherwise.
 
-    template <class OBSERVER>
-    int findObserver(bsl::shared_ptr<const OBSERVER> *result,
-                     const bsl::string_view&          observerName,
+    template <class t_OBSERVER>
+    int findObserver(bsl::shared_ptr<const t_OBSERVER> *result,
+                     const bsl::string_view&            observerName,
                      typename bsl::enable_if<
-                         bsl::is_convertible<const OBSERVER *,
+                         bsl::is_convertible<const t_OBSERVER *,
                                              const ball::Observer *>::value,
                          void *>::type = 0) const
         // Load into the specified 'result' a shared pointer to the observer of
-        // (template parameter) 'OBSERVER' type having the specified
+        // (template parameter) 't_OBSERVER' type having the specified
         // 'observerName' in the registry of this broadcast observer, and an
         // empty shared pointer if there is no such observer otherwise.  Return
         // 0 if a non-empty shared pointer was loaded, and a non-zero value
         // otherwise.  Note that an empty shared pointer will be loaded if
         // either no observer having 'observerName' is in the registry or the
-        // observer registered with that name is not of 'OBSERVER' type.
+        // observer registered with that name is not of 't_OBSERVER' type.
         //
         // The implementation is placed here in the class definition to work
         // around a Microsoft C++ compiler (version 16) bug where the
@@ -322,10 +322,10 @@ class BroadcastObserver : public Observer {
         // Return the number of observers registered with this broadcast
         // observer.
 
-    template <class VISITOR>
-    void visitObservers(const VISITOR& visitor) const;
+    template <class t_VISITOR>
+    void visitObservers(const t_VISITOR& visitor) const;
         // Invoke the specified 'visitor' functor of (template parameter)
-        // 'VISITOR' type on each element in the registry of this broadcast
+        // 't_VISITOR' type on each element in the registry of this broadcast
         // observer, supplying that functor modifiable access to each observer.
         // 'visitor' must be a functor that can be called as if it had the
         // following signature:
@@ -351,9 +351,9 @@ BroadcastObserver::BroadcastObserver(bslma::Allocator *basicAllocator)
 }
 
 // MANIPULATORS
-template <class VISITOR>
+template <class t_VISITOR>
 inline
-void BroadcastObserver::visitObservers(VISITOR& visitor)
+void BroadcastObserver::visitObservers(t_VISITOR& visitor)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
@@ -373,9 +373,9 @@ int BroadcastObserver::numRegisteredObservers() const
     return static_cast<int>(d_observers.size());
 }
 
-template <class VISITOR>
+template <class t_VISITOR>
 inline
-void BroadcastObserver::visitObservers(const VISITOR& visitor) const
+void BroadcastObserver::visitObservers(const t_VISITOR& visitor) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 

@@ -132,12 +132,12 @@ class UserFieldValue {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    template <class INTEGRAL_TYPE>
+    template <class t_INTEGRAL_TYPE>
     explicit UserFieldValue(
-                INTEGRAL_TYPE     value,
-                bslma::Allocator *basicAllocator = 0,
-                typename bsl::enable_if<
-                     bsl::is_integral<INTEGRAL_TYPE>::value>::type * = 0)
+        t_INTEGRAL_TYPE   value,
+        bslma::Allocator *basicAllocator = 0,
+        typename bsl::enable_if<bsl::is_integral<t_INTEGRAL_TYPE>::value>::type
+            * = 0)
     : d_value(static_cast<bsls::Types::Int64>(value), basicAllocator) {}
         // Create a user field value having the specified integral 'value'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If

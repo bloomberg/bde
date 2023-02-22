@@ -376,8 +376,8 @@ class CategoryManager {
         // set returned by 'ruleSet'.  The behavior is undefined unless a lock
         // is acquired solely for the purpose of calling 'ruleSet'.
 
-    template <class CATEGORY_VISITOR>
-    void visitCategories(const CATEGORY_VISITOR& visitor);
+    template <class t_CATEGORY_VISITOR>
+    void visitCategories(const t_CATEGORY_VISITOR& visitor);
         // Invoke the specified 'visitor' functor on each category managed by
         // this object, supplying that functor modifiable access to each
         // category.  'visitor' must be a functor that can be called as if it
@@ -413,8 +413,8 @@ class CategoryManager {
         // and after the rule set is changed, and is otherwise implementation
         // defined.
 
-    template <class CATEGORY_VISITOR>
-    void visitCategories(const CATEGORY_VISITOR& visitor) const;
+    template <class t_CATEGORY_VISITOR>
+    void visitCategories(const t_CATEGORY_VISITOR& visitor) const;
         // Invoke the specified 'visitor' functor on each category managed by
         // this object, supplying that functor non-modifiable access to each
         // category.  'visitor' must be a functor that can be called as if it
@@ -554,8 +554,8 @@ bslmt::Mutex& CategoryManager::rulesetMutex()
     return d_ruleSetMutex;
 }
 
-template <class CATEGORY_VISITOR>
-void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
+template <class t_CATEGORY_VISITOR>
+void CategoryManager::visitCategories(const t_CATEGORY_VISITOR& visitor)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
     for (bsl::vector<Category *>::iterator it = d_categories.begin();
@@ -592,8 +592,8 @@ bsls::Types::Int64 CategoryManager::ruleSetSequenceNumber() const
     return d_ruleSetSequenceNumber;
 }
 
-template <class CATEGORY_VISITOR>
-void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor) const
+template <class t_CATEGORY_VISITOR>
+void CategoryManager::visitCategories(const t_CATEGORY_VISITOR& visitor) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
     for (bsl::vector<Category *>::const_iterator it = d_categories.begin();
