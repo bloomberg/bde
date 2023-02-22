@@ -363,6 +363,9 @@ int main(int argc, char *argv[])
             TEST_EMPTY_INTEGER_SEQUENCE(         char     );
             TEST_EMPTY_INTEGER_SEQUENCE(  signed char     );
             TEST_EMPTY_INTEGER_SEQUENCE(unsigned char     );
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+            TEST_EMPTY_INTEGER_SEQUENCE(         char8_t  );
+#endif
             TEST_EMPTY_INTEGER_SEQUENCE(         wchar_t  );
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
             TEST_EMPTY_INTEGER_SEQUENCE(         char16_t );

@@ -626,6 +626,9 @@ int main(int argc, char *argv[])
         testCase2<         char     >();
         testCase2<  signed char     >();
         testCase2<unsigned char     >();
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+        testCase2<         char8_t  >();
+#endif
         testCase2<         wchar_t  >();
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
         testCase2<         char16_t >();

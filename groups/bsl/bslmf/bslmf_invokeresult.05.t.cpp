@@ -353,6 +353,9 @@ void testCase5APRforOther()
     // Step 3 & 5, concerns 4 and 7
     applyPtrAndRef<FunctorTest<>, signed char       >(L_);
     applyPtrAndRef<FunctorTest<>, unsigned char     >(L_);
+#   ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+    applyPtrAndRef<FunctorTest<>, char8_t           >(L_);
+#   endif
     applyPtrAndRef<FunctorTest<>, wchar_t           >(L_);
 #   ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
     applyPtrAndRef<FunctorTest<>, char16_t          >(L_);

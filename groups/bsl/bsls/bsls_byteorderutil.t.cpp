@@ -433,6 +433,9 @@ int main(int argc, char *argv[])
         singleByteTest<char>();
         singleByteTest<unsigned char>();
         singleByteTest<signed char>();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        singleByteTest<char8_t>();
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -480,12 +483,28 @@ int main(int argc, char *argv[])
         ASSERT( isSameType(sc,  sc));
         ASSERT( isSameType(sc,  Util::swapBytes(sc)));
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        char8_t c8 = 'a';
+        ASSERT(!isSameType(b,   Util::swapBytes(c8)));
+        ASSERT(!isSameType(c,   Util::swapBytes(c8)));
+        ASSERT(!isSameType(uc,  Util::swapBytes(c8)));
+        ASSERT(!isSameType(sc,  Util::swapBytes(c8)));
+        ASSERT(!isSameType(sc,  c8));
+        ASSERT( isSameType(c8,  c8));
+        ASSERT( isSameType(c8,  Util::swapBytes(c8)));
+#endif
+
         wchar_t w = 'w';
         ASSERT(!isSameType(b,   Util::swapBytes(w)));
         ASSERT(!isSameType(c,   Util::swapBytes(w)));
         ASSERT(!isSameType(uc,  Util::swapBytes(w)));
         ASSERT(!isSameType(sc,  Util::swapBytes(w)));
-        ASSERT(!isSameType(sc,  w));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(w)));
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  w));
+#endif
         ASSERT( isSameType(w,   w));
         ASSERT( isSameType(w,   Util::swapBytes(w)));
 
@@ -494,6 +513,9 @@ int main(int argc, char *argv[])
         ASSERT(!isSameType(c,   Util::swapBytes(s)));
         ASSERT(!isSameType(uc,  Util::swapBytes(s)));
         ASSERT(!isSameType(sc,  Util::swapBytes(s)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(s)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(s)));
         ASSERT(!isSameType(w,   s));
         ASSERT( isSameType(s,   s));
@@ -504,20 +526,64 @@ int main(int argc, char *argv[])
         ASSERT(!isSameType(c,   Util::swapBytes(us)));
         ASSERT(!isSameType(uc,  Util::swapBytes(us)));
         ASSERT(!isSameType(sc,  Util::swapBytes(us)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(us)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(us)));
         ASSERT(!isSameType(s,   Util::swapBytes(us)));
         ASSERT(!isSameType(s,   us));
         ASSERT( isSameType(us,  us));
         ASSERT( isSameType(us,  Util::swapBytes(us)));
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        char16_t c6 = 12345;
+        ASSERT(!isSameType(b,   Util::swapBytes(c6)));
+        ASSERT(!isSameType(c,   Util::swapBytes(c6)));
+        ASSERT(!isSameType(uc,  Util::swapBytes(c6)));
+        ASSERT(!isSameType(sc,  Util::swapBytes(c6)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(c6)));
+#endif
+        ASSERT(!isSameType(w,   Util::swapBytes(c6)));
+        ASSERT(!isSameType(s,   Util::swapBytes(c6)));
+        ASSERT(!isSameType(us,  Util::swapBytes(c6)));
+        ASSERT(!isSameType(us,  c6));
+        ASSERT( isSameType(c6,  c6));
+        ASSERT( isSameType(c6,  Util::swapBytes(c6)));
+
+        char32_t c2 = 1234567890;
+        ASSERT(!isSameType(b,   Util::swapBytes(c2)));
+        ASSERT(!isSameType(c,   Util::swapBytes(c2)));
+        ASSERT(!isSameType(uc,  Util::swapBytes(c2)));
+        ASSERT(!isSameType(sc,  Util::swapBytes(c2)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(c2)));
+#endif
+        ASSERT(!isSameType(w,   Util::swapBytes(c2)));
+        ASSERT(!isSameType(s,   Util::swapBytes(c2)));
+        ASSERT(!isSameType(us,  Util::swapBytes(c2)));
+        ASSERT(!isSameType(c6,  Util::swapBytes(c2)));
+        ASSERT(!isSameType(c6,  c2));
+        ASSERT( isSameType(c2,  c2));
+        ASSERT( isSameType(c2,  Util::swapBytes(c2)));
+#endif
+
         int ii = 1234567890;
         ASSERT(!isSameType(b,   Util::swapBytes(ii)));
         ASSERT(!isSameType(c,   Util::swapBytes(ii)));
         ASSERT(!isSameType(uc,  Util::swapBytes(ii)));
         ASSERT(!isSameType(sc,  Util::swapBytes(ii)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(ii)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(ii)));
         ASSERT(!isSameType(s,   Util::swapBytes(ii)));
         ASSERT(!isSameType(us,  Util::swapBytes(ii)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        ASSERT(!isSameType(c6,  Util::swapBytes(ii)));
+        ASSERT(!isSameType(c2,  Util::swapBytes(ii)));
+        ASSERT(!isSameType(c2,  ii));
+#endif
         ASSERT(!isSameType(us,  ii));
         ASSERT( isSameType(ii,  ii));
         ASSERT( isSameType(ii,  Util::swapBytes(ii)));
@@ -527,9 +593,17 @@ int main(int argc, char *argv[])
         ASSERT(!isSameType(c,   Util::swapBytes(ui)));
         ASSERT(!isSameType(uc,  Util::swapBytes(ui)));
         ASSERT(!isSameType(sc,  Util::swapBytes(ui)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(ui)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(ui)));
         ASSERT(!isSameType(s,   Util::swapBytes(ui)));
         ASSERT(!isSameType(us,  Util::swapBytes(ui)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        ASSERT(!isSameType(c6,  Util::swapBytes(ui)));
+        ASSERT(!isSameType(c2,  Util::swapBytes(ui)));
+        ASSERT(!isSameType(c2,  ui));
+#endif
         ASSERT(!isSameType(ii,  Util::swapBytes(ui)));
         ASSERT(!isSameType(ii,  ui));
         ASSERT( isSameType(ui,  ui));
@@ -540,9 +614,17 @@ int main(int argc, char *argv[])
         ASSERT(!isSameType(c,   Util::swapBytes(ll)));
         ASSERT(!isSameType(uc,  Util::swapBytes(ll)));
         ASSERT(!isSameType(sc,  Util::swapBytes(ll)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(ll)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(ll)));
         ASSERT(!isSameType(s,   Util::swapBytes(ll)));
         ASSERT(!isSameType(us,  Util::swapBytes(ll)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        ASSERT(!isSameType(c6,  Util::swapBytes(ll)));
+        ASSERT(!isSameType(c2,  Util::swapBytes(ll)));
+        ASSERT(!isSameType(c2,  ll));
+#endif
         ASSERT(!isSameType(ii,  Util::swapBytes(ll)));
         ASSERT(!isSameType(ui,  Util::swapBytes(ll)));
         ASSERT(!isSameType(ui,  ll));
@@ -554,9 +636,17 @@ int main(int argc, char *argv[])
         ASSERT(!isSameType(c,   Util::swapBytes(ul)));
         ASSERT(!isSameType(uc,  Util::swapBytes(ul)));
         ASSERT(!isSameType(sc,  Util::swapBytes(ul)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(ul)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(ul)));
         ASSERT(!isSameType(s,   Util::swapBytes(ul)));
         ASSERT(!isSameType(us,  Util::swapBytes(ul)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        ASSERT(!isSameType(c6,  Util::swapBytes(ul)));
+        ASSERT(!isSameType(c2,  Util::swapBytes(ul)));
+        ASSERT(!isSameType(c2,  ul));
+#endif
         ASSERT(!isSameType(ii,  Util::swapBytes(ul)));
         ASSERT(!isSameType(ui,  Util::swapBytes(ul)));
         ASSERT(!isSameType(ll,  Util::swapBytes(ul)));
@@ -569,9 +659,17 @@ int main(int argc, char *argv[])
         ASSERT(!isSameType(c,   Util::swapBytes(ull)));
         ASSERT(!isSameType(uc,  Util::swapBytes(ull)));
         ASSERT(!isSameType(sc,  Util::swapBytes(ull)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(ull)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(ull)));
         ASSERT(!isSameType(s,   Util::swapBytes(ull)));
         ASSERT(!isSameType(us,  Util::swapBytes(ull)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        ASSERT(!isSameType(c6,  Util::swapBytes(ull)));
+        ASSERT(!isSameType(c2,  Util::swapBytes(ull)));
+        ASSERT(!isSameType(c2,  ull));
+#endif
         ASSERT(!isSameType(ii,  Util::swapBytes(ull)));
         ASSERT(!isSameType(ui,  Util::swapBytes(ull)));
         ASSERT(!isSameType(ll,  Util::swapBytes(ull)));
@@ -585,9 +683,17 @@ int main(int argc, char *argv[])
         ASSERT(!isSameType(c,   Util::swapBytes(sll)));
         ASSERT(!isSameType(uc,  Util::swapBytes(sll)));
         ASSERT(!isSameType(sc,  Util::swapBytes(sll)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        ASSERT(!isSameType(c8,  Util::swapBytes(sll)));
+#endif
         ASSERT(!isSameType(w,   Util::swapBytes(sll)));
         ASSERT(!isSameType(s,   Util::swapBytes(sll)));
         ASSERT(!isSameType(us,  Util::swapBytes(sll)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        ASSERT(!isSameType(c6,  Util::swapBytes(sll)));
+        ASSERT(!isSameType(c2,  Util::swapBytes(sll)));
+        ASSERT(!isSameType(c2,  sll));
+#endif
         ASSERT(!isSameType(ii,  Util::swapBytes(sll)));
         ASSERT(!isSameType(ui,  Util::swapBytes(sll)));
         ASSERT(!isSameType(ll,  Util::swapBytes(sll)));

@@ -715,8 +715,17 @@ template <class CHAR_TYPE,
 class basic_string;
 
 // TYPEDEFS
-typedef basic_string<char>    string;
-typedef basic_string<wchar_t> wstring;
+typedef basic_string<char>     string;
+typedef basic_string<wchar_t>  wstring;
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+typedef basic_string<char8_t>  u8string;
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+typedef basic_string<char16_t> u16string;
+typedef basic_string<char32_t> u32string;
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 template <class ORIGINAL_TRAITS>
@@ -7961,6 +7970,19 @@ extern template class bsl::String_Imp<char, bsl::string::size_type>;
 extern template class bsl::String_Imp<wchar_t, bsl::wstring::size_type>;
 extern template class bsl::basic_string<char>;
 extern template class bsl::basic_string<wchar_t>;
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+extern template class bsl::String_Imp<char8_t, bsl::u8string::size_type>;
+extern template class bsl::basic_string<char8_t>;
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+extern template class bsl::String_Imp<char16_t, bsl::u16string::size_type>;
+extern template class bsl::String_Imp<char32_t, bsl::u32string::size_type>;
+extern template class bsl::basic_string<char16_t>;
+extern template class bsl::basic_string<char32_t>;
+# endif
+
 #endif
 
 #undef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS

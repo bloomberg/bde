@@ -379,6 +379,9 @@ int main(int argc, char *argv[])
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, char,                   1);
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, signed char,            1);
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, unsigned char,          1);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, char8_t,                1);
+#endif
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, wchar_t,                1);
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, short int,              1);
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, unsigned short int,     1);
@@ -472,6 +475,9 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQP(bsl::is_fundamental, char,                   true);
         TYPE_ASSERT_CVQP(bsl::is_fundamental, signed char,            true);
         TYPE_ASSERT_CVQP(bsl::is_fundamental, unsigned char,          true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, char8_t,                true);
+#endif
         TYPE_ASSERT_CVQP(bsl::is_fundamental, wchar_t,                true);
         TYPE_ASSERT_CVQP(bsl::is_fundamental, short int,              true);
         TYPE_ASSERT_CVQP(bsl::is_fundamental, unsigned short int,     true);

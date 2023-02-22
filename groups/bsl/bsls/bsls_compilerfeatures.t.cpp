@@ -8,6 +8,7 @@
 #include <exception>    // testing exception specifications
 
 #include <stdio.h>      // 'printf'
+#include <string.h>
 #include <stdlib.h>     // 'atoi'
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -68,6 +69,7 @@
 // [28] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 // [21] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+// [21] BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 // [18] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 // [33] BSLS_COMPILERFEATURES_SUPPORT_CTAD
@@ -1513,6 +1515,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     printf("%s\n",
@@ -2467,16 +2476,19 @@ will not improve the flavor.
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
+        // TESTING 'char8_t', 'char16_t', and 'char32_t' TYPES
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined only
+        //:   when the 8-bit 'char8_t' type is defined.
+        //:
+        //: 2 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
         //:   only when the compiler supports unicode character types unicode
         //:   character literals, and unicode string literals.
         //:
-        //: 2 Both 16-bit and 32-bit unicode are supported.
+        //: 3 Both 16-bit and 32-bit unicode are supported in C++11.
         //:
-        //: 3 8-bit unicode is a C++17 feature and is not tested.
+        //: 4 Type 'char8_t' is supported in C++20.
         //
         // Plan:
         //: 1 For concern 1, if
@@ -2495,15 +2507,57 @@ will not improve the flavor.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+        //   BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'"
-            "\n==========================================================\n");
+                      "TESTING 'char8_t', 'char16_t', and 'char32_t' TYPES\n"
+                      "===================================================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf(
+                           "'char8_t' not supported in this configuration.\n");
+#else
+        if (verbose) printf("Testing 'char8_t'\n");
+
+        const char8_t *pound        = u8"\xc2\xa3";
+        const char8_t *euro         = u8"\xe2\x82\xac";
+        const char8_t *poundEuro    = u8"\xc2\xa3\xe2\x82\xac";
+
+        ASSERT(0xc2 == pound[0]);
+        ASSERT(0xa3 == pound[1]);
+        ASSERT(0    == pound[2]);
+        
+        ASSERT(0xe2 == euro[0]);
+        ASSERT(0x82 == euro[1]);
+        ASSERT(0xac == euro[2]);
+        ASSERT(0    == euro[3]);
+
+        // 'printf("...%s...")' expects a 'char *' or 'const char *', and there
+        // are no equivalents of 'strcmp' or 'strncmp' for dealing with
+        // 'const char8_t *' strings.
+
+        const char *cPound     = reinterpret_cast<const char *>(pound);
+        const char *cEuro      = reinterpret_cast<const char *>(euro);
+        const char *cPoundEuro = reinterpret_cast<const char *>(poundEuro);
+
+        if (veryVerbose) {
+            printf("Pound: %s, euro: %s, poundEuro: %s\n", cPound, cEuro, 
+                                                                   cPoundEuro);
+        }
+
+        ASSERT(!strcmp("\xc2\xa3", cPound));
+        ASSERT(!strcmp("\xe2\x82\xac", cEuro));
+        ASSERT(!strcmp(cEuro, cPoundEuro + 2));
+        ASSERT(!strncmp(cPound, cPoundEuro, 2));
+#endif
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+        if (verbose) printf(
+                       "'char16,32_t' not supported in this configuration.\n");
 #else
+        if (verbose) printf("Testing 'char16_t'\n");
+
         const char16_t leftArrow   = u'\u2190';
         const char16_t rightArrow  = u'\u2192';
         const char16_t leftRight[] = u"\u2190\u2192";
@@ -2512,6 +2566,8 @@ will not improve the flavor.
         ASSERT(leftArrow  == leftRight[0]);
         ASSERT(rightArrow == leftRight[1]);
         ASSERT(0          == leftRight[2]);
+
+        if (verbose) printf("Testing 'char32_t'\n");
 
         const char32_t sadEmoticon    = U'\U0001F641';
         const char32_t smileyEmoticon = U'\U0001F642';

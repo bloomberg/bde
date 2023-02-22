@@ -80,9 +80,16 @@ struct ByteOrderUtil {
     static char           swapBytes(char           x);
     static unsigned char  swapBytes(unsigned char  x);
     static signed char    swapBytes(signed char    x);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    static char8_t        swapBytes(char8_t        x);
+#endif
     static wchar_t        swapBytes(wchar_t        x);
     static short          swapBytes(short          x);
     static unsigned short swapBytes(unsigned short x);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    static char16_t       swapBytes(char16_t       x);
+    static char32_t       swapBytes(char32_t       x);
+#endif
     static int            swapBytes(int            x);
     static unsigned int   swapBytes(unsigned int   x);
     static long           swapBytes(long           x);
@@ -142,6 +149,15 @@ ByteOrderUtil::swapBytes(signed char    x)
     return x;
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+inline
+char8_t
+ByteOrderUtil::swapBytes(char8_t         x)
+{
+    return x;
+}
+#endif
+
 inline
 wchar_t
 ByteOrderUtil::swapBytes(wchar_t        x)
@@ -182,6 +198,38 @@ ByteOrderUtil::swapBytes(unsigned short x)
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
 #endif
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+char16_t
+ByteOrderUtil::swapBytes(char16_t x)
+{
+    // These macros all return a value of type 'unsigned short'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( char16_t, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(char16_t, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(char16_t, x);
+#endif
+}
+
+inline
+char32_t
+ByteOrderUtil::swapBytes(char32_t       x)
+{
+    // These macros all return a value of type 'int'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( char32_t, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(char32_t, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(char32_t, x);
+#endif
+}
+#endif
 
 inline
 int

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jan 19 17:29:26 2023
+// Generated on Fri Feb 17 15:55:33 2023
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
@@ -1369,6 +1369,7 @@ struct InvokeResult_Index {
         e_CHAR,
         e_SCHAR,
         e_UCHAR,
+        e_CHAR8_T,
         e_WCHAR_T,
         e_CHAR16_T,
         e_CHAR32_T,
@@ -1401,6 +1402,9 @@ struct InvokeResult_Index {
     static bslmf::Tag<e_CHAR>                   fromVal(char&                );
     static bslmf::Tag<e_SCHAR>                  fromVal(signed char&         );
     static bslmf::Tag<e_UCHAR>                  fromVal(unsigned char&       );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+    static bslmf::Tag<e_CHAR8_T>                fromVal(char8_t&             );
+#endif
     static bslmf::Tag<e_WCHAR_T>                fromVal(wchar_t&             );
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
     static bslmf::Tag<e_CHAR16_T>               fromVal(char16_t&            );
@@ -1459,6 +1463,11 @@ struct InvokeResult_Type<InvokeResult_Index::e_SCHAR>
 template <>
 struct InvokeResult_Type<InvokeResult_Index::e_UCHAR>
     { typedef unsigned char      type; };
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+template <>
+struct InvokeResult_Type<InvokeResult_Index::e_CHAR8_T>
+    { typedef char8_t            type; };
+#endif
 template <>
 struct InvokeResult_Type<InvokeResult_Index::e_WCHAR_T>
     { typedef wchar_t            type; };

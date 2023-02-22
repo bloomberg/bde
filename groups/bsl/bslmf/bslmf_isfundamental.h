@@ -151,8 +151,14 @@ template <> struct IsFundamental_Imp<unsigned char> : bsl::true_type {
     // 'unsigned char'.
 };
 
-template <>
-struct IsFundamental_Imp<wchar_t> : bsl::true_type {
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+template <> struct IsFundamental_Imp<char8_t> : bsl::true_type {
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is 'char8_t'.
+};
+#endif
+
+template <> struct IsFundamental_Imp<wchar_t> : bsl::true_type {
     // This partial specialization of 'IsFundamental_Imp' derives from
     // 'bsl::true_type' for when the (template parameter) 't_TYPE' is
     // 'wchar_t'.

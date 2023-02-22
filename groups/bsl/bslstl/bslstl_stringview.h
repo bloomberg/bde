@@ -215,22 +215,27 @@ BSLS_IDENT("$Id: $")
 #include <functional>  // for 'std::less', 'std::greater_equal'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bsls_nativestd.h>
+# include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
 // of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
 // Bloomberg production builds.
 #ifndef BDE_DISABLE_CPP17_ABI
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-#include <string_view>
+#   include <string_view>
 
 namespace bsl {
 
 using std::basic_string_view;
 using std::string_view;
 using std::wstring_view;
+
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+using std::u8string_view;
+#   endif
+
 using std::u16string_view;
 using std::u32string_view;
 
@@ -244,8 +249,8 @@ using std::operator>;
 using std::operator>=;
 
 }
-#define BSLSTL_STRING_VIEW_IS_ALIASED
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# define BSLSTL_STRING_VIEW_IS_ALIASED
+# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
@@ -919,8 +924,17 @@ class basic_string_view {
 };
 
 // TYPEDEFS
-typedef basic_string_view<char>     string_view;
-typedef basic_string_view<wchar_t> wstring_view;
+typedef basic_string_view<char>         string_view;
+typedef basic_string_view<wchar_t>     wstring_view;
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+typedef basic_string_view<char8_t>    u8string_view;
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+typedef basic_string_view<char16_t>  u16string_view;
+typedef basic_string_view<char32_t>  u32string_view;
+#endif
 
 // FREE FUNCTIONS
 template <class CHAR_TYPE, class CHAR_TRAITS>
