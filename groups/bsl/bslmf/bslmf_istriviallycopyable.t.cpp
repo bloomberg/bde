@@ -764,6 +764,9 @@ int main(int argc, char *argv[])
         // C-1, (partial 6, 7, 8, 9)
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(bool, true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(char, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(char8_t, true);
+#endif
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(int,  true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(long double,    true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(bsl::nullptr_t, true);

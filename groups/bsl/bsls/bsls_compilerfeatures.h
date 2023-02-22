@@ -22,7 +22,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: '[[maybe_unused]]'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: '[[nodiscard]]'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
-//  BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE: flag for 'char8_t'
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: C++14 'constexpr' spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: C++17 'constexpr' spec.
@@ -51,6 +50,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has '<type_traits>' header
 //  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: flag for 'char(16|32)_t'
 //  BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS: user-defined literals
+//  BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE: flag for 'char8_t'
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: variable templates flag
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
 //  BSLS_COMPILERFEATURES_SUPPORT_CTAD: flag for template argument deduction
@@ -159,9 +159,6 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN':
 //:     This macro is defined if the '[[noreturn]]' attribute is supported by
 //:     the current compiler settings for this platform.
-//:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE':
-//:     This macro is defined if the compiler supports the 'char8_t' type.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR':
 //:     This macro is defined if 'constexpr' is supported by the current
@@ -301,6 +298,9 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS':
 //:     This macro is defined if user-defined literals are supported by the
 //:     current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE':
+//:     This macro is defined if the compiler supports the 'char8_t' type.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES':
 //:     This macro is defined if variadic template parameters are supported by
@@ -883,16 +883,17 @@ BSLS_IDENT("$Id: $")
 // is expected that, at some point, future compilers will need only these
 // universal definitions, and the platform-specific detection below will need
 // no further maintenance.
-#if defined(__cpp_char8_t)
-# define BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE
+
+#if defined(__cpp_guaranteed_copy_elision)
+# define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 #endif
 
 #if defined(__cpp_unicode_characters) && defined(__cpp_unicode_literals)
 # define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 #endif
 
-#if defined(__cpp_guaranteed_copy_elision)
-# define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#if defined(__cpp_char8_t)
+# define BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
 #endif
 
 // ============================================================================

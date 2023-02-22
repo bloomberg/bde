@@ -594,20 +594,17 @@ void dbg_print_impl(const CHAR_TYPE *s)
     putchar('"');
 }
 
-inline
 void dbg_print(const char *s)
 {
     dbg_print_impl(s);
 }
 
-inline
 void dbg_print(const wchar_t *s)
 {
     dbg_print_impl(s);
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
-inline
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 void dbg_print(const char8_t *s)
 {
     dbg_print_impl(s);
@@ -615,13 +612,11 @@ void dbg_print(const char8_t *s)
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-inline
 void dbg_print(const char16_t *s)
 {
     dbg_print_impl(s);
 }
 
-inline
 void dbg_print(const char32_t *s)
 {
     dbg_print_impl(s);
@@ -6303,7 +6298,7 @@ int main(int argc, char *argv[])
         ASSERT(EXP_NOTHROW ==
                       bsl::is_nothrow_move_constructible<bsl::wstring>::value);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 
         if (veryVerbose) printf("\tTesting 'bsl::u8string'.\n");
 
@@ -6356,7 +6351,7 @@ int main(int argc, char *argv[])
                bsl::is_nothrow_move_constructible<std::wstring>::value);
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (veryVerbose) printf("\tTesting 'std::u8string'.\n");
 
         ASSERT(!bslma::UsesBslmaAllocator<std::u8string>::value);
@@ -6472,7 +6467,7 @@ int main(int argc, char *argv[])
         TestDriver<wchar_t>::testCase9();
 
         if (verbose) {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
             if (verbose) printf("\n... with 'char8_t'.\n");
             TestDriver<char8_t>::testCase9();
 #endif
@@ -6497,7 +6492,7 @@ int main(int argc, char *argv[])
         TestDriver<wchar_t>::testCase9Negative();
 
         if (verbose) {
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
             if (verbose) printf("\n... with 'char8_t'.\n");
             TestDriver<char8_t>::testCase9Negative();
 # endif
@@ -6522,7 +6517,7 @@ int main(int argc, char *argv[])
         TestDriver<wchar_t>::testCase9Move();
 
         if (verbose) {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
             if (verbose) printf("\n... with 'char8_t'.\n");
             TestDriver<char8_t>::testCase9Move();
 #endif
@@ -6575,7 +6570,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase8();
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase8();
 #endif
@@ -6618,7 +6613,7 @@ int main(int argc, char *argv[])
         TestDriver<wchar_t>::testCase7();
         TestDriver<wchar_t>::testCase7Move();
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase7();
         TestDriver<char8_t>::testCase7Move();
@@ -6670,7 +6665,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase6();
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase6();
 #endif
@@ -6693,7 +6688,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase6Negative();
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase6Negative();
 # endif
@@ -6753,7 +6748,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase4();
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase4();
 #endif
@@ -6793,7 +6788,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase3();
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase3();
 #endif
@@ -6838,7 +6833,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase2();
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n... with 'char8_t'.\n");
         TestDriver<char8_t>::testCase2();
 #endif
@@ -6888,7 +6883,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n\t... with 'wchar_t' type.\n");
         TestDriver<wchar_t>::testCase1();
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         if (verbose) printf("\n\t... with 'char8_t' type.\n");
         TestDriver<char8_t>::testCase1();
 #endif

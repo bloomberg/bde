@@ -68,6 +68,7 @@
 // [28] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 // [21] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+// [21] BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 // [18] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 // [33] BSLS_COMPILERFEATURES_SUPPORT_CTAD
@@ -1312,13 +1313,6 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
     printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
     printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR) );
@@ -1516,6 +1510,13 @@ static void printFlags()
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
     printf("%s\n",
                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -2474,9 +2475,12 @@ will not improve the flavor.
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
+        // TESTING 8, 16, 32-bit UNICODE CHAR TYPES
         //
         // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined only
+        //:   when the 8-bit 'char8_t' type is defined.
+
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
         //:   only when the compiler supports unicode character types unicode
         //:   character literals, and unicode string literals.
@@ -2502,15 +2506,36 @@ will not improve the flavor.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+        //   BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'"
-            "\n==========================================================\n");
+                      "TESTING 'char8_t', 'char16_t', and 'char32_t' TYPES\n"
+                      "===================================================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf(
+                           "'char8_t' not supported in this configuration.\n");
+#else
+        if (verbose) printf("Testing 'char8_t'\n");
+
+        const char8_t pound        = u8'\xa3';
+        const char8_t half         = u8'\xbd';
+        const char8_t poundHalf[]  = u8"\xa3\xbd";
+
+        ASSERT(0xa3  == pound);
+        ASSERT(0xbd  == half);
+        ASSERT(pound == poundHalf[0]);
+        ASSERT(half  == poundHalf[1]);
+        ASSERT(0     == poundHalf[2]);
+#endif
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+        if (verbose) printf(
+                       "'char16,32_t' not supported in this configuration.\n");
 #else
+        if (verbose) printf("Testing 'char16_t'\n");
+
         const char16_t leftArrow   = u'\u2190';
         const char16_t rightArrow  = u'\u2192';
         const char16_t leftRight[] = u"\u2190\u2192";
@@ -2519,6 +2544,8 @@ will not improve the flavor.
         ASSERT(leftArrow  == leftRight[0]);
         ASSERT(rightArrow == leftRight[1]);
         ASSERT(0          == leftRight[2]);
+
+        if (verbose) printf("Testing 'char32_t'\n");
 
         const char32_t sadEmoticon    = U'\U0001F641';
         const char32_t smileyEmoticon = U'\U0001F642';

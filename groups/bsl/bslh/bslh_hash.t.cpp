@@ -1969,6 +1969,11 @@ int main(int argc, char *argv[])
             TestDriver<signed char> signedCharDriver;
             signedCharDriver.testHashAppendPassThrough(L_);
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+            TestDriver<char8_t> char8_tDriver;
+            char8_tDriver.testHashAppendPassThrough(L_);
+#endif
+
             TestDriver<wchar_t> wchar_tDriver;
             wchar_tDriver.testHashAppendPassThrough(L_);
 

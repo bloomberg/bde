@@ -232,7 +232,7 @@ using std::basic_string_view;
 using std::string_view;
 using std::wstring_view;
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 using std::u8string_view;
 #   endif
 
@@ -927,7 +927,7 @@ class basic_string_view {
 typedef basic_string_view<char>         string_view;
 typedef basic_string_view<wchar_t>     wstring_view;
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 typedef basic_string_view<char8_t>    u8string_view;
 #endif
 

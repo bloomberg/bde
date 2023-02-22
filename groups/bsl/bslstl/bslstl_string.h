@@ -718,7 +718,7 @@ class basic_string;
 typedef basic_string<char>     string;
 typedef basic_string<wchar_t>  wstring;
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 typedef basic_string<char8_t>  u8string;
 #endif
 
@@ -7971,7 +7971,7 @@ extern template class bsl::String_Imp<wchar_t, bsl::wstring::size_type>;
 extern template class bsl::basic_string<char>;
 extern template class bsl::basic_string<wchar_t>;
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 extern template class bsl::String_Imp<char8_t, bsl::u8string::size_type>;
 extern template class bsl::basic_string<char8_t>;
 # endif

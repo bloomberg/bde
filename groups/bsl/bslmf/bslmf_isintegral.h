@@ -128,7 +128,7 @@ struct is_integral<wchar_t> : bsl::true_type {
     // parameter) 't_TYPE' is 'wchar_t', derives from 'bsl::true_type'.
 };
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 template <>
 struct is_integral<char8_t> : bsl::true_type {
      // This explicit specialization of 'is_integral', for when the (template

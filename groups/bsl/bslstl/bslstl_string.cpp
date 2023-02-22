@@ -43,7 +43,7 @@ template class bsl::String_Imp<wchar_t, bsl::wstring::size_type>;
 template class bsl::basic_string<char>;
 template class bsl::basic_string<wchar_t>;
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_CHAR8_T_TYPE)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 template class bsl::String_Imp<char8_t, bsl::u8string::size_type>;
 template class bsl::basic_string<char8_t>;
 # endif
