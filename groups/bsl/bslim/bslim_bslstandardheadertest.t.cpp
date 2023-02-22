@@ -177,6 +177,10 @@
     #include <bsl_filesystem.h>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    #include <bsl_numbers.h>
+#endif
+
 #include <utility>     // 'std::pair'
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
@@ -207,6 +211,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [22] C++20 'bsl_numbers.h' HEADER
 // [21] CONCERN: 'bsl::span' is available and usable
 // [20] CONCERN: 'bsl::invoke' is usable when available.
 // [20] CONCERN: 'bsl::not_fn' is usable when available.
@@ -767,6 +772,89 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_numbers.h' HEADER
+        //
+        // Concerns:
+        //: 1 The definitions from '<numbers>' defined by the C++20 Standard
+        //:   are available in C++20 mode in the 'bsl' namespace to users who
+        //:   include 'bsl_numbers.h'.
+        //
+        // Plan:
+        //: 1 Verify that each 'bsl::numbers::foo' value is equal to
+        //:   'bsl::numbers::foo_v<double>' value.
+        //:
+        //: 2 Verify that each 'bsl::numbers::foo' has type 'const double'.
+        //
+        // Testing
+        //   C++20 'bsl_numbers.h' HEADER
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING C++20 'bsl_numbers.h' HEADER"
+                            "\n====================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+            static_assert(bsl::numbers::e_v<double> == bsl::numbers::e);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::e),
+                                         const double>);
+
+            static_assert(bsl::numbers::log2e_v<double> ==
+                                                          bsl::numbers::log2e);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::log2e),
+                                         const double>);
+
+            static_assert(bsl::numbers::log10e_v<double> ==
+                                                         bsl::numbers::log10e);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::log10e),
+                                         const double>);
+
+            static_assert(bsl::numbers::pi_v<double> == bsl::numbers::pi);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::pi),
+                                         const double>);
+
+            static_assert(bsl::numbers::inv_pi_v<double> ==
+                                                         bsl::numbers::inv_pi);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::inv_pi),
+                                         const double>);
+
+            static_assert(bsl::numbers::inv_sqrtpi_v<double> ==
+                                                     bsl::numbers::inv_sqrtpi);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::inv_sqrtpi),
+                                         const double>);
+
+            static_assert(bsl::numbers::ln2_v<double> == bsl::numbers::ln2);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::ln2),
+                                         const double>);
+
+            static_assert(bsl::numbers::ln10_v<double> == bsl::numbers::ln10);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::ln10),
+                                         const double>);
+
+            static_assert(bsl::numbers::sqrt2_v<double> ==
+                                                          bsl::numbers::sqrt2);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::sqrt2),
+                                         const double>);
+
+            static_assert(bsl::numbers::sqrt3_v<double> ==
+                                                          bsl::numbers::sqrt3);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::sqrt3),
+                                         const double>);
+
+            static_assert(bsl::numbers::inv_sqrt3_v<double> ==
+                                                      bsl::numbers::inv_sqrt3);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::inv_sqrt3),
+                                         const double>);
+
+            static_assert(bsl::numbers::egamma_v<double> ==
+                                                         bsl::numbers::egamma);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::egamma),
+                                         const double>);
+
+            static_assert(bsl::numbers::phi_v<double> == bsl::numbers::phi);
+            static_assert(bsl::is_same_v<decltype(bsl::numbers::phi),
+                                         const double>);
+#endif
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING C++20 <BSL_SPAN.H> ADDITION

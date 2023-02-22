@@ -1,11 +1,13 @@
-// bsl_numeric.h                                                      -*-C++-*-
-#ifndef INCLUDED_BSL_NUMERIC
-#define INCLUDED_BSL_NUMERIC
+// bsl_numbers.h                                                      -*-C++-*-
+#ifndef INCLUDED_BSL_NUMBERS
+#define INCLUDED_BSL_NUMBERS
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
+//
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
@@ -15,53 +17,23 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#include <numeric>
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-namespace bsl {
+#include <numbers>
+
+namespace bls {
     // Import selected symbols into bsl namespace
-    using std::accumulate;
-    using std::adjacent_difference;
-    using std::inner_product;
-    using std::partial_sum;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using std::iota;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    namespace numbers = std::numbers;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using std::exclusive_scan;
-    using std::inclusive_scan;
-    using std::lcm;
-    using std::gcd;
-    using std::transform_exclusive_scan;
-    using std::transform_inclusive_scan;
-    using std::reduce;
-    using std::transform_reduce;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // Import additional names expected by existing code, but not mandated by
-    // the standard header.
-    using std::bidirectional_iterator_tag;
-    using std::forward_iterator_tag;
-    using std::input_iterator_tag;
-#if !defined(BSLS_PLATFORM_CMP_MSVC) &&                                       \
-    (BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L)
-    using std::iterator;
-#endif
-    using std::output_iterator_tag;
-    using std::random_access_iterator_tag;
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
