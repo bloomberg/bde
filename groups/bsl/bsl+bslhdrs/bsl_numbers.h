@@ -7,8 +7,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bos+stdhdrs in the bos package group
-//
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
@@ -21,14 +19,18 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+
 #include <numbers>
 
-namespace bls {
+namespace bsl {
     // Import selected symbols into bsl namespace
 
     namespace numbers = std::numbers;
 
 }  // close package namespace
+
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 #endif
 

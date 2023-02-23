@@ -177,9 +177,8 @@
     #include <bsl_filesystem.h>
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-    #include <bsl_numbers.h>
-#endif
+// C++20 headers
+#include <bsl_numbers.h>
 
 #include <utility>     // 'std::pair'
 
