@@ -85,6 +85,7 @@
      bsl_set.h
      bsl_semaphore.h
      bsl_slist.h
+     bsl_source_location.h
      bsl_span.h
      bsl_sstream.h
      bsl_stack.h

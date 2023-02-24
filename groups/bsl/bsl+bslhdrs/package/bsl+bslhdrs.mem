@@ -122,5 +122,6 @@ bsl_bit.h
 bsl_latch.h
 bsl_numbers.h
 bsl_semaphore.h
+bsl_source_location.h
 bsl_span.h
 bsl_version.h

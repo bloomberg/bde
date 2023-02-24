@@ -201,6 +201,7 @@
 // C++20 headers
 #include <bsl_bit.h>
 #include <bsl_numbers.h>
+#include <bsl_source_location.h>
 
 #include <utility>     // 'std::pair'
 
@@ -232,6 +233,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [26] C++20 'bsl_source_location.h' HEADER
 // [25] C++20 'bsl_bit.h' HEADER
 // [24] C++20 'bsl_numbers.h' HEADER
 // [23] CONCERN: 'bsl::barrier' is available and usable.
@@ -810,6 +812,38 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_source_location.h' HEADER
+        //
+        // Concerns:
+        //: 1 The definitions from '<source_location>' defined by the C++20
+        //:   Standard are available in C++20 mode in the 'bsl' namespace to
+        //:   users who include 'bsl_source_location.h'.
+        //:
+        //: 2 The feature test macros defined in '<source_location>' are
+        //:   available and have appropriate values.
+        //
+        // Plan:
+        //: 1 Verify that '__cpp_lib_source_location >= 201907L'.
+        //:
+        //: 2 Verify that 'bsl::source_location::current()' can be successfully
+        //:   called and an object of type 'bsl::source_location' is returned.
+        //
+        // Testing
+        //   C++20 'bsl_source_location.h' HEADER
+        // --------------------------------------------------------------------
+        if (verbose) printf(
+                           "\nTESTING C++20 'bsl_source_location.h' HEADER"
+                           "\n============================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        BSLMF_ASSERT(__cpp_lib_source_location >= 201907L);
+
+        const bsl::source_location sl = bsl::source_location::current();
+        (void) sl;
+#endif
+      } break;
       case 25: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_bit.h' HEADER
