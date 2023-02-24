@@ -118,6 +118,7 @@ bsl_string_view.h
 
 # C++20 headers
 bsl_barrier.h
+bsl_bit.h
 bsl_latch.h
 bsl_numbers.h
 bsl_semaphore.h

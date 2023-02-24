@@ -199,6 +199,7 @@
 #endif
 
 // C++20 headers
+#include <bsl_bit.h>
 #include <bsl_numbers.h>
 
 #include <utility>     // 'std::pair'
@@ -231,8 +232,8 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
-
-// [24] C++20 <bsl_numbers.h>
+// [25] C++20 'bsl_bit.h' HEADER
+// [24] C++20 'bsl_numbers.h' HEADER
 // [23] CONCERN: 'bsl::barrier' is available and usable.
 // [23] CONCERN: 'bsl::latch' is available and usable.
 // [23] CONCERN: 'bsl::counting_semaphore' is available and usable.
@@ -809,6 +810,97 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_bit.h' HEADER
+        //
+        // Concerns:
+        //: 1 The definitions from '<bit>' defined by the C++20 Standard are
+        //:   available in C++20 mode in the 'bsl' namespace to users who
+        //:   include 'bsl_bit.h'.
+        //:
+        //: 2 The feature test macros defined in '<bit>' are available and have
+        //:   appropriate values.
+        //
+        // Plan:
+        //: 1 Verify that
+        //:    o '__cpp_lib_endian >= 201907L',
+        //:    o '__cpp_lib_bit_cast >= 201806L',
+        //:    o '__cpp_lib_bitops >= 201907L',
+        //:    o '__cpp_lib_int_pow2 >= 202002L'.
+        //:
+        //: 2 Form some valid expressions with every name with 'bsl' prefix and
+        //:   perform couple of sanity tests.
+        //
+        // Testing
+        //   C++20 'bsl_bit.h' HEADER
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING C++20 'bsl_bit.h' HEADER"
+                            "\n================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        BSLMF_ASSERT(__cpp_lib_endian >= 201907L);
+        ASSERT(bsl::endian::native == bsl::endian::big ||
+               bsl::endian::native == bsl::endian::little);
+
+        BSLMF_ASSERT(__cpp_lib_bit_cast >= 201806L);
+        ASSERT(bsl::bit_cast<unsigned>(1) == 1U);
+
+        BSLMF_ASSERT(__cpp_lib_bitops >= 201907L);
+
+        ASSERT(bsl::rotl(1U, 1) == 2U);
+        ASSERT(bsl::rotl(~(~0U >> 1), 1) == 1U);
+
+        ASSERT(bsl::rotr(1U, 1) == ~(~0U >> 1));
+        ASSERT(bsl::rotr(2U, 1) == 1U);
+
+        ASSERT(bsl::countl_zero(0U) == sizeof(unsigned) * CHAR_BIT);
+        ASSERT(bsl::countl_zero(1U) == sizeof(unsigned) * CHAR_BIT - 1);
+        ASSERT(bsl::countl_zero(2U) == sizeof(unsigned) * CHAR_BIT - 2);
+        ASSERT(bsl::countl_zero(~0U) == 0);
+        ASSERT(bsl::countl_zero(~(~0U >> 1)) == 0);
+
+        ASSERT(bsl::countl_one(0U) == 0);
+        ASSERT(bsl::countl_one(~0U) == sizeof(unsigned) * CHAR_BIT);
+        ASSERT(bsl::countl_one(bsl::rotr(0b111U, 3)) == 3);
+
+        ASSERT(bsl::countr_zero(0U) == sizeof(unsigned) * CHAR_BIT);
+        ASSERT(bsl::countr_zero(1U) == 0);
+        ASSERT(bsl::countr_zero(2U) == 1);
+
+        ASSERT(bsl::countr_one(0U) == 0);
+        ASSERT(bsl::countr_one(1U) == 1);
+        ASSERT(bsl::countr_one(2U) == 0);
+        ASSERT(bsl::countr_one(0b1011U) == 2);
+
+        ASSERT(bsl::popcount(0U) == 0);
+        ASSERT(bsl::popcount(1U) == 1);
+        ASSERT(bsl::popcount(2U) == 1);
+        ASSERT(bsl::popcount(3U) == 2);
+
+        BSLMF_ASSERT(__cpp_lib_int_pow2 >= 202002L);
+
+        ASSERT(!bsl::has_single_bit(0U));
+        ASSERT( bsl::has_single_bit(1U));
+        ASSERT( bsl::has_single_bit(2U));
+        ASSERT(!bsl::has_single_bit(3U));
+
+        ASSERT(bsl::bit_ceil(0U) == 1U);
+        ASSERT(bsl::bit_ceil(1U) == 1U);
+        ASSERT(bsl::bit_ceil(2U) == 2U);
+        ASSERT(bsl::bit_ceil(3U) == 4U);
+
+        ASSERT(bsl::bit_floor(0U) == 0U);
+        ASSERT(bsl::bit_floor(1U) == 1U);
+        ASSERT(bsl::bit_floor(2U) == 2U);
+        ASSERT(bsl::bit_floor(3U) == 2U);
+
+        ASSERT(bsl::bit_width(0U) == 0);
+        ASSERT(bsl::bit_width(1U) == 1);
+        ASSERT(bsl::bit_width(2U) == 2);
+        ASSERT(bsl::bit_width(3U) == 2);
+#endif
+      } break;
       case 24: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_numbers.h' HEADER
@@ -817,12 +909,17 @@ int main(int argc, char *argv[])
         //: 1 The definitions from '<numbers>' defined by the C++20 Standard
         //:   are available in C++20 mode in the 'bsl' namespace to users who
         //:   include 'bsl_numbers.h'.
+        //:
+        //: 2 The feature test macros defined in '<numbers>' are available and
+        //:   have appropriate values.
         //
         // Plan:
-        //: 1 Verify that each 'bsl::numbers::foo' value is equal to
+        //: 1 Verify that '__cpp_lib_math_constants >= 201907L'.
+        //:
+        //: 2 Verify that each 'bsl::numbers::foo' value is equal to
         //:   'bsl::numbers::foo_v<double>' value.
         //:
-        //: 2 Verify that each 'bsl::numbers::foo' has type 'const double'.
+        //: 3 Verify that each 'bsl::numbers::foo' has type 'const double'.
         //
         // Testing
         //   C++20 'bsl_numbers.h' HEADER
@@ -831,65 +928,67 @@ int main(int argc, char *argv[])
                             "\n====================================\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-            static_assert(bsl::numbers::e_v<double> == bsl::numbers::e);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::e),
-                                         const double>);
+            BSLMF_ASSERT(__cpp_lib_math_constants >= 201907L);
 
-            static_assert(bsl::numbers::log2e_v<double> ==
-                                                          bsl::numbers::log2e);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::log2e),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::e_v<double> == bsl::numbers::e));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::e),
+                                         const double>));
 
-            static_assert(bsl::numbers::log10e_v<double> ==
-                                                         bsl::numbers::log10e);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::log10e),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::log2e_v<double> ==
+                                                         bsl::numbers::log2e));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::log2e),
+                                         const double>));
 
-            static_assert(bsl::numbers::pi_v<double> == bsl::numbers::pi);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::pi),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::log10e_v<double> ==
+                                                        bsl::numbers::log10e));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::log10e),
+                                         const double>));
 
-            static_assert(bsl::numbers::inv_pi_v<double> ==
-                                                         bsl::numbers::inv_pi);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::inv_pi),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::pi_v<double> == bsl::numbers::pi));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::pi),
+                                         const double>));
 
-            static_assert(bsl::numbers::inv_sqrtpi_v<double> ==
-                                                     bsl::numbers::inv_sqrtpi);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::inv_sqrtpi),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::inv_pi_v<double> ==
+                                                        bsl::numbers::inv_pi));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::inv_pi),
+                                         const double>));
 
-            static_assert(bsl::numbers::ln2_v<double> == bsl::numbers::ln2);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::ln2),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::inv_sqrtpi_v<double> ==
+                                                    bsl::numbers::inv_sqrtpi));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::inv_sqrtpi),
+                                         const double>));
 
-            static_assert(bsl::numbers::ln10_v<double> == bsl::numbers::ln10);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::ln10),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::ln2_v<double> == bsl::numbers::ln2));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::ln2),
+                                         const double>));
 
-            static_assert(bsl::numbers::sqrt2_v<double> ==
-                                                          bsl::numbers::sqrt2);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::sqrt2),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::ln10_v<double> == bsl::numbers::ln10));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::ln10),
+                                         const double>));
 
-            static_assert(bsl::numbers::sqrt3_v<double> ==
-                                                          bsl::numbers::sqrt3);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::sqrt3),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::sqrt2_v<double> ==
+                                                         bsl::numbers::sqrt2));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::sqrt2),
+                                         const double>));
 
-            static_assert(bsl::numbers::inv_sqrt3_v<double> ==
-                                                      bsl::numbers::inv_sqrt3);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::inv_sqrt3),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::sqrt3_v<double> ==
+                                                         bsl::numbers::sqrt3));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::sqrt3),
+                                         const double>));
 
-            static_assert(bsl::numbers::egamma_v<double> ==
-                                                         bsl::numbers::egamma);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::egamma),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::inv_sqrt3_v<double> ==
+                                                     bsl::numbers::inv_sqrt3));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::inv_sqrt3),
+                                         const double>));
 
-            static_assert(bsl::numbers::phi_v<double> == bsl::numbers::phi);
-            static_assert(bsl::is_same_v<decltype(bsl::numbers::phi),
-                                         const double>);
+            BSLMF_ASSERT((bsl::numbers::egamma_v<double> ==
+                                                        bsl::numbers::egamma));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::egamma),
+                                         const double>));
+
+            BSLMF_ASSERT((bsl::numbers::phi_v<double> == bsl::numbers::phi));
+            BSLMF_ASSERT((bsl::is_same_v<decltype(bsl::numbers::phi),
+                                         const double>));
 #endif
       } break;
       case 23: {

@@ -22,6 +22,7 @@
 
   1. bsl_algorithm.h
      bsl_barrier.h
+     bsl_bit.h
      bsl_bitset.h
      bsl_c_assert.h
      bsl_c_ctype.h
