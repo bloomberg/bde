@@ -21,6 +21,7 @@
      bsl_strstream.h
 
   1. bsl_algorithm.h
+     bsl_barrier.h
      bsl_bitset.h
      bsl_c_assert.h
      bsl_c_ctype.h
@@ -70,6 +71,7 @@
      bsl_ios.h
      bsl_iosfwd.h
      bsl_iterator.h
+     bsl_latch.h
      bsl_limits.h
      bsl_list.h
      bsl_map.h
@@ -80,6 +82,7 @@
      bsl_optional.h
      bsl_queue.h
      bsl_set.h
+     bsl_semaphore.h
      bsl_slist.h
      bsl_span.h
      bsl_sstream.h
@@ -90,6 +93,7 @@
      bsl_utility.h
      bsl_valarray.h
      bsl_vector.h
+     bsl_version.h
 ..
 
 /Component Synopsis

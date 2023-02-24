@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 // 'bsl::hash' and 'bslh::hashAppend' support.  Finally, place the included
 // symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_nativestd.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
 #include <filesystem>

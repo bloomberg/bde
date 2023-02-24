@@ -45,8 +45,27 @@
 
 // #include all of the headers defined in bsl+bslhdrs.
 
+// The <version> header, added in C++20, defines numerous feature-test macros.
+// Since these macros are also available when including various standard
+// headers, in order to check the inclusion of the <version> header exactly, we
+// have to break the rule of the coding standard and include <bsl_version.h>
+// file before others.
+
+#include <bsl_version.h>
+
+// Now we can check the availability of the feature-test macros, being sure
+// that at the moment they could only be defined in the standard <version>
+// header.
+
+#if defined(__cpp_lib_generic_associative_lookup) &&                          \
+    defined(__cpp_lib_string_udls) &&                                         \
+    defined(__cpp_lib_chrono_udls)
+    #define BSLIM_BSLSTANDARDHEADERTEST_VERSION_HEADER_WAS_INCLUDED
+#endif
+
 #include <bsl_algorithm.h>
 #include <bsl_array.h>
+#include <bsl_barrier.h>
 #include <bsl_bitset.h>
 #include <bsl_c_assert.h>
 #include <bsl_c_ctype.h>
@@ -65,8 +84,8 @@
 #include <bsl_c_string.h>
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-    // The POSIX header <sys/time.h> is not available from Visual Studio.
-    #include <bsl_c_sys_time.h>
+// The POSIX header <sys/time.h> is not available from Visual Studio.
+#include <bsl_c_sys_time.h>
 #endif
 
 #include <bsl_c_time.h>
@@ -92,8 +111,8 @@
 #include <bsl_ctime.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900)
-    // The standard header <cuchar> is not available on most platforms.
-    #include <bsl_cuchar.h>
+// The standard header <cuchar> is not available on most platforms.
+#include <bsl_cuchar.h>
 #endif
 
 #include <bsl_cwchar.h>
@@ -109,6 +128,7 @@
 #include <bsl_iostream.h>
 #include <bsl_istream.h>
 #include <bsl_iterator.h>
+#include <bsl_latch.h>
 #include <bsl_limits.h>
 #include <bsl_list.h>
 #include <bsl_locale.h>
@@ -119,6 +139,7 @@
 #include <bsl_numeric.h>
 #include <bsl_ostream.h>
 #include <bsl_queue.h>
+#include <bsl_semaphore.h>
 #include <bsl_set.h>
 #include <bsl_span.h>
 #include <bsl_sstream.h>
@@ -210,7 +231,13 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
-// [22] C++20 'bsl_numbers.h' HEADER
+
+// [24] C++20 <bsl_numbers.h>
+// [23] CONCERN: 'bsl::barrier' is available and usable.
+// [23] CONCERN: 'bsl::latch' is available and usable.
+// [23] CONCERN: 'bsl::counting_semaphore' is available and usable.
+// [23] CONCERN: 'bsl::binary_semaphore' is available and usable.
+// [22] CONCERN: feature-test macros are available and usable.
 // [21] CONCERN: 'bsl::span' is available and usable
 // [20] CONCERN: 'bsl::invoke' is usable when available.
 // [20] CONCERN: 'bsl::not_fn' is usable when available.
@@ -752,6 +779,17 @@ size_t CountingFunctor::s_count = 0;
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+class CompletionFunction {
+    // This class minimally satisfies the requirements of the 'bsl::barrier'
+    // template parameter.
+
+  public:
+    // MANIPULATORS
+    void operator()() noexcept {}
+};
+#endif  // BSLS_LIBRARYFEATURES_HAS_BARRIER
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -771,7 +809,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_numbers.h' HEADER
         //
@@ -853,6 +891,101 @@ int main(int argc, char *argv[])
             static_assert(bsl::is_same_v<decltype(bsl::numbers::phi),
                                          const double>);
 #endif
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 THREAD_COORDINATION CLASSES
+        //   The following classes have been added 'std::barrier',
+        //    'std::latch', 'std::counting_semaphore' and
+        //    'std::binary_semaphore'.  BDE aliases them in the following
+        //    headers: <bsl_barrier.h>, <std_latch.h> and <bsl_semaphore.h>.
+        //
+        // Concerns:
+        //: 1 The 'latch' type exists in the 'bsl' namespace and is an alias to
+        //:   the standard library type.
+        //:
+        //: 2 The 'barrier' type exists in the 'bsl' namespace and is an alias
+        //:   to the standard library type.
+        //:
+        //: 3 The 'counting_semaphore' type exists in the 'bsl' namespace and
+        //:   is an alias to the standard library type.
+        //:
+        //: 4 The 'binary_semaphore' type exists in the 'bsl' namespace and is
+        //:   an alias to the standard library type.
+        //
+        // Plan:
+        //: 1 Attempt to construct an object of each class.
+        //:
+        //: 2 Verify that corresponding BDE and STD classes have the same type.
+        //
+        // Testing
+        //   CONCERN: 'bsl::barrier' is available and usable.
+        //   CONCERN: 'bsl::latch' is available and usable.
+        //   CONCERN: 'bsl::counting_semaphore' is available and usable.
+        //   CONCERN: 'bsl::binary_semaphore' is available and usable.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING C++20 THREAD_COORDINATION CLASSES"
+                   "\n=========================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+       bsl::barrier<CompletionFunction> barrier(0);
+       ASSERT((bsl::is_same_v<std::barrier<CompletionFunction>,
+                              bsl::barrier<CompletionFunction> >));
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
+       bsl::latch latch(0);
+       ASSERT((bsl::is_same_v<std::latch, bsl::latch>));
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
+       bsl::counting_semaphore countingSemaphore(0);
+       ASSERT((bsl::is_same_v<std::counting_semaphore<1>,
+                              bsl::counting_semaphore<1> >));
+
+       bsl::binary_semaphore binarySemaphore(0);
+       ASSERT((bsl::is_same_v<std::binary_semaphore, bsl::binary_semaphore>));
+#endif
+
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 <BSL_VERSION.H> ADDITION
+        //   The <version> header, added in C++20, defines numerous
+        //   feature-test macros.  Since the same macros are available when
+        //   including various standard headers, in order to check the
+        //   inclusion of the <version> header exactly, we included it before
+        //   other headers and made a check for the availability of
+        //   feature-test macros (see the definition of the
+        //   'BSLIM_BSLSTANDARDHEADERTEST_VERSION_HEADER_WAS_INCLUDED' macro
+        //   above).
+        //
+        // Concerns:
+        //: 1 Standard feature-test macros are available when <bsl_version.h>
+        //:   header is included.
+        //
+        // Plan:
+        //: 1 Check if the '__cpp_lib_generic_associative_lookup',
+        //:   '__cpp_lib_string_udls' and '__cpp_lib_chrono_udls' macros are
+        //:   available after 'bsl_version.h' header inclusion.  (C-1)
+        //
+        // Testing
+        //   CONCERN: feature-test macros are available and usable.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING C++20 <BSL_VERSION.H> ADDITION"
+                   "\n======================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+
+#if !defined(BSLIM_BSLSTANDARDHEADERTEST_VERSION_HEADER_WAS_INCLUDED)
+       ASSERTV("<version> is not included", false);
+#endif
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
       } break;
       case 21: {
         // --------------------------------------------------------------------

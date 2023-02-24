@@ -99,6 +99,26 @@
     #include <span>
 #endif
 
+// Verify assumption that <version> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION)
+    #include <version>
+#endif
+
+// Verify assumption that <barrier> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER)
+    #include <barrier>
+#endif
+
+// Verify assumption that <latch> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH)
+    #include <latch>
+#endif
+
+// Verify assumption that <semaphore> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE)
+    #include <semaphore>
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -184,6 +204,10 @@
 // [18] BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
 // [18] BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
 // [17] BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -194,7 +218,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [19] USAGE EXAMPLE
+// [20] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -349,6 +373,34 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE)
                                                                           true;
 #else
                                                                          false;
@@ -1218,6 +1270,34 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
@@ -1453,7 +1533,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1473,6 +1553,70 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_LIBRARYFEATURES_HAS_CPP20_MISCELLANY
+        //
+        // Concerns:
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION' is defined only when the
+        //:   native standard library provides it.
+        //:
+        //: 2 'BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER' is defined only when the
+        //:   native standard library provides it.
+        //:
+        //: 3 'BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH' is defined only when the
+        //:   native standard library provides it.
+        //:
+        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE' is defined only when
+        //:   the native standard library provides it.
+        //:
+        //
+        // Plan:
+        //: 1 When these macros are defined include the appropriate headers and
+        //:   use the expected calls.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "TESTING BSLS_LIBRARYFEATURES_HAS_CPP20_MISCELLANY\n"
+            "=================================================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined)
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+        {
+            std::barrier barrier(1);
+            (void) barrier;
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
+        {
+            std::latch latch(0);
+            (void) latch;
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
+        {
+            std::counting_semaphore countingSemaphore(0);
+            std::binary_semaphore binarySemaphore(0);
+
+            (void) countingSemaphore;
+            (void) binarySemaphore;
+        }
+#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
