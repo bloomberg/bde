@@ -42,12 +42,12 @@ target_compile_definitions(
         $<$<C_COMPILER_ID:GNU>:USE_REAL_MALLOC>
 )
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT CMAKE_SYSTEM_NAME STREQUAL "SunOS")
     # 64 bits
     target_compile_definitions(
         ${target}
         PRIVATE
-            $<$<NOT:$<C_COMPILER_ID:SunPro>>:SUPPORT_JIT>
+            SUPPORT_JIT
     )
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     # 32 bits
