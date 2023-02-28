@@ -40016,6 +40016,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 The decoder returns an error on encountering unknown elements if
         //:   the 'skipUnknownElement' decoder option is *not* specified.
+        //:
+        //: 3 The decoder returns an error on encountering malformed unknown
+        //:   element regardless of the 'skipUnknownElement' decoder option
+        //:   value.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a table with JSON text.
@@ -40033,10 +40037,30 @@ int main(int argc, char *argv[])
         //:
         //:   5 Verify that the decoded object has the expected data.
         //:
-        //:   6 Verify that the return code from 'decode' is 0.
+        //:   6 Verify that the return code from 'decode' is 0.  (C-1)
         //:
         //:   7 Repeat steps 1 - 6 with the 'skipUnknownElements' option set
         //:     to 'false'.  Verify that an error code is returned by 'decode'.
+        //:     (C-2)
+        //:
+        //: 3 Using the table-driven technique, specify a table with malformed
+        //:   JSON texts.
+        //:
+        //: 4 For each row in the tables of P-3:
+        //:
+        //:   1 Construct a test object.
+        //:
+        //:   2 Create a 'baljsn::Decoder' object.
+        //:
+        //:   3 Create a 'bsl::istringstream' object with the JSON text.
+        //:
+        //:   4 Decode that JSON into a test object specifying
+        //:     that unknown elements be skipped.
+        //:
+        //:   5 Verify that an error code is returned by 'decode'.
+        //:
+        //:   6 Repeat steps 1 - 5 with the 'skipUnknownElements' option set
+        //:     to 'false'.  (C-3)
         //
         // Testing:
         //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
@@ -40046,6 +40070,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING SKIPPING UNKNOWN ELEMENTS"
                           << "\n=================================" << endl;
+
+        if (verbose) cout << "Testing valid JSON strings" << endl;
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -40061,7 +40087,7 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"id\"  : 21\n"     // <--- unknown element
+                "       \"id\"  : 21\n"                 // <--- unknown element
                 "}"
             },
             {
@@ -40073,7 +40099,7 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"id\"  : 21,\n"     // <--- unknown element
+                "       \"id\"  : 21,\n"                // <--- unknown element
                 "       \"age\" : 21\n"
                 "}"
             },
@@ -40087,7 +40113,7 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"nickname\" : \"Robert\"\n"   // <--- unknown element
+                "       \"nickname\" : \"Robert\"\n"    // <--- unknown element
                 "}"
             },
             {
@@ -40113,8 +40139,8 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"id\"  : 21,\n"               // <--- unknown element
-                "       \"nickname\" : \"Robert\"\n"   // <--- unknown element
+                "       \"id\"  : 21,\n"                // <--- unknown element
+                "       \"nickname\" : \"Robert\"\n"    // <--- unknown element
                 "}"
             },
             {
@@ -40126,8 +40152,8 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"id\"  : 21,\n"               // <--- unknown element
-                "       \"nickname\" : \"Robert\",\n"  // <--- unknown element
+                "       \"id\"  : 21,\n"                // <--- unknown element
+                "       \"nickname\" : \"Robert\",\n"   // <--- unknown element
                 "       \"age\" : 21\n"
                 "}"
             },
@@ -40141,7 +40167,7 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"ids\" : [ 1, 2 ]\n"      // <--- unknown element
+                "       \"ids\" : [ 1, 2 ]\n"           // <--- unknown element
                 "}"
             },
             {
@@ -40153,7 +40179,7 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"ids\" : [ 1, 2 ],\n"      // <--- unknown element
+                "       \"ids\" : [ 1, 2 ],\n"          // <--- unknown element
                 "       \"age\" : 21\n"
                 "}"
             },
@@ -40167,8 +40193,8 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"aliases\" : [ \"Foo\", \"Bar\" ]\n"  // <--- unknown
-                                                               //      element
+                "       \"aliases\" : [ \"Foo\", \"Bar\" ]\n"   // <--- unknown
+                                                                //      element
                 "}"
             },
             {
@@ -40180,8 +40206,8 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"aliases\" : [ \"Foo\", \"Bar\" ],\n" // <--- unknown
-                                                               //      element
+                "       \"aliases\" : [ \"Foo\", \"Bar\" ],\n"  // <--- unknown
+                                                                //      element
                 "       \"age\" : 21\n"
                 "}"
             },
@@ -40306,7 +40332,7 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"addrs\" : [\n"       // <--- unknown element
+                "       \"addrs\" : [\n"                // <--- unknown element
                 "           {\n"
                 "               \"officeAddress\" : {\n"
                 "                   \"street\" : \"Some Street\",\n"
@@ -40333,7 +40359,7 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"addrs\" : [\n"       // <--- unknown element
+                "       \"addrs\" : [\n"                // <--- unknown element
                 "           {\n"
                 "               \"officeAddress\" : {\n"
                 "                   \"street\" : \"Some Street\",\n"
@@ -40358,7 +40384,7 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"addrs\" : [\n"       // <--- unknown element
+                "       \"addrs\" : [\n"                // <--- unknown element
                 "           {\n"
                 "               \"officeAddress\" : {\n"
                 "                   \"street\" : \"Some Street\",\n"
@@ -40385,7 +40411,7 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"addrs\" : [\n"       // <--- unknown element
+                "       \"addrs\" : [\n"                // <--- unknown element
                 "           {\n"
                 "               \"officeAddress\" : {\n"
                 "                   \"street\" : \"Some Street\",\n"
@@ -40422,7 +40448,7 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"addrs\" : [\n"       // <--- unknown element
+                "       \"addrs\" : [\n"                // <--- unknown element
                 "           {\n"
                 "               \"officeAddress\" : {\n"
                 "                   \"street\" : \"Some Street\",\n"
@@ -40461,7 +40487,7 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21,\n"
-                "       \"misc\" : {\n"       // <--- unknown element
+                "       \"misc\" : {\n"                 // <--- unknown element
                 "           \"name\" : \"Bob\",\n"
                 "           \"homeAddress\" : {\n"
                 "               \"street\" : \"Some Street\",\n"
@@ -40507,7 +40533,7 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
-                "       \"misc\" : {\n"       // <--- unknown element
+                "       \"misc\" : {\n"                 // <--- unknown element
                 "           \"name\" : \"Bob\",\n"
                 "           \"homeAddress\" : {\n"
                 "               \"street\" : \"Some Street\",\n"
@@ -40542,6 +40568,35 @@ int main(int argc, char *argv[])
                 "               }\n"
                 "           ]\n"
                 "       },\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            // 'baljsn::Decoder' fails to decode heterogeneous arrays, but
+            // since we skip an unknown element it is allowed to contain such
+            // arrays.  See {DRQS 171296111} for more details.
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"build-depends\": [\n"         // <--- unknown element
+                "           \"cmake-breg-generate-code\",\n"
+                "           \"cmake-configure-bb-target\",\n"
+                "           \"cmake-upside-down-shared-objects\",\n"
+                "           {\n"
+                "               \"name\": \"liba-basfs-dev\",\n"
+                "               \"architectures\":\n"
+                "               [\n"
+                "                   \"aix6-powerpc\",\n"
+                "                   \"solaris10-sparc\"\n"
+                "               ]\n"
+                "           },\n"
+                "           \"liba-iaabass-dev\"\n"
+                "       ],\n"
                 "       \"age\" : 21\n"
                 "}"
             },
@@ -40595,6 +40650,79 @@ int main(int argc, char *argv[])
                 ASSERT("Some City"   == bob.homeAddress().city());
                 ASSERT("Some State"  == bob.homeAddress().state());
                 ASSERTV(LINE, 21     == bob.age());
+            }
+        }
+
+        if (verbose) cout << "Testing malformed JSON strings" << endl;
+
+        static const struct {
+            int         d_lineNum;  // source line number
+            const char *d_text_p;   // json text
+        } MALFORMED_DATA[] = {
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"empty value\"  :    \n"       // <--- unknown element
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"object\" : {\n"               // <--- unknown element
+                "           \"empty property value\" : \n"
+                "       },\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"build-depends\": [\n"         // <--- unknown element
+                "           \"key-value pair\" : \" in array\"\n"
+                "       ],\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+        };
+        const int NUM_MALFORMED_DATA =
+                                 sizeof MALFORMED_DATA/ sizeof *MALFORMED_DATA;
+
+        for (int ti = 0; ti < 2 * NUM_MALFORMED_DATA; ++ti) {
+            const int          tj       = ti / 2;
+            const bool         UTF8     = ti & 1;
+            const int          LINE     = MALFORMED_DATA[tj].d_lineNum;
+            const bsl::string& jsonText = MALFORMED_DATA[tj].d_text_p;
+
+            // Without skipping option
+            baljsn::Decoder        decoder;
+            baljsn::DecoderOptions options;
+            if (UTF8) {
+                options.setValidateInputIsUtf8(true);
+            }
+            const baljsn::DecoderOptions& mO = options;
+
+            options.setSkipUnknownElements(false);
+            {
+                test::Employee     bob;
+                bsl::istringstream iss(jsonText);
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, mO));
+            }
+
+            // With skipping option
+            options.setSkipUnknownElements(true);
+            {
+                test::Employee     bob;
+                bsl::istringstream iss(jsonText);
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, mO));
             }
         }
       } break;
