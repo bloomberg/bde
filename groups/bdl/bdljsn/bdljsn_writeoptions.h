@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'bdljsn::WriteOptions', that is used to
-// specify options for writing a JSON document (see 'bdljsn::JsonUtil').
+// specify options for writing a JSON document (see {'bdljsn_jsonutil'}).
 //
 ///Attributes
 ///----------
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //:   'style' is 'e_COMPACT', or 'spacesPerLevel' is 0, this option is ignored.
 //:
 //: o 'sortMembers': indicates whether the members of a object will be sorted
-//:    in lexicogaphical order based on the member name.
+//:    in lexicographical order based on the member name.
 //:
 //: o 'spacesPerLevel': spaces per indent level.  If this option is 0, no
 //:    indentation is used.  If 'style' is 'e_COMPACT' or 'e_ONELINE', this
@@ -73,7 +73,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bdljsn_writestyle.h>
 
-#include <bsl_limits.h>
 #include <bsl_iosfwd.h>
 
 #include <bsls_assert.h>
@@ -88,10 +87,10 @@ namespace bdljsn {
 
 class WriteOptions {
     // This simply constrained (value-semantic) attribute class specifies
-    // options for writing a JSON document.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.  Note that the class invariants are identically the
-    // constraints on the individual attributes.
+    // options for writing a JSON document.  See the {Attributes} section under
+    // {DESCRIPTION} in the component-level documentation for information on
+    // the class attributes.  Note that the class invariants are identically
+    // the constraints on the individual attributes.
 
     // INSTANCE DATA
     int                      d_initialIndentLevel;
@@ -120,7 +119,14 @@ class WriteOptions {
   public:
     // CREATORS
     WriteOptions();
-        // Create an object of type 'WriteOptions' having the default value.
+        // Create an object of type 'WriteOptions' having the (default)
+        // attribute values:
+        //..
+        //  initialIndentLevel()  == 0
+        //  sortMembers()         == false
+        //  spacesPerLevel()      == 4
+        //  style()               == e_COMPACT
+        //..
 
     WriteOptions(const WriteOptions& original);
         // Create an object of type 'WriteOptions' having the value of the
@@ -131,45 +137,43 @@ class WriteOptions {
 
     // MANIPULATORS
     WriteOptions& operator=(const WriteOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
+        // Assign to this object the value of the specified 'rhs' object and
+        // return a non-'const' reference to this object.
 
     WriteOptions& reset();
         // Reset this object to the default value (i.e., its value upon default
-        // construction).  Return a reference offering modifiable access to
-        // this object.
+        // construction) and return a non-'const' reference to this object.
 
     WriteOptions& setInitialIndentLevel(int value);
-        // Set the "initialIndentLevel" attribute of this object to the
-        // specified 'value'.  The behavior is undefined unless '0 <= value'.
-        // Return a reference offering modifiable access to this object.
+        // Set the 'initialIndentLevel' attribute of this object to the
+        // specified 'value' and return a non-'const' reference to this object.
+        // The behavior is undefined unless '0 <= value'.
 
     WriteOptions& setSortMembers(bool value);
-        // Set the "sortMembers" attribute of this object to the specified
-        // 'value'.  Return a reference offering modifiable access to this
-        // object.
+        // Set the 'sortMembers' attribute of this object to the specified
+        // 'value' and return a non-'const' reference to this object.
 
     WriteOptions& setSpacesPerLevel(int value);
-        // Set the "spacesPerLevel" attribute of this object to the specified
-        // 'value'.  The behavior is undefined unless '0 <= value'.  Return a
-        // reference offering modifiable access to this object.
+        // Set the 'spacesPerLevel' attribute of this object to the specified
+        // 'value' and return a non-'const' reference to this object.  The
+        // behavior is undefined unless '0 <= value'.
 
     WriteOptions& setStyle(bdljsn::WriteStyle::Enum value);
-        // Set the "style" attribute of this object to the specified 'value'.
-        // Return a reference offering modifiable access to this object.
+        // Set the 'style' attribute of this object to the specified 'value'.
+        // and return a non-'const' reference to this object.
 
     // ACCESSORS
     int initialIndentLevel() const;
-        // Return the "initialIndentLevel" attribute of this object.
+        // Return the 'initialIndentLevel' attribute of this object.
 
     bool sortMembers() const;
-        // Return the "sortMembers" attribute of this object.
+        // Return the 'sortMembers' attribute of this object.
 
     int spacesPerLevel() const;
-        // Return the "spacesPerLevel" attribute of this object.
+        // Return the 'spacesPerLevel' attribute of this object.
 
     bdljsn::WriteStyle::Enum style() const;
-        // Return the "style" attribute of this object.
-
+        // Return the 'style' attribute of this object.
 
                                   // Aspects
 
@@ -186,7 +190,8 @@ class WriteOptions {
         // 'spacesPerLevel' is negative, suppress line breaks and format the
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
+        // in multiline mode only.  Also note that the format is not fully
+        // specified, and can change without notice.
 };
 
 // FREE OPERATORS
@@ -206,16 +211,44 @@ bool operator!=(const WriteOptions& lhs, const WriteOptions& rhs);
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const WriteOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
-
+    // non-'const' reference 'stream'.
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                         INLINE DEFINITIONS
 // ============================================================================
 
                              // ------------------
                              // class WriteOptions
                              // ------------------
+
+// CREATORS
+inline
+WriteOptions::WriteOptions(const WriteOptions& original)
+: d_initialIndentLevel(original.d_initialIndentLevel)
+, d_sortMembers       (original.d_sortMembers)
+, d_spacesPerLevel    (original.d_spacesPerLevel)
+, d_style             (original.d_style)
+{
+}
+
+inline
+WriteOptions::~WriteOptions()
+{
+    BSLS_ASSERT(0 <= d_initialIndentLevel);
+    BSLS_ASSERT(0 <= d_spacesPerLevel);
+}
+
+// MANIPULATORS
+inline
+WriteOptions& WriteOptions::operator=(const WriteOptions& rhs)
+{
+    d_initialIndentLevel = rhs.d_initialIndentLevel;
+    d_sortMembers        = rhs.d_sortMembers;
+    d_spacesPerLevel     = rhs.d_spacesPerLevel;
+    d_style              = rhs.d_style;
+
+    return *this;
+}
 
 inline
 WriteOptions& WriteOptions::setInitialIndentLevel(int value)
@@ -276,10 +309,7 @@ bdljsn::WriteStyle::Enum WriteOptions::style() const
 
 }  // close package namespace
 
-// ============================================================================
-//                             INLINE DEFINITIONS
-// ============================================================================
-
+// FREE OPERATORS
 inline
 bool bdljsn::operator==(const bdljsn::WriteOptions& lhs,
                         const bdljsn::WriteOptions& rhs)

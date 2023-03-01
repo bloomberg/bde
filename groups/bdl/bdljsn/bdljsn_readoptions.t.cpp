@@ -12,22 +12,18 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_climits.h>
-#include <bsl_cstdlib.h>
+#include <bsl_climits.h>   // 'INT_MAX'
+#include <bsl_cstdlib.h>   // 'bsl::atoi'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
-#include <bsl_sstream.h>
+#include <bsl_sstream.h>   // 'bsl::ostringstream'
 
 using namespace BloombergLP;
 using namespace bsl;
 
-// Suppress some bde_verify warnings for test driver.
-// BDE_VERIFY pragma: -IND01
-// BDE_VERIFY pragma: -SP01
-
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The component under test implements a single, simply constrained
@@ -162,9 +158,9 @@ typedef bdljsn::ReadOptions                     Obj;
 // Define DEFAULT DATA (potentially) used by test cases 3, 7, (8), 9, and (10)
 
 struct DefaultDataRow {
-    int          d_line;                // source line number
-    int          d_maxNestedDepth;
-    bool         d_allowTrailingText;
+    int  d_line;                // source line number
+    int  d_maxNestedDepth;
+    bool d_allowTrailingText;
 };
 
 static
@@ -249,7 +245,6 @@ int main(int argc, char *argv[])
     bdljsn::ReadOptions options;
     ASSERT(64    == options.maxNestedDepth());
     ASSERT(false == options.allowTrailingText());
-
 //..
 // Finally, we populate that object to limit the maximum nested depth using a
 // pre-defined limit:
@@ -289,7 +284,7 @@ int main(int argc, char *argv[])
         //:   individual attribute can independently attain.
         //:
         //: 3 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1, 3..4)
+        //:   the table described in P-3: (C-1, 3..4)
         //:
         //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
         //:     'V'.
@@ -298,10 +293,10 @@ int main(int argc, char *argv[])
         //:     (representing a distinct object value, 'W') in the table
         //:     described in P-3:
         //:
-        //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
+        //:   3 For each of the iterations (P-3.2): (C-1, 3..4)
         //:
-        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       having the value 'W'.
+        //:     1 Use the default constructor and the manipulators to create a
+        //:       modifiable 'Obj', 'mX', having the value 'W'.
         //:
         //:     2 Assign 'mX' from 'Z'.
         //:
@@ -319,10 +314,11 @@ int main(int argc, char *argv[])
         //:   time, the source object, 'Z', is a reference to the target
         //:   object, 'mX', and both 'mX' and 'ZZ' are initialized to have the
         //:   value 'V'.  For each row (representing a distinct object value,
-        //:   'V') in the table described in P-2:  (C-5)
+        //:   'V') in the table described in P-2: (C-5)
         //:
-        //:   1 Use the value constructor to create a modifiable 'Obj' 'mX';
-        //:     also use the value constructor to create a 'const' 'Obj' 'ZZ'.
+        //:   1 Use the default constructor and the manipulators to create a
+        //:     modifiable 'Obj' 'mX'; also use the default constructor and
+        //:     manipulators to create a 'const' 'Obj' 'ZZ'.
         //:
         //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
         //:
@@ -331,9 +327,8 @@ int main(int argc, char *argv[])
         //:   4 Verify that the address of the return value is the same as that
         //:     of 'mX'.  (C-3)
         //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-5)
+        //:   5 Use the equality-comparison operator to verify that the target
+        //:     object, 'Z', still has the same value as that of 'ZZ'.  (C-5)
         //
         // Testing:
         //   operator=(const bdljsn::ReadOptions & rhs);
@@ -427,6 +422,7 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
             }
         }
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -471,8 +467,8 @@ int main(int argc, char *argv[])
         //: 2 For each row (representing a distinct object value, 'V') in the
         //:   table described in P-1:  (C-1..3)
         //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V'.
+        //:   1 Use the default constructor and the manipulators to create two
+        //:     'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
         //:
         //:   2 Use the copy constructor to create an object 'X',
         //:     supplying it the 'const' object 'Z'.  (C-2)
@@ -649,7 +645,6 @@ int main(int argc, char *argv[])
 
         const T2 A2 = false;            // baseline
         const T2 B2 = true;
-
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -831,110 +826,102 @@ int main(int argc, char *argv[])
    // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L  SPL  MAXND  ATT              EXP
-//----  -  ---  -----  ---              ---
+        //----  -  ---  -----  ---      ---
+        //LINE  L  SPL  MAXND  ATT      EXP
+        //----  -  ---  -----  ---      ---
 
-{ L_,  0,  0,      64, false,
-                        "["                                           NL
-                        "allowTrailingText = false"                   NL
-                        "maxNestedDepth = 64"                         NL
-                        "]"                                           NL
-                                                                      },
-
-{ L_,  0,  1,      89, true,
-                        "["                                           NL
-                        " allowTrailingText = true"                   NL
-                        " maxNestedDepth = 89"                        NL
-                        "]"                                           NL
-                                                                      },
-
-{ L_,  0,  -1,     89, true,
-                        "["                                           SP
-                        "allowTrailingText = true"                    SP
-                        "maxNestedDepth = 89"                         SP
-                        "]"
-                                                                      },
-
-   // ------------------------------------------------------------------
-   // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
-   // ------------------------------------------------------------------
-
-//LINE  L  SPL  MAXND  ATT               EXP
-//----  -  ---  -----  ---              ---
-{ L_,  3,   0,    89,  true,    "["                                         NL
-                                "allowTrailingText = true"                  NL
-                                "maxNestedDepth = 89"                       NL
-                                "]"                                         NL
-                                                                            },
-
-{ L_,  3,   2,    89, true,
-                            "      ["                                       NL
-                            "        allowTrailingText = true"              NL
-                            "        maxNestedDepth = 89"                   NL
-                            "      ]"                                       NL
-                                                                            },
-
-{ L_,  3,  -2,    89,  true,
-                            "      ["                                       SP
-                            "allowTrailingText = true"                      SP
-                            "maxNestedDepth = 89"                           SP
-                            "]"
+        { L_,  0,  0,      64, false,   "["                                  NL
+                                        "allowTrailingText = false"          NL
+                                        "maxNestedDepth = 64"                NL
+                                        "]"                                  NL
                                                                              },
 
-{ L_, -3,   0,    89,  true,
-                            "["                                             NL
-                            "allowTrailingText = true"                      NL
-                            "maxNestedDepth = 89"                           NL
-                            "]"                                             NL
-                                                                            },
-
-{ L_, -3,   2,    89,  true,
-                            "["                                             NL
-                            "        allowTrailingText = true"              NL
-                            "        maxNestedDepth = 89"                   NL
-                            "      ]"                                       NL
-                                                                            },
-
-{ L_, -3,  -2,    89,  true,
-                            "["                                              SP
-                            "allowTrailingText = true"                       SP
-                            "maxNestedDepth = 89"                            SP
-                            "]"
+        { L_,  0,  1,      89, true,    "["                                  NL
+                                        " allowTrailingText = true"          NL
+                                        " maxNestedDepth = 89"               NL
+                                        "]"                                  NL
                                                                              },
 
-   // -----------------------------------------------------------------
-   // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
-   // -----------------------------------------------------------------
+        { L_,  0,  -1,     89, true,    "["                                  SP
+                                        "allowTrailingText = true"           SP
+                                        "maxNestedDepth = 89"                SP
+                                        "]"
+                                                                             },
 
-//LINE  L  SPL  MAXND  ATT             EXP
-//----  -  ---  -----  ---              ---
+       // ------------------------------------------------------------------
+       // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+       // ------------------------------------------------------------------
 
-{ L_,  2,   3,     89, true,
-                         "      ["                                           NL
-                         "         allowTrailingText = true"                 NL
-                         "         maxNestedDepth = 89"                      NL
-                         "      ]"                                           NL
+        //LINE  L  SPL  MAXND  ATT      EXP
+        //----  -  ---  -----  ---      ---
+        { L_,  3,   0,    89,  true,    "["                                  NL
+                                        "allowTrailingText = true"           NL
+                                        "maxNestedDepth = 89"                NL
+                                        "]"                                  NL
+                                                                             },
+
+        { L_,  3,   2,    89, true,     "      ["                            NL
+                                        "        allowTrailingText = true"   NL
+                                        "        maxNestedDepth = 89"        NL
+                                        "      ]"                            NL
+
+                                                                             },
+
+        { L_,  3,  -2,    89,  true,    "      ["                            SP
+                                        "allowTrailingText = true"           SP
+                                        "maxNestedDepth = 89"                SP
+                                        "]"
+                                                                             },
+
+        { L_, -3,   0,    89,  true,    "["                                  NL
+                                        "allowTrailingText = true"           NL
+                                        "maxNestedDepth = 89"                NL
+                                        "]"                                  NL
+                                                                             },
+
+        { L_, -3,   2,    89,  true,    "["                                  NL
+                                        "        allowTrailingText = true"   NL
+                                        "        maxNestedDepth = 89"        NL
+                                        "      ]"                            NL
+                                                                             },
+
+        { L_, -3,  -2,    89,  true,   "["                                   SP
+                                       "allowTrailingText = true"            SP
+                                       "maxNestedDepth = 89"                 SP
+                                       "]"
+                                                                             },
+
+       // -----------------------------------------------------------------
+       // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
+       // -----------------------------------------------------------------
+
+        //LINE  L  SPL  MAXND  ATT      EXP
+        //----  -  ---  -----  ---      ---
+
+        { L_,  2,   3,     89, true,    "      ["                            NL
+                                        "         allowTrailingText = true"  NL
+                                        "         maxNestedDepth = 89"       NL
+                                        "      ]"                            NL
                                                                              },
 
         // -----------------------------------------------------------------
         // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
         // -----------------------------------------------------------------
 
-//LINE  L  SPL  MAXND  ATT              EXP
-//----  -  ---  -----  ---              ---
+        //LINE  L  SPL  MAXND  ATT      EXP
+        //----  -  ---  -----  ---      ---
 
-{ L_, -9,  -9,    89,  true,
-                                 "["                                         SP
-                                 "allowTrailingText = true"                  SP
-                                 "maxNestedDepth = 89"                       SP
-                                 "]" },
+        { L_, -9,  -9,    89,  true,    "["                                  SP
+                                        "allowTrailingText = true"           SP
+                                        "maxNestedDepth = 89"                SP
+                                        "]"
+                                                                             },
 
-{ L_, -9,  -9,     7,  false,
-                                 "["                                         SP
-                                 "allowTrailingText = false"                 SP
-                                 "maxNestedDepth = 7"                        SP
-                                 "]" },
-
+        { L_, -9,  -9,     7,  false,   "["                                  SP
+                                        "allowTrailingText = false"          SP
+                                        "maxNestedDepth = 7"                 SP
+                                        "]"
+                                                                             }
 #undef NL
 #undef SP
 
@@ -1296,8 +1283,6 @@ int main(int argc, char *argv[])
 
         const T2 D2 = false;   // default value;
         const T2 A2 = true;
-
-
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

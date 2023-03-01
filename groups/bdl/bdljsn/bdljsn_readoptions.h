@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'bdljsn::ReadOptions', that is used to
-// specify options for reading a JSON document (see 'bdljsn::JsonUtil').
+// specify options for reading a JSON document (see {'bdljsn_jsonutil'}).
 //
 ///Attributes
 ///----------
@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 //:   a single valid JSON document (without any subsequent text).  When
 //:   set to 'true' a 'read' operation will return success if there is text
 //:   following a valid JSON document, assuming that text is separated by
-//:   a delimeter.  See 'bdljsn_jsonutil' for details.
+//:   a delimeter.  See {'bdljsn_jsonutil'} for details.
 //
 ///Usage
 ///-----
@@ -66,14 +66,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bslalg_typetraits.h>
-
-#include <bsl_limits.h>
 #include <bsl_iosfwd.h>
 
 #include <bsls_assert.h>
-#include <bsls_objectbuffer.h>
-#include <bsls_review.h>
 
 namespace BloombergLP {
 namespace bdljsn {
@@ -84,10 +79,10 @@ namespace bdljsn {
 
 class ReadOptions {
     // This simply constrained (value-semantic) attribute class specifies
-    // options for reading a JSON document.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.  Note that the class invariants are identically the
-    // constraints on the individual attributes.
+    // options for reading a JSON document.  See the {Attributes} section under
+    // {DESCRIPTION} in the component-level documentation for information on
+    // the class attributes.  Note that the class invariants are identically
+    // the constraints on the individual attributes.
 
     // INSTANCE DATA
     bool d_allowTrailingText;
@@ -104,7 +99,12 @@ class ReadOptions {
   public:
     // CREATORS
     ReadOptions();
-        // Create an object of type 'ReadOptions' having the default value.
+        // Create an object of type 'ReadOptions' having the (default)
+        // attribute values:
+        //..
+        //  setAllowTrailingText() == false
+        //  maxNestedDepth()       == 64
+        //..
 
     ReadOptions(const ReadOptions& original);
         // Create an object of type 'ReadOptions' having the value of the
@@ -115,33 +115,32 @@ class ReadOptions {
 
     // MANIPULATORS
     ReadOptions& operator=(const ReadOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
+        // Assign to this object the value of the specified 'rhs' object and
+        // return a non-'const' reference to this object.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon default
         // construction).
 
     void setAllowTrailingText(bool value);
-        // Set the "allowTrailingText" attribute of this object to the
+        // Set the 'allowTrailingText' attribute of this object to the
         // specified 'value'.
 
     void setMaxNestedDepth(int value);
-        // Set the "maxNestedDepth" attribute of this object to the specified
-        // 'value'.
-
+        // Set the 'maxNestedDepth' attribute of this object to the specified
+        // 'value'.  The behavior is undefined unless '0 < value'.
 
     // ACCESSORS
     bool allowTrailingText() const;
-        // Return the "allowTrailingText" attribute of this object.
+        // Return the 'allowTrailingText' attribute of this object.
 
     int maxNestedDepth() const;
-        // Return the "maxNestedDepth" attribute of this object.
-
+        // Return the 'maxNestedDepth' attribute of this object.
 
                                   // Aspects
 
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
         // optionally specified indentation 'level' and return a reference to
@@ -153,29 +152,28 @@ class ReadOptions {
         // 'spacesPerLevel' is negative, suppress line breaks and format the
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
+        // in multiline mode only.  Also note that the format is not fully
+        // specified, and can change without notice.
 };
 
 // FREE OPERATORS
 inline
-bool operator==(const ReadOptions& lhs,
-                const ReadOptions& rhs);
+bool operator==(const ReadOptions& lhs, const ReadOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const ReadOptions& lhs,
-                const ReadOptions& rhs);
+bool operator!=(const ReadOptions& lhs, const ReadOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
+    // not have the same value if one or more respective attributes do not
+    // have the same value.
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const ReadOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' in a single
+    // line format and return a non-'const' reference to 'stream'.
 
 // ============================================================================
 //                         INLINE DEFINITIONS
@@ -184,8 +182,30 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ReadOptions& rhs);
                              // -----------------
                              // class ReadOptions
                              // -----------------
+// CREATORS
+inline
+ReadOptions::ReadOptions(const ReadOptions& original)
+: d_allowTrailingText(original.d_allowTrailingText)
+, d_maxNestedDepth   (original.d_maxNestedDepth)
+{
+}
+
+inline
+ReadOptions::~ReadOptions()
+{
+    BSLS_ASSERT(0 < d_maxNestedDepth);
+}
 
 // MANIPULATORS
+inline
+ReadOptions& ReadOptions::operator=(const ReadOptions& rhs)
+{
+    d_allowTrailingText = rhs.d_allowTrailingText;
+    d_maxNestedDepth    = rhs.d_maxNestedDepth;
+
+    return *this;
+}
+
 inline
 void ReadOptions::setAllowTrailingText(bool value)
 {
@@ -216,7 +236,6 @@ int ReadOptions::maxNestedDepth() const
 }  // close package namespace
 
 // FREE OPERATORS
-
 inline
 bool bdljsn::operator==(const bdljsn::ReadOptions& lhs,
                         const bdljsn::ReadOptions& rhs)

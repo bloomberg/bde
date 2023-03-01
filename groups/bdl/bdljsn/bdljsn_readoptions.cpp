@@ -4,16 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdljsn_datumreadoptions_cpp,"$Id$ $CSID$")
 
-#include <bsl_cstring.h>
-#include <bsl_iomanip.h>
-#include <bsl_limits.h>
-#include <bsl_ostream.h>
-
 #include <bslim_printer.h>
-
-#include <bsls_assert.h>
-#include <bsls_review.h>
-
 
 namespace BloombergLP {
 namespace bdljsn {
@@ -24,44 +15,20 @@ namespace bdljsn {
 
 // CONSTANTS
 const bool ReadOptions::s_DEFAULT_INITIALIZER_ALLOW_TRAILING_TEXT = false;
-const int ReadOptions::s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH = 64;
+const int  ReadOptions::s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH    = 64;
 
 // CREATORS
-
 ReadOptions::ReadOptions()
 : d_allowTrailingText(s_DEFAULT_INITIALIZER_ALLOW_TRAILING_TEXT)
-, d_maxNestedDepth(s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH)
+, d_maxNestedDepth   (s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH)
 {
-}
-
-ReadOptions::ReadOptions(const ReadOptions& original)
-: d_allowTrailingText(original.d_allowTrailingText)
-, d_maxNestedDepth(original.d_maxNestedDepth)
-{
-}
-
-ReadOptions::~ReadOptions()
-{
-    BSLS_ASSERT(0 < d_maxNestedDepth);
 }
 
 // MANIPULATORS
-
-ReadOptions&
-ReadOptions::operator=(const ReadOptions& rhs)
-{
-    if (this != &rhs) {
-        d_allowTrailingText = rhs.d_allowTrailingText;
-        d_maxNestedDepth = rhs.d_maxNestedDepth;
-    }
-
-    return *this;
-}
-
 void ReadOptions::reset()
 {
     d_allowTrailingText = s_DEFAULT_INITIALIZER_ALLOW_TRAILING_TEXT;
-    d_maxNestedDepth = s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH;
+    d_maxNestedDepth    = s_DEFAULT_INITIALIZER_MAX_NESTED_DEPTH;
 }
 
 // ACCESSORS
@@ -69,13 +36,13 @@ void ReadOptions::reset()
                                   // Aspects
 
 bsl::ostream& ReadOptions::print(bsl::ostream& stream,
-                                         int           level,
-                                         int           spacesPerLevel) const
+                                 int           level,
+                                 int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     printer.printAttribute("allowTrailingText", d_allowTrailingText);
-    printer.printAttribute("maxNestedDepth", d_maxNestedDepth);
+    printer.printAttribute("maxNestedDepth",    d_maxNestedDepth);
     printer.end();
     return stream;
 }
