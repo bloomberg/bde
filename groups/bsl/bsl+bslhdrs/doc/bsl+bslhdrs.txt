@@ -90,6 +90,7 @@
      bsl_sstream.h
      bsl_stack.h
      bsl_stdexcept.h
+     bsl_stop_token.h
      bsl_string.h
      bsl_typeinfo.h
      bsl_utility.h

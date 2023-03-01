@@ -119,6 +119,11 @@
     #include <semaphore>
 #endif
 
+// Verify assumption that <stop_token> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN)
+    #include <stop_token>
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -208,6 +213,7 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -401,6 +407,13 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN)
                                                                           true;
 #else
                                                                          false;
@@ -1298,6 +1311,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
@@ -1571,6 +1591,9 @@ int main(int argc, char *argv[])
         //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE' is defined only when
         //:   the native standard library provides it.
         //:
+        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN' is defined only when
+        //:   the native standard library provides it.
+        //:
         //
         // Plan:
         //: 1 When these macros are defined include the appropriate headers and
@@ -1581,6 +1604,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -1592,6 +1616,7 @@ int main(int argc, char *argv[])
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined)
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
@@ -1615,6 +1640,12 @@ int main(int argc, char *argv[])
 
             (void) countingSemaphore;
             (void) binarySemaphore;
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
+        {
+            (void) std::nostopstate;
         }
 #endif
       } break;

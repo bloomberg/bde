@@ -202,6 +202,7 @@
 #include <bsl_bit.h>
 #include <bsl_numbers.h>
 #include <bsl_source_location.h>
+#include <bsl_stop_token.h>
 
 #include <utility>     // 'std::pair'
 
@@ -233,6 +234,11 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [27] CONCERN: The type 'bsl::stop_token' is available and usable.
+// [27] CONCERN: The type 'bsl::stop_source' is available and usable.
+// [27] CONCERN: The type 'bsl::nostopstate_t' is available and usable.
+// [27] CONCERN: The type 'bsl::stop_callback' is available and usable.
+// [27] CONCERN: 'bsl::nostopstate' is available and usable.
 // [26] C++20 'bsl_source_location.h' HEADER
 // [25] C++20 'bsl_bit.h' HEADER
 // [24] C++20 'bsl_numbers.h' HEADER
@@ -812,6 +818,48 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 <BSL_STOP_TOKEN.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The types defined in 'bsl_stop_token.h' exist in the 'bsl'
+        //: namespace and, for C++20, are aliases to the standard library type.
+        //
+        //: 2 The variable 'nostopstate' exists in the 'bsl' namespace, and is
+        //: of the type 'bsl::nostopstate_t'.
+        //
+        // Plan:
+        //: 1 Attempt to declare a pointer to each of the types from the
+        //:   header file 'bsl_stop_token.h'.
+        //
+        //: 2 Attempt to form a pointer to 'bsl::nostopstate'.
+        //
+        // Testing
+        //   CONCERN: The type 'bsl::nostopstate_t' is available and usable.
+        //   CONCERN: The type 'bsl::stop_token' is available and usable.
+        //   CONCERN: The type 'bsl::stop_source' is available and usable.
+        //   CONCERN: The type 'bsl::stop_callback' is available and usable.
+        //   CONCERN: 'bsl::nostopstate' is available and usable.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING C++20 <BSL_STOP_TOKEN.H> ADDITIONS"
+                   "\n==========================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        bsl::stop_token             *s_token = nullptr;
+        bsl::stop_source            *s_source = nullptr;
+        bsl::stop_callback          *s_callback = nullptr;
+        bsl::nostopstate_t          *no_stop = &bsl::nostopstate;
+
+        (void) s_token;
+        (void) s_source;
+        (void) s_callback;
+        (void) no_stop;
+#endif
+
+      } break;
       case 26: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_source_location.h' HEADER

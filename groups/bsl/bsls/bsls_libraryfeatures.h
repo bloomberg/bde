@@ -49,6 +49,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER: <barrier>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH: <latch>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: <semaphore>
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN: <stop_token>
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -971,6 +972,15 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_semaphore' feature-test
 // macro is defined.
 //
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN'
+///-------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN' macro is defined if the
+// native standard library provides the <stop_token> header and implements all
+// required content with no major issues.
+//
+// This macro is defined if the standard '__cpp_lib_jthread' feature-test
+// macro is defined.
+//
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
@@ -1775,6 +1785,10 @@ BSLS_IDENT("$Id: $")
 
 #if defined(__cpp_lib_semaphore) && __cpp_lib_semaphore >= 201907L
 # define BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE                             1
+#endif
+
+#if defined(__cpp_lib_jthread) && __cpp_lib_jthread >= 201911L
+# define BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN                            1
 #endif
 
 // ============================================================================
