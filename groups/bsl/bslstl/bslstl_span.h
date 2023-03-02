@@ -34,7 +34,109 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-
+///Example 1: Using Span To Pass A Portion Of An Array As A Container
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we already have an array of values of type 'TYPE', and we want to
+// pass a subset of the array to a function, which is expecting some kind of a
+// container.   We can create a 'span' from the array, and then pass that.
+// Since the span is a 'view' into the array, i.e, the span owns no storage,
+// the elements in the span are the same as the ones in the array.
+//
+// First, we create a template function that takes a generic container.  This
+// function inspects each of the (numeric) values in the container, and if the
+// low bit is set, flips it.  This has the effect of turning odd values into
+// even values.
+//..
+//  template <class CONTAINER>
+//  void MakeEven(CONTAINER &c)
+//      // Make every value in the specified container 'c' even.
+//  {
+//      for (typename CONTAINER::iterator it = c.begin();
+//                                        it != c.end();
+//                                        ++it) {
+//          if (*it & 1) {
+//              *it ^= 1;
+//          }
+//      }
+//  }
+//..
+//  We then create a span, and verify that it contains the values that we
+//  expect, and pass it to 'MakeEven' to modify it.  Afterwards, we check that
+//  none of the elements in the array that were not included in the span are
+//  unchanged, and the ones in the span were.
+//..
+//  int            arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+//  bsl::span<int> sp(arr + 3, 4);   // 4 elements, starting at 3.
+//  for (int i = 0; i < 10; ++i)
+//  {
+//      assert(arr[i] == i);
+//  }
+//
+//  assert(sp[0] == 3);
+//  assert(sp[1] == 4);
+//  assert(sp[2] == 5);
+//  assert(sp[3] == 6);
+//
+//  MakeEven(sp);
+//
+//  assert(sp[0] == 2); // Has been changed
+//  assert(sp[1] == 4);
+//  assert(sp[2] == 4); // Has been changed
+//  assert(sp[3] == 6);
+//
+//  assert(arr[0] == 0); // Not part of the span
+//  assert(arr[1] == 1); // Not part of the span
+//  assert(arr[2] == 2); // Not part of the span
+//  assert(arr[3] == 2); // Has been changed
+//  assert(arr[4] == 4);
+//  assert(arr[5] == 4); // Has been changed
+//  assert(arr[6] == 6);
+//  assert(arr[7] == 7); // Not part of the span
+//  assert(arr[8] == 8); // Not part of the span
+//  assert(arr[9] == 9); // Not part of the span
+//..
+//
+///Example 2: Returning A Subset Of A Container From A Function
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we already have a vector of values of type 'TYPE', and we want to
+// return a (contiguous) subset of the vector from a function, which can then
+// be processed processed using a range-based for loop.  To achieve that, we
+// can use 'span' as the return type.  The calling code can then interate over
+// the span as if it was a container.  Note that since the span doesn't own the
+// elements of the vector, the span might become invalid when the vector is
+// changed (or resized, or destroyed).
+//
+// First, we create the vector and define our function that returns a slice as
+// a 'span'.
+//..
+//  bsl::vector<int> v = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+//
+//  bsl::span<const int> slice(const bsl::vector<int>& vec,
+//                             size_t                  first,
+//                             size_t                  last)
+//      // Return a span into the specified 'vec', starting at the specified
+//      // 'first' index, and continuing up to (but not including) the
+//      // specified 'last' index.
+//  {
+//      return bsl::span<const int>(vec.data() + first, last-first);
+//  }
+//..
+//  We can now iterate over the elements in the slice using the span:
+//..
+//  bsl::span<const int> sp = slice(v, 4, 7);
+//  int            val = 4;
+//  for (int x: sp) {
+//       assert(x == val++);
+//   }
+//..
+//  Note that we can use the return value directly and avoid declaring the
+//  variable 'sp':
+//..
+//   val = 2;
+//   for (int x: slice(v, 2, 8)) {
+//       assert(x == val++);
+//   }
+//..
 
 #include <bslscm_version.h>
 
@@ -87,12 +189,12 @@ struct Span_Utility
 {
     // PUBLIC TYPES
     template <class FROM, class TO>
-    struct isArrayConvertible : public bsl::integral_constant<bool,
+    struct IsArrayConvertible : public bsl::integral_constant<bool,
                               bsl::is_convertible<FROM(*)[], TO(*)[]>::value>
     {};
 
     template <class TYPE, size_t EXTENT, size_t COUNT, size_t OFFSET>
-    struct subspanReturnType
+    struct SubspanReturnType
     {
         // PUBLIC TYPES
         typedef bsl::span<TYPE, COUNT != dynamic_extent
@@ -102,7 +204,7 @@ struct Span_Utility
     };
 
     template <class TYPE>
-    struct typeIdentity
+    struct TypeIdentity
     {
         // PUBLIC TYPES
         typedef TYPE type;
@@ -160,7 +262,7 @@ struct Span_Utility
             decltype(size(std::declval<TP>())),
         // The underlying types are compatible
             typename bsl::enable_if<
-                Span_Utility::isArrayConvertible<
+                Span_Utility::IsArrayConvertible<
                    typename bsl::remove_pointer<
                                    decltype(data(std::declval<TP &>()))>::type,
                    ELEMENT_TYPE>::value,
@@ -206,26 +308,26 @@ class span {
     BSLS_KEYWORD_CONSTEXPR_CPP14 explicit span(pointer ptr, size_type count);
         // Construct a span that refers to the specified 'count' consecutive
         // objects starting from the specified 'ptr'.  The behavior is
-        // undefined unless 'count == EXTENT'.
+        // undefined unless 'EXTENT == count'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14 explicit span(pointer first, pointer last);
-        // Construct a span from the specified 'first' and specified  'last'.
-        // If 'EXTENT != bsl::distance (first, last)', then the behavior is
-        // undefined.
+        // Construct a span from the specified 'first' and specified 'last'.
+        // The behavior is undefined unless
+        // 'EXTENT == bsl::distance(first, last)'.
 
     template <size_t SIZE>
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
-          typename Span_Utility::typeIdentity<element_type>::type (&arr)[SIZE])
+          typename Span_Utility::TypeIdentity<element_type>::type (&arr)[SIZE])
           BSLS_KEYWORD_NOEXCEPT;
-        // Construct a span from the specified C-style array 'arr'.  Is only
-        // valid when 'SIZE == EXTENT'.
+        // Construct a span from the specified C-style array 'arr'.  The
+        // behavior is undefined unless 'SIZE == EXTENT'.
 
 #ifndef BSLSTL_ARRAY_IS_ALIASED
     template <class t_OTHER_TYPE>
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
        bsl::array<t_OTHER_TYPE, EXTENT>& arr,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified bsl::array 'arr'.  This
         // constructor participates in overload resolution only if
@@ -235,7 +337,7 @@ class span {
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
      const bsl::array<t_OTHER_TYPE, EXTENT>& arr,
      typename bsl::enable_if<
-         Span_Utility::isArrayConvertible<
+         Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
          void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified bsl::array 'arr'.  This
@@ -248,7 +350,7 @@ class span {
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
            std::array<t_OTHER_TYPE, EXTENT>& arr,
            typename bsl::enable_if<
-               Span_Utility::isArrayConvertible<
+               Span_Utility::IsArrayConvertible<
                                             t_OTHER_TYPE, element_type>::value,
                void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified std::array 'arr'.  This
@@ -259,7 +361,7 @@ class span {
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
      const std::array<t_OTHER_TYPE, EXTENT>& arr,
      typename bsl::enable_if<
-         Span_Utility::isArrayConvertible<
+         Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
          void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified std::array 'arr'.  This
@@ -271,7 +373,7 @@ class span {
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
            const span<t_OTHER_TYPE, EXTENT>& other,
            typename bsl::enable_if<
-               Span_Utility::isArrayConvertible<
+               Span_Utility::IsArrayConvertible<
                                             t_OTHER_TYPE, element_type>::value,
                void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified span 'other'.  This constructor
@@ -282,52 +384,53 @@ class span {
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
             const span<t_OTHER_TYPE, dynamic_extent>& other,
             typename bsl::enable_if<
-               Span_Utility::isArrayConvertible<
+               Span_Utility::IsArrayConvertible<
                                             t_OTHER_TYPE, element_type>::value,
                void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified span 'other'.  This constructor
         // participates in overload resolution only if 't_OTHER_TYPE(*)[]' is
-        // convertible to 'element_type(*)[]'.  If 'other.size()' != EXTENT,
-        // then the behavior is undefined.
+        // convertible to 'element_type(*)[]'.  The behavior is undefined
+        // unless 'other.size() == EXTENT'.
 
     //  ~span() noexcept = default;
         // Destroy this object.
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR_CPP14 reference back() const BSLS_KEYWORD_NOEXCEPT
-        // Return a reference to the last element of this span.
-        //
-        // Implemented inline because of Sun/AIX compiler limitations.
+        // Return a reference to the last element of this span.  The behavior
+        // is undefined if this span is empty.
     {
+        // Implemented inline because of Sun/AIX compiler limitations.
         BSLMF_ASSERT(EXTENT > 0);
         return d_data_p[size() - 1];
     }
 
     BSLS_KEYWORD_CONSTEXPR pointer data() const BSLS_KEYWORD_NOEXCEPT;
-        // return a pointer to the data referenced by this span.
+        // Return a pointer to the data referenced by this span.
 
     BSLS_KEYWORD_CONSTEXPR bool empty() const BSLS_KEYWORD_NOEXCEPT;
-        // return 'true' if this span contains no elements and 'false'
+        // Return 'true' if this span contains no elements and 'false'
         // otherwise.
 
     template <size_t COUNT>
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, COUNT> first() const BSLS_KEYWORD_NOEXCEPT;
         // Return a statically-sized span consisting of the first 'COUNT'
-        // elements of this span.  Only valid if 'COUNT <= EXTENT'.
+        // elements of this span.  The behavior is undefined unless
+        // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
     first(size_type count) const BSLS_KEYWORD_NOEXCEPT;
         // Return a dynamically-sized span consisting of the first (specified)
-        // 'count' elements of this span.  If 'count > EXTENT', then the
-        // behavior is undefined.
+        // 'count' elements of this span.  The behavior is undefined unless
+        // 'count <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14 reference front() const BSLS_KEYWORD_NOEXCEPT
-        // Return a reference to the first element of this span.
-        //
-        // Implemented inline because of Sun/AIX compiler limitations.
+        // Return a reference to the first element of this span.  The behavior
+        // is undefined if this span is empty.
     {
+        // Implemented inline because of Sun/AIX compiler limitations.
         BSLMF_ASSERT(EXTENT > 0);
         return d_data_p[0];
     }
@@ -336,25 +439,25 @@ class span {
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, COUNT> last() const BSLS_KEYWORD_NOEXCEPT;
         // Return a statically-sized span consisting of the last 'COUNT'
-        // elements of this span.  Only valid if 'COUNT <= EXTENT'.
+        // elements of this span.  The behavior is undefined unless
+        // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
     last(size_type count) const BSLS_KEYWORD_NOEXCEPT;
         // Return a dynamically-sized span consisting of the last (specified)
-        // 'count' elements of this span.  If 'count > EXTENT', then the
-        // behavior is undefined.
+        // 'count' elements of this span.  The behavior is undefined unless
+        // 'count <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR size_type size() const BSLS_KEYWORD_NOEXCEPT
-        // return the size of this span.
-        //
-        // Implemented inline because of Sun/AIX compiler limitations.
+        // Return the size of this span.
     {
+        // Implemented inline because of Sun/AIX compiler limitations.
         return EXTENT;
     }
 
     BSLS_KEYWORD_CONSTEXPR size_type size_bytes() const BSLS_KEYWORD_NOEXCEPT;
-        // return the size of this span in bytes.
+        // Return the size of this span in bytes.
 
     template <size_t OFFSET,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
@@ -363,20 +466,22 @@ class span {
               size_t COUNT>
 #endif
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    typename Span_Utility::subspanReturnType<TYPE, EXTENT, COUNT, OFFSET>::type
+    typename Span_Utility::SubspanReturnType<TYPE, EXTENT, COUNT, OFFSET>::type
     subspan() const BSLS_KEYWORD_NOEXCEPT
         // If the template parameter 'COUNT' is 'dynamic_extent', return a
         // dynamically-sized span consisting consisting of the elements of this
         // span in the half-open range '[OFFSET, EXTENT)'.  Otherwise, return a
         // statically-sized span consisting of the elements of this span in the
-        // half-open range '[OFFSET, OFFSET+COUNT)'.
-        //
-        // Implemented inline because of Sun/AIX compiler limitations.
+        // half-open range '[OFFSET, OFFSET+COUNT)'.  The behavior is undefined
+        // unless 'OFFSET <= EXTENT'.  If 'COUNT != dynamic_extent', the
+        // behavior is undefined unless 'OFFSET + COUNT <= EXTENT'.
     {
+        // Implemented inline because of Sun/AIX compiler limitations.
         typedef typename
-            Span_Utility::subspanReturnType<TYPE, EXTENT, COUNT, OFFSET>::type
+            Span_Utility::SubspanReturnType<TYPE, EXTENT, COUNT, OFFSET>::type
                                                                     ReturnType;
         BSLMF_ASSERT(OFFSET <= EXTENT);
+        BSLMF_ASSERT(COUNT == dynamic_extent || OFFSET + COUNT <= EXTENT);
         return ReturnType(data() + OFFSET,
                             COUNT == dynamic_extent ? size() - OFFSET : COUNT);
     }
@@ -394,11 +499,10 @@ class span {
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     reference operator[](size_type index) const BSLS_KEYWORD_NOEXCEPT
-        // return a reference to the element at the specified 'index'. The
+        // Return a reference to the element at the specified 'index'.  The
         // behavior is undefined unless 'index < size()'.
-        //
-        // Implemented inline because of Sun/AIX compiler limitations.
     {
+        // Implemented inline because of Sun/AIX compiler limitations.
         BSLS_ASSERT(index < size());
         return d_data_p[index];
     }
@@ -479,7 +583,7 @@ class span<TYPE, dynamic_extent> {
 
     template <size_t SIZE>
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
-          typename Span_Utility::typeIdentity<element_type>::type (&arr)[SIZE])
+          typename Span_Utility::TypeIdentity<element_type>::type (&arr)[SIZE])
           BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified C-style array 'arr'.
 
@@ -487,7 +591,7 @@ class span<TYPE, dynamic_extent> {
     template <class t_OTHER_TYPE, size_t SIZE>
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(bsl::array<t_OTHER_TYPE, SIZE>& arr,
            typename bsl::enable_if<
-               Span_Utility::isArrayConvertible<
+               Span_Utility::IsArrayConvertible<
                                             t_OTHER_TYPE, element_type>::value,
                void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified bsl::array 'arr'.  This
@@ -498,7 +602,7 @@ class span<TYPE, dynamic_extent> {
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
                                      const bsl::array<t_OTHER_TYPE, SIZE>& arr,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<
+           Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
            void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified bsl::array 'arr'.  This
@@ -510,7 +614,7 @@ class span<TYPE, dynamic_extent> {
     template <class t_OTHER_TYPE, size_t SIZE>
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(std::array<t_OTHER_TYPE, SIZE>& arr,
            typename bsl::enable_if<
-               Span_Utility::isArrayConvertible<
+               Span_Utility::IsArrayConvertible<
                                             t_OTHER_TYPE, element_type>::value,
                void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified std::array 'arr'.  This
@@ -521,7 +625,7 @@ class span<TYPE, dynamic_extent> {
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
      const std::array<t_OTHER_TYPE, SIZE>& arr,
      typename bsl::enable_if<
-         Span_Utility::isArrayConvertible<
+         Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
          void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified std::array 'arr'.  This
@@ -557,7 +661,7 @@ class span<TYPE, dynamic_extent> {
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span(const span<t_OTHER_TYPE, OTHER_EXTENT>& other,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
         // Construct a span from the specified span 'other'.  This constructor
         // participates in overload resolution only if 't_OTHER_TYPE(*)[]' is
@@ -568,48 +672,52 @@ class span<TYPE, dynamic_extent> {
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR_CPP14 reference back() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reference to the last element of this span.
+        // Return a reference to the last element of this span.  The behavior
+        // is undefined if this span is empty.
 
     BSLS_KEYWORD_CONSTEXPR pointer data() const BSLS_KEYWORD_NOEXCEPT;
-        // return a pointer to the data referenced by this span.
+        // Return a pointer to the data referenced by this span.
 
     BSLS_KEYWORD_CONSTEXPR bool empty() const BSLS_KEYWORD_NOEXCEPT;
-        // return 'true' if 'size() == 0' and 'false' otherwise.
+        // Return 'true' if 'size() == 0' and 'false' otherwise.
 
     template <size_t COUNT>
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, COUNT> first() const BSLS_KEYWORD_NOEXCEPT;
         // Return a statically-sized span consisting of the first 'COUNT'
-        // elements of this span.  Only valid if 'COUNT <= size()'.
+        // elements of this span.  The behavior is undefined unless
+        // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
     first(size_type count) const BSLS_KEYWORD_NOEXCEPT;
         // Return a dynamically-sized span consisting of the first (specified)
-        // 'count' elements of this span.  If 'count > size()', then the
-        // behavior is undefined.
+        // 'count' elements of this span.  The behavior is undefined unless
+        // 'count <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14 reference front() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reference to the first element of this span.
+        // Return a reference to the first element of this span.  The behavior
+        // is undefined if this span is empty.
 
     template <size_t COUNT>
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, COUNT> last() const BSLS_KEYWORD_NOEXCEPT;
         // Return a statically-sized span consisting of the last 'COUNT'
-        // elements of this span.  Only valid if 'COUNT <= size()'.
+        // elements of this span.  The behavior is undefined unless
+        // 'COUNT <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     span<element_type, dynamic_extent>
     last(size_type count) const BSLS_KEYWORD_NOEXCEPT;
         // Return a dynamically-sized span consisting of the last (specified)
-        // 'count' elements of this span.  If 'count > size()', then the
-        // behavior is undefined.
+        // 'count' elements of this span.  The behavior is undefined unless
+        // 'count <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR size_type size() const BSLS_KEYWORD_NOEXCEPT;
-        // return the size of this span.
+        // Return the size of this span.
 
     BSLS_KEYWORD_CONSTEXPR size_type size_bytes() const BSLS_KEYWORD_NOEXCEPT;
-        // return the size of this span in bytes.
+        // Return the size of this span in bytes.
 
     template <size_t OFFSET,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
@@ -629,13 +737,13 @@ class span<TYPE, dynamic_extent> {
         // Return a dynamically-sized span starting at the specified 'offset'.
         // If the optionally specified 'count' is 'dynamic_extent', the span
         // will consist of the half-open range '[offset, size () - offset)' and
-        // the behavior is undefined if 'offset > size()'.  Otherwise, the span
-        // will consist of the half-open range '[offset, count)' and the
-        // behavior is undefined if 'offset + count > size()'.
+        // the behavior is undefined unless 'offset <= size()'.  Otherwise, the
+        // span will consist of the half-open range '[offset, count)' and the
+        // behavior is undefined unless 'offset + count <= size()'.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     reference operator[](size_type index) const BSLS_KEYWORD_NOEXCEPT;
-        // return a reference to the element at the specified 'index'. The
+        // Return a reference to the element at the specified 'index'.  The
         // behavior is undefined unless 'index < size()'.
 
     //                      ITERATOR OPERATIONS
@@ -800,7 +908,7 @@ template <class TYPE, size_t EXTENT>
 template <size_t SIZE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, EXTENT>::span(
-     typename bsl::Span_Utility::typeIdentity<element_type>::type (&arr)[SIZE])
+     typename bsl::Span_Utility::TypeIdentity<element_type>::type (&arr)[SIZE])
                                                           BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr)
 {
@@ -813,7 +921,7 @@ template <class t_OTHER_TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, EXTENT>::span(bsl::array<t_OTHER_TYPE, EXTENT>& arr,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
 {
@@ -824,7 +932,7 @@ template <class t_OTHER_TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, EXTENT>::span(const bsl::array<t_OTHER_TYPE, EXTENT>& arr,
     typename bsl::enable_if<
-        Span_Utility::isArrayConvertible<
+        Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
         void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
@@ -838,7 +946,7 @@ template <class t_OTHER_TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, EXTENT>::span(std::array<t_OTHER_TYPE, EXTENT>& arr,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
 {
@@ -849,7 +957,7 @@ template <class t_OTHER_TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, EXTENT>::span(const std::array<t_OTHER_TYPE, EXTENT>& arr,
    typename bsl::enable_if<
-     Span_Utility::isArrayConvertible<const t_OTHER_TYPE, element_type>::value,
+     Span_Utility::IsArrayConvertible<const t_OTHER_TYPE, element_type>::value,
      void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
 {
@@ -861,7 +969,7 @@ template <class t_OTHER_TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, EXTENT>::span(const bsl::span<t_OTHER_TYPE, EXTENT>& other,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(other.data())
 {
@@ -874,7 +982,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, EXTENT>::span(
        const bsl::span<t_OTHER_TYPE, bsl::dynamic_extent>& other,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(other.data())
 {
@@ -1058,7 +1166,7 @@ template <class TYPE>
 template <size_t SIZE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>::span(
-     typename bsl::Span_Utility::typeIdentity<element_type>::type (&arr)[SIZE])
+     typename bsl::Span_Utility::TypeIdentity<element_type>::type (&arr)[SIZE])
                                                           BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr)
 , d_size(SIZE)
@@ -1072,7 +1180,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>::span(
        bsl::array<t_OTHER_TYPE, SIZE>& arr,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
 , d_size(SIZE)
@@ -1085,7 +1193,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>::span(
   const bsl::array<t_OTHER_TYPE, SIZE>& arr,
   typename bsl::enable_if<
-     Span_Utility::isArrayConvertible<const t_OTHER_TYPE, element_type>::value,
+     Span_Utility::IsArrayConvertible<const t_OTHER_TYPE, element_type>::value,
      void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
 , d_size(SIZE)
@@ -1100,7 +1208,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>::span(
        std::array<t_OTHER_TYPE, SIZE>& arr,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
 , d_size(SIZE)
@@ -1113,7 +1221,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>::span(
     const std::array<t_OTHER_TYPE, SIZE>& arr,
         typename bsl::enable_if<
-            Span_Utility::isArrayConvertible<
+            Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
             void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
@@ -1128,7 +1236,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>::span(
        const bsl::span<t_OTHER_TYPE, OTHER_EXTENT>& other,
        typename bsl::enable_if<
-           Span_Utility::isArrayConvertible<t_OTHER_TYPE, element_type>::value,
+           Span_Utility::IsArrayConvertible<t_OTHER_TYPE, element_type>::value,
            void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(other.data())
 , d_size(other.size())
