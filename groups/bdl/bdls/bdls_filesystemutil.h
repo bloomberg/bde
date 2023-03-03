@@ -566,6 +566,16 @@ struct FilesystemUtil {
         // 'STRING_TYPE' must be one of 'bsl::string', 'std::string',
         // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
 
+    static bool isSymbolicLink(const char *path);
+    template <class STRING_TYPE>
+    static bool isSymbolicLink(const STRING_TYPE& path);
+        // Return 'true' if there currently exists a symbolic link at the
+        // specified 'path', and 'false' otherwise.  Windows directory
+        // junctions are treated as directory symbolic links.  The
+        // parameterized 'STRING_TYPE' must be one of 'bsl::string',
+        // 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
+
     static int getLastModificationTime(bdlt::Datetime *time, const char *path);
     template <class STRING_TYPE>
     static int getLastModificationTime(bdlt::Datetime     *time,
@@ -832,6 +842,33 @@ struct FilesystemUtil {
         // you are doing any calculations involving the returned value, it is
         // recommended to check for 'k_OFFSET_MAX' specifically to avoid
         // integer overflow in your calculations.
+
+    static int getSymbolicLinkTarget(bsl::string *result,
+                                     const char  *path);
+    static int getSymbolicLinkTarget(std::string *result,
+                                     const char  *path);
+    template <class STRING_TYPE>
+    static int getSymbolicLinkTarget(bsl::string        *result,
+                                     const STRING_TYPE&  path);
+    template <class STRING_TYPE>
+    static int getSymbolicLinkTarget(std::string        *result,
+                                     const STRING_TYPE&  path);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int getSymbolicLinkTarget(std::pmr::string *result,
+                                     const char       *path);
+    template <class STRING_TYPE>
+    static int getSymbolicLinkTarget(std::pmr::string   *result,
+                                     const STRING_TYPE&  path);
+#endif
+        // Load, into the specified 'result', the target of the symbolic link
+        // at the specified 'path'.  Return 0 on success, and a non-zero value
+        // otherwise.  For example, this function will return an error if
+        // 'path' does not refer to a symbolic link.  Windows directory
+        // junctions are treated as directory symbolic links.  If 'path' is a
+        // relative path, it is evaluated against the current working
+        // directory.  The parameterized 'STRING_TYPE' must be one of
+        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
     static int lock(FileDescriptor descriptor, bool lockWriteFlag);
         // Acquire a lock for the file with the specified 'descriptor'.  If
@@ -1125,6 +1162,14 @@ bool FilesystemUtil::isDirectory(const STRING_TYPE& path,
 
 template <class STRING_TYPE>
 inline
+bool FilesystemUtil::isSymbolicLink(const STRING_TYPE& path)
+{
+    return FilesystemUtil::isSymbolicLink(
+        FilesystemUtil_CStringUtil::flatten(path));
+}
+
+template <class STRING_TYPE>
+inline
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime     *time,
                                             const STRING_TYPE&  path)
 {
@@ -1206,6 +1251,35 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const STRING_TYPE& path)
     return FilesystemUtil::getFileSize(
         FilesystemUtil_CStringUtil::flatten(path));
 }
+
+template <class STRING_TYPE>
+inline
+int FilesystemUtil::getSymbolicLinkTarget(bsl::string        *result,
+                                          const STRING_TYPE&  path)
+{
+    return FilesystemUtil::getSymbolicLinkTarget(
+        result, FilesystemUtil_CStringUtil::flatten(path));
+}
+
+template <class STRING_TYPE>
+inline
+int FilesystemUtil::getSymbolicLinkTarget(std::string        *result,
+                                          const STRING_TYPE&  path)
+{
+    return FilesystemUtil::getSymbolicLinkTarget(
+        result, FilesystemUtil_CStringUtil::flatten(path));
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class STRING_TYPE>
+inline
+int FilesystemUtil::getSymbolicLinkTarget(std::pmr::string   *result,
+                                          const STRING_TYPE&  path)
+{
+    return FilesystemUtil::getSymbolicLinkTarget(
+        result, FilesystemUtil_CStringUtil::flatten(path));
+}
+#endif
 
 template <class STRING_TYPE>
 inline
