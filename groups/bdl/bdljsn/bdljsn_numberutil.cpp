@@ -225,7 +225,11 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
 
     // Compute the exponent.
 
-    bsl::string_view exponentStr(&*expBegin, value.end() - expBegin);
+    bsl::size_t exponentSize = value.end() - expBegin;
+    bsl::string_view exponentStr;
+    if (exponentSize) {
+        exponentStr = bsl::string_view (&*expBegin, exponentSize);
+    }
 
     Uint64 uExponent;
 

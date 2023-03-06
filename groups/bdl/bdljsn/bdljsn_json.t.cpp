@@ -3,6 +3,8 @@
 
 #include <bsla_maybeunused.h>
 
+#include <bslalg_constructorproxy.h>
+
 #include <bslim_testutil.h>
 
 #include <bsla_maybeunused.h>
@@ -21,6 +23,8 @@
 #include <bsl_cstring.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
+#include <bsl_utility.h>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bdljsn;
@@ -94,6 +98,7 @@ using bsl::flush;
 // [11] JsonArray::operator=(MovableRef<JsonArray> rhs);
 // [13] JsonArray::operator=(initializer_list<Json> l);
 // [ 2] JsonArray::pushBack(const Json& j);
+// [13] JsonArray::pushBack(MovableRef<Json> j);
 // [13] Json& JsonArray::operator[](size_t i);
 // [13] JsonArray::assign(initializer_list<Json> l);
 // [13] JsonArray::assign(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -118,7 +123,6 @@ using bsl::flush;
 // [ 9] void JsonArray::swap(JsonArray& other);
 //
 // ACCESSORS
-// [ 4] bslma::Allocator *JsonArray::allocator() const;
 // [ 4] const Json& JsonArray::front() const;
 // [ 4] const Json& JsonArray::begin() const;
 // [ 4] const Json& JsonArray::cbegin() const;
@@ -130,6 +134,7 @@ using bsl::flush;
 // [ 4] const Json& JsonArray::operator[](size_t i) const;
 // [14] size_t JsonArray::maxSize() const;
 //
+// [ 4] bslma::Allocator *JsonArray::allocator() const;
 // [ 5] ostream& JsonArray::print(os& s, int l = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
@@ -140,17 +145,182 @@ using bsl::flush;
 // FREE FUNCTIONS
 // [ 9] void swap(JsonArray& a, b);
 //
-// JSON CLASS METHODS
+// JSONOBJECT CLASS METHODS
+//
+// CREATORS
+// [15] JsonObject();
+// [15] JsonObject(bslma::Allocator *basicAllocator);
+// [20] JsonObject(const JsonObject& original, *a);
+// [21] JsonObject(MovableRef<JsonObject> o);
+// [21] JsonObject(MovableRef<JsonObject> o, *a);
+// [16] JsonObject(INPUT_ITER first, INPUT_ITER last, *a);
+// [26] JsonObject(initializer_list<Member> members, *a);
+// [15] ~JsonObject();
+//
+// MANIPULATORS
+// [23] JsonObject::operator=(const JsonObject& rhs);
+// [24] JsonObject::operator=(MovableRef<JsonObject> rhs);
+// [26] JsonObject::operator=(initializer_list<Member> members);
+// [15] Json& JsonObject::operator[](const string_view& key);
+// [26] Iterator JsonObject::begin();
+// [26] Iterator JsonObject::end();
+// [26] void JsonObject::clear();
+// [26] pair<Iterator, bool> JsonObject::insert(const Member& m);
+// [26] pair<Iterator, bool> JsonObject::insert(MovableRef<Member> m);
+// [26] void JsonObject::insert(INPUT_ITER first, INPUT_ITER last);
+// [26] void JsonObject::insert(initializer_list<Member> members);
+// [26] pair<Iterator, bool> JsonObject::insert(string_view key, V&& v);
+// [26] bsl::size_t JsonObject::erase(const bsl::string_view& key);
+// [26] Iterator JsonObject::erase(Iterator position);
+// [26] Iterator JsonObject::erase(ConstIterator position);
+// [26] Iterator JsonObject::find(const bsl::string_view& key);
+//
+// [22] void JsonObject::swap(JsonObject& other);
 //
 // ACCESSORS
-// [??] int Json::asInt(int *r) const;
-// [??] int Json::asInt64(Int64 *r) const;
-// [??] int Json::asUint(unsigned int *r) const;
-// [??] int Json::asUint64(Uint64 *r) const;
-// [??] float Json::asFloat() const;
-// [??] double Json::asDouble() const;
-// [??] Decimal64 Json::asDecimal64() const;
-// [??] int Json::asDecimal64Exact(Decimal64 *r) const;
+// [17] const Json& JsonObject::operator[](bsl::string_view& key) const;
+// [27] ConstIterator JsonObject::begin() const;
+// [27] ConstIterator JsonObject::cbegin() const;
+// [27] ConstIterator JsonObject::end() const;
+// [27] ConstIterator JsonObject::cend() const;
+// [27] ConstIterator JsonObject::find(string_view& key) const;
+// [27] bool JsonObject::contains(const string_view& key) const;
+// [27] bool JsonObject::empty() const;
+// [27] size_t JsonObject::size() const;
+//
+// [27] bslma::Allocator *JsonObject::allocator() const;
+// [18] ostream& JsonObject::print(os& s, int l = 0, int sPL = 4) const;
+//
+// FREE OPERATORS
+// [18] operator<<(ostream&, const JsonObject&);
+// [19] bool operator==(const bdljsn::JsonObject& lhs, rhs);
+// [19] bool operator!=(const bdljsn::JsonObject& lhs, rhs);
+//
+// FREE FUNCTIONS
+// [22] void swap(JsonObject& a, b);
+//
+// JSON CLASS METHODS
+//
+// CONSTRUCTORS
+// [99] Json();
+// [99] Json(bslma::Allocator *basicAllocator);
+// [99] Json(const Json &original, *a);
+// [99] Json(bslmf::MovableRef<Json> original);
+// [99] Json(bslmf::MovableRef<Json> original, *a);
+// [99] Json(const JsonArray &array, *a);
+// [99] Json(bslmf::MovableRef<JsonArray> array, *a);
+// [99] Json(bool boolean, *a);
+// [99] Json(const JsonNull& null, *a);
+// [99] Json(float number, *a);
+// [99] Json(double number, *a);
+// [99] Json(bdldfp::Decimal64 number, *a);
+// [99] Json(int number, *a);
+// [99] Json(unsinged int number, *a);
+// [99] Json(bsls::Types::Int64 number, *a);
+// [99] Json(bsls::Types::Uint64 number, *a);
+// [99] Json(const JsonNumber& number, *a);
+// [99] Json(bslmf::MovableRef<JsonNumber> number, *a);
+// [99] Json(const JsonObject& object, *a);
+// [99] Json(bslmf::MovableRef<JsonObject> object, *a);
+// [99] Json(const char *string, *a);
+// [99] Json(const bsl::string_view& string, *a);
+// [99] Json(STRING&& string, *a);
+//
+// MANIPULATORS
+// [99] Json& Json::operator=(const Json& rhs);
+// [99] Json& Json::operator=(bslmf::MovableRef<Json> rhs);
+// [99] Json& Json::operator=(float rhs);
+// [99] Json& Json::operator=(double rhs);
+// [99] Json& Json::operator=(bdldfp::Decimal64 rhs);
+// [99] Json& Json::operator=(int rhs);
+// [99] Json& Json::operator=(unsigned int rhs);
+// [99] Json& Json::operator=(bsls::Types::Int64 rhs);
+// [99] Json& Json::operator=(bsls::Types::UInt64 rhs);
+// [99] Json& Json::operator=(const JsonNumber& rhs);
+// [99] Json& Json::operator=(bslmf::MovableRef<JsonNumber> rhs);
+// [99] Json& Json::operator=(const char *rhs);
+// [99] Json& Json::operator=(const bsl::string_view& rhs);
+// [99] Json& Json::operator=(STRING&& rhs);
+// [99] Json& Json::operator=(bool rhs);
+// [99] Json& Json::operator=(const JsonObject& rhs);
+// [99] Json& Json::operator=(bslmf::MovableRef<JsonObject> rhs);
+// [99] Json& Json::operator=(const JsonArray& rhs);
+// [99] Json& Json::operator=(bslmf::MovableRef<JsonArray> rhs);
+// [99] Json& Json::operator=(const JsonNull& rhs);
+// [99] Json& Json::operator=(bslmf::MovableRef<JsonNull> rhs);
+// [99] JsonArray& Json::makeArray();
+// [99] JsonArray& Json::makeArray(const JsonArray& array);
+// [99] JsonArray& Json::makeArray(MovableRef<JsonArray> array);
+// [99] bool& Json::makeBoolean();
+// [99] bool& Json::makeBoolean(bool boolean);
+// [99] void Json::makeNull();
+// [99] JsonNumber& Json::makeNumber();
+// [99] JsonNumber& Json::makeNumber(const JsonNumber& number);
+// [99] JsonNumber& Json::makeNumber(MovableRef<JsonNumber> number);
+// [99] JsonObject& Json::makeObject();
+// [99] JsonObject& Json::makeObject(const JsonObject& object);
+// [99] JsonObject& Json::makeObject(MovableRef<JsonObject> object);
+// [99] void Json::makeString(const char *string);
+// [99] void Json::makeString(const bsl::string_view& string);
+// [99] void Json::makeString(STRING&& string);
+// [99] JsonArray& Json::theArray();
+// [99] bool& Json::theBoolean();
+// [99] JsonNull& Json::theNull();
+// [99] JsonNumber& Json::theNumber();
+// [99] JsonObject& Json::theObject();
+// [99] Json& Json::operator[](const string_view& key);
+// [99] Json& Json::operator[](size_t index);
+// [99] Json::operator BloombergLP::bdljsn::JsonArray &();
+// [99] Json::operator bool &();
+// [99] Json::operator BloombergLP::bdljsn::JsonNull &();
+// [99] Json::operator BloombergLP::bdljsn::JsonNumber &();
+// [99] Json::operator BloombergLP::bdljsn::JsonObject &();
+// [99] Json::operator bsl::string &();
+//
+// [99] void Json::swap(Json& other);
+//
+// ACCESSORS
+// [99] bool Json::isArray();
+// [99] bool Json::isBoolean();
+// [99] bool Json::isNull();
+// [99] bool Json::isNumber();
+// [99] bool Json::isObject();
+// [99] bool Json::isString();
+// [99] const JsonArray& Json::theArray();
+// [99] const bool& Json::theBoolean();
+// [99] const JsonNull& Json::theNull();
+// [99] const JsonNumber& Json::theNumber();
+// [99] const JsonObject& Json::theObject();
+// [99] const bsl::string& Json::theString();
+// [99] JsonType::Enum Json::type();
+// [99] int Json::asInt(int *r) const;
+// [99] int Json::asInt64(Int64 *r) const;
+// [99] int Json::asUint(unsigned int *r) const;
+// [99] int Json::asUint64(Uint64 *r) const;
+// [99] float Json::asFloat() const;
+// [99] double Json::asDouble() const;
+// [99] Decimal64 Json::asDecimal64() const;
+// [99] int Json::asDecimal64Exact(Decimal64 *r) const;
+// [99] const Json& Json::operator[](const string_view& key) const;
+// [99] const Json& Json::operator[](size_t index) const;
+// [99] size_t Json::size() const;
+// [99] Json::operator const BloombergLP::bdljsn::JsonArray &() const;
+// [99] Json::operator const bool &() const;
+// [99] Json::operator const BloombergLP::bdljsn::JsonNull &() const;
+// [99] Json::operator const BloombergLP::bdljsn::JsonNumber &() const;
+// [99] Json::operator const BloombergLP::bdljsn::JsonObject &() const;
+// [99] Json::operator const bsl::basic_string &() const;
+//
+// [99] bslma::Allocator* Json::allocator() const;
+// [99] ostream& Json::print(ostream& stream, int l, int spl) const;
+//
+// FREE OPERATORS
+// [99] ostream& operator<<(ostream&, const Json&);
+// [99] bool operator==(const Json& lhs, rhs);
+// [99] bool operator!=(const Json& lhs, rhs);
+//
+// FREE FUNCTIONS
+// [99] void swap(Json& lhs, rhs);
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -237,6 +407,9 @@ void aSsErT(bool condition, const char *message, int line)
 //
 //  ARRAY  ::= [ VALUE* ]
 //..
+
+// BDE_VERIFY pragma: -AR01 returning allocator aware by value
+// BDE_VERIFY pragma: -FD01 generater functions don't have contracts
 
 Json       g (const char *spec);
 JsonObject go(const char *spec);
@@ -594,6 +767,133 @@ static const DefaultDataRow DEFAULT_DATA[] =
 };
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
+char KEY0[] = "zero";
+char KEY1[] = "one";
+char KEY2[] = "two";
+char KEY3[] = "three";
+
+const char* KEYS[] = {KEY0, KEY1, KEY2, KEY3};
+
+template <class TYPE>
+class TemplatedJsonObjectInsertionTest {
+  public:
+      // Tests insertion of templated insert method.  The behavior is undefined
+      // unless either TYPE is not allocator aware, or the specified 'value'
+      // has the specified 'oa' installed.
+    void operator()(const TYPE& value, bslma::TestAllocator *oa);
+};
+
+template <class TYPE>
+void TemplatedJsonObjectInsertionTest<TYPE>::operator()(
+                                                   const TYPE&           value,
+                                                   bslma::TestAllocator *oa)
+{
+    const JsonObject::Member INIT(KEY0, Json(value, oa), oa);
+    const JsonObject         EXPECTED_VALUE(&INIT, &INIT + 1, oa);
+
+    {
+        JsonObject mX(oa);
+        mX.insert(KEY0, value);
+        ASSERTV(EXPECTED_VALUE, mX, EXPECTED_VALUE == mX);
+    }
+    {
+        const JsonObject::Member NON_ALLOCATING(KEY1, Json());
+        bslma::TestAllocator     ca("compare", false);
+        JsonObject               mY(&ca);
+        mY.insert(NON_ALLOCATING);
+
+        bslalg::ConstructorProxy<TYPE> proxy(value, oa);
+        TYPE&                          moveFrom     = proxy.object();
+        bsls::Types::Int64             BlocksBefore = oa->numBlocksTotal();
+        bsls::Types::Int64             BytesBefore  = oa->numBytesTotal();
+
+        JsonObject mX(oa);
+        mX.insert(KEY0, bslmf::MovableRefUtil::move(moveFrom));
+        ASSERTV(value, EXPECTED_VALUE, mX, EXPECTED_VALUE == mX);
+        ASSERTV(value,
+                moveFrom,
+                ca.numBlocksTotal(),
+                BlocksBefore,
+                oa->numBlocksTotal(),
+                ca.numBlocksTotal() == (oa->numBlocksTotal() - BlocksBefore));
+        ASSERTV(value,
+                moveFrom,
+                ca.numBytesTotal(),
+                BytesBefore,
+                oa->numBytesTotal(),
+                ca.numBytesTotal() == (oa->numBytesTotal() - BytesBefore));
+    }
+}
+
+class ReorderExpectedJsonObjectString {
+    typedef bsl::unordered_map<bsl::string, bsl::string> Container;
+    bsl::vector<bsl::string> d_orderOfKeys;
+
+    static bsl::vector<bsl::string> extractOrder(const JsonObject& X)
+    {
+        bsl::vector<bsl::string> keys;
+        for (JsonObject::ConstIterator iter = X.cbegin();
+             iter != X.cend();
+             ++iter) {
+            keys.push_back(iter->first);
+        }
+        return keys;
+    }
+
+  public:
+    explicit ReorderExpectedJsonObjectString(const JsonObject& object)
+    : d_orderOfKeys(extractOrder(object))
+    {
+    }
+
+    bsl::string operator()(const bsl::string& input) const
+    {
+        bsl::string            format[5];
+        Container              data;
+        bsl::string::size_type pos  = 0;
+        bsl::string::size_type prev = 0;
+
+        for (int i = 0; i < 4; ++i) {
+            pos = input.find('\"', prev = pos);
+            if (bsl::string::npos == pos) {
+                ASSERTV(i, input, "Quote character number i not found");
+                return "";                                            // RETURN
+            }
+            format[i] = input.substr(prev, pos - prev);
+
+            const char delim = (i == 3 ? ']' : ',');
+            pos = input.find(delim, prev = pos);
+            if (bsl::string::npos == pos) {
+                ASSERTV(delim, i, input, "delimiter not found");
+                return "";                                            // RETURN
+            }
+            if (delim == ']') {
+                ++pos;
+                if (pos == input.size()) {
+                    ASSERTV(i, input, "\']\' character was last in string");
+                    return "";                                        // RETURN
+                }
+            }
+            const bsl::string::size_type secondQuote = input.find('\"',
+                                                                  prev + 1);
+            if (secondQuote == bsl::string::npos) {
+                ASSERTV(i, input, "second quote not found");
+                return "";                                            // RETURN
+            }
+            data[input.substr(prev + 1, secondQuote - (prev + 1))] =
+                                                input.substr(prev, pos - prev);
+        }
+        format[4] = input.substr(pos, input.size() - pos);
+
+        bsl::stringstream ss;
+        for (int index = 0; index < 4; ++index) {
+            ss << format[index] << data[d_orderOfKeys[index]];
+        }
+        ss << format[4];
+        return ss.str();
+    }
+};
+
 // ============================================================================
 //                          EXTENDED BREATHING TEST
 // ----------------------------------------------------------------------------
@@ -617,7 +917,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     const struct {
         int         d_line;
-        const char *d_spec;
+        const char *d_spec_p;
         Json        d_expectedJson;
     } DATA[] = {
         //   LINE
@@ -683,12 +983,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
     for (int i = 0; i != NUM_DATA; ++i) {
-        const int LINE = DATA[i].d_line;
-        const char *SPEC = DATA[i].d_spec;
-        const Json EXPECTED_JSON = DATA[i].d_expectedJson;
+        const int   LINE = DATA[i].d_line;
+        const char *SPEC = DATA[i].d_spec_p;
+        const Json  EXPECTED_JSON = DATA[i].d_expectedJson;
 
         Json json;
-        int rc = ggg(&json, SPEC);
+        int  rc = ggg(&json, SPEC);
         ASSERTV(LINE, 0 == rc);
         ASSERTV(LINE, json == EXPECTED_JSON);
     }
@@ -708,8 +1008,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     // Copy Constructor
     {
         bslma::TestAllocator ta;
-        JsonArray lvalue1 = ga("[1s]");
-        JsonArray lvalue2 = ga("[1s]");
+        JsonArray            lvalue1 = ga("[1s]");
+        JsonArray            lvalue2 = ga("[1s]");
 
         ASSERT(JsonArray(lvalue1) == ga("[1s]"));
         ASSERT(JsonArray(lvalue1, &ta) == ga("[1s]"));
@@ -718,8 +1018,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     // Move Constructor
     {
         bslma::TestAllocator ta;
-        JsonArray lvalue1 = ga("[1s]");
-        JsonArray lvalue2 = ga("[1s]");
+        JsonArray            lvalue1 = ga("[1s]");
+        JsonArray            lvalue2 = ga("[1s]");
 
         ASSERT(JsonArray(bslmf::MovableRefUtil::move(lvalue1)) ==
                ga("[1s]"));
@@ -730,7 +1030,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     // Range Constructor
     {
         bslma::TestAllocator ta;
-        const Json values[2] = { g("1"), g("s") };
+        const Json           values[2] = { g("1"), g("s") };
         ASSERT(JsonArray(values, values + 2) == ga("[1s]"));
         ASSERT(JsonArray(values, values + 2, &ta) == ga("[1s]"));
     }
@@ -746,7 +1046,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Copy-Assignment Operator
     {
-        JsonArray mX;
+        JsonArray  mX;
         JsonArray& mXRef = (mX = ga("[1s]"));
         ASSERT(mX == ga("[1s]"));
         ASSERT(&mXRef == &mX);
@@ -754,8 +1054,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Move-Assignment Operator
     {
-        JsonArray mX;
-        JsonArray mY = ga("[1s]");
+        JsonArray  mX;
+        JsonArray  mY    = ga("[1s]");
         JsonArray& mXRef = (mX = bslmf::MovableRefUtil::move(mY));
         ASSERT(mX == ga("[1s"));
         ASSERT(&mXRef == &mX);
@@ -764,7 +1064,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     // Initializer-List Assignment Operator
     {
-        JsonArray mX;
+        JsonArray  mX;
         JsonArray& mXRef = (mX = { g("1"), g("s") });
         ASSERT(mX == ga("[1s]"));
         ASSERT(&mXRef == &mX);
@@ -789,9 +1089,9 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Begin and End
     {
-        JsonArray mX = ga("[1ns]");
+        JsonArray           mX    = ga("[1ns]");
         JsonArray::Iterator begin = mX.begin();
-        JsonArray::Iterator end = mX.end();
+        JsonArray::Iterator end   = mX.end();
 
         ASSERT(begin != end);
         ASSERT(end - begin == 3);
@@ -953,8 +1253,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         JsonArray mX;
 
-        Json mY = g("s");
-        const Json& Y = mY;
+        Json        mY = g("s");
+        const Json& Y  = mY;
 
         mX.pushBack(Y);
         ASSERT(mX[0].isString());
@@ -999,8 +1299,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) Subscript Operator
     {
-        JsonArray mX = ga("[1ns]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1ns]");
+        const JsonArray& X  = mX;
 
         ASSERT(X[0].isNumber());
         ASSERT(X[1].isNull());
@@ -1009,8 +1309,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) Begin
     {
-        JsonArray mX = ga("[1ns]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1ns]");
+        const JsonArray& X  = mX;
 
         JsonArray::ConstIterator begin = X.begin();
 
@@ -1031,8 +1331,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) End
     {
-        JsonArray mX = ga("[1ns]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1ns]");
+        const JsonArray& X  = mX;
 
         JsonArray::ConstIterator end = X.end();
 
@@ -1055,8 +1355,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) Front and Back
     {
-        JsonArray mX = ga("[1ns]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1ns]");
+        const JsonArray& X  = mX;
 
         ASSERT(&X.front() == &X[0]);
         ASSERT(&X.back() == &X[2]);
@@ -1064,12 +1364,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Empty
     {
-        JsonArray mX = ga("[1ns]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1ns]");
+        const JsonArray& X  = mX;
 
         ASSERT(!X.empty());
 
-        JsonArray mY;
+        JsonArray        mY;
         const JsonArray& Y = mY;
 
         ASSERT(Y.empty());
@@ -1077,12 +1377,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Size
     {
-        JsonArray mX = ga("[1ns]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1ns]");
+        const JsonArray& X  = mX;
 
         ASSERT(X.size() == 3);
 
-        JsonArray mY;
+        JsonArray        mY;
         const JsonArray& Y = mY;
 
         ASSERT(Y.size() == 0);
@@ -1090,28 +1390,28 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Allocator
     {
-        JsonArray mX;
+        JsonArray        mX;
         const JsonArray& X = mX;
 
         ASSERT(X.allocator() == bslma::Default::allocator());
 
         bslma::TestAllocator ta;
-        JsonArray mY(&ta);
-        const JsonArray& Y = mY;
+        JsonArray            mY(&ta);
+        const JsonArray&     Y = mY;
 
         ASSERT(Y.allocator() == &ta);
     }
 
     // Print
     {
-        JsonArray mX = ga("[1[ns]t{}]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1[ns]t{}]");
+        const JsonArray& X  = mX;
 
         bsl::ostringstream stream;
-        bsl::ostream& streamRef = X.print(stream);
+        bsl::ostream&      streamRef = X.print(stream);
         ASSERT(&streamRef == &stream);
 
-        const bsl::string& result = stream.str();
+        const bsl::string&     result         = stream.str();
         const bsl::string_view expectedResult =
             "[\n"
             "    1,\n"
@@ -1128,14 +1428,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Streaming Operator
     {
-        JsonArray mX = ga("[1[ns]t{}]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1[ns]t{}]");
+        const JsonArray& X  = mX;
 
         bsl::ostringstream stream;
-        bsl::ostream& streamRef = stream << X;
+        bsl::ostream&      streamRef = stream << X;
         ASSERT(&streamRef == &stream);
 
-        const bsl::string& result = stream.str();
+        const bsl::string&     result         = stream.str();
         const bsl::string_view expectedResult =
             "[1, [null, \"string\"], true, {}]";
         ASSERTV(result, result == expectedResult);
@@ -1143,14 +1443,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Equality and Inequality Operators
     {
-        JsonArray mX = ga("[1s]");
-        const JsonArray& X = mX;
+        JsonArray        mX = ga("[1s]");
+        const JsonArray& X  = mX;
 
-        JsonArray mY = ga("[1s]");
-        const JsonArray& Y = mY;
+        JsonArray        mY = ga("[1s]");
+        const JsonArray& Y  = mY;
 
-        JsonArray mZ = ga("[1stn]");
-        const JsonArray& Z = mZ;
+        JsonArray        mZ = ga("[1stn]");
+        const JsonArray& Z  = mZ;
 
         ASSERT(  X == Y );
         ASSERT(!(X == Z));
@@ -1187,15 +1487,15 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Default Constructor
     {
-        JsonObject mX;
-        const JsonObject& X = mX;
+        JsonObject        mX;
+        const JsonObject& X  = mX;
         ASSERT(X.size() == 0);
         ASSERT(X.cbegin() == X.cend());
         ASSERT(X.allocator() == bslma::Default::allocator());
 
         bslma::TestAllocator ta;
-        JsonObject mY;
-        const JsonObject& Y = mY;
+        JsonObject           mY;
+        const JsonObject&    Y = mY;
         ASSERT(Y.size() == 0);
         ASSERT(Y.cbegin() == Y.cend());
         ASSERT(Y.allocator() == bslma::Default::allocator());
@@ -1203,12 +1503,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Copy Constructor
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
         mX.insert(JsonObject::Member("a", Json()));
 
-        JsonObject mY(X);
+        JsonObject        mY(X);
         const JsonObject& Y = mY;
 
         ASSERT(X.size() == 1);
@@ -1224,14 +1524,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Extended Copy Constructor
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
         mX.insert(JsonObject::Member("a", Json()));
 
         bslma::TestAllocator ta;
 
-        JsonObject mY(X, &ta);
+        JsonObject        mY(X, &ta);
         const JsonObject& Y = mY;
 
         ASSERT(X.size() == 1);
@@ -1247,12 +1547,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Move Constructor
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
         mX.insert(JsonObject::Member("a", Json()));
 
-        JsonObject mY(bslmf::MovableRefUtil::move(mX));
+        JsonObject        mY(bslmf::MovableRefUtil::move(mX));
         const JsonObject& Y = mY;
 
         ASSERT(X.size() == 0);
@@ -1266,17 +1566,19 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Extended Move Constructor
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
         mX.insert(JsonObject::Member("a", Json()));
 
         bslma::TestAllocator ta;
 
-        JsonObject mY(bslmf::MovableRefUtil::move(mX), &ta);
+        JsonObject        mY(bslmf::MovableRefUtil::move(mX), &ta);
         const JsonObject& Y = mY;
 
-        ASSERT(X.size() == 0);
+        ASSERT(X.size() == 1);
+        ASSERT(X.cbegin()->first == "a");
+        ASSERT(X.cbegin()->second.isNull());
         ASSERT(X.allocator() == bslma::Default::allocator());
 
         ASSERT(Y.size() == 1);
@@ -1292,7 +1594,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
             JsonObject::Member("b", Json(""))
         };
 
-        JsonObject mX(members, members + 2);
+        JsonObject        mX(members, members + 2);
         const JsonObject& X = mX;
 
         ASSERT(X.size() == 2);
@@ -1316,7 +1618,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        JsonObject mX(members, members + 2, &ta);
+        JsonObject        mX(members, members + 2, &ta);
         const JsonObject& X = mX;
 
         ASSERT(X.size() == 2);
@@ -1371,12 +1673,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Copy-Assignment Operator
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
         bslma::TestAllocator ta;
-        JsonObject mY(&ta);
-        const JsonObject& Y = mY;
+        JsonObject           mY(&ta);
+        const JsonObject&    Y = mY;
         mY.insert(JsonObject::Member("a", Json()));
         mY.insert(JsonObject::Member("b", Json("")));
 
@@ -1408,12 +1710,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Move-Assignment Operator
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
         bslma::TestAllocator ta;
-        JsonObject mY(&ta);
-        const JsonObject& Y = mY;
+        JsonObject           mY(&ta);
+        const JsonObject&    Y = mY;
         mY.insert(JsonObject::Member("a", Json()));
         mY.insert(JsonObject::Member("b", Json("")));
 
@@ -1431,7 +1733,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
                (++X.cbegin())->second.isString());
         ASSERT(X.allocator() == bslma::Default::allocator());
 
-        ASSERT(Y.size() == 0);
+        ASSERT(X == Y);
         ASSERT(Y.allocator() == &ta);
     }
 
@@ -1467,7 +1769,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         mX.insert(JsonObject::Member("b", Json("")));
 
         JsonObject::Iterator begin = mX.begin();
-        JsonObject::Iterator end = mX.end();
+        JsonObject::Iterator end   = mX.end();
 
         ASSERT(begin != end);
 
@@ -1479,7 +1781,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Clear
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
@@ -1491,12 +1793,11 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Copy Insertion
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
-        JsonObject::Member member("a", Json());
-        bsl::pair<JsonObject::Iterator, bool> insertion =
-                                                         mX.insert(member);
+        JsonObject::Member                    member("a", Json());
+        bsl::pair<JsonObject::Iterator, bool> insertion = mX.insert(member);
         ASSERT(insertion.first->first == "a");
         ASSERT(insertion.first->second.isNull());
         ASSERT(insertion.second);
@@ -1508,10 +1809,10 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Move Insertion
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
-        JsonObject::Member member1("a", Json());
+        JsonObject::Member                    member1("a", Json());
         bsl::pair<JsonObject::Iterator, bool> insertion =
                            mX.insert(bslmf::MovableRefUtil::move(member1));
         ASSERT(insertion.first->first == "a");
@@ -1528,7 +1829,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         bslma::TestAllocator ta;
 
-        JsonObject mX(&ta);
+        JsonObject        mX(&ta);
         const JsonObject& X = mX;
 
         JsonObject::Member members[] = {
@@ -1555,7 +1856,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         bslma::TestAllocator ta;
 
-        JsonObject mX(&ta);
+        JsonObject        mX(&ta);
         const JsonObject& X = mX;
 
         mX.insert({{"a", Json()}, {"b", Json("")}});
@@ -1577,7 +1878,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         bslma::TestAllocator ta;
 
-        JsonObject mX(&ta);
+        JsonObject        mX(&ta);
         const JsonObject& X = mX;
 
         mX.insert("a", Json());
@@ -1599,7 +1900,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         bslma::TestAllocator ta;
 
-        JsonObject mX(&ta);
+        JsonObject        mX(&ta);
         const JsonObject& X = mX;
 
         bsl::size_t numErased = mX.erase("a");
@@ -1645,27 +1946,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(X.size() == 1);
     }
 
-    // Range Erasure
-    {
-        JsonObject mX;
-        const JsonObject& X = mX;
-
-        mX.insert("a", Json());
-        mX.insert("b", Json(""));
-
-        JsonObject::Iterator erasure = mX.erase(mX.begin(), mX.end());
-        ASSERT(erasure == X.end());
-        ASSERT(X.size() == 0);
-    }
-
     // (Member) Swap
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
 
-        JsonObject mY;
+        JsonObject        mY;
         const JsonObject& Y = mY;
         mY.insert(JsonObject::Member("c", Json(false)));
 
@@ -1688,7 +1976,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) Subscript Operator
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
@@ -1699,7 +1987,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) Begin
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
@@ -1723,13 +2011,13 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) End
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
 
         JsonObject::ConstIterator begin = X.begin();
-        JsonObject::ConstIterator end = X.end();
+        JsonObject::ConstIterator end   = X.end();
 
         ASSERT(begin != end);
 
@@ -1739,7 +2027,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(begin == end);
 
         JsonObject::ConstIterator cbegin = X.cbegin();
-        JsonObject::ConstIterator cend = X.cend();
+        JsonObject::ConstIterator cend   = X.cend();
 
         ASSERT(cbegin != cend);
 
@@ -1751,7 +2039,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Find
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
@@ -1767,7 +2055,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Contains
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
@@ -1779,14 +2067,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Empty
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
 
         ASSERT(!X.empty());
 
-        JsonObject mY;
+        JsonObject        mY;
         const JsonObject& Y = mY;
 
         ASSERT(Y.empty());
@@ -1794,14 +2082,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Size
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
 
         ASSERT(X.size() == 2);
 
-        JsonObject mY;
+        JsonObject        mY;
         const JsonObject& Y = mY;
 
         ASSERT(Y.size() == 0);
@@ -1809,14 +2097,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Allocator
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
 
         ASSERT(X.allocator() == bslma::Default::allocator());
 
         bslma::TestAllocator ta;
 
-        JsonObject mY(&ta);
+        JsonObject        mY(&ta);
         const JsonObject& Y = mY;
 
         ASSERT(Y.allocator() == &ta);
@@ -1824,14 +2112,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Print
     {
-        JsonObject mX = go("{a{b[1f]}}");
-        const JsonObject& X = mX;
+        JsonObject        mX = go("{a{b[1f]}}");
+        const JsonObject& X  = mX;
 
         bsl::ostringstream stream;
-        bsl::ostream& streamRef = X.print(stream);
+        bsl::ostream&      streamRef = X.print(stream);
         ASSERT(&streamRef == &stream);
 
-        const bsl::string& result = stream.str();
+        const bsl::string&     result         = stream.str();
         const bsl::string_view expectedResult =
             "{\n"
             "    \"memberA\": {\n"
@@ -1846,14 +2134,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Streaming Operator
     {
-        JsonObject mX = go("{a{b[1f]}}");
-        const JsonObject& X = mX;
+        JsonObject        mX = go("{a{b[1f]}}");
+        const JsonObject& X  = mX;
 
         bsl::ostringstream stream;
-        bsl::ostream& streamRef = stream << X;
+        bsl::ostream&      streamRef = stream << X;
         ASSERT(&streamRef == &stream);
 
-        const bsl::string& result = stream.str();
+        const bsl::string&     result = stream.str();
         const bsl::string_view expectedResult =
             "{\"memberA\": {\"memberB\": [1, false]}}";
         ASSERTV(result, result == expectedResult);
@@ -1861,17 +2149,17 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Equality and Inequality Operators
     {
-        JsonObject mX;
+        JsonObject        mX;
         const JsonObject& X = mX;
         mX.insert(JsonObject::Member("a", Json()));
         mX.insert(JsonObject::Member("b", Json("")));
 
-        JsonObject mY;
+        JsonObject        mY;
         const JsonObject& Y = mY;
         mY.insert(JsonObject::Member("a", Json()));
         mY.insert(JsonObject::Member("b", Json("")));
 
-        JsonObject mZ;
+        JsonObject        mZ;
         const JsonObject& Z = mZ;
         mZ.insert(JsonObject::Member("c", Json(false)));
 
@@ -1914,7 +2202,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Default Constructor
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         ASSERT(X.isNull());
@@ -1922,7 +2210,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        Json mY(&ta);
+        Json        mY(&ta);
         const Json& Y = mY;
 
         ASSERT(Y.isNull());
@@ -1931,12 +2219,12 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Copy Constructor
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         mX.makeString("");
 
-        Json mY(X);
+        Json        mY(X);
         const Json& Y = mY;
 
         ASSERT(X.isString());
@@ -1945,7 +2233,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        Json mZ(X, &ta);
+        Json        mZ(X, &ta);
         const Json& Z = mZ;
 
         ASSERT(X.isString());
@@ -1958,19 +2246,19 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         Json mX;
         mX.makeString("");
 
-        Json mY(bslmf::MovableRefUtil::move(mX));
+        Json        mY(bslmf::MovableRefUtil::move(mX));
         const Json& Y = mY;
 
         ASSERT(Y.isString());
 
-        Json mW;
+        Json        mW;
         const Json& W = mW;
 
         mW.makeString("");
 
         bslma::TestAllocator ta;
 
-        Json mZ(bslmf::MovableRefUtil::move(mW), &ta);
+        Json        mZ(bslmf::MovableRefUtil::move(mW), &ta);
         const Json& Z = mZ;
 
         ASSERT(W.isString());
@@ -1983,7 +2271,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         array1.pushBack(Json());
         array1.pushBack(Json(""));
 
-        Json mW(array1);
+        Json        mW(array1);
         const Json& W = mW;
 
         ASSERT(W.isArray());
@@ -1994,7 +2282,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        Json mX(array1, &ta);
+        Json        mX(array1, &ta);
         const Json& X = mX;
 
         ASSERT(X.isArray());
@@ -2003,7 +2291,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(X[1].isString());
         ASSERT(X.allocator() == &ta);
 
-        Json mY(bslmf::MovableRefUtil::move(array1));
+        Json        mY(bslmf::MovableRefUtil::move(array1));
         const Json& Y = mY;
 
         ASSERT(array1.size() == 0);
@@ -2018,7 +2306,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         array2.pushBack(Json());
         array2.pushBack(Json(""));
 
-        Json mZ(bslmf::MovableRefUtil::move(array2), &ta);
+        Json        mZ(bslmf::MovableRefUtil::move(array2), &ta);
         const Json& Z = mZ;
 
         ASSERT(Z.isArray());
@@ -2030,7 +2318,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Boolean Constructor
     {
-        Json mX(false);
+        Json        mX(false);
         const Json& X = mX;
 
         ASSERT(X.isBoolean());
@@ -2038,7 +2326,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        Json mY(true, &ta);
+        Json        mY(true, &ta);
         const Json& Y = mY;
 
         ASSERT(Y.isBoolean());
@@ -2047,7 +2335,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Null Constructor
     {
-        Json mX((JsonNull()));
+        Json        mX((JsonNull()));
         const Json& X = mX;
 
         ASSERT(X.isNull());
@@ -2108,42 +2396,42 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(m8Value == 1);
         ASSERT(m8.allocator() == &ta);
 
-        Json m9(1u);
+        Json         m9(1u);
         unsigned int m9Value;
         rc = m9.asUint(&m9Value);
         ASSERT(rc == 0);
         ASSERT(m9Value == 1u);
         ASSERT(m9.allocator() == bslma::Default::allocator());
 
-        Json m10(1u, &ta);
+        Json         m10(1u, &ta);
         unsigned int m10Value;
         rc = m10.asUint(&m10Value);
         ASSERT(rc == 0);
         ASSERT(m10Value == 1u);
         ASSERT(m10.allocator() == &ta);
 
-        Json m11(static_cast<bsls::Types::Int64>(1));
+        Json               m11(static_cast<bsls::Types::Int64>(1));
         bsls::Types::Int64 m11Value;
         rc = m11.asInt64(&m11Value);
         ASSERT(rc == 0);
         ASSERT(m11Value == static_cast<bsls::Types::Int64>(1));
         ASSERT(m11.allocator() == bslma::Default::allocator());
 
-        Json m12(static_cast<bsls::Types::Int64>(1), &ta);
+        Json               m12(static_cast<bsls::Types::Int64>(1), &ta);
         bsls::Types::Int64 m12Value;
         rc = m12.asInt64(&m12Value);
         ASSERT(rc == 0);
         ASSERT(m12Value == static_cast<bsls::Types::Int64>(1));
         ASSERT(m12.allocator() == &ta);
 
-        Json m13(static_cast<bsls::Types::Uint64>(1u));
+        Json                m13(static_cast<bsls::Types::Uint64>(1u));
         bsls::Types::Uint64 m13Value;
         rc = m13.asUint64(&m13Value);
         ASSERT(rc == 0);
         ASSERT(m13Value == static_cast<bsls::Types::Uint64>(1u));
         ASSERT(m13.allocator() == bslma::Default::allocator());
 
-        Json m14(static_cast<bsls::Types::Uint64>(1u), &ta);
+        Json                m14(static_cast<bsls::Types::Uint64>(1u), &ta);
         bsls::Types::Uint64 m14Value;
         rc = m14.asUint64(&m14Value);
         ASSERT(rc == 0);
@@ -2155,7 +2443,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         JsonNumber number1("1.5");
 
-        Json mW(number1);
+        Json        mW(number1);
         const Json& W = mW;
         ASSERT(W.isNumber());
         ASSERT(W.theNumber() == number1);
@@ -2163,13 +2451,13 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        Json mX(number1, &ta);
+        Json        mX(number1, &ta);
         const Json& X = mX;
         ASSERT(X.isNumber());
         ASSERT(X.theNumber() == number1);
         ASSERT(X.allocator() == &ta);
 
-        Json mY(bslmf::MovableRefUtil::move(number1));
+        Json        mY(bslmf::MovableRefUtil::move(number1));
         const Json& Y = mY;
         ASSERT(Y.isNumber());
         ASSERT(Y.theNumber() == JsonNumber("1.5"));
@@ -2177,7 +2465,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         JsonNumber number2("1.5");
 
-        Json mZ(bslmf::MovableRefUtil::move(number2), &ta);
+        Json        mZ(bslmf::MovableRefUtil::move(number2), &ta);
         const Json& Z = mZ;
         ASSERT(Z.isNumber());
         ASSERT(Z.theNumber() == JsonNumber("1.5"));
@@ -2189,7 +2477,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         JsonObject object1;
         object1.insert(JsonObject::Member("a", Json()));
 
-        Json mW(object1);
+        Json        mW(object1);
         const Json& W = mW;
         ASSERT(W.isObject());
         ASSERT(W.size() == 1);
@@ -2198,14 +2486,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        Json mX(object1, &ta);
+        Json        mX(object1, &ta);
         const Json& X = mX;
         ASSERT(X.isObject());
         ASSERT(X.size() == 1);
         ASSERT(X["a"].isNull());
         ASSERT(X.allocator() == &ta);
 
-        Json mY(bslmf::MovableRefUtil::move(object1));
+        Json        mY(bslmf::MovableRefUtil::move(object1));
         const Json& Y = mY;
         ASSERT(Y.isObject());
         ASSERT(Y.size() == 1);
@@ -2215,7 +2503,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         JsonObject object2;
         object2.insert(JsonObject::Member("b", Json()));
 
-        Json mZ(bslmf::MovableRefUtil::move(object2), &ta);
+        Json        mZ(bslmf::MovableRefUtil::move(object2), &ta);
         const Json& Z = mZ;
         ASSERT(Z.isObject());
         ASSERT(Z.size() == 1);
@@ -2225,7 +2513,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // String Constructor
     {
-        Json mU("string");
+        Json        mU("string");
         const Json& U = mU;
         ASSERT(U.isString());
         ASSERT(U.theString() == "string");
@@ -2233,7 +2521,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        Json mV("string", &ta);
+        Json        mV("string", &ta);
         const Json& V = mV;
         ASSERT(V.isString());
         ASSERT(V.theString() == "string");
@@ -2241,19 +2529,19 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bsl::string string1("string");
 
-        Json mW(string1);
+        Json        mW(string1);
         const Json& W = mW;
         ASSERT(W.isString());
         ASSERT(W.theString() == "string");
         ASSERT(W.allocator() == bslma::Default::allocator());
 
-        Json mX(string1, &ta);
+        Json        mX(string1, &ta);
         const Json& X = mX;
         ASSERT(X.isString());
         ASSERT(X.theString() == "string");
         ASSERT(X.allocator() == &ta);
 
-        Json mY(bslmf::MovableRefUtil::move(string1));
+        Json        mY(bslmf::MovableRefUtil::move(string1));
         const Json& Y = mY;
         ASSERT(Y.isString());
         ASSERT(Y.theString() == "string");
@@ -2261,7 +2549,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bsl::string string2("string");
 
-        Json mZ(bslmf::MovableRefUtil::move(string1), &ta);
+        Json        mZ(bslmf::MovableRefUtil::move(string1), &ta);
         const Json& Z = mZ;
         ASSERT(Z.isString());
         ASSERT(Z.theString() == "string");
@@ -2270,10 +2558,10 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Copy-Assignment Operator
     {
-        Json mX("");
+        Json        mX("");
         const Json& X = mX;
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         mY = X;
@@ -2286,7 +2574,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         Json mX("");
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         mY = bslmf::MovableRefUtil::move(mX);
@@ -2348,13 +2636,13 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         JsonNumber number("1.5");
 
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         ASSERT(&(mX = number) == &mX);
         ASSERT(X.isNumber());
         ASSERT(X.theNumber() == JsonNumber("1.5"));
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
         ASSERT(&(mY = bslmf::MovableRefUtil::move(number)) == &mY);
         ASSERT(Y.isNumber());
@@ -2363,7 +2651,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // String Assignment Operator
     {
-        Json mW;
+        Json        mW;
         const Json& W = mW;
         ASSERT(&(mW = "string") == &mW);
         ASSERT(W.isString());
@@ -2371,13 +2659,13 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bsl::string string("string");
 
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         ASSERT(&(mX = string) == &mX);
         ASSERT(X.isString());
         ASSERT(X.theString() == "string");
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
         ASSERT(&(mY = bslmf::MovableRefUtil::move(string)) == &mY);
         ASSERT(Y.isString());
@@ -2386,7 +2674,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Boolean-Assignment Operator
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         Json& mXRef = (mX = true);
@@ -2400,7 +2688,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         JsonObject object;
         object.insert(JsonObject::Member("a", Json()));
 
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         Json& mXRef = (mX = object);
@@ -2410,7 +2698,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(X.size() == 1);
         ASSERT(X["a"].isNull());
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         Json& mYRef = (mY = bslmf::MovableRefUtil::move(object));
@@ -2427,7 +2715,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         array.pushBack(Json());
         array.pushBack(Json(""));
 
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         Json& mXRef = (mX = array);
@@ -2438,7 +2726,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(X[0].isNull());
         ASSERT(X[1].isString());
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         Json& mYRef = (mY = bslmf::MovableRefUtil::move(array));
@@ -2454,7 +2742,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     {
         JsonNull null;
 
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         Json& mXRef = (mX = null);
@@ -2462,7 +2750,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(&mXRef == &mX);
         ASSERT(X.isNull());
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         Json& mYRef = (mY = bslmf::MovableRefUtil::move(null));
@@ -2473,7 +2761,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Make Array
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         JsonArray& mXArray = mX.makeArray();
@@ -2485,7 +2773,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         array.pushBack(Json());
         array.pushBack(Json(""));
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         JsonArray& mYArray = mY.makeArray(array);
@@ -2496,7 +2784,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(Y[0].isNull());
         ASSERT(Y[1].isString());
 
-        Json mZ;
+        Json        mZ;
         const Json& Z = mZ;
 
         JsonArray& mZArray =
@@ -2511,7 +2799,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Make Boolean
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         bool& mXBool = mX.makeBoolean();
@@ -2520,7 +2808,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(&mXBool == &X.theBoolean());
         ASSERT(X.theBoolean() == false);
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         bool& mYBool = mY.makeBoolean(true);
@@ -2532,14 +2820,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Make Null
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         mX.makeNull();
 
         ASSERT(X.isNull());
 
-        Json mY("");
+        Json        mY("");
         const Json& Y = mY;
 
         mY.makeNull();
@@ -2549,7 +2837,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Make Number
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         JsonNumber& mXNumber = mX.makeNumber();
@@ -2560,7 +2848,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         JsonNumber number("123");
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         JsonNumber& mYNumber = mY.makeNumber(number);
@@ -2569,7 +2857,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(&mYNumber == &Y.theNumber());
         ASSERT(Y.theNumber() == number);
 
-        Json mZ;
+        Json        mZ;
         const Json& Z = mZ;
 
         JsonNumber& mZNumber =
@@ -2582,7 +2870,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Make Object
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         JsonObject& mXObject = mX.makeObject();
@@ -2594,7 +2882,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         JsonObject object;
         object.insert(JsonObject::Member("a", Json()));
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         JsonObject& mYObject = mY.makeObject(object);
@@ -2604,7 +2892,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(Y.size() == 1);
         ASSERT(Y["a"].isNull());
 
-        Json mZ;
+        Json        mZ;
         const Json& Z = mZ;
 
         JsonObject& mZObject =
@@ -2618,7 +2906,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Make String
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         mX.makeString("string");
@@ -2628,7 +2916,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bsl::string string("string");
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
 
         mY.makeString(string);
@@ -2636,7 +2924,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(Y.isString());
         ASSERT(Y.theString() == "string");
 
-        Json mZ;
+        Json        mZ;
         const Json& Z = mZ;
 
         mZ.makeString(bslmf::MovableRefUtil::move(string));
@@ -2647,10 +2935,10 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Member) Swap
     {
-        Json mX(false);
+        Json        mX(false);
         const Json& X = mX;
 
-        Json mY("");
+        Json        mY("");
         const Json& Y = mY;
 
         mX.swap(mY);
@@ -2758,32 +3046,32 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) "The" Value Accessors
     {
-        Json m1;
+        Json        m1;
         const Json& M1 = m1;
         m1.makeArray();
         ASSERT(M1.theArray().size() == 0);
 
-        Json m2;
+        Json        m2;
         const Json& M2 = m2;
         m2.makeBoolean(true);
         ASSERT(M2.theBoolean() == true);
 
-        Json m3;
+        Json        m3;
         const Json& M3 = m3;
         m3.makeNull();
         ASSERT(M3.theNull() == JsonNull());
 
-        Json m4;
+        Json        m4;
         const Json& M4 = m4;
         m4.makeNumber(JsonNumber("1.5"));
         ASSERT(M4.theNumber() == JsonNumber("1.5"));
 
-        Json m5;
+        Json        m5;
         const Json& M5 = m5;
         m5.makeObject();
         ASSERT(M5.theObject().size() == 0);
 
-        Json m6;
+        Json        m6;
         const Json& M6 = m6;
         m6.makeString("string");
         ASSERT(M6.theString() == "string");
@@ -2791,7 +3079,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Type
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         mX.makeArray();
@@ -2815,7 +3103,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // "As" Arithmetic-Type Accessors
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         mX.makeNumber(JsonNumber(1));
@@ -2854,7 +3142,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) String Subscript Operator
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         mX.makeObject();
         mX.theObject().insert(JsonObject::Member("a", Json()));
@@ -2866,7 +3154,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Const) Size Subscript Operator
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         mX.makeArray();
         mX.theArray().pushBack(Json());
@@ -2879,32 +3167,32 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
     // (Const) Explicit Conversion Operators
     {
-        Json m1;
+        Json        m1;
         const Json& M1 = m1;
         m1.makeArray();
         ASSERT(&static_cast<const JsonArray&>(M1) == &M1.theArray());
 
-        Json m2;
+        Json        m2;
         const Json& M2 = m2;
         m2.makeBoolean(true);
         ASSERT(&static_cast<const bool&>(M2) == &M2.theBoolean());
 
-        Json m3;
+        Json        m3;
         const Json& M3 = m3;
         m3.makeNull();
         ASSERT(&static_cast<const JsonNull&>(M3) == &M3.theNull());
 
-        Json m4;
+        Json        m4;
         const Json& M4 = m4;
         m4.makeNumber(JsonNumber("1.5"));
         ASSERT(&static_cast<const JsonNumber&>(M4) == &M4.theNumber());
 
-        Json m5;
+        Json        m5;
         const Json& M5 = m5;
         m5.makeObject();
         ASSERT(&static_cast<const JsonObject&>(M5) == &M5.theObject());
 
-        Json m6;
+        Json        m6;
         const Json& M6 = m6;
         m6.makeString("");
         ASSERT(&static_cast<const bsl::string&>(M6) == &M6.theString());
@@ -2913,7 +3201,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Size
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         mX.makeObject();
         mX.theObject().insert(JsonObject::Member("a", Json()));
@@ -2921,7 +3209,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         ASSERT(X.size() == 2);
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
         mY.makeArray();
         mY.theArray().pushBack(Json());
@@ -2932,14 +3220,14 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Allocator
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
 
         ASSERT(X.allocator() == bslma::Default::allocator());
 
         bslma::TestAllocator ta;
 
-        Json mY(&ta);
+        Json        mY(&ta);
         const Json& Y = mY;
 
         ASSERT(Y.allocator() == &ta);
@@ -2947,7 +3235,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Print
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         mX.makeArray();
         mX.theArray().pushBack(Json(false));
@@ -2955,10 +3243,10 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         mX.theArray().pushBack(Json(JsonNumber("1.2345")));
 
         bsl::ostringstream stream;
-        bsl::ostream& streamRef = X.print(stream);
+        bsl::ostream&      streamRef = X.print(stream);
         ASSERT(&streamRef == &stream);
 
-        const bsl::string& result = stream.str();
+        const bsl::string&     result = stream.str();
         const bsl::string_view expectedResult =
             "[\n"
             "    false,\n"
@@ -2971,7 +3259,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Streaming Operator
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         mX.makeArray();
         mX.theArray().pushBack(Json(false));
@@ -2979,10 +3267,10 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         mX.theArray().pushBack(Json(JsonNumber("1.2345")));
 
         bsl::ostringstream stream;
-        bsl::ostream& streamRef = stream << X;
+        bsl::ostream&      streamRef = stream << X;
         ASSERT(&streamRef == &stream);
 
-        const bsl::string& result = stream.str();
+        const bsl::string&     result = stream.str();
         const bsl::string_view expectedResult =
             "[false, {}, 1.2345]";
         ASSERTV(result, result == expectedResult);
@@ -2990,15 +3278,15 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // Equality and Inequality Operators
     {
-        Json mX;
+        Json        mX;
         const Json& X = mX;
         mX.makeBoolean(false);
 
-        Json mY;
+        Json        mY;
         const Json& Y = mY;
         mY.makeBoolean(false);
 
-        Json mZ;
+        Json        mZ;
         const Json& Z = mZ;
         mZ.makeArray();
         mZ.theArray().pushBack(Json());
@@ -3020,10 +3308,10 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
     // (Free) Swap
     {
-        Json mX(false);
+        Json        mX(false);
         const Json& X = mX;
 
-        Json mY("");
+        Json        mY("");
         const Json& Y = mY;
 
         using namespace bsl;
@@ -3033,6 +3321,9 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(Y.isBoolean());
     }
 }
+
+// BDE_VERIFY pragma: +FD01 generater functions don't have contracts
+// BDE_VERIFY pragma: +AR01 returning allocator aware by value
 
 
 // ============================================================================
@@ -3066,7 +3357,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 15: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3085,7 +3376,6 @@ int main(int argc, char *argv[])
         //: 2 Run some basic test data. (C-2)
         //
         // Testing:
-        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3094,7 +3384,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS) &&     \
     defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-            bdljsn::Json example1, example2;
+        bdljsn::Json example1, example2;
         {
 
 ///Usage
@@ -3187,6 +3477,3598 @@ int main(int argc, char *argv[])
         }
         ASSERTV(example1, example2, example1 == example2);
 #endif
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT ACCESSORS
+        //
+        // Concerns:
+        //: 1 Accessor methods with wide contracts return the expected value
+        //:   on search failure.
+        //:
+        //: 2 Accessor methods for present members return the expected member.
+        //:
+        //: 3 Accessor methods have appropriate signatures.
+        //:
+        //: 4 There is no allocation from any allocator.
+        //
+        // Plan:
+        //: 1 Create a 'bslma::TestAllocator' object, and install it as the
+        //:   default allocator.
+        //:
+        //: 2 Create an empty 'const' 'JsonObject' object.
+        //:
+        //: 3 Create a 'const' 'JsonObject' object with some known data and
+        //:   invoke all accessors to access a member known to be in the
+        //:   object, asserting results.  (C-1)
+        //:
+        //: 4 For wide contract accessors, invoke to access a member known not
+        //:   to be in the object, asserting results.
+        //:
+        //: 5 For wide contract accessors, invoke to access a member from the
+        //:   empty object, asserting results.  (C-2)
+        //:
+        //: 6 Use the address of each accessor method to initialize a pointer
+        //:   to a function having the appropriate signature and return type.
+        //:   (C-3)
+        //:
+        //: 7 Use the test allocator from P-1 to verify that no memory is ever
+        //:   allocated from the default allocator. (C-4)
+        //
+        // Testing:
+        //   bslma::Allocator *JsonObject::allocator() const;
+        //   ConstIterator JsonObject::begin() const;
+        //   ConstIterator JsonObject::cbegin() const;
+        //   ConstIterator JsonObject::end() const;
+        //   ConstIterator JsonObject::cend() const;
+        //   ConstIterator JsonObject::find(string_view& key) const;
+        //   bool JsonObject::contains(const string_view& key) const;
+        //   bool JsonObject::empty() const;
+        //   size_t JsonObject::size() const;
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << "\n" "JSONOBJECT ACCESSORS" "\n"
+                                  "====================" "\n";
+
+        const Obj::Member ARRAY[] = {
+            Obj::Member("bool", Json(true)),
+            Obj::Member("string", Json("string")),
+            Obj::Member("number", Json(1)),
+            Obj::Member("null", Json())
+        };
+
+        const Obj EMPTY;
+        const Obj X(ARRAY, ARRAY + sizeof(ARRAY)/sizeof(*ARRAY));
+
+        bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            ASSERT(EMPTY.begin() == EMPTY.end());
+            ASSERT(EMPTY.cbegin() == EMPTY.cend());
+
+            ASSERT(X.begin() == X.cbegin());
+            ASSERT(X.end() == X.cend());
+
+            Obj::ConstIterator iter = X.begin();
+            ASSERTV(iter->first, iter->second, X[iter->first] == iter->second);
+
+            typedef JsonObject::ConstIterator
+                              (JsonObject::*NoParamReturningConstIter)() const;
+            NoParamReturningConstIter funcPtr;
+            funcPtr = &Obj::begin;
+            funcPtr = &Obj::cbegin;
+            funcPtr = &Obj::end;
+            funcPtr = &Obj::cend;
+            (void) funcPtr;
+        }
+
+        {
+            Obj::ConstIterator iter = X.find("number");
+            ASSERTV(iter->first, iter->second, iter->second == Json(1));
+
+            ASSERT(X.find("not present") == X.end());
+            ASSERT(EMPTY.find("not present") == EMPTY.end());
+
+            typedef JsonObject::ConstIterator
+                (JsonObject::*ConstIterFromStringView)(const bsl::string_view&)
+                const;
+
+            ConstIterFromStringView funcPtr = &Obj::find;
+            (void) funcPtr;
+        }
+
+        {
+            ASSERT(X.contains("number"));
+            ASSERT(!X.contains("not present"));
+            ASSERT(!EMPTY.contains("not present"));
+
+            typedef bool
+                (JsonObject::*BoolFromStringView)(const bsl::string_view&)
+                const;
+
+            BoolFromStringView funcPtr = &Obj::contains;
+            (void) funcPtr;
+        }
+
+        {
+            ASSERT(EMPTY.empty());
+            ASSERT(!X.empty());
+
+            typedef bool (JsonObject::*BoolNoParam)() const;
+            BoolNoParam funcPtr = &Obj::empty;
+            (void) funcPtr;
+        }
+
+        {
+            ASSERTV(X.size(), 4 == X.size());
+            ASSERTV(EMPTY.size(), 0 == EMPTY.size());
+
+            typedef bsl::size_t (JsonObject::*SizeTNoParam)() const;
+            SizeTNoParam funcPtr = &Obj::size;
+            (void) funcPtr;
+        }
+
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT MANIPULATORS
+        //
+        // Concerns:
+        //: 1 Manipulators for JsonObject that modify the object directly leave
+        //:   the object in the expected state
+        //:
+        //:   o Initializer list assignment operator
+        //:   o Five overloads of 'insert'
+        //:   o Three overloads of 'erase'
+        //:
+        //: 2 Manipulators for JsonObject that return reference or iterator
+        //:   offering modifiable access to a contained object allow the
+        //:   contained object to be modified.
+        //:
+        //:   o 'operator[](size_t)'
+        //:   o 'find(string_view)'
+        //:   o 'begin()'
+        //:   o 'end()'
+        //:
+        //: 3 Manipulators for JsonObject that modify the object directly and
+        //:   also return a value return the expected value.
+        //:
+        //:   o Three overloads of 'erase'
+        //:   o Three overloads of 'insert'
+        //:
+        //:
+        //: 4 Manipulator 'clear()' leaves the object equal to a default
+        //:   constructed object.
+        //:
+        //: 5 Manipulators for JsonObject do not allocate temporary memory.
+        //:
+        //: 6 Manipulators have the correct signature.
+        //
+        // Plan:
+        //: 1 Use the address of each non-templated manipulator to initialize a
+        //:   pointer to a member function having the appropriate signature and
+        //:   return type.  (C-6)
+        //:
+        //: 2 Create a 'bslma::TestAllocator' and install it as the default
+        //:   allocator.  Create another 'bslma::TestAllocator' dedicated to
+        //:   the constant target value.
+        //:
+        //: 3 Construct a 'const' 'JsonObject' object 'K' with the target value
+        //:   that each modification operation will be intended to produce,
+        //:   using the dedicated allocator.
+        //:
+        //: 4 Construct a 'JsonObject' object using an initailizer-list, with
+        //:   value the same as the target object 'K'.  Assert that the value
+        //:   matches expectation.
+        //:
+        //: 5 In a for loop:
+        //:
+        //:   1 Create a 'JsonObject' object that requires one contained object
+        //:     to be modified in order to evaluate equal to 'K'.
+        //:
+        //:   2 Using a switch statement, apply one of each of the manipulators
+        //:     that serve to modify contained values in place, assigning the
+        //:     contained object's value to that of the object in 'K'.
+        //:
+        //:   3 Assert that the value of the modified object matches that of
+        //:     'K', and that allocations were as expected. (C-1..3)
+        //:
+        //: 6 In a for loop:
+        //:
+        //:   1 Create a 'JsonObject' object that requires one contained object
+        //:     to be removed to evaluate equal to 'K'.
+        //:
+        //:   2 Using a switch statement, apply one of each of the manipulators
+        //:     that serve to remove objects from the container, remove the
+        //:     contained object that is not contained in 'K'.
+        //:
+        //:   3 Assert that the value of the modified object matches that of
+        //:     'K', and that allocations were as expected. (C-1,3)
+        //:
+        //: 7 In a for loop:
+        //:
+        //:   1 Create a 'JsonObject' object that requires one contained object
+        //:     to be added to evaluate equal to 'K'.
+        //:
+        //:   2 Using a switch statement, apply one of each of the manipulators
+        //:     that serve to add objects to the container, add the object that
+        //:     is contained in 'K'.
+        //:
+        //:   3 Assert that the value of the modified object matches that of
+        //:     'K', and that allocations were as expected. (C-1,3)
+        //:
+        //: 8 Create a 'JsonObject' object that contains some elements.  Invoke
+        //:   'clear' on that object, and assert that the object evaluates
+        //:    equal to a default constructed object.  (C-4)
+        //:
+        //: 9 Use the test allocator from P-1 to verify that no memory is ever
+        //:   allocated from the default allocator. (C-5)
+        //
+        // Testing:
+        //   JsonObject(initializer_list<Member> members, *a);
+        //   JsonObject::operator=(initializer_list<Member> members);
+        //   Iterator JsonObject::begin();
+        //   Iterator JsonObject::end();
+        //   pair<Iterator, bool> JsonObject::insert(const Member& m);
+        //   pair<Iterator, bool> JsonObject::insert(MovableRef<Member> m);
+        //   void JsonObject::insert(INPUT_ITER first, INPUT_ITER last);
+        //   void JsonObject::insert(initializer_list<Member> members);
+        //   pair<Iterator, bool> JsonObject::insert(string_view key, V&& v);
+        //   void JsonObject::clear();
+        //   Iterator JsonObject::erase(Iterator position);
+        //   Iterator JsonObject::erase(ConstIterator position);
+        //   bsl::size_t JsonObject::erase(const bsl::string_view& key);
+        //   Iterator JsonObject::find(const bsl::string_view& key);
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << "\n" "JSONOBJECT MANIPULATORS" "\n"
+                                  "=======================" "\n";
+
+        {
+            Json& (JsonObject::*funcPtr)(const bsl::string_view&) =
+                &Obj::operator[];
+            (void) funcPtr;
+        }
+        {
+            typedef JsonObject::Iterator (JsonObject::*FuncPtr)();
+            FuncPtr funcPtr;
+            funcPtr = &Obj::begin;
+            funcPtr = &Obj::end;
+            (void) funcPtr;
+        }
+        {
+            typedef bsl::pair<JsonObject::Iterator, bool>
+                (JsonObject::*FuncPtr)(const JsonObject::Member&);
+
+            FuncPtr funcPtr = &JsonObject::insert;
+            (void) funcPtr;
+        }
+        {
+            typedef bsl::pair<JsonObject::Iterator, bool>
+                (JsonObject::*FuncPtr)(bslmf::MovableRef<JsonObject::Member>);
+
+            FuncPtr funcPtr = &JsonObject::insert;
+            (void) funcPtr;
+        }
+        {
+            typedef void (JsonObject::*FuncPtr)();
+            FuncPtr funcPtr = &JsonObject::clear;
+            (void) funcPtr;
+        }
+        {
+            typedef JsonObject::Iterator
+                (JsonObject::*FuncPtr)(JsonObject::Iterator);
+
+            FuncPtr funcPtr = &JsonObject::erase;
+            (void) funcPtr;
+        }
+        {
+            typedef JsonObject::Iterator
+                (JsonObject::*FuncPtr)(JsonObject::ConstIterator);
+
+            FuncPtr funcPtr = &JsonObject::erase;
+            (void) funcPtr;
+        }
+        {
+            typedef bsl::size_t
+                (JsonObject::*FuncPtr)(const bsl::string_view&);
+
+            FuncPtr funcPtr = &JsonObject::erase;
+            (void) funcPtr;
+        }
+        {
+            typedef JsonObject::Iterator
+                (JsonObject::*FuncPtr)(const bsl::string_view&);
+
+            FuncPtr funcPtr = &JsonObject::find;
+            (void) funcPtr;
+        }
+
+        bslma::TestAllocator         ka("constant", veryVeryVeryVerbose);
+        bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        const Json             GOOD(true);
+        const Json             BAD(false);
+        const bsl::string      KEY = "bool";
+
+        const Obj::Member GOOD_MEMBER(KEY, GOOD);
+        const Obj         K(&GOOD_MEMBER, &GOOD_MEMBER + 1, &ka);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            const Obj X({{KEY, Json(true)}}, &sa);
+
+            ASSERTV(K, X, K == X);
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(sa.numBlocksTotal(), 0 <  sa.numBlocksTotal());
+        }
+#endif
+
+        for (char cfg = 'a'; cfg <= 'e'; ++cfg) {
+            const char CONFIG = cfg;
+
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            const Obj::Member TO_BE_CORRECTED(KEY, BAD);
+
+            Obj        mX(&TO_BE_CORRECTED, &TO_BE_CORRECTED + 1, &sa);
+            const Obj& X = mX;
+
+            switch (CONFIG) {
+              case 'a': {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+                if (veryVerbose) cout <<
+                                       "operator=(initializer_list<Json> l)\n";
+                Obj& r = (mX = {{KEY, GOOD}});
+                ASSERT(&r == &mX);
+#else
+                if (veryVerbose) cout << "init list assignment elided.\n";
+                continue;
+#endif
+              } break;
+              case 'b': {
+                if (veryVerbose) cout << "Json& operator[](string_view k);\n";
+                mX[KEY] = GOOD;
+              } break;
+              case 'c': {
+                if (veryVerbose) cout << "Iterator begin();\n";
+                mX.begin()->second = GOOD;
+              } break;
+              case 'd': {
+                if (veryVerbose) cout << "Iterator end();\n";
+                JsonObject::Iterator iter = mX.begin();
+                iter->second = GOOD;
+                ++iter;
+                ASSERT(mX.end() == iter);
+              } break;
+              case 'e': {
+                if (veryVerbose) cout <<
+                                     "Iter find(const bsl::string_view& k);\n";
+                mX.find(KEY)->second = GOOD;
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(!"Bad test case config.");
+              } break;
+            }
+            ASSERTV(CONFIG, K, X, K == X);
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+        for (char cfg = 'f'; cfg <= 'h'; ++cfg) {
+            const char CONFIG = cfg;
+
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            const bsl::string      KEY_TO_REMOVE = "bool to remove";
+
+            const Obj::Member ARRAY[2] = { Obj::Member(KEY, GOOD),
+                                           Obj::Member(KEY_TO_REMOVE, BAD)};
+
+            Obj mX(ARRAY, ARRAY + 2, &sa);  const Obj& X = mX;
+
+            switch (CONFIG) {
+              case 'f': {
+                if (veryVerbose) cout << "Iter erase(Iter p);\n";
+                const Obj::Iterator iter = mX.find(KEY_TO_REMOVE);
+                const Obj::Iterator next = ++Obj::Iterator(iter);
+                const Obj::Iterator r    = mX.erase(iter);
+                ASSERT(next == r);
+              } break;
+              case 'g': {
+                if (veryVerbose) cout << "Iter erase(ConstIter p);\n";
+                const Obj::ConstIterator iter = mX.find(KEY_TO_REMOVE);
+                const Obj::ConstIterator next = ++Obj::ConstIterator(iter);
+                const Obj::Iterator      r    = mX.erase(iter);
+                ASSERT(next == r);
+              } break;
+              case 'h': {
+                if (veryVerbose) cout <<
+                                    "Iter erase(const bsl::string_view& i);\n";
+                const bsl::size_t r = mX.erase(KEY_TO_REMOVE);
+                ASSERT(r);
+                const bsl::size_t r2 = mX.erase(KEY_TO_REMOVE);
+                ASSERT(!r2);
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(!"Bad test case config.");
+              } break;
+            }
+            ASSERTV(CONFIG, K, X, K == X);
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+        for (char cfg = 'i'; cfg <= 'n'; ++cfg) {
+            const char        CONFIG = cfg;
+
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            Obj mX(&sa);  const Obj& X = mX;
+
+            bool elided = false;
+
+            switch (CONFIG) {
+              case 'i': {
+                if (veryVerbose) cout << "Json& operator[](string_view i);\n";
+                mX[KEY] = GOOD;
+              } break;
+              case 'j': {
+                if (veryVerbose) cout <<
+                                 "pair<Iter, bool> insert(const Member& m);\n";
+                const Obj::IteratorAndStatus r = mX.insert(GOOD_MEMBER);
+                ASSERT(r.first == mX.begin());
+                ASSERT(r.second == true);
+
+                const Obj::IteratorAndStatus r2 = mX.insert(GOOD_MEMBER);
+                ASSERT(r2.first == mX.begin());
+                ASSERT(r2.second == false);
+              } break;
+              case 'k': {
+                if (veryVerbose) cout <<
+                    "pair<Iter, bool> MovableRef<Member> m);\n";
+                Obj::Member                  moveFrom(GOOD_MEMBER);
+                const Obj::IteratorAndStatus r = mX.insert(
+                    bslmf::MovableRefUtil::move(moveFrom));
+                ASSERT(r.first == mX.begin());
+                ASSERT(true == r.second);
+
+                Obj::Member                  moveFrom2(GOOD_MEMBER);
+                const Obj::IteratorAndStatus r2 = mX.insert(
+                    bslmf::MovableRefUtil::move(moveFrom2));
+                ASSERT(r2.first == mX.begin());
+                ASSERT(false == r2.second);
+              } break;
+              case 'l': {
+                if (veryVerbose) cout << "void insert(Iter f, Iter l);\n";
+                mX.insert(&GOOD_MEMBER, &GOOD_MEMBER + 1);
+              } break;
+              case 'm': {
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+                if (veryVerbose) cout <<
+                                    "void insert(initializer_list<Member> m);";
+                mX.insert({{KEY, GOOD}});
+#else
+                if (veryVerbose) cout << "init list insertion elided.\n";
+                elided = true;
+#endif
+              } break;
+              case 'n': {
+                if (veryVerbose) cout <<
+                          "pair<Iter, bool> insert(string_view k, VALUE v);\n";
+                const Obj::IteratorAndStatus r = mX.insert(KEY, GOOD);
+                ASSERT(mX.begin() == r.first);
+                ASSERT(true == r.second);
+
+                const Obj::IteratorAndStatus r2 = mX.insert(KEY, GOOD);
+                ASSERT(mX.begin() == r2.first);
+                ASSERT(false == r2.second);
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(!"Bad test case config.");
+              } break;
+            }
+            ASSERTV(CONFIG, K, X, elided, (K == X) || elided);
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+        {
+            bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
+
+            Obj mX(&GOOD_MEMBER, &GOOD_MEMBER + 1, &sa); const Obj& X = mX;
+
+            const Obj EMPTY;
+
+            if (veryVerbose) cout << "clear();\n";
+            mX.clear();
+
+            ASSERT(EMPTY == X);
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+        {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            TemplatedJsonObjectInsertionTest<const char *>()("const char*",
+                                                             &oa);
+
+            TemplatedJsonObjectInsertionTest<bsl::string_view>()("string_view",
+                                                                 &oa);
+
+            TemplatedJsonObjectInsertionTest<int>()(0, &oa);
+            TemplatedJsonObjectInsertionTest<unsigned int>()(1, &oa);
+            TemplatedJsonObjectInsertionTest<double>()(2.0, &oa);
+            TemplatedJsonObjectInsertionTest<float>()(3.0, &oa);
+            TemplatedJsonObjectInsertionTest<bool>()(true, &oa);
+
+            TemplatedJsonObjectInsertionTest<bsl::string>()(
+                                           bsl::string(LONG_STRING, &oa), &oa);
+
+            TemplatedJsonObjectInsertionTest<Json>()(Json(LONG_STRING, &oa),
+                                                     &oa);
+
+            TemplatedJsonObjectInsertionTest<Json>()(
+                             Json(JsonNumber(INT_LONG_STRING, &oa), &oa), &oa);
+
+            TemplatedJsonObjectInsertionTest<Json>()(Json(true, &oa), &oa);
+        }
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT BSLX STREAMING
+        //   Ensure that we can serialize the value of any object of the class,
+        //   and then deserialize that value back into any object of the class.
+        //
+        // Concerns:
+        //: 1 N/A
+        //
+        // Plan:
+        //: 1 N/A
+        //
+        // Testing:
+        //   Reserved for 'bslx' streaming.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "JSONOBJECT BSLX STREAMING" << endl
+                          << "=========================" << endl;
+
+        if (verbose) cout << "Not yet implemented." << endl;
+
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT MOVE-ASSIGNMENT OPERATOR
+        //   Ensure that we can move the value of any object of the class to
+        //   any object of the class, such that the target object subsequently
+        //   has the source value, and there are no additional allocations if
+        //   only one allocator is being used, and the source object is
+        //   unchanged if allocators are different.
+        //
+        // Concerns:
+        //: 1 The move assignment operator can change the value of any
+        //:   modifiable target object to that of any source object.
+        //:
+        //: 2 The allocator used by the target object is unchanged.
+        //:
+        //: 3 Any memory allocation is from the target object's allocator.
+        //:
+        //: 4 The signature and return type are standard.
+        //:
+        //: 5 The reference returned is to the target object (i.e., '*this').
+        //:
+        //: 6 If the allocators are different, the value of the source object
+        //:   is not modified.
+        //:
+        //: 7 If the allocators are the same, no new allocations happen when
+        //:   the move assignment happens.
+        //:
+        //: 8 The allocator used by the source object is unchanged.
+        //:
+        //: 9 Any memory allocation is exception neutral.
+        //:
+        //:10 Assigning an object to itself behaves as expected (alias-safety).
+        //:
+        //:11 Every object releases any allocated memory at destruction.
+        //
+        // Plan:
+        //: 1 Use the address of 'operator=' to initialize a member-function
+        //:   pointer having the appropriate signature and return type for the
+        //:   copy-assignment operator defined in this component.  (C-4)
+        //:
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).  Create a separate
+        //:   'bslma::TestAllocator' object for arrays needed to initialize
+        //:   objects under test.
+        //:
+        //: 3 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of three different Json types, including values that
+        //:     should require allocation where applicable.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
+        //:   the table described in P-3:  (C-1..3, 5-6,8-11)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:
+        //:   2 Execute an inner loop that iterates over each row 'R2'
+        //:     (representing a distinct object value, 'W') in the table
+        //:     described in P-3:
+        //:
+        //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
+        //:
+        //:     1 Create a 'bslma::TestAllocator' objects 's1'.
+        //:
+        //:     2 Use the value constructor and 's1' to create a modifiable
+        //:       'Obj', 'mF', having the value 'V'.
+        //:
+        //:     3 Use the value constructor and 's1' to create a modifiable
+        //:       'Obj', 'mX', having the value 'W'.
+        //:
+        //:     4 Move-assign 'mX' from 'bslmf::MovableRefUtil::move(mF)'.
+        //:
+        //:     5 Verify that the address of the return value is the same as
+        //:       that of 'mX'.  (C-5)
+        //:
+        //:     6 Use the equality-comparison operator to verify that the
+        //:       target object, 'mX', now has the same value as that of 'Z'.
+        //:
+        //:     7 Use the 'allocator' accessor of both 'mX' and 'mF' to verify
+        //:       that the respective allocators used by the target and source
+        //:       objects are unchanged.  (C-2, 7)
+        //:
+        //:     8 Use the appropriate test allocators to verify that no new
+        //:       allocations were made by the move assignment operation.
+        //:
+        //:   4 For each of the iterations (P-4.2):  (C-1..2, 5, 7-9, 11)
+        //:
+        //:     1 Create two 'bslma::TestAllocator' objects 's1' and 's2'.
+        //:
+        //:     2 Use the value constructor and 's1' to create a modifiable
+        //:       'Obj', 'mF', having the value 'V'.
+        //:
+        //:     3 Use the value constructor and 's2' to create a modifiable
+        //:       'Obj', 'mX', having the value 'W'.
+        //:
+        //:     4 Move-assign 'mX' from 'bslmf::MovableRefUtil::move(mF)'.
+        //:
+        //:     5 Verify that the address of the return value is the same as
+        //:       that of 'mX'.  (C-5)
+        //:
+        //:     6 Use the equality-comparison operator to verify that the
+        //:       target object, 'mX', now has the same value as that of 'Z'.
+        //:
+        //:     7 Use the equality-comparison operator to verify that the
+        //:       source object, 'mF', now has the same value as that of 'Z'.
+        //:
+        //:     8 Use the 'allocator' accessor of both 'mX' and 'mF' to verify
+        //:       that the respective allocators used by the target and source
+        //:       objects are unchanged.  (C-2, 7)
+        //:
+        //: 5 Repeat steps similar to those described in P-2 except that, this
+        //:   time, there is no inner loop (as in P-4.2); instead, the source
+        //:   object, 'Z', is a reference to the target object, 'mX', and both
+        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
+        //:   row (representing a distinct object value, 'V') in the table
+        //:   described in P-3:  (C-10)
+        //:
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
+        //:     'mX'; also use the value constructor and a distinct "scratch"
+        //:     allocator to create a 'const' 'Obj' 'ZZ'.
+        //:
+        //:   3 Let 'Z' be a  reference to 'mX'.
+        //:
+        //:   4 Assign 'mX' from 'bslmf::MovableRefUtil::move(Z)'.
+        //:
+        //:   5 Verify that the address of the return value is the same as that
+        //:     of 'mX'.
+        //:
+        //:   6 Use the equality-comparison operator to verify that the
+        //:     target object, 'Z', still has the same value as that of 'ZZ'.
+        //:     (C-10)
+        //:
+        //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still
+        //:     the object allocator.
+        //:
+        //:   8 Use the appropriate test allocators to verify that:
+        //:
+        //:     1 Any memory that is allocated is from the object allocator.
+        //:
+        //:     2 No additional (e.g., temporary) object memory is allocated
+        //:       when assigning an object value that did NOT initially require
+        //:       allocated memory.
+        //:
+        //:     3 All object memory is released when the object is destroyed.
+        //:
+        //: 6 Use the test allocator from P-2 to verify that no memory is ever
+        //:   allocated from the default allocator.  (C-3)
+        //
+        // Testing:
+        //   JsonObject::operator=(MovableRef<JsonObject> rhs);
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << endl
+                          << "JSONOBJECT MOVE-ASSIGNMENT OPERATOR" << endl
+                          << "===================================" << endl;
+
+        if (verbose) cout <<
+                 "\nAssign the address of the operator to a variable." << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(bslmf::MovableRef<Obj>);
+
+            // Verify that the signature and return type are standard.
+
+            operatorPtr operatorAssignment = &Obj::operator=;
+
+            (void)operatorAssignment;  // quash potential compiler warning
+        }
+
+        if (verbose) cout <<
+            "\nCreate a test allocator and install it as the default." << endl;
+
+        bslma::TestAllocator         ia("initializer", veryVeryVeryVerbose);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                    // this test allocates
+                                                    // some object memory.
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE1   = DATA[ti].d_line;
+            const char         MEMSRC1 = DATA[ti].d_mem;
+            const bool         BOOL1     = DATA[ti].d_bool;
+            const char *const  NUMBER1   = DATA[ti].d_number_p;
+            const char *const  STRING1   = DATA[ti].d_string_p;
+
+            const JsonObject::Member ARRAY1[3] = {
+                JsonObject::Member(KEY0, Json(BOOL1, &ia), &ia),
+                JsonObject::Member(KEY1,
+                                   Json(JsonNumber(NUMBER1, &ia), &ia),
+                                   &ia),
+                JsonObject::Member(KEY2,
+                                   Json(bsl::string(STRING1, &ia), &ia),
+                                   &ia)};
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj Z (ARRAY1, ARRAY1 + 3, &scratch);
+            const Obj ZZ(ARRAY1, ARRAY1 + 3, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
+
+            // move assignment with the same allocator
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int          LINE2   = DATA[tj].d_line;
+                const bool         BOOL2     = DATA[tj].d_bool;
+                const char *const  NUMBER2   = DATA[tj].d_number_p;
+                const char *const  STRING2   = DATA[tj].d_string_p;
+
+                const JsonObject::Member ARRAY2[3] = {
+                    JsonObject::Member(KEY0, Json(BOOL2 , &ia), &ia),
+                    JsonObject::Member(KEY1,
+                                       Json(JsonNumber(NUMBER2 , &ia),
+                                       &ia), &ia),
+                    JsonObject::Member(KEY2,
+                                       Json(bsl::string(STRING2, &ia),
+                                       &ia), &ia)};
+
+                bslma::TestAllocator s1("scratch1", veryVeryVeryVerbose);
+
+                {
+                    // Test move assignment with same allocator.
+
+                    Obj mF(ARRAY1, ARRAY1 + 3, &s1); const Obj& F=mF;
+                    Obj mX(ARRAY2, ARRAY2 + 3, &s1); const Obj& X=mX;
+
+                    if (veryVerbose) { T_ P_(LINE2) P(F) P(X) }
+
+                    ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
+
+                    bslma::TestAllocatorMonitor s1m(&s1);
+
+                    Obj *mR = &(mX = bslmf::MovableRefUtil::move(mF));
+                    ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                    ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                    ASSERTV(LINE1, LINE2, s1m.isTotalSame());
+
+                    ASSERTV(LINE1, LINE2, &s1, X.allocator(),
+                            &s1 == X.allocator());
+                    ASSERTV(LINE1, LINE2, &s1, F.allocator(),
+                            &s1 == F.allocator());
+
+                    anyObjectMemoryAllocatedFlag |= !!s1.numBlocksInUse();
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, s1.numBlocksInUse(),
+                        0 == s1.numBlocksInUse());
+            }
+
+            // move assignment with different allocators
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2     = DATA[tj].d_line;
+                const char        MEMDST2   = DATA[tj].d_mem;
+                const bool        BOOL2     = DATA[tj].d_bool;
+                const char *const NUMBER2   = DATA[tj].d_number_p;
+                const char *const STRING2   = DATA[tj].d_string_p;
+
+                const Obj::Member ARRAY2[3] = {
+                    Obj::Member(KEY0, Json(BOOL2 , &ia), &ia),
+                    Obj::Member(KEY1,
+                                Json(JsonNumber(NUMBER2 , &ia) , &ia),
+                                &ia),
+                    Obj::Member(KEY2,
+                                Json(bsl::string(STRING2, &ia) , &ia),
+                                &ia)};
+
+                bslma::TestAllocator s1("scratch1", veryVeryVeryVerbose);
+                bslma::TestAllocator s2("scratch2", veryVeryVeryVerbose);
+
+                {
+                    // Test move assignment with different allocator
+
+                    Obj mF(ARRAY1, ARRAY1 + 3, &s1); const Obj& F=mF;
+                    Obj mX(ARRAY2, ARRAY2 + 3, &s2); const Obj& X=mX;
+
+                    if (veryVerbose) { T_ P_(LINE2) P(F) P(X) }
+
+                    ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
+
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(s2) {
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        Obj *mR = &(mX = bslmf::MovableRefUtil::move(mF));
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                        ASSERTV(LINE1, LINE2,  Z,   F,  Z == F);
+
+                        ASSERTV(LINE1, LINE2, &s2, X.allocator(),
+                               &s2 == X.allocator());
+                        ASSERTV(LINE1, LINE2, &s1, F.allocator(),
+                               &s1 == F.allocator());
+
+
+#ifdef BDE_BUILD_TARGET_EXC
+                        if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
+                            ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
+                        }
+#endif
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    anyObjectMemoryAllocatedFlag |= !!s1.numBlocksInUse();
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, s1.numBlocksInUse(),
+                        0 == s1.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, s2.numBlocksInUse(),
+                        0 == s2.numBlocksInUse());
+            }
+
+            // self-assignment
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj       mX(ARRAY1, ARRAY1 + 3, &oa);
+                const Obj ZZ(ARRAY1, ARRAY1 + 3, &scratch);
+
+                Obj& Z = mX;
+
+                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                Obj *mR = &(mX = bslmf::MovableRefUtil::move(Z));
+                ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
+                ASSERTV(LINE1, mR, &mX, mR == &mX);
+
+                ASSERTV(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
+
+                ASSERTV(LINE1, oam.isTotalSame());
+
+                ASSERTV(LINE1, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            }
+
+            // Verify all object memory is released on destruction.
+
+            ASSERTV(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+        }
+
+        // Double check that some object memory was allocated.
+
+        ASSERT(anyObjectMemoryAllocatedFlag);
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT COPY-ASSIGNMENT OPERATOR
+        //   Ensure that we can assign the value of any object of the class to
+        //   any object of the class, such that the two objects subsequently
+        //   have the same value.
+        //
+        // Concerns:
+        //: 1 The assignment operator can change the value of any modifiable
+        //:   target object to that of any source object.
+        //:
+        //: 2 The allocator used by the target object is unchanged.
+        //:
+        //: 3 Any memory allocation is from the target object's allocator.
+        //:
+        //: 4 The signature and return type are standard.
+        //:
+        //: 5 The reference returned is to the target object (i.e., '*this').
+        //:
+        //: 6 The value of the source object is not modified.
+        //:
+        //: 7 The allocator used by the source object is unchanged.
+        //:
+        //: 8 QoI: Assigning a source object having the default-constructed
+        //:   value allocates no memory.
+        //:
+        //: 9 Any memory allocation is exception neutral.
+        //:
+        //:10 Assigning an object to itself behaves as expected (alias-safety).
+        //:
+        //:11 Every object releases any allocated memory at destruction.
+        //
+        // Plan:
+        //: 1 Use the address of 'operator=' to initialize a member-function
+        //:   pointer having the appropriate signature and return type for the
+        //:   copy-assignment operator defined in this component.  (C-4)
+        //:
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).  Create a separate
+        //:   'bslma::TestAllocator' object for arrays needed to initialize
+        //:   objects under test.
+        //:
+        //: 3 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of three different Json types, including values that
+        //:     should require allocation where applicable.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
+        //:   the table described in P-3:  (C-1..2, 5..8, 11)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:
+        //:   2 Execute an inner loop that iterates over each row 'R2'
+        //:     (representing a distinct object value, 'W') in the table
+        //:     described in P-3:
+        //:
+        //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
+        //:
+        //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:     2 Use the value constructor and 'oa' to create a modifiable
+        //:       'Obj', 'mX', having the value 'W'.
+        //:
+        //:     3 Assign 'mX' from 'Z' in the presence of injected exceptions
+        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //:
+        //:     4 Verify that the address of the return value is the same as
+        //:       that of 'mX'.  (C-5)
+        //:
+        //:     5 Use the equality-comparison operator to verify that: (C-1, 6)
+        //:
+        //:       1 The target object, 'mX', now has the same value as that of
+        //:         'Z'.  (C-1)
+        //:
+        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-6)
+        //:
+        //:     6 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
+        //:       that the respective allocators used by the target and source
+        //:       objects are unchanged.  (C-2, 7)
+        //:
+        //:     7 Use the appropriate test allocators to verify that:
+        //:       (C-8, 11)
+        //:
+        //:       1 For an object that (a) is initialized with a value that did
+        //:         NOT require memory allocation, and (b) is then assigned a
+        //:         value that DID require memory allocation, the target object
+        //:         DOES allocate memory from its object allocator only
+        //:         (irrespective of the specific number of allocations or the
+        //:         total amount of memory allocated); also cross check with
+        //:         what is expected for 'mX' and 'Z'.
+        //:
+        //:       2 An object that is assigned a value that did NOT require
+        //:         memory allocation, does NOT allocate memory from its object
+        //:         allocator; also cross check with what is expected for 'Z'.
+        //:
+        //:       3 No additional memory is allocated by the source object.
+        //:         (C-8)
+        //:
+        //:       4 All object memory is released when the object is destroyed.
+        //:         (C-11)
+        //:
+        //: 5 Repeat steps similar to those described in P-2 except that, this
+        //:   time, there is no inner loop (as in P-4.2); instead, the source
+        //:   object, 'Z', is a reference to the target object, 'mX', and both
+        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
+        //:   row (representing a distinct object value, 'V') in the table
+        //:   described in P-3:  (C-9..10)
+        //:
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
+        //:     'mX'; also use the value constructor and a distinct "scratch"
+        //:     allocator to create a 'const' 'Obj' 'ZZ'.
+        //:
+        //:   3 Let 'Z' be a 'const' reference to 'mX'.
+        //:
+        //:   4 Assign 'mX' from 'Z' in the presence of injected exceptions
+        //:     (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //:     (C-9)
+        //:
+        //:   5 Verify that the address of the return value is the same as that
+        //:     of 'mX'.
+        //:
+        //:   6 Use the equality-comparison operator to verify that the
+        //:     target object, 'Z', still has the same value as that of 'ZZ'.
+        //:     (C-10)
+        //:
+        //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still
+        //:     the object allocator.
+        //:
+        //:   8 Use the appropriate test allocators to verify that:
+        //:
+        //:     1 Any memory that is allocated is from the object allocator.
+        //:
+        //:     2 No additional (e.g., temporary) object memory is allocated
+        //:       when assigning an object value that did NOT initially require
+        //:       allocated memory.
+        //:
+        //:     3 All object memory is released when the object is destroyed.
+        //:
+        //: 6 Use the test allocator from P-2 to verify that no memory is ever
+        //:   allocated from the default allocator.  (C-3)
+        //
+        // Testing:
+        //   JsonObject::operator=(const JsonObject& rhs);
+        //   CONCERN: All memory allocation is from the object's allocator.
+        //   CONCERN: All memory allocation is exception neutral.
+        //   CONCERN: Object value is independent of the object allocator.
+        //   CONCERN: There is no temporary allocation from any allocator.
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << endl
+                          << "JSONOBJECT COPY-ASSIGNMENT OPERATOR" << endl
+                          << "===================================" << endl;
+
+        if (verbose) cout <<
+                 "\nAssign the address of the operator to a variable." << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(const Obj&);
+
+            // Verify that the signature and return type are standard.
+
+            operatorPtr operatorAssignment = &Obj::operator=;
+
+            (void)operatorAssignment;  // quash potential compiler warning
+        }
+
+        if (verbose) cout <<
+            "\nCreate a test allocator and install it as the default." << endl;
+
+        bslma::TestAllocator         ia("initializer", veryVeryVeryVerbose);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                    // this test allocates
+                                                    // some object memory.
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE1   = DATA[ti].d_line;
+            const char         MEMSRC1 = DATA[ti].d_mem;
+            const bool         BOOL1     = DATA[ti].d_bool;
+            const char *const  NUMBER1   = DATA[ti].d_number_p;
+            const char *const  STRING1   = DATA[ti].d_string_p;
+
+            const JsonObject::Member ARRAY1[3] = {
+                JsonObject::Member(KEY0, Json(BOOL1, &ia), &ia),
+                JsonObject::Member(KEY1,
+                                   Json(JsonNumber(NUMBER1, &ia), &ia),
+                                   &ia),
+                JsonObject::Member(KEY2,
+                                   Json(bsl::string(STRING1, &ia), &ia),
+                                   &ia)};
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj Z (ARRAY1, ARRAY1 + 3, &scratch);
+            const Obj ZZ(ARRAY1, ARRAY1 + 3, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int          LINE2   = DATA[tj].d_line;
+                const char         MEMDST2 = DATA[tj].d_mem;
+                const bool         BOOL2     = DATA[tj].d_bool;
+                const char *const  NUMBER2   = DATA[tj].d_number_p;
+                const char *const  STRING2   = DATA[tj].d_string_p;
+
+                const JsonObject::Member ARRAY2[3] = {
+                    JsonObject::Member(KEY0, Json(BOOL2 , &ia), &ia),
+                    JsonObject::Member(KEY1,
+                                       Json(JsonNumber(NUMBER2, &ia),
+                                       &ia), &ia),
+                    JsonObject::Member(KEY2,
+                                       Json(bsl::string(STRING2, &ia),
+                                       &ia), &ia)};
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                {
+                    Obj mX(ARRAY2, ARRAY2 + 3, &oa);  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ P_(LINE2) P(X) }
+
+                    ASSERTV(LINE1, LINE2, Z, X, (Z == X) == (LINE1 == LINE2));
+
+                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        Obj *mR = &(mX = Z);
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                        if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
+                            ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
+                        }
+#endif
+
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
+
+                    ASSERTV(LINE1, LINE2, &oa, X.allocator(),
+                            &oa == X.allocator());
+                    ASSERTV(LINE1, LINE2, &scratch, Z.allocator(),
+                            &scratch == Z.allocator());
+
+                    // All objects within X should have allocator 'oa'
+                    ASSERTV(LINE1, LINE2, &oa, X[KEY0].allocator(),
+                            &oa == X[KEY0].allocator());
+                    ASSERTV(LINE1, LINE2, &oa, X[KEY1].allocator(),
+                            &oa == X[KEY1].allocator());
+                    ASSERTV(LINE1, LINE2, &oa, X[KEY2].allocator(),
+                            &oa == X[KEY2].allocator());
+
+                    // Record if some object memory was allocated.
+
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+
+                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
+
+                    ASSERTV(LINE1, LINE2, da.numBlocksTotal(),
+                            0 == da.numBlocksTotal());
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
+                        0 == oa.numBlocksInUse());
+            }
+
+            // self-assignment
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj       mX(ARRAY1, ARRAY1 + 3, &oa);
+                const Obj ZZ(ARRAY1, ARRAY1 + 3, &scratch);
+
+                const Obj& Z = mX;
+
+                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    Obj *mR = &(mX = Z);
+                    ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
+                    ASSERTV(LINE1, mR, &mX, mR == &mX);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
+
+                ASSERTV(LINE1, !oam.isInUseUp());
+
+                ASSERTV(LINE1, 0 == da.numBlocksTotal());
+            }
+
+            // Verify all object memory is released on destruction.
+
+            ASSERTV(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+        }
+
+        // Double check that some object memory was allocated.
+
+        ASSERT(anyObjectMemoryAllocatedFlag);
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT SWAP MEMBER AND FREE FUNCTIONS
+        //   Ensure that the free 'swap' function is implemented and can
+        //   exchange the values of any two objects.  Ensure that member
+        //   'swap' is implemented and can exchange the values of any two
+        //   objects that use the same allocator.
+        //
+        // Concerns:
+        //: 1 Both functions exchange the values of the (two) supplied objects.
+        //:
+        //: 2 The common object allocator used by both objects is unchanged.
+        //:
+        //: 3 The member function does not allocate memory from any allocator;
+        //:   nor does the free function when the two objects being swapped use
+        //:   the same allocator.
+        //:
+        //: 4 The free function can be called with two objects that use
+        //:   different allocators.
+        //:
+        //: 5 Both functions have standard signatures and return types.
+        //:
+        //: 6 Using either function to swap an object with itself does not
+        //:   affect the value of the object (alias-safety).
+        //:
+        //: 7 The free 'swap' function is discoverable through ADL (Argument
+        //:   Dependent Lookup).
+        //:
+        //: 8 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Use the addresses of the 'swap' member and free functions defined
+        //:   in this component to initialize, respectively, member-function
+        //:   and free-function pointers having the appropriate signatures and
+        //:   return types.  (C-5)
+        //:
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).  Provide another
+        //:   allocator for objects from which objects under test are
+        //:   initialized.
+        //:
+        //: 3 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of three different Json types, including values that
+        //:     should require allocation where applicable.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 4 For each row 'R1' in the table of P-3:  (C1..2, 6)
+        //:
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   2 Use the value constructor and 'oa' to create a modifiable
+        //:     'Obj', 'mW', having the value described by 'R1'; also use the
+        //:     copy constructor and a "scratch" allocator to create a 'const'
+        //:     'Obj' 'XX' from 'mW'.
+        //:
+        //:   3 Use the member and free 'swap' functions to swap the value of
+        //:     'mW' with itself; verify, after each swap, that:  (C-6)
+        //:
+        //:     1 The value is unchanged.  (C-6)
+        //:
+        //:     2 The allocator used by the object is unchanged.
+        //:
+        //:     3 There was no additional object memory allocation.
+        //:
+        //:   4 For each row 'R2' in the table of P-3:  (C-1..2)
+        //:
+        //:     1 Use the copy constructor and 'oa' to create a modifiable
+        //:       'Obj', 'mX', from 'XX' (P-4.2).
+        //:
+        //:     2 Use the value constructor and 'oa' to create a modifiable
+        //:       'Obj', 'mY', having the value described by 'R2'; also use
+        //:       the copy constructor to create, using a "scratch" allocator,
+        //:       a 'const' 'Obj', 'YY', from 'Y'.
+        //:
+        //:     3 Use, in turn, the member and free 'swap' functions to swap
+        //:       the values of 'mX' and 'mY'; verify, after each swap, that:
+        //:       (C-1..2)
+        //:
+        //:       1 The values have been exchanged.  (C-1)
+        //:
+        //:       2 The common object allocator used by 'mX' and 'mY'
+        //:         is unchanged in both objects.  (C-2)
+        //:
+        //:       3 There was no additional object memory allocation.
+        //:
+        //: 5 Verify that the free 'swap' function is discoverable through ADL:
+        //:   (C-7)
+        //:
+        //:   1 Create a set of contained values, 'A', choosing values that
+        //:     allocate memory.
+        //:
+        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   3 Use the default constructor and 'oa' to create a modifiable
+        //:     'Obj' 'mX' (containing no elements); also use the copy
+        //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
+        //:     'XX' from 'mX'.
+        //:
+        //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
+        //:     'mY' having the value described by the 'Ai' attributes; also
+        //:     use the copy constructor and a "scratch" allocator to create a
+        //:     'const' 'Obj' 'YY' from 'mY'.
+        //:
+        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
+        //:     values of 'mX' and 'mY', using the free 'swap' function defined
+        //:     in this component, then verify that:  (C-7)
+        //:
+        //:     1 The values have been exchanged.
+        //:
+        //:     2 There was no additional object memory allocation.  (C-7)
+        //:
+        //: 6 Use the test allocator from P-2 to verify that no memory was
+        //:   allocated from the default allocator.  (C-3)
+        //:
+        //: 7 Verify that free 'swap' exchanges the values of any two objects
+        //:   that use different allocators.  (C-4)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when, using the member 'swap' function, an attempt is
+        //:   made to swap objects that do not refer to the same allocator, but
+        //:   not when the allocators are the same (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
+        //
+        // Testing:
+        //   void JsonObject::swap(JsonObject& other);
+        //   void swap(JsonObject& a, b);
+        //   CONCERN: Precondition violations are detected when enabled.
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << endl
+                        << "JSONOBJECT SWAP MEMBER AND FREE FUNCTIONS" << endl
+                        << "=========================================" << endl;
+
+        if (verbose) cout <<
+                "\nAssign the address of each function to a variable." << endl;
+        {
+            typedef void (Obj::*funcPtr)(Obj&);
+            typedef void (*freeFuncPtr)(Obj&, Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     memberSwap = &Obj::swap;
+            freeFuncPtr freeSwap   = bsl::swap;
+
+            (void)memberSwap;  // quash potential compiler warnings
+            (void)freeSwap;
+        }
+
+        if (verbose) cout <<
+            "\nCreate a test allocator and install it as the default." << endl;
+
+        bslma::TestAllocator         ia("initializer", veryVeryVeryVerbose);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                    // this test allocates
+                                                    // some object memory.
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE1     = DATA[ti].d_line;
+            const bool         BOOL1     = DATA[ti].d_bool;
+            const char *const  NUMBER1   = DATA[ti].d_number_p;
+            const char *const  STRING1   = DATA[ti].d_string_p;
+
+            const bsl::pair<const bsl::string, Json> ARRAY1[3] = {
+                bsl::pair<const bsl::string, Json>(KEY0,
+                                                        Json(BOOL1, &ia), &ia),
+                bsl::pair<const bsl::string, Json>(
+                                                 KEY1,
+                                                 Json(JsonNumber(NUMBER1, &ia),
+                                                 &ia), &ia),
+                bsl::pair<const bsl::string, Json>(
+                                                KEY2,
+                                                Json(bsl::string(STRING1, &ia),
+                                                &ia), &ia)};
+
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            Obj       mW(ARRAY1, ARRAY1+3, &oa); const Obj& W = mW;
+            const Obj XX(W, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
+
+            // member 'swap'
+            {
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                mW.swap(mW);
+
+                ASSERTV(LINE1, XX, W, XX == W);
+                ASSERTV(LINE1, &oa == W.allocator());
+                ASSERTV(LINE1, oam.isTotalSame());
+            }
+
+            // free function 'swap'
+            {
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                swap(mW, mW);
+
+                ASSERTV(LINE1, XX, W, XX == W);
+                ASSERTV(LINE1, &oa == W.allocator());
+                ASSERTV(LINE1, oam.isTotalSame());
+            }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int          LINE2     = DATA[tj].d_line;
+                const bool         BOOL2     = DATA[tj].d_bool;
+                const char *const  NUMBER2   = DATA[tj].d_number_p;
+                const char *const  STRING2   = DATA[tj].d_string_p;
+
+                const bsl::pair<const bsl::string, Json> ARRAY2[3] = {
+                    bsl::pair<const bsl::string, Json>(KEYS[0],
+                                                       Json(BOOL2,
+                                                       &ia), &ia),
+                    bsl::pair<const bsl::string, Json>(
+                                                 KEYS[1],
+                                                 Json(JsonNumber(NUMBER2, &ia),
+                                                 &ia), &ia),
+                    bsl::pair<const bsl::string, Json>(
+                                                KEYS[2],
+                                                Json(bsl::string(STRING2, &ia),
+                                                &ia), &ia)};
+
+                Obj       mX(XX, &oa);                const Obj& X = mX;
+                Obj       mY(ARRAY2, ARRAY2+3, &oa);  const Obj& Y = mY;
+                const Obj YY(Y, &scratch);
+
+                if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
+
+                // member 'swap'
+                {
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    mX.swap(mY);
+
+                    ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                    ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                    ASSERTV(LINE1, LINE2, &oa == X.allocator());
+                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
+                }
+
+                // free function 'swap', same allocator
+                {
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    swap(mX, mY);
+
+                    ASSERTV(LINE1, LINE2, XX, X, XX == X);
+                    ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
+                    ASSERTV(LINE1, LINE2, &oa == X.allocator());
+                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
+                }
+            }
+
+            // Record if some object memory was allocated.
+
+            anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+        }
+
+        // Check that some memory was allocated.
+
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERT(anyObjectMemoryAllocatedFlag);
+
+        if (verbose) cout <<
+                "\nInvoke free 'swap' function in a context where ADL is used."
+                                                                       << endl;
+        {
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const JsonObject::Member ALLOCATING_DATA[] = {
+                bsl::pair<const bsl::string, Json>(
+                                KEY0,
+                                Json(bsl::string("a_" SUFFICIENTLY_LONG_STRING,
+                                                 &scratch),
+                                     &scratch),
+                                &scratch),
+                bsl::pair<const bsl::string, Json>(
+                                    KEY1,
+                                    Json(JsonNumber(INT_LONG_STRING, &scratch),
+                                    &scratch), &scratch)
+            };
+
+            Obj       mX(&oa);  const Obj& X = mX;
+            const Obj XX(X, &scratch);
+
+            Obj       mY(ALLOCATING_DATA, ALLOCATING_DATA + 2, &oa);
+            const Obj& Y = mY;
+            const Obj YY(Y, &scratch);
+
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            bslalg::SwapUtil::swap(&mX, &mY);
+
+            ASSERTV(YY, X, YY == X);
+            ASSERTV(XX, Y, XX == Y);
+            ASSERT(oam.isTotalSame());
+
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
+        }
+
+        // Verify no memory is allocated from the default allocator.
+
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        if (verbose) cout <<
+            "\nFree 'swap' function with different allocators." << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int                LINE1     = DATA[ti].d_line;
+            const bool               BOOL1     = DATA[ti].d_bool;
+            const char *const        NUMBER1   = DATA[ti].d_number_p;
+            const char *const        STRING1   = DATA[ti].d_string_p;
+            const JsonObject::Member ARRAY1[3] = {
+                JsonObject::Member(KEY0, Json(BOOL1)),
+                JsonObject::Member(KEY1, Json(JsonNumber(NUMBER1))),
+                JsonObject::Member(KEY2, Json(STRING1))};
+
+            bslma::TestAllocator oa     ("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator oa2    ("object2", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            Obj XX(ARRAY1, ARRAY1+3, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P(XX) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int                LINE2     = DATA[tj].d_line;
+                const bool               BOOL2     = DATA[tj].d_bool;
+                const char *const        NUMBER2   = DATA[tj].d_number_p;
+                const char *const        STRING2   = DATA[tj].d_string_p;
+                const JsonObject::Member ARRAY2[3] = {
+                    JsonObject::Member(KEY0, Json(BOOL2)),
+                    JsonObject::Member(KEY1, Json(JsonNumber(NUMBER2))),
+                    JsonObject::Member(KEY2, Json(STRING2))};
+
+                Obj       mX(XX, &oa);                 const Obj& X = mX;
+                Obj       mY(ARRAY2, ARRAY2+3, &oa2);  const Obj& Y = mY;
+                const Obj YY(Y, &scratch);
+
+                if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
+
+                // free function 'swap', different allocator
+                {
+                    swap(mX, mY);
+
+                    ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                    ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                    ASSERTV(LINE1, LINE2, &oa  == X.allocator());
+                    ASSERTV(LINE1, LINE2, &oa2 == Y.allocator());
+                }
+            }
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            if (verbose) cout << "\t'swap' member function" << endl;
+            {
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
+
+                Obj mA(&oa1);  Obj mB(&oa1);
+                Obj mZ(&oa2);
+
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mA.swap(mZ));
+            }
+        }
+#endif
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT MOVE CONSTRUCTOR
+        //   Ensure that we can create a distinct object of the class from any
+        //   other one, such that the new object has the original value.
+        //   Verify that if the same allocator is used there have been no new
+        //   allocations, and if a different allocator is used the source
+        //   object has the original value.
+        //
+        // Concerns:
+        //: 1 The move constructor (with or without a supplied allocator)
+        //:   creates an object having the same value as the original object
+        //:   started with.
+        //:
+        //: 2 If an allocator is NOT supplied, the allocator of the new object
+        //:   is the same as the original object, and no new allocations occur.
+        //:
+        //: 3 If an allocator is supplied that is the same as the original
+        //:   object, then no new allocations occur.
+        //:
+        //: 4 If an allocator is supplied that is different from the original
+        //:   object, then the original object's value remains unchanged.
+        //:
+        //: 5 Supplying a default-constructed allocator explicitly is the same
+        //:   as supplying the default allocator.
+        //:
+        //: 6 Any memory allocation is from the object allocator.
+        //:
+        //: 7 There is no temporary memory allocation from any allocator.
+        //:
+        //: 8 Every object releases any allocated memory at destruction.
+        //:
+        //: 9 The allocator used by the original object is unchanged.
+        //:
+        //:10 Any memory allocation is exception neutral.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of three different Json types, including values that
+        //:     should require allocation where applicable.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1: (C-1..9)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:
+        //:   2 Execute an inner loop that creates an object by
+        //:     move-constructing from a newly created object with value V,
+        //:     but invokes the move constructor differently in each
+        //:     iteration: (a) using the standard single-argument move
+        //:     constructor, (b) using the extended move constructor with a
+        //:     default-constructed allocator argument (to use the default
+        //:     allocator), (c) using the extended move constructor with the
+        //:     same allocator as the moved-from object, and (d) using the
+        //:     extended move constructor with a different allocator than the
+        //:     moved-from object.
+        //:
+        //: 3 For each of these iterations (P-2.2):
+        //:
+        //:   1 Create four 'bslma::TestAllocator' objects, and install one as
+        //:     the current default allocator (note that a ubiquitous test
+        //:     allocator is already installed as the global allocator).
+        //:
+        //:   2 Dynamically allocate another object 'F" using the 's1'
+        //:     allocator having the same value V, using a distinct allocator
+        //:     for the object's footprint.
+        //:
+        //:   3 Dynamically allocate an object 'X' using the appropriate move
+        //:     constructor to move from 'F', passing as a second argument
+        //:     (a) nothing, (b) 'allocator_type()', (c) '&s1', or (d)
+        //:     'allocator_type(&s2)'.
+        //:
+        //:   4 Record the allocator expected to be used by the new object and
+        //:     how much memory it used before the move constructor.
+        //:
+        //:   5 Verify that space for 2 objects is used in the footprint
+        //:     allocator
+        //:
+        //:   6 Verify that the moved-to object has the expected value 'V' by
+        //:     comparing to 'Z'.
+        //:
+        //:   7 If the allocators of 'F' and 'X' are different verify that the
+        //:     value of 'F' is still 'V'
+        //:
+        //:   8 If the allocators of 'F' and 'X' are the same, verify that no
+        //:     extra memory was used by the move constructor.
+        //:
+        //:   9 Verify that no memory was used by the move constructor as
+        //:     temporary memory, and no unused allocators have had any memory
+        //:     used.
+        //:
+        //:  10 Delete both dynamically allocated objects and verify that all
+        //:     temporary allocators have had all memory returned to them.
+        //:
+        //: 3 Test again, using the data of P-1, but this time just for the
+        //:   supplied allocator configuration (P-2.2c), and create the object
+        //:   as an automatic variable in the presence of injected exceptions
+        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  Do
+        //:   this by creating one object with one test allocator ('s1') and
+        //:   then using the move constructor with a separate test allocator
+        //:   that is injecting exceptions ('s2').
+        //:   (C-10)
+        //
+        // Testing:
+        //   JsonObject(MovableRef<JsonObject> o);
+        //   JsonObject(MovableRef<JsonObject> o, *a);
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << "\n" "JSONOBJECT MOVE CONSTRUCTOR" "\n"
+                                  "===========================" "\n";
+
+        if (verbose) cout <<
+          "\nUse a table of distrinct object values and expected memory usage."
+                                                                       << endl;
+
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        if (verbose) cout <<
+             "\nCreate objects with various allocator configurations." << endl;
+        {
+            bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                        // this test allocates
+                                                        // some object memory
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE     = DATA[ti].d_line;
+                const bool        BOOL     = DATA[ti].d_bool;
+                const char *const NUMBER   = DATA[ti].d_number_p;
+                const char *const STRING   = DATA[ti].d_string_p;
+
+                const bsl::pair<const bsl::string, Json> ARRAY[3] = {
+                    bsl::make_pair<const bsl::string, Json>(
+                        KEYS[0], Json(BOOL)),
+                    bsl::make_pair<const bsl::string, Json>(
+                        KEYS[1], Json(JsonNumber(NUMBER))),
+                    bsl::make_pair<const bsl::string, Json>(
+                        KEYS[2], Json(STRING))
+                };
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                const Obj Z (ARRAY, ARRAY+3, &scratch);
+                const Obj ZZ(ARRAY, ARRAY+3, &scratch);
+
+                if (veryVerbose) { T_ P_(Z) P(ZZ) }
+
+                for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                    const char CONFIG = cfg;
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator s1("supplied",  veryVeryVeryVerbose);
+                    bslma::TestAllocator s2("supplied2", veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj *fromPtr = new (fa) Obj(ARRAY, ARRAY+3, &s1);
+                    Obj& mF      = *fromPtr;  const Obj& F = mF;
+
+                    bsls::Types::Int64 s1Alloc = s1.numBytesInUse();
+
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        // normal move constructor
+                        objAllocatorPtr = &s1;
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF));
+                      } break;
+                      case 'b': {
+                        // allocator move constructor, default allocator
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF),
+                                              0);
+                      } break;
+                      case 'c': {
+                        // allocator move constructor, same allocator
+                        objAllocatorPtr = &s1;
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF),
+                                              objAllocatorPtr);
+                      } break;
+                      case 'd': {
+                        // allocator move constructor, unique allocator
+                        objAllocatorPtr = &s2;
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF),
+                                              objAllocatorPtr);
+                      } break;
+                      default: {
+                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                      } break;
+                    }
+                    ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(mF) P(X) }
+
+                    bslma::TestAllocator& oa = *objAllocatorPtr;
+
+                    // Verify the value of the object.
+
+                    ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
+
+                    if (objAllocatorPtr != F.allocator()) {
+                        // If the allocators are different, verify that the
+                        // value of 'fX' has not changed.
+
+                        ASSERTV(LINE, CONFIG, Z, F, Z == F);
+                    }
+                    else {
+                        // If the allocators are the same, verify that no new
+                        // bytes were allocated by moving.
+
+                        ASSERTV(LINE, CONFIG, s1Alloc, s1.numBytesInUse(),
+                                s1Alloc == s1.numBytesInUse());
+                    }
+
+                    // -------------------------------------------------------
+                    // Verify any attribute allocators are installed properly.
+                    // -------------------------------------------------------
+
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY0].allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY1].allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY2].allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &scratch == Z.allocator());
+
+                    // Verify no allocation from the non-object allocators.
+                    if (objAllocatorPtr != &da) {
+                        ASSERTV(LINE, CONFIG, da.numBlocksTotal(),
+                                0 == da.numBlocksTotal());
+                    }
+
+                    if (objAllocatorPtr != &s2) {
+                        ASSERTV(LINE, CONFIG, s2.numBlocksTotal(),
+                                0 == s2.numBlocksTotal());
+                    }
+
+                    // Verify no temporary allocations from the object
+                    // allocator.
+
+                    ASSERTV(LINE, CONFIG, oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+                    // Record if some object memory was allocated.
+
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+
+                    // Reclaim dynamically allocated objects under test.
+
+                    fa.deleteObject(fromPtr);
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, s1.numBlocksInUse(),
+                            0 == s1.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, s2.numBlocksInUse(),
+                            0 == s2.numBlocksInUse());
+                }  // end foreach configuration
+            }  // end foreach row
+
+            // Double check that some object memory was allocated.
+
+            ASSERT(anyObjectMemoryAllocatedFlag);
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const char         MEM      = DATA[ti].d_mem;
+                const bool         BOOL     = DATA[ti].d_bool;
+                const char *const  NUMBER   = DATA[ti].d_number_p;
+                const char *const  STRING   = DATA[ti].d_string_p;
+
+                const bsl::pair<const bsl::string, Json> ARRAY[3] =
+                {bsl::make_pair<const bsl::string, Json>(KEY0, Json(BOOL)),
+                 bsl::make_pair<const bsl::string, Json>(
+                                                     KEY1,
+                                                     Json(JsonNumber(NUMBER))),
+                 bsl::make_pair<const bsl::string, Json>(KEY2, Json(STRING))};
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator s1("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator s2("supplied2", veryVeryVeryVerbose);
+
+                const Obj Z (ARRAY, ARRAY+3, &scratch);
+
+                if (veryVerbose) { T_ P_(MEM) P(Z) }
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(s2) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    Obj from(ARRAY, ARRAY + 3, &s1);
+
+                    Obj obj(bslmf::MovableRefUtil::move(from), &s2);
+                    ASSERTV(LINE, Z, obj, Z == obj);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    if ('Y' == MEM) {
+                        ASSERTV(LINE, 0 < EXCEPTION_COUNT);
+                    }
+#endif
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            }
+        }
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT COPY CONSTRUCTOR
+        //   Ensure that we can create a distinct object of the class from any
+        //   other one, such that the two objects have the same value.
+        //
+        // Concerns:
+        //: 1 The copy constructor (with or without a supplied allocator)
+        //:   creates an object having the same value as that of the supplied
+        //:   original object.
+        //:
+        //: 2 If an allocator is NOT supplied to the copy constructor, the
+        //:   default allocator in effect at the time of construction becomes
+        //:   the object allocator for the resulting object (i.e., the
+        //:   allocator of the original object is never copied).
+        //:
+        //: 3 If an allocator IS supplied to the copy constructor, that
+        //:   allocator becomes the object allocator for the resulting object.
+        //:
+        //: 4 Supplying a default-constructed allocator has the same effect as
+        //:   not supplying an allocator.
+        //:
+        //: 5 Supplying an allocator to the copy constructor has no effect on
+        //:   subsequent object values.
+        //:
+        //: 6 Any memory allocation is from the object allocator.
+        //:
+        //: 7 There is no temporary memory allocation from any allocator.
+        //:
+        //: 8 Every object releases any allocated memory at destruction.
+        //:
+        //: 9 The original object is passed as a 'const' reference.
+        //:
+        //:10 The value of the original object is unchanged.
+        //:
+        //:11 The allocator used by the original object is unchanged.
+        //:
+        //:12 QoI: Copying an object having the default-constructed value
+        //:   allocates no memory.
+        //:
+        //:13 Any memory allocation is exception neutral.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of three different Json types, including values that
+        //:     should require allocation where applicable.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1: (C-1..12)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:
+        //:   2 Execute an inner loop that creates an object by
+        //:     copy-constructing from value 'Z' from P-2.1, but invokes the
+        //:     copy constructor differently in each iteration: (a) without
+        //:     passing an allocator, (b) passing a null pointer, and (c)
+        //:     passing the address of a test allocator distinct from the
+        //:     default.
+        //:
+        //:   3 For each of these iterations (P-2.2):  (C-1..12)
+        //:
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
+        //:       as the current default allocator (note that a ubiquitous test
+        //:       allocator is already installed as the global allocator).
+        //:
+        //:     2 Use the copy constructor to dynamically create an object 'X',
+        //:       with it's object allocator configured appropriately (see
+        //:       P-2.2), supplying it the 'const' object 'Z' (see P-2.1); use
+        //:       a distinct test allocator for the object's footprint.  (C-9)
+        //:
+        //:     3 Use the equality-comparison operator to verify that:
+        //:       (C-1, 5, 10)
+        //:
+        //:       1 The newly constructed object, 'X', has the same value as
+        //:         that of 'Z'.  (C-1, 5)
+        //:
+        //:       2 'Z' still has the same value as that of 'ZZ'  (C-10)
+        //:
+        //:     4 Use the 'allocator' accessor of each contained object to
+        //:       to ensure that its object allocator is properly installed;
+        //:       also use the 'allocator' accessor of 'X' to verify that its
+        //:       object allocator is properly installed, and use the
+        //:       'allocator' accessor of 'Z' to verify that the allocator that
+        //:       it uses is unchanged.
+        //:
+        //:     5 Use the appropriate test allocators to verify that:
+        //:       (C-2..4, 7..8, 12)
+        //:
+        //:       1 An object that IS expected to allocate memory does so from
+        //:         the object allocator only (irrespective of the specific
+        //:         number of allocations or the total amount of memory
+        //:         allocated)..  (C-2, 4)
+        //:
+        //:       2 An object that is expected NOT to allocate memory doesn't.
+        //:         (C-12)
+        //:
+        //:       3 If an allocator was supplied at construction (P-2.1c), the
+        //:         current default allocator doesn't allocate any memory.
+        //:         (C-3)
+        //:
+        //:       4 No temporary memory is allocated from the object allocator.
+        //:         (C-7)
+        //:
+        //:       5 All object memory is released when the object is destroyed.
+        //:         (C-8)
+        //:
+        //: 3 Test again, using the data of P-1, but this time just for the
+        //:   supplied allocator configuration (P-2.2c), and create the object
+        //:   as an automatic variable in teh presence of injected exceptions
+        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //:   (C-13)
+        //
+        // Testing:
+        //   JsonObject(const JsonObject& original, *a);
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << endl
+                          << "JSONOBJECT COPY CONSTRUCTOR" << endl
+                          << "===========================" << endl;
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        if (verbose) cout <<
+             "\nCreate objects with various allocator configurations." << endl;
+        {
+            bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                        // this test allocates
+                                                        // some object memory
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const char         MEM      = DATA[ti].d_mem;
+                const bool         BOOL     = DATA[ti].d_bool;
+                const char *const  NUMBER   = DATA[ti].d_number_p;
+                const char *const  STRING   = DATA[ti].d_string_p;
+
+                const bsl::pair<const bsl::string, Json> ARRAY[3] =
+                {bsl::make_pair<const bsl::string, Json>(KEY0, Json(BOOL)),
+                 bsl::make_pair<const bsl::string, Json>(
+                                                     KEY1,
+                                                     Json(JsonNumber(NUMBER))),
+                 bsl::make_pair<const bsl::string, Json>(KEY2, Json(STRING))};
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                const Obj Z (ARRAY, ARRAY+3, &scratch);
+                const Obj ZZ(ARRAY, ARRAY+3, &scratch);
+
+                if (veryVerbose) { T_ P_(Z) P(ZZ) }
+
+                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                    const char CONFIG = cfg;
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(Z);
+                      } break;
+                      case 'b': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(Z, 0);
+                      } break;
+                      case 'c': {
+                        objAllocatorPtr = &sa;
+                        objPtr = new (fa) Obj(Z, objAllocatorPtr);
+                      } break;
+                      default: {
+                        BSLS_ASSERT_OPT(!"Bad allocator config");
+                      } break;
+                    }
+                    ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
+
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
+
+                    // Verify the value of the object.
+
+                    ASSERTV(LINE, CONFIG, Z, X,  Z == X);
+
+                    // Verify that the value of 'Z' has not changed.
+
+                    ASSERTV(LINE, CONFIG, Z, X, ZZ == X);
+
+                    // Verify contained object allocators are installed
+                    // properly.
+
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY0].allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY1].allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY2].allocator());
+
+                    // Also invoke the object's 'allocator' accessor, as well
+                    // as that of 'Z'.
+
+                    ASSERTV(LINE, CONFIG, &oa, X.allocator(),
+                            &oa == X.allocator());
+
+                    ASSERTV(LINE, CONFIG, &scratch, Z.allocator(),
+                            &scratch == Z.allocator());
+
+                    // Verify no allocations from the non-object allocator.
+
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+
+                    ASSERTV(LINE, CONFIG,
+                            oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+                    // Verify expected ('Y'/'N') object-memory allocations in
+                    // addition to the one vector allocation.
+
+                    if ('?' != MEM) {
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                                ('N' == MEM) == (2 == oa.numBlocksInUse()));
+                    }
+
+                    // Record if some object memory was allocated.
+
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+
+                    // Reclaim dynamically allocated object under test.
+
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
+                }  // end foreach configuration
+            }  // end foreach row
+
+            // Double check that some object memory was allocated.
+
+            ASSERT(anyObjectMemoryAllocatedFlag);
+
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const char         MEM      = DATA[ti].d_mem;
+                const bool         BOOL     = DATA[ti].d_bool;
+                const char *const  NUMBER   = DATA[ti].d_number_p;
+                const char *const  STRING   = DATA[ti].d_string_p;
+
+                const bsl::pair<const bsl::string, Json> ARRAY[3] =
+                {bsl::make_pair<const bsl::string, Json>(KEY0, Json(BOOL)),
+                 bsl::make_pair<const bsl::string, Json>(
+                                                     KEY1,
+                                                     Json(JsonNumber(NUMBER))),
+                 bsl::make_pair<const bsl::string, Json>(KEY2, Json(STRING))};
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",      veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
+
+                const Obj Z (ARRAY, ARRAY+3, &scratch);
+                const Obj ZZ(ARRAY, ARRAY+3, &scratch);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExcpetionTestBody) }
+
+                    Obj obj(Z, &sa);
+                    ASSERTV(LINE, Z, obj, Z == obj);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    if ('Y' == MEM) {
+                        ASSERTV(LINE, 0 < EXCEPTION_COUNT);
+                    }
+#endif
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, ZZ, Z, ZZ == Z);
+                ASSERTV(LINE, &scratch, Z.allocator(),
+                        &scratch == Z.allocator());
+                ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+                ASSERTV(LINE, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+            }
+        }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT EQUALITY-COMPARISON OPERATORS
+        //   Ensure that '==' and '!=' are the operational definition of value.
+        //
+        // Concerns:
+        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
+        //:   their corresponding salient attributes respectively compares
+        //:   equal.
+        //:
+        //: 2 All salient attributes participate in the comparison.
+        //:
+        //: 3 No non-salient attributes (i.e., 'allocator') participate.
+        //:
+        //: 4 'true  == (X == X)'  (i.e., identity)
+        //:
+        //: 5 'false == (X != X)'  (i.e., identity)
+        //:
+        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
+        //:
+        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
+        //:
+        //: 8 'X != Y' if and only if '!(X == Y)'
+        //:
+        //: 9 Comparison is symmetric with respect to user-defined conversion
+        //:   (i.e., both comparison operators are free functions).
+        //:
+        //:10 Non-modifiable objects can be compared (i.e., 'const' objects and
+        //:   'const' references).
+        //:
+        //:11 No memory allocation occurs as a result of comparison (e.g., the
+        //:   arguments are not passed by value).
+        //:
+        //:12 The equality operator's signature and return type are standard.
+        //:
+        //:13 The inequality operator's signature and return type are standard.
+        //
+        // Plan:
+        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
+        //:   initialize function pointers having the appropriate signatures
+        //:   and return types for the two homogeneous, free equality-
+        //:   comparison operators defined in this component.
+        //:   (C-9..10, 12..13)
+        //:
+        //: 2 Create a 'bslma::TestAllocator' object and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).
+        //:
+        //: 3 Using the table-driven technique, specify a set of distinct
+        //:   object values (one per row) in terms of their individual contents
+        //:   such that for each of 3 distinct baseline contained objects,
+        //:   there exists a pair of rows that differ in only the object at
+        //:   that index.
+        //:
+        //: 4 For each of two configurations, 'a' and 'b': (C-1..3, 6..8)
+        //:
+        //:   1 Create two (object) allocators, 'oax' and 'oay'.
+        //:
+        //:   2 For each row 'R1' in teh table of P-3: (C1..8)
+        //:
+        //:     1 Create object 'x', using 'oax' allocator, having the value
+        //:       'R1', and use a 'const' reference 'X' to 'x' to verify the
+        //:       reflexive (anti-reflexive) property of equality (inequality)
+        //:       in the presence of aliasing.  (C-4..5)
+        //:
+        //:     2 For each row 'R2' in the table of P-3: (C-1..8)
+        //:
+        //:       1 Record, in 'EXP', whether or not distinct objects created
+        //:         from 'R1' and 'R2', respectively, are expected to have the
+        //:         same value.
+        //:
+        //:       2 Create an object 'y', using 'oax' in configuration 'a' and
+        //:         'oay' in configuration 'b', having the value 'R2'.  Create
+        //:         a 'const' reference to 'y' named 'Y'.
+        //:
+        //:       3 Verify the commutative property and expected return value
+        //:         for both '==' and '!=', while monitoring both 'oax' and
+        //:         'oay' to ensure that no object memory is ever allocated by
+        //:         either operator.  (C-1..3, 6..8)
+        //:
+        //: 5 Use the test allocator from P-2 to verify that no memory is ever
+        //:   allocated from the default allocator.  (C-11)
+        //
+        // Testing:
+        //   bool operator==(const bdljsn::JsonObject& lhs, rhs);
+        //   bool operator!=(const bdljsn::JsonObject& lhs, rhs);
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << "\n" "JSONOBJECT EQUALITY-COMPARISON OPERATORS"
+                             "\n" "========================================"
+                             "\n";
+
+        if (verbose) cout <<
+                 "\nAssign the address of each operator to a variable" << endl;
+        {
+            typedef bool (*operatorPtr)(const Obj&, const Obj&);
+
+            operatorPtr operatorEq = operator==;  (void) operatorEq;
+            operatorPtr operatorNe = operator!=;  (void) operatorNe;
+        }
+
+        if (verbose) cout <<
+            "\nCreate a test allocator and install it as the default." << endl;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout <<
+            "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
+                                                                       << endl;
+
+        const int EMPTY = 123456;
+
+        static const struct {
+            const int     d_line;                // source line number
+            const int     d_value1;
+            const int     d_value2;
+            const int     d_value3;
+            const int     d_value4;
+        } DATA[] = {
+        { L_,            1,     2,     3, EMPTY },         // baseline
+        { L_,            4,     2,     3, EMPTY },
+        { L_,            1,     4,     3, EMPTY },
+        { L_,            1,     2,     4, EMPTY },
+        { L_,            1,     2,     3,     4 },
+        { L_,            1,     2, EMPTY, EMPTY },
+        { L_,            1, EMPTY, EMPTY, EMPTY },
+
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) cout << "\nCompare every value with every value." << endl;
+
+        for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+            const char CONFIG = cfg;
+
+            // Create two distinct test allocators, 'oax' and 'oay'.
+
+            bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
+            bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
+
+            // Map allocators above to objects 'X' and 'Y' below.
+
+            bslma::TestAllocator& xa = oax;
+            bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE1  = DATA[ti].d_line;
+
+                Obj x(&xa);
+                if (EMPTY != DATA[ti].d_value1) {
+                    x.insert("first", Json(DATA[ti].d_value1));
+                }
+                if (EMPTY != DATA[ti].d_value2) {
+                    x.insert("second", Json(DATA[ti].d_value2));
+                }
+                if (EMPTY != DATA[ti].d_value3) {
+                    x.insert("third", Json(DATA[ti].d_value3));
+                }
+                if (EMPTY != DATA[ti].d_value4) {
+                    x.insert("fourth", Json(DATA[ti].d_value4));
+                }
+
+                const Obj&    X = x;
+
+                if (veryVerbose) { T_ T_ P_(LINE1) P_(X) }
+
+                // Ensure an object compares correctly with itself (alias
+                // test).
+                {
+                    ASSERTV(LINE1, X, X == X);
+                    ASSERTV(LINE1, X, !(X != X));
+                }
+
+                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                    const int LINE2 = DATA[tj].d_line;
+
+                    Obj y(&ya);
+
+                    if (EMPTY != DATA[tj].d_value1) {
+                        y.insert("first", Json(DATA[tj].d_value1));
+                    }
+                    if (EMPTY != DATA[tj].d_value2) {
+                        y.insert("second", Json(DATA[tj].d_value2));
+                    }
+                    if (EMPTY != DATA[tj].d_value3) {
+                        y.insert("third", Json(DATA[tj].d_value3));
+                    }
+                    if (EMPTY != DATA[tj].d_value4) {
+                        y.insert("fourth", Json(DATA[tj].d_value4));
+                    }
+                    const Obj& Y = y;
+
+                    if (veryVerbose) { T_ T_ P_(LINE2) P_(Y) }
+
+                    const bool EXP = (ti == tj);
+
+                    if (veryVerbose) {
+                        T_ T_ T_ P_(EXP) P_(CONFIG) P_(X) P_(Y) }
+
+                    // Verify value, commutativity, and no memory allocation
+
+                    bslma::TestAllocatorMonitor oaxm(&oax), oaym(&oay);
+
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, EXP == (X == Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, Y, X, EXP == (Y == X));
+
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, Y, X, !EXP == (Y != X));
+
+                    ASSERTV(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
+                    ASSERTV(LINE1, LINE2, CONFIG, oaym.isTotalSame());
+
+                    // Double check that some object memory was allocated.
+                    ASSERTV(LINE1, LINE2, CONFIG, 1 <= xa.numBlocksInUse());
+                    ASSERTV(LINE1, LINE2, CONFIG, 1 <= ya.numBlocksInUse());
+                }
+            }
+        }
+
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
+        //
+        // Concerns:
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'
+        //:
+        //: 4 The 'print' method signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values.
+        //:
+        //: 7 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        //
+        // Plan:
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4, 7)
+        //:
+        //: 2 Using the table-driven technique:  (C1..3, 5..6, 8)
+        //:
+        //:   1 Define a 'const' 'JsonObject' object containing a variety of
+        //:     'Json' objects.
+        //:
+        //:   2 Define fourteen carefully selected combinations of values for
+        //:     the two formatting parameters, along with the expected output.
+        //:
+        //:   3 For each row in the table defined in P-2.2: (C-1..3, 5..6, 8)
+        //:
+        //:     1 Supply the 'JsonObject' from P-2.1 and each pair of
+        //:       formatting parameters to 'print', omitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
+        //:       invoke the 'operator<<' instead.
+        //
+        // Testing
+        //   operator<<(ostream&, const JsonObject&);
+        //   ostream& JsonObject::print(os& s, int l = 0, int sPL = 4) const;
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << endl
+                          << "PRINT AND OUTPUT OPERATOR" << endl
+                          << "=========================" << endl;
+
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables." << endl;
+        {
+            using bsl::ostream;
+
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            funcPtr     printMember = &Obj::print;  (void) printMember;
+            operatorPtr operatorOp  = operator<<;   (void) operatorOp;
+        }
+
+        if (verbose) cout <<
+            "\nCreate a table of distinct value/format combinations." << endl;
+
+        JsonArray inner;
+        inner.pushBack(Json(2));
+        inner.pushBack(Json("inner"));
+
+        Obj mX;
+        mX.insert("null", Json());
+        mX.insert("string", Json("outer"));
+        mX.insert("number", Json(1));
+        mX.insert("array", Json(inner));
+
+        const Obj& X = mX;
+
+        static const struct {
+            int         d_line;
+            int         d_level;
+            int         d_spacesPerLevel;
+            const char *d_expected_p;
+        } DATA[] = {
+#define NL "\n"
+#define SP " "
+        { L_,  0,  0, "{"                                       NL
+                      "\"null\": null,"                         NL
+                      "\"string\": \"outer\","                  NL
+                      "\"number\": 1,"                          NL
+                      "\"array\": ["                            NL
+                      "2,"                                      NL
+                      "\"inner\""                               NL
+                      "]"                                       NL
+                      "}"                                       },
+        { L_,  0,  1, "{"                                       NL
+                      " \"null\": null,"                        NL
+                      " \"number\": 1,"                         NL
+                      " \"string\": \"outer\","                 NL
+                      " \"array\": ["                           NL
+                      "  2,"                                    NL
+                      "  \"inner\""                             NL
+                      " ]"                                      NL
+                      "}"                                       },
+
+        { L_,  0, -1, "{"
+                      "\"null\": null,"                         SP
+                      "\"number\": 1,"                          SP
+                      "\"string\": \"outer\","                  SP
+                      "\"array\": ["
+                      "2,"                                      SP
+                      "\"inner\""
+                      "]"
+                      "}"                                       },
+
+        { L_,  0, -8, "{"                                       NL
+                      "    \"null\": null,"                     NL
+                      "    \"number\": 1,"                      NL
+                      "    \"string\": \"outer\","              NL
+                      "    \"array\": ["                        NL
+                      "        2,"                              NL
+                      "        \"inner\""                       NL
+                      "    ]"                                   NL
+                      "}"                                       },
+
+        { L_,  3,  0, "{"                                       NL
+                      "\"null\": null,"                         NL
+                      "\"number\": 1,"                          NL
+                      "\"string\": \"outer\","                  NL
+                      "\"array\": ["                            NL
+                      "2,"                                      NL
+                      "\"inner\""                               NL
+                      "]"                                       NL
+                      "}"                                       },
+
+        { L_,  3,  2, "      {"                                 NL
+                      "        \"null\": null,"                 NL
+                      "        \"number\": 1,"                  NL
+                      "        \"string\": \"outer\","          NL
+                      "        \"array\": ["                    NL
+                      "          2,"                            NL
+                      "          \"inner\""                     NL
+                      "        ]"                               NL
+                      "      }"                                 },
+
+        { L_,  3, -2, "      {"
+                      "\"null\": null,"                         SP
+                      "\"number\": 1,"                          SP
+                      "\"string\": \"outer\","                  SP
+                      "\"array\": ["
+                      "2,"                                      SP
+                      "\"inner\""
+                      "]"
+                      "}"                                       },
+
+        { L_,  3, -8, "            {"                           NL
+                      "                \"null\": null,"         NL
+                      "                \"number\": 1,"          NL
+                      "                \"string\": \"outer\","  NL
+                      "                \"array\": ["            NL
+                      "                    2,"                  NL
+                      "                    \"inner\""           NL
+                      "                ]"                       NL
+                      "            }"                           },
+
+        { L_, -3,  0, "{"                                       NL
+                      "\"null\": null,"                         NL
+                      "\"number\": 1,"                          NL
+                      "\"string\": \"outer\","                  NL
+                      "\"array\": ["                            NL
+                      "2,"                                      NL
+                      "\"inner\""                               NL
+                      "]"                                       NL
+                      "}"                                       },
+
+        { L_, -3,  2, "{"                                       NL
+                      "        \"null\": null,"                 NL
+                      "        \"number\": 1,"                  NL
+                      "        \"string\": \"outer\","          NL
+                      "        \"array\": ["                    NL
+                      "          2,"                            NL
+                      "          \"inner\""                     NL
+                      "        ]"                               NL
+                      "      }"                                 },
+
+        { L_, -3, -2, "{"
+                      "\"null\": null,"                         SP
+                      "\"number\": 1,"                          SP
+                      "\"string\": \"outer\","                  SP
+                      "\"array\": ["
+                      "2,"                                      SP
+                      "\"inner\""
+                      "]"
+                      "}"                                       },
+
+        { L_, -3, -8, "{"                                       NL
+                      "                \"null\": null,"         NL
+                      "                \"number\": 1,"          NL
+                      "                \"string\": \"outer\","  NL
+                      "                \"array\": ["            NL
+                      "                    2,"                  NL
+                      "                    \"inner\""           NL
+                      "                ]"                       NL
+                      "            }"                           },
+
+        { L_, -8, -8, "{"                                       NL
+                      "    \"null\": null,"                     NL
+                      "    \"number\": 1,"                      NL
+                      "    \"string\": \"outer\","              NL
+                      "    \"array\": ["                        NL
+                      "        2,"                              NL
+                      "        \"inner\""                       NL
+                      "    ]"                                   NL
+                      "}"                                       },
+
+        { L_, -9, -9, "{"
+                      "\"null\": null,"                         SP
+                      "\"number\": 1,"                          SP
+                      "\"string\": \"outer\","                  SP
+                      "\"array\": ["
+                      "2,"                                      SP
+                      "\"inner\""
+                      "]"
+                      "}"                                       },
+#undef SP
+#undef NL
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        const ReorderExpectedJsonObjectString reorder(X);
+
+        if (verbose) cout << "\nTsting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE = DATA[ti].d_line;
+                const int         L    = DATA[ti].d_level;
+                const int         SPL  = DATA[ti].d_spacesPerLevel;
+                const char *const EXP  = DATA[ti].d_expected_p;
+
+                if (veryVerbose) { T_ P_(L) P_(SPL) }
+
+                if (veryVeryVerbose) {T_ T_ Q(EXPECTED) cout << EXP; }
+
+                bsl::ostringstream os;
+
+                if (-9 == L) {
+                    ASSERTV(LINE, -9 == SPL);
+
+                    ASSERTV(LINE, &os == &(os << X));
+
+                    if (veryVeryVerbose) {T_ T_ Q(operator<<) }
+                }
+                else {
+                    ASSERTV(LINE, -8 == SPL || -8 != L);
+
+                    if (-8 != SPL) {
+                        ASSERTV(LINE, &os == &X.print(os, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        ASSERTV(LINE, &os == &X.print(os, L));
+                    }
+                    else {
+                        ASSERTV(LINE, &os == &X.print(os));
+                    }
+                }
+
+                if (veryVeryVerbose) { P(os.str()) }
+
+                const bsl::string expected = reorder(EXP);
+                ASSERTV(LINE, expected, os.str(), expected == os.str());
+            }
+        }
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT BASIC ACCESSORS
+        //   Ensure each basic accessor properly provides access to contained
+        //   objects.
+        //
+        // Concerns:
+        //: 1 Each accessor returns the value of the corresponding contained
+        //:   object.
+        //:
+        //: 2 Each accessor method is declared 'const'.
+        //:
+        //: 3 No accessor allocates memory.
+        //:
+        //: 4 Accessors return a 'const' reference (because 'Json' objects can
+        //:   allocate).
+        //
+        // Plan:
+        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
+        //:   the current default allocator (note that a ubiquitous test
+        //:   allocator is already installed as the global allocator).
+        //:
+        //: 2 Use the default constructor with the allocator from P-1 that was
+        //:   not installed as default, to create an object.
+        //:
+        //: 3 Verify that each basic accessor, invoked on a 'const' reference
+        //:   to the object created in P-2, returns the expected value.  (C-2)
+        //:
+        //: 4 For each salient attribute (constributing to value): (C-1, 3..4)
+        //:   1 Use the primary manipulator (pushBack) to put three
+        //:     non-default, discriminable objects into the container.
+        //:
+        //:   2 Use all accessors to verify expected values.  (C-1)
+        //:
+        //:   3 Monitor the memory allocated from both the default and object
+        //:     allocators before and after calling the accessor; verify that
+        //:     there is no change in total memory allocation.  (C-3..4)
+        //
+        // Testing:
+        //   const Json& JsonObject::operator[](bsl::string_view& key) const;
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        const bool             D1 = false;
+        const int              D2 = 0;
+        const bsl::string_view D3;
+
+        const bool             A1 = true;
+        const int              A2 = 1;
+        const bsl::string_view A3 = LONG_STRING;
+
+        if (verbose) cout << endl
+                          << "JSONOBJECT BASIC ACCESSORS" << endl
+                          << "==========================" << endl;
+
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout << endl
+            << "Create an object, passing in the other allocator." << endl;
+
+        Obj mX(&oa);  const Obj& X = mX;
+
+        mX[KEY0] = Json(D1);
+        mX[KEY1] = Json(D2);
+        mX[KEY2] = Json(D3);
+
+        if (verbose) cout << endl
+            << "Verify all basic accessors report expected values." << endl;
+        {
+            if (verbose) cout << endl << "JsonObject::operator[]" << endl;
+            ASSERTV(X[KEY0].type(), X[KEY0].isBoolean());
+            ASSERTV(X[KEY0].theBoolean(), D1 == X[KEY0].theBoolean());
+
+            ASSERTV(X[KEY1].type(), X[KEY1].isNumber());
+            {
+                int value;
+                int status = X[KEY1].theNumber().asInt(&value);
+                ASSERTV(status, 0 == status);
+                ASSERTV(X[KEY1].theNumber(), D2 == value);
+            }
+
+            ASSERTV(X[KEY2].type(), X[KEY2].isString());
+            ASSERTV(X[KEY2].theString(), D3 == X[KEY2].theString());
+
+            if (verbose) cout << endl
+                << "Change data and verify expected values." << endl;
+
+            mX[KEY0] = A1;
+            mX[KEY1] = A2;
+            mX[KEY2] = A3;
+
+            if (verbose) cout << endl << "JsonObject::operator[]" << endl;
+            ASSERTV(X[KEY0].type(), X[KEY0].isBoolean());
+            ASSERTV(X[KEY0].theBoolean(), A1 == X[KEY0].theBoolean());
+
+            ASSERTV(X[KEY1].type(), X[KEY1].isNumber());
+            {
+                int value;
+                int status = X[KEY1].theNumber().asInt(&value);
+                ASSERTV(status, 0 == status);
+                ASSERTV(X[KEY1].theNumber(), A2 == value);
+            }
+
+            ASSERTV(X[KEY2].type(), X[KEY2].isString());
+            ASSERTV(X[KEY2].theString(), A3 == X[KEY2].theString());
+        }
+
+        // Double check that some object memory was allocated.
+
+        ASSERTV(oa.numBlocksTotal(), 1 <= oa.numBlocksTotal());
+
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT VALUE CTOR
+        //   Ensure that we can put an object into any initial state relevant
+        //   for thorough testing.
+        //
+        // Concerns:
+        //: 1 The value constructor (with or without a supplied allocator) can
+        //:   create an object having any value that does not violate the
+        //:   constructor's documented preconditions.
+        //:
+        //: 2 Any string arguments can be of type 'char *' or 'string'.
+        //:
+        //: 3 Any argument can be 'const'.
+        //:
+        //: 4 If an allocator is NOT supplied to the value constructor, the
+        //:   default allocator in effect at the time of construction becomes
+        //:   the object allocator for the resulting object.
+        //:
+        //: 5 If an allocator IS supplied to the value constructor, that
+        //:   allocator becomes the object allocator for the resulting object.
+        //:
+        //: 6 Supplying a default-constructed allocator has the same effect as
+        //:   not supplying al allocator.
+        //:
+        //: 7 Supplying an allocator to the value constructor has no effect
+        //:   on subsequent object values.
+        //:
+        //: 8 Any memory allocation is from the object allocator.
+        //:
+        //: 9 There is no temporary memory allocation from any allocator.
+        //:
+        //:10 Every object releases any allocated memory at destruction.
+        //:
+        //:11 QoI: Creating an object having the default-constructed value
+        //:   allocates no memory.
+        //:
+        //:12 Any memory allocation is exception neutral.
+        //:
+        //:13 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, (b) boundary values corresponding to every range
+        //:     of values that each individual attribute can independently
+        //:     attain, and (c) values that should require allocation from each
+        //:     individual attribute that can independently allocate memory.
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     'N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1: (C-1, 3..11)
+        //:
+        //:   1 Execute an inner loop that creates an object having value 'V',
+        //:     but invokes the constructor differently on each iteration: (a)
+        //:     without passing an allocator, (b) passing a
+        //:     default-constructed allocator explicitly (c) passing the
+        //:     address of a test allocator distinct from the default
+        //:     allocator, and (d) passing in an allocator constructed from
+        //:     the address of a test allocator distinct from the default.
+        //:
+        //:   2 For each of the iterations in P-2.1:  (C-1, 4..11)
+        //:
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
+        //:       as the current default allocator (note that a ubiquitous test
+        //:       allocator is already installed as the global allocator).
+        //:
+        //:     2 Use the value constructor to dynamically create an object
+        //:       having the value 'V', with its object allocator configured
+        //:       appropriately (see P-2.1), supplying all the arguments as
+        //:       'const' and representing any string arguments as 'char *';
+        //:       use a distinct test allocator for the object's footprint.
+        //:
+        //:     3 Use the (as yet unproven) salient attribute accessors to
+        //:       verify that all of the attributes of each object have their
+        //:       expected values.  (C-1, 7)
+        //:
+        //:     4 Use the 'allocator' accessor of each underlying attribute
+        //:       capable of allocating memory to ensure that its object
+        //:       allocator is properly installed; also invoke the (as yet
+        //:       unproven) 'allocator' accessor of the object under test.
+        //:       (C-8)
+        //:
+        //:     5 Use the appropriate test allocators to verify that:  (C-4..6,
+        //:       9..11)
+        //:
+        //:       1 An object that IS expected to allocate memory does so
+        //:         from the object allocator only (irrespective of the
+        //:         specific number of allocations or the total amount of
+        //:         memory allocated).  (C-4, 6)
+        //:
+        //:       2 An object that is expected NOT to allocate memory doesn't.
+        //:         (C-11)
+        //:
+        //:       3 If an allocator was supplied at construction (P-2.1c), the
+        //:         default allocator doesn't allocate any memory.  (C-5)
+        //:
+        //:       4 No temporary memory is allocated from the object allocator.
+        //:         (C-9)
+        //:
+        //:       5 All object memory is released when the object is destroyed.
+        //:         (C-10)
+        //:
+        //: 3 Repeat the steps in P-2 for the supplied allocator configuration
+        //:   (P-2.1c) on the data of P-1, but this time create the object as
+        //:   an automatic variable in the presence of injected exceptions
+        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros);
+        //:   represent any string arguments in terms of 'string' using a
+        //:   "scratch" allocator.  (C-2, 12)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-13)
+        //
+        // Testing:
+        //   JsonObject(INPUT_ITER first, INPUT_ITER last, *a);
+        //   CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
+        //   CONCERN: String arguments can be either 'char *' or 'string'.
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << "\n" "JSONOBJECT VALUE CTOR" "\n"
+                                  "=====================" "\n";
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        if (verbose) cout <<
+            "\nUse a table of distict object values and expected memory usage."
+                                                                       << endl;
+        {
+            bool anyObjectMemoryAllocatedFlag = false;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const char         MEM      = DATA[ti].d_mem;
+                const bool         BOOL     = DATA[ti].d_bool;
+                const char *const  NUMBER   = DATA[ti].d_number_p;
+                const char *const  STRING   = DATA[ti].d_string_p;
+
+                const bsl::pair<const bsl::string, Json> ARRAY[3] =
+                {bsl::make_pair<const bsl::string, Json>(KEY0, Json(BOOL)),
+                 bsl::make_pair<const bsl::string, Json>(
+                         KEY1, Json(JsonNumber(NUMBER))),
+                 bsl::make_pair<const bsl::string, Json>(KEY2, Json(STRING))};
+
+                if (veryVerbose) { T_ P_(MEM) P_(BOOL) P_(NUMBER) P_(STRING) }
+
+                ASSERTV(LINE, MEM, MEM && strchr("YN?", MEM));
+
+                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                    const char CONFIG = cfg;
+
+                    if (veryVerbose) { T_ T_ P(CONFIG) }
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj                  *objPtr          = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(ARRAY, ARRAY + 3);
+                      } break;
+                      case 'b': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(ARRAY, ARRAY + 3,
+                                              objAllocatorPtr);
+                      } break;
+                      case 'c': {
+                        objAllocatorPtr = &sa;
+                        objPtr = new (fa) Obj(ARRAY, ARRAY + 3,
+                                              objAllocatorPtr);
+                      } break;
+                      default: {
+                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                      } break;
+                    }
+
+                    ASSERTV(LINE, CONFIG,
+                            sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
+
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
+
+                    // -------------------------------------
+                    // Verify the object's attribute values.
+                    // -------------------------------------
+
+                    ASSERTV(LINE, CONFIG, X[KEY0].type(), X[KEY0].isBoolean());
+                    ASSERTV(LINE, CONFIG, BOOL, X[KEY0],
+                            BOOL == X[KEY0].theBoolean());
+                    ASSERTV(LINE, CONFIG, X[KEY1].type(), X[KEY1].isNumber());
+                    ASSERTV(LINE, CONFIG, NUMBER, X[KEY1],
+                            NUMBER == X[KEY1].theNumber().value());
+                    ASSERTV(LINE, CONFIG, X[KEY2].type(), X[KEY2].isString());
+                    ASSERTV(LINE, CONFIG, STRING, X[KEY2],
+                            STRING == X[KEY2].theString());
+
+                    // ------------------------------------------------------
+                    // Verify any attribute allocators are installed properly
+                    // ------------------------------------------------------
+
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY1].allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X[KEY2].allocator());
+                    ASSERTV(LINE, CONFIG, &oa == X.allocator());
+                    ASSERTV(CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+
+                    ASSERTV(LINE, CONFIG,
+                            oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+                    if ('?' != MEM) {
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                                ('N' == MEM) == (3 >= oa.numBlocksInUse()));
+                    }
+
+                    // Record if some object memory was allocated.
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+
+                    // Reclaim dynamically allocated object under test.
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
+                }  // end foreach configuration
+
+            }   // end foreach row
+
+            // Double check that some object memory was allocated.
+
+            ASSERT(anyObjectMemoryAllocatedFlag);
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const char         MEM      = DATA[ti].d_mem;
+                const bool         BOOL     = DATA[ti].d_bool;
+                const char *const  NUMBER   = DATA[ti].d_number_p;
+                const char *const  STRING   = DATA[ti].d_string_p;
+
+                const bsl::pair<const bsl::string, Json> ARRAY[3] =
+                {bsl::make_pair<const bsl::string, Json>(KEY0, Json(BOOL)),
+                 bsl::make_pair<const bsl::string, Json>(
+                                                     KEY1,
+                                                     Json(JsonNumber(NUMBER))),
+                 bsl::make_pair<const bsl::string, Json>(KEY2, Json(STRING))};
+
+                if (veryVerbose) { T_ P_(MEM) P_(BOOL) P_(NUMBER) P_(STRING) }
+
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    Obj obj(ARRAY, ARRAY + 3, &sa);
+                    ASSERTV(LINE, ti, obj[KEY0].type(), obj[KEY0].isBoolean());
+                    ASSERTV(LINE, ti, BOOL, obj[KEY0],
+                            BOOL == obj[KEY0].theBoolean());
+                    ASSERTV(LINE, ti, obj[KEY1].type(), obj[KEY1].isNumber());
+                    ASSERTV(LINE, ti, NUMBER, obj[KEY1],
+                            NUMBER == obj[KEY1].theNumber().value());
+                    ASSERTV(LINE, ti, obj[KEY2].type(), obj[KEY2].isString());
+                    ASSERTV(LINE, ti, STRING, obj[KEY2],
+                            STRING == obj[KEY2].theString());
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    if ('Y' == MEM) {
+                        ASSERTV(LINE, 0 < EXCEPTION_COUNT);
+                    }
+#endif
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, sa.numBlocksInUse(),
+                        0 == sa.numBlocksInUse());
+            }
+        }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // JSONOBJECT DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
+        //   Ensure that we can use the default constructor of JsonObject to
+        //   create an object (having the default constructed value), use the
+        //   primary manipulators to put that object into any state relevant
+        //   for thorough testing, and use the destructor to destroy it safely.
+        //
+        // Concerns:
+        //: 1 An object created with the default constructor (with or without a
+        //:   supplied allocator) has the contractually specified default
+        //:   value.
+        //:
+        //: 2 If an allocator is NOT supplied to the default constructor, the
+        //:   default allocator in effect at the time of construction becomes
+        //:   the object allocator for the resulting object.
+        //:
+        //: 3 If an allocator IS supplied to the default constructor, that
+        //:   allocator becomes the object allocator for the resulting object.
+        //:
+        //: 4 Supplying a default-constructed allocator has the same effect as
+        //:   not supplying an allocator.
+        //:
+        //: 5 Supplying an allocator to the default constructor has no effect
+        //:   on subsequent object values.
+        //:
+        //: 6 Any memory allocation is from the object allocator.
+        //:
+        //: 7 There is no temporary allocation from any allocator.
+        //:
+        //: 8 Every object releases any allocated memory at destruction.
+        //:
+        //: 9 QoI: The default constructor allocates no memory.
+        //:
+        //:10 Each attribute is modifiable independently.
+        //:
+        //:11 Each attribute can be set to represent any value that does not
+        //:   violate that attribute's documented constraints.
+        //:
+        //:12 Any string arguments can be of type 'char *' or 'string'.
+        //:
+        //:13 Any arguments can be 'const'.
+        //:
+        //:14 Any memory allocation is exception neutral.
+        //:
+        //:15 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create three sets of attribute values for the object: ('D')
+        //:   values corresponding to the default-constructed object, ('A')
+        //:   values that allocate memory if possible, and ('B') other values
+        //:   that do not cause additional memory allocation beyond that which
+        //:   may be incurred by 'A'.  Both the 'A' and 'B' attribute values
+        //:   should be chosen to be boundary values where possible.  If an
+        //:   attribute can be supplied via alternate C++ types (e.g., 'string'
+        //:   instead of 'char *'), use the alternate type for 'B'.
+        //:
+        //: 2 Execute an inner loop that creates an object by
+        //:   default-construction, but invokes the default constructor
+        //:   differently in each iteration: (a) without passing an allocator,
+        //:   (b) passing a default-constructed allocator explicitly (c)
+        //:   passing the address of a test allocator distinct from the
+        //:   default, and (d) passing in an allocator constructed from the
+        //:   address of a test allocator distinct from the default.  For each
+        //:   of these iterations: (C-1..14)
+        //:
+        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
+        //:     as the current default allocator (note that a ubiquitous test
+        //:     allocator is already installed as the global allocator).
+        //:
+        //:   2 Use the default constructor to dynamically create an object
+        //:     'X', with its object allocator configured appropriately (see
+        //:     P-2); use a distinct test allocator for the object's footprint.
+        //:
+        //:   3 Use the 'allocator' accessor of each underlying attribute
+        //:     capable of allocating memory to ensure that its object
+        //:     allocator is properly installed; also invoke the (as yet
+        //:     unproven) 'allocator' accessor of the object under test.
+        //:     (C-2..4)
+        //:
+        //:   4 Use the appropriate test allocators to verify that no memory
+        //:     is allocated by the default constructor.  (C-9)
+        //:
+        //:   5 Use the individual (as yet unproven) salient attribute
+        //:     accessors to verify the default-constructed value.  (C-1)
+        //:
+        //:   6 For each attribute 'i', in turn, create a local block.  Then
+        //:     inside the block, using brute force, set that attribute's
+        //:     value, passing a 'const' argument representing each of the
+        //:     three test values, in turn (see P-1), first to 'Ai', then to
+        //:     'Bi', and finally back to 'Di'.  If attribute 'i' can allocate
+        //:     memory, verify that it does so on the first value transition
+        //:     ('Di' -> 'Ai'), and that the corresponding primary manipulator
+        //:     is exception neutral (using the
+        //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  In all other
+        //:     cases, verify that no memory allocation occurs.  After each
+        //:     transition, use the (as yet unproven) basic accessors to verify
+        //:     that only the intended attribute value changed.  (C-5..6,
+        //:     11..14)
+        //:
+        //:   7 Corroborate that attributes are modifiable independently by
+        //:     first setting all of the attributes to their 'A' values.  Then
+        //:     incrementally set each attribute to it's corresponding  'B'
+        //:     value and verify after each manipulation that only that
+        //:     attribute's value changed.  (C-10)
+        //:
+        //:   8 Verify that no temporary memory is allocated from the object
+        //:     allocator.  (C-7)
+        //:
+        //:   9 Verify that all object memory is released when the object is
+        //:     destroyed.  (C-8)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-15)
+        //
+        // Testing:
+        //   JsonObject();
+        //   JsonObject(bslma::Allocator *basicAllocator);
+        //   ~JsonObject();
+        //   Json& JsonObject::operator[](const string_view& key);
+        // --------------------------------------------------------------------
+
+        typedef JsonObject Obj;
+
+        if (verbose) cout << endl
+            << "JSONOBJECT DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR" << endl
+            << "=====================================================" << endl;
+
+        if (verbose) cout << "\nEstablish suitable attribute values." << endl;
+
+        // 'D' values: These are the default-constructed values.
+
+        const int  D1   = 0;  // Json variant JsonNumber
+        const char D2[] = ""; // Json variant bsl::string
+
+        // 'A' values: Should cause memory allocation if possible.
+
+        const int  A1   = 1;
+        const char A2[] = "a_" SUFFICIENTLY_LONG_STRING;
+
+        // 'B' values: Should NOT cause allocation (use alternate string type).
+        const int              B1 = 2;
+        const bsl::string_view B2 = "b";
+
+        if (verbose) cout << "\nTesting with various allocator configurations."
+                          << endl;
+
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+            const char CONFIG = cfg;
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
+
+            switch (CONFIG) {
+              case 'a': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj();
+              } break;
+              case 'b': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj(0);
+              } break;
+              case 'c': {
+                objAllocatorPtr = &sa;
+                objPtr = new (fa) Obj(objAllocatorPtr);
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(!"Bad allocator config.");
+              } break;
+            }
+
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
+
+            // --------------------------------------
+            // Verify object allocator is as expected
+            // --------------------------------------
+
+            ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+
+            // Verify no allocation from the object/non-object allocators
+
+            ASSERTV(CONFIG, oa.numBlocksTotal(), 0 == oa.numBlocksTotal());
+            ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+
+            // ---------------------------------
+            // Set attribute values to defaults.
+            // ---------------------------------
+
+            mX[KEY0] = bdljsn::Json(D1);
+            mX[KEY1] = bdljsn::Json(D2);
+
+            // -------------------------------------
+            // Verify the object's attribute values.
+            // -------------------------------------
+
+            ASSERTV(CONFIG, X.size(), 2 == X.size());
+            ASSERTV(CONFIG, X[KEY0].type(), X[KEY0].isNumber());
+            {
+                int value;
+                int status = X[KEY0].theNumber().asInt(&value);
+                ASSERTV(status, 0 == status);
+                ASSERTV(CONFIG, D1, X[KEY0].theNumber(), D1 == value);
+            }
+            ASSERTV(CONFIG, X[KEY1].type(), X[KEY1].isString());
+            ASSERTV(CONFIG,
+                    D2,
+                    X[KEY1].theString(),
+                    X[KEY1].theString() == D2);
+
+            // ---------------------------------------------------------------
+            // Verify that each attribute is independently settable.
+            // ---------------------------------------------------------------
+
+            {
+                bslma::TestAllocatorMonitor tam(&oa);
+
+                mX[KEY0] = A1;
+                ASSERTV(CONFIG, X[KEY0].type(), X[KEY0].isNumber());
+                {
+                    int value;
+                    int status = X[KEY0].theNumber().asInt(&value);
+                    ASSERTV(status, 0 == status);
+                    ASSERTV(CONFIG, A1, X[KEY0].theNumber(), A1 == value);
+                }
+                ASSERTV(CONFIG, X[KEY1].type(), X[KEY1].isString());
+                ASSERTV(CONFIG,
+                        D2,
+                        X[KEY1].theString(),
+                        X[KEY1].theString() == D2);
+
+                mX[KEY0] = B1;
+                ASSERTV(CONFIG, X[KEY0].type(), X[KEY0].isNumber());
+                {
+                    int value;
+                    int status = X[KEY0].theNumber().asInt(&value);
+                    ASSERTV(status, 0 == status);
+                    ASSERTV(CONFIG, B1, X[KEY0].theNumber(), B1 == value);
+                }
+                ASSERTV(CONFIG, X[KEY1].type(), X[KEY1].isString());
+                ASSERTV(CONFIG,
+                        D2,
+                        X[KEY1].theString(),
+                        X[KEY1].theString() == D2);
+
+                mX[KEY0] = D1;
+                ASSERTV(CONFIG, X[KEY0].type(), X[KEY0].isNumber());
+                {
+                    int value;
+                    int status = X[KEY0].theNumber().asInt(&value);
+                    ASSERTV(status, 0 == status);
+                    ASSERTV(CONFIG, D1, X[KEY0].theNumber(), D1 == value);
+                }
+                ASSERTV(CONFIG, X[KEY1].type(), X[KEY1].isString());
+                ASSERTV(CONFIG,
+                        D2,
+                        X[KEY1].theString(),
+                        X[KEY1].theString() == D2);
+
+                ASSERTV(CONFIG, tam.isTotalSame());
+            }
+
+            {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    bslma::TestAllocatorMonitor tam(&oa);
+                    mX[KEY1].makeString(A2);
+                    ASSERTV(CONFIG, tam.isInUseUp());
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    ASSERTV(CONFIG, 0 < EXCEPTION_COUNT);
+#endif
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(CONFIG, X[KEY0].type(), X[KEY0].isNumber());
+                {
+                    int value;
+                    int status = X[KEY0].theNumber().asInt(&value);
+                    ASSERTV(status, 0 == status);
+                    ASSERTV(CONFIG, D1, X[KEY0].theNumber(), D1 == value);
+                }
+                ASSERTV(CONFIG, X[KEY1].type(), X[KEY1].isString());
+                ASSERTV(CONFIG,
+                        A2,
+                        X[KEY1].theString(),
+                        X[KEY1].theString() == A2);
+
+                bslma::TestAllocatorMonitor tam(&oa);
+
+                mX[KEY1].makeString(B2);
+                ASSERTV(CONFIG, X[KEY0].type(), X[KEY0].isNumber());
+                {
+                    int value;
+                    int status = X[KEY0].theNumber().asInt(&value);
+                    ASSERTV(status, 0 == status);
+                    ASSERTV(CONFIG, D1, X[KEY0].theNumber(), D1 == value);
+                }
+                ASSERTV(CONFIG, X[KEY1].type(), X[KEY1].isString());
+                ASSERTV(CONFIG,
+                        B2,
+                        X[KEY1].theString(),
+                        X[KEY1].theString() == B2);
+
+                mX[KEY1].makeString(D2);
+                ASSERTV(CONFIG, X[KEY0].type(), X[KEY0].isNumber());
+                {
+                    int value;
+                    int status = X[KEY0].theNumber().asInt(&value);
+                    ASSERTV(status, 0 == status);
+                    ASSERTV(CONFIG, D1, X[KEY0].theNumber(), D1 == value);
+                }
+                ASSERTV(CONFIG, X[KEY1].type(), X[KEY1].isString());
+                ASSERTV(CONFIG,
+                        D2,
+                        X[KEY1].theString(),
+                        X[KEY1].theString() == D2);
+
+                ASSERTV(CONFIG, tam.isTotalSame());
+            }
+            // Verify no temporary memory is allocated from the object
+            // allocator.  Three for map storage, one for string A2.
+
+            ASSERTV(CONFIG, oa.numBlocksMax(), 4 == oa.numBlocksMax());
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
+            ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
+            ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+
+            // Double check that some object memory was allocated.
+
+            ASSERTV(CONFIG, 1 <= oa.numBlocksTotal());
+
+            // Note that memory should be independently allocated for each
+            // attribute capable of allocating memory.
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -3324,6 +7206,7 @@ int main(int argc, char *argv[])
         //   Iter JsonArray::insert(ConstIter p, const Json& j);
         //   Iter JsonArray::insert(ConstIter p, INPUT_ITER f, INPUT_ITER l);
         //   Iter JsonArray::insert(ConstIter p, MovableRef<Json> j);
+        //   JsonArray::pushBack(MovableRef<Json> j);
         //   JsonArray::clear();
         // --------------------------------------------------------------------
 
@@ -3537,10 +7420,10 @@ int main(int argc, char *argv[])
         //   and then deserialize that value back into any object of the class.
         //
         // Concerns:
-        //   N/A
+        //: 1 N/A
         //
         // Plan:
-        //   N/A
+        //: 1 N/A
         //
         // Testing:
         //   Reserved for 'bslx' streaming.
@@ -5343,7 +9226,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
-            "\nDefine appropraite individual attribute values, 'Ai' and 'Bi'."
+            "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
                                                                        << endl;
 
         const int EMPTY = 123456;
@@ -5785,15 +9668,13 @@ int main(int argc, char *argv[])
 
         typedef bdljsn::JsonArray Obj;
 
-        const bool        D1 = false;
-        const int         D2 = 0;
-        const bsl::string D3;  // TODO Nathan has a plan to fix this
-        //const bsl::string_view D3;
+        const bool             D1 = false;
+        const int              D2 = 0;
+        const bsl::string_view D3;
 
-        const bool        A1 = true;
-        const int         A2 = 1;
-        const bsl::string A3 = LONG_STRING;  // TODO clean this up too
-        //const bsl::string_view A3 = LONG_STRING;
+        const bool             A1 = true;
+        const int              A2 = 1;
+        const bsl::string_view A3 = LONG_STRING;
 
         if (verbose) cout << endl
                           << "JSONARRAY BASIC ACCESSORS" << endl
