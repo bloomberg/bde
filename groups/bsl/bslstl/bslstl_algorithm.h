@@ -173,6 +173,13 @@ namespace bsl {
     using std::sample;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+namespace ranges {
+    using std::ranges::max_element;
+
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.

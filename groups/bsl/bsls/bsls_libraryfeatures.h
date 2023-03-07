@@ -48,6 +48,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: <version>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER: <barrier>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH: <latch>
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: <ranges>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: <semaphore>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN: <stop_token>
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
@@ -963,6 +964,15 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_latch' feature-test macro
 // is defined.
 //
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES'
+///---------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' macro is defined if the native
+// standard library provides the <ranges> header and implements all required
+// content with no major issues.
+//
+// This macro is defined if the standard '__cpp_lib_ranges' feature-test macro
+// is defined.
+//
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE'
 ///-------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE' macro is defined if the
@@ -1776,15 +1786,19 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(__cpp_lib_barrier) && __cpp_lib_barrier >= 201907L
-# define BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER                               1
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER                                1
 #endif
 
 #if defined(__cpp_lib_latch) && __cpp_lib_latch >= 201907L
-# define BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH                                 1
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH                                  1
+#endif
+
+#if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 202110L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES                                 1
 #endif
 
 #if defined(__cpp_lib_semaphore) && __cpp_lib_semaphore >= 201907L
-# define BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE                             1
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE                              1
 #endif
 
 #if defined(__cpp_lib_jthread) && __cpp_lib_jthread >= 201911L

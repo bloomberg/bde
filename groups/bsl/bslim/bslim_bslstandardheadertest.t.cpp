@@ -51,7 +51,7 @@
 // have to break the rule of the coding standard and include <bsl_version.h>
 // file before others.
 
-#include <bsl_version.h>
+#include <bsl_version.h>          // C++20 header
 
 // Now we can check the availability of the feature-test macros, being sure
 // that at the moment they could only be defined in the standard <version>
@@ -65,7 +65,8 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_array.h>
-#include <bsl_barrier.h>
+#include <bsl_barrier.h>          // C++20 header
+#include <bsl_bit.h>              // C++20 header
 #include <bsl_bitset.h>
 #include <bsl_c_assert.h>
 #include <bsl_c_ctype.h>
@@ -128,7 +129,7 @@
 #include <bsl_iostream.h>
 #include <bsl_istream.h>
 #include <bsl_iterator.h>
-#include <bsl_latch.h>
+#include <bsl_latch.h>            // C++20 header
 #include <bsl_limits.h>
 #include <bsl_list.h>
 #include <bsl_locale.h>
@@ -136,14 +137,18 @@
 #include <bsl_memory.h>
 #include <bsl_mutex.h>
 #include <bsl_new.h>
+#include <bsl_numbers.h>          // C++20 header
 #include <bsl_numeric.h>
 #include <bsl_ostream.h>
 #include <bsl_queue.h>
-#include <bsl_semaphore.h>
+#include <bsl_ranges.h>
+#include <bsl_semaphore.h>        // C++20 header
 #include <bsl_set.h>
 #include <bsl_span.h>
+#include <bsl_source_location.h>  // C++20 header
 #include <bsl_sstream.h>
 #include <bsl_stack.h>
+#include <bsl_stop_token.h>       // C++20 header
 #include <bsl_stdexcept.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
@@ -198,12 +203,6 @@
     #include <bsl_filesystem.h>
 #endif
 
-// C++20 headers
-#include <bsl_bit.h>
-#include <bsl_numbers.h>
-#include <bsl_source_location.h>
-#include <bsl_stop_token.h>
-
 #include <utility>     // 'std::pair'
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
@@ -234,6 +233,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [28] C++20 'bsl_ranges.h' HEADER
 // [27] CONCERN: The type 'bsl::stop_token' is available and usable.
 // [27] CONCERN: The type 'bsl::stop_source' is available and usable.
 // [27] CONCERN: The type 'bsl::nostopstate_t' is available and usable.
@@ -799,6 +799,28 @@ class CompletionFunction {
 };
 #endif  // BSLS_LIBRARYFEATURES_HAS_BARRIER
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
+                            // =====================
+                            // class RangesDummyView
+                            // =====================
+
+class RangesDummyView : public ranges::view_interface<RangesDummyView> {
+    // This class is inherited from 'bsl::ranges::view_interface' and its only
+    // purpose is to prove that 'bsl::ranges::view_interface' exists and is
+    // usable.
+
+  public:
+    // ACCESSORS
+    constexpr bool empty() const
+        // Unconditionally return 'true';
+    {
+        return true;
+    }
+};
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -818,6 +840,277 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_ranges.h' HEADER
+        //
+        // Concerns:
+        //: 1 The definitions from '<ranges>' defined by the C++20 Standard are
+        //:   available in C++20 mode in the 'bsl' namespace to users who
+        //:   include 'bsl_ranges.h'.
+        //
+        // Plan:
+        //: 1 For every type aliased from the 'std' namespace, verify that the
+        //:   type exists and is usable.  (C-1)
+        //
+        // Testing
+        //   C++20 'bsl_ranges.h' HEADER
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING C++20 'bsl_ranges.h' HEADER"
+                            "\n===================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        namespace ranges = bsl::ranges;
+
+        using Vector = bsl::vector<int>;
+        using Tuple  = bsl::tuple<int, int>;
+
+        Vector vec{1, 2, 3, 4, 5};
+
+        auto vBegin   = ranges::begin(vec);
+        auto vEnd     = ranges::end(vec);
+        auto vCBegin  = ranges::cbegin(vec);
+        auto vCEnd    = ranges::cend(vec);
+        auto vRBegin  = ranges::rbegin(vec);
+        auto vREnd    = ranges::rend(vec);
+        auto vCRBegin = ranges::crbegin(vec);
+        auto vCREnd   = ranges::crend(vec);
+        auto vSize    = ranges::size(vec);
+        auto vSSize   = ranges::ssize(vec);
+        bool vEmpty   = ranges::empty(vec);
+        auto vData    = ranges::data(vec);
+        auto vCData   = ranges::cdata(vec);
+
+        ASSERTV(*vBegin,   1        == *vBegin  );
+        ASSERTV(           vBegin   !=  vEnd    );
+        ASSERTV(*vCBegin,  1        == *vCBegin );
+        ASSERTV(           vCBegin  !=  vCEnd   );
+        ASSERTV(*vRBegin,  5        == *vRBegin );
+        ASSERTV(           vRBegin  !=  vREnd   );
+        ASSERTV(*vCRBegin, 5        == *vCRBegin);
+        ASSERTV(           vCRBegin !=  vCREnd  );
+
+        ASSERTV( vSize,    5        ==  vSize   );
+        ASSERTV( vSSize,   5        ==  vSSize  );
+        ASSERTV(           false    ==  vEmpty  );
+        ASSERTV(*vData,    1        == *vData   );
+        ASSERTV(*vCData,   1        == *vCData  );
+
+        // Range primitives
+
+        ranges::iterator_t<Vector>               vBeginT     = vec.begin();
+        ranges::sentinel_t<Vector>               vEndT       = vec.end();
+        ranges::range_size_t<Vector>             vSizeT      = vec.size();
+        ranges::range_difference_t<Vector>       vDiffT      =
+                                 bsl::ranges::distance(vec.begin(), vec.end());
+                                              // defined in <bslstl_iterator.h>
+        ranges::range_value_t<Vector>            vValueT     = vec[0];
+        ranges::range_reference_t<Vector>        vRefT       = vec[0];
+        ranges::range_rvalue_reference_t<Vector> vRvalueRefT = 10 * vec[0];
+
+        ASSERTV(*vBeginT,     1    == *vBeginT    );
+        ASSERTV(              vEnd ==  vEndT      );
+        ASSERTV( vSizeT,      5    ==  vSizeT     );
+        ASSERTV( vDiffT,      5    ==  vDiffT     );
+        ASSERTV( vValueT,     1    ==  vValueT    );
+        ASSERTV( vRefT,       1    ==  vRefT      );
+        ASSERTV( vRvalueRefT, 10   ==  vRvalueRefT);
+
+        // Range concepts
+
+        ASSERT(true  == ranges::range<Vector>                              );
+        ASSERT(false == ranges::borrowed_range<Vector>                     );
+        ASSERT(false == ranges::enable_borrowed_range<Vector>              );
+        ASSERT(true  == ranges::sized_range<Vector>                        );
+        ASSERT(false == ranges::disable_sized_range<Vector>                );
+        ASSERT(false == ranges::view<Vector>                               );
+        ASSERT(false == ranges::enable_view<Vector>                        );
+
+        ranges::view_base base;
+        (void) base;            // suppress compiler warning
+
+        ASSERT( true  == ranges::input_range<Vector>                       );
+        ASSERT((false == ranges::output_range<Vector,
+                                              ranges::iterator_t<Vector> >));
+        ASSERT( true  == ranges::forward_range<Vector>                     );
+        ASSERT( true  == ranges::bidirectional_range<Vector>               );
+        ASSERT( true  == ranges::random_access_range<Vector>               );
+        ASSERT( true  == ranges::contiguous_range<Vector>                  );
+        ASSERT( true  == ranges::common_range<Vector>                      );
+        ASSERT( true  == ranges::viewable_range<Vector>                    );
+
+
+        // Views
+
+        // 'RangesDummyView' is inherited from 'bsl::ranges::view_interface'.
+
+        RangesDummyView dummy;
+        ASSERTV(true == dummy.empty())
+
+        ranges::subrange subrange(vec.begin(), vec.end());
+        ASSERTV(5 == subrange.size())
+
+        // Dangling iterator handling
+
+        auto maxElement = ranges::max_element(vec);
+                                             // defined in <bslstl_algorithm.h>
+
+        ASSERTV((!bsl::is_same_v<decltype(maxElement), ranges::dangling>));
+
+        ASSERTV(( bsl::is_same_v<ranges::borrowed_iterator_t<Vector>,
+                                ranges::dangling>));
+        ASSERTV(( bsl::is_same_v<ranges::borrowed_subrange_t<Vector>,
+                                ranges::dangling>));
+
+        // Factories
+
+        ranges::empty_view<int> emptyView;
+        ASSERTV(!emptyView        );
+        ASSERTV( emptyView.empty());
+
+        ranges::single_view<int> singleView(1);
+        ASSERTV(singleView.size(), 1 == singleView.size());
+
+        ranges::iota_view<int, int> iotaView(1, 2);
+        ASSERTV(iotaView.size(), 1 == iotaView.size());
+
+        bsl::istringstream                    iStringStream("1 2 3");
+        ranges::basic_istream_view<int, char> basicIStreamView(iStringStream);
+        auto                                  beginResult =
+                                                     *basicIStreamView.begin();
+        ASSERTV(beginResult, 1 == beginResult);
+
+        ranges::istream_view<int> iStreamView(iStringStream);
+        beginResult = *iStreamView.begin();
+        ASSERTV(beginResult, 2 == beginResult);
+
+        bsl::wstring wString;
+        wString.push_back('1');
+        bsl::wistringstream        wIStringStream(wString);
+        ranges::wistream_view<int> wIStreamView(wIStringStream);
+        beginResult = *wIStreamView.begin();
+        ASSERTV(beginResult, 1 == beginResult);
+
+        auto viewsEmpty = bsl::views::empty<int>;
+        ASSERTV(!viewsEmpty        );
+        ASSERTV( viewsEmpty.empty());
+
+        auto viewsSingle = bsl::views::single(1);
+        ASSERTV(viewsSingle.size(), 1 == viewsSingle.size());
+
+        auto viewsIota = bsl::views::iota(1, 2);
+        ASSERTV(viewsIota.size(), 1 == viewsIota.size());
+
+        auto viewsIStream = bsl::views::istream<int>(iStringStream);
+        beginResult = *viewsIStream.begin();
+        ASSERTV(beginResult, 3 == beginResult);
+
+        // Adaptors
+
+        ranges::ref_view refView = bsl::views::all(vec);
+        ASSERTV(&vec[0] == &refView[0]);
+
+        bsl::views::all_t<decltype((vec))> &refViewRef = refView;
+        (void) refViewRef;
+
+        auto countedView = bsl::views::counted(vec.begin(), 3);
+        ASSERTV(countedView.size(),  3 == countedView.size());
+
+        Vector vecToMove{1, 2, 3, 4, 5};
+        ranges::owning_view owningView = bsl::views::all(bsl::move(vecToMove));
+        ASSERTV(vecToMove.size(),  0 == vecToMove.size());
+        ASSERTV(owningView.size(), 5 == owningView.size());
+
+        ranges::filter_view filterView =
+                                       bsl::views::filter(vec,
+                                                          [](int value)
+                                                          {
+                                                              return value > 3;
+                                                          });
+        ASSERTV(vec.front(),        1 == vec.front()       );  // 1, 2, 3, 4, 5
+        ASSERTV(filterView.front(), 4 == filterView.front());  // 4, 5
+
+        ranges::transform_view transformView =
+                                       bsl::views::transform(vec,
+                                                          [](int value)
+                                                          {
+                                                              return value * 3;
+                                                          });
+        ASSERTV(vec[0],           1 == vec[0]          );  // 1, 2, 3, 4, 5
+        ASSERTV(transformView[0], 3 == transformView[0]);  // 3, 6, 9, 12, 15
+
+        ranges::take_view takeView = bsl::views::take(vec, 3);
+        ASSERTV(takeView.size(), 3 == takeView.size());  // 1, 2, 3
+
+        ranges::take_while_view takeWhileView =
+                                   bsl::views::take_while(vec,
+                                                          [](int value)
+                                                          {
+                                                              return value < 3;
+                                                          });
+        ASSERTV(takeWhileView.front(), 1 == takeWhileView.front());  // 1, 2
+
+        ranges::drop_view dropView = bsl::views::drop(vec, 3);
+        ASSERTV(dropView.size(), 2 == dropView.size());  // 4, 5
+
+        ranges::drop_while_view dropWhileView =
+                                   bsl::views::drop_while(vec,
+                                                          [](int value)
+                                                          {
+                                                              return value < 3;
+                                                          });
+        ASSERTV(dropWhileView.size(), 3 == dropWhileView.size());  // 3, 4, 5
+
+        Vector            vec1{6, 7, 8};
+        Vector            vecArray[] = {vec, vec1};
+        ranges::join_view joinView = bsl::views::join(vecArray);
+        ASSERTV(joinView.front(), 1 == joinView.front());  // vecArray[0][0]
+        ASSERTV(joinView.back(),  8 == joinView.back() );  // vecArray[1][2]
+
+        ranges::lazy_split_view lazySplitView = bsl::views::lazy_split(vec, 3);
+        ASSERTV(false == lazySplitView.empty());
+
+        ranges::split_view splitView = bsl::views::split(vec, 3);
+        ASSERTV(false == splitView.empty());
+
+        ranges::common_view commonView =
+                             vec | bsl::views::take_while([](int value)
+                                                          {
+                                                              return value < 3;
+                                                          })
+                                 | bsl::views::common;
+        ASSERTV(commonView.front(), 1 == commonView.front());  // 1, 2
+
+        ranges::reverse_view reverseView = bsl::views::reverse(vec);
+        ASSERTV(reverseView.front(), 5 == reverseView.front());
+                                                               // 5, 4, 3, 2, 1
+
+        Tuple tuples[] = {{1, 2}, {3, 4}, {5, 6}};
+        ranges::elements_view elementsView = std::views::elements<1>(tuples);
+        ASSERTV(elementsView.size(),  3 == elementsView.size());  // 2, 4, 6
+        ASSERTV(elementsView.front(), 2 == elementsView.front());
+
+        // The types of 'keysView' and 'valuesView' in the following two tests
+        // look bulky.  But we have to declare template parameters implicitly
+        // due to a defect in the standard.
+        // See https://cplusplus.github.io/LWG/issue3563
+
+        ranges::keys_view<decltype(bsl::views::all(tuples))> keysView =
+                                                      bsl::views::keys(tuples);
+        ASSERTV(keysView.size(),  3 == keysView.size());  // 1, 3, 4
+        ASSERTV(keysView.front(), 1 == keysView.front());
+
+        ranges::values_view<decltype(bsl::views::all(tuples))> valuesView =
+                                                    bsl::views::values(tuples);
+        ASSERTV(valuesView.size(),  3 == valuesView.size());  // 2, 4, 6
+        ASSERTV(valuesView.front(), 2 == valuesView.front());
+
+        // Enumerations
+
+        ranges::subrange_kind subrangeKind;
+        (void) subrangeKind;
+#endif
+      } break;
       case 27: {
         // --------------------------------------------------------------------
         // TESTING C++20 <BSL_STOP_TOKEN.H> ADDITIONS
@@ -848,10 +1141,15 @@ int main(int argc, char *argv[])
                    "\n==========================================\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-        bsl::stop_token             *s_token = nullptr;
-        bsl::stop_source            *s_source = nullptr;
-        bsl::stop_callback          *s_callback = nullptr;
-        bsl::nostopstate_t          *no_stop = &bsl::nostopstate;
+        class DummyCallback {
+            // This class is used as a mock template parameter for the
+            // 'bsl::stop_callback' instance.
+        };
+
+        bsl::stop_token                   *s_token    = nullptr;
+        bsl::stop_source                  *s_source   = nullptr;
+        bsl::stop_callback<DummyCallback> *s_callback = nullptr;
+        const bsl::nostopstate_t          *no_stop    = &bsl::nostopstate;
 
         (void) s_token;
         (void) s_source;
@@ -891,6 +1189,7 @@ int main(int argc, char *argv[])
         const bsl::source_location sl = bsl::source_location::current();
         (void) sl;
 #endif
+
       } break;
       case 25: {
         // --------------------------------------------------------------------

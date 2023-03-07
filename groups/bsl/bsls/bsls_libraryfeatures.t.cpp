@@ -95,14 +95,6 @@
 
 // Verify assumption that the BASELINE C++20 library includes all of the new
 // library headers not covered by a more specific macro.
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-    #include <span>
-#endif
-
-// Verify assumption that <version> can be included.
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION)
-    #include <version>
-#endif
 
 // Verify assumption that <barrier> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER)
@@ -114,14 +106,28 @@
     #include <latch>
 #endif
 
+// Verify assumption that <ranges> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    #include <ranges>
+#endif
+
 // Verify assumption that <semaphore> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE)
     #include <semaphore>
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+    #include <span>
+#endif
+
 // Verify assumption that <stop_token> can be included.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN)
     #include <stop_token>
+#endif
+
+// Verify assumption that <version> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION)
+    #include <version>
 #endif
 
 // ============================================================================
@@ -214,6 +220,7 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -405,6 +412,13 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined =
                                                                          false;
 #endif
 
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE)
                                                                           true;
@@ -418,6 +432,11 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined =
 #else
                                                                          false;
 #endif
+
+                    // case 19
+
+#include <vector> // for 'ranges'
+
                     // case 13
 
 #include <algorithm> // for 'search'
@@ -1304,6 +1323,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
     printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE) );
@@ -1591,8 +1617,11 @@ int main(int argc, char *argv[])
         //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE' is defined only when
         //:   the native standard library provides it.
         //:
-        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN' is defined only when
+        //: 5 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN' is defined only when
         //:   the native standard library provides it.
+        //:
+        //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' is defined only when the
+        //:   native standard library provides it.
         //:
         //
         // Plan:
@@ -1605,6 +1634,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -1617,6 +1647,7 @@ int main(int argc, char *argv[])
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined)
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
@@ -1646,6 +1677,16 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
         {
             (void) std::nostopstate;
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        {
+            std::vector<int> v = {1,2,3,4,5};
+
+            (void) std::ranges::data(v);
+            std::ranges::take_view   tv(v, 3);
+            std::ranges::owning_view ov(std::move(v));
         }
 #endif
       } break;

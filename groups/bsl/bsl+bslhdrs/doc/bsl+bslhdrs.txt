@@ -5,8 +5,7 @@
 @MNEMONIC: Basic Standard Library BSL HeaDerS (bsl+bslhdrs)
 
 @DESCRIPTION: This non-conventional package provides *no* components, only
- headers which enable BDE-STL mode at Bloomberg.  See the package-level
- documentation at {'bos+stdhdrs'} for details.
+ headers which enable BDE-STL mode at Bloomberg.
 
 /Hierarchical Synopsis
 /---------------------
@@ -82,6 +81,7 @@
      bsl_numeric.h
      bsl_optional.h
      bsl_queue.h
+     bsl_ranges.h
      bsl_set.h
      bsl_semaphore.h
      bsl_slist.h
