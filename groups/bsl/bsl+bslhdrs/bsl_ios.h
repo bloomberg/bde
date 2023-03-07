@@ -15,8 +15,11 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+// <ios> must include <iosfwd>
+#include <bsl_iosfwd.h>
+
 // Include Bloomberg's implementation.
-# include <bslstl_ios.h>
+#include <bslstl_ios.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
