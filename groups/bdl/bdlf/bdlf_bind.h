@@ -1038,8 +1038,8 @@ class Bind_BoundTupleValue {
     Bind_BoundTupleValue(
                 bslmf::MovableRef<Bind_BoundTupleValue<TYPE> >  original,
                 bslma::Allocator                               *basicAllocator)
-        // Create a 'Bind_BoundTupleValue' object holding a copy of the
-        // specified 'original' value, using 'basicAllocator' to supply any
+        // Create a 'Bind_BoundTupleValue' object holding the moved value of
+        // the specified 'original' value, using 'basicAllocator' to supply any
         // memory.
     : d_value(bslmf::MovableRefUtil::move(
                               bslmf::MovableRefUtil::access(original).d_value),
@@ -1160,9 +1160,9 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
          LIST  const&                                list,
          bslma::Allocator                           *allocator = 0)
         // Create a 'Bind' object that is bound to the specified 'func'
-        // invocable object.  Optionally specify an 'allocator' used to supply
-        // memory.  If 'allocator' is 0, the currently installed default
-        // allocator is used.
+        // invocable object with the specified argument list 'list'.
+        // Optionally specify an 'allocator' used to supply memory.  If
+        // 'allocator' is 0, the currently installed default allocator is used.
     : Base(func, list, allocator)
     {
     }
@@ -1171,7 +1171,8 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
          bslmf::MovableRef<LIST>                     list,
          bslma::Allocator                           *allocator = 0)
         // Create a 'Bind' object that is bound to the specified 'func'
-        // invocable object.  Optionally specify an 'allocator' used to supply
+        // invocable object with the specified argument list 'list' moved into
+        // the object.  Optionally specify an 'allocator' used to supply
         // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
     : Base(func, bslmf::MovableRefUtil::move(list), allocator)
@@ -5246,7 +5247,7 @@ class Bind_Impl {
               bslmf::MovableRef<LIST>                     list,
               bslma::Allocator                           *basicAllocator = 0)
     // Construct a 'Bind_Impl' object bound to the specified invocable
-    // object 'func' using the invocation parameters specified in 'list'.
+    // object 'func' using the moved invocation parameters specified in 'list'.
     // Optionally specify a 'basicAllocator' used to supply memory.  If
     // 'basicAllocator' is 0, the currently installed default allocator is
     // used.
@@ -5269,7 +5270,7 @@ class Bind_Impl {
     Bind_Impl(bslmf::MovableRef<Bind_Impl>  other,
               bslma::Allocator             *basicAllocator = 0)
         // Construct a 'Bind_Impl' object bound to the same invocable object
-        // 'func' and using the same invocation parameters as the specified
+        // 'func' and using the invocation parameters moved from the specified
         // 'other' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
