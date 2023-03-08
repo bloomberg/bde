@@ -239,8 +239,9 @@ class Tokenizer {
     bsl::size_t         d_valueIter;        // cursor for iterating value
 
     Uint64              d_readOffset;       // the offset to the end of the
-                                            // current 'd_stringBuffer' relative
-                                            // to the start of the streambuf
+                                            // current 'd_stringBuffer'
+                                            // relative to the start of the
+                                            // streambuf
 
     TokenType           d_tokenType;        // token type
 

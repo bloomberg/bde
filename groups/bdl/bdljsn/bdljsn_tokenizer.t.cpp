@@ -70,6 +70,7 @@ using bsl::endl;
 // ACCESSORS
 // [ 4] TokenType tokenType() const;
 // [14] bool allowStandAloneValues() const;
+// [ 3] bool allowTrailingTopLevelComma() const;
 // [15] bool allowHeterogenousArrays() const;
 // [ 4] int value(bslstl::StringRef *data) const;
 // [18] bool utf8ErrorIsSet() const;
@@ -7162,7 +7163,11 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Top-level trailing commas are allowed by default.
         //:
-        //: 2 Passing 'true' to 'setAllowNonUtf8StringLiterals' disallows them.
+        //: 2 Passing 'false' to 'setAllowTrailingTopLevelComma' disallows
+        //:   them.
+        //:
+        //: 3 The accessor 'allowTrailingTopLevelComma' reports a value
+        //:   consistent with the expected value and the demonstrated behavior.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -7172,6 +7177,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int setAllowTrailingTopLevelComma();
+        //   bool allowTrailingTopLevelComma() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7301,6 +7307,7 @@ int main(int argc, char *argv[])
                 mX.reset(iss.rdbuf());
 
                 mX.setAllowTrailingTopLevelComma(tlcFlag);
+                ASSERT(tlcFlag == X.allowTrailingTopLevelComma());
 
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
                 ASSERTV(X.currentPosition(), 0 == X.currentPosition());
