@@ -2353,13 +2353,15 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                              "\t'resolveLocalTime' class method " << endl;
             {
-                const bdlt::Datetime   VALID_INPUT(2011, 04, 10);
-                const baltzo::Zoneinfo BAD;
+                const bdlt::Datetime    VALID_INPUT(2011, 04, 10);
+                const bdlt::Datetime    VALID_INPUT2(1, 1, 1);
+                const baltzo::Zoneinfo  BAD;
                 const baltzo::Zoneinfo *NYZI = testCache.lookupZoneinfo(NY);
+                const baltzo::Zoneinfo *SAZI = testCache.lookupZoneinfo(SA);
 
                 bdlt::DatetimeTz result;
-                Iterator        resultIterator;
-                Validity::Enum  resultValidity;
+                Iterator         resultIterator;
+                Validity::Enum   resultValidity;
 
                 ASSERT_PASS(Obj::resolveLocalTime(&result,
                                                   &resultValidity,
@@ -2395,6 +2397,13 @@ int main(int argc, char *argv[])
                                                   VALID_INPUT,
                                                   DU,
                                                   BAD));
+
+                ASSERT_FAIL(Obj::resolveLocalTime(&result,
+                                                  &resultValidity,
+                                                  &resultIterator,
+                                                  VALID_INPUT2,
+                                                  DU,
+                                                  *SAZI));
             }
         }
       } break;

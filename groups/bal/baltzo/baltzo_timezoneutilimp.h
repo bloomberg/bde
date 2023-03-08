@@ -226,7 +226,7 @@ struct TimeZoneUtilImp {
         // the specified 'localTime' in the specified 'timeZone', using the
         // specified 'dstPolicy' to interpret whether or not 'localTime'
         // represents a daylight-saving time value; load into the specified
-        // 'resultValidity' a indication of whether 'localTime' is valid and
+        // 'resultValidity' an indication of whether 'localTime' is valid and
         // unique, valid but ambiguous, or invalid; load into the specified
         // 'transitionIter' an iterator pointing to the transition that
         // characterizes the attributes of 'localTime'.  The behavior is
