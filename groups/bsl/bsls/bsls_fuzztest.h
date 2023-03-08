@@ -190,11 +190,13 @@ BSLS_IDENT("$Id: $")
 //          // 'Timer::start'
 //          //
 //          // Concerns:
-//          //: 1. That 'start', when invoked with the 'RAW' macro, does not
-//          //:    invoke the original assertion handler.
+//          //: 1 That 'start', when invoked with the 'RAW' macro, does not
+//          //:   invoke the original assertion handler.
 //          //
-//          // Testing: void Timer::start(Int64 seconds, int nanoseconds);
+//          // Testing:
+//          //   void Timer::start(Int64 seconds, int nanoseconds);
 //          // ----------------------------------------------------------------
+//
 //          if (size < sizeof(bsls::Types::Int64) + sizeof(int)) {
 //              return 0;                                             // RETURN
 //          }
