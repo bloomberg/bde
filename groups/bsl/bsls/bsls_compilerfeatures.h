@@ -46,6 +46,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ref-qualified member function
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
+//  BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON: '<=>' operator
 //  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: C++98 exception specs.
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has '<type_traits>' header
 //  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: flag for 'char(16|32)_t'
@@ -274,6 +275,11 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT':
 //:     This macro is defined if 'static_assert' is supported by the current
 //:     compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON':
+//:     This macro is defined if '<=>' operator is supported by the current
+//:     compiler settings for this platform.  Including full library support as
+//:     of C++20.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS':
 //:     This macro is defined if dynamic exception specifications are supported
@@ -759,6 +765,15 @@ BSLS_IDENT("$Id: $")
 //:   o Visual Studio 2010 version 10.0 (_MSC_VER 1600)
 //:   o IBM xlC 11.1
 //:   o Oracle CC 12.4
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports '<=>' operator.
+//
+//: o Compiler support:
+//:   o GCC 10.1
+//:   o Clang 11.0
+//:   o Visual Studio 2019 version 16.0 (_MSC_VER 1920)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1541,6 +1556,11 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 #   define BSLS_COMPILERFEATURES_FORWARD(T,V)       \
         ::BloombergLP::bsls::Util::forward<T>(V)
 #endif
+
+#if __cpp_impl_three_way_comparison >= 201907L
+#define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON 1
+#endif
+
 #endif
 
 // ----------------------------------------------------------------------------

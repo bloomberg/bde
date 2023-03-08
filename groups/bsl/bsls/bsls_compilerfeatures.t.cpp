@@ -15,6 +15,10 @@
 #include <initializer_list>
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#include <compare>
+#endif
+
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -66,6 +70,7 @@
 // [20] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 // [16] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // [17] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [34] BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 // [28] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 // [21] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
@@ -76,7 +81,7 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [33] USAGE EXAMPLE
+// [35] USAGE EXAMPLE
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -1781,7 +1786,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1862,6 +1867,44 @@ int main(int argc, char *argv[])
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON'
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' is defined
+        //:   when '<=>' operator is fully supported, including the library
+        //:   support.
+        //:
+        //: 2 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' is defined
+        //:   when '__cpp_impl_three_way_comparison' and
+        //:   '__cpp_lib_three_way_comparison' are both defined and have values
+        //:   as defined by the ISO C++20 or greater.
+        //
+        // Plan:
+        //: 1 Verify that both '__cpp_*' macros are defined and have a value at
+        //:   least '201907L' when the macro is defined.
+        //:
+        //: 2 Verify that '<=>' operator can be used when the macro is defined.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        // --------------------------------------------------------------------
+        if (verbose) printf(
+           "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON'"
+           "\n============================================================\n");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+            static_assert(__cpp_impl_three_way_comparison >= 201907L);
+            static_assert(__cpp_lib_three_way_comparison >= 201907L);
+
+            // Sanity tests
+            static_assert(0 <=> 1 <  0);
+            static_assert(1 <=> 1 == 0);
+            static_assert(1 <=> 0 >  0);
+#else
+        if (verbose) printf("'<=>' is not supported in this configuration\n");
+#endif
       } break;
       case 33: {
         // --------------------------------------------------------------------
