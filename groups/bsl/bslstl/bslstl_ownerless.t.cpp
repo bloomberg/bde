@@ -138,7 +138,7 @@ void aSsErT(bool condition, const char *message, int line)
 class SimpleRep : public bslma::SharedPtrRep {
     // Partially implemented shared pointer representation ("letter") protocol.
     // This class provides a reference counter and a concrete implementation of
-    // the 'bcema_Deleter' protocol that decrements the number references and
+    // the 'bdlma::Deleter' protocol that decrements the number references and
     // destroys itself if the number of references reaches zero.
 
     // DATA

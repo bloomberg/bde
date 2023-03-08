@@ -120,7 +120,7 @@ typedef bdlma::ConcurrentMultipool Obj;
 
 const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
-// Warning: keep this in sync with bcema_Multipool.h!
+// Warning: keep this in sync with bdlma_multipool.h!
 struct Header {
     // Stores pool number of this item.
     union {
@@ -534,7 +534,7 @@ extern "C" void *workerThread(void *arg) {
 //..
 // A 'bdlma::ConcurrentMultipool' is ideal for allocating the different sized
 // messages since repeated deallocations might be necessary (which renders a
-// 'bcema::SequentialPool' unsuitable) and the sizes of these types are all
+// 'bdlma::SequentialPool' unsuitable) and the sizes of these types are all
 // different:
 //..
     // MANIPULATORS

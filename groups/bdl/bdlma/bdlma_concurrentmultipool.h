@@ -347,7 +347,7 @@ BSLS_IDENT("$Id: $")
 //..
 // A 'bdlma::ConcurrentMultipool' is ideal for allocating the different sized
 // messages since repeated deallocations might be necessary (which renders a
-// 'bcema::SequentialPool' unsuitable) and the sizes of these types are all
+// 'bdlma::SequentialPool' unsuitable) and the sizes of these types are all
 // different:
 //..
 //  // MANIPULATORS
