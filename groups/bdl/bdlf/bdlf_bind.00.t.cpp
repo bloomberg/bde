@@ -1190,11 +1190,11 @@ struct TestConstFunctor {
     }
 };
 
-namespace Testcase_19 {
-
                                 // ------------
                                 // Test Case 19
                                 // ------------
+
+namespace Testcase_19 {
 
                     // ==========================================
                     // struct ParametrizedMovableAllocTestType<N>
@@ -1209,7 +1209,7 @@ struct ParametrizedMovableAllocTestType : public bsltf::MovableAllocTestType {
 
     // CREATORS
     ParametrizedMovableAllocTestType(bslma::Allocator *alloc)
-    : bsltf::MovableAllocTestType(0, alloc)
+    : bsltf::MovableAllocTestType(N, alloc)
     {}
 
     ParametrizedMovableAllocTestType(
@@ -1281,7 +1281,7 @@ struct TestHomogMoveFunctor {
     {                                                                         \
         S##n(U_ACCESS_ARG_FN, )                                               \
                                                                               \
-        return S##n(U_RESULT_FN,+);                                          \
+        return S##n(U_RESULT_FN,+);                                           \
     }
 
     L14(U_OPERATOR_FN)
@@ -1342,61 +1342,69 @@ struct TestHeteroMoveFunctor {
 };
 
 bslma::TestAllocator ta;
-bsl::vector<bsltf::MovableAllocTestType> matts(&ta);
 
-ParametrizedMovableAllocTestType< 1>  v1(&ta);
-ParametrizedMovableAllocTestType< 2>  v2(&ta);
-ParametrizedMovableAllocTestType< 3>  v3(&ta);
-ParametrizedMovableAllocTestType< 4>  v4(&ta);
-ParametrizedMovableAllocTestType< 5>  v5(&ta);
-ParametrizedMovableAllocTestType< 6>  v6(&ta);
-ParametrizedMovableAllocTestType< 7>  v7(&ta);
-ParametrizedMovableAllocTestType< 8>  v8(&ta);
-ParametrizedMovableAllocTestType< 9>  v9(&ta);
-ParametrizedMovableAllocTestType<10> v10(&ta);
-ParametrizedMovableAllocTestType<11> v11(&ta);
-ParametrizedMovableAllocTestType<12> v12(&ta);
-ParametrizedMovableAllocTestType<13> v13(&ta);
-ParametrizedMovableAllocTestType<14> v14(&ta);
 
-void setMatts(int n)
-{
-    // Set the members of vector 'matts' in the range '[ 1 .. n ]' to the
-    // integral value equal to their index in the array.
 
-    for (int ii = 1; ii <= n; ++ii) {
-        matts[ii].setData(ii);
+struct Matts {
+    // DATA
+    bsl::vector<bsltf::MovableAllocTestType> d_values;
+
+    // CREATORS
+    Matts(bslma::Allocator *alloc)
+    : d_values(alloc)
+    {
+        d_values.resize(15);
+
+        for (int ii = 1; ii <= 14; ++ii) {
+            d_values[ii].setData(ii);
+        }
     }
-}
 
-void setVs(int n)
-    // Set variables '[ v##1 .. v##n ]' to an integral value equal to their
-    // index.
-{
+    // MANIPULATORS
+    bsltf::MovableAllocTestType& value(int n)
+    {
+        ASSERT(1 <= n);
+        ASSERT(n <= 14);
 
-#define U_SETV(nn)                                                            \
-    if (n < nn) {                                                             \
-        return;                                                               \
-    }                                                                         \
-    v##nn.setData(nn);
+        return d_values[n];
+    }
+};
 
-    U_SETV( 1)
-    U_SETV( 2)
-    U_SETV( 3)
-    U_SETV( 4)
-    U_SETV( 5)
-    U_SETV( 6)
-    U_SETV( 7)
-    U_SETV( 8)
-    U_SETV( 9)
-    U_SETV(10)
-    U_SETV(11)
-    U_SETV(12)
-    U_SETV(13)
-    U_SETV(14)
+struct PMatts {
+    // DATA
+    ParametrizedMovableAllocTestType< 1> d_v1;
+    ParametrizedMovableAllocTestType< 2> d_v2;
+    ParametrizedMovableAllocTestType< 3> d_v3;
+    ParametrizedMovableAllocTestType< 4> d_v4;
+    ParametrizedMovableAllocTestType< 5> d_v5;
+    ParametrizedMovableAllocTestType< 6> d_v6;
+    ParametrizedMovableAllocTestType< 7> d_v7;
+    ParametrizedMovableAllocTestType< 8> d_v8;
+    ParametrizedMovableAllocTestType< 9> d_v9;
+    ParametrizedMovableAllocTestType<10> d_v10;
+    ParametrizedMovableAllocTestType<11> d_v11;
+    ParametrizedMovableAllocTestType<12> d_v12;
+    ParametrizedMovableAllocTestType<13> d_v13;
+    ParametrizedMovableAllocTestType<14> d_v14;
 
-#undef  U_SETV
-}
+    // CREATORS
+    PMatts(bslma::Allocator *alloc)
+    : d_v1(alloc)
+    , d_v2(alloc)
+    , d_v3(alloc)
+    , d_v4(alloc)
+    , d_v5(alloc)
+    , d_v6(alloc)
+    , d_v7(alloc)
+    , d_v8(alloc)
+    , d_v9(alloc)
+    , d_v10(alloc)
+    , d_v11(alloc)
+    , d_v12(alloc)
+    , d_v13(alloc)
+    , d_v14(alloc)
+    {}
+};
 
 void testMoveFunc()
 {
@@ -1406,18 +1414,14 @@ void testMoveFunc()
     // and with heterogenous arguments, all of different, mutually incompatible
     // types.
 
-    matts.resize(15);
-
-    // We now have homogenous variables 'matts[1] - matts[14]' which will will
-    // use below.  All are of movable, move-aware type 'MovableAllocTestType'.
-
+    bslma::TestAllocator ta;
     int rc, rcH;
 
 #undef  U_HOMO_ARG_FN
-#define U_HOMO_ARG_FN(n)      bslmf::MovableRefUtil::move(matts[n])
+#define U_HOMO_ARG_FN(n)      bslmf::MovableRefUtil::move(matts.value(n))
 
 #undef  U_HETERO_ARG_FN
-#define U_HETERO_ARG_FN(n)    bslmf::MovableRefUtil::move(v##n)
+#define U_HETERO_ARG_FN(n)    bslmf::MovableRefUtil::move(pmatts.d_v##n)
 
     // Call 'bind' with from 1-14 homogenous moved arguments of type
     // 'MovableAllocTestType'.
@@ -1425,7 +1429,7 @@ void testMoveFunc()
 #undef  U_CALL_BIND_HOMO_FN
 #define U_CALL_BIND_HOMO_FN(n)                                                \
     {                                                                         \
-        setMatts(n);                                                          \
+        Matts matts(&ta);                                                     \
         TestHomogMoveFunctor func;                                            \
         bdlf::BindUtil::bind(func, C##n(U_HOMO_ARG_FN))();                    \
     }
@@ -1438,7 +1442,7 @@ void testMoveFunc()
 #undef  U_CALL_BIND_HETERO_FN
 #define U_CALL_BIND_HETERO_FN(n)                                              \
     {                                                                         \
-        setVs(n);                                                             \
+        PMatts pmatts(&ta);                                                   \
         TestHeteroMoveFunctor hFunc;                                          \
         bdlf::BindUtil::bind(hFunc, C##n(U_HETERO_ARG_FN))();                 \
     }
@@ -1450,7 +1454,7 @@ void testMoveFunc()
 #undef  U_CALL_BINDR_HOMO_FN
 #define U_CALL_BINDR_HOMO_FN(n)                                               \
     {                                                                         \
-        setMatts(n);                                                          \
+        Matts matts(&ta);                                                     \
         TestHomogMoveFunctor func;                                            \
         rc = bdlf::BindUtil::bindR<int>(func, C##n(U_HOMO_ARG_FN))();         \
         ASSERTV(rc, n == rc);                                                 \
@@ -1463,7 +1467,7 @@ void testMoveFunc()
 #undef  U_CALL_BINDR_HETERO_FN
 #define U_CALL_BINDR_HETERO_FN(n)                                             \
     {                                                                         \
-        setVs(n);                                                             \
+        PMatts pmatts(&ta);                                                   \
         TestHeteroMoveFunctor hFunc;                                          \
         rcH = bdlf::BindUtil::bindR<int>(hFunc, C##n(U_HETERO_ARG_FN))();     \
         ASSERTV(rcH, n == rcH);                                               \
@@ -1479,7 +1483,7 @@ void testMoveFunc()
 #undef  U_CALL_BINDS_HOMO_FN
 #define U_CALL_BINDS_HOMO_FN(n)                                               \
     {                                                                         \
-        setMatts(n);                                                          \
+        Matts matts(&ta);                                                     \
         TestHomogMoveFunctor func;                                            \
         bdlf::BindUtil::bindS(&ta, func, C##n(U_HOMO_ARG_FN))();              \
     }
@@ -1489,7 +1493,7 @@ void testMoveFunc()
 #undef  U_CALL_BINDS_HETERO_FN
 #define U_CALL_BINDS_HETERO_FN(n)                                             \
     {                                                                         \
-        setVs(n);                                                             \
+        PMatts pmatts(&ta);                                                   \
         TestHeteroMoveFunctor hFunc;                                          \
         bdlf::BindUtil::bindS(&ta, hFunc, C##n(U_HETERO_ARG_FN))();           \
     }
@@ -1499,7 +1503,7 @@ void testMoveFunc()
 #undef  U_CALL_BINDSR_HOMO_FN
 #define U_CALL_BINDSR_HOMO_FN(n)                                              \
     {                                                                         \
-        setMatts(n);                                                          \
+        Matts matts(&ta);                                                     \
         TestHomogMoveFunctor func;                                            \
         rc = bdlf::BindUtil::bindSR<int>(&ta, func, C##n(U_HOMO_ARG_FN))();   \
         ASSERTV(rc, n == rc);                                                 \
@@ -1510,7 +1514,7 @@ void testMoveFunc()
 #undef  U_CALL_BINDSR_HETERO_FN
 #define U_CALL_BINDSR_HETERO_FN(n)                                            \
     {                                                                         \
-        setVs(n);                                                             \
+        PMatts pmatts(&ta);                                                   \
         TestHeteroMoveFunctor hFunc;                                          \
         rcH = bdlf::BindUtil::bindSR<int>(                                    \
                                      &ta, hFunc, C##n(U_HETERO_ARG_FN))();    \
