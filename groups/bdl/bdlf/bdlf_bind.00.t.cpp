@@ -1277,7 +1277,7 @@ struct TestHomogMoveFunctor {
 
 #undef  U_OPERATOR_FN
 #define U_OPERATOR_FN(n)                                                      \
-    int operator()(C##n(U_HOMO_ARG_DECL_FN)) const                                 \
+    int operator()(C##n(U_HOMO_ARG_DECL_FN)) const                            \
     {                                                                         \
         S##n(U_ACCESS_ARG_FN, )                                               \
                                                                               \
