@@ -28,6 +28,7 @@ bdlb_nullopt
 bdlb_nulloutputiterator
 bdlb_numericparseutil
 bdlb_optionalprinter
+bdlb_pairutil
 bdlb_pcgrandomgenerator
 bdlb_print
 bdlb_printadapter
