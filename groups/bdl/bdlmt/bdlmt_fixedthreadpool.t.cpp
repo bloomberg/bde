@@ -166,6 +166,15 @@ typedef bdlmt::FixedThreadPool Obj;
 
 const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
+// On Windows, the thread name will only be set if we're running on Windows 10,
+// version 1607 or later, otherwise it will be empty. AIX does not support
+// thread naming.
+static const bool k_threadNameCanBeEmpty = true;
+#else
+static const bool k_threadNameCanBeEmpty = false;
+#endif
+
 // ============================================================================
 //                           GLOBAL VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
@@ -259,13 +268,10 @@ void testJobFunction1(void *ptr)
 
     bsl::string threadName;
     bslmt::ThreadUtil::getThreadName(&threadName);
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
-                                       defined(BSLS_PLATFORM_OS_DARWIN)
-    ASSERTV(threadName, threadName == "bdl.FixedPool" ||
-                                                    threadName == "OtherName");
-#else
-    ASSERTV(threadName, threadName.empty());
-#endif
+
+    ASSERTV(threadName,
+            (k_threadNameCanBeEmpty && threadName.empty()) ||
+                threadName == "bdl.FixedPool" || threadName == "OtherName");
 
     ++args->d_count;
     ++args->d_startSig;
@@ -1551,7 +1557,8 @@ int main(int argc, char *argv[])
             double fudgeFactor   = 10;  // to allow for imprecisions in timing
             double maxConsumedCpuTime = fudgeFactor *
                                 (additiveFudge +
-                                 consumedIdleCpuTime * QUEUE_CAPACITY_THREADS);
+                                  consumedIdleCpuTime *
+                                  static_cast<double>(QUEUE_CAPACITY_THREADS));
             if (veryVerbose) {
                 P(maxConsumedCpuTime);
             }

@@ -305,6 +305,15 @@ void noop()
 {
 }
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
+// On Windows, the thread name will only be set if we're running on Windows 10,
+// version 1607 or later, otherwise it will be empty. AIX does not support
+// thread naming.
+static const bool k_threadNameCanBeEmpty = true;
+#else
+static const bool k_threadNameCanBeEmpty = false;
+#endif
+
                          // ==========================
                          // function executeInParallel
                          // ==========================
@@ -558,13 +567,10 @@ struct TestClass1 {
 
         bsl::string threadName;
         bslmt::ThreadUtil::getThreadName(&threadName);
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
-                                       defined(BSLS_PLATFORM_OS_DARWIN)
-        ASSERTV(threadName, threadName == "bdl.TimerEvent" ||
-                                                    threadName == "OtherName");
-#else
-        ASSERTV(threadName, threadName.empty());
-#endif
+        ASSERTV(threadName,
+                (k_threadNameCanBeEmpty && threadName.empty()) ||
+                    threadName == "bdl.TimerEvent" ||
+                    threadName == "OtherName");
 
         if (d_executionTime) {
             sleepUntilMs(d_executionTime / 1000);
@@ -618,13 +624,10 @@ struct TestClass2 {
     {
         bsl::string threadName;
         bslmt::ThreadUtil::getThreadName(&threadName);
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
-                                       defined(BSLS_PLATFORM_OS_DARWIN)
-        ASSERTV(threadName, threadName == "bdl.TimerEvent" ||
-                                                    threadName == "OtherName");
-#else
-        ASSERTV(threadName, threadName.empty());
-#endif
+        ASSERTV(threadName,
+                (k_threadNameCanBeEmpty && threadName.empty()) ||
+                    threadName == "bdl.TimerEvent" ||
+                    threadName == "OtherName");
 
         if (d_startBarrier_p) {
             d_startBarrier_p->wait();
@@ -1107,7 +1110,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
         }
     };
     const double Slowfunctor::SLEEP_SECONDS =
-                                        Slowfunctor::SLEEP_MICROSECONDS * 1e-6;
+                   static_cast<double>(Slowfunctor::SLEEP_MICROSECONDS) * 1e-6;
     struct Fastfunctor {
         typedef bsl::list<double>       dateTimeList;
         static const double TOLERANCE;
@@ -1335,7 +1338,8 @@ void *workerThread10(void *arg)
                                   bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                          &testObj[id]));
               if (veryVeryVerbose) {
-                  int *handle = reinterpret_cast<int *>(h & 0x8fffffff);
+                  int *handle = reinterpret_cast<int *>(
+                                  static_cast<bsl::uintptr_t>(h & 0x8fffffff));
                   printMutex.lock();
                   cout << "\t\tAdded event: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
@@ -1368,7 +1372,8 @@ void *workerThread10(void *arg)
                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                       &testObj[id]));
               if (veryVeryVerbose) {
-                  void *handle = reinterpret_cast<void *>(h & 0x8fffffff);
+                  void *handle = reinterpret_cast<void *>(
+                                  static_cast<bsl::uintptr_t>(h & 0x8fffffff));
                   printMutex.lock();
                   cout << "\t\tAdded clock: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
@@ -1380,7 +1385,11 @@ void *workerThread10(void *arg)
 
                   bsls::TimeInterval elapsed =
                                     bsls::SystemTime::nowRealtimeClock() - now;
-                  ASSERTV(id, i, reinterpret_cast<void *>(h), elapsed < T6);
+                  ASSERTV(
+                      id,
+                      i,
+                      reinterpret_cast<void *>(static_cast<bsl::uintptr_t>(h)),
+                      elapsed < T6);
                   testTimingFailure = (elapsed >= T6);
               }
           }

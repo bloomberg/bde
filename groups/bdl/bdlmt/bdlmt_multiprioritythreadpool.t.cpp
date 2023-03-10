@@ -164,6 +164,16 @@ double nowAsDouble()
 }
 
 }  // close namespace u
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
+// On Windows, the thread name will only be set if we're running on Windows 10,
+// version 1607 or later, otherwise it will be empty. AIX does not support
+// thread naming.
+static const bool k_threadNameCanBeEmpty = true;
+#else
+static const bool k_threadNameCanBeEmpty = false;
+#endif
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -392,12 +402,9 @@ struct Functor {
 
         bsl::string threadName;
         bslmt::ThreadUtil::getThreadName(&threadName);
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
-                                       defined(BSLS_PLATFORM_OS_DARWIN)
-        ASSERTV(threadName, threadName == "OtherName");
-#else
-        ASSERTV(threadName, threadName.empty());
-#endif
+        ASSERTV(threadName,
+                (k_threadNameCanBeEmpty && threadName.empty()) ||
+                    threadName == "OtherName");
 
         bslmt::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
         bslmt::ThreadUtil::yield();
@@ -430,6 +437,12 @@ struct Worker {
     static bdlmt::MultipriorityThreadPool *s_pool;
     static bdlcc::Queue<Worker>           *s_doneQueue;
     static bsls::AtomicInt                s_time;
+
+    // TRAITS
+    // C++11 can determine that Worker is bitwise moveable, but for C++03 we
+    // need to specify the fact manually.
+    BSLMF_NESTED_TRAIT_DECLARATION(Worker,
+                                   bslmf::IsBitwiseMoveable);
 
     explicit
     Worker(int priority)
@@ -573,7 +586,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool)
         memset(resultsVec, 0x3f, sizeof(resultsVec));
         resultsVecIdx = 0;
 
-        for (long i = 0; 10 > i; ++i) {
+        for (bsl::uintptr_t i = 0; 10 > i; ++i) {
             pool->enqueueJob(&pushInt, (void *) (i * i), 1);
         }
         pool->drainJobs();
@@ -585,7 +598,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool)
         }
     }
     else {
-        for (long i = 0; 10 > i; ++i) {
+        for (bsl::uintptr_t i = 0; 10 > i; ++i) {
             pool->enqueueJob(&pushInt, (void *) (i * i), 1);
         }
         ASSERT(0 == pool->numActiveThreads());
@@ -660,12 +673,9 @@ extern "C" void *incCounter(void *)
     if (1 == ++counter) {
         bsl::string threadName;
         bslmt::ThreadUtil::getThreadName(&threadName);
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
-                                       defined(BSLS_PLATFORM_OS_DARWIN)
-        ASSERTV(threadName, threadName == "bdl.MultiPriPl");
-#else
-        ASSERTV(threadName, threadName.empty());
-#endif
+        ASSERTV(threadName,
+                (k_threadNameCanBeEmpty && threadName.empty()) ||
+                    threadName == "bdl.MultiPriPl");
     }
 
     return 0;
@@ -923,13 +933,29 @@ int main(int argc, char *argv[])
         tg.addThreads(ProducerThread(NUM_WORKERS_PER_PRODUCER),
                       NUM_PRODUCER_THREADS);
 
+        ASSERTV(taDefaultLocal.numBytesMax(),
+                0 == taDefaultLocal.numBytesMax());
+        ASSERTV(taDefaultLocal.numAllocations(),
+                0 == taDefaultLocal.numAllocations());
+
         pool.startThreads();
 
-        ASSERTV(taDefaultLocal.numBytesMax(),
-                                            0 == taDefaultLocal.numBytesMax());
         ASSERT(0 == Worker::s_time);
 
         barrier.wait();         // set all producer threads loose
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+        // Windows allocates a string using the default allocator when
+        // performing the thread name unicode conversion.
+        ASSERTV(taDefaultLocal.numAllocations(),
+                NUM_POOL_THREADS == taDefaultLocal.numAllocations());
+#else
+        ASSERTV(taDefaultLocal.numBytesMax(),
+                0 == taDefaultLocal.numBytesMax());
+        ASSERTV(taDefaultLocal.numAllocations(),
+                0 == taDefaultLocal.numAllocations());
+#endif
+
         double startTime = u::nowAsDouble();
 
         tg.joinAll();
@@ -972,6 +998,18 @@ int main(int argc, char *argv[])
         }
 
         ASSERTV(averages[0], averages[1], averages[0] < averages[1]);
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+        // Windows allocates a string using the default allocator when
+        // performing the thread name unicode conversion.
+        ASSERTV(taDefaultLocal.numAllocations(),
+                NUM_POOL_THREADS == taDefaultLocal.numAllocations());
+#else
+        ASSERTV(taDefaultLocal.numBytesMax(),
+                0 == taDefaultLocal.numBytesMax());
+        ASSERTV(taDefaultLocal.numAllocations(),
+                0 == taDefaultLocal.numAllocations());
+#endif
 
         ASSERTV(taDefaultLocal.numBytesInUse(),
                                           0 == taDefaultLocal.numBytesInUse());
@@ -1143,7 +1181,8 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
-        static const long scramble[] = { 5, 8, 3, 1, 7, 9, 0, 4, 6, 2 };
+        static const bsl::uintptr_t scramble[] =
+                                                {5, 8, 3, 1, 7, 9, 0, 4, 6, 2};
             // ints 0-9 in scrambled order
         enum { k_SCRAMBLE_LEN = sizeof scramble / sizeof scramble[0] };
         const char garbageVal = static_cast<char>(0x8f);
@@ -1156,9 +1195,10 @@ int main(int argc, char *argv[])
         resultsVecIdx = 0;
 
         for (int i = 0; k_SCRAMBLE_LEN > i; ++i) {
-            pool.enqueueJob(&pushInt,
-                            (void *)(scramble[i] * scramble[i]),
-                            (int)scramble[i]);
+            pool.enqueueJob(
+                           &pushInt,
+                           reinterpret_cast<void *>(scramble[i] * scramble[i]),
+                           scramble[i]);
         }
 
         ASSERT(k_SCRAMBLE_LEN == pool.numPendingJobs());
@@ -1688,7 +1728,11 @@ int main(int argc, char *argv[])
                             ASSERT(0 == pool->startThreads());
                         }
 
-                        for (long i = 0; 10 > i; ++i) {
+                        for (bsl::uintptr_t i = 0; 10 > i; ++i) {
+                            if (veryVerbose) {
+                                cout << "Enqueuing job for i=" << i
+                                     << endl;
+                            }
                             int sts = pool->enqueueJob(&pushInt,
                                                        (void *)(i * i),
                                                         numPri - 1);
@@ -1770,7 +1814,8 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_3;
 
-        static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
+        static bsl::uintptr_t incBy[] =
+                                     {473, 9384, 273, 132, 182, 191, 282, 934};
         enum { k_INC_BY_LENGTH = sizeof incBy / sizeof incBy[0] };
 
         bslmt::Barrier barrier(2);
@@ -1782,8 +1827,9 @@ int main(int argc, char *argv[])
         long otherCounter = 0;
 
         for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
-            int sts =
-                pool.enqueueJob(&sleepAndAmassCounterBy, (void *)incBy[i], 0);
+            int sts = pool.enqueueJob(&sleepAndAmassCounterBy,
+                                      reinterpret_cast<void *>(incBy[i]),
+                                      0);
             ASSERT(!sts);
         }
 
@@ -1830,7 +1876,8 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_2;
 
-        static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
+        static bsl::uintptr_t incBy[] =
+                                     {473, 9384, 273, 132, 182, 191, 282, 934};
         enum { k_INC_BY_LENGTH = sizeof incBy / sizeof incBy[0] };
 
         bslmt::Barrier barrier(2);
@@ -1843,7 +1890,9 @@ int main(int argc, char *argv[])
             long otherCounter = 0;
 
             for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
-                ASSERT(!pool.enqueueJob(&amassCounterBy, (void *) incBy[i],0));
+                ASSERT(!pool.enqueueJob(&amassCounterBy,
+                                        reinterpret_cast<void *>(incBy[i]),
+                                        0));
                 ASSERT(!pool.enqueueJob(&waiter, &barrier, 0));
                 ASSERT(!pool.enqueueJob(&waiter, &barrier, 0));
             }
