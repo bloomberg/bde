@@ -54,6 +54,12 @@ using namespace bsl;
 // ACCESSORS
 //
 // FREE OPERATORS
+// [ 5] bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 5] bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 5] bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 5] bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 5] bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 5] bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
 //
 // TRAITS
 //-----------------------------------------------------------------------------
@@ -1226,28 +1232,43 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATORS
+        // TESTING COMPARISON OPERATORS
         //
         // Concerns:
-        //   The '==' operator must return 'false' for objects that are very
-        //   similar but still different, but must return 'true' for objects
-        //   that are exactly the same.  Likewise, 'operator!=' must return
-        //   'true' for objects that are very similar but still different, but
-        //   must return 'false' for objects that are exactly the same.
+        //: 1 That all 6 comparison operators work properly.  A null values is
+        //:   always not equal to, and less than, any non-null value.  Two null
+        //:   values are equal.
         //
         // Plan:
-        //   Use 'int' for 'TYPE'.  Construct a set of objects containing
-        //   similar but different values.  Loop through the cross product of
-        //   the test data.  For each tuple, use the '==' and '!=' operators
-        //   to check their return value for correctness.
+        //: 1 Use 'int' for 'TYPE'.
+        //:
+        //: 2 Create an array of 3 nullable objects, none equal to each other,
+        //:   where only the first object is null, and the ones after that
+        //:   increase in value as their index in the array increases.  So
+        //:   the array is sorted and unique.
+        //:
+        //: 3 Have a loop with 'i' iterating through the array indexes, and
+        //:   'U' being a const ref to element 'i' of the array.
+        //:
+        //: 4 Have a nested loop within that with 'j' iterating through the
+        //:   array indexes, and 'V' being a const ref to element 'j' of the
+        //:   array.
+        //:
+        //: 5 Verify that all of the 6 comparison operators applied between 'i'
+        //:   and 'j' yield the same boolean value as the same comparison
+        //:   operator applied between 'U' and 'V'.
         //
-        // Testing:
+        // TESTING:
         //   bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
         //   bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Equality Operators"
-                          << "\n==========================" << endl;
+        if (verbose) cout << "TESTING COMPARISON OPERATORS\n"
+                             "============================\n";
 
         typedef int                                     ValueType;
         typedef bdlb::NullableAllocatedValue<ValueType> Obj;
@@ -1269,12 +1290,15 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { T_ T_ P_(j) P(V) }
 
-                const bool isSame = (i == j);
-                ASSERTV(U, V,  isSame == (U == V));
-                ASSERTV(U, V, !isSame == (U != V));
+                ASSERTV(U, V, (i == j) == (U == V));
+                ASSERTV(U, V, (i != j) == (U != V));
+
+                ASSERTV(U, V, (i <  j) == (U <  V));
+                ASSERTV(U, V, (i <= j) == (U <= V));
+                ASSERTV(U, V, (i >  j) == (U >  V));
+                ASSERTV(U, V, (i >= j) == (U >= V));
             }
         }
-
       } break;
       case 4: {
         // --------------------------------------------------------------------

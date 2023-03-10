@@ -149,6 +149,7 @@ class NullableAllocatedValue {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    explicit
     NullableAllocatedValue(const TYPE&       value,
                            bslma::Allocator *basicAllocator = 0);
         // Create a nullable object having the specified 'value'.  Optionally
@@ -282,6 +283,46 @@ bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
     // are non-null and the values of their underlying objects do not compare
     // equal.  Note that this function will fail to compile if 'LHS_TYPE' and
     // 'RHS_TYPE' are not compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is less than the specified 'rhs',
+    // and 'false' otherwise.  A null value is considered less than any
+    // non-null value.  Two null values are considered equal.  Two non-null
+    // values are compared using 'operator<' on thier contents.  Note that this
+    // function will fail to compile if no 'operator<' exists for 'LHS_TYPE'
+    // and 'RHS_TYPE'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is less than or equal to the
+    // specified 'rhs', and 'false' otherwise.  A null value is considered less
+    // than any non-null value.  Two null values are considered equal.  Two
+    // non-null values are compared using 'operator<' on thier contents.  Note
+    // that this function will fail to compile if no 'operator<' exists for
+    // 'LHS_TYPE' and 'RHS_TYPE'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is greater than the specified
+    // 'rhs', and 'false' otherwise.  A null value is considered less than any
+    // non-null value.  Two null values are considered equal.  Two non-null
+    // values are compared using 'operator<' on thier contents.  Note that this
+    // function will fail to compile if no 'operator<' exists for 'LHS_TYPE'
+    // and 'RHS_TYPE'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is greater than or equal to the
+    // specified 'rhs', and 'false' otherwise.  A null value is considered less
+    // than any non-null value.  Two null values are considered equal.  Two
+    // non-null values are compared using 'operator<' on thier contents.  Note
+    // that this function will fail to compile if no 'operator<' exists for
+    // 'LHS_TYPE' and 'RHS_TYPE'.
 
 template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&                       stream,
@@ -600,6 +641,43 @@ bool bdlb::operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
 
     return lhs.isNull() != rhs.isNull();
 }
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return lhs.isNull()
+         ? !rhs.isNull()
+         : rhs.isNull()
+         ? false
+         : lhs.value() < rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs < lhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return !(lhs < rhs);
+}
+
 
 template <class TYPE>
 inline
