@@ -2506,7 +2506,7 @@ Json& Json::operator=(const JsonNumber& rhs)
 inline
 Json& Json::operator=(bslmf::MovableRef<JsonNumber> rhs)
 {
-    d_value.createInPlace<JsonNumber>(bslmf::MovableRefUtil::move(rhs));
+    d_value = bslmf::MovableRefUtil::move(rhs);
     return *this;
 }
 
@@ -2682,12 +2682,13 @@ typename bsl::enable_if<bsl::is_same<STRING_TYPE, bsl::string>::value>::type
 {
     BSLS_ASSERT(
               bdlde::Utf8Util::isValid(bslmf::MovableRefUtil::access(string)));
-    d_value.createInPlace<bsl::string>(bslmf::MovableRefUtil::move(string));
+    d_value = bslmf::MovableRefUtil::move(string);
 }
 
 inline
 void Json::swap(Json& other)
 {
+    BSLS_ASSERT(allocator() == other.allocator());
     d_value.swap(other.d_value);
 }
 
