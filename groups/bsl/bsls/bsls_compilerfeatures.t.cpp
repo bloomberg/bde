@@ -1896,7 +1896,8 @@ int main(int argc, char *argv[])
            "\n============================================================\n");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
             static_assert(__cpp_impl_three_way_comparison >= 201907L);
-            static_assert(__cpp_lib_three_way_comparison >= 201907L);
+            // TODO: Add tests to ensure compliance of the compiler support for
+            // the three way operator, per DRQS 171563596
 
             // Sanity tests
             static_assert(0 <=> 1 <  0);

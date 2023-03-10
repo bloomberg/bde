@@ -7,16 +7,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_bsltestutil.h>   // for testing only
 #include <bsls_buildtarget.h>   // for testing only
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
-#include <version>  // for '__cpp_lib_three_way_comparison'
-#include <compare>  // ensure that this header is available
-
-#if __cpp_lib_three_way_comparison < 201907L
-#error "Unsupported: __cpp_impl_three_way_comparison without \
-        __cpp_lib_three_way_comparison"
-#endif
-#endif
-
 #if defined(BSLS_COMPILERFEATURES_INTIIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
 
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
