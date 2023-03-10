@@ -8,12 +8,13 @@
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
+#include <bdlb_chartype.h>
+
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_cctype.h>      // 'isdigit'
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -868,7 +869,7 @@ void updateExpectedPerConfig(bsl::string   *expected,
 
     if (index != bsl::string::npos) {
         ptrdiff_t length = 0;
-        while (isdigit((*expected)[index + length + 1])) {
+        while (bdlb::CharType::isDigit((*expected)[index + length + 1])) {
             ++length;
         }
 
@@ -903,11 +904,11 @@ void updateExpectedPerConfig(bsl::string   *expected,
     const bsl::string::size_type zdx = expected->length() - ZONELEN;
 
     if (('+' != (*expected)[zdx] && '-' != (*expected)[zdx])
-      || !isdigit(static_cast<unsigned char>((*expected)[zdx + 1]))
-      || !isdigit(static_cast<unsigned char>((*expected)[zdx + 2]))
+      || !bdlb::CharType::isDigit((*expected)[zdx + 1])
+      || !bdlb::CharType::isDigit((*expected)[zdx + 2])
       || ':' !=   (*expected)[zdx + 3]
-      || !isdigit(static_cast<unsigned char>((*expected)[zdx + 4]))
-      || !isdigit(static_cast<unsigned char>((*expected)[zdx + 5]))) {
+      || !bdlb::CharType::isDigit((*expected)[zdx + 4])
+      || !bdlb::CharType::isDigit((*expected)[zdx + 5])) {
         return;                                                       // RETURN
     }
 
@@ -938,7 +939,7 @@ bool containsOnlyDigits(const char *string)
     // 'false' otherwise.
 {
     while (*string) {
-        if (!isdigit(*string)) {
+        if (!bdlb::CharType::isDigit(*string)) {
             return false;                                             // RETURN
         }
 
@@ -963,23 +964,14 @@ bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
 namespace {
 namespace u {
 
-void removeCharFromString(bsl::string *str, int chr, int limit = -1)
+void removeCharFromString(bsl::string *str, char chr, int limit = INT_MAX)
 {
-    const char c = static_cast<char>(chr);
-
-    limit = limit < 0 ? INT_MAX : limit;
-
-    bsl::size_t offset;
     for (int ii = 0; ii < limit; ++ii) {
-        offset = str->find(c);
+        bsl::size_t offset = str->find(chr);
         if (bsl::string::npos == offset) {
             break;
         }
         str->erase(offset, 1);
-    }
-    for (const char *pc = str->c_str(); *pc; ++pc) {
-        const unsigned char uc = *pc;
-        ASSERT(isprint(uc));
     }
 }
 
@@ -3365,7 +3357,7 @@ void testCase17(bool verbose,
             }
 
             bsl::string zone(ZONE_DATA[tk].d_invalid);
-            u::removeCharFromString(&zone, 1);
+            u::removeCharFromString(&zone, ':', 1);
             bad += zone;
 
             const char      *STRING = bad.c_str();

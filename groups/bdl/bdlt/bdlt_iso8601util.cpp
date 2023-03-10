@@ -384,14 +384,16 @@ int parseDateRaw(const char **nextPos,
                  const char  *begin,
                  const char  *end,
                  bool         basic = false)
-    // Parse the date, represented in the "YYYY-MM-DD" ISO 8601 extended
-    // format, from the string starting at the specified 'begin' and ending
-    // before the specified 'end', load into the specified 'year', 'month', and
-    // 'day' their respective parsed values, and set the specified '*nextPos'
-    // to the location one past the last parsed character.  Return 0 on
-    // success, and a non-zero value (with no effect on '*nextPos') otherwise.
-    // The behavior is undefined unless 'begin <= end'.  Note that successfully
-    // parsing a date before 'end' is reached is not an error.
+    // Parse the date, represented in the "YYYY-MM-DD" or "YYYYMMDD" ISO 8601
+    // extended format, from the string starting at the specified 'begin' and
+    // ending before the specified 'end', load into the specified 'year',
+    // 'month', and 'day' their respective parsed values, and set the specified
+    // '*nextPos' to the location one past the last parsed character.  The
+    // value of the specified 'basic', if 'true', means that dashes are not
+    // expected, otherwise they are expected.  Return 0 on success, and a
+    // non-zero value (with no effect on '*nextPos') otherwise.  The behavior
+    // is undefined unless 'begin <= end'.  Note that successfully parsing a
+    // date before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(year);
@@ -510,16 +512,18 @@ int parseTimeRaw(const char         **nextPos,
                  const char          *end,
                  int                  roundMicroseconds,
                  bool                 basic = false)
-    // Parse the time, represented in the "hh:mm:ss[.s+]" ISO 8601 extended
-    // format, from the string starting at the specified 'begin' and ending
-    // before the specified 'end', load into the specified 'hour', 'minute',
-    // 'second', 'millisecond', and 'microsecond' their respective parsed
-    // values with the fractional second rounded to the closest multiple of the
-    // specified 'roundMicroseconds', set the specified 'hasLeapSecond' flag to
-    // 'true' if a leap second was indicated and 'false' otherwise, and set the
-    // specified '*nextPos' to the location one past the last parsed character.
-    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
-    // otherwise.  The behavior is undefined unless 'begin <= end' and
+    // Parse the time, represented in the "hh:mm:ss[.s+]" or "hhmmss[.s+]" ISO
+    // 8601 extended format, from the string starting at the specified 'begin'
+    // and ending before the specified 'end', load into the specified 'hour',
+    // 'minute', 'second', 'millisecond', and 'microsecond' their respective
+    // parsed values with the fractional second rounded to the closest multiple
+    // of the specified 'roundMicroseconds', set the specified 'hasLeapSecond'
+    // flag to 'true' if a leap second was indicated and 'false' otherwise, and
+    // set the specified '*nextPos' to the location one past the last parsed
+    // character.  The specified 'basic' flag, if 'true', means that colons are
+    // not expected, otherwise, they are expected.  Return 0 on success, and a
+    // non-zero value (with no effect on '*nextPos') otherwise.  The behavior
+    // is undefined unless 'begin <= end' and
     // '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing a
     // time before 'end' is reached is not an error.
 {
@@ -614,7 +618,7 @@ int parseZoneDesignator(const char **nextPos,
     // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
     // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
     // successfully parsing a zone designator before 'end' is reached is not an
-    // error.  Also not that the ':' is optional.
+    // error.  Also note that the ':' is optional.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(minuteOffset);
@@ -686,18 +690,19 @@ int parseDate(Date       *date,
               bool        basic = false)
     // Parse the specified initial 'length' characters of the specified ISO
     // 8601 'string' as a 'Date' value, and load the value into the specified
-    // 'date'.  If zone designator is presented in the input, load into the
-    // specified 'tzOffset' the indicated offset (in minutes) from UTC and set
-    // the variable pointed by the specified 'hasZoneDesignator' to 'true'.
-    // Return 0 on success, and a non-zero value (with no effect on the 'date')
-    // otherwise.
+    // 'date'.  If the specified 'basic' argument is 'true', dashes are not
+    // expected in the input, otherwise, they are expected.  If zone designator
+    // is presented in the input, load into the specified 'tzOffset' the
+    // indicated offset (in minutes) from UTC and set the variable pointed by
+    // the specified 'hasZoneDesignator' to 'true'.  Return 0 on success, and a
+    // non-zero value (with no effect on the 'date') otherwise.
 {
     // Sample ISO 8601 date: "2005-01-31+04:00"
     //
     // The zone designator is optional.
 
-    const int minLength = basic ? sizeof "YYYYMMDD"   - 1
-                                : sizeof "YYYY-MM-DD" - 1;
+    const ptrdiff_t minLength = basic ? sizeof "YYYYMMDD"   - 1
+                                      : sizeof "YYYY-MM-DD" - 1;
 
     if (length < minLength) {
         return -1;                                                    // RETURN
@@ -750,11 +755,12 @@ int parseTime(Time           *time,
               bool            basic = false)
     // Parse the specified initial 'length' characters of the specified ISO
     // 8601 'string' as a 'Time' value, and load the value into the specified
-    // 'time'.  If zone designator is presented in the input, load into the
-    // specified 'tzOffset' the indicated offset (in minutes) from UTC and set
-    // the variable pointed by the specified 'hasZoneDesignator' to 'true'.
-    // Return 0 on success, and a non-zero value (with no effect on the 'time')
-    // otherwise.
+    // 'time'.  If the specified 'basic' is 'true', colons are not expected,
+    // otherwise, they are expected.  If zone designator is presented in the
+    // input, load into the specified 'tzOffset' the indicated offset (in
+    // minutes) from UTC and set the variable pointed by the specified
+    // 'hasZoneDesignator' to 'true'.  Return 0 on success, and a non-zero
+    // value (with no effect on the 'time') otherwise.
 {
     // Sample ISO 8601 time: "08:59:59.999999-04:00"
     //
@@ -846,10 +852,11 @@ int parseDatetime(Datetime       *datetime,
                   bool            basic = false)
     // Parse the specified initial 'length' characters of the specified ISO
     // 8601 'string' as a 'Datetime' value, and load the value into the
-    // specified 'datetime'.  If zone designator is presented in the input,
-    // load into the specified 'tzOffset' the indicated offset (in minutes)
-    // from UTC and set the variable pointed by the specified
-    // 'hasZoneDesignator' to 'true'.  Optionally specify a
+    // specified 'datetime'.  If the speciried 'basic' is 'false', dashes and
+    // colons are expected, otherwise, they are not.  If zone designator is
+    // presented in the input, load into the specified 'tzOffset' the indicated
+    // offset (in minutes) from UTC and set the variable pointed by the
+    // specified 'hasZoneDesignator' to 'true'.  Optionally specify a
     // 'allowSpaceInsteadOfT' to allow usage of a SPACE character instead of
     // 'T'.  Return 0 on success, and a non-zero value (with no effect on the
     // 'datetime') otherwise.
@@ -1006,8 +1013,14 @@ int parseImp(Datetime   *result,
              bool        allowSpaceInsteadOfT = false,
              bool        basic = false)
 {
-    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
+    // Sample ISO 8601 datetime if the specified 'basic' is 'false':
+    // "2005-01-31T08:59:59.999999-04:00"
     //
+    // Sample ISO 8601 datetime if the specified 'basic' is 'true':
+    // "20050131T085959.999999-04:00"
+    //
+    // Note that the colon in the time zone is always optional.
+
     // The fractional second and zone designator are independently optional.
 
     // 1. Parse as a 'DatetimeTz'.

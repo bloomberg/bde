@@ -620,9 +620,6 @@ struct Iso8601Util {
     static Iso8601UtilConfiguration defaultConfiguration();
         // Return a default configured configuration object.
 
-    static int toInt(bsl::size_t value);
-        // Return the specific 'value' cast to an 'int'.
-
   public:
     // TYPES
     enum {
@@ -2259,12 +2256,6 @@ Iso8601UtilConfiguration Iso8601Util::defaultConfiguration()
     return Iso8601UtilConfiguration::defaultConfiguration();
 }
 
-inline
-int Iso8601Util::toInt(bsl::size_t value)
-{
-    return static_cast<int>(value);
-}
-
 // CLASS METHODS
 inline
 int Iso8601Util::generate(char                     *buffer,
@@ -3026,7 +3017,7 @@ int Iso8601Util::parseBasic(Date *result, const bsl::string_view& string)
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3036,7 +3027,7 @@ int Iso8601Util::parseBasic(Time *result, const bsl::string_view& string)
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3046,7 +3037,7 @@ int Iso8601Util::parseBasic(Datetime *result, const bsl::string_view& string)
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3056,7 +3047,7 @@ int Iso8601Util::parseBasic(DateTz *result, const bsl::string_view& string)
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3066,7 +3057,7 @@ int Iso8601Util::parseBasic(TimeTz *result, const bsl::string_view& string)
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3076,7 +3067,7 @@ int Iso8601Util::parseBasic(DatetimeTz *result, const bsl::string_view& string)
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3087,7 +3078,7 @@ int Iso8601Util::parseBasic(DateOrDateTz            *result,
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3098,7 +3089,7 @@ int Iso8601Util::parseBasic(TimeOrTimeTz            *result,
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3109,7 +3100,7 @@ int Iso8601Util::parseBasic(DatetimeOrDatetimeTz    *result,
 
     return parseBasic(result,
                       string.data(),
-                      toInt(string.length()));
+                      string.length());
 }
 
 inline
@@ -3152,7 +3143,7 @@ int Iso8601Util::parseRelaxedBasic(Datetime                *result,
 
     return parseRelaxedBasic(result,
                              string.data(),
-                             toInt(string.length()));
+                             string.length());
 }
 
 inline
@@ -3163,7 +3154,7 @@ int Iso8601Util::parseRelaxedBasic(DatetimeTz              *result,
 
     return parseRelaxedBasic(result,
                              string.data(),
-                             toInt(string.length()));
+                             string.length());
 }
 
 inline
@@ -3174,7 +3165,7 @@ int Iso8601Util::parseRelaxedBasic(DatetimeOrDatetimeTz    *result,
 
     return parseRelaxedBasic(result,
                              string.data(),
-                             toInt(string.length()));
+                             string.length());
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
