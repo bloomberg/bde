@@ -673,7 +673,7 @@ bool bdlb::operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
-                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
     return !(lhs < rhs);
 }
