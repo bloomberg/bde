@@ -233,6 +233,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [29] C++20 'bsl_memory.h' HEADER ADDITIONS
 // [28] C++20 'bsl_ranges.h' HEADER
 // [27] CONCERN: The type 'bsl::stop_token' is available and usable.
 // [27] CONCERN: The type 'bsl::stop_source' is available and usable.
@@ -840,6 +841,75 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_memory.h' HEADER ADDITIONS
+        //
+        // Concerns:
+        //: 1 'to_address', 'assume_aligned', 'make_unique_for_overwrite' and
+        //:   'construct_at' are available in 'bsl' to users who include
+        //:   'bsl_memory.h'.
+        //:
+        //: 2 The feature test macros defined in '<memory>' for the imported
+        //:   features are available and have appropriate values.
+        //
+        // Plan:
+        //: 1 Verify that
+        //:    o '__cpp_lib_to_address >= 201711L',
+        //:    o '__cpp_lib_assume_aligned >= 201811L',
+        //:    o '__cpp_lib_smart_ptr_for_overwrite >= 202002L',
+        //:    o '__cpp_lib_constexpr_memory >= 201811L'.
+        //:
+        //: 2 Verify that 'bsl::to_address' returns correct address.
+        //:
+        //: 3 Verify that 'bsl::assume_aligned' can be called.
+        //:
+        //: 4 Verify that 'bsl::construct_at' can be called.
+        //:
+        //: 5 Verify that 'bsl::make_unique_for_overwrite' can be called with
+        //:   single object template argument as well as with array template
+        //:   argument.
+        //:
+        //: 6 Verify that 'bsl::pointer_traits' is usable in constexpr context.
+        //
+        // Testing
+        //   C++20 'bsl_memory.h' HEADER ADDITIONS
+        // --------------------------------------------------------------------
+        if (verbose) printf(
+                          "\nTESTING C++20 'bsl_memory.h' HEADER ADDITIONS"
+                          "\n=============================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        BSLMF_ASSERT(__cpp_lib_to_address >= 201711L);
+        int intValue = 0;
+        ASSERT(bsl::to_address(&intValue) == &intValue);
+
+        BSLMF_ASSERT(__cpp_lib_assume_aligned >= 201811L);
+        (void) bsl::assume_aligned<alignof(int)>(&intValue);
+
+        alignas(int) char buf[sizeof(int)];
+        bsl::destroy_at(bsl::construct_at<int>(reinterpret_cast<int*>(buf)));
+
+        BSLMF_ASSERT(__cpp_lib_smart_ptr_for_overwrite >= 202002L);
+        (void) bsl::make_unique_for_overwrite<int>();
+        (void) bsl::make_unique_for_overwrite<int[]>(4);
+        //bsl::make_shared_for_overwrite() // own implementation
+        //bsl::allocate_shared_for_overwrite() // own implementation
+
+        BSLMF_ASSERT(__cpp_lib_constexpr_memory >= 201811L);
+        BSLMF_ASSERT((
+                bsl::pointer_traits<int*>::pointer_to(intValue) == &intValue));
+
+        //BSLMF_ASSERT(__cpp_lib_shared_ptr_arrays >= 201707L);
+        //bsl::make_shared<int[]>() // own implementation
+
+        //BSLMF_ASSERT(__cpp_lib_atomic_shared_ptr >= 201711L);
+        //bsl::atomic<bsl::shared_ptr> // not implemented
+
+        //BSLMF_ASSERT(__cpp_lib_constexpr_dynamic_alloc >= 201907L);
+        // constexpr 'bsl::allocator' // not implemented
+#endif
+      } break;
       case 28: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_ranges.h' HEADER

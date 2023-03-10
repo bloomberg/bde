@@ -14,6 +14,28 @@ BSLS_IDENT("$Id: $")
 // compiler-provided standard header, and also directly include Bloomberg's
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+//
+// The following items from the standard library header are not aliased as we
+// have our own implementations in 'bslstl_sharedptr.h':
+//   shared_ptr
+//   weak_ptr
+//   enable_shared_from_this
+//   allocate_shared
+//   allocate_shared_for_overwrite
+//   make_shared
+//   make_shared_for_overwrite
+//   get_deleter
+//   const_pointer_cast
+//   dynamic_pointer_cast
+//   static_pointer_cast
+//   reinterpret_pointer_cast
+//
+// The following items from the standard library header are not aliased as they
+// would conflict with the BDE allocator implementation:
+//   allocator
+//   allocator_traits
+//   allocator_arg
+//   allocator_arg_t
 
 #include <bsls_libraryfeatures.h>
 
@@ -87,6 +109,13 @@ namespace bsl {
     using std::return_temporary_buffer;
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    using std::to_address;
+    using std::assume_aligned;
+    using std::make_unique_for_overwrite;
+    using std::construct_at;
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.  This may get tricky if some standard library
@@ -106,7 +135,6 @@ namespace bsl {
     using std::nothrow;
     using std::nothrow_t;
     using std::output_iterator_tag;
-    using std::new_handler;
     using std::random_access_iterator_tag;
     using std::set_new_handler;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
