@@ -715,11 +715,11 @@ inline
 bool bdlb::operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
                      const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    if (lhs.isNull()) {
-        return !rhs.isNull();                                         // RETURN
+    if (rhs.isNull()) {
+        return false;                                                 // RETURN
     }
 
-    return rhs.isNull() ? false : lhs.value() < rhs.value();
+    return lhs.isNull() ? true : lhs.value() < rhs.value();
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -799,11 +799,11 @@ inline
 bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                       const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    if (lhs.isNull()) {
-        return rhs.isNull();                                          // RETURN
+    if (rhs.isNull()) {
+        return true;                                                  // RETURN
     }
 
-    return rhs.isNull() ? true : lhs.value() >= rhs.value();
+    return lhs.isNull() ? false : lhs.value() >= rhs.value();
 }
 
 template <class LHS_TYPE, class RHS_TYPE>

@@ -1377,6 +1377,26 @@ int main(int argc, char *argv[])
 
                 ASSERT(!(NN >= WV));
                 ASSERT(  WV >= NN );
+
+                const Obj W(WV);
+
+                ASSERT(!(NN == W ));
+                ASSERT(!(W  == NN));
+
+                ASSERT(  NN != W  );
+                ASSERT(  W  != NN );
+
+                ASSERT(  NN <  W  );
+                ASSERT(!(W  <  NN));
+
+                ASSERT(  NN <= W  );
+                ASSERT(!(W  <= NN));
+
+                ASSERT(!(NN >  W ));
+                ASSERT(  W  >  NN );
+
+                ASSERT(!(NN >= W ));
+                ASSERT(  W  >= NN );
             }
         }
       } break;
