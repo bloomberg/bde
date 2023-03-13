@@ -24,6 +24,7 @@
 #include <bslx_testoutstream.h>
 
 #include <bsl_algorithm.h>  // 'swap'
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>    // 'atoi', 'abs'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -54,12 +55,24 @@ using namespace bsl;
 // ACCESSORS
 //
 // FREE OPERATORS
-// [ 5] bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 5] bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 5] bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 5] bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 5] bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 5] bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator==(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator==(const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator!=(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator!=(const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator<( const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator<( const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator<=(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator<=(const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator>( const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator>( const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator>=(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator>=(const b_NV<TYPE>&, const TYPE&);
 //
 // TRAITS
 //-----------------------------------------------------------------------------
@@ -1260,11 +1273,23 @@ int main(int argc, char *argv[])
         //
         // TESTING:
         //   bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator==(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator==(const b_NV<TYPE>&, const TYPE&);
         //   bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator!=(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator!=(const b_NV<TYPE>&, const TYPE&);
         //   bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator<( const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator<( const b_NV<TYPE>&, const TYPE&);
         //   bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator<=(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator<=(const b_NV<TYPE>&, const TYPE&);
         //   bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator>( const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator>( const b_NV<TYPE>&, const TYPE&);
         //   bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator>=(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator>=(const b_NV<TYPE>&, const TYPE&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING COMPARISON OPERATORS\n"
@@ -1273,30 +1298,85 @@ int main(int argc, char *argv[])
         typedef int                                     ValueType;
         typedef bdlb::NullableAllocatedValue<ValueType> Obj;
 
-        const int NUM_VALUES = 3;
+        enum { NUM_VALUES = 3 };
 
         Obj objArray[NUM_VALUES];
+        const int valArray[] = { 0, 123, 234 };
+        ASSERT(sizeof valArray / sizeof *valArray == NUM_VALUES);
 
         objArray[1].makeValue(123);
         objArray[2].makeValue(234);
 
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            const Obj& U = objArray[i];
+        for (int ii = 0; ii < NUM_VALUES; ++ii) {
+            const Obj& U  = objArray[ii];
+            const int  UV = valArray[ii];
 
-            if (veryVerbose) { T_ P_(i) P(U) }
+            if (veryVerbose) { T_ P_(ii) P(U) }
 
-            for (int j = 0; j < NUM_VALUES; ++j) {
-                const Obj& V = objArray[j];
+            for (int jj = 0; jj < NUM_VALUES; ++jj) {
+                const Obj& V  = objArray[jj];
+                const int  VV = valArray[jj];
 
-                if (veryVeryVerbose) { T_ T_ P_(j) P(V) }
+                if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
 
-                ASSERTV(U, V, (i == j) == (U == V));
-                ASSERTV(U, V, (i != j) == (U != V));
+                ASSERTV(U, V, (ii == jj) == (U == V));
+                ASSERTV(U, V, (ii != jj) == (U != V));
 
-                ASSERTV(U, V, (i <  j) == (U <  V));
-                ASSERTV(U, V, (i <= j) == (U <= V));
-                ASSERTV(U, V, (i >  j) == (U >  V));
-                ASSERTV(U, V, (i >= j) == (U >= V));
+                ASSERTV(U, V, (ii <  jj) == (U <  V));
+                ASSERTV(U, V, (ii <= jj) == (U <= V));
+                ASSERTV(U, V, (ii >  jj) == (U >  V));
+                ASSERTV(U, V, (ii >= jj) == (U >= V));
+
+                if (0 < ii) {
+                    ASSERTV(U, V, (ii == jj) == (UV == V));
+                    ASSERTV(U, V, (ii != jj) == (UV != V));
+
+                    ASSERTV(U, V, (ii <  jj) == (UV <  V));
+                    ASSERTV(U, V, (ii <= jj) == (UV <= V));
+                    ASSERTV(U, V, (ii >  jj) == (UV >  V));
+                    ASSERTV(U, V, (ii >= jj) == (UV >= V));
+                }
+
+                if (0 < jj) {
+                    ASSERTV(U, V, (ii == jj) == (U == VV));
+                    ASSERTV(U, V, (ii != jj) == (U != VV));
+
+                    ASSERTV(U, V, (ii <  jj) == (U <  VV));
+                    ASSERTV(U, V, (ii <= jj) == (U <= VV));
+                    ASSERTV(U, V, (ii >  jj) == (U >  VV));
+                    ASSERTV(U, V, (ii >= jj) == (U >= VV));
+                }
+            }
+        }
+
+        {
+            const Obj NN;
+            ASSERT(NN.isNull());
+
+            const int wildValues[] = { INT_MIN, -1000, 0, +1000, INT_MAX };
+            enum { k_NUM_WILD_VALUES =
+                                      sizeof wildValues / sizeof *wildValues };
+
+            for (int ii = 0; ii < k_NUM_WILD_VALUES; ++ii) {
+                const int WV = wildValues[ii];
+
+                ASSERT(!(NN == WV));
+                ASSERT(!(WV == NN));
+
+                ASSERT(  NN != WV );
+                ASSERT(  WV != NN );
+
+                ASSERT(  NN <  WV );
+                ASSERT(!(WV <  NN));
+
+                ASSERT(  NN <= WV );
+                ASSERT(!(WV <= NN));
+
+                ASSERT(!(NN >  WV));
+                ASSERT(  WV >  NN );
+
+                ASSERT(!(NN >= WV));
+                ASSERT(  WV >= NN );
             }
         }
       } break;

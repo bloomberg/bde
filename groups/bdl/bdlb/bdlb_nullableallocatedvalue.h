@@ -97,9 +97,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlb {
 
-                  // ==================================
-                  // class NullableAllocatedValue<TYPE>
-                  // ==================================
+                      // ==================================
+                      // class NullableAllocatedValue<TYPE>
+                      // ==================================
 
 template <class TYPE>
 class NullableAllocatedValue {
@@ -149,9 +149,8 @@ class NullableAllocatedValue {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    explicit
     NullableAllocatedValue(const TYPE&       value,
-                           bslma::Allocator *basicAllocator = 0);
+                           bslma::Allocator *basicAllocator = 0);   // IMPLICIT
         // Create a nullable object having the specified 'value'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -268,6 +267,12 @@ class NullableAllocatedValue {
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' nullable objects have the
     // same value, and 'false' otherwise.  Two nullable objects have the same
     // value if both are null, or if both are non-null and the values of their
@@ -277,6 +282,12 @@ bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' nullable objects do not
     // have the same value, and 'false' otherwise.  Two nullable objects do not
     // have the same value if one is null and the other is non-null, or if both
@@ -287,6 +298,12 @@ bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const LHS_TYPE&                         lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const RHS_TYPE&                         rhs);
     // Return 'true' if the specified 'lhs' is less than the specified 'rhs',
     // and 'false' otherwise.  A null value is considered less than any
     // non-null value.  Two null values are considered equal.  Two non-null
@@ -294,9 +311,16 @@ bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
     // function will fail to compile if no 'operator<' exists for 'LHS_TYPE'
     // and 'RHS_TYPE'.
 
+
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
     // Return 'true' if the specified 'lhs' is less than or equal to the
     // specified 'rhs', and 'false' otherwise.  A null value is considered less
     // than any non-null value.  Two null values are considered equal.  Two
@@ -307,6 +331,12 @@ bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const LHS_TYPE&                         lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const RHS_TYPE&                         rhs);
     // Return 'true' if the specified 'lhs' is greater than the specified
     // 'rhs', and 'false' otherwise.  A null value is considered less than any
     // non-null value.  Two null values are considered equal.  Two non-null
@@ -317,6 +347,12 @@ bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
     // Return 'true' if the specified 'lhs' is greater than or equal to the
     // specified 'rhs', and 'false' otherwise.  A null value is considered less
     // than any non-null value.  Two null values are considered equal.  Two
@@ -623,11 +659,27 @@ inline
 bool bdlb::operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
                       const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() == rhs.value();                            // RETURN
+    if (lhs.isNull()) {
+        return rhs.isNull();                                          // RETURN
     }
 
-    return lhs.isNull() == rhs.isNull();
+    return rhs.isNull() ? false : lhs.value() == rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? false : lhs == rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? false : lhs.value() == rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -635,11 +687,27 @@ inline
 bool bdlb::operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                       const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() != rhs.value();                            // RETURN
+    if (lhs.isNull()) {
+        return !rhs.isNull();                                         // RETURN
     }
 
-    return lhs.isNull() != rhs.isNull();
+    return rhs.isNull() ? true : lhs.value() != rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? true : lhs != rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? true : lhs.value() != rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -647,11 +715,27 @@ inline
 bool bdlb::operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
                      const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    return lhs.isNull()
-         ? !rhs.isNull()
-         : rhs.isNull()
-         ? false
-         : lhs.value() < rhs.value();
+    if (lhs.isNull()) {
+        return !rhs.isNull();                                         // RETURN
+    }
+
+    return rhs.isNull() ? false : lhs.value() < rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const LHS_TYPE&                         lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? false : lhs < rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? true : lhs.value() < rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -659,7 +743,27 @@ inline
 bool bdlb::operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                       const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    return !(rhs < lhs);
+    if (lhs.isNull()) {
+        return true;                                                  // RETURN
+    }
+
+    return rhs.isNull() ? false : lhs.value() <= rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? false : lhs <= rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? true : lhs.value() <= rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -667,7 +771,27 @@ inline
 bool bdlb::operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
                      const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    return rhs < lhs;
+    if (lhs.isNull()) {
+        return false;                                                 // RETURN
+    }
+
+    return rhs.isNull() ? true : lhs.value() > rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const LHS_TYPE&                         lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? true : lhs > rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? false : lhs.value() > rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -675,9 +799,28 @@ inline
 bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                       const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    return !(lhs < rhs);
+    if (lhs.isNull()) {
+        return rhs.isNull();                                          // RETURN
+    }
+
+    return rhs.isNull() ? true : lhs.value() >= rhs.value();
 }
 
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? true : lhs >= rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? false : lhs.value() >= rhs;
+}
 
 template <class TYPE>
 inline
