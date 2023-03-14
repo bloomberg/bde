@@ -834,16 +834,50 @@ const char *nonDefaultThreadName =
 
 namespace NAMED_DETACHED_THREAD_TEST_CASE {
 
-enum { k_NUM_THREADS = 10 };
+enum {  k_NUM_THREADS = 10,
+
+#if   defined(BSLS_PLATFORM_OS_WINDOWS)
+        // There is one allocation for the thread name in 'attr' variable in
+        // this function, then for each thread there is:
+        //: o One allocation for the 'u::NamedFuncPtrRecord' in the imp file.
+        //:
+        //: o One allocation for the string object in the
+        //:   'u::NamedFuncPtrRecord' in the imp file.
+        //:
+        //: o One allocation for the string in 'TC::subThread' in this file.
+
+        k_EXP_TA_ALLOCS = 1 + 3 * k_NUM_THREADS,
+
+        // We expect each thread to do one allocation in the default allocator
+        // in bslmt_threadutilimpl_windows.cpp when translating UTF-8 to
+        // UTF-16.
+
+        k_EXP_DEFAULT_ALLOCS = k_NUM_THREADS,
+
+#elif   defined(BSLS_PLATFORM_OS_UNIX)
+        // The max thread name is short enough to fit in a short string, but we
+        // still have to allocate 'u::NamedFuncPtrRecord' for each thread.
+
+        k_EXP_TA_ALLOCS = k_NUM_THREADS,
+
+        // No unicode translation on Unix.
+
+        k_EXP_DEFAULT_ALLOCS = 0,
+#else
+# error unrecognized platform
+#endif
+};
 
 bsls::AtomicInt started(0);
 bsls::AtomicInt stopped(-1);
 
-extern "C" void *subThread(void *)
+extern "C" void *subThread(void *allocArg)
 {
+    bslma::Allocator *alloc = static_cast<bslma::Allocator *>(allocArg);
+
     ++started;
 
-    bsl::string threadName;
+    bsl::string threadName(alloc);
     Obj::getThreadName(&threadName);
     ASSERT((k_threadNameCanBeEmpty && threadName.empty()) ||
            u::nonDefaultThreadName == threadName);
@@ -1611,44 +1645,52 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         taDefaultLocal;
         bslma::DefaultAllocatorGuard guard(&taDefaultLocal);
 
-        Attr attr(&ta);
-        attr.setThreadName(u::nonDefaultThreadName);
-        attr.setDetachedState(Attr::e_CREATE_DETACHED);
+        {
+            Attr attr(&ta);
+            attr.setThreadName(u::nonDefaultThreadName);
+            attr.setDetachedState(Attr::e_CREATE_DETACHED);
 
-        Obj::Handle handles[TC::k_NUM_THREADS];
-        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
-            int rc = Obj::createWithAllocator(&handles[ii],
-                                              attr,
-                                              &TC::subThread,
-                                              0,
-                                              &ta);
-            ASSERT(0 == rc);
+            Obj::Handle handles[TC::k_NUM_THREADS];
+            for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+                int rc = Obj::createWithAllocator(&handles[ii],
+                                                  attr,
+                                                  &TC::subThread,
+                                                  &ta,
+                                                  &ta);
+                ASSERT(0 == rc);
+            }
         }
 
         while (TC::started < TC::k_NUM_THREADS) {
             Obj::yield();
         }
 
-        ASSERT(TC::k_NUM_THREADS == ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
+        // 'stopped' is statically initialized to -1, the threads don't start
+        // incrementing it until it's non-negatie.
 
         TC::stopped = 0;
         while (TC::stopped < TC::k_NUM_THREADS) {
             Obj::yield();
         }
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
-        int expAllocs = 0;
-#else
-        // Windows allocates a string using the default allocator when
-        // performing the thread name unicode conversion.
-        int expAllocs = TC::k_NUM_THREADS;
-#endif
+        // Wait 2 seconds to be sure detacheds threads have finished and
+        // released memory.
 
-        ASSERTV(taDefaultLocal.numAllocations(),
-                expAllocs == taDefaultLocal.numAllocations());
+        bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+        do {
+            Obj::yield();
+        } while ((bsls::SystemTime::nowMonotonicClock() - start).
+                                                 totalSecondsAsDouble() < 2.0);
+
+        ASSERTV(TC::k_EXP_DEFAULT_ALLOCS, taDefaultLocal.numAllocations(),
+                  TC::k_EXP_DEFAULT_ALLOCS == taDefaultLocal.numAllocations());
         ASSERTV(taDefaultLocal.numBytesInUse(),
                 0 == taDefaultLocal.numBytesInUse());
+
+        ASSERTV(TC::k_EXP_TA_ALLOCS, ta.numAllocations(),
+                                   TC::k_EXP_TA_ALLOCS == ta.numAllocations());
+        ASSERTV(ta.numBytesInUse(), 0 == ta.numBytesInUse());
+        ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
       } break;
       case 18: {
         // --------------------------------------------------------------------
