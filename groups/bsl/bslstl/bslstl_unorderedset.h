@@ -270,6 +270,9 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.clear()                                          | O[n]               |
 //  +----------------------------------------------------+--------------------+
+//  | a.contains(k)                                      | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
 //  | a.find(k)                                          | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
@@ -1255,6 +1258,25 @@ class unordered_set {
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
         // maintained by this set.
+
+    bool contains(const key_type &key) const;
+        // Return 'true' if this unordered set contains an element whose key is
+        // equivalent to the specified 'key'.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
+            BloombergLP::bslmf::IsTransparentPredicate<EQUAL,
+                                                       LOOKUP_KEY>::value,
+        bool>::type
+    contains(const LOOKUP_KEY& key) const
+        // Return 'true' if this unordered set contains an element whose key is
+        // equivalent to the specified 'key'.
+        //
+        // Note: implemented inline due to Sun CC compilation error
+    {
+        return find(key) != end();
+    }
 
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this set contains no elements, and 'false'
@@ -2357,6 +2379,14 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
 {
     return const_iterator();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bool unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::contains(
+                                                     const key_type& key) const
+{
+    return find(key) != end();
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>

@@ -163,6 +163,8 @@ using bsls::NameOf;
 //*[ 4] allocator_type get_allocator() const;
 //
 // set operations:
+//*[13] bool contains(const key_type& key);
+//*[13] bool contains(const LOOKUP_KEY& key);
 //*[13] iterator find(const key_type& key);
 //*[13] const_iterator find(const key_type& key) const;
 //*[13] size_type count(const key_type& key) const;
