@@ -1298,24 +1298,25 @@ int main(int argc, char *argv[])
         typedef int                                     ValueType;
         typedef bdlb::NullableAllocatedValue<ValueType> Obj;
 
-        enum { NUM_VALUES = 3 };
+        const int values[] = { 123, INT_MIN, -1000, 0, +1000, INT_MAX };
+        enum { k_NUM_VALUES = sizeof values / sizeof *values };
 
-        Obj objArray[NUM_VALUES];
-        const int valArray[] = { 0, 123, 234 };
-        ASSERT(sizeof valArray / sizeof *valArray == NUM_VALUES);
+        Obj objArray[k_NUM_VALUES];    const Obj *OBJ_ARRAY = objArray;
 
-        objArray[1].makeValue(123);
-        objArray[2].makeValue(234);
+        for (int ii = 1; ii < k_NUM_VALUES; ++ii) {
+            objArray[ii].makeValue(values[ii]);
+        }
+        ASSERT(OBJ_ARRAY[0].isNull());
 
-        for (int ii = 0; ii < NUM_VALUES; ++ii) {
-            const Obj& U  = objArray[ii];
-            const int  UV = valArray[ii];
+        for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+            const int UV = values[ii];
+            const Obj U(OBJ_ARRAY[ii]);
 
             if (veryVerbose) { T_ P_(ii) P(U) }
 
-            for (int jj = 0; jj < NUM_VALUES; ++jj) {
-                const Obj& V  = objArray[jj];
-                const int  VV = valArray[jj];
+            for (int jj = 0; jj < k_NUM_VALUES; ++jj) {
+                const int VV = values[jj];
+                const Obj V(OBJ_ARRAY[jj]);
 
                 if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
 
@@ -1350,53 +1351,49 @@ int main(int argc, char *argv[])
         }
 
         {
-            const Obj NN;
-            ASSERT(NN.isNull());
+            const Obj N;
+            ASSERT(N.isNull());
 
-            const int wildValues[] = { INT_MIN, -1000, 0, +1000, INT_MAX };
-            enum { k_NUM_WILD_VALUES =
-                                      sizeof wildValues / sizeof *wildValues };
+            for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+                const int RV = values[ii];
 
-            for (int ii = 0; ii < k_NUM_WILD_VALUES; ++ii) {
-                const int WV = wildValues[ii];
+                ASSERT(!(N  == RV));
+                ASSERT(!(RV == N ));
 
-                ASSERT(!(NN == WV));
-                ASSERT(!(WV == NN));
+                ASSERT(  N  != RV );
+                ASSERT(  RV != N  );
 
-                ASSERT(  NN != WV );
-                ASSERT(  WV != NN );
+                ASSERT(  N  <  RV );
+                ASSERT(!(RV <  N ));
 
-                ASSERT(  NN <  WV );
-                ASSERT(!(WV <  NN));
+                ASSERT(  N  <= RV );
+                ASSERT(!(RV <= N ));
 
-                ASSERT(  NN <= WV );
-                ASSERT(!(WV <= NN));
+                ASSERT(!(N  >  RV));
+                ASSERT(  RV >  N  );
 
-                ASSERT(!(NN >  WV));
-                ASSERT(  WV >  NN );
+                ASSERT(!(N  >= RV));
+                ASSERT(  RV >= N  );
 
-                ASSERT(!(NN >= WV));
-                ASSERT(  WV >= NN );
+                const Obj NV(RV);
 
-                const Obj W(WV);
+                ASSERT(!(N  == NV));
+                ASSERT(!(NV == N ));
 
-                ASSERT(!(NN == W ));
-                ASSERT(!(W  == NN));
+                ASSERT(  N  != NV );
+                ASSERT(  NV != N  );
 
-                ASSERT(  NN != W  );
-                ASSERT(  W  != NN );
+                ASSERT(  N  <  NV );
+                ASSERT(!(NV <  N ));
 
-                ASSERT(  NN <  W  );
-                ASSERT(!(W  <  NN));
+                ASSERT(  N  <= NV );
+                ASSERT(!(NV <= N ));
 
-                ASSERT(  NN <= W  );
-                ASSERT(!(W  <= NN));
+                ASSERT(!(N  >  NV));
+                ASSERT(  NV >  N  );
 
-                ASSERT(!(NN >  W ));
-                ASSERT(  W  >  NN );
-
-                ASSERT(!(NN >= W ));
-                ASSERT(  W  >= NN );
+                ASSERT(!(N  >= NV));
+                ASSERT(  NV >= N  );
             }
         }
       } break;
