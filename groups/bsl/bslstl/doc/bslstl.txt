@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 113 components having 10 levels of physical
+ The 'bslstl' package currently has 114 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -93,6 +93,7 @@
       bslstl_errc
       bslstl_forwarditerator
       bslstl_function_rep                                             !PRIVATE!
+      bslstl_ios
       bslstl_optional
       bslstl_pair
       bslstl_stringview
@@ -261,6 +262,9 @@
 :
 : 'bslstl_iomanip':
 :      Provide BSL implementations for standard <iomanip> features.
+:
+: 'bslstl_ios':
+:      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_iosfwd':
 :      Provide forward declarations for Standard stream classes.

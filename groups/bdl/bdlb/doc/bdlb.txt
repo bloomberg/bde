@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 48 components having 5 levels of physical
+ The 'bdlb' package currently has 49 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -53,6 +53,7 @@
      bdlb_literalutil
      bdlb_nullopt
      bdlb_nulloutputiterator
+     bdlb_pairutil
      bdlb_pcgrandomgenerator
      bdlb_print
      bdlb_randomdevice
@@ -160,6 +161,9 @@
 :
 : 'bdlb_optionalprinter':
 :      Provide a suite of helper classes for printing 'bsl::optional'.
+:
+: 'bdlb_pairutil':
+:      Provide a function that creates a pair of references.
 :
 : 'bdlb_pcgrandomgenerator':
 :      Provide a class to generate random numbers using the PCG algorithm.
