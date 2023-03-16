@@ -166,6 +166,7 @@ namespace bsl {
 
 #include <bslstl_array.h>
 #include <bslstl_iterator.h>
+#include <bslstl_vector.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <array>     // 'std::array'
@@ -821,6 +822,16 @@ span(const std::array<TYPE, SIZE> &) -> span<const TYPE, SIZE>;
     // Deduce the template parameters 'TYPE' and 'SIZE' from the corresponding
     // template parameters of the 'std::array' supplied to the constructor of
     // 'span'.
+
+template <class TYPE, class ALLOCATOR>
+span(bsl::vector<TYPE, ALLOCATOR> &) -> span<TYPE>;
+    // Deduce the template parameters 'TYPE' from the corresponding template
+    // parameter of the 'bsl::vector' supplied to the constructor of 'span'.
+
+template <class TYPE, class ALLOCATOR>
+span(const bsl::vector<TYPE, ALLOCATOR> &) -> span<const TYPE>;
+    // Deduce the template parameters 'TYPE' from the corresponding template
+    // parameter of the 'bsl::vector' supplied to the constructor of 'span'.
 #endif
 
 // FREE FUNCTIONS

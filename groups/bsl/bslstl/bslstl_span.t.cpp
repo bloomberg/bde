@@ -767,10 +767,12 @@ struct TestDeductionGuides {
         //..
         // span(const span&  s)        -> decltype(s)
         // span(TYPE (&)[SIZE])        -> span<TYPE, SIZE>
-        // span(      bsl::array<TYPE, SIZE>)-> span<TYPE, SIZE>
-        // span(const bsl::array<TYPE, SIZE>) -> span<const TYPE, SIZE>
-        // span(      std::array<TYPE, SIZE>)-> span<TYPE, SIZE>
-        // span(const std::array<TYPE, SIZE>) -> span<const TYPE, SIZE>
+        // span(      bsl::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
+        // span(const bsl::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
+        // span(      std::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
+        // span(const std::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
+        // span(      bsl::vector<TYPE, SIZE>) -> span<TYPE>
+        // span(const bsl::vector<TYPE, SIZE>) -> span<const TYPE>
         // span(            CONTAINER &) -> span<CONTAINER::value_type>
         // span(const const CONTAINER &) -> span<const CONTAINER::value_type>
         //..
@@ -808,6 +810,15 @@ struct TestDeductionGuides {
         bsl::span                span4b(cArr4);
         ASSERT_SAME_TYPE(decltype(span4a), bsl::span<T4, 2>);
         ASSERT_SAME_TYPE(decltype(span4b), bsl::span<const T4, 2>);
+
+        typedef long T5;
+        bsl::vector<T5>        vec5;
+        const bsl::vector<T5>& cVec5 = vec5;
+        bsl::span              span5a(vec5);
+        bsl::span              span5b(cVec5);
+        ASSERT_SAME_TYPE(decltype(span5a), bsl::span<T5, bsl::dynamic_extent>);
+        ASSERT_SAME_TYPE(decltype(span5b), bsl::span<const T5,
+                                                         bsl::dynamic_extent>);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests
