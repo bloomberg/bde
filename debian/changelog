@@ -1,5 +1,52 @@
-bsl-internal (3.114.0.1) unstable; urgency=low
+bsl-internal (3.115.0.0) unstable; urgency=low
 
+  * 23fa496ab Bumped version to 3.115.0.0
+  * 920f6bde2 Changes for new iface targets (#4164)
+  * a814dddf5 Add 'contains' for unordered set/multiset (#4153)
+  * 2888811d8 bslstl_stringview: doc that 'substr' throws out_of_range. (#4160)
+  * d20405ece Remove __cpp_lib_three_way_comparison checks, fail on Apple clang 14.0.0 (#4158)
+  * 992ac6dec fix windows thread name errors (#4135)
+  * e149fb551 C++20 work: Add aliases to <bsl_memory.h> (DRQS 171318660) (#4134)
+  * b4ca1cb0f bdljsn_json Json tests (#4151)
+  * 294ad0ae7 Implement 'bdlb::PairUtil' (DRQS 159802195) (#4150)
+  * 5e09a57b8 added back the 'BSLS_REVIEW' to 'bdlt_datetime::addMinutes'. (#4121)
+  * 2cf7a53c3 bslim_fuzzutil DRQS 171166508 (#4111)
+  * d0803ed0d drqs-171453213: 'bdljsn_tokenizer': Test 'setAllowTrailingTopLevelComma'. (#4156)
+  * 6051ad29c Avoid global constructor for GuidUtil::generateNonSecure - {DRQS  171400188} (#4123)
+  * 12bb42f30 replace unary minus (#4155)
+  * 633326a36 Remove references to deprecated bcema components (#4154)
+  * b2539d81c Merge pull request #4149 from jberne4/bsls_review_cpp14_constexpr
+  * 4d1ab0960 BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON added (#4142)
+  * 4fb06f603 bsl_iosfwd.h included (#4146)
+  * 76ff636d0 Ranges aliases have been added. DRQS 171318603 (#4143)
+  * 9e10f776d Add C++20 'contains' to map/multimap (#4144)
+  * 696ef5ebb bdljsn_json JsonObject test driver (#4124)
+  * cd97a552b bdls::FilesystemUtil::readLink (DRQS 164362216) (#4062)
+  * f79ad60db Fix some nits in span (#4100)
+  * 2118cf558 drqs-171365411: 'bdljsn_(read|write)options': Align with exemplar VST (#4118)
+  * 109b9da95 Add new header file 'bsl_stop_token.h' (#4137)
+  * d89df1058 Heterogeneous arrays are allowed to be skipped by 'baljsn::Decoder'. DRQS 171296111 (#4113)
+  * 0fe8dc889 C++20 work: Add <bsl_source_location.h> header and alias standard entity (DRQS 171318616) (#4133)
+  * 0e9f54565 C++20 work: Add <bsl_bit.h> header and alias standard entities (DRQS 171318614) (#4132)
+  * 6d6bb0d8d Aliases for C++20 thread-coordination classes have been added (#4110)
+  * 133f8669a bsl_numbers.h fix (#4136)
+  * 6e5a6b636 Merge pull request #4086 from bchapman/char16_t-u16string-drqs-171215307
+  * 3dda85929 Apply t_ prefix to ball template args (#4117)
+  * 74e250fe7 C++20 work: Add <bsl_numbers.h> header and alias standard entity (DRQS 171318596) (#4127)
+  * f4c7a7613 bslstl_optional: use #ifdef's, rahter than enable_if's to determine i… (#4096)
+  * 89d30fa53 Remove unused test folder in bsl+bslhdrs (#4128)
+  * dadb9f84d Fix BDE markup (#4130)
+  * 475656a7b Please add bsl::defaultfloat (DRQS 123822893) (#4104)
+  * d86952ed6 Fix bdlmt_eventscheduler.t failure in case 4 (DRQS 171289367) (#4102)
+  * 4ee1b6d27 error_code test failures on Windows (#4107)
+  * b03fdaca6 Fix FileObserver2 test when local time in UTC (#4106)
+  * 4a5d11ed4 shared_ptr changes for C++17 (second try) (#4101)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 15 Mar 2023 23:45:24 -0400
+
+bsl-internal (3.114.0.1) git; urgency=low
+
+  * 3c9f5c277 Changelog for version 3.114.0.1
   * f53f784e5 Bumped version to 3.114.0.0
   * 70705d8ee Merge pull request #4112 from bchapman/bslh_hash-adlref-start-over-drqs-170259221
   * 61cf6021b Make bslmt::ThreadAttributes printable (DRQS 171145179) (#4071)
@@ -30,7 +77,7 @@ bsl-internal (3.114.0.1) unstable; urgency=low
   * 70f7a526d Add bde metadata generation. (#4075)
   * 81cd272d8 Fix opt, sun test build failures for bdlt_iso8601util (#4074)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 15 Feb 2023 17:02:44 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 15 Feb 2023 17:24:07 -0500
 
 bsl-internal (3.113.0.0) git; urgency=low
 
