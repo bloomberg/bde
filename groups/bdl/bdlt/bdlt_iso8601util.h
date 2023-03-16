@@ -661,6 +661,30 @@ struct Iso8601Util {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    enum Style {
+        k_STYLE_RELAXED_FLAG  = 0x1,
+        k_STYLE_BASIC_FLAG    = 0x2,
+        k_STYLE_MAX_VALUE     = k_STYLE_RELAXED_FLAG | k_STYLE_BASIC_FLAG,
+
+        k_STYLE_ILLEGAL_VALUE = k_STYLE_MAX_VALUE + 1,    // for testing
+
+
+        e_STYLE_DEFAULT       = 0,      // 'T' or 't' required between date &
+                                        // time in 'bdlt::Datetime', '-'
+                                        // required in 'bdlt::Date', ':'
+                                        // required in 'bdlt::Time'.
+
+        e_STYLE_RELAXED,                // Can use ' ', 'T', or 't' to separate
+                                        // date & time 'bdlt::Datetime'.  Note
+                                        // 'T' can always be used.
+
+        e_STYLE_BASIC,                  // No '-'s allowed in 'Date', no ':'s
+                                        // allowed in 'Time'.  Note that ':'s
+                                        // are always optional in time zone.
+
+        e_STYLE_RELAXED_BASIC           // both 'relaxed' and 'basic'
+    };
+
     typedef bdlb::Variant2<Date, DateTz>         DateOrDateTz;
         // 'DateOrDateTz' is a convenient alias for
         // 'bdlb::Variant2<Date, DateTz>'.
@@ -1077,11 +1101,16 @@ struct Iso8601Util {
         // to the nearest value in nanoseconds.  The behavior is undefined
         // unless '0 <= length'.
 
-    static int parse(Date *result, const char *string, ptrdiff_t length);
+    static int parse(Date       *result,
+                     const char *string,
+                     ptrdiff_t   length,
+                     Style       style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
+        // specified 'result', using the specified 'style' (see documentation
+        // of the 'Style' enum above).  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1091,11 +1120,16 @@ struct Iso8601Util {
         // is present in 'string', it is parsed but ignored.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(Time *result, const char *string, ptrdiff_t length);
+    static int parse(Time       *result,
+                     const char *string,
+                     ptrdiff_t   length,
+                     Style       style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
+        // specified 'result', using the specified 'style' (see documentation
+        // of the 'Style' enum above).  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1114,11 +1148,16 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(Datetime *result, const char *string, ptrdiff_t length);
+    static int parse(Datetime   *result,
+                     const char *string,
+                     ptrdiff_t   length,
+                     Style       style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
+        // specified 'result', using the specified 'style' (see documentation
+        // of the 'Style' enum above).  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1137,11 +1176,16 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(DateTz *result, const char *string, ptrdiff_t length);
+    static int parse(DateTz     *result,
+                     const char *string,
+                     ptrdiff_t   length,
+                     Style       style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DateTz' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
+        // specified 'result', using the specified 'style' (see documentation
+        // of the 'Style' enum above).  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1151,11 +1195,16 @@ struct Iso8601Util {
         // is not present in 'string', UTC is assumed.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(TimeTz *result, const char *string, ptrdiff_t length);
+    static int parse(TimeTz     *result,
+                     const char *string,
+                     ptrdiff_t   length,
+                     Style       style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'TimeTz' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
+        // specified 'result', using the specified 'style' (see documentation
+        // of the 'Style' enum above).  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1172,11 +1221,16 @@ struct Iso8601Util {
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
-    static int parse(DatetimeTz *result, const char *string, ptrdiff_t length);
+    static int parse(DatetimeTz *result,
+                     const char *string,
+                     ptrdiff_t   length,
+                     Style       style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DatetimeTz' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
+        // specified 'result', using the specified 'style' (see documentation
+        // of the 'Style' enum above).  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1195,12 +1249,14 @@ struct Iso8601Util {
 
     static int parse(DateOrDateTz *result,
                      const char   *string,
-                     ptrdiff_t     length);
+                     ptrdiff_t     length,
+                     Style         style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' or 'DateTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
-        // 'result'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // 'result', using the specified 'style' (see documentation of the
+        // 'Style' enum above).  Return 0 on success, and a non-zero value
+        // (with no effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1213,12 +1269,14 @@ struct Iso8601Util {
 
     static int parse(TimeOrTimeTz *result,
                      const char   *string,
-                     ptrdiff_t     length);
+                     ptrdiff_t     length,
+                     Style         style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' or 'TimeTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
-        // 'result'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // 'result', using the specified 'style' (see documentation of the
+        // 'Style' enum above).  Return 0 on success, and a non-zero value
+        // (with no effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1238,12 +1296,15 @@ struct Iso8601Util {
 
     static int parse(DatetimeOrDatetimeTz *result,
                      const char           *string,
-                     ptrdiff_t             length);
+                     ptrdiff_t             length,
+                     Style                 style = e_STYLE_DEFAULT);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' or  'DatetimeTz' value, depending on
         // the presence of a zone designator, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
+        // specified 'result', using the specified 'style' (see documentation
+        // of the 'Style' enum above).  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1280,11 +1341,14 @@ struct Iso8601Util {
         // 'string', it is rounded to the nearest value in nanoseconds.  The
         // behavior is undefined unless '0 <= length'.
 
-    static int parse(Date *result, const bsl::string_view& string);
+    static int parse(Date                    *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'Date' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
+        // the value into the specified 'result', using the specified 'style'
+        // (see documentation of the 'Style' enum above).  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1294,11 +1358,14 @@ struct Iso8601Util {
         // designator is present in 'string', it is parsed but ignored.  The
         // behavior is undefined unless 'string.data()' is non-null.
 
-    static int parse(Time *result, const bsl::string_view& string);
+    static int parse(Time                    *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'Time' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
+        // the value into the specified 'result', using the specified 'style'
+        // (see documentation of the 'Style' enum above).  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1318,11 +1385,14 @@ struct Iso8601Util {
         // or indicate UTC.  The behavior is undefined unless 'string.data()'
         // is non-null.
 
-    static int parse(Datetime *result, const bsl::string_view& string);
+    static int parse(Datetime                *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'Datetime' value, and
-        // load the value into the specified 'result'.  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // load the value into the specified 'result', using the specified
+        // 'style' (see documentation of the 'Style' enum above).  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.  'string'
+        // is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1342,11 +1412,14 @@ struct Iso8601Util {
         // or indicate UTC.  The behavior is undefined unless 'string.data()'
         // is non-null.
 
-    static int parse(DateTz *result, const bsl::string_view& string);
+    static int parse(DateTz                  *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'DateTz' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
+        // the value into the specified 'result', using the specified 'style'
+        // (see documentation of the 'Style' enum above).  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1356,11 +1429,14 @@ struct Iso8601Util {
         // designator is not present in 'string', UTC is assumed.  The behavior
         // is undefined unless 'string.data()' is non-null.
 
-    static int parse(TimeTz *result, const bsl::string_view& string);
+    static int parse(TimeTz                  *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'TimeTz' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
+        // the value into the specified 'result', using the specified 'style'
+        // (see documentation of the 'Style' enum above).  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1378,11 +1454,14 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-    static int parse(DatetimeTz *result, const bsl::string_view& string);
+    static int parse(DatetimeTz              *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'DatetimeTz' value, and
-        // load the value into the specified 'result'.  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // load the value into the specified 'result', using the specified
+        // 'style' (see documentation of the 'Style' enum above).  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.  'string'
+        // is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1400,12 +1479,15 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-    static int parse(DateOrDateTz *result, const bsl::string_view& string);
+    static int parse(DateOrDateTz            *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'Date' or 'DateTz' value,
         // depending on the presence of a zone designator, and load the value
-        // into the specified 'result'.  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // into the specified 'result', using the specified 'style' (see
+        // documentation of the 'Style' enum above).  Return 0 on success, and
+        // a non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1416,12 +1498,15 @@ struct Iso8601Util {
         // 'DateTz' value, and as a 'Date' value otherwise.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-    static int parse(TimeOrTimeTz *result, const bsl::string_view& string);
+    static int parse(TimeOrTimeTz            *result,
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'Time' or 'TimeTz' value,
         // depending on the presence of a zone designator, and load the value
-        // into the specified 'result'.  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // into the specified 'result', using the specified 'style' (see
+        // documentation of the 'Style' enum above).  Return 0 on success, and
+        // a non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1441,10 +1526,12 @@ struct Iso8601Util {
         // 'string.data()' is non-null.
 
     static int parse(DatetimeOrDatetimeTz    *result,
-                     const bsl::string_view&  string);
+                     const bsl::string_view&  string,
+                     Style                    style = e_STYLE_DEFAULT);
         // Parse the specified ISO 8601 'string' as a 'Datetime' or
         // 'DatetimeTz' value, depending on the presence of a zone designator,
-        // and load the value into the specified 'result'.  Return 0 on
+        // and load the value into the specified 'result', using the specified
+        // 'style' (see documentation of the 'Style' enum above).  Return 0 on
         // success, and a non-zero value (with no effect) otherwise.  'string'
         // is assumed to be of the form:
         //..
@@ -1465,388 +1552,13 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-    static int parseBasic(Date *result, const char *string, ptrdiff_t length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'Date' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If the optional zone designator
-        // is present in 'string', it is parsed but ignored.  The behavior is
-        // undefined unless '0 <= length'.
-
-    static int parseBasic(Time *result, const char *string, ptrdiff_t length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'Time' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If an optional fractional second
-        // having more than six digits is present in 'string', it is rounded to
-        // the nearest value in microseconds.  If the optional zone designator
-        // is present in 'string', the resulting 'Time' value is converted to
-        // the equivalent UTC time; if the zone designator is absent, UTC is
-        // assumed.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless '0 <= length'.
-
-    static int parseBasic(Datetime   *result,
-                          const char *string,
-                          ptrdiff_t   length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'Datetime' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If an optional fractional second
-        // having more than six digits is present in 'string', it is rounded to
-        // the nearest value in microseconds.  If the optional zone designator
-        // is present in 'string', the resulting 'Datetime' value is converted
-        // to the equivalent UTC value; if the zone designator is absent, UTC
-        // is assumed.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless '0 <= length'.
-
-    static int parseBasic(DateTz     *result,
-                          const char *string,
-                          ptrdiff_t   length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'DateTz' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If the optional zone designator
-        // is not present in 'string', UTC is assumed.  The behavior is
-        // undefined unless '0 <= length'.
-
-    static int parseBasic(TimeTz     *result,
-                          const char *string,
-                          ptrdiff_t   length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'TimeTz' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If an optional fractional second
-        // having more than six digits is present in 'string', it is rounded to
-        // the nearest value in microseconds.  If the optional zone designator
-        // is not present in 'string', UTC is assumed.  If a leap second is
-        // detected (i.e., the parsed value of the 'second' attribute is 60;
-        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless '0 <= length'.
-
-    static int parseBasic(DatetimeTz *result,
-                          const char *string,
-                          ptrdiff_t   length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'DatetimeTz' value, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If an optional fractional second
-        // having more than six digits is present in 'string', it is rounded to
-        // the nearest value in microseconds.  If the optional zone designator
-        // is not present in 'string', UTC is assumed.  If a leap second is
-        // detected (i.e., the parsed value of the 'second' attribute is 60;
-        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless '0 <= length'.
-
-    static int parseBasic(DateOrDateTz *result,
-                          const char   *string,
-                          ptrdiff_t     length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'Date' or 'DateTz' value, depending on the
-        // presence of a zone designator, and load the value into the specified
-        // 'result'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If the optional zone designator
-        // is present in the 'string', the input is parsed as a 'DateTz' value,
-        // and as a 'Date' value otherwise.  The behavior is undefined unless
-        // '0 <= length'.
-
-    static int parseBasic(TimeOrTimeTz *result,
-                          const char   *string,
-                          ptrdiff_t     length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'Time' or 'TimeTz' value, depending on the
-        // presence of a zone designator, and load the value into the specified
-        // 'result'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If an optional fractional second
-        // having more than six digits is present in 'string', it is rounded to
-        // the nearest value in microseconds.  If the optional zone designator
-        // is present in the 'string', the input is parsed as a 'TimeTz' value,
-        // and as a 'Time' value otherwise.  If a leap second is detected
-        // (i.e., the parsed value of the 'second' attribute is 60; see {Leap
-        // Seconds}), the 'second' attribute is taken to be 59, then an
-        // additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless '0 <= length'.
-
-    static int parseBasic(DatetimeOrDatetimeTz *result,
-                          const char           *string,
-                          ptrdiff_t             length);
-        // Parse the specified initial 'length' characters of the specified ISO
-        // 8601 'string' as a 'Datetime' or  'DatetimeTz' value, depending on
-        // the presence of a zone designator, and load the value into the
-        // specified 'result'.  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.  'string' is assumed to be of the form:
-        //..
-        //  YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'length' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If an optional fractional second
-        // having more than six digits is present in 'string', it is rounded to
-        // the nearest value in microseconds.  If the optional zone designator
-        // is present in the 'string', the input is parsed as a 'DatetimeTz'
-        // value, and as a 'Datetime' value otherwise.  If a leap second is
-        // detected (i.e., the parsed value of the 'second' attribute is 60;
-        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless '0 <= length'.
-
-    static int parseBasic(Date *result, const bsl::string_view& string);
-        // Parse the specified ISO 8601 'string' as a 'Date' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
-        //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If the optional zone
-        // designator is present in 'string', it is parsed but ignored.  The
-        // behavior is undefined unless 'string.data()' is non-null.
-
-    static int parseBasic(Time *result, const bsl::string_view& string);
-        // Parse the specified ISO 8601 'string' as a 'Time' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
-        //..
-        //  hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is present in 'string', the resulting
-        // 'Time' value is converted to the equivalent UTC time; if the zone
-        // designator is absent, UTC is assumed.  If a leap second is detected
-        // (i.e., the parsed value of the 'second' attribute is 60; see {Leap
-        // Seconds}), the 'second' attribute is taken to be 59, then an
-        // additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless 'string.data()' is
-        // non-null.
-
-    static int parseBasic(Datetime *result, const bsl::string_view& string);
-        // Parse the specified ISO 8601 'string' as a 'Datetime' value, and
-        // load the value into the specified 'result'.  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
-        //..
-        //  YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is present in 'string', the resulting
-        // 'Datetime' value is converted to the equivalent UTC value; if the
-        // zone designator is absent, UTC is assumed.  If a leap second is
-        // detected (i.e., the parsed value of the 'second' attribute is 60;
-        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless 'string.data()' is
-        // non-null.
-
-    static int parseBasic(DateTz *result, const bsl::string_view& string);
-        // Parse the specified ISO 8601 'string' as a 'DateTz' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
-        //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If the optional zone
-        // designator is not present in 'string', UTC is assumed.  The behavior
-        // is undefined unless 'string.data()' is non-null.
-
-    static int parseBasic(TimeTz *result, const bsl::string_view& string);
-        // Parse the specified ISO 8601 'string' as a 'TimeTz' value, and load
-        // the value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
-        //..
-        //  hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is not present in 'string', UTC is
-        // assumed.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless 'string.data()' is non-null.
-
-    static int parseBasic(DatetimeTz *result, const bsl::string_view& string);
-        // Parse the specified ISO 8601 'string' as a 'DatetimeTz' value, and
-        // load the value into the specified 'result'.  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
-        //..
-        //  YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is not present in 'string', UTC is
-        // assumed.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless 'string.data()' is non-null.
-
-    static int parseBasic(DateOrDateTz            *result,
-                          const bsl::string_view&  string);
-        // Parse the specified ISO 8601 'string' as a 'Date' or 'DateTz' value,
-        // depending on the presence of a zone designator, and load the value
-        // into the specified 'result'.  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
-        //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If the optional zone
-        // designator is present in the 'string', the input is parsed as a
-        // 'DateTz' value, and as a 'Date' value otherwise.  The behavior is
-        // undefined unless 'string.data()' is non-null.
-
-    static int parseBasic(TimeOrTimeTz            *result,
-                          const bsl::string_view&  string);
-        // Parse the specified ISO 8601 'string' as a 'Time' or 'TimeTz' value,
-        // depending on the presence of a zone designator, and load the value
-        // into the specified 'result'.  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
-        //..
-        //  hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is present in the 'string', the input
-        // is parsed as a 'TimeTz' value, and as a 'Time' value otherwise.  If
-        // a leap second is detected (i.e., the parsed value of the 'second'
-        // attribute is 60; see {Leap Seconds}), the 'second' attribute is
-        // taken to be 59, then an additional second is added to 'result' at
-        // the end.  If the "hhmmss" portion of 'string' is "240000", then the
-        // fractional second must be absent or 0, and the zone designator must
-        // be absent or indicate UTC.  The behavior is undefined unless
-        // 'string.data()' is non-null.
-
-    static int parseBasic(DatetimeOrDatetimeTz    *result,
-                          const bsl::string_view&  string);
-        // Parse the specified ISO 8601 'string' as a 'Datetime' or
-        // 'DatetimeTz' value, depending on the presence of a zone designator,
-        // and load the value into the specified 'result'.  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  'string'
-        // is assumed to be of the form:
-        //..
-        //  YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // *Exactly* 'string.length()' characters are parsed; parsing will fail
-        // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is present in the 'string', the input
-        // is parsed as a 'DatetimeTz' value, and as a 'Datetime' value
-        // otherwise.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless 'string.data()' is non-null.
-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // DEPRECATED METHODS
     static int parseRelaxed(Datetime   *result,
                             const char *string,
                             ptrdiff_t   length);
+        // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
+        //
         // Parse the specified initial 'length' characters of the specified
         // "relaxed" ISO 8601 'string' as a 'Datetime' value, and load the
         // value into the specified 'result'.  Return 0 on success, and a
@@ -1876,6 +1588,8 @@ struct Iso8601Util {
     static int parseRelaxed(DatetimeTz *result,
                             const char *string,
                             ptrdiff_t   length);
+        // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
+        //
         // Parse the specified initial 'length' characters of the specified
         // "relaxed" ISO 8601 'string' as a 'DatetimeTz' value, and load the
         // value into the specified 'result'.  Return 0 on success, and a
@@ -1903,6 +1617,8 @@ struct Iso8601Util {
     static int parseRelaxed(DatetimeOrDatetimeTz *result,
                             const char           *string,
                             ptrdiff_t             length);
+        // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
+        //
         // Parse the specified initial 'length' characters of the specified
         // "relaxed" ISO 8601 'string' as a 'Datetime' or 'DatetimeTz' value,
         // depending on the presence of a zone designator, and load the value
@@ -1930,6 +1646,8 @@ struct Iso8601Util {
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
     static int parseRelaxed(Datetime *result, const bsl::string_view& string);
+        // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
+        //
         // Parse the specified "relaxed" ISO 8601 'string' as a 'Datetime'
         // value, and load the value into the specified 'result'.  Return 0 on
         // success, and a non-zero value (with no effect) otherwise.  'string'
@@ -1958,6 +1676,8 @@ struct Iso8601Util {
 
     static int parseRelaxed(DatetimeTz              *result,
                             const bsl::string_view&  string);
+        // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
+        //
         // Parse the specified "relaxed" ISO 8601 'string' as a 'DatetimeTz'
         // value, and load the value into the specified 'result'.  Return 0 on
         // success, and a non-zero value (with no effect) otherwise.  'string'
@@ -1984,6 +1704,8 @@ struct Iso8601Util {
 
     static int parseRelaxed(DatetimeOrDatetimeTz    *result,
                             const bsl::string_view&  string);
+        // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
+        //
         // Parse the specified "relaxed" ISO 8601 'string' as a 'Datetime' or
         // 'DatetimeTz' value, depending on the presence of a zone designator,
         // and load the value into the specified 'result'.  Return 0 on
@@ -2010,174 +1732,6 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-    static int parseRelaxedBasic(Datetime   *result,
-                                 const char *string,
-                                 ptrdiff_t   length);
-        // Parse the specified initial 'length' characters of the specified
-        // "relaxed" ISO 8601 'string' as a 'Datetime' value, and load the
-        // value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
-        //..
-        //  YYYYMMDD(T| )hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // The "relaxed" format parsed by this function is a superset of the
-        // strict ISO 8601 format, currently allowing a SPACE character to be
-        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
-        // 'length' characters are parsed; parsing will fail if a proper prefix
-        // of 'string' matches the expected format, but the entire 'length'
-        // characters do not.  If an optional fractional second having more
-        // than six digits is present in 'string', it is rounded to the nearest
-        // value in microseconds.  If the optional zone designator is present
-        // in 'string', the resulting 'Datetime' value is converted to the
-        // equivalent UTC value; if the zone designator is absent, UTC is
-        // assumed.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless '0 <= length'.
-
-    static int parseRelaxedBasic(DatetimeTz *result,
-                                 const char *string,
-                                 ptrdiff_t   length);
-        // Parse the specified initial 'length' characters of the specified
-        // "relaxed" ISO 8601 'string' as a 'DatetimeTz' value, and load the
-        // value into the specified 'result'.  Return 0 on success, and a
-        // non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
-        //..
-        //  YYYYMMDD(T| )hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // The "relaxed" format parsed by this function is a superset of the
-        // strict ISO 8601 format, currently allowing a SPACE character to be
-        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
-        // 'length' characters are parsed; parsing will fail if a proper prefix
-        // of 'string' matches the expected format, but the entire 'length'
-        // characters do not.  If an optional fractional second having more
-        // than six digits is present in 'string', it is rounded to the nearest
-        // value in microseconds.  If the optional zone designator is not
-        // present in 'string', UTC is assumed.  If a leap second is detected
-        // (i.e., the parsed value of the 'second' attribute is 60; see {Leap
-        // Seconds}), the 'second' attribute is taken to be 59, then an
-        // additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless '0 <= length'.
-
-    static int parseRelaxedBasic(DatetimeOrDatetimeTz *result,
-                                 const char           *string,
-                                 ptrdiff_t             length);
-        // Parse the specified initial 'length' characters of the specified
-        // "relaxed" ISO 8601 'string' as a 'Datetime' or 'DatetimeTz' value,
-        // depending on the presence of a zone designator, and load the value
-        // into the specified 'result'.  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
-        //..
-        //  YYYYMMDD(T| )hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // The "relaxed" format parsed by this function is a superset of the
-        // strict ISO 8601 format, currently allowing a SPACE character to be
-        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
-        // 'length' characters are parsed;    parsing will fail if a proper
-        // prefix of 'string' matches the expected format, but the entire
-        // 'length' characters do not.  If an optional fractional second having
-        // more than six digits is present in 'string', it is rounded to the
-        // nearest value in microseconds.  If the optional zone designator is
-        // present in the 'string', the input is parsed as a 'DatetimeTz'
-        // value, and as a 'Datetime' value otherwise.  If a leap second is
-        // detected (i.e., the parsed value of the 'second' attribute is 60;
-        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless '0 <= length'.
-
-    static int parseRelaxedBasic(Datetime                *result,
-                                 const bsl::string_view&  string);
-        // Parse the specified "relaxed" ISO 8601 'string' as a 'Datetime'
-        // value, and load the value into the specified 'result'.  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  'string'
-        // is assumed to be of the form:
-        //..
-        //  YYYYMMDD(T| )hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // The "relaxed" format parsed by this function is a superset of the
-        // strict ISO 8601 format, currently allowing a SPACE character to be
-        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
-        // 'string.length()' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is present in 'string', the resulting
-        // 'Datetime' value is converted to the equivalent UTC value; if the
-        // zone designator is absent, UTC is assumed.  If a leap second is
-        // detected (i.e., the parsed value of the 'second' attribute is 60;
-        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hhmmss" portion of 'string' is "240000", then the fractional second
-        // must be absent or 0, and the zone designator must be absent or
-        // indicate UTC.  The behavior is undefined unless 'string.data()' is
-        // non-null.
-
-    static int parseRelaxedBasic(DatetimeTz              *result,
-                                 const bsl::string_view&  string);
-        // Parse the specified "relaxed" ISO 8601 'string' as a 'DatetimeTz'
-        // value, and load the value into the specified 'result'.  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  'string'
-        // is assumed to be of the form:
-        //..
-        //  YYYYMMDD(T| )hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // The "relaxed" format parsed by this function is a superset of the
-        // strict ISO 8601 format, currently allowing a SPACE character to be
-        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
-        // 'string.length()' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is not present in 'string', UTC is
-        // assumed.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless 'string.data()' is non-null.
-
-    static int parseRelaxedBasic(DatetimeOrDatetimeTz    *result,
-                                 const bsl::string_view&  string);
-        // Parse the specified "relaxed" ISO 8601 'string' as a 'Datetime' or
-        // 'DatetimeTz' value, depending on the presence of a zone designator,
-        // and load the value into the specified 'result'.  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  'string'
-        // is assumed to be of the form:
-        //..
-        //  YYYYMMDD(T| )hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
-        //..
-        // The "relaxed" format parsed by this function is a superset of the
-        // strict ISO 8601 format, currently allowing a SPACE character to be
-        // used as a separated (where ISO 8601 requires a 'T').  *Exactly*
-        // 'string.length()' characters are parsed; parsing will fail if a
-        // proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than six digits is present in
-        // 'string', it is rounded to the nearest value in microseconds.  If
-        // the optional zone designator is present in the 'string', the input
-        // is parsed as a 'DatetimeTz' value, and as a 'Datetime' value
-        // otherwise.  If a leap second is detected (i.e., the parsed value of
-        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
-        // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hhmmss" portion of 'string' is
-        // "240000", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
-        // undefined unless 'string.data()' is non-null.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static int generate(char              *buffer,
                         const Date&        object,
                         ptrdiff_t          bufferLength);
@@ -2934,175 +2488,101 @@ int Iso8601Util::parse(bsls::TimeInterval      *result,
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length());
 }
 
 inline
-int Iso8601Util::parse(Date *result, const bsl::string_view& string)
+int Iso8601Util::parse(Date                    *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
-int Iso8601Util::parse(Time *result, const bsl::string_view& string)
+int Iso8601Util::parse(Time                    *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
-int Iso8601Util::parse(Datetime *result, const bsl::string_view& string)
+int Iso8601Util::parse(Datetime                *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
-int Iso8601Util::parse(DateTz *result, const bsl::string_view& string)
+int Iso8601Util::parse(DateTz                  *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
-int Iso8601Util::parse(TimeTz *result, const bsl::string_view& string)
+int Iso8601Util::parse(TimeTz                  *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
-int Iso8601Util::parse(DatetimeTz *result, const bsl::string_view& string)
+int Iso8601Util::parse(DatetimeTz              *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
-int Iso8601Util::parse(DateOrDateTz *result, const bsl::string_view& string)
+int Iso8601Util::parse(DateOrDateTz            *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
-int Iso8601Util::parse(TimeOrTimeTz *result, const bsl::string_view& string)
+int Iso8601Util::parse(TimeOrTimeTz            *result,
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
 inline
 int Iso8601Util::parse(DatetimeOrDatetimeTz    *result,
-                       const bsl::string_view&  string)
+                       const bsl::string_view&  string,
+                       Style                    style)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), static_cast<int>(string.length()));
+    return parse(result, string.data(), string.length(), style);
 }
 
-inline
-int Iso8601Util::parseBasic(Date *result, const bsl::string_view& string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(Time *result, const bsl::string_view& string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(Datetime *result, const bsl::string_view& string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(DateTz *result, const bsl::string_view& string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(TimeTz *result, const bsl::string_view& string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(DatetimeTz *result, const bsl::string_view& string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(DateOrDateTz            *result,
-                            const bsl::string_view&  string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(TimeOrTimeTz            *result,
-                            const bsl::string_view&  string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
-inline
-int Iso8601Util::parseBasic(DatetimeOrDatetimeTz    *result,
-                            const bsl::string_view&  string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseBasic(result,
-                      string.data(),
-                      string.length());
-}
-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// DEPRECATED METHODS
 inline
 int Iso8601Util::parseRelaxed(Datetime *result, const bsl::string_view& string)
 {
@@ -3110,7 +2590,7 @@ int Iso8601Util::parseRelaxed(Datetime *result, const bsl::string_view& string)
 
     return parseRelaxed(result,
                         string.data(),
-                        static_cast<int>(string.length()));
+                        string.length());
 }
 
 inline
@@ -3121,7 +2601,7 @@ int Iso8601Util::parseRelaxed(DatetimeTz              *result,
 
     return parseRelaxed(result,
                         string.data(),
-                        static_cast<int>(string.length()));
+                        string.length());
 }
 
 inline
@@ -3132,43 +2612,9 @@ int Iso8601Util::parseRelaxed(DatetimeOrDatetimeTz    *result,
 
     return parseRelaxed(result,
                         string.data(),
-                        static_cast<int>(string.length()));
+                        string.length());
 }
 
-inline
-int Iso8601Util::parseRelaxedBasic(Datetime                *result,
-                                   const bsl::string_view&  string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseRelaxedBasic(result,
-                             string.data(),
-                             string.length());
-}
-
-inline
-int Iso8601Util::parseRelaxedBasic(DatetimeTz              *result,
-                                   const bsl::string_view&  string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseRelaxedBasic(result,
-                             string.data(),
-                             string.length());
-}
-
-inline
-int Iso8601Util::parseRelaxedBasic(DatetimeOrDatetimeTz    *result,
-                                   const bsl::string_view&  string)
-{
-    BSLS_ASSERT_SAFE(string.data());
-
-    return parseRelaxedBasic(result,
-                             string.data(),
-                             string.length());
-}
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int Iso8601Util::generate(char        *buffer,
                           const Date&  object,
