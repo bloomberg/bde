@@ -777,14 +777,14 @@ namespace u {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
-// 16-byte length limit on Unix platforms.
+// 16-byte length limit (include '\0') on Unix platforms.
 
 const char *nonDefaultThreadName = "Homer Bart Lisa";
 
 #elif  BSLS_PLATFORM_OS_WINDOWS
 
-// No length limit on Windows
-    
+// Very long length limit on Windows.
+
 const char *nonDefaultThreadName =
             "To be, or not to be, that is the question:\n"
             "Whether 'tis nobler in the mind to suffer\n"
@@ -802,7 +802,7 @@ const char *nonDefaultThreadName =
             "That makes Calamity of so long life:\n"
             "For who would bear the Whips and Scorns of time,\n"
             "The Oppressor's wrong, the proud man's Contumely, [F: poore]\n"
-            "The pangs of dispised Love, the Law’s delay, [F: dispriz’d]\n"
+            "The pangs of dispised Love, the Law’s delay, [F: dispriz'd]\n"
             "The insolence of Office, and the spurns\n"
             "That patient merit of th'unworthy takes,\n"
             "When he himself might his Quietus make\n"
@@ -1666,7 +1666,7 @@ int main(int argc, char *argv[])
         }
 
         // 'stopped' is statically initialized to -1, the threads don't start
-        // incrementing it until it's non-negatie.
+        // incrementing it until it's non-negative.
 
         TC::stopped = 0;
         while (TC::stopped < TC::k_NUM_THREADS) {
