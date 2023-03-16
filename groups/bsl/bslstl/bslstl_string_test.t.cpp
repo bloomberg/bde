@@ -293,6 +293,12 @@ using bsls::nameOfType;
 // [24] int compare(const STRING_VIEW_LIKE_TYPE& str) const;
 // [24] int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& str) const;
 // [24] int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& s, p2, n2) const;
+// [41] bool starts_with(basic_string_view characterString) const;
+// [41] bool starts_with(CHAR_TYPE character) const;
+// [41] bool starts_with(const CHAR_TYPE *characterString) const;
+// [41] bool ends_with(basic_string_view characterString) const;
+// [41] bool ends_with(CHAR_TYPE character) const;
+// [41] bool ends_with(const CHAR_TYPE *characterString) const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const string<C,CT,A>&, const string<C,CT,A>&);
@@ -372,7 +378,6 @@ using bsls::nameOfType;
 // [37] string operator+(const string&&,     CHAR);
 // [37] string operator+(CHAR,               const string&);
 // [37] string operator+(CHAR,               const string&&);
-// [38] CLASS TEMPLATE DEDUCTION GUIDES
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [41] USAGE EXAMPLE
@@ -1391,6 +1396,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase41();
+        // Test 'starts_with' and 'ends_with'.
+
     static void testCase39();
         // Test 'shrink_to_fit'.
 
@@ -1672,6 +1680,441 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
 
 template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'starts_with' AND 'ends_with'
+    //
+    // Concerns:
+    //: 1 The 'starts_with' and 'ends_with' methods work correctly for objects
+    //:   of any size and content.
+    //:
+    //: 2 The null character is handled correctly regardless of whether it
+    //:   belongs to the object or to the string for search.
+    //:
+    //: 3 An empty string is handled correctly regardless of whether it
+    //:   is an empty object or an empty string for search.
+    //:
+    //: 4 No additional memory allocation occurs.
+    //:
+    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    //
+    // Plan:
+    //: 1 Using a loop-based approach, construct a set of objects and a set
+    //:   of strings for search having different sizes and content.
+    //:
+    //: 2 Call every overload of the 'starts_with' and 'ends_with' methods and
+    //:   verify the results.  Verify that no memory was allocated by the
+    //:   default allocator.  (C-1, 3)
+    //:
+    //: 3 Using a table-based approach, construct a set of objects and a set
+    //:   of strings for search having different sizes and content and
+    //:   containing the null character.
+    //:
+    //: 4 Call 'string_view' and single characters overloads of the
+    //:   'starts_with' and 'ends_with' methods and verify the results.
+    //:   Verify that no memory was allocated by the default allocator.
+    //:
+    //: 5 Using a table-based approach, construct a set of objects containing
+    //:   the null character and a set of strings for search having different
+    //:   sizes.  Due to the c-strings peculiarity when the first null
+    //:   character encountered is considered the end of the string, we have to
+    //:   create a separate table, different from the table from P-3.  In this
+    //:   table only object specifications contain null characters.
+    //:
+    //: 6 Call c-string overloads of the 'starts_with' and 'ends_with'
+    //:   methods and verify the results.  Verify that no memory was allocated
+    //:   by the default allocator.  (C-2, 4)
+    //:
+    //: 7 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+    //
+    // Testing:
+    //   bool starts_with(basic_string_view characterString) const;
+    //   bool starts_with(CHAR_TYPE character) const;
+    //   bool starts_with(const CHAR_TYPE *characterString) const;
+    //   bool ends_with(basic_string_view characterString) const;
+    //   bool ends_with(CHAR_TYPE character) const;
+    //   bool ends_with(const CHAR_TYPE *characterString) const;
+    // ------------------------------------------------------------------------
+
+    typedef bsl::basic_string_view<TYPE> StringView;
+
+    const char   *ty = bsls::NameOf<TYPE>();
+
+    if (verbose) printf("\tTesting basic behavior\n");
+    {
+        const char   *SPEC   = "ABCDEFGHIJKL";
+        const Obj     DATA(g(SPEC));
+        const size_t  LENGTH = DATA.length();
+
+        // Despite there is no overload that accepts 'basic_string' object, we
+        // are going to use such object as a basis for parameters.
+
+        Obj        mX;          // object to search in
+        const Obj& X = mX;
+        Obj        mStr;        // string for search
+        const Obj& Str = mStr;
+
+        mX.reserve(LENGTH);
+        mStr.reserve(LENGTH);
+
+        for (size_t i = 0; i < LENGTH; ++i) {
+            const size_t OBJ_INDEX = i;
+            for (size_t j = 0; j < LENGTH - OBJ_INDEX; ++j) {
+                const size_t OBJ_LENGTH = j;
+                mX.assign(DATA.data() + OBJ_INDEX, OBJ_LENGTH);
+                for (size_t k = 0; k < LENGTH; ++k) {
+                    const size_t STR_INDEX = k;
+                    for (size_t l = 0; l < LENGTH - OBJ_INDEX; ++l) {
+                        const size_t STR_LENGTH = l;
+                        mStr.assign(DATA.data() + STR_INDEX, STR_LENGTH);
+
+                        if (veryVerbose) {
+                            T_ T_ P_(ty)
+                                  P_(OBJ_INDEX)
+                                  P_(OBJ_LENGTH)
+                                  P_(STR_INDEX)
+                                  P (OBJ_LENGTH);
+                        }
+
+                        // Calculation of expected results.
+
+                        const bool EXP_S_RESULT = (OBJ_INDEX  == STR_INDEX &&
+                                                   OBJ_LENGTH >= STR_LENGTH)
+                                               || (0 == STR_LENGTH);
+
+                        const bool EXP_E_RESULT = (OBJ_INDEX <= STR_INDEX &&
+                                                   OBJ_INDEX + OBJ_LENGTH ==
+                                                   STR_INDEX + STR_LENGTH)
+                                               || (0 == STR_LENGTH);
+
+                        // Objects for search.
+
+                        const StringView  SV(Str.data(), Str.length());
+                        const TYPE       *C_STR = Str.data();
+
+                        // The test itself.
+
+                        Tam dam(defaultAllocator_p);
+
+                        ASSERTV(ty, X, Str, EXP_S_RESULT,
+                                EXP_S_RESULT == X.starts_with(SV));
+                        ASSERTV(ty, X, Str, EXP_S_RESULT,
+                                EXP_S_RESULT == X.starts_with(C_STR));
+
+                        ASSERTV(ty, X, Str, EXP_E_RESULT,
+                                EXP_E_RESULT == X.ends_with(SV));
+                        ASSERTV(ty, X, Str, EXP_E_RESULT,
+                                EXP_E_RESULT == X.ends_with(C_STR));
+
+                        ASSERT(dam.isTotalSame());
+                    }
+
+                    // Testing overload with single character.
+
+                    {
+                        const TYPE CH          = DATA[STR_INDEX];
+                        const bool S_CH_RESULT = OBJ_LENGTH != 0 &&
+                                                 OBJ_INDEX  == STR_INDEX;
+                        const bool E_CH_RESULT = OBJ_LENGTH != 0 &&
+                                       OBJ_INDEX + OBJ_LENGTH - 1 == STR_INDEX;
+
+                        Tam dam(defaultAllocator_p);
+
+                        ASSERTV(ty, X, CH, S_CH_RESULT,
+                                S_CH_RESULT == X.starts_with(CH));
+                        ASSERTV(ty, X, CH, E_CH_RESULT,
+                                E_CH_RESULT == X.ends_with(CH));
+
+                        ASSERT(dam.isTotalSame());
+                    }
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\tTesting null character\n");
+    // Note that since we use c-strings for specifications we have to replace
+    // null characters with zero symbols in the table.
+    {
+        // Testing 'string_view' and single character overloads.
+        {
+            static const struct {
+                int         d_lineNum;     // source line number
+
+                const char *d_objSpec_p;   // object specification string
+
+                const char *d_strSpec_p;   // specification for search string
+
+                bool        d_startsWith;  // expected result of the
+                                           // 'starts_with'
+
+                bool        d_endsWith;    // expected result of the
+                                           // 'ends_with'
+            } DATA[] = {
+                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
+                //----  -------- -------- ----------- ---------
+                { L_,   "",      "0",     false,      false    },
+                { L_,   "",      "00",    false,      false    },
+                { L_,   "",      "0A",    false,      false    },
+                { L_,   "",      "A0",    false,      false    },
+                { L_,   "",      "000",   false,      false    },
+
+                { L_,   "0",     "",      true,       true     },
+                { L_,   "0",     "0",     true,       true     },
+                { L_,   "0",     "A",     false,      false    },
+                { L_,   "0",     "00",    false,      false    },
+                { L_,   "0",     "0A",    false,      false    },
+                { L_,   "0",     "A0",    false,      false    },
+                { L_,   "0",     "000",   false,      false    },
+                { L_,   "A",     "0",     false,      false    },
+                { L_,   "A",     "A",     true,       true     },
+                { L_,   "A",     "00",    false,      false    },
+                { L_,   "A",     "0A",    false,      false    },
+                { L_,   "A",     "A0",    false,      false    },
+                { L_,   "A",     "000",   false,      false    },
+
+                { L_,   "00",    "",      true,       true     },
+                { L_,   "00",    "0",     true,       true     },
+                { L_,   "00",    "A",     false,      false    },
+                { L_,   "00",    "00",    true,       true     },
+                { L_,   "00",    "0A",    false,      false    },
+                { L_,   "00",    "A0",    false,      false    },
+                { L_,   "00",    "000",   false,      false    },
+                { L_,   "00",    "00A",   false,      false    },
+                { L_,   "00",    "0A0",   false,      false    },
+                { L_,   "00",    "A00",   false,      false    },
+                { L_,   "00",    "0000",  false,      false    },
+
+                { L_,   "0A",    "",      true,       true     },
+                { L_,   "0A",    "0",     true,       false    },
+                { L_,   "0A",    "A",     false,      true     },
+                { L_,   "0A",    "00",    false,      false    },
+                { L_,   "0A",    "0A",    true,       true     },
+                { L_,   "0A",    "A0",    false,      false    },
+                { L_,   "0A",    "000",   false,      false    },
+                { L_,   "0A",    "00A",   false,      false    },
+                { L_,   "0A",    "0A0",   false,      false    },
+                { L_,   "0A",    "A00",   false,      false    },
+                { L_,   "0A",    "0000",  false,      false    },
+
+                { L_,   "A0",    "",      true,       true     },
+                { L_,   "A0",    "0",     false,      true     },
+                { L_,   "A0",    "A",     true,       false    },
+                { L_,   "A0",    "00",    false,      false    },
+                { L_,   "A0",    "0A",    false,      false    },
+                { L_,   "A0",    "A0",    true,       true     },
+                { L_,   "A0",    "000",   false,      false    },
+                { L_,   "A0",    "00A",   false,      false    },
+                { L_,   "A0",    "0A0",   false,      false    },
+                { L_,   "A0",    "A00",   false,      false    },
+                { L_,   "A0",    "0000",  false,      false    },
+
+                { L_,   "000",   "",      true,       true     },
+                { L_,   "000",   "0",     true,       true     },
+                { L_,   "000",   "00",    true,       true     },
+                { L_,   "000",   "0A",    false,      false    },
+                { L_,   "000",   "A0",    false,      false    },
+                { L_,   "000",   "000",   true,       true     },
+                { L_,   "000",   "00A",   false,      false    },
+                { L_,   "000",   "0A0",   false,      false    },
+                { L_,   "000",   "A00",   false,      false    },
+                { L_,   "000",   "0000",  false,      false    },
+            };
+
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int     LINE         = DATA[i].d_lineNum;
+                const char   *OBJ_SPEC     = DATA[i].d_objSpec_p;
+                const size_t  OBJ_SPEC_LEN = strlen(OBJ_SPEC);
+                const char   *STR_SPEC     = DATA[i].d_strSpec_p;
+                const size_t  STR_SPEC_LEN = strlen(STR_SPEC);
+                const bool    EXP_S_RES    = DATA[i].d_startsWith;
+                const bool    EXP_E_RES    = DATA[i].d_endsWith;
+
+                if (veryVerbose) {
+                    T_ T_ P_(ty) P_(LINE) P_(OBJ_SPEC) P(STR_SPEC);
+                }
+                Obj        mX;      // object to search in
+                const Obj& X = mX;
+                Obj        mStr;    // string for search,
+                const Obj& Str = mStr;
+
+                // Expected results for the single character overload.
+
+                const bool EXP_0_S = 0 == OBJ_SPEC_LEN ? false
+                                                       : '0' == OBJ_SPEC[0];
+                const bool EXP_A_S = 0 == OBJ_SPEC_LEN ? false
+                                                       : 'A' == OBJ_SPEC[0];
+                const bool EXP_0_E = 0 == OBJ_SPEC_LEN
+                                   ? false
+                                   : '0' == OBJ_SPEC[OBJ_SPEC_LEN - 1];
+                const bool EXP_A_E = 0 == OBJ_SPEC_LEN
+                                   ? false
+                                   : 'A' == OBJ_SPEC[OBJ_SPEC_LEN - 1];
+
+                // Populating strings.
+
+                for (size_t j = 0; j < OBJ_SPEC_LEN; ++j) {
+                    if ('0' == OBJ_SPEC[j]) {
+                        mX.push_back(0);
+                    }
+                    else if ('A' == OBJ_SPEC[j]) {
+                        mX.push_back('A');
+                    }
+                }
+
+                for (size_t j = 0; j < STR_SPEC_LEN; ++j) {
+                    if ('0' == STR_SPEC[j]) {
+                        mStr.push_back(0);
+                    }
+                    else if ('A' == STR_SPEC[j]) {
+                        mStr.push_back('A');
+                    }
+                }
+
+                const StringView SV(Str.data(), Str.length());
+
+                // Testing single character overload.
+
+                Tam dam(defaultAllocator_p);
+
+                ASSERTV(LINE, OBJ_SPEC, EXP_0_S,
+                        EXP_0_S == X.starts_with(TYPE(0)));
+                ASSERTV(LINE, OBJ_SPEC, EXP_A_S,
+                        EXP_A_S == X.starts_with('A'));
+                ASSERTV(LINE, OBJ_SPEC, EXP_0_E,
+                        EXP_0_E == X.ends_with(TYPE(0)));
+                ASSERTV(LINE, OBJ_SPEC, EXP_A_E, EXP_A_E == X.ends_with('A'));
+
+                // Testing 'string_view' overload.
+
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_S_RES,
+                        EXP_S_RES == X.starts_with(SV));
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_E_RES,
+                        EXP_E_RES == X.ends_with(SV));
+
+                ASSERT(dam.isTotalSame());
+            }
+        }
+        // Testing c-string overload
+        {
+           static const struct {
+                int         d_lineNum;     // source line number
+
+                const char *d_objSpec_p;   // object specification string
+
+                const char *d_strSpec_p;   // specification for search string
+
+                bool        d_startsWith;  // expected result of the
+                                           // 'starts_with'
+
+                bool        d_endsWith;    // expected result of the
+                                           // 'ends_with'
+            } DATA[] = {
+                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
+                //----  -------- -------- ----------- ---------
+                { L_,   "0",     "",      true,       true     },
+                { L_,   "0",     "A",     false,      false    },
+                { L_,   "0",     "AA",    false,      false    },
+                { L_,   "0",     "AAA",   false,      false    },
+
+                { L_,   "00",    "",      true,       true     },
+                { L_,   "00",    "A",     false,      false    },
+                { L_,   "00",    "AA",    false,      false    },
+                { L_,   "00",    "AAA",   false,      false    },
+
+                { L_,   "0A",    "",      true,       true     },
+                { L_,   "0A",    "A",     false,      true     },
+                { L_,   "0A",    "AA",    false,      false    },
+                { L_,   "0A",    "AAA",   false,      false    },
+
+                { L_,   "A0",    "",      true,       true     },
+                { L_,   "A0",    "A",     true,       false    },
+                { L_,   "A0",    "AA",    false,      false    },
+                { L_,   "A0",    "AAA",   false,      false    },
+
+                { L_,   "000",   "",      true,       true     },
+                { L_,   "000",   "A",     false,      false    },
+                { L_,   "000",   "AA",    false,      false    },
+                { L_,   "000",   "AAA",   false,      false    },
+            };
+
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int     LINE         = DATA[i].d_lineNum;
+                const char   *OBJ_SPEC     = DATA[i].d_objSpec_p;
+                const size_t  OBJ_SPEC_LEN = strlen(OBJ_SPEC);
+                const char   *STR_SPEC     = DATA[i].d_strSpec_p;
+                const size_t  STR_SPEC_LEN = strlen(STR_SPEC);
+                const bool    EXP_S_RES    = DATA[i].d_startsWith;
+                const bool    EXP_E_RES    = DATA[i].d_endsWith;
+
+                if (veryVerbose) {
+                    T_ T_ P_(ty) P_(LINE) P_(OBJ_SPEC) P(STR_SPEC);
+                }
+                Obj        mX;      // object to search in
+                const Obj& X = mX;
+                Obj        mStr;    // string for search,
+                const Obj& Str = mStr;
+
+                // Populating strings.
+
+                for (size_t j = 0; j < OBJ_SPEC_LEN; ++j) {
+                    if ('0' == OBJ_SPEC[j]) {
+                        mX.push_back(0);
+                    }
+                    else if ('A' == OBJ_SPEC[j]) {
+                        mX.push_back('A');
+                    }
+                }
+
+                for (size_t j = 0; j < STR_SPEC_LEN; ++j) {
+                    if ('0' == STR_SPEC[j]) {
+                        mStr.push_back(0);
+                    }
+                    else if ('A' == STR_SPEC[j]) {
+                        mStr.push_back('A');
+                    }
+                }
+
+                const TYPE *C_STR = Str.data();
+                Tam         dam(defaultAllocator_p);
+
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_S_RES,
+                        EXP_S_RES == X.starts_with(C_STR));
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_E_RES,
+                        EXP_E_RES == X.ends_with(C_STR));
+
+                ASSERT(dam.isTotalSame());
+            }
+        }
+    }
+
+    if (verbose) printf("\tNegative testing\n");
+
+    {
+        bsls::AssertTestHandlerGuard guard;
+
+        Obj         mX;
+        const Obj&  X = mX;
+        const TYPE *validPtr  = X.data();
+        const TYPE *nullPtr   = 0;
+
+        ASSERT_SAFE_FAIL(X.starts_with(nullPtr ));
+        ASSERT_SAFE_PASS(X.starts_with(validPtr));
+
+        ASSERT_SAFE_FAIL(X.ends_with(nullPtr ));
+        ASSERT_SAFE_PASS(X.ends_with(validPtr));
+
+    }
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase39()
 {
     // ------------------------------------------------------------------------
@@ -1858,9 +2301,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
     //:       (C-4)
     //:
     //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid date and 'numDays' values, but not triggered
-    //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-    //:   (C-5)
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
     //
     // Testing:
     //   string operator+(const string&,      const string&);
@@ -20060,6 +20502,75 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 41: {
+        // --------------------------------------------------------------------
+        // TESTING 'starts_with' AND 'ends_with'
+        //
+        // Concerns:
+        //: 1 The 'starts_with' and 'ends_with' methods work correctly for
+        //:   objects of any size and content.
+        //:
+        //: 2 The null character is handled correctly regardless of whether it
+        //:   belongs to the object or to the string for search.
+        //:
+        //: 3 An empty string is handled correctly regardless of whether it
+        //:   is an empty object or an empty string for search.
+        //:
+        //: 4 No additional memory allocation occurs.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using a loop-based approach, construct a set of objects and a set
+        //:   of strings for search having different sizes and content.
+        //:
+        //: 2 Call every overload of the 'starts_with' and 'ends_with' methods
+        //:   and verify the results.  Verify that no memory was allocated by
+        //:   the default allocator.  (C-1, 3)
+        //:
+        //: 3 Using a table-based approach, construct a set of objects and a
+        //:   set of strings for search having different sizes and content and
+        //:   containing the null character.
+        //:
+        //: 4 Call 'string_view' and single characters overloads of the
+        //:   'starts_with' and 'ends_with' methods and verify the results.
+        //:   Verify that no memory was allocated by the default allocator.
+        //:
+        //: 5 Using a table-based approach, construct a set of objects
+        //:   containing the null character and a set of strings for search
+        //:   having different sizes.  Due to the c-strings peculiarity when
+        //:   the first null character encountered is considered the end of the
+        //:   string, we have to create a separate table, different from the
+        //:   table from P-3.  In this table only object specifications contain
+        //:   null characters.
+        //:
+        //: 6 Call c-string overloads of the 'starts_with' and 'ends_with'
+        //:   methods and verify the results.  Verify that no memory was
+        //:   allocated by the default allocator.  (C-2, 4)
+        //:
+        //: 7 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-5)
+        //
+        // Testing:
+        //   bool starts_with(basic_string_view characterString) const;
+        //   bool starts_with(CHAR_TYPE character) const;
+        //   bool starts_with(const CHAR_TYPE *characterString) const;
+        //   bool ends_with(basic_string_view characterString) const;
+        //   bool ends_with(CHAR_TYPE character) const;
+        //   bool ends_with(const CHAR_TYPE *characterString) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING 'starts_with' AND 'ends_with'\n"
+                                 "=====================================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase41();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase41();
+      } break;
       case 40: {
         // --------------------------------------------------------------------
         // TESTING C++11 WIDE STRINGS
@@ -20260,9 +20771,9 @@ int main(int argc, char *argv[])
         //:       (C-4)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid date and 'numDays' values, but not
-        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-5)
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-5)
         //
         // Testing:
         //   string operator+(const string&,      const string&);

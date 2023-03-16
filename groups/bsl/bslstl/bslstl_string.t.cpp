@@ -285,6 +285,12 @@ using bsls::nameOfType;
 // [24] int compare(const C *s) const;
 // [24] int compare(pos1, n1, const C *s) const;
 // [24] int compare(pos1, n1, const C *s, n2) const;
+// [41] bool starts_with(basic_string_view characterString) const;
+// [41] bool starts_with(CHAR_TYPE character) const;
+// [41] bool starts_with(const CHAR_TYPE *characterString) const;
+// [41] bool ends_with(basic_string_view characterString) const;
+// [41] bool ends_with(CHAR_TYPE character) const;
+// [41] bool ends_with(const CHAR_TYPE *characterString) const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const string<C,CT,A>&, const string<C,CT,A>&);
