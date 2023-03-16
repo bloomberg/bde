@@ -1255,21 +1255,45 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Use 'int' for 'TYPE'.
         //:
-        //: 2 Create an array of 3 nullable objects, none equal to each other,
-        //:   where only the first object is null, and the ones after that
-        //:   increase in value as their index in the array increases.  So
-        //:   the array is sorted and unique.
+        //: 2 Create an array 'values' of 7 non-null nullable objects, none
+        //:   equal to each other, sorted in value from lowest to highest.
         //:
-        //: 3 Have a loop with 'i' iterating through the array indexes, and
-        //:   'U' being a const ref to element 'i' of the array.
+        //: 3 Try comparisons of two non-null nullable objects.
+        //:   o Iterate 'ii' through the indexes of 'values', and in that loop
+        //:     create non-null 'const Obj U(values[ii])'.
         //:
-        //: 4 Have a nested loop within that with 'j' iterating through the
-        //:   array indexes, and 'V' being a const ref to element 'j' of the
-        //:   array.
+        //:   o Within that loop, iterate 'jj' through the indexes of 'values',
+        //:     and in that loop create non-null 'const Obj V(values[jj])'.
         //:
-        //: 5 Verify that all of the 6 comparison operators applied between 'i'
-        //:   and 'j' yield the same boolean value as the same comparison
-        //:   operator applied between 'U' and 'V'.
+        //:   o Try every possible comparison of 'U' and 'V', whose results
+        //:     should match the boolean results of comparing 'ii' and 'jj'.
+        //:
+        //: 4 Try comparisons betwwen a null nullable value and non-nullable
+        //:   'int'.
+        //:   o Create a null nullable value 'N'.
+        //:
+        //:   o Iterate 'ii' through the indexes of 'values', and in that loop
+        //:     create 'const int RV(values[ii])'.
+        //:
+        //:   o In the loop, do all possible comparisons of 'N' and 'RV', and
+        //:     'N' should always be less than 'RV', regardless of the value of
+        //:     'RV'.
+        //:
+        //: 5 Try comparisons of one null object and one non-null object.
+        //:   o Create a null nullable value 'N'.
+        //:
+        //:   o Iterate 'ii' through the indexes of 'values', and in that loop
+        //:     create non-null 'const Obj NV(values[ii])'.
+        //:
+        //:   o In the loop, do all possible comparisons of 'N' and 'NV', and
+        //:     'N' should always be less than 'NV', regardless of the value of
+        //:     'NV'.
+        //:
+        //: 6 Try comparisons of two null nullable objects.
+        //:   o Create two null nullable objects 'LN' and 'RN'
+        //:
+        //:   o Try every possible comparison between them, they are always
+        //:     equal, not greater, not less.
         //
         // TESTING:
         //   bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
@@ -1295,28 +1319,22 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING COMPARISON OPERATORS\n"
                              "============================\n";
 
-        typedef int                                     ValueType;
-        typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+        typedef bdlb::NullableAllocatedValue<int> Obj;
 
-        const int values[] = { 123, INT_MIN, -1000, 0, +1000, INT_MAX };
+        const int values[] = { INT_MIN, -1000, -123, 0, +123, +1000, INT_MAX };
         enum { k_NUM_VALUES = sizeof values / sizeof *values };
 
-        Obj objArray[k_NUM_VALUES];    const Obj *OBJ_ARRAY = objArray;
-
-        for (int ii = 1; ii < k_NUM_VALUES; ++ii) {
-            objArray[ii].makeValue(values[ii]);
-        }
-        ASSERT(OBJ_ARRAY[0].isNull());
+        // Comparison between two non-null values.
 
         for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-            const int UV = values[ii];
-            const Obj U(OBJ_ARRAY[ii]);
+            const Obj U(values[ii]);
+            ASSERT(!U.isNull());
 
             if (veryVerbose) { T_ P_(ii) P(U) }
 
             for (int jj = 0; jj < k_NUM_VALUES; ++jj) {
-                const int VV = values[jj];
-                const Obj V(OBJ_ARRAY[jj]);
+                const Obj V(values[jj]);
+                ASSERT(!V.isNull());
 
                 if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
 
@@ -1327,35 +1345,17 @@ int main(int argc, char *argv[])
                 ASSERTV(U, V, (ii <= jj) == (U <= V));
                 ASSERTV(U, V, (ii >  jj) == (U >  V));
                 ASSERTV(U, V, (ii >= jj) == (U >= V));
-
-                if (0 < ii) {
-                    ASSERTV(U, V, (ii == jj) == (UV == V));
-                    ASSERTV(U, V, (ii != jj) == (UV != V));
-
-                    ASSERTV(U, V, (ii <  jj) == (UV <  V));
-                    ASSERTV(U, V, (ii <= jj) == (UV <= V));
-                    ASSERTV(U, V, (ii >  jj) == (UV >  V));
-                    ASSERTV(U, V, (ii >= jj) == (UV >= V));
-                }
-
-                if (0 < jj) {
-                    ASSERTV(U, V, (ii == jj) == (U == VV));
-                    ASSERTV(U, V, (ii != jj) == (U != VV));
-
-                    ASSERTV(U, V, (ii <  jj) == (U <  VV));
-                    ASSERTV(U, V, (ii <= jj) == (U <= VV));
-                    ASSERTV(U, V, (ii >  jj) == (U >  VV));
-                    ASSERTV(U, V, (ii >= jj) == (U >= VV));
-                }
             }
         }
+
+        // Comparison between null nullable values and non-nullable raw value.
 
         {
             const Obj N;
             ASSERT(N.isNull());
 
             for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-                const int RV = values[ii];
+                const int RV = values[ii];    // Raw Value
 
                 ASSERT(!(N  == RV));
                 ASSERT(!(RV == N ));
@@ -1374,8 +1374,18 @@ int main(int argc, char *argv[])
 
                 ASSERT(!(N  >= RV));
                 ASSERT(  RV >= N  );
+            }
+        }
 
-                const Obj NV(RV);
+        // Comparison between null nullable values and non-null nullable value.
+
+        {
+            const Obj N;
+            ASSERT(N.isNull());
+
+            for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+                const Obj NV(values[ii]);
+                ASSERT(!NV.isNull());
 
                 ASSERT(!(N  == NV));
                 ASSERT(!(NV == N ));
@@ -1395,6 +1405,23 @@ int main(int argc, char *argv[])
                 ASSERT(!(N  >= NV));
                 ASSERT(  NV >= N  );
             }
+        }
+
+        // Comparison between two null values.
+
+        {
+            const Obj LN, RN;
+            ASSERT(LN.isNull());
+            ASSERT(RN.isNull());
+
+            ASSERT(  LN == RN );
+            ASSERT(!(LN != RN));
+
+            ASSERT(!(LN <  RN));
+            ASSERT(  LN <= RN );
+
+            ASSERT(!(LN >  RN));
+            ASSERT(  LN >= RN);
         }
       } break;
       case 4: {
