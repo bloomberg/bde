@@ -834,16 +834,23 @@ struct ChronoRecurringTest {
     using Tp = typename CLOCK::time_point;
     using Dur = bsl::chrono::duration<REP, PERIOD>;
 
-    Tp              d_startTime;
-    Tp              d_stopTime;
-    Dur             d_interval;
-    bsl::vector<Tp> d_callTimes;
+    Tp                     d_startTime;
+    Tp                     d_stopTime;
+    Dur                    d_interval;
+    bsl::vector<Tp>        d_callTimes;
+    bdlmt::EventScheduler *d_eventScheduler_p;
 
-    ChronoRecurringTest(Tp startTime, Dur interval)
-        // Constructs a 'ChronoRecurringTest'.  Remember the specified
-        // 'startTime' and specified 'interval' for checking later.  Reserve
-        // space in 'd_callTimes' so that we don't need to reallocate later.
-    : d_startTime(startTime), d_stopTime(startTime), d_interval(interval)
+    ChronoRecurringTest(Tp                     startTime,
+                        Dur                    interval,
+                        bdlmt::EventScheduler *eventScheduler)
+        // Create a 'ChronoRecurringTest' object.  Remember the specified
+        // 'eventScheduler' for scheduling later, and the specified 'startTime'
+        // and 'interval' for checking later.  Reserve space in 'd_callTimes'
+        // so that we don't need to reallocate later.
+    : d_startTime(startTime)
+    , d_stopTime(startTime)
+    , d_interval(interval)
+    , d_eventScheduler_p(eventScheduler)
     {
         d_callTimes.reserve(1000);
     }
@@ -865,6 +872,42 @@ struct ChronoRecurringTest {
         // printing results, use the specified 'clockName' to identify the
         // clock that we're testing.
     {
+        // {DRQS 170729958}: The callback was sometimes being called earlier
+        // than expected.  This was bug not in 'bdlmt_eventscheduler', but this
+        // test driver; the contract of each relevant 'schedule' method
+        // advertises that the start time will be truncated to microsecond
+        // precision.
+        //
+        // To ensure that we are testing against the contract, we must truncate
+        // 'd_startTime' to microsecond precision, as will be done by
+        // 'bdlmt_eventscheduler'.  Call the result of this 'truncatedTime'.
+        // If the first callback occurs at or after 'truncatedTime', then the
+        // time we will record in 'd_callTimes' will be greater than or equal
+        // to the result of converting 'truncatedTime' back to our time point
+        // type, 'Tp' (again with truncation).  We therefore adjust
+        // 'd_startTime' to that value prior to the checking described below.
+        if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(
+                                            d_eventScheduler_p->clockType())) {
+            typedef typename CLOCK::duration ClockDur;
+            ClockDur timeSinceEpoch = d_startTime.time_since_epoch();
+
+            typedef chrono::duration<REP, micro> MicroDur;
+            MicroDur truncatedTime =
+                               chrono::duration_cast<MicroDur>(timeSinceEpoch);
+
+            if (truncatedTime > timeSinceEpoch) {
+                // occurs when the durations are negative, since
+                // 'duration_cast' truncates (rounds toward zero)
+                truncatedTime -= static_cast<MicroDur>(1);
+            }
+            timeSinceEpoch = chrono::duration_cast<ClockDur>(truncatedTime);
+            if (timeSinceEpoch > truncatedTime) {
+                // ditto
+                timeSinceEpoch -= static_cast<ClockDur>(1);
+            }
+            d_startTime = static_cast<Tp>(timeSinceEpoch);
+        }
+
         // Check that:
         // * None of the callbacks happened before the start time
         // * None of the callbacks happened after the stop time
@@ -902,23 +945,21 @@ struct ChronoRecurringTest {
         }
     }
 
-    void schedule(BloombergLP::bdlmt::EventScheduler &x)
-        // Schedule the recurring event that we will be timing on the specified
-        // EventScheduler 'x'.
+    void schedule()
+        // Schedule the recurring event that we will be timing.
     {
-        x.scheduleRecurringEvent(
+        d_eventScheduler_p->scheduleRecurringEvent(
                  d_interval,
                  bdlf::MemFnUtil::memFn(&ChronoRecurringTest::callback, this),
                  d_startTime);
     }
 
-    RecurringEvent * scheduleRaw(BloombergLP::bdlmt::EventScheduler &x)
-        // Schedule the recurring event that we will be timing on the specified
-        // 'EventScheduler' 'x'.  Return a handle that can be used to cancel
-        // the recurring event.
+    RecurringEvent *scheduleRaw()
+        // Schedule the recurring event that we will be timing.  Return a
+        // handle that can be used to cancel the recurring event.
     {
         RecurringEvent *event;
-        x.scheduleRecurringEventRaw(
+        d_eventScheduler_p->scheduleRecurringEventRaw(
                  &event,
                  d_interval,
                  bdlf::MemFnUtil::memFn(&ChronoRecurringTest::callback, this),
@@ -930,13 +971,16 @@ struct ChronoRecurringTest {
 template <class CLOCK, class REP1, class PER1, class REP2, class PER2>
 ChronoRecurringTest<CLOCK, REP2, PER2>
 MakeChronoTest(bsl::chrono::duration<REP1, PER1> start_time,
-               bsl::chrono::duration<REP2, PER2> interval)
-    // Create and return a ChronoRecurringTest object from the specified
-    // 'start_time' and 'interval'.  This helper function exist to avoid
-    // specifying all the type necessary.
+               bsl::chrono::duration<REP2, PER2> interval,
+               bdlmt::EventScheduler            *scheduler)
+    // Create and return a 'ChronoRecurringTest' object that will use the
+    // specified 'scheduler' to schedule a recurring event beginning at the
+    // specified 'start_time' with interval equal to the specified 'interval'.
+    // This helper function exists to avoid specifying all the necessary types.
 {
     return ChronoRecurringTest<CLOCK, REP2, PER2> (CLOCK::now() + start_time,
-                                                   interval);
+                                                   interval,
+                                                   scheduler);
 }
 #endif
 
@@ -2837,23 +2881,31 @@ int main(int argc, char *argv[])
         {
             using namespace bsl::chrono;
 
-            auto systemClockTest  =
-                   MakeChronoTest<system_clock>(seconds(1), milliseconds(500));
-            auto steadyClockTest  =
-                MakeChronoTest<steady_clock>(seconds(1), microseconds(600000));
-            auto anotherClockTest =
-                   MakeChronoTest<AnotherClock>(seconds(1), milliseconds(300));
-            auto halfClockTest    =
-                MakeChronoTest<HalfClock>   (seconds(1), microseconds(250000));
-
             bslma::TestAllocator ta(veryVeryVerbose);
             Obj                  x(bsls::SystemClockType::e_REALTIME, &ta);
 
+            auto systemClockTest = MakeChronoTest<system_clock>(
+                                                             seconds(1),
+                                                             milliseconds(500),
+                                                             &x);
+            auto steadyClockTest = MakeChronoTest<steady_clock>(
+                                                          seconds(1),
+                                                          microseconds(600000),
+                                                          &x);
+            auto anotherClockTest = MakeChronoTest<AnotherClock>(
+                                                             seconds(1),
+                                                             milliseconds(300),
+                                                             &x);
+            auto halfClockTest = MakeChronoTest<HalfClock>(
+                                                          seconds(1),
+                                                          microseconds(250000),
+                                                          &x);
+
             // schedule the calls
-            RecurringEvent *system_handle  = systemClockTest.scheduleRaw(x);
-            RecurringEvent *steady_handle  = steadyClockTest.scheduleRaw(x);
-            RecurringEvent *another_handle = anotherClockTest.scheduleRaw(x);
-            RecurringEvent *half_handle    = halfClockTest.scheduleRaw(x);
+            RecurringEvent *system_handle  = systemClockTest.scheduleRaw();
+            RecurringEvent *steady_handle  = steadyClockTest.scheduleRaw();
+            RecurringEvent *another_handle = anotherClockTest.scheduleRaw();
+            RecurringEvent *half_handle    = halfClockTest.scheduleRaw();
 
             x.start();
             microSleep(0, 10);
@@ -6447,23 +6499,31 @@ int main(int argc, char *argv[])
         {
             using namespace bsl::chrono;
 
-            auto systemClockTest  =
-                   MakeChronoTest<system_clock>(seconds(1), milliseconds(500));
-            auto steadyClockTest  =
-                MakeChronoTest<steady_clock>(seconds(1), microseconds(600000));
-            auto anotherClockTest =
-                   MakeChronoTest<AnotherClock>(seconds(1), milliseconds(300));
-            auto halfClockTest    =
-                MakeChronoTest<HalfClock>   (seconds(1), microseconds(250000));
-
             bslma::TestAllocator ta(veryVeryVerbose);
             Obj                  x(bsls::SystemClockType::e_REALTIME, &ta);
 
+            auto systemClockTest = MakeChronoTest<system_clock>(
+                                                             seconds(1),
+                                                             milliseconds(500),
+                                                             &x);
+            auto steadyClockTest = MakeChronoTest<steady_clock>(
+                                                          seconds(1),
+                                                          microseconds(600000),
+                                                          &x);
+            auto anotherClockTest = MakeChronoTest<AnotherClock>(
+                                                             seconds(1),
+                                                             milliseconds(300),
+                                                             &x);
+            auto halfClockTest = MakeChronoTest<HalfClock>(
+                                                          seconds(1),
+                                                          microseconds(250000),
+                                                          &x);
+
             // schedule the calls
-            systemClockTest.schedule(x);
-            steadyClockTest.schedule(x);
-            anotherClockTest.schedule(x);
-            halfClockTest.schedule(x);
+            systemClockTest.schedule();
+            steadyClockTest.schedule();
+            anotherClockTest.schedule();
+            halfClockTest.schedule();
 
             x.start();
             microSleep(0, 10);
