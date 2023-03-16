@@ -6,7 +6,7 @@ bbs_setup_target_uor(${target}
                      NO_EMIT_PKG_CONFIG_FILE)
 
 # Custom tweaks for individual packages
-target_compile_options(bdlde-obj
+target_compile_options(bdlde-iface
                        PRIVATE
                            "$<$<AND:$<PLATFORM_ID:Darwin>,$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},x86_64>>:-msse4.2>"
                            "$<$<PLATFORM_ID:Linux>:-msse4.2>"

@@ -74,6 +74,8 @@ set(${target}_INCLUDE_FILES
 # This variable controls the set of headers to install
 set(${target}_INCLUDE_FILES ${${target}_INCLUDE_FILES} PARENT_SCOPE)
 
+bbs_add_target_thread_flags(${target} PRIVATE)
+
 bbs_install_target(${target})
 bbs_emit_pkg_config(${target})
 
