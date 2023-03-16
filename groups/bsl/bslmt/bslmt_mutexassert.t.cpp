@@ -318,6 +318,11 @@ struct TestCase3SubThread {
         d_mutexToAssertOn->lock();
         ++*d_subthreadWillIncrementValue;
         d_mutexThatMainThreadWillUnlock->lock();
+
+        // Both mutexes are locked, unlock them so they won't assert when
+        // destroyed.
+        d_mutexThatMainThreadWillUnlock->unlock();
+        d_mutexToAssertOn->unlock();
     }
 };
 
@@ -414,7 +419,7 @@ int main(int argc, char *argv[])
         // TESTING ON LOCK HELD BY ANOTHER THREAD
         //
         // Concerns:
-        //: 1 That 'BSLMT__ASSERTMUTEX_IS_LOCKED*' is never calling
+        //: 1 That 'BSLMT_MUTEXASSERT_IS_LOCKED*' is never calling
         //:   'bsls::Assert::invokeHandler' if the mutex is locked by another
         //:   thread.
         //
@@ -465,11 +470,6 @@ int main(int argc, char *argv[])
         sts = bslmt::ThreadUtil::join(handle);
         ASSERT(0 == sts);
 
-        // Both mutexes are locked, unlock them so they won't assert when
-        // destroyed.
-
-        mutexToAssertOn.              unlock();
-        mutexThatMainThreadWillUnlock.unlock();
       } break;
       case 2: {
         // --------------------------------------------------------------------
