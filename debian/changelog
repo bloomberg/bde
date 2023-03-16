@@ -1,5 +1,18 @@
-bsl-internal (3.115.0.0) unstable; urgency=low
+bsl-internal (3.115.1.0) unstable; urgency=low
 
+  * a83ce2f90 Bumped version to 3.115.1.0
+  * d53cb3ef0 Fix pkg-config in dpkg (#4174)
+  * 7828ecee4 Add deduction guides for bsl::vector (#4169)
+  * c81da7d10 bslmt_mutexassert.t.cpp: unlock mutex in the thread that owns it (case 3) (#4170)
+  * 701124f1a Fix bdlmt_eventscheduler.t checking of whether callback occurs too early for chrono clocks (DRQS 171289367) (#4165)
+  * 2ff3abd0a Constrained versions of algorithms have been added (#4163)
+  * 19d145224 'starts_with' and 'ends_with' have been added to 'bslstl::basic_string'. DRQS 171318724 (#4125)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 16 Mar 2023 16:19:05 -0400
+
+bsl-internal (3.115.0.0) git; urgency=low
+
+  * 9bad1d027 Changelog for version 3.115.0.0
   * 23fa496ab Bumped version to 3.115.0.0
   * 920f6bde2 Changes for new iface targets (#4164)
   * a814dddf5 Add 'contains' for unordered set/multiset (#4153)
@@ -42,7 +55,7 @@ bsl-internal (3.115.0.0) unstable; urgency=low
   * b03fdaca6 Fix FileObserver2 test when local time in UTC (#4106)
   * 4a5d11ed4 shared_ptr changes for C++17 (second try) (#4101)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 15 Mar 2023 23:45:24 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 15 Mar 2023 23:48:54 -0400
 
 bsl-internal (3.114.0.1) git; urgency=low
 
