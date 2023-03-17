@@ -1260,10 +1260,20 @@ int main(int argc, char *argv[])
         //:
         //: 3 Try comparisons of two non-null nullable objects.
         //:   o Iterate 'ii' through the indexes of 'values', and in that loop
-        //:     create non-null 'const Obj U(values[ii])'.
+        //:     create 'const int UR = values[ii]' and non-null
+        //:     'const Obj U(UV)'.
         //:
         //:   o Within that loop, iterate 'jj' through the indexes of 'values',
-        //:     and in that loop create non-null 'const Obj V(values[jj])'.
+        //:     and in that loop create 'const int VR = values[jj]' and
+        //:     non-null 'const Obj V(VR)'.
+        //:
+        //:   o Try every possible comparison of 'UR' and 'V', with 'UR' on the
+        //:     lhs and 'V' on the rhs, whose results should match the boolean
+        //:     results of comparing 'ii' and 'jj'.
+        //:
+        //:   o Try every possible comparison of 'U' and 'VR', with 'U' on the
+        //:     lhs and 'VR' on the rhs, whose results should match the boolean
+        //:     results of comparing 'ii' and 'jj'.
         //:
         //:   o Try every possible comparison of 'U' and 'V', whose results
         //:     should match the boolean results of comparing 'ii' and 'jj'.
@@ -1327,16 +1337,40 @@ int main(int argc, char *argv[])
         // Comparison between two non-null values.
 
         for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-            const Obj U(values[ii]);
+            const int RU = values[ii];
+            const Obj U(RU);
             ASSERT(!U.isNull());
 
             if (veryVerbose) { T_ P_(ii) P(U) }
 
             for (int jj = 0; jj < k_NUM_VALUES; ++jj) {
-                const Obj V(values[jj]);
+                const int RV = values[jj];
+                const Obj V(RV);
                 ASSERT(!V.isNull());
 
                 if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
+
+                // lhs is nullable, but non-null, rhs is raw value
+
+                ASSERTV(U, RV, (ii == jj) == (U == RV));
+                ASSERTV(U, RV, (ii != jj) == (U != RV));
+
+                ASSERTV(U, RV, (ii <  jj) == (U <  RV));
+                ASSERTV(U, RV, (ii <= jj) == (U <= RV));
+                ASSERTV(U, RV, (ii >  jj) == (U >  RV));
+                ASSERTV(U, RV, (ii >= jj) == (U >= RV));
+
+                // lhs is raw value, rhs is nullable, but non-null
+
+                ASSERTV(RU, V, (ii == jj) == (RU == V));
+                ASSERTV(RU, V, (ii != jj) == (RU != V));
+
+                ASSERTV(RU, V, (ii <  jj) == (RU <  V));
+                ASSERTV(RU, V, (ii <= jj) == (RU <= V));
+                ASSERTV(RU, V, (ii >  jj) == (RU >  V));
+                ASSERTV(RU, V, (ii >= jj) == (RU >= V));
+
+                // both sides are nullable, but non-null
 
                 ASSERTV(U, V, (ii == jj) == (U == V));
                 ASSERTV(U, V, (ii != jj) == (U != V));
