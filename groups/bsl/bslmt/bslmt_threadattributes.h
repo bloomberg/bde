@@ -124,9 +124,10 @@ BSLS_IDENT("$Id: $")
 // Thread names have unlimited lengths in a thread attributes object, but the
 // thread names actually supported by specific platforms may have limited
 // length, depending upon the platform, so thread names may be truncated when
-// assigned to the actual thread.  At this time, only Linux and Darwin support
-// thread names, and there is a maximum thread name length of 15 on both of
-// those platforms.
+// assigned to the actual thread.  At this time, only Linux, Solaris, Darwin,
+// and Windows support thread names.  Unix platforms have a maximum thread name
+// length of 15, while on Windows, the limit is 32767, or '(1 << 15) - 1'
+// characters.
 //
 ///Fluent Interface
 ///------------------

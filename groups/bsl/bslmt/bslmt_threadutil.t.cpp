@@ -773,6 +773,59 @@ void printNumberOfLogicalProcessorsFromCommandLine()
 #endif
 }
 
+namespace u {
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+
+// 16-byte length limit (include '\0') on Unix platforms.
+
+const char *nonDefaultThreadName = "Homer Bart Lisa";
+
+#elif  BSLS_PLATFORM_OS_WINDOWS
+
+// Very long length limit on Windows.
+
+const char *nonDefaultThreadName =
+            "To be, or not to be, that is the question:\n"
+            "Whether 'tis nobler in the mind to suffer\n"
+            "The slings and arrows of outrageous fortune,\n"
+            "Or to take Arms against a Sea of troubles,\n"
+            "And by opposing end them: to die, to sleep\n"
+            "No more; and by a sleep, to say we end\n"
+            "The heart-ache, and the thousand natural shocks\n"
+            "That Flesh is heir to? 'Tis a consummation\n"
+            "Devoutly to be wished. To die, to sleep,\n"
+            "To sleep, perchance to Dream; aye, there's the rub,\n"
+            "For in that sleep of death, what dreams may come,\n"
+            "When we have shuffled off this mortal coil,\n"
+            "Must give us pause. There's the respect\n"
+            "That makes Calamity of so long life:\n"
+            "For who would bear the Whips and Scorns of time,\n"
+            "The Oppressor's wrong, the proud man's Contumely, [F: poore]\n"
+            "The pangs of dispised Love, the Law's delay, [F: dispriz'd]\n"
+            "The insolence of Office, and the spurns\n"
+            "That patient merit of th'unworthy takes,\n"
+            "When he himself might his Quietus make\n"
+            "With a bare Bodkin? Who would Fardels bear, [F: these Fardels]\n"
+            "To grunt and sweat under a weary life,\n"
+            "But that the dread of something after death,\n"
+            "The undiscovered country, from whose bourn\n"
+            "No traveller returns, puzzles the will,\n"
+            "And makes us rather bear those ills we have,\n"
+            "Than fly to others that we know not of?\n"
+            "Thus conscience does make cowards of us all,\n"
+            "And thus the native hue of Resolution\n"
+            "Is sicklied o'er, with the pale cast of Thought,\n"
+            "And enterprises of great pitch and moment, [F: pith]\n"
+            "With this regard their Currents turn awry, [F: away]\n"
+            "And lose the name of Action. Soft you now,\n"
+            "The fair Ophelia? Nymph, in thy Orisons\n"
+            "Be all my sins remember'd.\n";
+#else
+# error Unrecognized platform
+#endif
+
+}  // close namespace u
 }  // close unnamed namespace
 
 //-----------------------------------------------------------------------------
@@ -781,22 +834,53 @@ void printNumberOfLogicalProcessorsFromCommandLine()
 
 namespace NAMED_DETACHED_THREAD_TEST_CASE {
 
-enum { k_NUM_THREADS = 10 };
+enum {  k_NUM_THREADS = 10,
+
+#if   defined(BSLS_PLATFORM_OS_WINDOWS)
+        // There is one allocation for the thread name in 'attr' variable in
+        // this function, then for each thread there is:
+        //: o One allocation for the 'u::NamedFuncPtrRecord' in the imp file.
+        //:
+        //: o One allocation for the string object in the
+        //:   'u::NamedFuncPtrRecord' in the imp file.
+        //:
+        //: o One allocation for the string in 'TC::subThread' in this file.
+
+        k_EXP_TA_ALLOCS = 1 + 3 * k_NUM_THREADS,
+
+        // We expect each thread to do one allocation in the default allocator
+        // in bslmt_threadutilimpl_windows.cpp when translating UTF-8 to
+        // UTF-16.
+
+        k_EXP_DEFAULT_ALLOCS = k_NUM_THREADS,
+
+#elif   defined(BSLS_PLATFORM_OS_UNIX)
+        // The max thread name is short enough to fit in a short string, but we
+        // still have to allocate 'u::NamedFuncPtrRecord' for each thread.
+
+        k_EXP_TA_ALLOCS = k_NUM_THREADS,
+
+        // No unicode translation on Unix.
+
+        k_EXP_DEFAULT_ALLOCS = 0,
+#else
+# error unrecognized platform
+#endif
+};
 
 bsls::AtomicInt started(0);
 bsls::AtomicInt stopped(-1);
 
-// 16-byte length limit on some platforms.
-const char *nonDefaultThreadName = "Homer Bart Lisa";
-
-extern "C" void *subThread(void *)
+extern "C" void *subThread(void *allocArg)
 {
+    bslma::Allocator *alloc = static_cast<bslma::Allocator *>(allocArg);
+
     ++started;
 
-    bsl::string threadName;
+    bsl::string threadName(alloc);
     Obj::getThreadName(&threadName);
     ASSERT((k_threadNameCanBeEmpty && threadName.empty()) ||
-           nonDefaultThreadName == threadName);
+           u::nonDefaultThreadName == threadName);
 
     while (stopped < 0) {
         Obj::yield();
@@ -1561,44 +1645,52 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         taDefaultLocal;
         bslma::DefaultAllocatorGuard guard(&taDefaultLocal);
 
-        Attr attr(&ta);
-        attr.setThreadName(TC::nonDefaultThreadName);
-        attr.setDetachedState(Attr::e_CREATE_DETACHED);
+        {
+            Attr attr(&ta);
+            attr.setThreadName(u::nonDefaultThreadName);
+            attr.setDetachedState(Attr::e_CREATE_DETACHED);
 
-        Obj::Handle handles[TC::k_NUM_THREADS];
-        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
-            int rc = Obj::createWithAllocator(&handles[ii],
-                                              attr,
-                                              &TC::subThread,
-                                              0,
-                                              &ta);
-            ASSERT(0 == rc);
+            Obj::Handle handles[TC::k_NUM_THREADS];
+            for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+                int rc = Obj::createWithAllocator(&handles[ii],
+                                                  attr,
+                                                  &TC::subThread,
+                                                  &ta,
+                                                  &ta);
+                ASSERT(0 == rc);
+            }
         }
 
         while (TC::started < TC::k_NUM_THREADS) {
             Obj::yield();
         }
 
-        ASSERT(TC::k_NUM_THREADS == ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
+        // 'stopped' is statically initialized to -1, the threads don't start
+        // incrementing it until it's non-negative.
 
         TC::stopped = 0;
         while (TC::stopped < TC::k_NUM_THREADS) {
             Obj::yield();
         }
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
-        int expAllocs = 0;
-#else
-        // Windows allocates a string using the default allocator when
-        // performing the thread name unicode conversion.
-        int expAllocs = TC::k_NUM_THREADS;
-#endif
+        // Wait 2 seconds to be sure detacheds threads have finished and
+        // released memory.
 
-        ASSERTV(taDefaultLocal.numAllocations(),
-                expAllocs == taDefaultLocal.numAllocations());
+        bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+        do {
+            Obj::yield();
+        } while ((bsls::SystemTime::nowMonotonicClock() - start).
+                                                 totalSecondsAsDouble() < 2.0);
+
+        ASSERTV(TC::k_EXP_DEFAULT_ALLOCS, taDefaultLocal.numAllocations(),
+                  TC::k_EXP_DEFAULT_ALLOCS == taDefaultLocal.numAllocations());
         ASSERTV(taDefaultLocal.numBytesInUse(),
                 0 == taDefaultLocal.numBytesInUse());
+
+        ASSERTV(TC::k_EXP_TA_ALLOCS, ta.numAllocations(),
+                                   TC::k_EXP_TA_ALLOCS == ta.numAllocations());
+        ASSERTV(ta.numBytesInUse(), 0 == ta.numBytesInUse());
+        ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -1749,15 +1841,6 @@ int main(int argc, char *argv[])
         // string.  On platforms that don't support thread names, the thread
         // name will always have a value of the empty string.
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-        // 'woof' followed by UTF-8 emoticon winking face
-        // Windows uses unicode names with no length limits.
-        const bsl::string tn("woof woof woof woof \xf0\x9f\x98\x89", &oai);
-#else
-        // 16-byte length limit (including null terminator) under unix.
-        const bsl::string tn("woof woof woof", &oai);
-#endif
-
 #if defined(BSLS_PLATFORM_OS_LINUX)
         bsl::string defaultThreadName("bslmt_threadutil.t", 15, &oai);
                                                          // basename of process
@@ -1779,7 +1862,7 @@ int main(int argc, char *argv[])
               case e_NO_ALLOC_ATTR_NAME:
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
-                attr.setThreadName(tn);
+                attr.setThreadName(u::nonDefaultThreadName);
               } break;
               default: {
                 ; // do nothing
@@ -1896,7 +1979,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(cm,
                              threadName,
                              (k_threadNameCanBeEmpty && threadName.empty()) ||
-                                 tn == threadName);
+                                 u::nonDefaultThreadName == threadName);
               } break;
               default: {
                 LOOP2_ASSERT(cm,
