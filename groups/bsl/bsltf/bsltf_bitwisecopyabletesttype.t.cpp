@@ -16,6 +16,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits>    // std::is_trivially_copyable
+#endif
+
+
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
 
@@ -65,8 +70,9 @@ using namespace BloombergLP::bsltf;
 // [ 6] bool operator!=(lhs, rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 // [ *] CONCERN: No memory is ever allocated.
+// [11] CONCERN: The object has the necessary type traits
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -153,72 +159,8 @@ const DefaultValueRow DEFAULT_VALUES[] =
     { L_,         1 },
     { L_,   INT_MAX },
 };
+
 const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
-
-//=============================================================================
-//                            FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-namespace {
-namespace u {
-
-unsigned numBitsChanged(const void *segmentA,
-                        const void *segmentB,
-                        size_t      size)
-    // Compare the specified memory segments 'segmentA' and 'segmentB', both of
-    // the specified 'size' bytes, and return the number of bits that differ
-    // between them.
-{
-    const unsigned char *a = static_cast<const unsigned char *>(segmentA);
-    const unsigned char *b = static_cast<const unsigned char *>(segmentB);
-
-    unsigned ret = 0;
-    for (const unsigned char *end = a + size; a < end; ++a, ++b) {
-        for (unsigned diff = *a ^ *b; diff; diff >>= 1) {
-            ret += diff & 1;
-        }
-    }
-
-    return ret;
-}
-
-                                // =====
-                                // Thing
-                                // =====
-
-struct Thing {
-    char d_byte;
-
-    // CLASS METHOD
-    static
-    bool isDtorExecuted();
-        // Return 'true' if the destructor of a 'Thing' is observed to execute
-        // on object destruction, and 'false' otherwise.
-        //
-        // On some compilers in optimized mode, destructors that change only
-        // the footprint of the object are optimized away and are not executed.
-
-    // CREATORS
-    Thing() : d_byte(0) {}
-    ~Thing() { d_byte = 127; }
-};
-
-                                // -----
-                                // Thing
-                                // -----
-
-// CLASS METHOD
-bool Thing::isDtorExecuted()
-{
-    bsls::ObjectBuffer<Thing> buffer;
-    new (buffer.address()) Thing();
-    buffer.address()->~Thing();
-
-    return 0 != *reinterpret_cast<char *>(buffer.address());
-}
-
-}  // close namespace u
-}  // close unnamed namespace
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -304,7 +246,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
         //
-        // Concern:
+        // Concerns:
         //: 1 The object has the necessary type traits.
         //
         // Plan:
@@ -313,7 +255,15 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: The object has the necessary type traits
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TYPE TRAITS"
+                            "\n===================\n");
+
         BSLMF_ASSERT(bsl::is_trivially_copyable<Obj>::value);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        BSLMF_ASSERT(std::is_trivially_copyable<Obj>::value);
+#endif
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -783,25 +733,8 @@ int main(int argc, char *argv[])
 
         ASSERT(X == Y);
 
-        bool isDtorExecuted = u::Thing::isDtorExecuted();
-        if (verbose) P(isDtorExecuted);
-
-        unsigned changed = u::numBitsChanged(xBuffer.address(),
-                                             yBuffer.address(),
-                                             sizeof(xBuffer));
-        ASSERT(0 == changed);
-
         mX.~Obj();
-
-        changed = u::numBitsChanged(xBuffer.address(),
-                                    yBuffer.address(),
-                                    sizeof(xBuffer));
-        ASSERT(changed >= (sizeof(xBuffer) * 8) / 4 || !isDtorExecuted);
-
         mY.~Obj();
-        ASSERT(0 == u::numBitsChanged(xBuffer.address(),
-                                      yBuffer.address(),
-                                      sizeof(xBuffer)));
       } break;
       case 1: {
         // --------------------------------------------------------------------

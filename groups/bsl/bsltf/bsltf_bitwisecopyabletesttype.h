@@ -107,16 +107,17 @@ class BitwiseCopyableTestType {
         // Create a 'BitwiseCopyableTestType' object having the specified
         // 'data' attribute value.
 
-    // BitwiseCopyableTestType(
+    //! BitwiseCopyableTestType(
     //                      const BitwiseCopyableTestType& original) = default;
-        // Create a 'BitwiseCopyableTestType' object having the same value
-        // as the specified 'original' object.
+        // Create a 'BitwiseCopyableTestType' object having the same value as
+        // the specified 'original' object.
 
-    ~BitwiseCopyableTestType();
-        // Destroy this object.
+    //! ~BitwiseCopyableTestType() = default;
+         // Destroy this object.  Note that this destructor is neither declared
+         // nor defined because this type is trivially copyable.
 
     // MANIPULATORS
-    // BitwiseCopyableTestType& operator=(
+    //! BitwiseCopyableTestType& operator=(
     //                           const BitwiseCopyableTestType& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
@@ -164,14 +165,7 @@ BitwiseCopyableTestType::BitwiseCopyableTestType(int data)
 {
 }
 
-inline
-BitwiseCopyableTestType::~BitwiseCopyableTestType()
-{
-    d_data = ~d_data & 0xf0f0f0f0;
-}
-
 // MANIPULATORS
-
 inline
 void BitwiseCopyableTestType::setData(int value)
 {
