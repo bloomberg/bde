@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
         //:   o Try every possible comparison of 'U' and 'V', whose results
         //:     should match the boolean results of comparing 'ii' and 'jj'.
         //:
-        //: 4 Try comparisons betwwen a null nullable value and non-nullable
+        //: 4 Try comparisons between a null nullable value and non-nullable
         //:   'int'.
         //:   o Create a null nullable value 'N'.
         //:
