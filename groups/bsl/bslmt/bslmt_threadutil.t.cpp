@@ -802,7 +802,7 @@ const char *nonDefaultThreadName =
             "That makes Calamity of so long life:\n"
             "For who would bear the Whips and Scorns of time,\n"
             "The Oppressor's wrong, the proud man's Contumely, [F: poore]\n"
-            "The pangs of dispised Love, the Law’s delay, [F: dispriz'd]\n"
+            "The pangs of dispised Love, the Law's delay, [F: dispriz'd]\n"
             "The insolence of Office, and the spurns\n"
             "That patient merit of th'unworthy takes,\n"
             "When he himself might his Quietus make\n"
