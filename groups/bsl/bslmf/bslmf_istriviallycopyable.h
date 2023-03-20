@@ -408,6 +408,22 @@ struct is_trivially_copyable<const volatile t_TYPE[]>
 };
 #endif
 
+template <class t_TYPE>
+struct is_trivially_copyableCHECKED : bsl::is_trivially_copyable<t_TYPE> {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    static_assert(bsl::is_trivially_copyable<t_TYPE>::value
+                ? std::is_trivially_copyable<t_TYPE>::value
+                : true,
+                  "is_trivially_copyableCHECKED");
+#endif
+};
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_trivially_copyableCHECKED_v =
+                                   is_trivially_copyableCHECKED<t_TYPE>::value;
+#endif
+
 ///IMPLEMENTATION NOTE
 ///-------------------
 // We specialize 'is_trivially_copyable' for 'bsls::TimeInterval' here because
