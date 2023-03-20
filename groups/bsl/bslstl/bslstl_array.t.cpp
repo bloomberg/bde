@@ -8,11 +8,13 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_destructorproctor.h>
+#include <bslma_sequentialallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_movableref.h>
 
 #include <bsltf_movabletesttype.h>
+#include <bsltf_nondefaultconstructibletesttype.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
@@ -126,9 +128,11 @@ using namespace bslstl;
 // [21] const TYPE&& get(const bsl::array<TYPE, SIZE>&& a)
 // [21] TYPE&& get(bsl::array<TYPE, SIZE>&& a)
 // [22] void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
+// [26] array<TYPE, SIZE> to_array(TYPE (&src)[SIZE]);
+// [26] array<TYPE, SIZE> to_array(TYPE (&&src)[SIZE]);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [25] CLASS TEMPLATE DEDUCTION GUIDES
 // [23] CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
 
@@ -1987,12 +1991,14 @@ class CopyOnlyTestType {
     // This class, that does not support move constructors, provides an
     // unconstrained (value-semantic) attribute type that records when copy
     // semantics have been invoked with the object instance as the source
-    // parameter.
+    // parameter.  Each instance also records if it was default-constructed.
 
     // DATA
     int                     d_value;       // object's value
     mutable CopyState::Enum d_copiedFrom;  // copied-from state
     mutable CopyState::Enum d_copiedInto;  // copied-into state
+    bool                    d_defaultConstructed;
+                                           // 'true' if default constructed
 
   public:
     // CREATORS
@@ -2001,6 +2007,7 @@ class CopyOnlyTestType {
     : d_value(0)
     , d_copiedFrom(CopyState::e_NOT_COPIED)
     , d_copiedInto(CopyState::e_NOT_COPIED)
+    , d_defaultConstructed(true)
     {}
 
     explicit CopyOnlyTestType(int value)
@@ -2008,6 +2015,7 @@ class CopyOnlyTestType {
     : d_value(value)
     , d_copiedFrom(CopyState::e_NOT_COPIED)
     , d_copiedInto(CopyState::e_NOT_COPIED)
+    , d_defaultConstructed(false)
     {}
 
     CopyOnlyTestType(const CopyOnlyTestType& original)
@@ -2016,6 +2024,7 @@ class CopyOnlyTestType {
     : d_value(original.d_value)
     , d_copiedFrom(CopyState::e_NOT_COPIED)
     , d_copiedInto(CopyState::e_COPIED)
+    , d_defaultConstructed(false)
     {
         original.d_copiedFrom = CopyState::e_COPIED;
     }
@@ -2064,6 +2073,13 @@ class CopyOnlyTestType {
         // Return the copy state of this object as source of a copy operation.
     {
         return d_copiedFrom;
+    }
+
+    bool defaultConstructed() const
+        // Return 'true' if the default constructor was used to create this
+        // object.
+    {
+        return d_defaultConstructed;
     }
 
 };
@@ -2226,6 +2242,9 @@ struct TestDriver {
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
 
+    static void testCase26();
+        // Test 'to_array'.
+
     static void testCase24();
         // Test type traits.
 
@@ -2298,6 +2317,9 @@ struct TestDriver {
 
 template<class TYPE>
 struct TestDriverWrapper{
+
+    static void testCase26();
+        // Test 'to_array'.
 
     static void testCase24();
         // Test type traits.
@@ -2378,6 +2400,186 @@ struct TestDriverWrapper{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
+
+template<class TYPE>
+void TestDriverWrapper<TYPE>::testCase26()
+{
+    using bsls::NameOf;
+
+    TestDriver<TYPE,  1>::testCase26();
+    TestDriver<TYPE,  2>::testCase26();
+    TestDriver<TYPE,  3>::testCase26();
+    TestDriver<TYPE,  4>::testCase26();
+    TestDriver<TYPE,  5>::testCase26();
+    TestDriver<TYPE, 16>::testCase26();
+    TestDriver<TYPE, 32>::testCase26();
+    TestDriver<TYPE, 64>::testCase26();
+}
+
+template <class TYPE, size_t SIZE>
+void TestDriver<TYPE, SIZE>::testCase26()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'to_array'
+    //   Ensure that the 'to_array' free functions work correctly.
+    //
+    // Concerns:
+    //: 1 Built-in arrays of copyable types result in all of the elements
+    //:   being copied over.
+    //:
+    //: 2 Built-in arrays of move-only types result in all of the elements
+    //:   being moved over (if supported).
+    //:
+    //: 3 Attempts to call 'to_array' on a multi-dimensional built-in array
+    //:   fail.
+    //
+    // Plan:
+    //: 1 Call 'to_array' on an lvalue of a built-in array of copyable values
+    //:   and make sure the values were copied.
+    //:
+    //: 2 Call 'to_array' on an rvalue of a built-in array of move-only values
+    //:   and make sure the values were moved.
+    //:
+    //: 3 Under a #define, call 'to_array' on a multi-dimensional built-in
+    //:   array, expecting a compilation failure.
+    //
+    // Testing:
+    //      array<TYPE, SIZE> to_array(TYPE (&src)[SIZE]);
+    //      array<TYPE, SIZE> to_array(TYPE (&&src)[SIZE]);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING 'to_array' of size %d"
+                        "\n============================\n", int(SIZE));
+
+    enum { k_ARR_SIZE = SIZE };
+
+    std::size_t builtin_size_t_arr[k_ARR_SIZE];
+
+    for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+        builtin_size_t_arr[i] = i;
+    }
+
+    if (veryVerbose) printf("...testing copy of standard type\n");
+    {
+        bsl::array<std::size_t, k_ARR_SIZE> bsl_arr =
+                                             bsl::to_array(builtin_size_t_arr);
+
+        ASSERT(true ==
+               std::equal(bsl_arr.begin(), bsl_arr.end(), builtin_size_t_arr));
+    }
+
+    if (veryVerbose) printf("...testing copy of class type\n");
+    {
+        bsltf::MovableTestType builtin_arr[k_ARR_SIZE];
+
+        for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+            ASSERTV(
+                  i,
+                  bsltf::MoveState::e_NOT_MOVED == builtin_arr[i].movedFrom());
+        }
+
+        bsl::array<bsltf::MovableTestType, k_ARR_SIZE> bsl_arr =
+                                                    bsl::to_array(builtin_arr);
+
+        for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+            ASSERTV(
+                  i,
+                  bsltf::MoveState::e_NOT_MOVED == builtin_arr[i].movedFrom());
+            // Note that the result may be 'movedInto' if the compiler chooses
+            // to move the resulting array.
+        }
+    }
+
+    if (veryVerbose)
+        printf("...testing copy of class type with default ctor call check\n");
+    {
+        CopyOnlyTestType builtin_arr[k_ARR_SIZE];
+
+        for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+            ASSERTV(i, CopyState::e_NOT_COPIED == builtin_arr[i].copiedFrom());
+            ASSERTV(i, builtin_arr[i].defaultConstructed());
+        }
+
+        bsl::array<CopyOnlyTestType, k_ARR_SIZE> bsl_arr =
+                                                    bsl::to_array(builtin_arr);
+
+        for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+            ASSERTV(i, CopyState::e_COPIED == builtin_arr[i].copiedFrom());
+            ASSERTV(i, CopyState::e_COPIED == bsl_arr[i].copiedInto());
+#if (defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) &&             \
+     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)) ||            \
+   defined(BSLS_PLATFORM_CMP_SUN)
+            // The Sun compiler copy-constructs the result of 'to_array' into
+            // 'bsl_arr' rather than using RVO like other C++03 compilers.
+            ASSERTV(i, !bsl_arr[i].defaultConstructed());
+#else
+            ASSERTV(i, bsl_arr[i].defaultConstructed());
+#endif
+        }
+    }
+
+#if defined(BSLSTL_ARRAY_CHECK_MULTIDIM_TO_ARRAY_FAILURE)
+    // Negative compilation check.  This block fails to compile, validating
+    // the restriction that 'TYPE' shall not itself be a built-in array.
+
+    std::size_t builtin_size_t_multi_arr[k_ARR_SIZE][k_ARR_SIZE];
+
+    bsl::array<std::size_t[k_ARR_SIZE], k_ARR_SIZE> multi_bsl_arr = 
+        bsl::to_array(builtin_size_t_multi_arr);
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    if (veryVerbose) printf("...testing move of standard type\n");
+    {
+        bsl::array<std::size_t, k_ARR_SIZE> bsl_size_t_arr =
+                                  bsl::to_array(std::move(builtin_size_t_arr));
+
+        for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+            ASSERTV(i, bsl_size_t_arr[i], i == bsl_size_t_arr[i]);
+        }
+    }
+
+    if (veryVerbose) printf("...testing move of class type\n");
+    {
+        bsltf::MovableTestType builtin_arr[k_ARR_SIZE];
+
+        for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+            ASSERTV(
+                  i,
+                  bsltf::MoveState::e_NOT_MOVED == builtin_arr[i].movedFrom());
+        }
+
+        bsl::array<bsltf::MovableTestType, k_ARR_SIZE> bsl_arr =
+                                         bsl::to_array(std::move(builtin_arr));
+
+        for (std::size_t i = 0; i < k_ARR_SIZE; ++i) {
+            ASSERTV(i,
+                    bsltf::MoveState::e_MOVED == builtin_arr[i].movedFrom());
+            ASSERTV(i, bsltf::MoveState::e_MOVED == bsl_arr[i].movedInto());
+        }
+    }
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+#if (defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) &&             \
+     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES))
+    if (veryVerbose)
+        printf("...testing copy of NonDefaultConstructibleTestType\n");
+    {
+        // Note that this test does not depend on 'SIZE' due to the need
+        // for an initializer list.
+        bsltf::NonDefaultConstructibleTestType builtin_arr[4] = {
+            bsltf::NonDefaultConstructibleTestType(1),
+            bsltf::NonDefaultConstructibleTestType(2),
+            bsltf::NonDefaultConstructibleTestType(3),
+            bsltf::NonDefaultConstructibleTestType(4),
+        };
+
+        bsl::array<bsltf::NonDefaultConstructibleTestType, 4>
+            bsl_arr = bsl::to_array(builtin_arr);
+    }
+#endif
+}
+
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase24()
@@ -4683,7 +4885,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
 
     switch (test) { case 0:
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4704,6 +4906,30 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         UsageExample::usageExample();
+      } break;
+      case 26: {
+        //---------------------------------------------------------------------
+        // TESTING 'to_array'
+        //   Ensure that the 'to_array' free functions work correctly.
+        //
+        // Concerns:
+        //: 1 Built-in arrays of copyable types result in all of the elements
+        //:   being copied over.
+        //:
+        //: 2 Built-in arrays of move-only types result in all of the elements
+        //:   being moved over (if supported).
+        //
+        // Plan:
+        //: 1 Call 'to_array' on a built-in array of copyable values.
+        //:
+        //: 2 Call 'to_array' on a built-in array of move-only values.
+        //
+        // Testing:
+        //      array<TYPE, SIZE> to_array(TYPE (&src)[SIZE]);
+        //      array<TYPE, SIZE> to_array(TYPE (&&src)[SIZE]);
+        //---------------------------------------------------------------------
+
+        TestDriverWrapper<int>::testCase26();
       } break;
       case 25: {
         //---------------------------------------------------------------------

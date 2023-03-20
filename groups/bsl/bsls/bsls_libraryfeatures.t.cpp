@@ -15,6 +15,10 @@
     #include <string.h>  // for 'strchr'
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
+    #include <array> // for 'std::to_array'
+#endif
+
 // Verify assumption that the BASELINE C++11 library includes all of the new
 // library headers not covered by a more specific macro.  Note that we actively
 // #include each header to check for errors, though this could switch to using
@@ -221,6 +225,7 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+// [20] BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -231,7 +236,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [20] USAGE EXAMPLE
+// [21] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -1579,7 +1584,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1599,6 +1604,55 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'
+        //
+        // Concerns:
+        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined,
+        //:   'std::to_array' is available.
+        //
+        // Plan:
+        //: 1 Make simple use of 'std::to_array' to verify its availability
+        //:   if 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'\n"
+                   "=================================================\n");
+        }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY)
+        // String is there since the macro will get replaced by value.
+        ASSERTV("__cpp_lib_to_array >= 201907L check",
+                __cpp_lib_to_array,
+                __cpp_lib_to_array >= 201907L);
+
+
+        if (veryVerbose) printf("... testing to_array(T&[N])\n");
+        {
+            int src[5] = {1, 2, 3, 4, 5};
+            std::array<int, 5> dest = std::to_array(src);
+            for (std::size_t i = 0; i < sizeof(src)/sizeof(*src); ++i) {
+                ASSERTV(i, src[i], dest[i], src[i] == dest[i]);
+            }
+        }
+
+
+        if (veryVerbose) printf("... testing to_array(T&&[N])\n");
+        {
+            int src[5] = {1, 2, 3, 4, 5};
+            int check[5] = {1, 2, 3, 4, 5};
+            std::array<int, 5> dest = std::to_array(std::move(src));
+            for (std::size_t i = 0; i < sizeof(check)/sizeof(*check); ++i) {
+                ASSERTV(i, dest[i], check[i], dest[i] == check[i]);
+            }
+        }
+#endif
       } break;
       case 19: {
         // --------------------------------------------------------------------

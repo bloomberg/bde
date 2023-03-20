@@ -51,6 +51,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: <ranges>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: <semaphore>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN: <stop_token>
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY: 'to_array' available
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -928,6 +929,19 @@ BSLS_IDENT("$Id: $")
 //:   o clang 14 and later, or clang using at least GCC 9 GNU C++ Library
 //:   o Microsoft Visual Studio 2017 15.7 / MSVC 19.14 and later
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'
+///-----------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' macro is defined if the
+// 'std::to_array' templates are available.
+//
+// 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is the equivalent of
+// '__cpp_lib_to_array >= 201907L'.
+//
+// This macro is defined first for the following compiler versions:
+//:   o GCC 10.1
+//:   o clang 11.0
+//:   o Microsoft Visual Studio 2019 / MSVC 19.25
+//
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION'
 ///-----------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION' macro is defined if the native
@@ -1713,6 +1727,7 @@ BSLS_IDENT("$Id: $")
     #endif  // More than C++14 (there are C++17 features)
 
     // C++20 support reported
+
     #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 
         // C++20 library features introduced in Visual Studio 2019
@@ -1729,6 +1744,13 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY           1
         #endif
     #endif  // At least C++20
+
+    // Define macros for C++20 features that may be detected via '__cpp_lib_*'
+    // macros.
+
+    #if defined(__cpp_lib_to_array) && __cpp_lib_to_array >= 201907L
+        #define BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY                           1
+    #endif
 
     // If _HAS_AUTO_PTR_ETC is defined, use its value as the deciding one for
     // whether the C++17 deprecated names are gone.

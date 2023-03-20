@@ -161,16 +161,20 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_stdexceptutil.h>
 
+#include <bslalg_arrayprimitives.h>
 #include <bslalg_rangecompare.h>
 #include <bslalg_hasstliterators.h>
 
 #include <bslh_hash.h>
+
+#include <bslma_default.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isnothrowswappable.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
+#include <bslmf_removecv.h>
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -973,6 +977,8 @@ const TYPE&& bsl::get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
     return BloombergLP::bslmf::MovableRefUtil::move(a.d_data[INDEX]);
 }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+
 #endif  // !BSLSTL_ARRAY_IS_ALIASED
 
 #ifdef BSLSTL_ARRAY_IS_ALIASED
@@ -999,6 +1005,139 @@ void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
 
 #endif  // BSLSTL_ARRAY_IS_ALIASED
 
+#if BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
+namespace bsl {
+using std::to_array;
+}  // close namespace bsl
+#else
+namespace bsl {
+
+// FREE FUNCTIONS
+template< class TYPE, std::size_t SIZE >
+BSLS_KEYWORD_CONSTEXPR_CPP14
+array<typename remove_cv<TYPE>::type, SIZE> to_array( TYPE (&src)[SIZE] );
+    // Creates an 'array' from the specified 'src' one-dimensional built-in
+    // array by copying the corresponding elements.  The template parameter
+    // 'TYPE' shall not itself be a built-in array.  Note that 'TYPE' must
+    // be 'CopyConstructible' and, in C++ versions prior to C++14, must also
+    // be 'DefaultConstructible'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template< class TYPE, std::size_t SIZE >
+BSLS_KEYWORD_CONSTEXPR_CPP14
+array<typename remove_cv<TYPE>::type, SIZE> to_array( TYPE (&&src)[SIZE] );
+    // Creates an 'array' from the specified 'src' one-dimensional built-in
+    // array by moving the corresponding elements.  The template parameter
+    // 'TYPE' shall not itself be a built-in array.  Note that 'TYPE' must
+    // be 'MoveConstructible' and, in C++ versions prior to C++14, must also
+    // be 'DefaultConstructible'.
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+}  // close namespace bsl
+
+// FREE FUNCTIONS
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
+namespace BloombergLP {
+namespace bslstl_to_array_impl {
+
+template <class TYPE, std::size_t SIZE, std::size_t... INDICES>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP14 bsl::array<bsl::remove_cv_t<TYPE>, SIZE>
+to_array_lvalue_builder(TYPE (&src)[SIZE], std::index_sequence<INDICES...>)
+    // This implementation detail function copy constructs a 'bsl::array' from
+    // the specified 'src' argument.
+{
+    return {{src[INDICES]...}};
+}
+
+template <class TYPE, std::size_t SIZE, std::size_t... INDICES>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP14 bsl::array<bsl::remove_cv_t<TYPE>, SIZE>
+to_array_rvalue_builder(TYPE(&&src)[SIZE], std::index_sequence<INDICES...>)
+    // This implementation detail function move constructs a 'bsl::array' from
+    // the specified 'src' argument.
+{
+    return {{std::move(src[INDICES])...}};
+}
+
+}  // close namespace bslstl_to_array_impl
+}  // close enterprise namespace
+
+template <class TYPE, std::size_t SIZE>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP14
+bsl::array<typename bsl::remove_cv<TYPE>::type, SIZE>
+bsl::to_array(TYPE (&src)[SIZE])
+{
+    BSLMF_ASSERT(!bsl::is_array<TYPE>::value);
+    BSLMF_ASSERT(bsl::is_copy_constructible<TYPE>::value);
+
+    return BloombergLP::bslstl_to_array_impl::to_array_lvalue_builder(
+                                             src,
+                                             std::make_index_sequence<SIZE>());
+}
+
+template <class TYPE, std::size_t SIZE>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP14
+bsl::array<typename bsl::remove_cv<TYPE>::type, SIZE>
+bsl::to_array(TYPE (&&src)[SIZE])
+{
+    BSLMF_ASSERT(!bsl::is_array<TYPE>::value);
+    BSLMF_ASSERT(std::is_move_constructible<TYPE>::value);
+
+    return BloombergLP::bslstl_to_array_impl::to_array_rvalue_builder(
+                                             std::move(src),
+                                             std::make_index_sequence<SIZE>());
+}
+
+#else // ! ..._SUPPORT_{VARIADIC,VARIABLE}_TEMPLATES
+
+template <class TYPE, std::size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
+bsl::array<typename bsl::remove_cv<TYPE>::type, SIZE>
+bsl::to_array(TYPE (&src)[SIZE])
+{
+    BSLMF_ASSERT(!bsl::is_array<TYPE>::value);
+    BSLMF_ASSERT(bsl::is_copy_constructible<TYPE>::value);
+
+    array<typename remove_cv<TYPE>::type, SIZE> result;
+
+    for (std::size_t i = 0; i < SIZE; ++i) {
+        result[i] = src[i];
+    }
+
+    return result;
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE, std::size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
+bsl::array<typename bsl::remove_cv<TYPE>::type, SIZE>
+bsl::to_array(TYPE(&&src)[SIZE])
+{
+    BSLMF_ASSERT(!bsl::is_array<TYPE>::value);
+    BSLMF_ASSERT(std::is_move_constructible<TYPE>::value);
+
+    array<typename remove_cv<TYPE>::type, SIZE> result;
+
+    for (std::size_t i = 0; i < SIZE; ++i) {
+        result[i] = std::move(src[i]);
+    }
+
+    return result;
+}
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+        // && BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+
+
+#endif
 // ============================================================================
 //                                TYPE TRAITS
 // ============================================================================
