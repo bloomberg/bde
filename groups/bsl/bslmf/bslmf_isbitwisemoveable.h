@@ -624,7 +624,7 @@ struct IsBitwiseMoveable_Imp<t_TYPE, false> {
                            DetectNestedTrait<t_TYPE, IsBitwiseMoveable>::value;
 
   public:
-    static const bool value = bsl::is_trivially_copyable<t_TYPE>::value ||
+    static const bool value = bsl::is_trivially_copyableCHECKED<t_TYPE>::value ||
                               k_NestedBitwiseMoveableTrait ||
                               sizeof(t_TYPE) == 1;
 
@@ -650,7 +650,7 @@ struct IsBitwiseMoveable_Imp<t_TYPE, false> {
                   "function types");
 
     static const bool k_ValueWithoutOnebyteHeuristic =
-                        bsl::is_trivially_copyable<t_TYPE>::value ||
+                        bsl::is_trivially_copyableCHECKED<t_TYPE>::value ||
                         std::is_empty<t_TYPE>::value  // required for gcc < 5.0
                         || k_NestedBitwiseMoveableTrait;
 #endif

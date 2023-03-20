@@ -2101,8 +2101,8 @@ void testEmplaceDefaultValue(bool bitwiseMoveableFlag,
 
     ASSERTV(bitwiseMoveableFlag,   bslmf::IsBitwiseMoveable<TYPE>::value,
             bitwiseMoveableFlag == bslmf::IsBitwiseMoveable<TYPE>::value);
-    ASSERTV(bitwiseCopyableFlag,   bsl::is_trivially_copyable<TYPE>::value,
-            bitwiseCopyableFlag == bsl::is_trivially_copyable<TYPE>::value);
+    ASSERTV(bitwiseCopyableFlag,   bsl::is_trivially_copyableCHECKED<TYPE>::value,
+            bitwiseCopyableFlag == bsl::is_trivially_copyableCHECKED<TYPE>::value);
 
     {
         for (size_t ti = 0; ti < NUM_DATA_9DV; ++ti) {

@@ -253,7 +253,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     destroy(begin,
             end,
             allocator,
-            typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
+            typename bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::type());
 }
 
 template <class TARGET_TYPE>
@@ -267,7 +267,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
 
     destroy(begin,
             end,
-            typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
+            typename bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::type());
 }
 
 }  // close package namespace

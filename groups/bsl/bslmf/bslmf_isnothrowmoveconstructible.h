@@ -133,7 +133,7 @@ struct IsNothrowMoveConstructible_Impl<
 : bsl::integral_constant<
       bool,
       STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(t_TYPE) ||
-          bsl::is_trivially_copyable<t_TYPE>::value ||
+          bsl::is_trivially_copyableCHECKED<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE,
                             bsl::is_nothrow_move_constructible>::value> {
     // This 'struct' template implements a metafunction to determine whether
@@ -153,7 +153,7 @@ struct IsNothrowMoveConstructible_Impl<
 : bsl::integral_constant<
       bool,
       STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(const t_TYPE) ||
-          bsl::is_trivially_copyable<t_TYPE>::value> {
+          bsl::is_trivially_copyableCHECKED<t_TYPE>::value> {
     enum { k_CHECK_COMPLETE = sizeof(t_TYPE) };  // Diagnose incomplete types
 };
 

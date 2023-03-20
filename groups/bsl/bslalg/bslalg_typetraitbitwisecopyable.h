@@ -51,14 +51,14 @@ struct TypeTraitBitwiseCopyable {
 
     template <class TYPE>
     struct NestedTraitDeclaration :
-        bslmf::NestedTraitDeclaration<TYPE, bsl::is_trivially_copyable>
+        bslmf::NestedTraitDeclaration<TYPE, bsl::is_trivially_copyableCHECKED>
     {
         // This class template ties the 'bslalg::TypeTraitBitwiseCopyable'
         // trait tag to the 'bsl::is_trivially_copyable' trait metafunction.
     };
 
     template <class TYPE>
-    struct Metafunction : bsl::is_trivially_copyable<TYPE>::type { };
+    struct Metafunction : bsl::is_trivially_copyableCHECKED<TYPE>::type { };
 };
 
 }  // close package namespace
