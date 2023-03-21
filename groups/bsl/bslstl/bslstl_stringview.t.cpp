@@ -5195,12 +5195,12 @@ void TestDriver<TYPE, TRAITS>::testCase10()
             const size_type  LENGTH = j;
             const TYPE      *START  = STRING + OFFSET;
             const TYPE       FRONT  = *START;
-            const TYPE       BACK   = *(START + LENGTH - 1);
 
             Obj         mX(START, LENGTH);
             const Obj&  X = mX;
 
             if (!X.empty()) {
+                const TYPE BACK   = *(START + LENGTH - 1);
                 ASSERTV(i, j, FRONT, X.front(), FRONT == X.front());
                 ASSERTV(i, j, BACK,  X.back(),  BACK  == X.back() );
             }
