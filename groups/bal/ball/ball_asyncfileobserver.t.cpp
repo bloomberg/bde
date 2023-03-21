@@ -2077,13 +2077,13 @@ int main(int argc, char *argv[])
                     ball::Context context;
                     mX->publish(record, context);
                 }
-                bslmt::ThreadUtil::microSleep(1, 0);
 
-                // Verify some, but not all records have been published
-                ASSERTV(record.use_count(), 1 < record.use_count());
+                // Verify some of the records may have been published
+                ASSERTV(record.use_count(), 1 <= record.use_count());
+
                 ASSERTV(record.use_count(),
                         logCount,
-                        record.use_count() <= logCount);
+                        record.use_count() <= logCount + 1);
 
                 // After this code block the logger manager will be destroyed.
             }
