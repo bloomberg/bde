@@ -14,6 +14,8 @@ BSLS_IDENT_RCSID(bslmt_recursivemuteximpl_pthread_cpp,"$Id$ $CSID$")
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 
              // ------------------------------------------------
@@ -33,7 +35,8 @@ bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::RecursiveMutexImpl()
 #else
     d_lockCount = 0;
 #endif
-    pthread_mutex_init(&d_lock, &attribute);
+    int result = pthread_mutex_init(&d_lock, &attribute);  (void)result;
+    BSLS_ASSERT_OPT(0 == result);
     pthread_mutexattr_destroy(&attribute);
 }
 
@@ -107,7 +110,7 @@ void bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::unlock()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

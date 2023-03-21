@@ -201,7 +201,9 @@ class Condition {
         // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
         // 'timedWait' method are to be interpreted (see {Supported
         // Clock-Types} in the component-level documentation).  If 'clockType'
-        // is not specified then the realtime system clock is used.
+        // is not specified then the realtime system clock is used.  This
+        // method does not return normally unless there are sufficient system
+        // resources to construct the object.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     explicit
@@ -209,14 +211,18 @@ class Condition {
         // Create a condition variable object.  Use the realtime system clock
         // as the clock against which the 'absTime' timeouts passed to the
         // 'timedWait' methods are interpreted (see {Supported Clock-Types} in
-        // the component-level documentation).
+        // the component-level documentation).  This method does not return
+        // normally unless there are sufficient system resources to construct
+        // the object.
 
     explicit
     Condition(const bsl::chrono::steady_clock&);
         // Create a condition variable object.  Use the monotonic system clock
         // as the clock against which the 'absTime' timeouts passed to the
         // 'timedWait' methods are interpreted (see {Supported Clock-Types} in
-        // the component-level documentation).
+        // the component-level documentation).  This method does not return
+        // normally unless there are sufficient system resources to construct
+        // the object.
 #endif
 
     ~Condition();
@@ -390,7 +396,7 @@ bsls::SystemClockType::Enum bslmt::Condition::clockType() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

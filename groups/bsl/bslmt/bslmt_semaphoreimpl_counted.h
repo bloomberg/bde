@@ -90,7 +90,8 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
   public:
     // CREATORS
     SemaphoreImpl(int count);
-        // Create a semaphore.
+        // Create a semaphore.  This method does not return normally unless
+        // there are sufficient system resources to construct the object.
 
     ~SemaphoreImpl();
         // Destroy a semaphore

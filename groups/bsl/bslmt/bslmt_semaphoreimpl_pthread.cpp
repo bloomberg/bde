@@ -32,7 +32,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::SemaphoreImpl(int count)
     int result = ::sem_init(&d_sem, 0, count);
 
     (void) result;
-    BSLS_ASSERT(result != -1);
+    BSLS_ASSERT_OPT(result != -1);
 }
 
 // MANIPULATORS
@@ -61,7 +61,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::wait()
 #endif  // BSLMT_PLATFORM_POSIX_THREADS
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

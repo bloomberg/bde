@@ -86,7 +86,9 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
   public:
     // CREATORS
     RecursiveMutexImpl();
-        // Create a recursive mutex initialized to an unlocked state.
+        // Create a recursive mutex initialized to an unlocked state.  This
+        // method does not return normally unless there are sufficient system
+        // resources to construct the object.
 
     ~RecursiveMutexImpl();
         // Destroy this recursive mutex object.
@@ -143,7 +145,7 @@ bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::~RecursiveMutexImpl()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

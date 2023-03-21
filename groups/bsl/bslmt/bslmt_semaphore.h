@@ -138,11 +138,15 @@ class Semaphore {
   public:
     // CREATORS
     Semaphore();
-        // Create a semaphore initially having a count of 0.
+        // Create a semaphore initially having a count of 0.  This
+        // method does not return normally unless there are sufficient system
+        // resources to construct the object.
 
     explicit
     Semaphore(int count);
-        // Create a semaphore initially having the specified 'count'.
+        // Create a semaphore initially having the specified 'count'.  This
+        // method does not return normally unless there are sufficient system
+        // resources to construct the object.
 
     ~Semaphore();
         // Destroy this semaphore.

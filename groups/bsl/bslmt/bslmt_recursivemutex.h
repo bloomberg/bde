@@ -102,7 +102,9 @@ class RecursiveMutex {
   public:
     // CREATORS
     RecursiveMutex();
-        // Create a recursive mutex object in the unlocked state.
+        // Create a recursive mutex object in the unlocked state.  This method
+        // does not return normally unless there are sufficient system
+        // resources to construct the object.
 
     ~RecursiveMutex();
         // Destroy this recursive mutex object.

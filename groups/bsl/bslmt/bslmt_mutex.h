@@ -272,7 +272,7 @@ class Mutex {
 
     // DATA
     MutexImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
-                                                     //  implementation
+                                              // implementation
 
     // NOT IMPLEMENTED
     Mutex(const Mutex&);
@@ -287,7 +287,9 @@ class Mutex {
 
     // CREATORS
     Mutex();
-        // Create a mutex object in the unlocked state.
+        // Create a mutex object in the unlocked state.  This method does not
+        // return normally unless there are sufficient system resources to
+        // construct the object.
 
     ~Mutex();
         // Destroy this mutex object.  The behavior is undefined if the mutex
@@ -370,7 +372,7 @@ void bslmt::Mutex::unlock()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

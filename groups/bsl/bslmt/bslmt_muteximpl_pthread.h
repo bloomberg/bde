@@ -81,7 +81,9 @@ class MutexImpl<Platform::PosixThreads> {
 
     // CREATORS
     MutexImpl();
-        // Create a mutex initialized to an unlocked state.
+        // Create a mutex initialized to an unlocked state.  This method does
+        // not return normally unless there are sufficient system resources to
+        // construct the object.
 
     ~MutexImpl();
         // Destroy this mutex object.  The behavior is undefined if the mutex
@@ -127,7 +129,7 @@ bslmt::MutexImpl<bslmt::Platform::PosixThreads>::MutexImpl()
 {
     const int status = pthread_mutex_init(&d_lock, 0);
     (void) status;
-    BSLS_ASSERT_SAFE(0 == status);
+    BSLS_ASSERT_OPT(0 == status);
 }
 
 // MANIPULATORS
@@ -176,7 +178,7 @@ bslmt::MutexImpl<bslmt::Platform::PosixThreads>::nativeMutex()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

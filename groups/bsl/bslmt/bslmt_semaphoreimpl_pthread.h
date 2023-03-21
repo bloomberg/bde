@@ -75,7 +75,9 @@ class SemaphoreImpl<Platform::PosixSemaphore> {
     // CREATORS
     explicit
     SemaphoreImpl(int count);
-        // Create a semaphore initialized to the specified 'count'.
+        // Create a semaphore initialized to the specified 'count'.  This
+        // method does not return normally unless there are sufficient system
+        // resources to construct the object.
 
     ~SemaphoreImpl();
         // Destroy a semaphore

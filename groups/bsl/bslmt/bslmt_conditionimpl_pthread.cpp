@@ -89,20 +89,21 @@ void initializeCondition(pthread_cond_t              *condition,
 #ifdef BSLS_PLATFORM_OS_DARWIN
     (void) clockType;
     int rc = pthread_cond_init(condition, 0);
-    (void) rc; BSLS_ASSERT(0 == rc); // 'pthread_cond_int' can only fail for
-                                     // two possible reasons in this usage and
-                                     // neither should ever occur:
-                                     //: 1 lack of system resources
-                                     //: 2 attempt to re-initialise 'condition'
+    (void) rc; BSLS_ASSERT_OPT(0 == rc);  // 'pthread_cond_int' can only fail
+                                          // for two possible reasons in this
+                                          // usage and neither should ever
+                                          // occur:
+                                          //: 1 lack of system resources
+                                          //: 2 attempt to re-initialise
 #else
     CondAttr attr(clockType);
     int rc = pthread_cond_init(condition, &attr.conditonAttributes());
-    (void) rc; BSLS_ASSERT(0 == rc); // 'pthread_cond_int' can only fail for
-                                     // three possible reasons in this usage
-                                     // and none should ever occur:
-                                     //: 1 lack of system resources
-                                     //: 2 attempt to re-initialise 'condition'
-                                     //: 3 the attribute is invalid
+    (void) rc; BSLS_ASSERT_OPT(0 == rc);  // 'pthread_cond_int' can only fail
+                                          // for three possible reasons in this
+                                          // usage and none should ever occur:
+                                          //: 1 lack of system resources
+                                          //: 2 attempt to re-initialise
+                                          //: 3 the attribute is invalid
 #endif
 }
 
@@ -156,7 +157,7 @@ int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::timedWait(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

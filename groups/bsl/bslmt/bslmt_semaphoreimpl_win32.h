@@ -43,6 +43,7 @@ BSLS_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 
 #include <bsl_c_limits.h>
@@ -114,7 +115,9 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
   public:
     // CREATORS
     SemaphoreImpl(int count);
-        // Create a semaphore initially having the specified 'count'.
+        // Create a semaphore initially having the specified 'count'.  This
+        // method does not return normally unless there are sufficient system
+        // resources to construct the object.
 
     ~SemaphoreImpl();
         // Destroy a semaphore
@@ -159,6 +162,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::SemaphoreImpl(int count)
     // maintained in 'd_resources'.
 
     d_handle = CreateSemaphoreA(NULL, 0, INT_MAX, NULL);
+    BSLS_ASSERT_OPT(NULL != d_handle);
 }
 
 inline
@@ -200,7 +204,7 @@ int bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::getValue() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
