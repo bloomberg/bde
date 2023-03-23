@@ -484,12 +484,12 @@ class SpinLockGuard {
 // CREATORS
 #ifndef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
 constexpr SpinLock::SpinLock()
-: d_state{{0}}
+: d_state()
 {
 }
 
 constexpr SpinLock::SpinLock(const SpinLock_MemberInitializer&)
-: d_state{{0}}
+: d_state()
 {
 }
 #endif
