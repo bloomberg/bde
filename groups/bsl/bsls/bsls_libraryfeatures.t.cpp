@@ -225,6 +225,9 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
 // [20] BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
@@ -433,6 +436,30 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
                                                                           true;
 #else
                                                                          false;
@@ -1677,6 +1704,14 @@ int main(int argc, char *argv[])
         //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' is defined only when the
         //:   native standard library provides it.
         //:
+        //: 7 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' is
+        //:   defined only when the native standard library provides it.
+        //:
+        //: 8 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is
+        //:   defined only when the native standard library provides it.
+        //:
+        //: 9 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
+        //:   is defined only when the native standard library provides it.
         //
         // Plan:
         //: 1 When these macros are defined include the appropriate headers and
@@ -1689,6 +1724,9 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -1702,6 +1740,9 @@ int main(int argc, char *argv[])
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined)
+    P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES_defined)
+    P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS_defined)
+    P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined)
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
@@ -1742,6 +1783,32 @@ int main(int argc, char *argv[])
             std::ranges::take_view   tv(v, 3);
             std::ranges::owning_view ov(std::move(v));
         }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
+        {
+            (void) std::atomic_signed_lock_free{};
+            (void) std::atomic_unsigned_lock_free{};
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+        (void) [](std::atomic_flag *ptr) {
+            std::atomic_flag_wait(ptr, true);
+            std::atomic_flag_wait_explicit(ptr,
+                                           true,
+                                           std::memory_order::relaxed);
+            std::atomic_flag_notify_one(ptr);
+            std::atomic_flag_notify_all(ptr);
+        };
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
+        (void) [](std::atomic_flag *ptr) {
+            (void) std::atomic_flag_test(ptr);
+            (void) std::atomic_flag_test_explicit(ptr,
+                                                  std::memory_order::relaxed);
+        };
 #endif
       } break;
       case 18: {

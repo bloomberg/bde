@@ -52,6 +52,12 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: <semaphore>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN: <stop_token>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY: 'to_array' available
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES:
+//                                                  atomic_[un]signed_lock_free
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS:
+//                                             bsl::atomic_flag_wait[_explicit]
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS:
+//                                             bsl::atomic_flag_test[_explicit]
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -1005,6 +1011,28 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_jthread' feature-test
 // macro is defined.
 //
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES'
+///---------------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' macro is
+// defined if 'bsl::atomic_signed_lock_free' and
+// 'bsl:atomic_unsigned_lock_free' types are available.
+//
+// This macro is defined if the standard
+// '__cpp_lib_atomic_lock_free_type_aliases' feature-test macro is defined.
+//
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS'
+///------------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is defined
+// if the following free functions are available: 'bsl::atomic_flag_wait',
+// 'bsl::atomic_flag_wait_explicit', 'bsl::atomic_flag_notify_one',
+// 'bsl::atomic_flag_notify_all'.
+//
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
+///-----------------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS' is
+// defined if the 'bsl::atomic_flag_test' and 'bsl::atomic_flag_test_explicit'
+// functions are available.
+//
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
@@ -1825,6 +1853,20 @@ BSLS_IDENT("$Id: $")
 
 #if defined(__cpp_lib_jthread) && __cpp_lib_jthread >= 201911L
 # define BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN                            1
+#endif
+
+#if __cpp_lib_atomic_lock_free_type_aliases >= 201907L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES          1
+#endif
+
+#if __cpp_lib_atomic_wait >= 201907L && \
+                                      !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS             1
+#endif
+
+#if __cpp_lib_atomic_flag_test >= 201907L && \
+                                      !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS        1
 #endif
 
 // ============================================================================

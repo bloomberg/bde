@@ -233,6 +233,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [30] C++20 'bsl_atomic.h' HEADER ADDITIONS
 // [29] C++20 'bsl_memory.h' HEADER ADDITIONS
 // [28] CONCERN: Entities from 'std::ranges' are available and usable.
 // [27] CONCERN: The type 'bsl::stop_token' is available and usable.
@@ -869,6 +870,83 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_atomic.h' HEADER ADDITIONS
+        //
+        // Concerns:
+        //: 1 The following names are available in 'bsl' to users who include
+        //:   'bsl_atomic.h':
+        //:    o 'atomic_ref';
+        //:    o 'atomic_char8_t';
+        //:    o 'atomic_signed_lock_free', 'atomic_unsigned_lock_free';
+        //:    o 'atomic_wait', 'atomic_wait_explicit';
+        //:    o 'atomic_notify_one', 'atomic_notify_all';
+        //:    o 'atomic_flag_notify_one', 'atomic_flag_notify_all';
+        //:    o 'atomic_flag_test', 'atomic_flag_test_explicit'.
+        //:
+        //: 2 The feature test macros defined in '<atomic>' for the imported
+        //:   features are available and have appropriate values.
+        //
+        // Plan:
+        //: 1 Verify that
+        //:    o '__cpp_lib_atomic_ref >= 201806L',
+        //:    o '__cpp_lib_char8_t >= 201907L',
+        //:    o '__cpp_lib_atomic_lock_free_type_aliases >= 201907L',
+        //:    o '__cpp_lib_atomic_wait >= 201907L',
+        //:    o '__cpp_lib_atomic_flag_test >= 201907L'.
+        //:
+        //: 2 Form some valid expressions with every name with 'bsl' prefix.
+        //
+        // Testing
+        //   C++20 'bsl_atomic.h' HEADER ADDITIONS
+        // --------------------------------------------------------------------
+        if (verbose) printf(
+                          "\nTESTING C++20 'bsl_atomic.h' HEADER ADDITIONS"
+                          "\n=============================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        BSLMF_ASSERT(__cpp_lib_atomic_ref >= 201806L);
+        int value = 0;
+        (void) bsl::atomic_ref<int>{value};
+
+        BSLMF_ASSERT(__cpp_lib_char8_t >= 201907L);
+        (void) bsl::atomic_char8_t{};
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
+        BSLMF_ASSERT(__cpp_lib_atomic_lock_free_type_aliases >= 201907L);
+        (void) bsl::atomic_signed_lock_free{};
+        (void) bsl::atomic_unsigned_lock_free{};
+#endif
+
+        BSLMF_ASSERT(__cpp_lib_atomic_wait >= 201907L);
+        (void) [](bsl::atomic<int> *ptr) {
+            bsl::atomic_wait(ptr, 1);
+            bsl::atomic_wait_explicit(ptr, 1, bsl::memory_order::relaxed);
+            bsl::atomic_notify_one(ptr);
+            bsl::atomic_notify_all(ptr);
+        };
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+        (void) [](bsl::atomic_flag *ptr) {
+            bsl::atomic_flag_wait(ptr, true);
+            bsl::atomic_flag_wait_explicit(ptr,
+                                           true,
+                                           bsl::memory_order::relaxed);
+            bsl::atomic_flag_notify_one(ptr);
+            bsl::atomic_flag_notify_all(ptr);
+        };
+#endif
+
+        BSLMF_ASSERT(__cpp_lib_atomic_flag_test >= 201907L);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
+        (void) [](bsl::atomic_flag *ptr) {
+            (void) bsl::atomic_flag_test(ptr);
+            (void) bsl::atomic_flag_test_explicit(ptr,
+                                                  bsl::memory_order::relaxed);
+        };
+#endif
+#endif
+      } break;
       case 29: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_memory.h' HEADER ADDITIONS
@@ -918,7 +996,10 @@ int main(int argc, char *argv[])
         alignas(int) char buf[sizeof(int)];
         bsl::destroy_at(bsl::construct_at<int>(reinterpret_cast<int*>(buf)));
 
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_RELSEASE >= 12
+        // GNU libstdc++ 11 doesn't define this (but defines the functions)
         BSLMF_ASSERT(__cpp_lib_smart_ptr_for_overwrite >= 202002L);
+#endif
         (void) bsl::make_unique_for_overwrite<int>();
         (void) bsl::make_unique_for_overwrite<int[]>(4);
         //bsl::make_shared_for_overwrite() // own implementation
