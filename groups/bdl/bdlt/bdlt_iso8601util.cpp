@@ -6,8 +6,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_iso8601util_cpp,"$Id$ $CSID$")
 
-
-
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
 #include <bsl_cstring.h>
@@ -20,8 +18,8 @@ using bsl::ptrdiff_t;
 using namespace BloombergLP;
 using namespace BloombergLP::bdlt;
 
-typedef bdlt::Iso8601Util Util;
-typedef Util::Style       Style;
+typedef bdlt::Iso8601Util                   Util;
+typedef bdlt::Iso8601UtilParseConfiguration ParseConfiguration;
 
                           // ======================
                           // class Iso8601Util_Impl
@@ -380,13 +378,13 @@ int asciiToInt(const char **nextPos,
     return 0;
 }
 
-int parseDateRaw(const char **nextPos,
-                 int         *year,
-                 int         *month,
-                 int         *day,
-                 const char  *begin,
-                 const char  *end,
-                 Style        style = Util::e_STYLE_DEFAULT)
+int parseDateRaw(const char        **nextPos,
+                 int                *year,
+                 int                *month,
+                 int                *day,
+                 const char         *begin,
+                 const char         *end,
+                 ParseConfiguration  configuration = ParseConfiguration())
     // Parse the date, represented in the "YYYY-MM-DD" or "YYYYMMDD" ISO 8601
     // extended format, from the string starting at the specified 'begin' and
     // ending before the specified 'end', load into the specified 'year',
@@ -405,9 +403,8 @@ int parseDateRaw(const char **nextPos,
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
-    BSLS_ASSERT(style <= Util::k_STYLE_MAX_VALUE);
 
-    const bool basic = style & Util::k_STYLE_BASIC_FLAG;
+    const bool basic = configuration.basic();
 
     const char *p = begin;
 
@@ -517,7 +514,7 @@ int parseTimeRaw(const char         **nextPos,
                  const char          *begin,
                  const char          *end,
                  int                  roundMicroseconds,
-                 Style                style = Util::e_STYLE_DEFAULT)
+                 ParseConfiguration   configuration = ParseConfiguration())
     // Parse the time, represented in the "hh:mm:ss[.s+]" or "hhmmss[.s+]" ISO
     // 8601 extended format, from the string starting at the specified 'begin'
     // and ending before the specified 'end', load into the specified 'hour',
@@ -545,9 +542,8 @@ int parseTimeRaw(const char         **nextPos,
     BSLS_ASSERT(begin <= end);
     BSLS_ASSERT(0     <= roundMicroseconds);
     BSLS_ASSERT(         roundMicroseconds < 1000000);
-    BSLS_ASSERT(style <= Util::k_STYLE_MAX_VALUE);
 
-    const bool  basic = style & Util::k_STYLE_BASIC_FLAG;
+    const bool  basic = configuration.basic();
     const char *p = begin;
 
     const bsl::ptrdiff_t minLength = basic ? sizeof "hhmmss"   - 1
@@ -690,12 +686,12 @@ int parseZoneDesignator(const char **nextPos,
     return 0;
 }
 
-int parseDate(Date       *date,
-              int        *tzOffset,
-              bool       *hasZoneDesignator,
-              const char *string,
-              ptrdiff_t   length,
-              Style       style = Util::e_STYLE_DEFAULT)
+int parseDate(Date               *date,
+              int                *tzOffset,
+              bool               *hasZoneDesignator,
+              const char         *string,
+              ptrdiff_t           length,
+              ParseConfiguration  configuration = ParseConfiguration())
     // Parse the specified initial 'length' characters of the specified ISO
     // 8601 'string' as a 'Date' value, and load the value into the specified
     // 'date'.  If the specified 'basic' argument is 'true', dashes are not
@@ -705,13 +701,11 @@ int parseDate(Date       *date,
     // the specified 'hasZoneDesignator' to 'true'.  Return 0 on success, and a
     // non-zero value (with no effect on the 'date') otherwise.
 {
-    BSLS_ASSERT(style <= Util::k_STYLE_MAX_VALUE);
-
     // Sample ISO 8601 date: "2005-01-31+04:00"
     //
     // The zone designator is optional.
 
-    const ptrdiff_t minLength = style & Util::k_STYLE_BASIC_FLAG
+    const ptrdiff_t minLength = configuration.basic()
                               ? sizeof "YYYYMMDD"   - 1
                               : sizeof "YYYY-MM-DD" - 1;
 
@@ -732,7 +726,7 @@ int parseDate(Date       *date,
                              &day,
                              shuttle,
                              end,
-                             style)
+                             configuration)
       || !Date::isValidYearMonthDay(year, month, day)) {
         return -1;                                                    // RETURN
     }
@@ -758,12 +752,12 @@ int parseDate(Date       *date,
     return 0;
 }
 
-int parseTime(Time           *time,
-              int            *tzOffset,
-              bool           *hasZoneDesignator,
-              const char     *string,
-              bsl::ptrdiff_t  length,
-              Style           style = Util::e_STYLE_DEFAULT)
+int parseTime(Time               *time,
+              int                *tzOffset,
+              bool               *hasZoneDesignator,
+              const char         *string,
+              bsl::ptrdiff_t      length,
+              ParseConfiguration  configuration = ParseConfiguration())
     // Parse the specified initial 'length' characters of the specified ISO
     // 8601 'string' as a 'Time' value, and load the value into the specified
     // 'time'.  If the specified 'basic' is 'true', colons are not expected,
@@ -773,13 +767,11 @@ int parseTime(Time           *time,
     // 'hasZoneDesignator' to 'true'.  Return 0 on success, and a non-zero
     // value (with no effect on the 'time') otherwise.
 {
-    BSLS_ASSERT(style <= Util::k_STYLE_MAX_VALUE);
-
     // Sample ISO 8601 time: "08:59:59.999999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
-    const bsl::ptrdiff_t minLength = style & Util::k_STYLE_BASIC_FLAG
+    const bsl::ptrdiff_t minLength = configuration.basic()
                                    ? sizeof "hhmmss"   - 1
                                    : sizeof "hh:mm:ss" - 1;
 
@@ -813,7 +805,7 @@ int parseTime(Time           *time,
                              shuttle,
                              end,
                              1,
-                             style)
+                             configuration)
      || 0 != time->setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
@@ -857,12 +849,12 @@ int parseTime(Time           *time,
     return 0;
 }
 
-int parseDatetime(Datetime       *datetime,
-                  int            *tzOffset,
-                  bool           *hasZoneDesignator,
-                  const char     *string,
-                  bsl::ptrdiff_t  length,
-                  Style           style = Util::e_STYLE_DEFAULT)
+int parseDatetime(Datetime           *datetime,
+                  int                *tzOffset,
+                  bool               *hasZoneDesignator,
+                  const char         *string,
+                  bsl::ptrdiff_t      length,
+                  ParseConfiguration  configuration = ParseConfiguration())
     // Parse the specified initial 'length' characters of the specified ISO
     // 8601 'string' as a 'Datetime' value, and load the value into the
     // specified 'datetime'.  If the speciried 'basic' is 'false', dashes and
@@ -874,13 +866,11 @@ int parseDatetime(Datetime       *datetime,
     // 'T'.  Return 0 on success, and a non-zero value (with no effect on the
     // 'datetime') otherwise.
 {
-    BSLS_ASSERT(style <= Util::k_STYLE_MAX_VALUE);
-
     // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
-    const bsl::ptrdiff_t minLength = style & Util::k_STYLE_BASIC_FLAG
+    const bsl::ptrdiff_t minLength = configuration.basic()
                                    ? sizeof "YYYYMMDDThhmmss" - 1
                                    : sizeof "YYYY-MM-DDThh:mm:ss" - 1;
 
@@ -903,11 +893,11 @@ int parseDatetime(Datetime       *datetime,
                              &day,
                              shuttle,
                              end,
-                             style)) {
+                             configuration)) {
         return -1;                                                    // RETURN
     }
     if (shuttle == end || !('T' == *shuttle || 't' == *shuttle ||
-                  ((style & Util::k_STYLE_RELAXED_FLAG) && ' ' == *shuttle))) {
+                               (configuration.relaxed() && ' ' == *shuttle))) {
         // If 'shuttle' is not a valid date-time separator.
 
         return -1;                                                    // RETURN
@@ -933,7 +923,7 @@ int parseDatetime(Datetime       *datetime,
                              shuttle,
                              end,
                              1,
-                             style)) {
+                             configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -1023,13 +1013,11 @@ int parseDatetime(Datetime       *datetime,
     return 0;
 }
 
-int parseImp(Datetime   *result,
-             const char *string,
-             ptrdiff_t   length,
-             Style       style = Util::e_STYLE_DEFAULT)
+int parseImp(Datetime           *result,
+             const char         *string,
+             ptrdiff_t           length,
+             ParseConfiguration  configuration = ParseConfiguration())
 {
-    BSLS_ASSERT(style <= Util::k_STYLE_MAX_VALUE);
-
     // Sample ISO 8601 datetime if the specified 'basic' is 'false':
     // "2005-01-31T08:59:59.999999-04:00"
     //
@@ -1051,7 +1039,7 @@ int parseImp(Datetime   *result,
                               &hasZoneDesignator,
                               string,
                               length,
-                              style)) {
+                              configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -1085,10 +1073,10 @@ int parseImp(Datetime   *result,
     return 0;
 }
 
-int parseImp(DatetimeTz *result,
-             const char *string,
-             ptrdiff_t   length,
-             Style       style = Util::e_STYLE_DEFAULT)
+int parseImp(DatetimeTz         *result,
+             const char         *string,
+             ptrdiff_t           length,
+             ParseConfiguration  configuration = ParseConfiguration())
 {
     Datetime localDatetime;
     int      tzOffset          = 0;      // minutes from UTC
@@ -1099,7 +1087,7 @@ int parseImp(DatetimeTz *result,
                               &hasZoneDesignator,
                               string,
                               length,
-                              style)) {
+                              configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -1111,7 +1099,8 @@ int parseImp(DatetimeTz *result,
 int parseImp(Iso8601Util::DatetimeOrDatetimeTz *result,
              const char                        *string,
              ptrdiff_t                          length,
-             Style                              style = Util::e_STYLE_DEFAULT)
+             ParseConfiguration                 configuration =
+                                                          ParseConfiguration())
 {
     Datetime localDatetime;
     int      tzOffset          = 0;      // minutes from UTC
@@ -1122,7 +1111,7 @@ int parseImp(Iso8601Util::DatetimeOrDatetimeTz *result,
                               &hasZoneDesignator,
                               string,
                               length,
-                              style)) {
+                              configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -2463,15 +2452,14 @@ int Iso8601Util::parse(bsls::TimeInterval *result,
     return 0;
 }
 
-int Iso8601Util::parse(Date       *result,
-                       const char *string,
-                       ptrdiff_t   length,
-                       Style       style)
+int Iso8601Util::parse(Date               *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
     int  tzOffset          = 0;
     bool hasZoneDesignator = false;
@@ -2481,18 +2469,17 @@ int Iso8601Util::parse(Date       *result,
                         &hasZoneDesignator,
                         string,
                         length,
-                        style);
+                        configuration);
 }
 
-int Iso8601Util::parse(Time       *result,
-                       const char *string,
-                       ptrdiff_t   length,
-                       Style       style)
+int Iso8601Util::parse(Time               *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
     Time localTime;
     int  tzOffset          = 0;      // minutes from UTC
@@ -2503,7 +2490,7 @@ int Iso8601Util::parse(Time       *result,
                           &hasZoneDesignator,
                           string,
                           length,
-                          style)) {
+                          configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -2516,28 +2503,26 @@ int Iso8601Util::parse(Time       *result,
     return 0;
 }
 
-int Iso8601Util::parse(Datetime   *result,
-                       const char *string,
-                       ptrdiff_t   length,
-                       Style       style)
+int Iso8601Util::parse(Datetime           *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
-    return u::parseImp(result, string, length, style);
+    return u::parseImp(result, string, length, configuration);
 }
 
-int Iso8601Util::parse(DateTz     *result,
-                       const char *string,
-                       ptrdiff_t   length,
-                       Style       style)
+int Iso8601Util::parse(DateTz             *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
     Date localDate;
     int  tzOffset          = 0;      // minutes from UTC
@@ -2548,7 +2533,7 @@ int Iso8601Util::parse(DateTz     *result,
                           &hasZoneDesignator,
                           string,
                           length,
-                          style)) {
+                          configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -2557,15 +2542,14 @@ int Iso8601Util::parse(DateTz     *result,
     return 0;
 }
 
-int Iso8601Util::parse(TimeTz     *result,
-                       const char *string,
-                       ptrdiff_t   length,
-                       Style       style)
+int Iso8601Util::parse(TimeTz             *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
     Time localTime;
     int  tzOffset          = 0;      // minutes from UTC
@@ -2576,7 +2560,7 @@ int Iso8601Util::parse(TimeTz     *result,
                           &hasZoneDesignator,
                           string,
                           length,
-                          style)) {
+                          configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -2585,28 +2569,26 @@ int Iso8601Util::parse(TimeTz     *result,
     return 0;
 }
 
-int Iso8601Util::parse(DatetimeTz *result,
-                       const char *string,
-                       ptrdiff_t   length,
-                       Style       style)
+int Iso8601Util::parse(DatetimeTz         *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
-    return u::parseImp(result, string, length, style);
+    return u::parseImp(result, string, length, configuration);
 }
 
-int Iso8601Util::parse(DateOrDateTz *result,
-                       const char   *string,
-                       ptrdiff_t     length,
-                       Style         style)
+int Iso8601Util::parse(DateOrDateTz       *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
     Date localDate;
     int  tzOffset          = 0;      // minutes from UTC
@@ -2617,7 +2599,7 @@ int Iso8601Util::parse(DateOrDateTz *result,
                           &hasZoneDesignator,
                           string,
                           length,
-                          style)) {
+                          configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -2631,15 +2613,14 @@ int Iso8601Util::parse(DateOrDateTz *result,
     return 0;
 }
 
-int Iso8601Util::parse(TimeOrTimeTz *result,
-                       const char   *string,
-                       ptrdiff_t     length,
-                       Style         style)
+int Iso8601Util::parse(TimeOrTimeTz       *result,
+                       const char         *string,
+                       ptrdiff_t           length,
+                       ParseConfiguration  configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
     Time localTime;
     int  tzOffset           = 0;      // minutes from UTC
@@ -2650,7 +2631,7 @@ int Iso8601Util::parse(TimeOrTimeTz *result,
                           &hasZoneDesignator,
                           string,
                           length,
-                          style)) {
+                          configuration)) {
         return -1;                                                    // RETURN
     }
 
@@ -2667,14 +2648,13 @@ int Iso8601Util::parse(TimeOrTimeTz *result,
 int Iso8601Util::parse(DatetimeOrDatetimeTz *result,
                        const char           *string,
                        ptrdiff_t             length,
-                       Style                 style)
+                       ParseConfiguration    configuration)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(style <= k_STYLE_MAX_VALUE);
 
-    return u::parseImp(result, string, length, style);
+    return u::parseImp(result, string, length, configuration);
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -2686,7 +2666,9 @@ int Iso8601Util::parseRelaxed(Datetime   *result,
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    return u::parseImp(result, string, length, e_STYLE_RELAXED);
+    ParseConfiguration config;
+
+    return u::parseImp(result, string, length, config.setRelaxed());
 }
 
 int Iso8601Util::parseRelaxed(DatetimeTz *result,
@@ -2697,7 +2679,9 @@ int Iso8601Util::parseRelaxed(DatetimeTz *result,
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    return u::parseImp(result, string, length, e_STYLE_RELAXED);
+    ParseConfiguration config;
+
+    return u::parseImp(result, string, length, config.setRelaxed());
 }
 
 int Iso8601Util::parseRelaxed(DatetimeOrDatetimeTz *result,
@@ -2708,7 +2692,9 @@ int Iso8601Util::parseRelaxed(DatetimeOrDatetimeTz *result,
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    return u::parseImp(result, string, length, e_STYLE_RELAXED);
+    ParseConfiguration config;
+
+    return u::parseImp(result, string, length, config.setRelaxed());
 }
 #endif
 

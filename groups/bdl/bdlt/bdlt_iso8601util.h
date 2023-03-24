@@ -566,6 +566,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimetz.h>
 #include <bdlt_datetz.h>
 #include <bdlt_iso8601utilconfiguration.h>
+#include <bdlt_iso8601utilparseconfiguration.h>
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
@@ -661,29 +662,8 @@ struct Iso8601Util {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum Style {
-        k_STYLE_RELAXED_FLAG  = 0x1,
-        k_STYLE_BASIC_FLAG    = 0x2,
-        k_STYLE_MAX_VALUE     = k_STYLE_RELAXED_FLAG | k_STYLE_BASIC_FLAG,
-
-        k_STYLE_ILLEGAL_VALUE = k_STYLE_MAX_VALUE + 1,    // for testing
-
-
-        e_STYLE_DEFAULT       = 0,      // 'T' or 't' required between date &
-                                        // time in 'bdlt::Datetime', '-'
-                                        // required in 'bdlt::Date', ':'
-                                        // required in 'bdlt::Time'.
-
-        e_STYLE_RELAXED,                // Can use ' ', 'T', or 't' to separate
-                                        // date & time 'bdlt::Datetime'.  Note
-                                        // 'T' can always be used.
-
-        e_STYLE_BASIC,                  // No '-'s allowed in 'Date', no ':'s
-                                        // allowed in 'Time'.  Note that ':'s
-                                        // are always optional in time zone.
-
-        e_STYLE_RELAXED_BASIC           // both 'relaxed' and 'basic'
-    };
+    typedef Iso8601UtilConfiguration      Configuration;
+    typedef Iso8601UtilParseConfiguration ParseConfiguration;
 
     typedef bdlb::Variant2<Date, DateTz>         DateOrDateTz;
         // 'DateOrDateTz' is a convenient alias for
@@ -1101,10 +1081,10 @@ struct Iso8601Util {
         // to the nearest value in nanoseconds.  The behavior is undefined
         // unless '0 <= length'.
 
-    static int parse(Date       *result,
-                     const char *string,
-                     ptrdiff_t   length,
-                     Style       style = e_STYLE_DEFAULT);
+    static int parse(Date               *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' value, and load the value into the
         // specified 'result', using the specified 'style' (see documentation
@@ -1120,10 +1100,10 @@ struct Iso8601Util {
         // is present in 'string', it is parsed but ignored.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(Time       *result,
-                     const char *string,
-                     ptrdiff_t   length,
-                     Style       style = e_STYLE_DEFAULT);
+    static int parse(Time               *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' value, and load the value into the
         // specified 'result', using the specified 'style' (see documentation
@@ -1148,10 +1128,10 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(Datetime   *result,
-                     const char *string,
-                     ptrdiff_t   length,
-                     Style       style = e_STYLE_DEFAULT);
+    static int parse(Datetime           *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' value, and load the value into the
         // specified 'result', using the specified 'style' (see documentation
@@ -1176,10 +1156,10 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(DateTz     *result,
-                     const char *string,
-                     ptrdiff_t   length,
-                     Style       style = e_STYLE_DEFAULT);
+    static int parse(DateTz             *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DateTz' value, and load the value into the
         // specified 'result', using the specified 'style' (see documentation
@@ -1195,10 +1175,10 @@ struct Iso8601Util {
         // is not present in 'string', UTC is assumed.  The behavior is
         // undefined unless '0 <= length'.
 
-    static int parse(TimeTz     *result,
-                     const char *string,
-                     ptrdiff_t   length,
-                     Style       style = e_STYLE_DEFAULT);
+    static int parse(TimeTz             *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'TimeTz' value, and load the value into the
         // specified 'result', using the specified 'style' (see documentation
@@ -1221,10 +1201,10 @@ struct Iso8601Util {
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
-    static int parse(DatetimeTz *result,
-                     const char *string,
-                     ptrdiff_t   length,
-                     Style       style = e_STYLE_DEFAULT);
+    static int parse(DatetimeTz         *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DatetimeTz' value, and load the value into the
         // specified 'result', using the specified 'style' (see documentation
@@ -1247,10 +1227,10 @@ struct Iso8601Util {
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
-    static int parse(DateOrDateTz *result,
-                     const char   *string,
-                     ptrdiff_t     length,
-                     Style         style = e_STYLE_DEFAULT);
+    static int parse(DateOrDateTz       *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' or 'DateTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
@@ -1267,10 +1247,10 @@ struct Iso8601Util {
         // and as a 'Date' value otherwise.  The behavior is undefined unless
         // '0 <= length'.
 
-    static int parse(TimeOrTimeTz *result,
-                     const char   *string,
-                     ptrdiff_t     length,
-                     Style         style = e_STYLE_DEFAULT);
+    static int parse(TimeOrTimeTz       *result,
+                     const char         *string,
+                     ptrdiff_t           length,
+                     ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' or 'TimeTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
@@ -1297,7 +1277,8 @@ struct Iso8601Util {
     static int parse(DatetimeOrDatetimeTz *result,
                      const char           *string,
                      ptrdiff_t             length,
-                     Style                 style = e_STYLE_DEFAULT);
+                     ParseConfiguration    configuration =
+                                                         ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' or  'DatetimeTz' value, depending on
         // the presence of a zone designator, and load the value into the
@@ -1343,7 +1324,8 @@ struct Iso8601Util {
 
     static int parse(Date                    *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Date' value, and load
         // the value into the specified 'result', using the specified 'style'
         // (see documentation of the 'Style' enum above).  Return 0 on success,
@@ -1360,7 +1342,8 @@ struct Iso8601Util {
 
     static int parse(Time                    *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Time' value, and load
         // the value into the specified 'result', using the specified 'style'
         // (see documentation of the 'Style' enum above).  Return 0 on success,
@@ -1387,7 +1370,8 @@ struct Iso8601Util {
 
     static int parse(Datetime                *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Datetime' value, and
         // load the value into the specified 'result', using the specified
         // 'style' (see documentation of the 'Style' enum above).  Return 0 on
@@ -1414,7 +1398,8 @@ struct Iso8601Util {
 
     static int parse(DateTz                  *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'DateTz' value, and load
         // the value into the specified 'result', using the specified 'style'
         // (see documentation of the 'Style' enum above).  Return 0 on success,
@@ -1431,7 +1416,8 @@ struct Iso8601Util {
 
     static int parse(TimeTz                  *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'TimeTz' value, and load
         // the value into the specified 'result', using the specified 'style'
         // (see documentation of the 'Style' enum above).  Return 0 on success,
@@ -1456,7 +1442,8 @@ struct Iso8601Util {
 
     static int parse(DatetimeTz              *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'DatetimeTz' value, and
         // load the value into the specified 'result', using the specified
         // 'style' (see documentation of the 'Style' enum above).  Return 0 on
@@ -1481,7 +1468,8 @@ struct Iso8601Util {
 
     static int parse(DateOrDateTz            *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Date' or 'DateTz' value,
         // depending on the presence of a zone designator, and load the value
         // into the specified 'result', using the specified 'style' (see
@@ -1500,7 +1488,8 @@ struct Iso8601Util {
 
     static int parse(TimeOrTimeTz            *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Time' or 'TimeTz' value,
         // depending on the presence of a zone designator, and load the value
         // into the specified 'result', using the specified 'style' (see
@@ -1527,7 +1516,8 @@ struct Iso8601Util {
 
     static int parse(DatetimeOrDatetimeTz    *result,
                      const bsl::string_view&  string,
-                     Style                    style = e_STYLE_DEFAULT);
+                     ParseConfiguration       configuration =
+                                                         ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Datetime' or
         // 'DatetimeTz' value, depending on the presence of a zone designator,
         // and load the value into the specified 'result', using the specified
@@ -2494,91 +2484,91 @@ int Iso8601Util::parse(bsls::TimeInterval      *result,
 inline
 int Iso8601Util::parse(Date                    *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(Time                    *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(Datetime                *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(DateTz                  *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(TimeTz                  *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(DatetimeTz              *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(DateOrDateTz            *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(TimeOrTimeTz            *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 inline
 int Iso8601Util::parse(DatetimeOrDatetimeTz    *result,
                        const bsl::string_view&  string,
-                       Style                    style)
+                       ParseConfiguration       configuration)
 {
     BSLS_ASSERT_SAFE(string.data());
 
-    return parse(result, string.data(), string.length(), style);
+    return parse(result, string.data(), string.length(), configuration);
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
