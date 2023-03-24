@@ -1,0 +1,341 @@
+// bdlt_iso8601utilparseconfiguration.h                               -*-C++-*-
+#ifndef INCLUDED_BDLT_ISO8601UTILPARSECONFIGURATION
+#define INCLUDED_BDLT_ISO8601UTILPARSECONFIGURATION
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide an attribute class to configure ISO 8601 string parsing.
+//
+//@CLASSES:
+//  bdlt::Iso8601UtilConfiguration: configuration for ISO 8601 string parsing
+//
+//@SEE_ALSO: bdlt_iso8601util
+//
+//@DESCRIPTION: This component provides an unconstrained (value-semantic)
+// attribute class, 'bdlt::Iso8601UtilConfiguration', that may be used to
+// configure various aspects of generated ISO 8601 strings.
+//
+///Attributes
+///----------
+//..
+//    Name             Type   Default
+//  ----------------   ----   -------
+//  relaxed            bool    false
+//  basic              bool    false
+//..
+//: o 'relaxed == false' means that date and time fields of 'Datetime's must
+//:   be separated by 't' or 'T'.  'relaxed == true' means that they may be
+//:   separated by 't', 'T', or ' '.
+//:
+//: o 'basic == false' means that year, month and day fields within 'Date's
+//:   must be separated by '-' and hour, minute, and second fields within
+//:   'Time's must be separated by ':'.  'basic == true' means that the fields
+//:   within 'Date's and 'Time's must not be separated at all.
+//
+// Note that in parsing, the ':' between the hour and minute fields of the time
+// zone is always optional.
+//
+///Default Configuration
+///---------------------
+// This component also provides a (process-wide) default configuration that may
+// be set and retrieved via the 'setDefaultConfiguration' and
+// 'defaultConfiguration' class methods, respectively.  See Usage Example 2 for
+// further details.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+// Our type, 'Iso8601ParseConfiguration', has two boolean attributes, 'basic'
+// and 'relaxed'.
+//..
+//      typedef bdlt::Iso8601UtilParseConfiguration Config;
+//..
+// A default configured object has both attributes being 'false':
+//..
+//      Config c;
+//      assert(!c.basic());
+//      assert(!c.relaxed());
+//..
+// The 'setBasic' sets the 'basic' attribute, leaves the 'relaxed' attribute
+// alone:
+//..
+//      Config& c2 = c.setBasic();
+//      assert(&c2 == &c);            // a reference, not a copy, is returned
+//      assert( c.basic());
+//      assert(!c.relaxed());
+//..
+// 'setBasic' and 'setRelaxed' take a boolean argument that defaults to 'true':
+//..
+//      for (int ii = 0; ii < 16; ++ii) {
+//          const bool basic    = ii & 1;
+//          const bool relaxed  = ii & 2;
+//          const bool basicB   = ii & 4;
+//          const bool relaxedB = ii & 8;
+//
+//          // 'c' can have any valid state at this point.
+//
+//          Config *p;
+//
+//          p = &c.setBasic(basic);
+//          assert(&c == p);
+//          p = &c.setRelaxed(relaxed);
+//          assert(&c == p);
+//
+//          assert(c.basic()   == basic);
+//          assert(c.relaxed() == relaxed);
+//
+//          c.setRelaxed(relaxedB);
+//          c.setBasic(basicB);
+//
+//          assert(c.relaxed() == relaxedB);
+//          assert(c.basic()   == basicB);
+//
+//          Config d = c;    // copy 'c' to 'd'
+//
+//          assert(d.relaxed() == relaxedB);
+//          assert(d.basic()   == basicB);
+//
+//          assert(d == c);
+//          assert(&d != &c);        // 'd' is a copy, not a reference
+//
+//          d.setBasic();      // defaults to 'true'
+//          d.setRelaxed();    // defaults to 'true'
+//
+//          assert(d.basic()   == true);
+//          assert(d.relaxed() == true);
+//      }
+//..
+
+#include <bdlscm_version.h>
+
+#include <bsls_assert.h>
+
+#include <bsl_iosfwd.h>
+
+namespace BloombergLP {
+namespace bdlt {
+
+                      // ====================================
+                      // class Iso8601UtilParseConfiguration
+                      // ====================================
+
+class Iso8601UtilParseConfiguration {
+    // This unconstrained (value-semantic) attribute class characterizes how to
+    // configure certain behavior in 'Iso8601Util' functions.  Currently, only
+    // the 'generate' and 'generateRaw' methods of that utility are affected by
+    // 'Iso8601UtilConfiguration' settings.  See the Attributes section under
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.
+
+  private:
+    // PRIVATE TYPES
+    enum {
+        // This enumeration denotes the distinct bits that define the values of
+        // each of the four configuration attributes.
+
+        k_BASIC_BIT   = 0x01,
+        k_RELAXED_BIT = 0x02,
+
+        k_MASK = k_BASIC_BIT | k_RELAXED_BIT
+    };
+
+    // DATA
+    unsigned char    d_valueMask;      // bitmask defining configuration
+
+    // FRIENDS
+    friend bool operator==(Iso8601UtilParseConfiguration,
+                           Iso8601UtilParseConfiguration);
+    friend bool operator!=(Iso8601UtilParseConfiguration,
+                           Iso8601UtilParseConfiguration);
+
+  public:
+    // CREATORS
+    Iso8601UtilParseConfiguration();
+        // Create an 'Iso8601UtilConfiguration' object having the (default)
+        // attribute values:
+        //..
+        //  relaxed() == false
+        //  basic()   == false
+        //..
+
+    // Iso8601UtilParseConfiguration(
+    //                const Iso8601UtilParseConfiguration& original) = default;
+        // Create an 'Iso8601UtilConfiguration' object having the value of the
+        // specified 'original' configuration.
+
+    ~Iso8601UtilParseConfiguration();
+        // Destroy this object.
+
+    // MANIPULATORS
+    // Iso8601UtilParseConfiguration& operator=(
+    //                     const Iso8601UtilParseConfiguration& rhs) = default;
+        // Assign to this object the value of the specified 'rhs'
+        // configuration, and return a reference providing modifiable access to
+        // this object.
+
+    Iso8601UtilParseConfiguration& setBasic(bool value = true);
+        // Set the 'basic' field of this object to the specified 'value' and
+        // return a copy of this object.
+
+    Iso8601UtilParseConfiguration& setRelaxed(bool value = true);
+        // Set the 'relaxed' field of this object to the specified 'value' and
+        // return a copy of this object.
+
+    // ACCESSORS
+    bool basic() const;
+        // True if the 'basic' field of this object is set and 'false'
+        // otherwise.
+
+    bool relaxed() const;
+        // True if the 'relaxed' field of this object is set and 'false'
+        // otherwise.
+
+                                  // Aspects
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to 'stream'.
+        // Optionally specify an initial indentation 'level', whose absolute
+        // value is incremented recursively for nested objects.  If 'level' is
+        // specified, optionally specify 'spacesPerLevel', whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If 'level' is negative, suppress
+        // indentation of the first line.  If 'spacesPerLevel' is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by 'level').  If 'stream' is not
+        // valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+};
+
+// FREE OPERATORS
+bool operator==(Iso8601UtilParseConfiguration lhs,
+                Iso8601UtilParseConfiguration rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration' objects
+    // have the same value if each of their 'fractionalSecondPrecision',
+    // 'omitColonInZoneDesignator', 'useCommaForDecimalSign', and
+    // 'useZAbbreviationForUtc' attributes (respectively) have the same value.
+
+bool operator!=(Iso8601UtilParseConfiguration lhs,
+                Iso8601UtilParseConfiguration rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration'
+    // objects do not have the same value if any of their
+    // 'fractionalSecondPrecision', 'omitColonInZoneDesignator',
+    // 'useCommaForDecimalSign', or 'useZAbbreviationForUtc' attributes
+    // (respectively) do not have the same value.
+
+bsl::ostream& operator<<(bsl::ostream&                        stream,
+                         const Iso8601UtilParseConfiguration& object);
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference to 'stream'.
+    // If 'stream' is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified and can change
+    // without notice.  Also note that this method has the same behavior as
+    // 'object.print(stream, 0, -1)', but with the attribute names elided.
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                      // ------------------------------
+                      // class Iso8601UtilConfiguration
+                      // ------------------------------
+
+// CREATORS
+inline
+Iso8601UtilParseConfiguration::Iso8601UtilParseConfiguration()
+: d_valueMask(0)
+{
+}
+
+inline
+Iso8601UtilParseConfiguration::~Iso8601UtilParseConfiguration()
+{
+    BSLS_ASSERT_SAFE(0 == (~k_MASK & d_valueMask));
+}
+
+// MANIPULATORS
+inline
+Iso8601UtilParseConfiguration& Iso8601UtilParseConfiguration::setBasic(
+                                                                    bool value)
+{
+    if (value) {
+        d_valueMask |= static_cast<unsigned char>(k_BASIC_BIT);
+    }
+    else {
+        d_valueMask &= static_cast<unsigned char>(~k_BASIC_BIT);
+    }
+
+    return *this;
+}
+
+inline
+Iso8601UtilParseConfiguration& Iso8601UtilParseConfiguration::setRelaxed(
+                                                                    bool value)
+{
+    if (value) {
+        d_valueMask |= static_cast<unsigned char>(k_RELAXED_BIT);
+    }
+    else {
+        d_valueMask &= static_cast<unsigned char>(~k_RELAXED_BIT);
+    }
+
+    return *this;
+}
+
+
+// ACCESSORS
+inline
+bool Iso8601UtilParseConfiguration::basic() const
+{
+    return d_valueMask & k_BASIC_BIT;
+}
+
+inline
+bool Iso8601UtilParseConfiguration::relaxed() const
+{
+    return d_valueMask & k_RELAXED_BIT;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdlt::operator==(Iso8601UtilParseConfiguration lhs,
+                      Iso8601UtilParseConfiguration rhs)
+{
+    return lhs.d_valueMask == rhs.d_valueMask;
+}
+
+inline
+bool bdlt::operator!=(Iso8601UtilParseConfiguration lhs,
+                      Iso8601UtilParseConfiguration rhs)
+{
+    return lhs.d_valueMask != rhs.d_valueMask;
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2023 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
