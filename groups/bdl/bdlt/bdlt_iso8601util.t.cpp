@@ -5910,7 +5910,7 @@ void testCase16(bool verbose,
             const ptrdiff_t LENGTH = bsl::strlen(STRING);
 
             bsl::string bad(STRING, LENGTH);
-        
+
             mX.reset();
             ASSERTV(LINE, STRING, X.isUnset());
 

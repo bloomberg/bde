@@ -146,12 +146,15 @@ BSLS_IDENT("$Id: $")
 // and treat '+00:00', '+0000', 'Z', and 'z' as equivalent zone designators
 // (all denoting UTC).
 //
-// The 'parseRelaxed' functions accept "relaxed" ISO 8601 format that is a
+// Parsing in 'Relaxed' mode accepts "relaxed" ISO 8601 format that is a
 // superset of the strict ISO 8601 format, meaning this function will parse
 // ISO 8601 values as well as supporting some common variations.  Currently
 // this allows a SPACE character to be used as an alternative separator between
 // date and time elements (where strict ISO 8601 requires a 'T'), but the set
-// of extensions may grow in the future.
+// of extensions may grow in the future.  'Relaxed' parsing is done by
+// specifying the relaxed option using the 'Iso8601UtilParseConfiguration' type
+// and passing it to the 'parse' functions.  There are also 'parseRelaxed'
+// functions which are now deprecated.
 //
 ///Zone Designators
 /// - - - - - - - -
@@ -184,6 +187,36 @@ BSLS_IDENT("$Id: $")
 //  |                                    |  # implied '+00:00'               |
 //  +------------------------------------+-----------------------------------+
 //  |  2002-03-17T23:46:09.222-05:00     |  Datetime(Date(2002, 03, 18),     |
+//  |                                    |           Time(04, 46, 09, 222))  |
+//  |                                    |  # carry into 'day' attribute     |
+//  |                                    |  # when converted to UTC          |
+//  +------------------------------------+-----------------------------------+
+//..
+// There is also the 'basic' format, which may be specified when parsing by
+// using the 'bdlt::Iso8601UtilParseConfiguration' type, in which case there
+// are to be no '-'s in the 'Date' and no ':'s in the 'Time'.  The ':' in the
+// time zone is always optionsl, whether in basic or default format.
+//..
+//  +------------------------------------+-----------------------------------+
+//  |   Parsed Basic ISO 8601 String     |        Result Object Value        |
+//  +====================================+===================================+
+//  |  20020317-0200                     |  Date(2002, 03, 17)               |
+//  |                                    |  # zone designator ignored        |
+//  +------------------------------------+-----------------------------------+
+//  |  20020317-0265                     |  Date: parsing fails              |
+//  |                                    |  # invalid zone designator        |
+//  +------------------------------------+-----------------------------------+
+//  |  154609.330+0430                   |  Time(11, 16, 09, 330)            |
+//  |                                    |  # converted to UTC               |
+//  +------------------------------------+-----------------------------------+
+//  |  154609.330+0430                   |  TimeTz(Time(15, 46, 09, 330),    |
+//  |                                    |         270)                      |
+//  +------------------------------------+-----------------------------------+
+//  |  154609.330                        |  TimeTz(Time(15, 46, 09, 330),    |
+//  |                                    |         0)                        |
+//  |                                    |  # implied '+00:00'               |
+//  +------------------------------------+-----------------------------------+
+//  |  20020317T234609.222-0500          |  Datetime(Date(2002, 03, 18),     |
 //  |                                    |           Time(04, 46, 09, 222))  |
 //  |                                    |  # carry into 'day' attribute     |
 //  |                                    |  # when converted to UTC          |
@@ -314,36 +347,47 @@ BSLS_IDENT("$Id: $")
 // decimal digit, '{}' brackets optional elements, '()' is used for grouping,
 // and '|' separates alternatives:
 //..
-// <Generated Date>        ::=  <DATE>
+// <Generated Date>          ::=  <DATE>
 //
-// <Parsed Date>           ::=  <Parsed DateTz>
+// <Parsed Date>             ::=  <Parsed DateTz>
 //
-// <Generated DateTz>      ::=  <DATE><ZONE>
+// <Generated DateTz>        ::=  <DATE><ZONE>
 //
-// <Parsed DateTz>         ::=  <DATE>{<ZONE>}
+// <Parsed DateTz>           ::=  <DATE>{<ZONE>}
 //
-// <Generated Time>        ::=  <TIME FLEXIBLE>
+// <Generated Time>          ::=  <TIME FLEXIBLE>
 //
-// <Parsed Time>           ::=  <Parsed TimeTz>
+// <Parsed Time>             ::=  <Parsed TimeTz>
 //
-// <Generated TimeTz>      ::=  <TIME FLEXIBLE><ZONE>
+// <Generated TimeTz>        ::=  <TIME FLEXIBLE><ZONE>
 //
-// <Parsed TimeTz>         ::=  <TIME FLEXIBLE>{<ZONE>}
+// <Parsed TimeTz>           ::=  <TIME FLEXIBLE>{<ZONE>}
 //
-// <Generated Datetime>    ::=  <DATE>T<TIME FLEXIBLE>
+// <Generated Datetime>      ::=  <DATE>T<TIME FLEXIBLE>
 //
-// <Parsed Datetime>       ::=  <Parsed DatetimeTz>
+// <Parsed Datetime>         ::=  <Parsed DatetimeTz>
 //
-// <Generated DatetimeTz>  ::=  <DATE>T<TIME FLEXIBLE><ZONE>
+// <Generated DatetimeTz>    ::=  <DATE>T<TIME FLEXIBLE><ZONE>
 //
-// <Parsed DatetimeTz>     ::=  <DATE>T<TIME FLEXIBLE>{<ZONE>}
+// <Parsed DatetimeTz>       ::=  <DATE>(T|t)<TIME FLEXIBLE>{<ZONE>}
+// (Default)
 //
-// <DATE>                  ::=  YYYY-MM-DD
+// <Parsed DatetimeTz>       ::=  <DATE>(T|t| )<TIME FLEXIBLE>{<ZONE>}
+// (Relaxed)
 //
-// <TIME FLEXIBLE>         ::=  hh:mm:ss{(.|,)s+}  # one or more digits in the
+// <DATE> (Default)          ::=  YYYY-MM-DD
+//
+// <DATE> (Basic)            ::=  YYYYMMDD
+//
+// <TIME FLEXIBLE> (Default) ::=  hh:mm:ss{(.|,)s+}  # one or more digits in
+//                                                   # the fractional second
+//
+// <TIME FLEXIBLE> (Basic)   ::=  hhmmss{(.|,)s+}  # one or more digits in the
 //                                                 # fractional second
 //
-// <ZONE>                  ::=  (+|-)hh{:}mm|Z     # zone designator
+// <ZONE>                    ::=  (+|-)hh{:}mm|Z   # zone designator (':' is
+//                                                 # optional whether default
+//                                                 # or basic)
 //..
 //
 ///Summary of Supported ISO 8601 Duration Representations
@@ -574,6 +618,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
+
+#include <bsla_deprecated.h>
 
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
@@ -1087,10 +1133,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' value, and load the value into the
-        // specified 'result', using the specified 'style' (see documentation
-        // of the 'Style' enum above).  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // specified 'result', using the specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1106,10 +1151,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' value, and load the value into the
-        // specified 'result', using the specified 'style' (see documentation
-        // of the 'Style' enum above).  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // specified 'result', using the specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1134,10 +1178,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' value, and load the value into the
-        // specified 'result', using the specified 'style' (see documentation
-        // of the 'Style' enum above).  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // specified 'result', using the specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1162,10 +1205,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DateTz' value, and load the value into the
-        // specified 'result', using the specified 'style' (see documentation
-        // of the 'Style' enum above).  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // specified 'result', using the specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1181,10 +1223,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'TimeTz' value, and load the value into the
-        // specified 'result', using the specified 'style' (see documentation
-        // of the 'Style' enum above).  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // specified 'result', using the specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1207,10 +1248,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DatetimeTz' value, and load the value into the
-        // specified 'result', using the specified 'style' (see documentation
-        // of the 'Style' enum above).  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // specified 'result', using the specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1234,9 +1274,9 @@ struct Iso8601Util {
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' or 'DateTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
-        // 'result', using the specified 'style' (see documentation of the
-        // 'Style' enum above).  Return 0 on success, and a non-zero value
-        // (with no effect) otherwise.  'string' is assumed to be of the form:
+        // 'result', using the specified 'configuration'.  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1254,9 +1294,9 @@ struct Iso8601Util {
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' or 'TimeTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
-        // 'result', using the specified 'style' (see documentation of the
-        // 'Style' enum above).  Return 0 on success, and a non-zero value
-        // (with no effect) otherwise.  'string' is assumed to be of the form:
+        // 'result', using the specified 'configuration'.  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1282,10 +1322,9 @@ struct Iso8601Util {
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' or  'DatetimeTz' value, depending on
         // the presence of a zone designator, and load the value into the
-        // specified 'result', using the specified 'style' (see documentation
-        // of the 'Style' enum above).  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  'string' is assumed to be of the
-        // form:
+        // specified 'result', using the specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1327,10 +1366,9 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Date' value, and load
-        // the value into the specified 'result', using the specified 'style'
-        // (see documentation of the 'Style' enum above).  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // the value into the specified 'result', using the specified
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1345,10 +1383,9 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Time' value, and load
-        // the value into the specified 'result', using the specified 'style'
-        // (see documentation of the 'Style' enum above).  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // the value into the specified 'result', using the specified
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1374,9 +1411,8 @@ struct Iso8601Util {
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Datetime' value, and
         // load the value into the specified 'result', using the specified
-        // 'style' (see documentation of the 'Style' enum above).  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  'string'
-        // is assumed to be of the form:
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1401,10 +1437,9 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'DateTz' value, and load
-        // the value into the specified 'result', using the specified 'style'
-        // (see documentation of the 'Style' enum above).  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // the value into the specified 'result', using the specified
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1419,10 +1454,9 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'TimeTz' value, and load
-        // the value into the specified 'result', using the specified 'style'
-        // (see documentation of the 'Style' enum above).  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // the value into the specified 'result', using the specified
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1446,9 +1480,8 @@ struct Iso8601Util {
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'DatetimeTz' value, and
         // load the value into the specified 'result', using the specified
-        // 'style' (see documentation of the 'Style' enum above).  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  'string'
-        // is assumed to be of the form:
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1472,10 +1505,9 @@ struct Iso8601Util {
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Date' or 'DateTz' value,
         // depending on the presence of a zone designator, and load the value
-        // into the specified 'result', using the specified 'style' (see
-        // documentation of the 'Style' enum above).  Return 0 on success, and
-        // a non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
+        // into the specified 'result', using the specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //..
@@ -1492,10 +1524,9 @@ struct Iso8601Util {
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Time' or 'TimeTz' value,
         // depending on the presence of a zone designator, and load the value
-        // into the specified 'result', using the specified 'style' (see
-        // documentation of the 'Style' enum above).  Return 0 on success, and
-        // a non-zero value (with no effect) otherwise.  'string' is assumed to
-        // be of the form:
+        // into the specified 'result', using the specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1521,9 +1552,8 @@ struct Iso8601Util {
         // Parse the specified ISO 8601 'string' as a 'Datetime' or
         // 'DatetimeTz' value, depending on the presence of a zone designator,
         // and load the value into the specified 'result', using the specified
-        // 'style' (see documentation of the 'Style' enum above).  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  'string'
-        // is assumed to be of the form:
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
@@ -1544,6 +1574,7 @@ struct Iso8601Util {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED METHODS
+    BSLA_DEPRECATED
     static int parseRelaxed(Datetime   *result,
                             const char *string,
                             ptrdiff_t   length);
@@ -1575,6 +1606,7 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless '0 <= length'.
 
+    BSLA_DEPRECATED
     static int parseRelaxed(DatetimeTz *result,
                             const char *string,
                             ptrdiff_t   length);
@@ -1604,6 +1636,7 @@ struct Iso8601Util {
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
+    BSLA_DEPRECATED
     static int parseRelaxed(DatetimeOrDatetimeTz *result,
                             const char           *string,
                             ptrdiff_t             length);
@@ -1635,6 +1668,7 @@ struct Iso8601Util {
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
+    BSLA_DEPRECATED
     static int parseRelaxed(Datetime *result, const bsl::string_view& string);
         // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
         //
@@ -1664,6 +1698,7 @@ struct Iso8601Util {
         // or indicate UTC.  The behavior is undefined unless 'string.data()'
         // is non-null.
 
+    BSLA_DEPRECATED
     static int parseRelaxed(DatetimeTz              *result,
                             const bsl::string_view&  string);
         // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
@@ -1692,6 +1727,7 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
+    BSLA_DEPRECATED
     static int parseRelaxed(DatetimeOrDatetimeTz    *result,
                             const bsl::string_view&  string);
         // !DEPRECATED!: Use 'parse' with 'style == e_RELAXED' instead.
@@ -1722,35 +1758,44 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const Date&        object,
                         ptrdiff_t          bufferLength);
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const Time&        object,
                         ptrdiff_t          bufferLength);
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const Datetime&    object,
                         ptrdiff_t          bufferLength);
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const DateTz&      object,
                         ptrdiff_t          bufferLength);
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const TimeTz&      object,
                         ptrdiff_t          bufferLength);
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
                         ptrdiff_t          bufferLength);
         // !DEPRECATED!: Use the overloads taking the 'bufferLength' argument
         // *before* the 'object' argument instead.
 
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const DateTz&      object,
                         ptrdiff_t          bufferLength,
                         bool               useZAbbreviationForUtc);
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const TimeTz&      object,
                         ptrdiff_t          bufferLength,
                         bool               useZAbbreviationForUtc);
+    BSLA_DEPRECATED
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
                         ptrdiff_t          bufferLength,
@@ -1758,24 +1803,30 @@ struct Iso8601Util {
         // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
         // object instead.
 
+    BSLA_DEPRECATED
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DateTz&     object,
                                   bool              useZAbbreviationForUtc);
+    BSLA_DEPRECATED
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const TimeTz&     object,
                                   bool              useZAbbreviationForUtc);
+    BSLA_DEPRECATED
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DatetimeTz& object,
                                   bool              useZAbbreviationForUtc);
         // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
         // object instead.
 
+    BSLA_DEPRECATED
     static int generateRaw(char              *buffer,
                            const DateTz&      object,
                            bool               useZAbbreviationForUtc);
+    BSLA_DEPRECATED
     static int generateRaw(char              *buffer,
                            const TimeTz&      object,
                            bool               useZAbbreviationForUtc);
+    BSLA_DEPRECATED
     static int generateRaw(char              *buffer,
                            const DatetimeTz&  object,
                            bool               useZAbbreviationForUtc);
