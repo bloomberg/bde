@@ -9,8 +9,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdljsn::Json: representation of a JSON document
-//  bdljsn::JsonArray: representation of a JSON object
-//  bdljsn::JsonObject: representation of a JSON array
+//  bdljsn::JsonArray: representation of a JSON array
+//  bdljsn::JsonObject: representation of a JSON object
 //
 //@SEE_ALSO: bdljsn_jsonutil, bdljsn_jsonnumber, bdljsn_jsonnull
 //
