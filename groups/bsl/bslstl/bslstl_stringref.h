@@ -412,14 +412,12 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // object.  The external representation must remain valid as long as it
         // is bound to this string reference.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
-    StringRefImp(const StringRefImp& original) = default;
+//! StringRefImp(const StringRefImp& original) = default;
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation is defined by the specified 'original'
         // object.  The external representation must remain valid as long as it
         // is bound to this string reference.  Note that this trivial copy
         // constructor's definition is compiler generated.
-#endif
 
     StringRefImp(const StringRefImp& original,
                  size_type           startIndex,
@@ -434,13 +432,11 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // Note that if 'startIndex' is 'original.length()' an empty string
         // reference is returned.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
-    ~StringRefImp() = default;
+//! ~StringRefImp() = default;
         // Destroy this object.
-#endif
 
     // MANIPULATORS
-    StringRefImp& operator=(const StringRefImp& rhs);
+//! StringRefImp& operator=(const StringRefImp& rhs) = default;
         // Modify this string reference to refer to the same string as the
         // specified 'rhs' string reference and return a reference providing
         // modifiable access to this object.  The assigned object is guaranteed
@@ -768,15 +764,6 @@ StringRefImp<CHAR_TYPE>::StringRefImp(
 
 
 // MANIPULATORS
-template <class CHAR_TYPE>
-inline
-StringRefImp<CHAR_TYPE>&
-    StringRefImp<CHAR_TYPE>::operator=(const StringRefImp& rhs)
-{
-    Base::operator=(rhs);
-    return *this;
-}
-
 template <class CHAR_TYPE>
 template <class INT_TYPE>
 inline
