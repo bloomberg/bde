@@ -229,6 +229,8 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.value_comp()                                     | O[1]               |
 //  +----------------------------------------------------+--------------------+
+//  | a.contains(k)                                      | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
 //  | a.find(k)                                          | O[log(n)]          |
 //  +----------------------------------------------------+--------------------+
 //  | a.count(k)                                         | O[log(n) +         |
@@ -1316,6 +1318,24 @@ class set {
         // Return a reverse iterator providing non-modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this set.
+
+    bool contains(const key_type &key) const;
+        // Return 'true' if this map contains an element whose key is
+        // equivalent to the specified 'key'.
+
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        bool>::type
+    contains(const LOOKUP_KEY& key) const
+        // Return 'true' if this map contains an element whose key is
+        // equivalent to the specified 'key'.
+        //
+        // Note: implemented inline due to Sun CC compilation error
+    {
+        return find(key) != end();
+    }
 
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this set contains no elements, and 'false'
@@ -2591,6 +2611,14 @@ set<KEY, COMPARATOR, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+bool set<KEY, COMPARATOR, ALLOCATOR>::contains(const key_type& key) const
+{
+    return find(key) != end();
+}
+
 
 // capacity:
 template <class KEY, class COMPARATOR, class ALLOCATOR>
