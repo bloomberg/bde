@@ -819,6 +819,20 @@ void testTransparentComparator(Container& container,
     ASSERT(container.end()                  == NON_EXISTING_F);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
+    // Testing 'contains'.
+
+    const bool EXISTING_CONTAINS = container.contains(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(true == EXISTING_CONTAINS);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+    ASSERT(false == NON_EXISTING_CONTAINS);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
     // Testing 'count'.
 
     const Count EXISTING_C = container.count(existingKey);

@@ -174,6 +174,8 @@ using bsl::pair;
 // [24] const VALUE& at(const KEY&) const;
 //
 // search:
+// [13] bool contains(const key_type& key);
+// [13] bool contains(const LOOKUP_KEY& key);
 // [13] size_type count(const KEY& key) const;
 // [13] pair<iterator, iterator> equal_range(const KEY& key);
 // [13] pair<const_iter, const_iter> equal_range(const KEY&) const;

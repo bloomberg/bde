@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov  8 09:29:10 2022
+// Generated on Tue Mar  7 11:32:57 2023
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultimap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
@@ -733,6 +733,25 @@ class unordered_multimap {
         // Return an iterator providing non-modifiable access to the
         // past-the-end position in the sequence of 'value_type' objects
         // maintained by this unordered multimap.
+
+    bool contains(const key_type &key) const;
+        // Return 'true' if this unordered map contains an element whose key is
+        // equivalent to the specified 'key'.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
+            BloombergLP::bslmf::IsTransparentPredicate<EQUAL,
+                                                       LOOKUP_KEY>::value,
+        bool>::type
+    contains(const LOOKUP_KEY& key) const
+        // Return 'true' if this unordered map contains an element whose key is
+        // equivalent to the specified 'key'.
+        //
+        // Note: implemented inline due to Sun CC compilation error
+    {
+        return find(key) != end();
+    }
 
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this unordered multimap contains no elements, and
@@ -1748,6 +1767,14 @@ void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
+bool unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::contains(
+                                                     const key_type& key) const
+{
+    return find(key) != end();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
                                                            const key_type& key)
@@ -2265,7 +2292,7 @@ struct IsBitwiseMoveable<
 #endif // ! defined(INCLUDED_BSLSTL_UNORDEREDMULTIMAP_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
