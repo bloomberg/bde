@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <balb_controlmanager.h>
 
 #include <bslim_testutil.h>
@@ -188,7 +187,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -235,13 +234,139 @@ int main(int argc, char *argv[])
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'registerUsageHandler' METHOD
+        //
+        // Concerns:
+        //: 1 There is no default "HELP" message handler.
+        //: 2 The "HELP" message handler lists "HELP".
+        //: 3 The "HELP" message handler can be reinstalled without effect.
+        //: 4 The "HELP" message handler lists all registered messages.
+        //: 5 The "HELP" message prefix is case insensitive and any additional
+        //:   arguments are ignored.
+        //
+        // Plan:
+        //: 1 A series of ad hoc tests using a default constructed
+        //:   'ControlManager' object.
+        //:
+        //: 2 Check response before the HELP message handler is installed
+        //:   ('dispatchMesage' fails so no default handler), after
+        //:   installation, and after a second invocation of
+        //:   'registerUsageHandler'.
+        //:
+        //: 3 Incrementally register additional message handlers.  Confirm that
+        //:   the HELP message handler s shows all currently installed
+        //:   handlers in alphabetical order.
+        //:
+        //: 4 The HELP message handler shows the expected result irrespective
+        //:   of the case of the prefix and irrespective of additional text
+        //:   after the prefix.
+        //
+        // Testing:
+        //   registerUsageHandler(bsl::ostream& stream);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+           cout << "TESTING 'registerUsageHandler' METHOD" << endl
+                << "=====================================" << endl;
+        }
+
+        int                  rc;
+        balb::ControlManager manager;
+        bsl::ostringstream   oss;
+        bsl::string          usageMessage;
+
+        // no HELP handler installed
+        rc = manager.dispatchMessage("HELP");
+        ASSERTV(rc, 0 != rc);
+
+        // Install HELP handler
+        rc = manager.registerUsageHandler(oss);
+        ASSERTV(rc, 0 == rc);
+
+        // HELP is the one and only handler
+        rc = manager.dispatchMessage("HELP");
+        ASSERTV(rc, 0 == rc);
+
+        const char* EXPECTED1 =
+                      "This process responds to the following messages: " "\n"
+                      "    HELP "                                         "\n"
+                      "        Display this message"                      "\n";
+        usageMessage = oss.str();
+        ASSERTV(EXPECTED1,   usageMessage,
+                EXPECTED1 == usageMessage);
+        oss.str(""); oss.clear();
+
+        // HELP is case in-sensitive
+        rc = manager.dispatchMessage("hElP");
+        ASSERTV(rc, 0 == rc);
+        usageMessage = oss.str();
+        ASSERTV(EXPECTED1,   usageMessage,
+                EXPECTED1 == usageMessage);
+        oss.str(""); oss.clear();
+
+        // HELP handler can be re-registered and still show the same behavior.
+        rc = manager.registerUsageHandler(oss);
+        ASSERTV(rc, 0 < rc);
+        rc = manager.dispatchMessage("HeLp");
+        ASSERTV(rc, 0 == rc);
+        usageMessage = oss.str();
+        ASSERTV(EXPECTED1,   usageMessage,
+                EXPECTED1 == usageMessage);
+        oss.str(""); oss.clear();
+
+        // HELP will show list two messages once a second is registered.
+        rc = manager.registerHandler("ECHO",
+                                     "<text>",
+                                     "Print specified text to terminal",
+                                     &onEcho);
+        ASSERTV(rc, 0 == rc);
+        rc = manager.dispatchMessage("help");
+        ASSERTV(rc, 0 == rc);
+
+        const char* EXPECTED2 =
+                      "This process responds to the following messages: " "\n"
+                      "    ECHO <text>"                                   "\n"
+                      "        Print specified text to terminal"          "\n"
+                      "    HELP "                                         "\n"
+                      "        Display this message"                      "\n";
+        usageMessage = oss.str();
+        ASSERTV(EXPECTED2,   usageMessage,
+                EXPECTED2 == usageMessage);
+        oss.str(""); oss.clear();
+
+        // HELP will show list three messages once a third is registered.
+        rc = manager.registerHandler("NOOP",
+                                     "",
+                                     "Do nothing (no operation)",
+                                     &noop);
+        ASSERTV(rc, 0 == rc);
+        rc = manager.dispatchMessage(
+                               "Help me Obi-Wan Kenobi. You're my only hope.");
+        ASSERTV(rc, 0 == rc);
+
+        const char* EXPECTED3 =
+                      "This process responds to the following messages: " "\n"
+                      "    ECHO <text>"                                   "\n"
+                      "        Print specified text to terminal"          "\n"
+                      "    HELP "                                         "\n"
+                      "        Display this message"                      "\n"
+                      "    NOOP "                                         "\n"
+                      "        Do nothing (no operation)"                 "\n";
+        usageMessage = oss.str();
+        ASSERTV(EXPECTED3,   usageMessage,
+                EXPECTED3 == usageMessage);
+        oss.str(""); oss.clear();
+
+      }  break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: Dispatching and Thread Safety
         //
         // Concerns:
         //   The 'dispatchMessage' function may be run in high contention with
-        //   another thread which is registering M-trap handlers.
+        //   another thread that is registering message handlers.
         //
         // Plan:
         //   Invoke the 'dispatchMessage' function repeatedly in a background

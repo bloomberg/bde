@@ -14,6 +14,8 @@
 
 #include <bdlsb_fixedmeminstreambuf.h>
 
+#include <bdlf_bind.h>
+
 #include <bdlb_string.h>
 #include <bdlb_stringviewutil.h>
 
@@ -58,7 +60,6 @@ ControlManager::~ControlManager()
 { }
 
 // MANIPULATORS
-
 int ControlManager::registerHandler(const bsl::string_view& prefix,
                                     const bsl::string_view& arguments,
                                     const bsl::string_view& description,
@@ -82,6 +83,19 @@ int ControlManager::registerHandler(const bsl::string_view& prefix,
     }
 
     return rc;
+}
+
+int ControlManager::registerUsageHandler(bsl::ostream& stream)
+{
+    return registerHandler(
+                "HELP",
+                "",  // Help message takes no additional fields.
+                "Display this message",
+                 bdlf::BindUtil::bind(
+                         &ControlManager::printUsageHelper,
+                         this,
+                         &stream,
+                         "This process responds to the following messages: "));
 }
 
 int ControlManager::deregisterHandler(const bsl::string_view& prefix)

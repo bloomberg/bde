@@ -33,12 +33,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balb' package currently has 9 components having 2 levels of physical
+ The 'balb' package currently has 10 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   2. balb_filecleanerutil
+     balb_pipetaskmanager
      balb_ratelimiter
      balb_reservationguard
 
@@ -69,6 +70,9 @@
 :
 : 'balb_pipecontrolchannel':
 :      Provide a mechanism for reading control messages from a named pipe.
+:
+: 'balb_pipetaskmanager':
+:      Provide a pipe-based mechanism to process task control messages.
 :
 : 'balb_ratelimiter':
 :      Provide a mechanism to limit peak and sustained consumption rates.

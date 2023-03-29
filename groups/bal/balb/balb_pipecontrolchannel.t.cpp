@@ -96,6 +96,9 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [ 1] const bsl::string& pipeName() const;
+//
+// [ 1] bslma::Allocator *allocator() const;
+
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING CONCERN: THE COMPONENT MAY BE RESTARTED
@@ -1839,7 +1842,11 @@ int main(int argc, char *argv[])
         {
             FUtil::remove(pipeName);
 
-            balb::PipeControlChannel channel(&noop, &ta);
+            balb::PipeControlChannel  channel(&noop, &ta);
+            balb::PipeControlChannel& Channel = channel;
+
+            ASSERT(&ta == Channel.allocator());
+
             int rc = channel.start(pipeName);
             ASSERT(0 == rc);
 

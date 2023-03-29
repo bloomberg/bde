@@ -292,8 +292,8 @@ void PipeControlChannel::destroyNamedPipe()
     close(d_impl.d_unix.d_writeFd);
     close(d_impl.d_unix.d_readFd);
 
-    d_impl.d_unix.d_writeFd = 0;
-    d_impl.d_unix.d_readFd = 0;
+    d_impl.d_unix.d_writeFd = -1;
+    d_impl.d_unix.d_readFd  = -1;
 
     unlink(d_pipeName.c_str());
 
@@ -306,7 +306,7 @@ int PipeControlChannel::readNamedPipe()
         return 0;                                                     // RETURN
     }
 
-    if (d_impl.d_unix.d_readFd == 0) {
+    if (d_impl.d_unix.d_readFd == -1) {
         // Pipe was closed before read was issued.
         return 0;                                                     // RETURN
     }
@@ -452,7 +452,7 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
 {
 //  BSLS_ASSERT(0 == d_impl.d_unix.d_readFd);
 
-    if (0 != d_impl.d_unix.d_readFd) {
+    if (-1 != d_impl.d_unix.d_readFd) {
         return -7;                                                    // RETURN
     }
 
@@ -562,8 +562,8 @@ PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     d_impl.d_windows.d_handle = INVALID_HANDLE_VALUE;
 #else
-    d_impl.d_unix.d_readFd    = 0;
-    d_impl.d_unix.d_writeFd   = 0;
+    d_impl.d_unix.d_readFd    = -1;
+    d_impl.d_unix.d_writeFd   = -1;
 #endif
 }
 
@@ -578,8 +578,9 @@ void PipeControlChannel::backgroundProcessor()
 {
     while (d_backgroundState == e_RUNNING) {
         if (0 != readNamedPipe()) {
-            BSLS_LOG_ERROR("Error processing M-trap: unable to read from named"
-                           " pipe '%s'", d_pipeName.c_str());
+            BSLS_LOG_ERROR(
+               "Error processing message: unable to read from named pipe '%s'",
+               d_pipeName.c_str());
 
             break;
         }

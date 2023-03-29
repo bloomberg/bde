@@ -4,6 +4,7 @@ balb_filecleanerutil
 balb_leakybucket
 balb_performancemonitor
 balb_pipecontrolchannel
+balb_pipetaskmanager
 balb_ratelimiter
 balb_reservationguard
 balb_testmessages
