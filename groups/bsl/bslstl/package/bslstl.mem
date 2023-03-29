@@ -12,6 +12,7 @@ bslstl_bitset
 bslstl_boyermoorehorspoolsearcher
 bslstl_charconv
 bslstl_chrono
+bslstl_compare
 bslstl_complex
 bslstl_defaultsearcher
 bslstl_deque

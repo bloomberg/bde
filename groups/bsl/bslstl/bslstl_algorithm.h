@@ -26,6 +26,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
@@ -172,6 +173,10 @@ namespace bsl {
     using std::for_each_n;
     using std::sample;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    using std::lexicographical_compare_three_way;
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 namespace ranges {

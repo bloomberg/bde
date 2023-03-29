@@ -191,6 +191,9 @@
 : 'bslstl_chrono':
 :      Provide functionality of the corresponding C++ Standard header.
 :
+: 'bslstl_compare'
+:      Provide functionality of the corresponding C++ Standard header.
+:
 : 'bslstl_complex':
 :      Provide functionality of the corresponding C++ Standard header.
 :
