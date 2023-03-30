@@ -1762,13 +1762,24 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
 
         for (size_t i = 0; i < LENGTH; ++i) {
             const size_t OBJ_INDEX = i;
-            for (size_t j = 0; j < LENGTH - OBJ_INDEX; ++j) {
+            for (size_t j = 0; j <= LENGTH - OBJ_INDEX; ++j) {
                 const size_t OBJ_LENGTH = j;
+
+                // Make sure that we don't go beyond the boundaries of the
+                // original data.
+                ASSERTV(LENGTH, OBJ_INDEX, OBJ_LENGTH,
+                        LENGTH >= OBJ_INDEX + OBJ_LENGTH);
                 mX.assign(DATA.data() + OBJ_INDEX, OBJ_LENGTH);
+
                 for (size_t k = 0; k < LENGTH; ++k) {
                     const size_t STR_INDEX = k;
-                    for (size_t l = 0; l < LENGTH - OBJ_INDEX; ++l) {
+                    for (size_t l = 0; l <= LENGTH - STR_INDEX; ++l) {
                         const size_t STR_LENGTH = l;
+
+                        // Make sure that we don't go beyond the boundaries of
+                        // the original data.
+                        ASSERTV(LENGTH, STR_INDEX, STR_LENGTH,
+                                LENGTH >= STR_INDEX + STR_LENGTH);
                         mStr.assign(DATA.data() + STR_INDEX, STR_LENGTH);
 
                         if (veryVerbose) {
@@ -1776,7 +1787,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                                   P_(OBJ_INDEX)
                                   P_(OBJ_LENGTH)
                                   P_(STR_INDEX)
-                                  P (OBJ_LENGTH);
+                                  P (STR_LENGTH);
                         }
 
                         // Calculation of expected results.
