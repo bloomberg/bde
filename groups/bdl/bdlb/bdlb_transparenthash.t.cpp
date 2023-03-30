@@ -131,7 +131,12 @@ void testHashInt()
         const VALUE       VAL      = i;
         const std::size_t EXPECTED = bsl::hash<VALUE>().operator()(VAL);
 
-        const Obj hasher;
+        // XLC version 16.1 (on AIX) complains about creating a const object
+        // that does not have an "initializer or user-defined default
+        // constructor".  To work around that, we create a non-const object,
+        // and a const reference to that object, and use the reference.
+        Obj hash;
+        const Obj& hasher = hash;
 
         ASSERTV(i, EXPECTED == hasher(VAL));
     }
@@ -183,7 +188,12 @@ void testHashString()
         const std::size_t                 EXPECTED =
                                            bsl::hash<STRING>().operator()(STR);
 
-        const Obj hasher;
+        // XLC version 16.1 (on AIX) complains about creating a const object
+        // that does not have an "initializer or user-defined default
+        // constructor".  To work around that, we create a non-const object,
+        // and a const reference to that object, and use the reference.
+        Obj hash;
+        const Obj& hasher = hash;
 
         ASSERTV(i, EXPECTED == hasher(STR));
     }
