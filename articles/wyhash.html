@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="bsl::chrono Integration with bsl and bdl" href="bde_4.0_chrono.html" />
-    <link rel="prev" title="Articles" href="index.html" /> 
+    <link rel="prev" title="Introducing bdljsn::Json" href="bdljsn.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -101,6 +101,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (Jan 18, 2023)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#background">Background</a></li>
@@ -123,11 +125,12 @@
 </li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tools</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">CMake Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
@@ -196,7 +199,7 @@
         <a href="bde_4.0_chrono.html" class="btn btn-neutral float-right" title="bsl::chrono Integration with bsl and bdl" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Articles" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bdljsn.html" class="btn btn-neutral float-left" title="Introducing bdljsn::Json" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
       
   </div>
   
@@ -205,14 +208,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <p><em>June 30, 2021</em></p>
+  <p><em>June 30, 2022</em></p>
 <div class="section" id="selecting-wyhash-as-the-default-hash-algorithm">
 <h1>Selecting <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> as the Default Hash Algorithm<a class="headerlink" href="#selecting-wyhash-as-the-default-hash-algorithm" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p>BDE 3.103.0 updated the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__defaulthashalgorithm.html">default hash algorithm</a>
 used by BDE (e.g., by <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__hash.html">bsl::hash</a>) to be
-<a class="reference external" href="https://github.com/wangyi-fudan/wyhash">wyhash</a> (implemented in the BDE component <a class="reference external" href="https://github.com/bloomberg/bde/blob/master/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>).</p>
+<a class="reference external" href="https://github.com/wangyi-fudan/wyhash">wyhash</a> (implemented in the BDE component <a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>).</p>
 <p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> demonstrated the best performance of the hash algorithms tested.</p>
 </div>
 <div class="section" id="background">
@@ -367,7 +370,7 @@ clean bell curve similar to our existing default <code class="docutils literal n
 <div class="section" id="final-verification-for-wyhash">
 <h3>Final Verification for wyhash<a class="headerlink" href="#final-verification-for-wyhash" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> was selected as the primary candidate for the default hash function.  This algorithm was
-implemented in a BDE component (<a class="reference external" href="https://github.com/bloomberg/bde/blob/master/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>)
+implemented in a BDE component (<a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>)
 and compared against BDE’s previous default hash function <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code>.</p>
 <p>The results of comparing BDE’s <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> implementation against BDE’s <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> implementation are below:</p>
 <img alt="Linux" src="../_images/wyhash_Linux.svg" /><img alt="Sun" src="../_images/wyhash_Sun.svg" /><img alt="AIX" src="../_images/wyhash_AIX.svg" /><img alt="Windows" src="../_images/wyhash_Windows.svg" /><dl class="simple">
@@ -394,7 +397,7 @@ other contexts (especially x86 platforms, where there were substantial improveme
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2022, Bloomberg LP.
+        &#169; Copyright 2023, Bloomberg LP.
 
     </p>
   </div>

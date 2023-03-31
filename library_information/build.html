@@ -108,7 +108,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id6">Download BDE library</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id7">Set build environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id8">Configure, build and install BDE</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id10">Plain CMake build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Plain CMake build</a></li>
 </ul>
 </li>
 </ul>
@@ -125,11 +125,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tools</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">CMake Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
@@ -232,7 +233,7 @@ configured on the system:</p>
 <h3>Download BDE tools<a class="headerlink" href="#download-bde-tools" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
-<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde-tools/tree/master">bde-tools</a> repository:</p>
+<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde-tools/tree/main">bde-tools</a> repository:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/bloomberg/bde-tools.git
 </pre></div>
 </div>
@@ -249,22 +250,18 @@ execute the scripts from <code class="docutils literal notranslate"><span class=
 </li>
 <li><p>Verify that the build helpers can correctly detect C++ compilers
 installed in the system:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bde_build_env.py list
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build_env list
 Avaliable compilers:
- 0: gcc-7.4.0 (default)
-     CXX: /usr/bin/g++
-     CC : /usr/bin/gcc
-     Toolchain: gcc-default
- 1: clang-8.0.0
-     CXX: /usr/bin/clang++
-     CC : /usr/bin/clang
-     Toolchain: clang-default
+  0: gcc-10.2.1 (default)
+     Compiler type: gcc
+     C compiler:    /opt/bb/bin/gcc
+     CXX compiler:  /opt/bb/bin/g++
+     Toolchain:     /bb/bde/bbshr/bde-tools/BdeBuildSystem/toolchains/linux/gcc-default.cmake
+     Description:   gcc-10.2.1
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">bde_build_env.py</span></code> will detect <code class="docutils literal notranslate"><span class="pre">gcc</span></code> and <code class="docutils literal notranslate"><span class="pre">clang</span></code> compilers in the
-PATH environment on Unix.  If a compiler is not found automatically, you
-can specify a compiler location using a <code class="docutils literal notranslate"><span class="pre">.bdecompilerconfig</span></code> file in
-$HOME (see <a class="reference external" href="/bde-tools/cmake/config.html#configure-system-compilers">Configure System Compilers</a>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">bbs_build_env</span></code> will detect <code class="docutils literal notranslate"><span class="pre">gcc</span></code> and <code class="docutils literal notranslate"><span class="pre">clang</span></code> compilers in the
+PATH environment on Unix.</p>
 </li>
 </ul>
 </div></blockquote>
@@ -273,7 +270,7 @@ $HOME (see <a class="reference external" href="/bde-tools/cmake/config.html#conf
 <h3>Download BDE library<a class="headerlink" href="#download-bde-library" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
-<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde/tree/master">bde</a> repository:</p>
+<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde/tree/main">bde</a> repository:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/bloomberg/bde.git
 $ cd bde
 </pre></div>
@@ -288,7 +285,7 @@ $ cd bde
 <div><ul>
 <li><p>This command sets environment variables that define effective ufid/uplid,
 compiler and build directory for subsequent commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ eval `bde_build_env.py --build-type=Release --cpp-std=17`
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ eval `bbs_build_env -u opt_64_cpp17`
 </pre></div>
 </div>
 </li>
@@ -300,24 +297,22 @@ compiler and build directory for subsequent commands:</p>
 <blockquote>
 <div><ul>
 <li><p>Configure the Cmake build system:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py configure
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build configure
 </pre></div>
 </div>
 </li>
 <li><p>Build BDE libraries:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py build
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build build
 </pre></div>
 </div>
 </li>
-<li><p>Build and run all BDE unit tests ( see
-<a class="reference external" href="/bde-tools/cmake/examples.html#example-2-component-development">Component development</a>
-for testing individual components ):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py build --test=run
+<li><p>Build and run all BDE unit tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build build --test=run
 </pre></div>
 </div>
 </li>
 <li><p>Install BDE libraries and headers:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py --install_dir=/bde_install --prefix=/ install
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build --install_dir=/bde_install --prefix=/ install
 </pre></div>
 </div>
 </li>
@@ -385,7 +380,7 @@ Precompiled BDE libraries are available as dpkgs.</p>
 <li><p>Configure and build the application:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mkdir build
 $ cd build
-$ cmake -DCMAKE_PREFIX_PATH=/bde_install/lib64/opt_exc_mt/  ../
+$ cmake -DCMAKE_PREFIX_PATH=/bde_install/lib64/  ../
 $ cmake --build ./
 </pre></div>
 </div>
@@ -402,9 +397,9 @@ Commands provided here for illustration purposes only:</p>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/bloomberg/bde-tools.git
 $ git clone https://github.com/bloomberg/bde.git
 $ mkdir build; cd build
-$ cmake -DCMAKE_MODULE_PATH=../bde-tools/cmake/ \
-        -DCMAKE_TOOLCHAIN_FILE=../bde-tools/cmake/toolchains/linux/gcc-default.cmake \
-        -DCMAKE_BUILD_TYPE=Release ../bde
+$ cmake -DBdeBuildSystem_DIR=../bde-tools/BdeBuildSystem/ \
+        -DCMAKE_TOOLCHAIN_FILE=../bde-tools/BdeBuildSystem/toolchains/linux/gcc-default.cmake \
+        -DCMAKE_BUILD_TYPE=Release -DBBS_ENV_MARKER=ON ../bde
 $ cmake --build ./
 </pre></div>
 </div>
@@ -413,6 +408,10 @@ $ cmake --build ./
 <p class="admonition-title">Note</p>
 <p>Compiling BDE with provided python wrappers is a preferred way of building
 BDE libraries.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>BBS_ENV_MARKER is a temporary variable to select bbs build system over the old one.</p>
 </div>
 </div></blockquote>
 </div>
@@ -450,7 +449,7 @@ support for v142 build tools” under “Desktop development with C++”.</p>
 <h3>Download BDE tools<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
-<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde-tools/tree/master">bde-tools</a> repository:</p>
+<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde-tools/tree/main">bde-tools</a> repository:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/bloomberg/bde-tools.git
 </pre></div>
 </div>
@@ -466,17 +465,13 @@ execute the scripts from <code class="docutils literal notranslate"><span class=
 </div>
 </li>
 <li><p>List installed compilers:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bde_build_env.py list
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build_env list
 Available compilers:
     0: msvc-2019 -- Visual Studio 2019 (Version 16) (default)
        CXX: None
        CC : None
        Toolchain: cl-default
     1: msvc-2017 -- Visual Studio 2017 (Version 15)
-       CXX: None
-       CC : None
-       Toolchain: cl-default
-    2: msvc-2015 -- Visual Studio 2015 (Version 14)
        CXX: None
        CC : None
        Toolchain: cl-default
@@ -490,7 +485,7 @@ Available compilers:
 <h3>Download BDE library<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
-<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde/tree/master">bde</a> repository:</p>
+<li><p>Clone the <a class="reference external" href="https://github.com/bloomberg/bde/tree/main">bde</a> repository:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/bloomberg/bde.git
 $ cd bde
 </pre></div>
@@ -505,11 +500,7 @@ $ cd bde
 <div><ul>
 <li><p>This command sets environment variables that define effective ufid/uplid,
 compiler and build directory for subsequent commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ eval `bde_build_env.py --build-type=Release --cpp-std=17`
-</pre></div>
-</div>
-<p>OR (equivalent):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ eval `bde_build_env.py -t opt_exc_mt_64_cpp17`
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ eval `bbs_build_env -u opt_64_cpp17`
 </pre></div>
 </div>
 </li>
@@ -521,7 +512,7 @@ compiler and build directory for subsequent commands:</p>
 <blockquote>
 <div><ul>
 <li><p>Configure the CMake build system:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py configure
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build configure
 </pre></div>
 </div>
 <div class="admonition note">
@@ -542,27 +533,25 @@ generation, load and build time.</p>
 </div>
 </li>
 <li><p>Build BDE libraries:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py build
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build build
 </pre></div>
 </div>
 </li>
-<li><p>Build and run all BDE unit tests ( see
-<a class="reference external" href="/bde-tools/cmake/examples.html#example-2-component-development">Component development</a>
-for testing individual components ):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py build --test=run
+<li><p>Build and run all BDE unit tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build build --test=run
 </pre></div>
 </div>
 </li>
 <li><p>Install BDE libraries and headers:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake_build.py --install_dir=/bde_install --prefix=/ install
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build --install_dir=/bde_install --prefix=/ install
 </pre></div>
 </div>
 </li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id10">
-<h3>Plain CMake build<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id9">
+<h3>Plain CMake build<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>BDE can be compiled without provided python tools with plain CMake.
 Commands provided here for illustration purposes only:</p>
@@ -570,8 +559,8 @@ Commands provided here for illustration purposes only:</p>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/bloomberg/bde-tools.git
 $ git clone https://github.com/bloomberg/bde.git
 $ mkdir build; cd build
-$ cmake -DCMAKE_MODULE_PATH=../bde-tools/cmake/ -DCMAKE_TOOLCHAIN_FILE=../bde-tools/cmake/toolchains/win32/cl-default.cmake \
-        -DCMAKE_BUILD_TYPE=Release ../bde
+$ cmake -DBdeBuildSystem_DIR=../bde-tools/BdeBuildSystem/ -DCMAKE_TOOLCHAIN_FILE=../bde-tools/BdeBuildSystem/toolchains/win32/cl-default.cmake \
+        -DCMAKE_BUILD_TYPE=Release -DBBS_ENV_MARKER=ON ../bde
 $ cmake --build ./
 </pre></div>
 </div>
@@ -596,7 +585,7 @@ BDE libraries.</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2022, Bloomberg LP.
+        &#169; Copyright 2023, Bloomberg LP.
 
     </p>
   </div>

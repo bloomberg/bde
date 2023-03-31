@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Automating Phabricator Reviews for Pull Requests &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/phabricatorbot.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Automating Phabricator Reviews for Pull Requests</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>Mar 2, 2023</em></p>
+<div class="section" id="automating-phabricator-reviews-for-pull-requests">
+<h1>Automating Phabricator Reviews for Pull Requests<a class="headerlink" href="#automating-phabricator-reviews-for-pull-requests" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The process below is not officially supported by BDE.  It is actively used by BDE, and maintained on a best
+effort basis.  No warranty.</p>
+</div>
+<p>This page outlines a process for automating the creation of
+<a class="reference external" href="https://all.phab.dev.bloomberg.com">Phabricator</a> code-reviews for <a class="reference external" href="http://bbgithub.dev.bloomberg.com">bbgithub</a>
+pull requests.</p>
+<p>This integration may be useful to teams that are frustrated with github’s current integrated
+support for code reviews, but who otherwise do not expect to manage the
+workflow for their change sets through Phabricator (BDE, for example, tracks change-set status in DRQS).</p>
+<p>This integration is built on top of a JaaS (Jenkins-as-a-Service) pipeline for a bbgithub
+organization (or repository).  Athough some useful documentation links for JaaS are provided in the
+<a class="reference internal" href="#phabricatorbot-prequisites"><span class="std std-ref">Prerequisites</span></a>, <strong>this page assumes</strong> the reader will follow <a class="reference external" href="https://tutti.prod.bloomberg.com/jaas/build/index">JaaS documentaton</a>
+to configure a JaaS dedicated instance.</p>
+<div class="section" id="comparison-to-hubricator">
+<h3>Comparison to Hubricator<a class="headerlink" href="#comparison-to-hubricator" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://bbgithub.dev.bloomberg.com/bbgithub/hubricator">Hubricator</a>, which previously provided a github
+webhooks for integrating <a class="reference external" href="http://bbgithub.dev.bloomberg.com">bbgithub</a>
+with <a class="reference external" href="https://all.phab.dev.bloomberg.com">Phabricator</a> was shutdown in November 2022.
+In comparison to hubricator, this automation is much simpler, and serves only to create and update
+phabricator code-reviews, keeping them in sync with a bbgithub pull request.  This
+tooling does not, for example, monitor the state of the pull request or the state of the phabricator review, or
+in any way try and keep the two in sync.  On the other hand, the created phabricator
+reviews will not expire.</p>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<span id="phabricatorbot-prequisites"></span><h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>We assume the following steps have been done:</p>
+<ul class="simple">
+<li><p>Created a role account for Jenkins to use.  (See {SSAM&lt;GO&gt;})</p>
+<ul>
+<li><p>This role account should be:</p>
+<ul>
+<li><p><a class="reference external" href="https://tutti.prod.bloomberg.com/bbgithub/getting_started">bootstrapped with bbgithub access</a>
+(see <a class="reference internal" href="#notes"><span class="std std-ref">notes</span></a>).</p></li>
+<li><p>able to run the <code class="docutils literal notranslate"><span class="pre">/opt/bb/bin/arc</span></code> on a GNRL Linux machine</p></li>
+<li><p>have installed the certificates for Phabricator (see <a class="reference internal" href="#notes"><span class="std std-ref">notes</span></a>)</p></li>
+<li><p>assigned as a maintainer for the relevant github repositories</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://all.phab.dev.bloomberg.com/project/">Enrolled the bbgithub repository in phabricator</a></p></li>
+<li><p>Created a <a class="reference external" href="https://tutti.prod.bloomberg.com/jaas/build/onboarding/dedicated">dedicated jaas instance</a> using
+that role account.</p></li>
+<li><p>Added a Jenkins job for the <a class="reference external" href="https://tutti.prod.bloomberg.com/jaas/build/tutorials/adding-jobs">bbgithub-org or bbgithub-repo</a></p></li>
+</ul>
+<p>Note that the instructions here use a Jenkins job run on a BLDLNX machine with NFS access.  It
+should be possible to replicate this environment on a clean VM by bootstrapping the needed packages from dpkg,
+but we have not tested such a configuration nor do we have instructions to help create it.</p>
+<p>As an example, you can see BDE’s:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://bde.jaas.dev.bloomberg.com/">JaaS Jenkins instance</a></p></li>
+<li><p><a class="reference external" href="https://bbgithub.dev.bloomberg.com/jaas/bde">JaaS configuration</a></p></li>
+<li><p>The <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde-docs/blob/main/Jenkinsfile">Jenkinsfile</a> for bde/bde-docs</p></li>
+</ul>
+<p id="notes"><strong>Notes</strong></p>
+<ul class="simple">
+<li><p>Please reach out the the <code class="docutils literal notranslate"><span class="pre">Jenkins</span> <span class="pre">as</span> <span class="pre">a</span> <span class="pre">Service</span></code> self-joinable pchat with questions about configuring Jenkins</p></li>
+<li><p>To install certificates for the role account, login to a GNRL Linux machine using the role account and run: <code class="docutils literal notranslate"><span class="pre">arc</span> <span class="pre">--install-certificate</span> <span class="pre">https://all.phab.dev.bloomberg.com/</span></code></p></li>
+<li><p>Per the <a class="reference external" href="https://tutti.prod.bloomberg.com/bbgithub/getting_started">bbgithub bootstrapping</a> steps, <code class="docutils literal notranslate"><span class="pre">bbgithub:</span></code> should be configured as a host protocol alias in your ssh configuration (so
+for example <code class="docutils literal notranslate"><span class="pre">bbgithub:bde/bde</span></code> can be used to refer to the <code class="docutils literal notranslate"><span class="pre">bde/bde</span></code> repository).</p></li>
+</ul>
+</div>
+<div class="section" id="phabricatorbot-py">
+<h2>phabricatorbot.py<a class="headerlink" href="#phabricatorbot-py" title="Permalink to this headline">¶</a></h2>
+<p>The BDE tooling for generating phabricator reviews is a python script,
+<a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde-ci-tools/blob/main/bin/phabricatorbot.py">phabricatorbot.py</a>.</p>
+<p>On NFS systems, there is a canonical version (used by BDE’s Jenkins integration) at
+<code class="docutils literal notranslate"><span class="pre">/bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py</span></code></p>
+<p>A command-line example for using this tool is:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py         <span class="se">\</span>
+        --create-checkout /my/checkout/location/PR-4025            <span class="se">\</span>
+        --url https://bbgithub.dev.bloomberg.com/bde/bde/pull/4025 <span class="se">\</span>
+        --verbose
+</pre></div>
+</div>
+<p>The above command will checkout <code class="docutils literal notranslate"><span class="pre">bde/bde</span></code> pull request 4025 to the directory <code class="docutils literal notranslate"><span class="pre">/my/checkout/location/PR-4025</span></code>,
+and run <code class="docutils literal notranslate"><span class="pre">arc</span> <span class="pre">diff</span></code> on it.</p>
+<p>Once a phabricator review is created, phabricatorbot will update the pull request
+with a comment including the URL for the created phabricator review.
+If <code class="docutils literal notranslate"><span class="pre">phabricatorbot</span></code> is run multiple times on the same pull request, the script will
+update the previously created Phabricator review (by looking for the old review id
+in the comments of the pull request).</p>
+<p>For command line help:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>phabricatorbot.py --help
+</pre></div>
+</div>
+</div>
+<div class="section" id="integrating-phabricatorbot-into-jenkins">
+<h2>Integrating Phabricatorbot Into Jenkins<a class="headerlink" href="#integrating-phabricatorbot-into-jenkins" title="Permalink to this headline">¶</a></h2>
+<p>See the <a class="reference internal" href="#phabricatorbot-prequisites"><span class="std std-ref">Prerequisites</span></a> for more on configuring Jenkins.  Once the
+webhooks are created for the bbgithub organization or repository, you should create or modify the
+<code class="docutils literal notranslate"><span class="pre">Jenkinsfile</span></code> for the repository.  A skeleton Jenkins file is shown
+<a class="reference external" href="https://tutti.prod.bloomberg.com/jaas/build/onboarding/sandbox">here</a>.</p>
+<p>Then add a stage for creating a phabricator review from the pull request like the one below:</p>
+<div class="highlight-groovy notranslate"><div class="highlight"><pre><span></span><span class="n">stage</span><span class="o">(</span><span class="s1">&#39;Update phabricator with lint&#39;</span><span class="o">){</span><span class="w"></span>
+<span class="w">   </span><span class="n">when</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">branch</span><span class="w"> </span><span class="s2">&quot;PR-*&quot;</span><span class="w">               </span><span class="c1">// a stage only runs for pull requests</span><span class="w"></span>
+<span class="w">   </span><span class="o">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">steps</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">echo</span><span class="w"> </span><span class="s1">&#39;running arc diff on pull request&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">sh</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">         /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --create-checkout ${WORKSPACE} --url ${CHANGE_URL}</span>
+<span class="s2">         &quot;&quot;&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="o">}</span><span class="w"></span>
+<span class="w">   </span><span class="o">}</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Here is an example <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde-docs/blob/main/Jenkinsfile">Jenkinsfile for the bde-docs repo</a>.</p>
+<p><strong>Important Environment Variables</strong></p>
+<p>The command line supplied to <code class="docutils literal notranslate"><span class="pre">phabricatorbot.py</span></code> uses the following variables, which are automatically available in the Jenkins shell environment:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">${CHANGE_URL}</span></code>  contains the pull requests URL</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKSPACE}</span></code> is the workspace directory Jenkins expects to use</p></li>
+</ul>
+<div class="section" id="configuring-the-git-checkout">
+<h3>Configuring the Git Checkout<a class="headerlink" href="#configuring-the-git-checkout" title="Permalink to this headline">¶</a></h3>
+<p>The Jenkins pipeline for creating a Phabricator review needs to checkout the pull-request to
+generate a code review.  This can either be done by using the <code class="docutils literal notranslate"><span class="pre">--create-checkout</span></code> option to phabricatorbot
+(as shown in the example above), or with the Jenkin’s command <code class="docutils literal notranslate"><span class="pre">checkout</span> <span class="pre">scm</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you do <em>not</em> use the Jenkins pipeline to perform test builds, you should prefer the phabricatorbot <code class="docutils literal notranslate"><span class="pre">--create-checkout</span></code>
+option (as seen in the example above) to Jenkin’s <code class="docutils literal notranslate"><span class="pre">checkout</span> <span class="pre">scm</span></code></p>
+</div>
+<p>Unfortuantely, the Jenkins command <code class="docutils literal notranslate"><span class="pre">checkout</span> <span class="pre">scm</span></code> performs a checkout that is not always suitable for <code class="docutils literal notranslate"><span class="pre">arc</span> <span class="pre">diff</span></code> <a class="footnote-reference brackets" href="#id5" id="id4">1</a>.
+If you need to use <code class="docutils literal notranslate"><span class="pre">checkout</span> <span class="pre">scm</span></code> to perform a test build, do <em>not</em> pass the <code class="docutils literal notranslate"><span class="pre">--create-checkout</span></code> option to
+<code class="docutils literal notranslate"><span class="pre">phabricatorbot</span></code>.  Without the <code class="docutils literal notranslate"><span class="pre">--create-checkout</span></code> option, <code class="docutils literal notranslate"><span class="pre">phabricatorbot</span></code> will assume there is a checked out
+version of the repository in the current working directory.  <code class="docutils literal notranslate"><span class="pre">phabricatorbot</span></code> will stash the commit id for the
+current working directory, checkout out the pull request, run <code class="docutils literal notranslate"><span class="pre">arc</span> <span class="pre">diff</span></code>, and then restore the stashed commit id as HEAD.
+This extra complexity is unnecessary if the checkout in not needed for a test build.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id4">1</a></span></dt>
+<dd><p>The result of <code class="docutils literal notranslate"><span class="pre">checkout</span> <span class="pre">scm</span></code> includes a merge-commit back to the target branch
+that can result in a confused phabricator code-review</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="contact">
+<h2>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>For additional information, please contact Henry Verschell or Mike Giroux of the BDE team.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

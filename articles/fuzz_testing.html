@@ -1,0 +1,779 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Fuzz Testing &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/fuzz_testing.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Introducing bdljsn::Json" href="bdljsn.html" />
+    <link rel="prev" title="Articles" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fuzz Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-fuzz-testing">What Is Fuzz Testing?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-a-fuzz-test">Writing a Fuzz Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-fuzz-testing-template">A Fuzz Testing Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-fuzz-test-inputs">Generating Fuzz Test Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-does-a-fuzz-test-test">What Does a Fuzz Test Test?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-function-input-from-fuzz-data">Generating Function Input from Fuzz Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fuzzing-functions-with-preconditions">Fuzzing Functions with Preconditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-and-running-fuzz-tests">Building and Running Fuzz Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interpreting-fuzz-test-results">Interpreting Fuzz Test Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging-failed-fuzz-tests">Debugging Failed Fuzz Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Articles</a> &raquo;</li>
+        
+      <li>Fuzz Testing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bdljsn.html" class="btn btn-neutral float-right" title="Introducing bdljsn::Json" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Articles" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>February 21, 2023</em></p>
+<div class="section" id="fuzz-testing">
+<h1>Fuzz Testing<a class="headerlink" href="#fuzz-testing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-fuzz-testing">
+<h2>What Is Fuzz Testing?<a class="headerlink" href="#what-is-fuzz-testing" title="Permalink to this headline">¶</a></h2>
+<p>Fuzz testing consists of exercising component methods using data that is more
+unusual than the hand-crafted cases test writers tend to provide, with a goal
+of exposing possible crashes, memory problems, and a variety of other ill
+behavior.</p>
+<p>Fuzz testing may also be coverage-driven, with code compiled in a way that
+provides feedback to the test driver, such that fuzz data becomes tailored to
+exercising all code paths in the program.</p>
+<p>We support fuzz testing using the <code class="docutils literal notranslate"><span class="pre">clang</span></code> compiler.  Fuzz testing requires a
+specially written fuzz testing function to be present in the test driver, and
+is then requested by adding <code class="docutils literal notranslate"><span class="pre">fuzz</span></code> to the specified ufid.
+When fuzz testing, it is helpful to also specify a sanitizer option in the
+ufid, such as <code class="docutils literal notranslate"><span class="pre">asan</span></code> (the address sanitizer), so that more errors are
+detected.</p>
+</div>
+<div class="section" id="writing-a-fuzz-test">
+<h2>Writing a Fuzz Test<a class="headerlink" href="#writing-a-fuzz-test" title="Permalink to this headline">¶</a></h2>
+<p>A fuzz test is simply a <code class="docutils literal notranslate"><span class="pre">C</span></code> function with a special name,
+<code class="docutils literal notranslate"><span class="pre">LLVMFuzzerTestOneInput</span></code>.  The fuzz testing system calls this function
+repeatedly, supplying different data each time, and the function is responsible
+for invoking the methods to be tested using this data.  The fuzz testing
+library supplies its own custom <code class="docutils literal notranslate"><span class="pre">main()</span></code> to perform these calls, so a fuzz
+test cannot have its own <code class="docutils literal notranslate"><span class="pre">main()</span></code>.</p>
+<p>Within the BDE system, where we do want to co-locate a fuzz test within the
+ordinary test driver, we use a macro to rename <code class="docutils literal notranslate"><span class="pre">main</span></code> when building for fuzz
+testing.  The build system will define <code class="docutils literal notranslate"><span class="pre">BDE_ACTIVATE_FUZZ_TESTING</span></code> when
+building for fuzz testing to enable this.</p>
+<p>A fuzz test is expected to attempt to crash on the first failure detected.
+This might be a “natural” crash, perhaps because the program indirects through
+bad pointers, or a deliberate crash via an unhandled exception or a call to
+<code class="docutils literal notranslate"><span class="pre">abort</span></code>.  In BDE fuzz tests, a deliberate crash is invoked through the
+assertion system, as seen below in the call to <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT_INVOKE</span></code>.  The
+fuzz testing infrastructure intercepts such crash attempts, saves the
+problematic input, reports the failure, and exits.</p>
+<p>A BDE test driver adapted for fuzz testing will include code similar to the
+following template, just before <code class="docutils literal notranslate"><span class="pre">main()</span></code>.  The BDE code base has several
+components that have already been modified this way.  Please see those, e.g.,
+<a class="reference external" href="http://bburl/BPUFuzzTest">ball_patternutil.t.cpp</a>, for complete examples.</p>
+</div>
+<div class="section" id="a-fuzz-testing-template">
+<h2>A Fuzz Testing Template<a class="headerlink" href="#a-fuzz-testing-template" title="Permalink to this headline">¶</a></h2>
+<p>The following is an empty example template for a fuzz testing function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ============================================================================</span>
+<span class="c1">//                              FUZZ TESTING</span>
+<span class="c1">// ----------------------------------------------------------------------------</span>
+<span class="c1">//                              Overview</span>
+<span class="c1">//                              --------</span>
+<span class="c1">// The following function, &#39;LLVMFuzzerTestOneInput&#39;, is the entry point for the</span>
+<span class="c1">// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details</span>
+<span class="c1">// on how to build and run with fuzz testing enabled.</span>
+<span class="c1">//-----------------------------------------------------------------------------</span>
+
+<span class="cp">#ifdef BDE_ACTIVATE_FUZZ_TESTING</span>
+<span class="cp">#define main test_driver_main</span>
+<span class="cp">#endif</span>
+
+<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">LLVMFuzzerTestOneInput</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Use the specified &#39;data&#39; array of &#39;size&#39; bytes as input to methods of</span>
+<span class="w">    </span><span class="c1">// this component and return zero.</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">FUZZ</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">LENGTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">size</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">test</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Use first fuzz byte to select the test case.</span>
+<span class="w">        </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">FUZZ</span><span class="o">++</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="o">--</span><span class="n">LENGTH</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="w">  </span><span class="c1">// Zero is always the leading case.</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="no">N</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// --------------------------------------------------------------------</span>
+<span class="w">        </span><span class="c1">// TESTING &#39;myFunction&#39;</span>
+<span class="w">        </span><span class="c1">//</span>
+<span class="w">        </span><span class="c1">// Plan:</span>
+<span class="w">        </span><span class="c1">//   Describe how &#39;myFunction&#39; will be fuzz tested.</span>
+<span class="w">        </span><span class="c1">//</span>
+<span class="w">        </span><span class="c1">// Testing:</span>
+<span class="w">        </span><span class="c1">//   static void myFunction(arg1 value, ...);</span>
+<span class="w">        </span><span class="c1">// --------------------------------------------------------------------</span>
+
+<span class="w">        </span><span class="c1">// ...  Test myFunction using ASSERT or in other ways ...</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// ... other cases ...</span>
+<span class="w">      </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">testStatus</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">BSLS_ASSERT_INVOKE</span><span class="p">(</span><span class="s">&quot;FUZZ TEST FAILURES&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-fuzz-test-inputs">
+<h2>Generating Fuzz Test Inputs<a class="headerlink" href="#generating-fuzz-test-inputs" title="Permalink to this headline">¶</a></h2>
+<p>In BDE testing methodology, there are often table-driven tests where the author
+has generated interesting test data by hand, and calls methods with that data,
+perhaps varying some other parameter along the way.  It might look something
+like the following.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">DATA</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;Hello&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;World!&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;------------------------------------------------------------&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;123 123 123 123 123&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">NUM_DATA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">DATA</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">DATA</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">LIMITS</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">NUM_LIMITS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">LIMITS</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">LIMITS</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_DATA</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LIMITS</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">method</span><span class="p">(</span><span class="n">DATA</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">DATA</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span><span class="w"> </span><span class="n">LIMITS</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
+<span class="w">        </span><span class="n">ASSERTV</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In fuzz testing, we generally don’t want to do this.  The intent of fuzz
+testing is to have “surprising” inputs, so we want to use the fuzz data as much
+as we can, in order to eliminate hidden assumptions in the test data that might
+prevent errors from being noticed.  So, if we are writing a fuzz test with the
+intent of paralleling the normal test above, we might write it like this.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ,,,</span>
+<span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">FUZZ</span><span class="o">++</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="o">--</span><span class="n">LENGTH</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">method</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">strnlen</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">),</span><span class="w"> </span><span class="n">limit</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ASSERTV</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// ...</span>
+</pre></div>
+</div>
+<p>Rather than keeping tables of strings and limits, we allow the fuzz data to
+supply both a limit and a string, and we only test a single input rather than
+looping through a set of cases.  The fuzz testing infrastructure will do the
+looping for us, and it will come up with combinations of strings and limits
+that we might not see in the hand-written data, and that we might miss if we
+used the fuzz data only for the string but not for the limit.</p>
+</div>
+<div class="section" id="what-does-a-fuzz-test-test">
+<h2>What Does a Fuzz Test Test?<a class="headerlink" href="#what-does-a-fuzz-test-test" title="Permalink to this headline">¶</a></h2>
+<p>Fuzz testing involves a variety of approaches depending on the nature of the
+methods to be tested.  It is up to the author of the fuzz test to decide which
+approaches are appropriate for the tests being conducted.  Given the fuzz test
+skeleton above, fuzz tests may include the usual invocations of <code class="docutils literal notranslate"><span class="pre">ASSERTV</span></code> and
+related test macros, and any failure will result in the test driver aborting
+and thus notifying the fuzz testing machinery that the supplied input has
+caused a failure.</p>
+<blockquote>
+<div><ul>
+<li><dl>
+<dt>Acceptance Testing Functions with Wide Contracts:</dt><dd><p>Functions with wide contracts claim to accept any input.  Thus, the
+fuzz test may simply invoke such methods with the supplied data.  The
+purpose of such a test is to verify that the method does not crash or
+cause any detectable undefined behavior, but not to check that the
+function produces the correct result.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="p">.</span><span class="n">wideFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Acceptance Testing Functions with Narrow Contracts:</dt><dd><p>Functions with narrow contracts claim to accept only a limited set of
+inputs.</p>
+<ul>
+<li><dl>
+<dt>Valid Input:</dt><dd><p>The fuzz test may examine the supplied data and call the method to
+be tested only if the data falls within the contract.  If the data
+is valid for the contract, the test again simply verifies that the
+method does not crash or cause detectable undefined behavior.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Invalid Input:</dt><dd><p>The fuzz test may choose to invoke methods with data that the
+narrow contract prohibits to determine whether such out-of-contract
+data is caught and handled by the method, especially when built in
+safe contract modes.  Here, the test uses the
+<code class="docutils literal notranslate"><span class="pre">ASSERT_SAFE_PASS/FAIL</span></code> macros to verify that the called method
+detects out-of-contract data and calls the failure handler, or
+processes in-contract data and does not invoke the handler.  If
+there is a crash or other detectable undefined behavior, that too
+will be caught in either case.  Once again, we are not testing if
+the result of the method is correct.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef BDE_BUILD_TARGET_EXC</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">AssertTestHandlerGuard</span><span class="w"> </span><span class="n">g</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">ASSERT_SAFE_PASS</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">AssertTestHandlerGuard</span><span class="w"> </span><span class="n">g</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">ASSERT_SAFE_FAIL</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+<p>For a more generalized and robust approach fuzzing functions with
+preconditions, see <a class="reference internal" href="#fuzzing-preconditions"><span class="std std-ref">Fuzzing Functions with Preconditions</span></a>.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Comprehensive Correctness Testing:</dt><dd><p>Within any of the above approaches related to contract scope, the fuzz
+test may also choose to verify not only that the called functions do
+not crash, but also that they correctly process their input.  In this
+context, the value of correctness testing depends on the ability to
+provide an independently written “oracle” function that determines
+whether the input is correct and what the results of the method should
+be.  This is not always feasible, since such determination (e.g.,
+well-formedness of XML or JSON) may sometimes be as complex and prone
+to error as the component under test itself.</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="sc">&#39;9&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">checkAllNumeric</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span><span class="w"></span>
+<span class="n">ASSERTV</span><span class="p">(</span><span class="n">allNumeric</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="generating-function-input-from-fuzz-data">
+<h2>Generating Function Input from Fuzz Data<a class="headerlink" href="#generating-function-input-from-fuzz-data" title="Permalink to this headline">¶</a></h2>
+<p>The two components <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzdataview.h">bslim_fuzzdataview</a>
+and <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzutil.h">bslim_fuzzutil</a>
+can simplify the creation of function input from raw fuzz data.
+<code class="docutils literal notranslate"><span class="pre">FuzzDataView</span></code> provides a view to a non-modifiable buffer of fuzz data
+obtained from a fuzz testing harness such as LLVM’s <code class="docutils literal notranslate"><span class="pre">libFuzzer</span></code>. The
+<code class="docutils literal notranslate"><span class="pre">FuzzDataView</span></code> component is passed as an argument to <code class="docutils literal notranslate"><span class="pre">FuzzUtil</span></code>, which
+contains functions that create fundamental and standard library types from
+the fuzz data.</p>
+<p>For example, imagine we are fuzzing a parser and want to use fuzz data to
+populate a configuration object:</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">typedef</span><span class="w"> </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzUtil</span><span class="w"> </span><span class="n">FuzzUtil</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzDataView</span><span class="w"> </span><span class="nf">fuzzData</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">Options</span><span class="w"> </span><span class="n">options</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setMaxDepth</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeNumberInRange</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setSkipUnknownElements</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeBool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setValidateSchema</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeBool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">Obj</span><span class="w"> </span><span class="n">mX</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">mX</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fuzzData</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">fuzzData</span><span class="p">.</span><span class="n">length</span><span class="p">(),</span><span class="w"> </span><span class="n">options</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// ...</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Additional fuzz utilities may be created at higher levels to simplify the
+process of creating higher level types. For instance, <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bdl/bdlt/bdlt_fuzzutil.h">bdlt_fuzzutil</a>
+builds upon <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzdataview.h">bslim_fuzzdataview</a>
+and <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzutil.h">bslim_fuzzutil</a>
+to create date values for testing functions that accept dates as parameters.</p>
+</div>
+<div class="section" id="fuzzing-functions-with-preconditions">
+<span id="fuzzing-preconditions"></span><h2>Fuzzing Functions with Preconditions<a class="headerlink" href="#fuzzing-functions-with-preconditions" title="Permalink to this headline">¶</a></h2>
+<p>When fuzzing a function with preconditions (i.e., a function with a “narrow
+contract”), if we naively supply fuzz data as input, we will frequently invoke
+the function out of contract. This has two problems, the first theoretical, the
+second practical.  Theoretically, calling a function out of contract has
+undefined behavior, and any “errors” the fuzzer reports for such input are not
+important – i.e., basically “out-of-contract” input is an uninteresting
+input-space for the fuzzer to explore. The second, more practical, issue is
+that functions with preconditions typically enforce their preconditions at
+run-time, in appropriate build-modes, using <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT</span></code>, which will catch
+these precondition violations and report them as errors and cause the fuzz test
+to end prematurely.  In order to enable functions with preconditions (which are
+enforced with <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT</span></code>) to be tested effectively, we have introduced a
+new component <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bsls/bsls_preconditions.h">bsls_precondions.h</a>,
+which provides the macros <code class="docutils literal notranslate"><span class="pre">BSLS_PRECONDITIONS_BEGIN</span></code> and
+<code class="docutils literal notranslate"><span class="pre">BSLS_PRECONDITIONS_END</span></code>. These macros allow a developer to demarcate the
+uses of <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT</span></code> that enforce preconditions for the function under test.</p>
+<p>For example:</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">double</span><span class="w"> </span><span class="nf">mySqrt</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Return the square root of the specified &#39;x&#39;.  The behavior is</span>
+<span class="w">    </span><span class="c1">// undefined unless &#39;x &gt;= 0&#39;.</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">BSLS_PRECONDITIONS_BEGIN</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">BSLS_ASSERT</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">x</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">BSLS_PRECONDITIONS_END</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">BSLS_PRECONDITIONS_BEGIN</span></code> and <code class="docutils literal notranslate"><span class="pre">BSLS_PRECONDITIONS_END</span></code> are needed to
+demarcate the preconditions for the function being tested, because when we fuzz
+test a function, we want to ignore failures only from the preconditions for
+that function under test, but report errors from any other <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT</span></code>
+failures. We refer to preconditions that fail in the function under test as
+“top-level” preconditions. Applying <code class="docutils literal notranslate"><span class="pre">BSLS_PRECONDITIONS_BEGIN</span></code> and
+<code class="docutils literal notranslate"><span class="pre">BSLS_PRECONDITIONS_END</span></code> allows us to treat these top-level failures
+differently from any other failures that are detected. Notably, in most build
+modes – currently any non-fuzzing build – these two macros expand to nothing,
+adding no overhead to non-fuzz-related function invocations.</p>
+<p>The function under test must be invoked with <code class="docutils literal notranslate"><span class="pre">BSLS_FUZZTEST_EVALUATE</span></code> found
+in <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bsls/bsls_fuzztest.h">bsls_fuzztest.h</a>.
+<code class="docutils literal notranslate"><span class="pre">BSLS_FUZZTEST_EVALUATE</span></code> identifies the function being tested to the
+<code class="docutils literal notranslate"><span class="pre">BSLS_PRECONDITIONS_*</span></code> macros in order to differentiate between <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT</span></code>
+failures for top-level preconditions, which should be ignored, or other
+failures, which should be reported as errors.</p>
+<p>Prior to invoking <code class="docutils literal notranslate"><span class="pre">BSLS_FUZZTEST_EVALUATE</span></code> we must create a
+<code class="docutils literal notranslate"><span class="pre">FuzzTestHandlerGuard</span></code> like so:</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">FuzzTestHandlerGuard</span><span class="w"> </span><span class="n">hg</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">BSLS_FUZZTEST_EVALUATE</span><span class="p">(</span><span class="n">mySqrt</span><span class="p">(</span><span class="n">input</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>If a function in one component delegates its implementation and precondition
+checks to a different component, we want to ignore any top-level
+precondition failures even though they are generated by this other component.
+To ignore top-level precondition failures originating in another component, we
+use <code class="docutils literal notranslate"><span class="pre">BSLS_FUZZTEST_EVALUATE_RAW</span></code>; however, like the non-RAW version, this
+ignores only top-level precondition failures.</p>
+</div>
+<div class="section" id="building-and-running-fuzz-tests">
+<h2>Building and Running Fuzz Tests<a class="headerlink" href="#building-and-running-fuzz-tests" title="Permalink to this headline">¶</a></h2>
+<p>BDE libraries and test drivers can be built and linked to enable fuzz testing
+using <code class="docutils literal notranslate"><span class="pre">clang</span></code> compilers.  It is best to use the most recent version of the
+compiler available, as the fuzz testing system is frequently updated.</p>
+<p>When using the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> system to build fuzz tests, the test drivers should be
+built, but not automatically run.  The <code class="docutils literal notranslate"><span class="pre">main()</span></code> routine supplied by the fuzz
+testing library takes different arguments than the normal test driver
+arguments.</p>
+<p>When the executable is run, the <code class="docutils literal notranslate"><span class="pre">main()</span></code> function in the fuzz testing library
+will repeatedly invoke <code class="docutils literal notranslate"><span class="pre">LLVMFuzzerTestOneInput</span></code> with a variety of data.
+Once the program detects an error and aborts, the <code class="docutils literal notranslate"><span class="pre">clang</span></code> fuzz testing
+machinery will save the supplied data that caused the crash in a file named
+<code class="docutils literal notranslate"><span class="pre">crash-...</span></code> for further examination.  The fuzz test may choose to print out
+verbose testing information, but note that the normal command-line arguments
+that control verbosity do not work due to the custom <code class="docutils literal notranslate"><span class="pre">main()</span></code>, and the
+default fuzz testing output is itself quite verbose.</p>
+<p>First, set up the build environment.  In this example, we are requesting a
+64-bit fuzz testing build with address sanitizer included, and that version 13
+of the <code class="docutils literal notranslate"><span class="pre">clang</span></code> compiler be used.  We request safe mode to enable all of the
+contract assertions, and optimization in the hope of exposing more possible bad
+behavior.</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ eval `bbs_build_env -u opt_dbg_safe_64_asan_fuzz_cpp17 -p clang-13`
+</pre></div>
+</div>
+</div></blockquote>
+<p>Then configure and build the fuzz test.</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bbs_build configure build --targets=ball_patternutil.t --tests=build
+</pre></div>
+</div>
+</div></blockquote>
+<p>Finally, run the fuzz test.  When not invoked with command-line arguments, a
+fuzz testing test driver will run forever or until it crashes.  There are a
+variety of arguments that control the behavior of the test driver, described
+<a class="reference external" href="https://llvm.org/docs/LibFuzzer.html#options">here</a>.  In particular, the
+argument <code class="docutils literal notranslate"><span class="pre">-max_total_time=N</span></code> will limit the running time to N seconds, and
+<code class="docutils literal notranslate"><span class="pre">-help=1</span></code> will display all available options.</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./_build/*/ball_patternutil.t -max_total_time=120
+</pre></div>
+</div>
+</div></blockquote>
+<p>If a fuzz test stops due to hitting a specified limit, it exits with a normal
+status (0).  If it stops due to a detected error causing a crash, it exits
+with a failed status (1).  Thus, for automated testing, the test can be run
+with its output redirected to a discarding device and a time limit specified,
+checking the exit status once it’s done.</p>
+<p>Fuzz testing may also be run incrementally, with initial inputs specified.  If
+the test driver is supplied with one or more directories on the command line,
+it treats files in those directories as the initial input corpus for fuzz
+testing, and will mutate those inputs to derive further test cases, writing
+interesting ones back to the first directory.  Providing such a set of initial
+inputs can be useful when correct input is highly structured, such that the
+fuzz testing procedure may take a long time to find its way there if left
+unguided.  (Although in that case, we suggest that a better, or at least
+alternate, option is to write test cases that generate structured input using
+the fuzz data as a base.)  The corpus directory may start off empty, in which
+case fuzz testing will generate and save its data from scratch.</p>
+</div>
+<div class="section" id="interpreting-fuzz-test-results">
+<h2>Interpreting Fuzz Test Results<a class="headerlink" href="#interpreting-fuzz-test-results" title="Permalink to this headline">¶</a></h2>
+<p>For comprehensive details on the output produced by fuzz testing, see the
+documentation <a class="reference external" href="https://llvm.org/docs/LibFuzzer.html#output">here</a>.</p>
+<p>The fuzz tester writes output describing what it’s doing as it does it, which
+is generally not useful or interesting.  On failure (that is, when the test
+machinery intercepts an attempt to crash), depending on the nature of the crash
+and the sanitizers that are built into the program, the fuzz test will write
+additional output to the standard error channel describing what it believes to
+be the problem, and whatever data it can provide as to its location.  It will
+write the fuzz data that caused the problem to a file named <code class="docutils literal notranslate"><span class="pre">crash-...</span></code>.</p>
+<p>Here is some sample output for a one-line fuzz test that treats the fuzz data
+as a pointer and tries to indirect it, which causes an immediate failure.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">LLVMFuzzerTestOneInput</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INFO: Seed: 1428378131
+INFO: Loaded 1 modules   (1 inline 8-bit counters): 1 [0x78d128, 0x78d129),
+INFO: Loaded 1 PC tables (1 PCs): 1 [0x560bc0,0x560bd0),
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+=================================================================
+==194626==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000000050 at pc 0x000000539e25 bp 0x7ffcae0dc970 sp 0x7ffcae0dc968
+READ of size 8 at 0x602000000050 thread T0
+    #0 0x539e24  (./ft.t+0x539e24)
+    #1 0x440131  (./ft.t+0x440131)
+    #2 0x446c91  (./ft.t+0x446c91)
+    #3 0x448936  (./ft.t+0x448936)
+    #4 0x4309d5  (./ft.t+0x4309d5)
+    #5 0x41f4c2  (./ft.t+0x41f4c2)
+    #6 0x3dcc01ed1c  (/lib64/libc.so.6+0x3dcc01ed1c)
+    #7 0x41f574  (./ft.t+0x41f574)
+
+0x602000000051 is located 0 bytes to the right of 1-byte region [0x602000000050,0x602000000051)
+allocated by thread T0 here:
+    #0 0x5366b8  (./ft.t+0x5366b8)
+    #1 0x44003b  (./ft.t+0x44003b)
+    #2 0x446c91  (./ft.t+0x446c91)
+    #3 0x448936  (./ft.t+0x448936)
+    #4 0x4309d5  (./ft.t+0x4309d5)
+    #5 0x41f4c2  (./ft.t+0x41f4c2)
+    #6 0x3dcc01ed1c  (/lib64/libc.so.6+0x3dcc01ed1c)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow (./ft.t+0x539e24)
+Shadow bytes around the buggy address:
+  0x0c047fff7fb0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c047fff7fc0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c047fff7fd0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c047fff7fe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c047fff7ff0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=&gt;0x0c047fff8000: fa fa 00 fa fa fa 00 fa fa fa[01]fa fa fa fa fa
+  0x0c047fff8010: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c047fff8020: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c047fff8030: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c047fff8040: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c047fff8050: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==194626==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+
+
+artifact_prefix=&#39;./&#39;; Test unit written to ./crash-da39a3ee5e6b4b0d3255bfef95601890afd80709
+Base64:
+</pre></div>
+</div>
+</div>
+<div class="section" id="debugging-failed-fuzz-tests">
+<h2>Debugging Failed Fuzz Tests<a class="headerlink" href="#debugging-failed-fuzz-tests" title="Permalink to this headline">¶</a></h2>
+<p>Generally speaking, once a problem is detected, testing needs to fall back to
+ordinary debugging; fuzz testing tells you that a problem exists with a
+specified input, and it is then up to you to locate the problem.  Depending on
+the nature of the problem, there may be output from the test program that will
+provide clues.  In the sample output above, we see that a memory overflow has
+been detected, and the program provides stack traces for where the memory was
+allocated, where the overflow happened, and the contents of memory around the
+problematic area.  Near the end, we see that the test program has written the
+bad input to a file named <code class="docutils literal notranslate"><span class="pre">crash-da39a3ee5e6b4b0d3255bfef95601890afd80709</span></code>.</p>
+<p>The test program can be rerun supplying that file as a command-line argument.
+When this is done, only the contents of that file are supplied as input data to
+the fuzz testing subroutine, making it easy to repeat the failure.</p>
+<p>The sanitizer infrastructure provides some support for debugging; see, for
+example, <a class="reference external" href="https://github.com/google/sanitizers/wiki/AddressSanitizerAndDebugger">AddressSanitizerAndDebugger</a>.
+There is a well-known program location, <code class="docutils literal notranslate"><span class="pre">__sanitizer::Die</span></code>, that is called
+after the program prints its report and before it exits; setting a breakpoint
+there allows for tracing back to where the error occurred.  A debugging session
+for the above failure might begin as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ gdb ./ft.t
+(gdb) break __sanitizer::Die
+(gdb) run crash-da39a3ee5e6b4b0d3255bfef95601890afd80709
+...
+Thread 1 &quot;ft.t&quot; hit Breakpoint 1, __sanitizer::Die ()
+...
+(gdb) where
+...
+#4  0x0000000000539e25 in LLVMFuzzerTestOneInput (f=0x7fffffffc830)
+at ft.t.cpp:1
+...
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

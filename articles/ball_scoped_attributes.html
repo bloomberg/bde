@@ -101,6 +101,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (Jan 18, 2023)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (Nov 30, 2021)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (Mar 31, 2021)</a></li>
@@ -117,6 +119,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#humio-and-splunk">Humio and Splunk</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#performance">Performance</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benchmark-details">Benchmark Details</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#other-features">Other Features</a></li>
@@ -128,11 +131,12 @@
 </li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tools</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">CMake Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
@@ -508,6 +512,23 @@ attribute containers (see <a class="reference internal" href="#details-on-using-
 enable attributes to be published to their log.</p></li>
 </ul>
 </div>
+<div class="section" id="benchmark-details">
+<h3>Benchmark Details<a class="headerlink" href="#benchmark-details" title="Permalink to this headline">¶</a></h3>
+<p>The source code and build instructions for the benchmark are here:
+<a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde-extras/ball-benchmark">https://bbgithub.dev.bloomberg.com/bde-extras/ball-benchmark</a></p>
+<p>The data for the test run is here: <a class="reference external" href="https://docs.google.com/spreadsheets/d/1DywghXtKFKNxL7QgvHG-v8FYLdLX84yEb-4vJ1if8To/edit#gid=1672704556">Ball Attributes Benchmark Google Sheet</a></p>
+<dl class="simple">
+<dt>Context for the test:</dt><dd><ul class="simple">
+<li><p>OS: Red Hat Enterprise Linux Server 7.6 (Maipo)</p></li>
+<li><p>Build: gcc-7.3.1, -02, -m64, –std=c++17</p></li>
+<li><p>Processors: 47 CPU, Intel(R) Xeon(R) CPU E5-2687W v4 &#64; 3.00GHz (12 core)</p></li>
+<li><p>Local Disk</p></li>
+<li><p>Machine Load at Start: 99.6% idle</p></li>
+<li><p>Discard initial test run data</p></li>
+</ul>
+</dd>
+</dl>
+</div>
 </div>
 <div class="section" id="other-features">
 <h2>Other Features<a class="headerlink" href="#other-features" title="Permalink to this headline">¶</a></h2>
@@ -530,7 +551,7 @@ log records as JSON.  This is expected to be released at the end of Q1.</p></li>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2022, Bloomberg LP.
+        &#169; Copyright 2023, Bloomberg LP.
 
     </p>
   </div>

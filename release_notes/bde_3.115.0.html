@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.115.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.115.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.114.0 Release" href="bde_3.114.0.html" />
+    <link rel="prev" title="Release Notes" href="release_notes.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.115.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-115-0-highlights">BDE 3.115.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#new-utility-function-bdlb-pairutil-tie">New Utility Function: <code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::tie</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minimal-symbolic-links-support">Minimal Symbolic Links Support</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#added-u-string-and-u-string-view-typedefs">Added <code class="docutils literal notranslate"><span class="pre">u*string</span></code> and <code class="docutils literal notranslate"><span class="pre">u*string_view</span></code> typedefs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c-20-features">C++20 Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-requests">Fixed requests:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.115.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.114.0.html" class="btn btn-neutral float-right" title="BDE 3.114.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="release_notes.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-115-0-release">
+<span id="bde3-115-0-top"></span><h1>BDE 3.115.0 Release<a class="headerlink" href="#bde-3-115-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-115-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.115.0 production release was
+completed on <strong>Monday, March 20, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-115-0-highlights">
+<span id="bde3-115-0-highlights"></span><h2>BDE 3.115.0 Highlights<a class="headerlink" href="#bde-3-115-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-utility-function-bdlb-pairutil-tie">
+<h3>New Utility Function: <code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::tie</span></code><a class="headerlink" href="#new-utility-function-bdlb-pairutil-tie" title="Permalink to this headline">¶</a></h3>
+<p>The new <code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::tie</span></code> function accepts two lvalue arguments and
+returns a <code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code> object holding references to its arguments. It can be
+used when in place of <code class="docutils literal notranslate"><span class="pre">bsl::tie</span></code> in order to assign from a <code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code> to
+two variables, or anywhere else the creation of a <code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code> of references
+is desired.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlb_pairutil.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_utility.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_tuple.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pair</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">tie</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pair</span><span class="p">;</span><span class="w">  </span><span class="c1">// OK</span>
+
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">const_pair</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// bsl::tie(x, y) = const_pair;  // error; &#39;std::tuple&lt;int&amp;, int&amp;&gt;&#39; is</span>
+<span class="w">                                     </span><span class="c1">// not assignable from</span>
+<span class="w">                                     </span><span class="c1">// &#39;const bsl::pair&lt;int, int&gt;&#39;</span>
+
+<span class="w">    </span><span class="n">bdlb</span><span class="o">::</span><span class="n">PairUtil</span><span class="o">::</span><span class="n">tie</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">const_pair</span><span class="p">;</span><span class="w">  </span><span class="c1">// OK</span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="minimal-symbolic-links-support">
+<h3>Minimal Symbolic Links Support<a class="headerlink" href="#minimal-symbolic-links-support" title="Permalink to this headline">¶</a></h3>
+<p>The new <code class="docutils literal notranslate"><span class="pre">bdls::FilesystemUtil::isSymbolicLink</span></code> function returns <code class="docutils literal notranslate"><span class="pre">true</span></code> if
+the supplied <code class="docutils literal notranslate"><span class="pre">path</span></code> is a symbolic link (and <code class="docutils literal notranslate"><span class="pre">false</span></code> otherwise). The new
+<code class="docutils literal notranslate"><span class="pre">bdls::FilesystemUtil::getSymbolicLinkTarget</span></code> function returns the target of
+a symbolic link.</p>
+<p>On Windows platforms, Windows directory junctions are treated as directory
+symbolic links and have been available since Windows 2000. True POSIX-like
+symbolic links have been available since Windows Vista.</p>
+</div>
+<div class="section" id="added-u-string-and-u-string-view-typedefs">
+<h3>Added <code class="docutils literal notranslate"><span class="pre">u*string</span></code> and <code class="docutils literal notranslate"><span class="pre">u*string_view</span></code> typedefs<a class="headerlink" href="#added-u-string-and-u-string-view-typedefs" title="Permalink to this headline">¶</a></h3>
+<p>This release introduces some basic support for compiler-native types
+<code class="docutils literal notranslate"><span class="pre">char8_t</span></code> (C++20 only), and <code class="docutils literal notranslate"><span class="pre">char16_t</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">char32_t</span></code> (C++11 &amp; beyond only)
+in <code class="docutils literal notranslate"><span class="pre">bsls</span></code>, <code class="docutils literal notranslate"><span class="pre">bslmf</span></code>, <code class="docutils literal notranslate"><span class="pre">bslstl_string</span></code>, and <code class="docutils literal notranslate"><span class="pre">bslstl_string_view</span></code>.</p>
+<p>New typedefs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">u8string</span></code> and <code class="docutils literal notranslate"><span class="pre">u8string_view</span></code> (C++20 only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u16string</span></code> and <code class="docutils literal notranslate"><span class="pre">u16string_view</span></code> (C++11 and later only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u32string</span></code> and <code class="docutils literal notranslate"><span class="pre">u32string_view</span></code> (C++11 and later only)</p></li>
+</ul>
+</div>
+<div class="section" id="c-20-features">
+<h3>C++20 Features<a class="headerlink" href="#c-20-features" title="Permalink to this headline">¶</a></h3>
+<p>This release adds a <code class="docutils literal notranslate"><span class="pre">contains</span></code> method to <code class="docutils literal notranslate"><span class="pre">bsl::map</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::multimap</span></code>,
+<code class="docutils literal notranslate"><span class="pre">bsl::unordered_set</span></code>, and <code class="docutils literal notranslate"><span class="pre">bsl::unordered_multiset</span></code> from C++03 onwards.
+The <code class="docutils literal notranslate"><span class="pre">contains</span></code> method will be added to the other <code class="docutils literal notranslate"><span class="pre">bsl</span></code> associative
+containers in future releases.</p>
+<p>Aliases for new C++20 entities were added (in C++20 mode) to the
+<code class="docutils literal notranslate"><span class="pre">bsl_memory.h</span></code> header:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::to_address</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::assume_aligned</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::make_unique_for_overwrite</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::construct_at</span></code></p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">bsl_ranges.h</span></code> header has been added, aliasing (in C++20 mode) all
+the standard <code class="docutils literal notranslate"><span class="pre">ranges</span></code> names into the <code class="docutils literal notranslate"><span class="pre">bsl</span></code> namespace.</p>
+</div>
+</div>
+<div class="section" id="fixed-requests">
+<h2>Fixed requests:<a class="headerlink" href="#fixed-requests" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Implement bdlb::PairUtil::tie to support bsl::pair on the right-hand side</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdls::FilesystemUtil::readLink</p></td>
+</tr>
+<tr class="row-even"><td><p>sim_cpp11_features.pl spellcheck pass</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++17 work: shared_ptr array support and constructor sfinae changes (both are linke</p></td>
+</tr>
+<tr class="row-even"><td><p>[FUZZ] ‘TimeZoneUtil::convertLocalToUtc’ corner cases</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlcc_boundedqueue.h compile error unary minus operator applied to unsigned type</p></td>
+</tr>
+<tr class="row-even"><td><p>Support bsl::allocator_arg_t with bdef_Function</p></td>
+</tr>
+<tr class="row-odd"><td><p>github: Fix ball_fileobserver2 test failure</p></td>
+</tr>
+<tr class="row-even"><td><p>github: Fix bdlmt_eventscheduler.t test failure</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please complete polishing of bdljsn_json test driver</p></td>
+</tr>
+<tr class="row-even"><td><p>Document phabricator automation</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslim::FuzzUtil should provide a way to consume string_views</p></td>
+</tr>
+<tr class="row-even"><td><p>span cosmetic issues</p></td>
+</tr>
+<tr class="row-odd"><td><p>Update fuzzing article with bsls_precondition section</p></td>
+</tr>
+<tr class="row-even"><td><p>char16_t: add C++11 and beyond ‘char*_t’ types and ‘u*string’ types</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsl::optional&lt;Derived&gt; don’t declare assignment in C++11 and later</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix thread-naming related Windows test failures</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix bdlmt_eventscheduler.t failure in case 4</p></td>
+</tr>
+<tr class="row-even"><td><p>baljsn::Decoder fails to decode heterogenous JSON lists</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add &lt;bsl_ranges.h&gt; header and alias standard entities</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add aliases to &lt;bsl_memory.h&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add the ‘contains’ method to the ‘bsl::map’ and to the ‘bsl::multimap’</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘contains’ method to the ‘bsl::unordered_set’ and to the ‘bsl::unordered_map’</p></td>
+</tr>
+<tr class="row-odd"><td><p>Apply _t transformation to ball</p></td>
+</tr>
+<tr class="row-even"><td><p>‘bdljsn_readoptions’, ‘bdljsn_writeoptons’: normalize with bde’ VST exemplar.</p></td>
+</tr>
+<tr class="row-odd"><td><p>string_view: doc that substr throws out_of_range</p></td>
+</tr>
+<tr class="row-even"><td><p>Avoid dependency on global initialization order in bdlb::GuidUtil::generateNonSecure</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tests for bdljsn::Json</p></td>
+</tr>
+<tr class="row-even"><td><p>Move fuzzing article to main page</p></td>
+</tr>
+<tr class="row-odd"><td><p>‘bdljsn_tokenizer’: test driver omits one public method.</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::span deduction guide for bsl::vector</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslmt_threadattributes docs does not list Solaris as supporting thread names</p></td>
+</tr>
+<tr class="row-even"><td><p>replace bcep_multiprioritythreadpool.t.cpp with alias test driver</p></td>
+</tr>
+<tr class="row-odd"><td><p>BDE regression: removed transitive bsl_iosfwd.h include.</p></td>
+</tr>
+<tr class="row-even"><td><p>replace bdesu_fdstreambuf.t.cpp with typedef version</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsls_review can use immediately invoked lambda for c++14 constexpr</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: disable ‘BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON’ on Darwin</p></td>
+</tr>
+<tr class="row-odd"><td><p>replace baem test drivers with typedef version</p></td>
+</tr>
+<tr class="row-even"><td><p>replace bael test drivers with typedef version (does not include bael_log)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

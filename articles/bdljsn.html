@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introducing bdljsn::Json &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bdljsn.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Selecting wyhash as the Default Hash Algorithm" href="wyhash.html" />
+    <link rel="prev" title="Fuzz Testing" href="fuzz_testing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Introducing bdljsn::Json (Jan 18, 2023)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#comparison-with-baljsn">Comparison With <code class="docutils literal notranslate"><span class="pre">baljsn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparison-with-other-json-libraries">Comparison with Other JSON Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-bdljsn">Using bdljsn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#understanding-bdljsn">Understanding bdljsn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#possible-next-steps">Possible Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (Nov 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (Mar 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (Mar 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (Feb 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (Jan 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (Jan 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (Dec 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Articles</a> &raquo;</li>
+        
+      <li>Introducing bdljsn::Json</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="wyhash.html" class="btn btn-neutral float-right" title="Selecting wyhash as the Default Hash Algorithm" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="fuzz_testing.html" class="btn btn-neutral float-left" title="Fuzz Testing" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>January 18, 2023</em></p>
+<div class="section" id="introducing-bdljsn-json">
+<h1>Introducing bdljsn::Json<a class="headerlink" href="#introducing-bdljsn-json" title="Permalink to this headline">¶</a></h1>
+<p>BDE 3.111.0 introduced a new package, <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a> that provides an in-memory document type <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a>
+modeled on the JSON specification, as well as utilties to read and write JSON text into a <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> object.</p>
+<p>How does <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a> fit into the universe of other JSON facilities?</p>
+<div class="section" id="comparison-with-baljsn">
+<h2>Comparison With <code class="docutils literal notranslate"><span class="pre">baljsn</span></code><a class="headerlink" href="#comparison-with-baljsn" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a> package serves a different purpose from <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__baljsn.html">baljsn</a>.  <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> provides
+a value-semantic representation of arbitrary JSON documents (which can be encoded and decoded), while
+<code class="docutils literal notranslate"><span class="pre">baljsn</span></code> provides JSON support for other (non-JSON specific) vocabulary types.</p>
+<p><code class="docutils literal notranslate"><span class="pre">baljsn</span></code>, BDE’s existing JSON support package, effectively has two key features:</p>
+<ul class="simple">
+<li><p>Encoding and decoding <code class="docutils literal notranslate"><span class="pre">bdlat</span></code> message ojects (i.e., BAS messages) to and from JSON</p></li>
+<li><p>Encoding and decoding <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdld__datum.html">bdld::Datum</a> objects to and from JSON</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><cite>baljsn::Encoder</cite>, <cite>baljsn::Decoder</cite>, and the <cite>bdlat</cite> framework (i.e., BAS messages) remain BDE’s
+recommended facility for encoding messages with a well defined schema!</p>
+</div>
+<p>Notably though, <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__baljsn.html">baljsn</a> does not provide facilities or an in-memory representation that is naturally suited to
+working specifically with arbitrary JSON documents, and instead is focused on establishing a JSON mapping
+for other important document representations.</p>
+</div>
+<div class="section" id="comparison-with-other-json-libraries">
+<h2>Comparison with Other JSON Libraries<a class="headerlink" href="#comparison-with-other-json-libraries" title="Permalink to this headline">¶</a></h2>
+<p>There are many high quality existing open-source JSON libraries. Many of these libraries cater to specific sets of
+engineering trade-offs (some emphasize speed, some emphasize usability, etc).  <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a> provides a unique
+set of design choices.</p>
+<p>The notable features of <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a> include:</p>
+<ul class="simple">
+<li><p>Integration with common BDE vocabulary (like <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>, <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimal.html">bdldfp::Decimal64</a>, <code class="docutils literal notranslate"><span class="pre">bslh::hashAppend</span></code>)</p></li>
+<li><p>Scoped memory allocator support</p></li>
+<li><p>Careful treatment of Numbers</p></li>
+<li><p>An intuitive design, with support for legacy platforms</p></li>
+</ul>
+<p>Most of those features are hopefully self explanatory.</p>
+<p>The careful treatment of numbers has two aspects: the first is support for
+<a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimal.html">bdldfp::Decimal64</a>
+which can more precisely represent base-10 numeric data (as is common in financial applications).
+The second is that <code class="docutils literal notranslate"><span class="pre">bdljsn</span></code> defers evaluating numbers into a native number representation until
+the user requests a specific numeric type.  Most JSON libraries make a best effort, when parsing JSON text,
+to decide the best numeric type to represent a number.  Determining the expected number type at the point of parse
+works most of the time, but can hide errors, particularly around integer conversion.  For
+example, the JSON document <code class="docutils literal notranslate"><span class="pre">10000000000000001.0</span></code> will often convert to the <code class="docutils literal notranslate"><span class="pre">uint64_t</span></code> value
+<code class="docutils literal notranslate"><span class="pre">10000000000000000</span></code> (because the library has coerced the text to a <code class="docutils literal notranslate"><span class="pre">double</span></code>), the JSON document
+<code class="docutils literal notranslate"><span class="pre">2147483648</span></code> (the absolute value of <code class="docutils literal notranslate"><span class="pre">INT_MIN</span></code>) will convert to the <code class="docutils literal notranslate"><span class="pre">int</span></code> <code class="docutils literal notranslate"><span class="pre">-2147483648</span></code>.
+or the JSON document <code class="docutils literal notranslate"><span class="pre">1.5</span></code> will return the <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bdljsn::JsonNumber</span></code> defers coercing the JSON text for a number into a numeric type
+until the numeric type the user desires is known.  This allows providing
+status for whether the number converted is within the representable range of the resulting type, and
+whether rounding was required – including whether a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal64</span></code> precisely represents
+the JSON text.  Further, users can obtain the original JSON text for the number, which may be useful
+for error reporting (for example).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsonnumber.html">bdljsn_jsonnumber</a> for details on the treatment of numbers.</p>
+</div>
+</div>
+<div class="section" id="using-bdljsn">
+<h2>Using bdljsn<a class="headerlink" href="#using-bdljsn" title="Permalink to this headline">¶</a></h2>
+<p>A simple example of reading JSON text:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">exampleJSON</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s"></span>
+<span class="s">   {</span>
+<span class="s">     &quot;number&quot;: 3.14,</span>
+<span class="s">     &quot;boolean&quot;: true,</span>
+<span class="s">     &quot;string&quot;: &quot;text&quot;,</span>
+<span class="s">     &quot;null&quot;: null,</span>
+<span class="s">     &quot;array&quot;: [ 2.76, true ],</span>
+<span class="s">     &quot;object&quot;: { &quot;boolean&quot;: false }</span>
+<span class="s">   }</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">Json</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdljsn</span><span class="o">::</span><span class="n">JsonUtil</span><span class="o">::</span><span class="n">read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">exampleJSON</span><span class="p">);</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">bdljsn</span><span class="o">::</span><span class="n">JsonUtil</span><span class="o">::</span><span class="n">printError</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">,</span><span class="w"> </span><span class="n">exampleJSON</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdldfp</span><span class="o">::</span><span class="nn">DecimalLiterals</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">assert</span><span class="p">(</span><span class="mf">3.14</span><span class="w">     </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="s">&quot;number&quot;</span><span class="p">].</span><span class="n">asDouble</span><span class="p">());</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w">     </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="s">&quot;boolean&quot;</span><span class="p">].</span><span class="n">theBoolean</span><span class="p">());</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="s">&quot;text&quot;</span><span class="w">   </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="s">&quot;string&quot;</span><span class="p">].</span><span class="n">theString</span><span class="p">());</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w">     </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="s">&quot;null&quot;</span><span class="p">].</span><span class="n">isNull</span><span class="p">());</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="mf">2.76</span><span class="n">_d64</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="s">&quot;array&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">].</span><span class="n">asDecimal64</span><span class="p">());</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="s">&quot;object&quot;</span><span class="p">][</span><span class="s">&quot;boolean&quot;</span><span class="p">].</span><span class="n">theBoolean</span><span class="p">());</span><span class="w"></span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>A simple example of creating a <code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> object in memory:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdldfp</span><span class="o">::</span><span class="nn">DecimalLiterals</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">Json</span><span class="w"> </span><span class="n">json</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">json</span><span class="p">.</span><span class="n">makeObject</span><span class="p">();</span><span class="w"></span>
+<span class="n">json</span><span class="p">[</span><span class="s">&quot;number&quot;</span><span class="p">]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14</span><span class="p">;</span><span class="w"></span>
+<span class="n">json</span><span class="p">[</span><span class="s">&quot;boolean&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="n">json</span><span class="p">[</span><span class="s">&quot;string&quot;</span><span class="p">]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;text&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="n">json</span><span class="p">[</span><span class="s">&quot;array&quot;</span><span class="p">].</span><span class="n">makeArray</span><span class="p">();</span><span class="w"></span>
+<span class="n">json</span><span class="p">[</span><span class="s">&quot;array&quot;</span><span class="p">].</span><span class="n">theArray</span><span class="p">().</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdljsn</span><span class="o">::</span><span class="n">Json</span><span class="p">(</span><span class="mf">2.76</span><span class="n">_d64</span><span class="p">));</span><span class="w"></span>
+<span class="n">json</span><span class="p">[</span><span class="s">&quot;array&quot;</span><span class="p">].</span><span class="n">theArray</span><span class="p">().</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdljsn</span><span class="o">::</span><span class="n">Json</span><span class="p">(</span><span class="nb">true</span><span class="p">));</span><span class="w"></span>
+<span class="n">json</span><span class="p">[</span><span class="s">&quot;object&quot;</span><span class="p">].</span><span class="n">makeObject</span><span class="p">()[</span><span class="s">&quot;boolean&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">WriteOptions</span><span class="w"> </span><span class="n">options</span><span class="p">;</span><span class="w"></span>
+<span class="n">options</span><span class="p">.</span><span class="n">setStyle</span><span class="p">(</span><span class="n">bdljsn</span><span class="o">::</span><span class="n">WriteStyle</span><span class="o">::</span><span class="n">e_PRETTY</span><span class="p">).</span><span class="n">setSortMembers</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">JsonUtil</span><span class="o">::</span><span class="n">write</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>A simple example of initializing a <code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> object with a literal:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdljsn</span><span class="o">::</span><span class="nn">JsonLiterals</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">Json</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">{ &quot;number&quot;: 4, &quot;array&quot;: [0, 2, null] }</span><span class="dl">)</span><span class="s">&quot;</span><span class="n">_json</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">bdljsn</span><span class="o">::</span><span class="n">JsonType</span><span class="o">::</span><span class="n">e_NUMBER</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">value</span><span class="p">[</span><span class="s">&quot;number&quot;</span><span class="p">].</span><span class="n">type</span><span class="p">());</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdljsn</span><span class="o">::</span><span class="n">JsonType</span><span class="o">::</span><span class="n">e_ARRAY</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="n">value</span><span class="p">[</span><span class="s">&quot;array&quot;</span><span class="p">].</span><span class="n">type</span><span class="p">());</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Notice that supplying invalid JSON text to a <code class="docutils literal notranslate"><span class="pre">_json</span></code> literal will result in a call to the currently installed
+<code class="docutils literal notranslate"><span class="pre">bsls::Assert</span></code> failure handler.  Literals use the currently installed <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bslma__default.html">global allocator</a>
+to supply memory.</p>
+<p>Additional examples can be found in <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a>.</p>
+</div>
+<div class="section" id="understanding-bdljsn">
+<h2>Understanding bdljsn<a class="headerlink" href="#understanding-bdljsn" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> has a close structural similarity to the JSON grammar itself,
+which looks like the following, at a high level:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>JSON ::= Object
+       | Array
+       | String
+       | Number
+       | Boolean
+       | null
+</pre></div>
+</div>
+<p>Noting that the <code class="docutils literal notranslate"><span class="pre">Object</span></code> and <code class="docutils literal notranslate"><span class="pre">Array</span></code> alternatives can recursively contain
+<code class="docutils literal notranslate"><span class="pre">JSON</span></code>.  Just like this grammar, a <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> is a variant of
+object, array, string, number, boolean, or the null value.  The set of
+types that can be contained by a <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> are represented
+as follows:</p>
+<ul class="simple">
+<li><p>Object: <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1JsonObject.html">bdljsn::JsonObject</a></p></li>
+<li><p>Array: <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1JsonArray.html">bdljsn::JsonArray</a></p></li>
+<li><p>String: <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bslstl__string.html">bsl::string</a></p></li>
+<li><p>Number: <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1JsonNumber.html">bdljsn::JsonNumber</a></p></li>
+<li><p>Boolean: <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p>null: <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsonnull.html">bdljsn::JsonNull</a></p></li>
+</ul>
+<p>There is a 1-1 mapping between JSON documents and <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> objects.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Every <code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> object represents a valid JSON document!</p>
+</div>
+<p>This means writing a <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> to a string can only fail if an out-of-memory condition occurs.</p>
+<p>To ensure that all <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> objects represent valid JSON documents, several operations (like constructors) have notable
+pre-conditions on their input:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1JsonNumber.html">bdljsn::JsonNumber</a> constructors from a string require that string conform to the
+<a class="reference external" href="https://www.rfc-editor.org/rfc/rfc8259#section-6">JSON grammer for a number</a> (see <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/structbdljsn_1_1NumberUtil.html">bdljsn::NumberUtil::isValidNumber</a>)</p></li>
+<li><p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1JsonNumber.html">bdljsn::JsonNumber</a> constructors and assignment operators from a <code class="docutils literal notranslate"><span class="pre">double</span></code> or <code class="docutils literal notranslate"><span class="pre">Decimal64</span></code> require the value <em>not</em> be INF or NAN.</p></li>
+<li><p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> constructors and assignment operators from a string require that string contain valid UTF-8 (see <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/structbdlde_1_1Utf8Util.html">bdlde::Utf8Util::isValid</a>).</p></li>
+</ul>
+<p>Note that while a supplied string must be valid UTF-8, <code class="docutils literal notranslate"><span class="pre">bdljsn</span></code> will
+<a class="reference external" href="https://www.rfc-editor.org/rfc/rfc8259#section-7">escape characters as needed</a> when writing a <code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> to JSON text.</p>
+<p>In addition to the classes that model JSON concepts, <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a> provides:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsonutil.html">bdljsn::JsonUtil</a>: Facilities for reading and writing JSON text</p></li>
+<li><p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsontype.html">bdljsn::JsonType</a>: An enumeration of JSON Types</p></li>
+<li><p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__error.html">bdljsn::Error</a>: An value type describing an error condition (typicaly from parsing a JSON document)</p></li>
+<li><p><a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__location.html">bdljsn::Location</a>: A value type describing a location in a JSON document</p></li>
+</ul>
+</div>
+<div class="section" id="possible-next-steps">
+<h2>Possible Next Steps<a class="headerlink" href="#possible-next-steps" title="Permalink to this headline">¶</a></h2>
+<p>There are also a couple long-term extensions BDE is considering.</p>
+<ul class="simple">
+<li><p>Support for <a class="reference external" href="https://json-schema.org/">JSON Schema</a>.  BDE is a strong believer
+in schemas.  Schema validation is fairly complex, and we are trying to assess the value of such an extensions.</p></li>
+<li><p>Support for <a class="reference external" href="https://datatracker.ietf.org/doc/html/rfc6901">JSON Pointer (IETF RFC 6901)</a> objects.</p></li>
+<li><p>An option to convert to/from <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdlat.html">bdlat</a>-compatible types.</p></li>
+<li><p>Support for initializer-list syntax (similar to <a class="reference external" href="https://github.com/nlohmann/json">nlohmann/json</a>)</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.112.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.112.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.111.0 Release" href="bde_3.111.0.html" />
+    <link rel="prev" title="BDE 3.113.1 Release" href="bde_3.113.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.112.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-112-0-highlights">BDE 3.112.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#new-bde-build-system-bbs">New BDE Build System (bbs)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#assorted-fixes">Assorted fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-requests">Fixed requests:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.112.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.111.0.html" class="btn btn-neutral float-right" title="BDE 3.111.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.113.0.html" class="btn btn-neutral float-left" title="BDE 3.113.1 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-112-0-release">
+<span id="bde3-112-0-top"></span><h1>BDE 3.112.0 Release<a class="headerlink" href="#bde-3-112-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-112-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.112.0 production release was
+completed on <strong>Tuesday, January 10 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-112-0-highlights">
+<span id="bde3-112-0-highlights"></span><h2>BDE 3.112.0 Highlights<a class="headerlink" href="#bde-3-112-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-bde-build-system-bbs">
+<h3>New BDE Build System (bbs)<a class="headerlink" href="#new-bde-build-system-bbs" title="Permalink to this headline">¶</a></h3>
+<p>This release introduces a new
+<a class="reference external" href="https://bloomberg.github.io/bde-tools/">BDE build system</a>.</p>
+<p>The main highlights of the new BDE build system:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Uses standard CMake coding and deployment practices</p></li>
+<li><p>Works with <code class="docutils literal notranslate"><span class="pre">bbcmake</span></code> and production toolchains</p></li>
+<li><p>Can be added into a build workspace with a simple <a class="reference external" href="https://cmake.org/cmake/help/latest/command/add_subdirectory.html">add_subdirectory()</a></p></li>
+<li><p>Drops ufid flags <code class="docutils literal notranslate"><span class="pre">mt</span></code> and <code class="docutils literal notranslate"><span class="pre">exc</span></code> (both multithreading and exceptions are enabled
+by default)</p></li>
+<li><p>Does not contain custom installation logic for ufids (this logic was moved
+to the dpkg helpers)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="assorted-fixes">
+<h3>Assorted fixes<a class="headerlink" href="#assorted-fixes" title="Permalink to this headline">¶</a></h3>
+<p>Additional fixes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Continued effort to update BSL containers to conform to C++17 requirements</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="fixed-requests">
+<h2>Fixed requests:<a class="headerlink" href="#fixed-requests" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bslh_spookyhashalgorithm: enhance testing, fix bug, enhance doc</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslh::hash: Custom hash algorithm fails for string_view</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlmt::FixedThreadPool documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 inconsistency in bsl::optional comparison</p></td>
+</tr>
+<tr class="row-even"><td><p>balb_pipecontrolchannel does not handle EAGAIN well</p></td>
+</tr>
+<tr class="row-odd"><td><p>Apply t_ template argument name change to bdlmt</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: revert pair noexcept changes only for MSVC &lt;= 2017 in C++17 mode</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++17 work: hash: add tests for std::pmr::basic_string</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: hash: add hashing support for std::filesystem::path</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdljsn_json unused variable warning</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix EAGAIN/EWOULDBLOCK warning in balb_pipecontrolchannel.cpp</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add .t to –targets doc for bbs_build.py</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: MSVC 2015 issue assigning to a string from a ‘const char []’ of unknown size</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++17 work: MSVC-specific test errors (notably on MSVC 2015/2017)</p></td>
+</tr>
+<tr class="row-even"><td><p>Restrict C++20 optional workaround to gcc</p></td>
+</tr>
+<tr class="row-odd"><td><p>Clean up bsls_libraryfeatures.h</p></td>
+</tr>
+<tr class="row-even"><td><p>macOS/arm bsl::vector&lt;bdld::Datum&gt; bug</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslim_bslstandardheadertest.t.cpp missing includes</p></td>
+</tr>
+<tr class="row-even"><td><p>Failing concurrentpoolallocator test in matrix_builds</p></td>
+</tr>
+<tr class="row-odd"><td><p>github: remove the dependency on realpath from bbs_build</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::optional fixed decayed constraint for assignment</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

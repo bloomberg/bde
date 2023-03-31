@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.113.1 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.113.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.112.0 Release" href="bde_3.112.0.html" />
+    <link rel="prev" title="BDE 3.114.0 Release" href="bde_3.114.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.113.1 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bdljsn-release">bdljsn Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-113-1-highlights">BDE 3.113.1 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#caseless-comparisons-are-now-transparent">Caseless Comparisons Are Now Transparent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#memory-conserving-apis-for-bdlbb-blobutil">Memory-conserving APIs for <code class="docutils literal notranslate"><span class="pre">bdlbb::BlobUtil</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#relaxed-datetime-parsing">Relaxed DateTime Parsing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bdljsn-json-enhancements">bdljsn::Json Enhancements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#behavioral-change-three-bsl-container-adaptors">Behavioral Change: Three <code class="docutils literal notranslate"><span class="pre">bsl</span></code> Container Adaptors</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-requests">Fixed requests:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.113.1 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.112.0.html" class="btn btn-neutral float-right" title="BDE 3.112.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.114.0.html" class="btn btn-neutral float-left" title="BDE 3.114.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-113-1-release">
+<span id="bde3-113-1-top"></span><h1>BDE 3.113.1 Release<a class="headerlink" href="#bde-3-113-1-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-113-1-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.113.1 production release was
+completed on <strong>Monday, January 16 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bdljsn-release">
+<span id="bde3-113-1-highlights"></span><h2>bdljsn Release<a class="headerlink" href="#bdljsn-release" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">bdljsn</span></code> package is formally released and available. As previously
+announced, this package provides a document representation tailored to
+JSON that integrates with Bloomberg vocabulary types (BSL types,
+<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal64</span></code>).</p>
+<p>For more information, please see <a class="reference external" href="../articles/bdljsn.html">The package’s release article</a>.</p>
+</div>
+<div class="section" id="bde-3-113-1-highlights">
+<h2>BDE 3.113.1 Highlights<a class="headerlink" href="#bde-3-113-1-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="caseless-comparisons-are-now-transparent">
+<h3>Caseless Comparisons Are Now Transparent<a class="headerlink" href="#caseless-comparisons-are-now-transparent" title="Permalink to this headline">¶</a></h3>
+<p>BDE 3.113 updates <a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdlb__caselessstringviewless.html">bdlb_caselessstringviewless</a>
+<a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdlb__caselessstringviewequalto.html">bdlb_caselessstringviewequalto</a>
+and <a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdlb__caselessstringviewhash.html">bdlb_caselessstringviewhash</a> to perform
+transparent comparison.  This allows for comparison of container elements (typically
+<code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>) with values of closely related types (like <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code>) without
+performing a conversion, thus providing efficiency and ergonoimics in one API.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">caselessComparisonExample</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">CaselessStringViewLess</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stringSet</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Add data to set...</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">stringLiteralResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stringSet</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="w">                 </span><span class="s">&quot;some string&quot;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">stringResult</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">stringSet</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="w">     </span><span class="s">&quot;some string&quot;</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">stringViewResult</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">stringSet</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="p">(</span><span class="s">&quot;some string&quot;</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="memory-conserving-apis-for-bdlbb-blobutil">
+<h3>Memory-conserving APIs for <code class="docutils literal notranslate"><span class="pre">bdlbb::BlobUtil</span></code><a class="headerlink" href="#memory-conserving-apis-for-bdlbb-blobutil" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">appendWithCapacityBuffer</span></code> and <code class="docutils literal notranslate"><span class="pre">prependWithCapacityBuffer</span></code> functions were added to
+<code class="docutils literal notranslate"><span class="pre">bdlbb::BlobUtil</span></code> that allow one to respectively append and prepend data to a <code class="docutils literal notranslate"><span class="pre">Blob</span></code> using a
+portion of an externally-provided <code class="docutils literal notranslate"><span class="pre">BlobBuffer</span></code> if the <code class="docutils literal notranslate"><span class="pre">Blob</span></code>’s capacity is insufficient.
+These APIs allow the client to store a <code class="docutils literal notranslate"><span class="pre">BlobBuffer</span></code> and use pieces thereof to add small
+chunks of data at either end of several <code class="docutils literal notranslate"><span class="pre">Blob</span></code>’s representing individual messages without
+every <code class="docutils literal notranslate"><span class="pre">Blob</span></code> using their <code class="docutils literal notranslate"><span class="pre">BlobBufferFactory</span></code> to allocate potentially large <code class="docutils literal notranslate"><span class="pre">BlobBuffer</span></code>
+buffers whose capacity would be largely wasted.</p>
+</div>
+<div class="section" id="relaxed-datetime-parsing">
+<h3>Relaxed DateTime Parsing<a class="headerlink" href="#relaxed-datetime-parsing" title="Permalink to this headline">¶</a></h3>
+<p>New <code class="docutils literal notranslate"><span class="pre">parseRelaxed</span></code> functions in <code class="docutils literal notranslate"><span class="pre">bdlt_iso8601util</span></code> accept “relaxed” ISO 8601
+formats that are a superset of the strict ISO 8601 format.  Currently this allows
+a SPACE character to be used in place of <code class="docutils literal notranslate"><span class="pre">T</span></code> to separate date and time elements,
+a common format for PostgreSQL.</p>
+<p>For example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1970-01-01T00:00.000 // Strict ISO-8601 string
+1970-01-01 00:00.000 // Relaxed format
+</pre></div>
+</div>
+</div>
+<div class="section" id="bdljsn-json-enhancements">
+<h3>bdljsn::Json Enhancements<a class="headerlink" href="#bdljsn-json-enhancements" title="Permalink to this headline">¶</a></h3>
+<p>This release brings several enhancements to the recently-introduced <a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a>
+package.  This package provides a document representation tailored to JSON that
+integrates with Bloomberg vocabulary types (BSL types, <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal64</span></code>).</p>
+<div class="section" id="user-defined-literal-support">
+<h4>User-Defined Literal Support<a class="headerlink" href="#user-defined-literal-support" title="Permalink to this headline">¶</a></h4>
+<p>The library now provides support for JSON user-defined literals, which allow
+programmers to write JSON strings that generate <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> document
+objects.  This feature pairs especially well with C++ raw string literals:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdljsn</span><span class="o">::</span><span class="nn">JsonLiterals</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">Json</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">{</span>
+<span class="s">    &quot;number&quot;: 4,</span>
+<span class="s">    &quot;array&quot;: [1, 2, null],</span>
+<span class="s">    &quot;object&quot;: {</span>
+<span class="s">        &quot;string&quot;: &quot;lorem ipsum dolor sit amet.&quot;</span>
+<span class="s">    }</span>
+<span class="s">}</span><span class="dl">)</span><span class="s">&quot;</span><span class="n">_json</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s">&quot;object&quot;</span><span class="p">][</span><span class="s">&quot;string&quot;</span><span class="p">].</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;lorem ipsum dolor sit amet.&quot;</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enhanced-error-messages">
+<h4>Enhanced Error Messages<a class="headerlink" href="#enhanced-error-messages" title="Permalink to this headline">¶</a></h4>
+<p>We’ve improved the library’s error reporting facilities to provide
+human-readable descriptions of where parsing errors occur in invalid JSON
+documents. This is provided by the new <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsonutil.html">bdljsn::JsonUtil::printError</a>
+function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">invalidJson</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">{</span>
+<span class="s">    &quot;a&quot;: 1,</span>
+<span class="s">    &quot;b&quot;: 2,</span>
+<span class="s">    &quot;c&quot;: oops,</span>
+<span class="s">}</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">Json</span><span class="w">  </span><span class="n">document</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">;</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdljsn</span><span class="o">::</span><span class="n">JsonUtil</span><span class="o">::</span><span class="n">read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">invalidJson</span><span class="p">);</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">bdljsn</span><span class="o">::</span><span class="n">JsonUtil</span><span class="o">::</span><span class="n">printError</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="p">,</span><span class="w"> </span><span class="n">invalidJson</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Prints the following to standard error:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Error</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="mi">14</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Invalid</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="n">Number</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="embedded-documents-and-multi-document-streams">
+<h4>Embedded Documents and Multi-Document Streams<a class="headerlink" href="#embedded-documents-and-multi-document-streams" title="Permalink to this headline">¶</a></h4>
+<p>We’ve added an option to <code class="docutils literal notranslate"><span class="pre">bdljsn::JsonUtil::read</span></code> that permits text to follow
+a complete JSON document, which <code class="docutils literal notranslate"><span class="pre">read</span></code> will not consume when parsing from a
+stream. This allows some flexibility for parsing JSON documents that are
+embedded in larger, possibly non-JSON documents. It also allows having
+multiple JSON documents in a single stream.  See <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1ReadOptions.html">bdljsn::ReadOptions</a>.</p>
+</div>
+</div>
+<div class="section" id="behavioral-change-three-bsl-container-adaptors">
+<h3>Behavioral Change: Three <code class="docutils literal notranslate"><span class="pre">bsl</span></code> Container Adaptors<a class="headerlink" href="#behavioral-change-three-bsl-container-adaptors" title="Permalink to this headline">¶</a></h3>
+<p>The behavior of the three <code class="docutils literal notranslate"><span class="pre">bsl</span></code> container adaptors has just been revised to
+better conform to the C++17 Standard.  There is a chance that existing code may
+now experience compilation errors when compiled for C++17 (<code class="docutils literal notranslate"><span class="pre">-std=c++17</span></code>).
+Those cases probably require a small fix.</p>
+<p>The three container adaptors are <code class="docutils literal notranslate"><span class="pre">stack</span></code>, <code class="docutils literal notranslate"><span class="pre">queue</span></code>, and <code class="docutils literal notranslate"><span class="pre">priority_queue</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">VALUE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CONTAINER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deque</span><span class="o">&lt;</span><span class="n">VALUE</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">stack</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">VALUE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CONTAINER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deque</span><span class="o">&lt;</span><span class="n">VALUE</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">queue</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">VALUE</span><span class="p">,</span><span class="w"></span>
+<span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="nc">CONTAINER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">VALUE</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="nc">COMPARE</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">less</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">CONTAINER</span><span class="o">::</span><span class="n">value_type</span><span class="o">&gt;</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">priority_queue</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>each of these adaptors has a <code class="docutils literal notranslate"><span class="pre">VALUE</span></code> parameter whose only role is to define
+<code class="docutils literal notranslate"><span class="pre">CONTAINER::value_type</span></code> of the default <code class="docutils literal notranslate"><span class="pre">CONTAINER</span></code>.  This specification allows
+users to (accidentally) define types where <code class="docutils literal notranslate"><span class="pre">VALUE</span></code> and <code class="docutils literal notranslate"><span class="pre">CONTAINER::value_type</span></code>
+do not match.  For example:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="kt">short</span><span class="p">,</span><span class="w">       </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">someStack1</span><span class="p">;</span><span class="w"></span>
+<span class="c1">//         *****                    ^^^</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">someStack2</span><span class="p">;</span><span class="w"></span>
+<span class="c1">//         ***********              ^^^</span>
+</pre></div>
+</div>
+<p>Historically, the first parameter was simply ignored when the second was provided and
+the resulting code either worked (e,g., <code class="docutils literal notranslate"><span class="pre">someStack1</span></code>) or resulted in a compilation
+failure at the point of use, depending whether or not <code class="docutils literal notranslate"><span class="pre">VALUE</span></code> was convertible to
+<code class="docutils literal notranslate"><span class="pre">CONTAINER::value_type</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">someStack2</span></code>).</p>
+<p>The C++17 Standard classified these mismatches as undefined behavior.  Accordingly,
+<code class="docutils literal notranslate"><span class="pre">bsl::stack</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::queue</span></code>, and <code class="docutils literal notranslate"><span class="pre">bsl::priority_queue</span></code> have now been revised to
+mirror the behavior of their <code class="docutils literal notranslate"><span class="pre">std</span></code> counterparts:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>For C++17 and later, type mismatches cause compile-time errors.</p></li>
+<li><p>For older versions, the historic behavior is preserved.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="fixed-requests">
+<h2>Fixed requests:<a class="headerlink" href="#fixed-requests" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bsl::optional issue with types containing non-const copy constructor</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++14: Implement equal_to&lt;void&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: set (and variations) noexcept specifications</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++17 work: map (and variations) noexcept specifications</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: stack, queue and priority_queue behavioral fix</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++17 work: span implementation</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: bsl::string doesn’t work with bsl::quoted</p></td>
+</tr>
+<tr class="row-odd"><td><p>[FUZZ] ‘TimeZoneUtil::convertLocalToUtc’ corner cases</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: bsl::vector::resize adds copies instead of new default-initialized objects</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++17 work: bsl::deque&lt;bsls::AtomicInt&gt; does not compile</p></td>
+</tr>
+<tr class="row-even"><td><p>Provide a SmallBlobBufferAllocator</p></td>
+</tr>
+<tr class="row-odd"><td><p>balb_pipecontrolchannel Documentation page corrections</p></td>
+</tr>
+<tr class="row-even"><td><p>C++17 work: Inconsistent move-insert behavior of ‘bsl::vector’</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslmt_threadutil: facilitate use of ‘createWithAllocator’ with detached threads</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlde::CharConvertUtf16 doesn’t allow to query a buffer size only</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlb_caselessstringview* functors are not transparent</p></td>
+</tr>
+<tr class="row-even"><td><p>Add C support for bsls_deprecatefeature</p></td>
+</tr>
+<tr class="row-odd"><td><p>Avoid hanging in GuidUtil::generateNonSecure when system entropy is exhausted</p></td>
+</tr>
+<tr class="row-even"><td><p>Add support of RFC 3339 datetime format to ISO-8601 parser</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++17 work: bslstl_span.t build failure on cpp20</p></td>
+</tr>
+<tr class="row-even"><td><p>Add function to print error location to bdljsn::JsonUtil</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslstl_optional: Investigate use of BSLMF_MOVABLEREF_DEDUCE</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix C++20 build on MSVC 2022</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address bdljsn_json and bdljsn_jsonutil warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>Support for streams with text after a complete JSON document</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add support for JSON user defined literals</p></td>
+</tr>
+<tr class="row-even"><td><p>Release BDE 3.113.0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

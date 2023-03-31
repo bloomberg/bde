@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.114.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.114.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.113.1 Release" href="bde_3.113.0.html" />
+    <link rel="prev" title="BDE 3.115.0 Release" href="bde_3.115.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.114.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-114-0-highlights">BDE 3.114.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#new-type-bsl-span">New Type: <code class="docutils literal notranslate"><span class="pre">bsl::span</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enhancement-bslmt-threadattributes">Enhancement: <code class="docutils literal notranslate"><span class="pre">bslmt::ThreadAttributes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enhancement-ball-recordstringformatter">Enhancement: <code class="docutils literal notranslate"><span class="pre">ball::RecordStringFormatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-component-bbldc-basicactual36525">New Component: <code class="docutils literal notranslate"><span class="pre">bbldc_basicactual36525</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-requests">Fixed requests:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.114.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.113.0.html" class="btn btn-neutral float-right" title="BDE 3.113.1 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.115.0.html" class="btn btn-neutral float-left" title="BDE 3.115.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-114-0-release">
+<span id="bde3-114-0-top"></span><h1>BDE 3.114.0 Release<a class="headerlink" href="#bde-3-114-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-114-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.114.0 production release was
+completed on <strong>Tuesday, February 21, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-114-0-highlights">
+<span id="bde3-114-0-highlights"></span><h2>BDE 3.114.0 Highlights<a class="headerlink" href="#bde-3-114-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-type-bsl-span">
+<h3>New Type: <code class="docutils literal notranslate"><span class="pre">bsl::span</span></code><a class="headerlink" href="#new-type-bsl-span" title="Permalink to this headline">¶</a></h3>
+<p>The new <code class="docutils literal notranslate"><span class="pre">bsl::span</span></code> class provides a bounds-safe and type-safe view over a
+contiguous sequence of elements.  The functionality is similar to that of
+<code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> for strings.  The <code class="docutils literal notranslate"><span class="pre">span</span></code> class is designed to
+interoperate with ranges.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_span.h&gt;</span><span class="c1">  // &#39;bsl::span&#39;</span><span class="cp"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">myNewFunction</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">myArray</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w">    </span><span class="n">myVector</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myArrayObject</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">myNewFunction</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myArray</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">myNewFunction</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myVector</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">myVector</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="n">myNewFunction</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myArrayObject</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that users of <code class="docutils literal notranslate"><span class="pre">bsl::span</span></code> should include the canonical header file,
+<code class="docutils literal notranslate"><span class="pre">bsl_span.h</span></code>, not <code class="docutils literal notranslate"><span class="pre">bslstl_span.h</span></code>.</p>
+<p>The standard class <code class="docutils literal notranslate"><span class="pre">std::span</span></code> is feature of <code class="docutils literal notranslate"><span class="pre">C++20</span></code>; however,
+<code class="docutils literal notranslate"><span class="pre">bsl::span</span></code> works on all versions of C++ (back to <code class="docutils literal notranslate"><span class="pre">C++03</span></code>).  Note that
+for users of <code class="docutils literal notranslate"><span class="pre">C++20</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::span</span></code> is an alias to <code class="docutils literal notranslate"><span class="pre">std::span</span></code>.</p>
+</div>
+<div class="section" id="enhancement-bslmt-threadattributes">
+<h3>Enhancement: <code class="docutils literal notranslate"><span class="pre">bslmt::ThreadAttributes</span></code><a class="headerlink" href="#enhancement-bslmt-threadattributes" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">bslmt::ThreadAttributes</span></code> class now provides a <code class="docutils literal notranslate"><span class="pre">print</span></code> method and a
+<code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code>, as befits an attribute class.</p>
+</div>
+<div class="section" id="enhancement-ball-recordstringformatter">
+<h3>Enhancement: <code class="docutils literal notranslate"><span class="pre">ball::RecordStringFormatter</span></code><a class="headerlink" href="#enhancement-ball-recordstringformatter" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ball::RecordStringFormatter</span></code> nows supports two additional record format
+specifications that provide timestamps with local time offsets from UTC:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 60%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>SPEC</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%dtz</span></code></p></td>
+<td><p>timestamp in ‘DDMonYYYY_HH:MM:SS.mmm(+|—–)HHMM’ format</p></td>
+<td><p>27AUG2007_16:09:46.161+0000</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%Dtz</span></code></p></td>
+<td><p>timestamp in ‘DDMonYYYY_HH:MM:SS.mmmuuu(+|—–)HHMM’ format</p></td>
+<td><p>27AUG2007_16:09:46.161324+0000</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="new-component-bbldc-basicactual36525">
+<h3>New Component: <code class="docutils literal notranslate"><span class="pre">bbldc_basicactual36525</span></code><a class="headerlink" href="#new-component-bbldc-basicactual36525" title="Permalink to this headline">¶</a></h3>
+<p>The new component <code class="docutils literal notranslate"><span class="pre">bbldc_basicactual3652</span></code> provides support for the
+Actual/365.25 day-count convention.</p>
+</div>
+</div>
+<div class="section" id="fixed-requests">
+<h2>Fixed requests:<a class="headerlink" href="#fixed-requests" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>minor optimizations to bdlt_calendarutil.cpp</p></td>
+</tr>
+<tr class="row-odd"><td><p>‘balb::PipeControlChannel’ hangs on Windows if the client does not close the connection</p></td>
+</tr>
+<tr class="row-even"><td><p>bslh::hash: Custom hash algorithm fails for string_view</p></td>
+</tr>
+<tr class="row-odd"><td><p>github: Fix bdlmt_timereventscheduler.t test failure</p></td>
+</tr>
+<tr class="row-even"><td><p>Apply _t transformation to bslmf</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add new record specifier for timezone</p></td>
+</tr>
+<tr class="row-even"><td><p>Make bslmt::ThreadAttributes printable</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix potential derefence and use of end iterators in NumberUtil::isValidNumber</p></td>
+</tr>
+<tr class="row-even"><td><p>Please add a fuzz test to bdljsn</p></td>
+</tr>
+<tr class="row-odd"><td><p>WyHashIncrementalAlgorithm::prePad() triggers UBSAN</p></td>
+</tr>
+<tr class="row-even"><td><p>Please fix nightly build failure of bdlt_iso8601util for opt sun</p></td>
+</tr>
+<tr class="row-odd"><td><p>add bsl_span.h header</p></td>
+</tr>
+<tr class="row-even"><td><p>Remove intrin.h includes from bsls_splinlock.h</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsls_platform.h: Error: Synonym API level macro undefined when _WIN32_WINNT is undefined</p></td>
+</tr>
+<tr class="row-even"><td><p>‘bdlma::GuardingAllocator’: Improve doc and add Usage example</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please add support for ACT/365.25 to BBLDC</p></td>
+</tr>
+<tr class="row-even"><td><p>Suppress gcc pragma for clang</p></td>
+</tr>
+<tr class="row-odd"><td><p>remove more bsl overrides std litter</p></td>
+</tr>
+<tr class="row-even"><td><p>bde-verify: Compile against Clang-14 or newer.</p></td>
+</tr>
+<tr class="row-odd"><td><p>‘bdljsn’ and zipcodes</p></td>
+</tr>
+<tr class="row-even"><td><p>bde/bde-bb: Support dual mode build system (BBS)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Changes to bde_rename to support a lint tool</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

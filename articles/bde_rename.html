@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Updating Release Notes &mdash; BDE Documentation  documentation</title>
+  <title>&lt;no title&gt; &mdash; BDE Documentation  documentation</title>
   
 
   
@@ -22,7 +22,7 @@
   
 
   
-    <link rel="canonical" href="https://bloomberg.github.io/release_notes/README.html" />
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bde_rename.html" />
 
   
   <!--[if lt IE 9]>
@@ -91,21 +91,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tools</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">CMake Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
@@ -155,7 +156,7 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Updating Release Notes</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -172,27 +173,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="updating-release-notes">
-<h1>Updating Release Notes<a class="headerlink" href="#updating-release-notes" title="Permalink to this headline">¶</a></h1>
-<p>These instructions assume you’re writing release notes for BDE 3.102.0.</p>
-<p>When adding a new release notes page:</p>
-<ul class="simple">
-<li><p>create a BDE-3.102.0-release-notes branch off of master</p></li>
-<li><p>add the new release to the top of the list in docs/releases_notes/release_notes.rst</p></li>
-<li><p>add in a blurb to the top of docs/index.rst (by copy/pasting the previous top release note and updating the version #’s and the date - note that the version number is in the blurb title AND in the link)</p></li>
-<li><p>add a new docs/release_notes/BDE_3.102.0.rst file, by copying BDE_3.101.0.rst and fixing the version numbers, dates, drqs list, and highlights.  <strong>Do not forget to add the new file to your git commit.</strong></p></li>
-</ul>
-<p>The way to generate the DRQS list is to run <code class="docutils literal notranslate"><span class="pre">{WSCH</span> <span class="pre">/gr</span> <span class="pre">101,2217</span> <span class="pre">/qu</span> <span class="pre">3.102.0&lt;GO&gt;}</span></code>, copy the results from the terminal screen, and then paste them
-into this command, not forgetting the version argument:</p>
-<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">bde-docs/bin/generateDrqsList.sh</span> <span class="pre">3.102.0</span>&#160; <span class="pre">#</span> <span class="pre">paste</span> <span class="pre">then</span> <span class="pre">hit</span> <span class="pre">^D</span></code></p>
-<p>This generates everything you need to paste into the bottom of the file,
-replacing the old “{{{ internal” and “{{{ oss” blocks of tickets from the
-previous release.</p>
-<p>Note that the <code class="docutils literal notranslate"><span class="pre">oss</span></code> DRQS list should be edited to remove any references to
-repos other than <code class="docutils literal notranslate"><span class="pre">bde-tools</span></code> or <code class="docutils literal notranslate"><span class="pre">bde</span></code> - none of the changes in other repos are
-visible outside of Bloomberg.</p>
-</div>
-
+  
 
            </div>
            
@@ -203,7 +184,7 @@ visible outside of Bloomberg.</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2022, Bloomberg LP.
+        &#169; Copyright 2023, Bloomberg LP.
 
     </p>
   </div>
