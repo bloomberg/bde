@@ -66,14 +66,19 @@ BSLS_IDENT("$Id: $")
 //: o The special values, 'INF' (infinity) and 'NaN' (Not A Number) are
 //:   disallowed.
 //
-// The value of 'bdljsn::JsonNumber' object is determined by the input string
-// and that is *not* canonical.  Thus, unequal strings lead to unequal
-// 'bdljsn::JsonNumber' objects even if their numeric values (e.g., 'asInt')
-// are equal:
+// The value of a 'bdljsn::JsonNumber' object is determined by its given string
+// representation, which is *not* normalized.  Unequal strings lead to unequal
+// 'bdljsn::JsonNumber' objects even if their numerical values are equal.
+// Numerical equality can be tested with the 'isEqual' method.  Note that the
+// 'isEqual' method is more computationally expensive than the equality and
+// inequality operators:
 //..
-//  assert(bdljsn::JsonNumber("1")         != bdljsn::JsonNumber("1.0");
-//  assert(bdljsn::JsonNumber("1").asInt() == bdljsn::JsonNumber("1.0")
-//                                                                    .asInt();
+//  // The following 'JsonNumber' objects do not compare equal because their
+//  // string representations are different:
+//  assert(bdljsn::JsonNumber("1")      != bdljsn::JsonNumber("1.0"));
+//
+//  // But, they are numerically equal, so 'isEqual' returns 'true':
+//  assert(bdljsn::JsonNumber("1").isEqual(bdljsn::JsonNumber("1.0")));
 //..
 //
 ///Supported Conversions
@@ -502,12 +507,17 @@ class JsonNumber {
 
     // ACCESSORS
     bool isEqual(const JsonNumber& other) const;
-        // Return 'true' if this number and the specified 'other' number have
-        // the same numeric value, and 'false' otherwise.  Note that this is in
-        // contrast to 'operator==', which returns whether the text returned by
-        // 'value' is the same.  So, for example,
-        // 'JsonNumber("10") == JsonNumber("1e1")' is 'false', but
-        // 'JsonNumber("10").isEqual(JsonNumber("1e1"))' is 'true'.
+        // Return 'true' if this number and the specified 'other' number
+        // represent the same numeric value, and 'false' otherwise.  This
+        // method will return 'true' for differing representations of the same
+        // number (e.g., '1.0', "1", "0.1e+1" are all equivalent) *except* in
+        // cases where the exponent cannot be represented by a 64-bit integer.
+        // If the exponent is outside the range of a 64-bit integer, 'true'
+        // will be returned if '*this == other'.  For example, comparing
+        // "1e18446744073709551615" with itself will return 'true', but
+        // comparing it to "10e18446744073709551614" will return 'false'. Note
+        // that this method is more computationally expensive than the equality
+        // and inequality operators.
 
     bool isIntegral() const;
         // Return 'true' if the value of this 'JsonNumber' is an (exact)
