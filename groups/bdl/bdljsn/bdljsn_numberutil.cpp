@@ -843,17 +843,15 @@ void NumberUtil_ImpUtil::decompose(
     bsl::string_view::size_type firstSignificantDigit, lastSignificantDigit;
     bsl::string_view::size_type lastNotZero = digits.find_last_not_of('0');
 
-    bool ignoreFraction;
-
     // We ignore the fraction of 'digits' if there is no decimal point,
     // or if the fraction 'digits' are all 0s.
 
-    if (digitsDotOffset == npos || lastNotZero == digitsDotOffset) {
+    bool ignoreFraction =  digitsDotOffset == npos;
+    if (!ignoreFraction && lastNotZero == digitsDotOffset) {
+        // All the fraction digits are '0'.
+
         ignoreFraction = true;
-        lastNotZero = integer->find_last_not_of('0');
-    }
-    else {
-        ignoreFraction = false;
+        lastNotZero    = integer->find_last_not_of('0');
     }
 
     if (ignoreFraction) {
