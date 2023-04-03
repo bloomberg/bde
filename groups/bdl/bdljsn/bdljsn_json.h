@@ -216,8 +216,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #include <bsls_util.h>
 
-#include <bsl_deque.h>
-#include <bsl_iostream.h>
 #include <bsl_iterator.h>
 #include <bsl_unordered_map.h>
 #include <bsl_vector.h>
