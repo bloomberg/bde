@@ -341,24 +341,21 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
 {
     BSLS_ASSERT(Obj::isValidNumber(value));
 
-    bool  isNeg, isExpNegative;
-    Int64 exponentBias;
-    bsl::string_view::const_iterator intBegin, intEnd, fracBegin, fracEnd,
-        expBegin, sigBegin, sigEnd;
+    bool                        isNeg, isExpNegative;
+    Int64                       exponentBias;
+    bsl::string_view            integer, fraction, exponent, significant;
+    bsl::string_view::size_type significantDotOffset;
 
     ImpUtil::decompose(&isNeg,
-                       &intBegin,
-                       &intEnd,
-                       &fracBegin,
-                       &fracEnd,
                        &isExpNegative,
-                       &expBegin,
-                       &sigBegin,
-                       &sigEnd,
+                       &integer,
+                       &fraction,
+                       &exponent,
+                       &significant,
                        &exponentBias,
+                       &significantDotOffset,
                        value);
 
-    bsl::string_view exponent(&*expBegin, value.end() - expBegin);
     Int64 originalExponent = 0;
 
     if (exponent.size() > 0) {
@@ -374,12 +371,12 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
         }
     }
 
-    bsl::string digits(sigBegin, fracEnd);
+    bsl::string digits(significant.data(), fraction.data() + fraction.size());
     if ('0' == digits[0]) {
         digits.resize(1);
     }
 
-    if (fracBegin <= sigBegin) {
+    if (fraction.data() <= significant.data()) {
         // Removed leading 0's, so we must bias the exponent.
         originalExponent += exponentBias;
     }
@@ -515,24 +512,22 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
 {
     BSLS_ASSERT(Obj::isValidNumber(value));
 
-    bool  isNeg, isExpNegative;
-    Int64 exponentBias;
-    bsl::string_view::const_iterator intBegin, intEnd, fracBegin, fracEnd,
-        expBegin, sigBegin, sigEnd;
+    bool                        isNeg, isExpNegative;
+    Int64                       exponentBias;
+    bsl::string_view            integer, fraction, exponentStr, significant;
+    bsl::string_view::size_type significantDotOffset;
 
     ImpUtil::decompose(&isNeg,
-                       &intBegin,
-                       &intEnd,
-                       &fracBegin,
-                       &fracEnd,
                        &isExpNegative,
-                       &expBegin,
-                       &sigBegin,
-                       &sigEnd,
+                       &integer,
+                       &fraction,
+                       &exponentStr,
+                       &significant,
                        &exponentBias,
+                       &significantDotOffset,
                        value);
 
-    if ('0' == *sigBegin) {
+    if ('0' == significant[0]) {
         // Handle 0 as a special case (no need to consider the exponent).
 
         *result = bdldfp::Decimal64(0);
@@ -541,8 +536,6 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
 
     const Int64  INT_MIN_VALUE = bsl::numeric_limits<Int64>::min();
     const Uint64 UINT_MAX_VALUE = bsl::numeric_limits<Uint64>::max();
-
-    bsl::string_view exponentStr(&*expBegin, value.end() - expBegin);
 
     Uint64 uExponent;
 
@@ -581,8 +574,8 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
 
     // A flag indicating if the significant digits range includes a '.'
 
-    bool sigDigitsSeparated = sigBegin < intEnd && sigEnd > intEnd;
-    Int64 numSigDigits = sigEnd - sigBegin - (sigDigitsSeparated  ? 1 : 0);
+    bool sigDigitsSeparated = significantDotOffset != bsl::string_view::npos;
+    Int64 numSigDigits = significant.size() - (sigDigitsSeparated  ? 1 : 0);
 
     if (numSigDigits > 16) {
         *result = Obj::asDecimal64(value);
@@ -591,15 +584,14 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
 
     Uint64 significand;
     bsl::string_view digits, moreDigits;
-    if (sigBegin >= fracBegin || sigEnd <= intEnd) {
-        BSLS_ASSERT(sigBegin <= intBegin || fracBegin != value.end());
-
+    if (!sigDigitsSeparated) {
         // If significant digits do not have a '.' in the middle
 
-        digits = bsl::string_view(&*sigBegin, sigEnd - sigBegin);
-    } else {
-        digits = bsl::string_view(&*sigBegin, intEnd - sigBegin);
-        moreDigits = bsl::string_view(&*fracBegin, sigEnd - fracBegin);
+        digits = bsl::string_view(significant);
+    }
+    else {
+        digits     = significant.substr(0, significantDotOffset);
+        moreDigits = significant.substr(significantDotOffset + 1);
         BSLS_ASSERT(0 != digits.size());
         BSLS_ASSERT(0 != moreDigits.size());
     }
@@ -1720,7 +1712,7 @@ int main(int argc, char *argv[])
         }
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE  = DATA[i].d_line;
-            const int   EXP   = DATA[i].d_isInteger;
+            const bool  EXP   = DATA[i].d_isInteger;
             const char *INPUT = DATA[i].d_input;
 
             if (veryVeryVerbose) {
@@ -2390,12 +2382,14 @@ int main(int argc, char *argv[])
 
             bsl::vector<bsl::string> equivalentData;
 
-            // The limit for the underlying 'strtod' implementation on MacOS
-            // is 19,999 digits as of MacOS Monterey 12.6 and Apple clang
-            // version 14.0.0.  Limiting the range to [-19,500 .. 19500]
-            // to allow a bit of room around the e+308/e-308 test elements.
-            generateEquivalenceSet(&equivalentData, -19500, -19499, INPUT);
-            generateEquivalenceSet(&equivalentData,   19499, 19500, INPUT);
+            // Both MSVC and MacOS have limits to the number of digits that
+            // can can be handled by strtod, limiting the size of the input
+            // data to a few thousand characters.  The limit for the
+            // underlying 'strtod' implementation on MacOS is 19,999 digits
+            // as of MacOS Monterey 12.6 and Apple clang version 14.0.0.
+
+            generateEquivalenceSet(&equivalentData, -2000, -1999, INPUT);
+            generateEquivalenceSet(&equivalentData,   1999, 2000, INPUT);
             bsl::vector<bsl::string>::const_iterator it =
                                                         equivalentData.begin();
             for (; it != equivalentData.end(); ++it) {
@@ -2751,9 +2745,6 @@ int main(int argc, char *argv[])
             bsl::cout << "\nTESTING: decompose"
                       << "\n==================" << bsl::endl;
         }
-
-        typedef bsl::string_view string_view;
-        typedef bsl::string_view::const_iterator const_iterator;
         const bool F = false;
         const bool T = true;
 
@@ -2789,6 +2780,16 @@ int main(int argc, char *argv[])
             { L_,       "100",   F, "100",   "", F,  "",      "1",  2 },
             { L_,      "0.00",   F,   "0", "00", F,  "",      "0",  0 },
             { L_,     "-0.00",   T,   "0", "00", F,  "",      "0",  0 },
+
+            // From documentation
+            { L_,      "0.00",   F,   "0", "00", F,  "",      "0",  0 },
+            { L_,    "100e+1",   F, "100",   "", F, "1",      "1",  2 },
+            { L_,     "0.020",   F,   "0","020", F,  "",      "2", -2 },
+            { L_,    "1.12e5",   F,   "1", "12", F, "5",   "1.12", -2 },
+            { L_,     "34.50",   F,  "34", "50", F,  "",   "34.5", -1 },
+            { L_,     "0.060",   F,   "0","060", F,  "",      "6", -2 },
+            { L_,     "10e-2",   F,  "10",   "", T, "2",      "1",  1 },
+
         };
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2808,31 +2809,20 @@ int main(int argc, char *argv[])
                 P_(LINE); P(TEXT);
             }
 
-            bool isNeg, isExpNeg;
-            const_iterator intBegin, intEnd, fracBegin, fracEnd, expBegin,
-                sigBegin, sigEnd;
-
-            Int64 sigBias;
+            bool                        isNeg, isExpNeg;
+            bsl::string_view            intPart, fracPart, expPart, sigPart;
+            bsl::string_view::size_type significantDotOffset;
+            Int64                       sigBias;
 
             ImpUtil::decompose(&isNeg,
-                               &intBegin,
-                               &intEnd,
-                               &fracBegin,
-                               &fracEnd,
                                &isExpNeg,
-                               &expBegin,
-                               &sigBegin,
-                               &sigEnd,
+                               &intPart,
+                               &fracPart,
+                               &expPart,
+                               &sigPart,
                                &sigBias,
+                               &significantDotOffset,
                                TEXT);
-
-            string_view text(TEXT);
-            string_view intPart  = string_view(&*intBegin, intEnd - intBegin);
-            string_view fracPart = string_view(&*fracBegin,
-                                               fracEnd - fracBegin);
-            string_view expPart  = string_view(&*expBegin,
-                                               text.end() - expBegin);
-            string_view sigPart  = string_view(&*sigBegin, sigEnd - sigBegin);
 
             ASSERTV(LINE, TEXT, isNeg, IS_NEG == isNeg);
             ASSERTV(LINE, TEXT, intPart, INT_PART == intPart);
@@ -2841,6 +2831,10 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, TEXT, expPart, EXP_PART == expPart);
             ASSERTV(LINE, TEXT, sigPart, SIG_PART == sigPart);
             ASSERTV(LINE, TEXT, sigBias, SIG_BIAS == sigBias);
+
+            ASSERTV(LINE, TEXT, significantDotOffset, sigPart,
+                    significantDotOffset == sigPart.find('.'));
+
         }
 
         if (verbose)
@@ -2849,61 +2843,51 @@ int main(int argc, char *argv[])
             // Verify that 'fractionBegin' and 'fractionEnd' are placed before
             // 'exponentBegin' if there is no fraction.
 
-            bool isNeg, isExpNeg;
-
-            const_iterator intBegin, intEnd, fracBegin, fracEnd, expBegin,
-                sigBegin, sigEnd;
-
-            Int64 sigBias;
+            bool                        isNeg, isExpNeg;
+            bsl::string_view            intPart, fracPart, expPart, sigPart;
+            bsl::string_view::size_type significantDotOffset;
+            Int64                       sigBias;
 
             ImpUtil::decompose(&isNeg,
-                               &intBegin,
-                               &intEnd,
-                               &fracBegin,
-                               &fracEnd,
                                &isExpNeg,
-                               &expBegin,
-                               &sigBegin,
-                               &sigEnd,
+                               &intPart,
+                               &fracPart,
+                               &expPart,
+                               &sigPart,
                                &sigBias,
+                               &significantDotOffset,
                                "1e2");
 
-            ASSERT('2' == *expBegin);
-            ASSERT(fracBegin == intEnd);
-            ASSERT(fracEnd == intEnd);
+            ASSERT("2" == expPart);
+            ASSERT(fracPart.empty());
         }
         if (verbose) bsl::cout << "\tNegative Testing." << bsl::endl;
         {
             bsls::AssertTestHandlerGuard hG;
 
-            bool isNeg, isExpNeg;
-            const_iterator intBegin, intEnd, fracBegin, fracEnd, expBegin,
-                sigBegin, sigEnd;
-
-            Int64 sigBias;
+            bool                        isNeg, isExpNeg;
+            bsl::string_view            intPart, fracPart, expPart, sigPart;
+            bsl::string_view::size_type significantDotOffset;
+            Int64                       sigBias;
 
             ASSERT_SAFE_PASS(ImpUtil::decompose(&isNeg,
-                                                &intBegin,
-                                                &intEnd,
-                                                &fracBegin,
-                                                &fracEnd,
                                                 &isExpNeg,
-                                                &expBegin,
-                                                &sigBegin,
-                                                &sigEnd,
+                                                &intPart,
+                                                &fracPart,
+                                                &expPart,
+                                                &sigPart,
                                                 &sigBias,
+                                                &significantDotOffset,
                                                 "0"));
 
             ASSERT_SAFE_FAIL(ImpUtil::decompose(&isNeg,
-                                                &intBegin,
-                                                &intEnd,
-                                                &fracBegin,
-                                                &fracEnd,
                                                 &isExpNeg,
-                                                &expBegin,
-                                                &sigBegin,
-                                                &sigEnd,
+                                                &intPart,
+                                                &fracPart,
+                                                &expPart,
+                                                &sigPart,
                                                 &sigBias,
+                                                &significantDotOffset,
                                                 "0-"));
         }
       } break;

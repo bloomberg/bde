@@ -101,17 +101,14 @@ struct DecomposedNumber {
     // (e.g., in implementing 'areEqual').
 
     // PUBLIC DATA
-    bool                             d_isNegative;
-    bool                             d_isExpNegative;
-    bsl::string_view::const_iterator d_integerBegin;
-    bsl::string_view::const_iterator d_integerEnd;
-    bsl::string_view::const_iterator d_fractionBegin;
-    bsl::string_view::const_iterator d_fractionEnd;
-    bsl::string_view::const_iterator d_significantDigitsBegin;
-    bsl::string_view::const_iterator d_significantDigitsEnd;
-    bsl::string_view::const_iterator d_exponentBegin;
-    bsls::Types::Int64               d_significantDigitsBias;
-    bsl::string_view                 d_value;
+    bool                        d_isNegative;
+    bool                        d_isExpNegative;
+    bsl::string_view            d_integer;
+    bsl::string_view            d_fraction;
+    bsl::string_view            d_exponent;
+    bsl::string_view            d_significantDigits;
+    bsls::Types::Int64          d_significantDigitsBias;
+    bsl::string_view::size_type d_significantDigitsDotOffset;
 
   public:
     // CREATORS
@@ -124,23 +121,39 @@ struct DecomposedNumber {
 
 inline
 DecomposedNumber::DecomposedNumber(const bsl::string_view& value)
-: d_value(value)
 {
     typedef NumberUtil_ImpUtil ImpUtil;
     ImpUtil::decompose(&d_isNegative,
-                       &d_integerBegin,
-                       &d_integerEnd,
-                       &d_fractionBegin,
-                       &d_fractionEnd,
                        &d_isExpNegative,
-                       &d_exponentBegin,
-                       &d_significantDigitsBegin,
-                       &d_significantDigitsEnd,
+                       &d_integer,
+                       &d_fraction,
+                       &d_exponent,
+                       &d_significantDigits,
                        &d_significantDigitsBias,
+                       &d_significantDigitsDotOffset,
                        value);
-    if (*d_integerBegin == '0') {
+    if (d_integer[0] == '0') {
         d_isExpNegative = false;
     }
+}
+
+BSLS_ANNOTATION_UNUSED
+bsl::ostream& operator<<(bsl::ostream& stream, const DecomposedNumber& n)
+    // Write the specified number 'n' to the specified 'stream' and return a
+    // modifiable reference to the specified 'stream'.  Note that this function
+    // is frequently useful in debugging, but is not currently used in the
+    // implementation.
+{
+    stream << "[ isNegative = " << n.d_isNegative << ", "
+           << "isExpNegative = " << n.d_isExpNegative << ", "
+           << "integer = \"" << n.d_integer << "\", "
+           << "fraction = \"" << n.d_fraction << "\", "
+           << "exponent = \"" << n.d_exponent << "\", "
+           << "significant = \"" << n.d_significantDigits << "\", "
+           << "significantDigitsBias = " << n.d_significantDigitsBias << ", "
+           << "significantDigitsDotOffset = " << n.d_significantDigitsDotOffset
+           << " ]";
+    return stream;
 }
 
 static bool compareNumberTextFallback(const DecomposedNumber& lhs,
@@ -157,21 +170,23 @@ static bool compareNumberTextFallback(const DecomposedNumber& lhs,
         return false;                                                 // RETURN
     }
 
-    bsl::string_view lSignificand(&*lhs.d_integerBegin,
-                                  lhs.d_fractionEnd - lhs.d_integerBegin);
-    bsl::string_view rSignificand(&*rhs.d_integerBegin,
-                                  rhs.d_fractionEnd - rhs.d_integerBegin);
-
-    if (lSignificand != rSignificand) {
+    if (lhs.d_significantDigits != rhs.d_significantDigits) {
         return false;                                                 // RETURN
     }
 
-    bsl::string_view lExp(&*lhs.d_exponentBegin,
-                          lhs.d_value.end() - lhs.d_exponentBegin);
-    bsl::string_view rExp(&*rhs.d_exponentBegin,
-                          rhs.d_value.end() - rhs.d_exponentBegin);
+    return lhs.d_exponent == rhs.d_exponent;
+}
 
-    return lExp == rExp;
+static bsl::string_view::const_iterator findFirstNonDigit(
+                                        bsl::string_view::const_iterator begin,
+                                        bsl::string_view::const_iterator end)
+    // Return the first non digit character starting at the specified 'begin'
+    // iterator, and prior to the specified 'end' character.  Return 'end' if
+    // all of the characters are digits.  Note that 'find_if_not' is a C++20
+    // algorithm.
+{
+    for (; begin != end && bdlb::CharType::isDigit(*begin); ++begin);
+    return begin;
 }
 
 }  // close namespace u
@@ -191,26 +206,24 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
     bool  isNeg, isExpNegative;
     Int64 exponentBias;
 
-    bsl::string_view::const_iterator intBegin, intEnd, fracBegin, fracEnd,
-        expBegin, sigBegin, sigEnd;
+    bsl::string_view integer, fraction, exponentStr, significantDigits;
+    bsl::string_view::size_type significantDigitsDotOffset;
 
     ImpUtil::decompose(&isNeg,
-                       &intBegin,
-                       &intEnd,
-                       &fracBegin,
-                       &fracEnd,
                        &isExpNegative,
-                       &expBegin,
-                       &sigBegin,
-                       &sigEnd,
+                       &integer,
+                       &fraction,
+                       &exponentStr,
+                       &significantDigits,
                        &exponentBias,
+                       &significantDigitsDotOffset,
                        value);
 
     // Handle 0 as a special case (no need to consider the exponent of
     // 'isNeg').
 
-    if ('0' == *sigBegin) {
-        BSLS_ASSERT(sigBegin + 1 == sigEnd);
+    if ('0' == significantDigits[0]) {
+        BSLS_ASSERT(1 == significantDigits.size());
         *result = 0;
         return 0;                                                     // RETURN
     }
@@ -225,12 +238,6 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
 
     // Compute the exponent.
 
-    bsl::size_t exponentSize = value.end() - expBegin;
-    bsl::string_view exponentStr;
-    if (exponentSize) {
-        exponentStr = bsl::string_view (&*expBegin, exponentSize);
-    }
-
     Uint64 uExponent;
 
     int rc = ImpUtil::appendDigits(&uExponent, 0, exponentStr);
@@ -244,14 +251,17 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         return k_OVERFLOW;                                            // RETURN
     }
 
-    Int64 exponent = (isExpNegative ? -1 : 1) * static_cast<Int64>(uExponent) +
-                     exponentBias;
+    Int64 exponent = (isExpNegative ? -1 : 1) *
+                              static_cast<Int64>(uExponent) +
+                          exponentBias;
 
     // A flag indicating if the significant digits range includes a '.'.
 
-    bool sigDigitsSeparated = sigBegin < intEnd && sigEnd > intEnd;
+    bool sigDigitsSeparated =
+        significantDigitsDotOffset != bsl::string_view::npos;
 
-    Int64 numSigDigits = sigEnd - sigBegin - (sigDigitsSeparated  ? 1 : 0);
+    Int64 numSigDigits = significantDigits.size() -
+                                                 (sigDigitsSeparated  ? 1 : 0);
 
     // Return an error the number has too many digits (numSigDigits + zeroes
     // from the exponent) to fit into a Uint64.
@@ -268,19 +278,22 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         return k_NOT_INTEGRAL;                                        // RETURN
     }
 
-    bsl::string_view::const_iterator adjustedSigEnd = sigEnd;
+    bsl::string_view adjustedSignificant = significantDigits;
     if (exponent < 0) {
         // This value will not be an integer, but we still must compute the
         // closest integer.  We truncate the fractional digits.
 
-        adjustedSigEnd += exponent;
+        adjustedSignificant.remove_suffix(-exponent);
 
         //  If the significant digits previously had a separator, and we've
-        //  adjusted the end of the significant digits past the separator, we
-        //  need to substract one more to account for the separator.
+        //  adjusted the end of the significant digits past the separator or
+        //  just up to the separator, we need to substract one more to account
+        //  for the separator.
 
-        if (sigDigitsSeparated && adjustedSigEnd <= fracBegin) {
-            adjustedSigEnd -= 1;
+        if (sigDigitsSeparated && adjustedSignificant.size() <=
+                                      significantDigitsDotOffset + 1) {
+            adjustedSignificant.remove_suffix(1);
+            sigDigitsSeparated = false;
         }
     }
 
@@ -288,25 +301,23 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
     // decimal separator in the middle of the significant digits, we must do
     // this in two chunks.
 
-    Uint64           tmp;
     bsl::string_view digits, moreDigits;
-    if (sigBegin >= fracBegin || adjustedSigEnd <= intEnd) {
+    if (!sigDigitsSeparated) {
         // There isn't a decimal separator in the middle of the significant
         // digits, we have a single block of digits.
-
-        BSLS_ASSERT(sigBegin <= intBegin || fracBegin != value.end());
-
-        digits = bsl::string_view(&*sigBegin, adjustedSigEnd - sigBegin);
+        digits = adjustedSignificant;
     }
     else {
         // There is a decimal separator, so there are two blocks of digits.
 
-        digits     = bsl::string_view(&*sigBegin, intEnd - sigBegin);
-        moreDigits = bsl::string_view(&*fracBegin, adjustedSigEnd - fracBegin);
+        digits     = adjustedSignificant.substr(0, significantDigitsDotOffset);
+        moreDigits = adjustedSignificant.substr(significantDigitsDotOffset +
+                                                1);
         BSLS_ASSERT(0 != digits.size());
         BSLS_ASSERT(0 != moreDigits.size());
     }
 
+    Uint64 tmp;
     if (0 != ImpUtil::appendDigits(&tmp, 0, digits)) {
         *result = u::UINT64_MAX_VALUE;
         return k_OVERFLOW;                                            // RETURN
@@ -346,7 +357,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
     *result = tmp;
     if (exponent < 0) {
         // This number was not an integer.  For the special case where the
-        // value is UINT_MAX_VALUE plus some fraction, we prefer to report an
+        // value is UINT64_MAX_VALUE plus some fraction, we prefer to report an
         // overflow.
 
         return (tmp == u::UINT64_MAX_VALUE) ? k_OVERFLOW : k_NOT_INTEGRAL;
@@ -356,7 +367,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
     return 0;
 }
 
-bdldfp::Decimal64 NumberUtil::asDecimal64(const bsl::string_view&  value)
+bdldfp::Decimal64 NumberUtil::asDecimal64(const bsl::string_view& value)
 {
     BSLS_ASSERT(NumberUtil::isValidNumber(value));
 
@@ -436,10 +447,10 @@ bool NumberUtil::areEqual(const bsl::string_view& lhs,
 
     u::DecomposedNumber l(lhs), r(rhs);
 
-    bsl::string_view::const_iterator lend = l.d_significantDigitsEnd;
-    bsl::string_view::const_iterator rend = r.d_significantDigitsEnd;
-    bsl::string_view::const_iterator lIt  = l.d_significantDigitsBegin;
-    bsl::string_view::const_iterator rIt  = r.d_significantDigitsBegin;
+    bsl::string_view::const_iterator lend = l.d_significantDigits.end();
+    bsl::string_view::const_iterator rend = r.d_significantDigits.end();
+    bsl::string_view::const_iterator lIt  = l.d_significantDigits.begin();
+    bsl::string_view::const_iterator rIt  = r.d_significantDigits.begin();
 
     // Compare the significant digits, ignoring any '.' character.
 
@@ -465,7 +476,7 @@ bool NumberUtil::areEqual(const bsl::string_view& lhs,
         return false;                                                 // RETURN
     }
 
-    if ('0' == *l.d_significantDigitsBegin) {
+    if ('0' == l.d_significantDigits[0]) {
         // Both numbers are 0.
 
         return true;                                                  // RETURN
@@ -479,20 +490,17 @@ bool NumberUtil::areEqual(const bsl::string_view& lhs,
     // we must test the canonical exponent value.  We start by computing the
     // exponents in the text of 'lhs' and 'rhs'.
 
-    bsl::string_view lExp(&*l.d_exponentBegin, lhs.end() - l.d_exponentBegin);
-    bsl::string_view rExp(&*r.d_exponentBegin, rhs.end() - r.d_exponentBegin);
-
     // If the exponents are too large to fit in int64 values, we fall back to
     // string equality.
 
     Uint64 lUExp, rUExp;
 
-    int rc = ImpUtil::appendDigits(&lUExp, 0, lExp);
+    int rc = ImpUtil::appendDigits(&lUExp, 0, l.d_exponent);
     if (0 != rc) {
         return compareNumberTextFallback(l, r);                       // RETURN
     }
 
-    rc = ImpUtil::appendDigits(&rUExp, 0, rExp);
+    rc = ImpUtil::appendDigits(&rUExp, 0, r.d_exponent);
     if (0 != rc) {
         return compareNumberTextFallback(l, r);                       // RETURN
     }
@@ -526,7 +534,7 @@ bool NumberUtil::isValidNumber(const bsl::string_view& value)
     }
 
     bsl::string_view::const_iterator iter = value.begin();
-    bsl::string_view::const_iterator end = value.end();
+    bsl::string_view::const_iterator end  = value.end();
 
     if ('-' == *iter) {
         // Skip valid leading '-'.
@@ -610,22 +618,20 @@ bool NumberUtil::isIntegralNumber(const bsl::string_view& value)
     bool  isNeg, isExpNegative;
     Int64 exponentBias;
 
-    bsl::string_view::const_iterator intBegin, intEnd, fracBegin, fracEnd,
-        expBegin, sigBegin, sigEnd;
+    bsl::string_view integer, fraction, exponentStr, significantDigits;
+    bsl::string_view::size_type significantDigitsDotOffset;
 
     ImpUtil::decompose(&isNeg,
-                       &intBegin,
-                       &intEnd,
-                       &fracBegin,
-                       &fracEnd,
                        &isExpNegative,
-                       &expBegin,
-                       &sigBegin,
-                       &sigEnd,
+                       &integer,
+                       &fraction,
+                       &exponentStr,
+                       &significantDigits,
                        &exponentBias,
+                       &significantDigitsDotOffset,
                        value);
 
-    if ('0' == *sigBegin) {
+    if ('0' == significantDigits[0]) {
         // 0 is an integer regardless of how its represented.
 
         return true;                                                  // RETURN
@@ -633,29 +639,32 @@ bool NumberUtil::isIntegralNumber(const bsl::string_view& value)
 
     // Compute the exponent.
 
-    bsl::string_view exp(&*expBegin, value.end() - expBegin);
-
     Uint64 exponent;
 
-    int rc = ImpUtil::appendDigits(&exponent, 0, exp);
+    int rc = ImpUtil::appendDigits(&exponent, 0, exponentStr);
     if (0 != rc) {
-        // The exponent is more than UINT_MAX or less than -UINT_MAX 'value'
-        // cannot have enough digits to matter.
+        // The exponent is more than UINT64_MAX or less than -UINT64_MAX
+        // 'value' cannot have enough digits to matter.
 
         return !isExpNegative;                                        // RETURN
     }
 
-    if (0 == exponent){
-        isExpNegative = false;
-    }
+    // 'value' is integral if the canonical exponent for 'value' is >= 0 (see
+    // NumberUtil_Imp::decompose for an explantion of the canonical exponent).
+    // A mathematical expression for this would be:
+    //..
+    // return 0 <= (isExpNegative ? -exponent : exponent) + exponentBias
+    //..
+    // However, to avoid edge cases and rounding issues we use the following
+    // more complicated logic (it is safe to negate 'exponentBias', because
+    // 'exponentBias' cannot be INT64_MIN, as that would require a string with
+    // INT64_MAX characters).
 
     if (isExpNegative) {
-        Uint64 zeroesToSpare = (sigEnd < intEnd) ? intEnd - sigEnd : 0;
-        return zeroesToSpare >= exponent;                             // RETURN
+        return exponentBias >= 0 &&
+            static_cast<Uint64>(exponentBias) >= exponent;            // RETURN
     }
-
-    Uint64 zeroesNeeded = (sigEnd > fracBegin) ? sigEnd - fracBegin : 0;
-    return exponent >= zeroesNeeded;
+    return exponentBias >= 0 || static_cast<Uint64>(-exponentBias) <= exponent;
 }
 
 void NumberUtil::stringify(bsl::string *result, bsls::Types::Int64 value)
@@ -732,17 +741,15 @@ int NumberUtil_ImpUtil::appendDigits(bsls::Types::Uint64     *result,
 }
 
 void NumberUtil_ImpUtil::decompose(
-                      bool                             *isNegative,
-                      bsl::string_view::const_iterator *integerBegin,
-                      bsl::string_view::const_iterator *integerEnd,
-                      bsl::string_view::const_iterator *fractionBegin,
-                      bsl::string_view::const_iterator *fractionEnd,
-                      bool                             *isExponentNegative,
-                      bsl::string_view::const_iterator *exponentBegin,
-                      bsl::string_view::const_iterator *significantDigitsBegin,
-                      bsl::string_view::const_iterator *significantDigitsEnd,
-                      bsls::Types::Int64               *significantDigitsBias,
-                      const bsl::string_view&           value)
+                       bool                        *isNegative,
+                       bool                        *isExpNegative,
+                       bsl::string_view            *integer,
+                       bsl::string_view            *fraction,
+                       bsl::string_view            *exponent,
+                       bsl::string_view            *significantDigits,
+                       bsls::Types::Int64          *significantDigitsBias,
+                       bsl::string_view::size_type *significantDigitsDotOffset,
+                       const bsl::string_view&      value)
 {
     // Design note:  This function returns a bias for the significant digits,
     // rather than actual exponent of significant digits, because the bias can
@@ -759,113 +766,141 @@ void NumberUtil_ImpUtil::decompose(
 
     BSLS_ASSERT_SAFE(NumberUtil::isValidNumber(value));
 
-    bsl::string_view::const_iterator iter = value.begin();
-    bsl::string_view::const_iterator end = value.end();
+    const bsl::string_view::size_type npos = bsl::string_view::npos;
 
-    *significantDigitsBegin = value.end();
-    *fractionBegin          = value.end();
-    *fractionEnd            = value.end();
+    bsl::string_view input(value);
 
-    if ('-' == *iter) {
+    if ('-' == input[0]) {
         *isNegative = true;
-        ++iter;
+        input.remove_prefix(1);
     }
     else {
         *isNegative = false;
     }
 
-    *integerBegin = iter;
+    BSLS_ASSERT(!input.empty());
 
-    BSLS_ASSERT(iter != end);
+    bsl::string_view::const_iterator intEnd =
+                              u::findFirstNonDigit(input.begin(), input.end());
+    bsl::string_view::size_type intLen = bsl::distance(input.begin(), intEnd);
 
-    // We use this variable to keep track of the last non-zero digit (to
-    // determine the significant digits).
-    bsl::string_view::const_iterator lastNonZeroDigit = end;
+    *integer = input.substr(0, intLen);
 
-    // Iterator over the integer digits.
+    bsl::string_view digits;
+    bsl::string_view::size_type digitsDotOffset;
 
-    for (; iter != end && bdlb::CharType::isDigit(*iter); ++iter) {
-        if ('0' != *iter) {
-            if (*significantDigitsBegin == end) {
-                *significantDigitsBegin = iter;
-            }
+    // Iterate over the fractional digits.
+    if (intEnd != input.end() && '.' == *intEnd) {
+        bsl::string_view::size_type fracLen = bsl::distance(
+                                intEnd + 1,
+                                u::findFirstNonDigit(intEnd + 1, input.end()));
 
-            lastNonZeroDigit = iter;
-        }
-    }
-    *integerEnd = iter;
-
-    // Iterator over the fractional digits.
-
-    if (iter != end && '.' == *iter) {
-        ++iter;
-        *fractionBegin = iter;
-        for (; iter != end && bdlb::CharType::isDigit(*iter); ++iter) {
-            if ('0' != *iter) {
-                if (*significantDigitsBegin == end) {
-                    *significantDigitsBegin = iter;
-                }
-                lastNonZeroDigit = iter;
-            }
-        }
-        *fractionEnd = iter;
+        *fraction       = input.substr(intLen + 1, fracLen);
+        digits          = input.substr(0, intLen + 1 + fracLen);
+        digitsDotOffset = intLen;
     }
     else {
-        // Even if there is no fractional part, we locate the iterators before
-        // the exponentBegin.  This is contractually required, and an important
-        // property to maintain (otherwise, for example,
-        // 'significantDigitsEnd <= fractionBegin' would incorrectly report
-        // 'false' for "1e1").
-
-        *fractionBegin = iter;
-        *fractionEnd   = iter;
+        *fraction       = input.substr(intLen, 0);
+        digits          = *integer;
+        digitsDotOffset = npos;
     }
+    input.remove_prefix(digits.length());
 
-    if (iter != end && 'E' == static_cast<char>(bsl::toupper(*iter))) {
-        ++iter;
-        if ('-' == *iter) {
-            *isExponentNegative = true;
-            ++iter;
+    *isExpNegative = false;
+    if (!input.empty()) {
+        input.remove_prefix(1);  // Skip 'e' or 'E'
+        switch (input[0]) {
+          case '-': {
+            *isExpNegative = true;
+          } BSLS_ANNOTATION_FALLTHROUGH;
+          case '+': {
+            input.remove_prefix(1);
+          } break;
         }
-        else {
-            *isExponentNegative = false;
-            if ('+' == *iter) {
-                ++iter;
-            }
-        }
-        *exponentBegin = iter;
-    } else {
-        *isExponentNegative = false;
-        *exponentBegin = end;
     }
+    *exponent = input;
 
-    if (*significantDigitsBegin == end) {
-        // The value 0.
-        BSLS_ASSERT(**integerBegin == '0');
-        *significantDigitsBegin = *integerBegin;
-        *significantDigitsEnd   = *integerEnd;
-        *significantDigitsBias  = 0;
+    // 'digits' and 'digitsDotOffset' contain the non-canonical digits (and
+    // decimal point) of 'value', from them we need to remove the leading and
+    // trailing 0s to compute 'significantDigits',
+    // 'significantDigitsDotOffset', and 'signficantDigitsBias'.  Some
+    // example values:
+    //..
+    // | digits   | significantDigits | sigDigitsDotOffset | sigDigitsBias |
+    // |----------|-------------------|--------------------|---------------|
+    // | "0.00"   | "0"               | npos               | 0             |
+    // | "100"    | "1"               | npos               | 2             |
+    // | "34.50"  | "34.5"            | 2                  | -1            |
+    // | "0.020"  | "2"               | npos               | -2            |
+    //..
+    // Notice that the '.' is ignored when considering 'significantDigits' (so
+    // "34.5" is treated as "345" and the bias is -1).
+
+
+    // We compute the index of the first and last significant digit in order to
+    // assign 'significantDigits'.
+
+    bsl::string_view::size_type firstSignificantDigit, lastSignificantDigit;
+    bsl::string_view::size_type lastNotZero = digits.find_last_not_of('0');
+
+    bool ignoreFraction;
+
+    // We ignore the fraction of 'digits' if there is no decimal point,
+    // or if the fraction 'digits' are all 0s.
+
+    if (digitsDotOffset == npos || lastNotZero == digitsDotOffset) {
+        ignoreFraction = true;
+        lastNotZero = integer->find_last_not_of('0');
     }
     else {
-        // Otherwise we need to set 'significantDigitsEnd' to one-past the
-        // last non-zero digit, and compute the bias.
+        ignoreFraction = false;
+    }
 
-        *significantDigitsEnd = lastNonZeroDigit + 1;
-        if (*significantDigitsEnd <= *integerEnd) {
-            // The significant digits are before the decimal separator, add a
-            // positive bias equal to the number of trailing 0s.
+    if (ignoreFraction) {
+        // An integer (no fraction digits, or all 0 fraction digits).  E.g.:
+        // "0.00", "100"
 
-            *significantDigitsBias = *integerEnd - *significantDigitsEnd;
+        firstSignificantDigit = 0;
+
+        // if 'lastNotZero' is 'npos' the nubmer is all 0's
+
+        lastSignificantDigit = lastNotZero == npos ? 0 : lastNotZero;
+
+        *significantDigitsBias = integer->length() - lastSignificantDigit - 1;
+
+        *significantDigitsDotOffset = npos;
+    }
+    else {
+        // A number with non-zero fraction digits.  E.g.: "34.50", "0.020"
+
+        BSLS_ASSERT(digitsDotOffset != npos && lastNotZero > digitsDotOffset);
+
+        lastSignificantDigit = lastNotZero;
+
+        *significantDigitsBias = -1LL * (lastSignificantDigit - integer->length());
+
+        if (digits[0] != '0') {
+            // E.g., "34.50"
+            firstSignificantDigit = 0;
+            *significantDigitsDotOffset = digitsDotOffset;
         }
         else {
-            // There are significant digits after the decimal separator, add a
-            // bias for the number of fraction digits.
+            // E.g., "0.020"
+            BSLS_ASSERT(1 == digitsDotOffset);
 
-            BSLS_ASSERT(lastNonZeroDigit >= *fractionBegin);
-            *significantDigitsBias = -1 *
-                                     (*significantDigitsEnd - *fractionBegin);
+            bsl::string_view::size_type firstNotZero = fraction->find_first_not_of('0');
+
+            // Already handled 0.[0]+ (ignoreFraction would have been 'true').
+            BSLS_ASSERT(firstNotZero != bsl::string_view::npos);
+
+            firstSignificantDigit = 2 + firstNotZero;
+
+            *significantDigitsDotOffset = bsl::string_view::npos;
         }
     }
+    *significantDigits =
+        digits.substr(firstSignificantDigit,
+                      lastSignificantDigit - firstSignificantDigit + 1);
 }
 
 void NumberUtil_ImpUtil::logUnparseableJsonNumber(

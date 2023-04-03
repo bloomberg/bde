@@ -333,62 +333,69 @@ struct NumberUtil_ImpUtil {
         // 'NumberUtil::asInteger'.
 
     static void decompose(
-                      bool                             *isNegative,
-                      bsl::string_view::const_iterator *integerBegin,
-                      bsl::string_view::const_iterator *integerEnd,
-                      bsl::string_view::const_iterator *fractionBegin,
-                      bsl::string_view::const_iterator *fractionEnd,
-                      bool                             *isExponentNegative,
-                      bsl::string_view::const_iterator *exponentBegin,
-                      bsl::string_view::const_iterator *significantDigitsBegin,
-                      bsl::string_view::const_iterator *significantDigitsEnd,
-                      bsls::Types::Int64               *significantDigitsBias,
-                      const bsl::string_view&           value);
+                       bool                        *isNegative,
+                       bool                        *isExpNegative,
+                       bsl::string_view            *integer,
+                       bsl::string_view            *fraction,
+                       bsl::string_view            *exponent,
+                       bsl::string_view            *significantDigits,
+                       bsls::Types::Int64          *significantDigitsBias,
+                       bsl::string_view::size_type *significantDigitsDotOffset,
+                       const bsl::string_view&      value);
         // Decompose the specified 'value' into constituent elements, loading
         // the specified 'isNegative' with a flag indicating if 'value' is
-        // negative, the specified 'integerBegin' and 'integerEnd' with the
-        // beginning and end of the integer portion of 'value', the specified
-        // 'fractionBegin' and 'fractionEnd' with the beginning and end of the
-        // fraction portion of 'value', the specified 'isExponentNegative' with
-        // a flag indicating whether the exponent of 'value' is negative, the
-        // specified 'exponentBegin' with the beginning of the exponent part of
-        // 'value', the specified 'significantDigitsBegin' and
-        // 'significantDigitsEnd' with the beginning and end of the significant
-        // digits of 'value', and the specified 'significantDigitsBias' with a
-        // bias to add to the exponent when considering the value of the
-        // significant digits.  The range of significant digits returned by
-        // this function may include a '.' character (which should simply be
-        // ignored when considering the significant digits).  For example,
-        // "-12.30e-4" would return 'isNegative' as 'true', the integer portion
-        // would be "12", the fractional portion would be "30",
-        // 'isExponentNegative' would be 'true', 'exponentBegin' would point to
-        // '4', the significant digits would be "12.3" and the
-        // 'significantDigitsBias' would be -1.  If there is no fraction in
-        // 'value', 'fractionBegin' and 'fractionEnd' will both equal
-        // 'exponentBegin'.  If there is no exponent in value 'exponentBegin'
-        // will be 'value.end()'.  The behavior is undefined unless
-        // 'NumberUtil::isValidNumber(value)' is 'true'.
+        // negative, the specified 'isExponentNegative' with a flag indicating
+        // whether the exponent of 'value' is negative, the specified 'integer'
+        // with the integer portion of 'value', the specified 'fraction' with
+        // the fraction portion of 'value', the specified 'exponent' with the
+        // exponent portion of 'value', the specified 'significantDigits' with
+        // the significant digits of 'value', the specified
+        // 'significantDigitsBias' with a bias to add to the exponent when
+        // considering the value of the significant digits, and the
+        // 'significantDigitsDotOffset' with the offset of the '.' character in
+        // 'significantDigits' (if one exists).  The returned
+        // 'significantDigits' may include a '.' character (whose offset into
+        // 'significantDigits' is given by 'significantDigitsOffset') which
+        // should simply be ignored when considering the significant digits.
+        // If 'significantDigits' does not include a '.' character,
+        // 'significantDigitsOffset' will be 'bsl::string_view::npos'.  The
+        // behavior is undefined unless 'NumberUtil::isValidNumber(value)' is
+        // 'true'.  Note that if 'significantDigits[0]' is '0' then 'value'
+        // must be 0.
         //
-        // Note that if '*significantDigitsBegin' is '0' then 'value' must be
-        // 0.  Also, note that the end of the exponent is (implicitly)
-        // 'value.end()'.  Finally, note that the range of significant digits
-        // returned and 'significantDigitBias' are useful when considering a
-        // canonical representation for a JSON Number, which consists of a
-        // whole number (with leading and trailing zeroes removed) and an
-        // exponent.  For example, "1.45e-1" would have a canonical
-        // representation 145e-3.  The returned significant digits range
-        // returned by this function represents the whole number part of this
-        // canonical representation (ignoring a '.' character if it appears),
-        // and 'significantDigitBias' can be added to the exponent of 'value'
-        // to get the canonical exponent for the significant digits.  For
-        // example, the value "1.45e-1", which has a canonical representation
-        // 145e-3, would return a significant digits of "1.45" (ignore the '.'
-        // for the canonical significant digits) and a 'significantDigitsBias'
-        // of -2 (which is added to the exponent of 'value', -3, to get the
-        // canonical exponent).  A bias is returned, rather than a canonical
-        // exponent, because the bias is trivially derived from tokenizing
-        // 'value' (and does not require more costly computation, in cases
-        // where it is not needed).
+        // For example, here are some examples of decompose results for an
+        // input 'value' ('isNegative' and 'isExpNegative' are omitted for
+        // readability):
+        //..
+        // | value    | int   | frac  | exp | sigDigit | sigDotOff | sigBias |
+        // |----------|-------|-------|-----|----------|-----------|---------|
+        // | "0.00"   | "0"   | "00"  | ""  | "0"      | npos      | 0       |
+        // | "100e+1" | "100" | ""    | "1" | "1"      | npos      | 2       |
+        // | "0.020"  | "0"   | "020" | ""  | "2"      | npos      | -2      |
+        // | "1.12e5" | "1"   | "12"  | "5" | "1.12"   | 1         | -2      |
+        // | "34.50"  | "34"  | "50"  | ""  | "34.5"   | 2         | -1      |
+        // | "0.060"  | "0"   | "060" | ""  | "6"      | npos      | -2      |
+        // | "10e-2"  | "0"   | "1"   | "2" | "1"      | npos      | 1       |
+        //..
+        // Notice that the '.' is ignored when considering 'significantDigits'
+        // (so "34.5" is treated as "345", and the bias is -1).
+        //
+        // Finally, note that 'significantDigits', 'significantDigitBias', and
+        // 'significantDigitsDotOffset' are useful when considering a canonical
+        // representation for a JSON Number, which consists of a whole number
+        // (with leading and trailing zeroes removed) and an exponent.   This
+        // canonical representation can be used when determining whether two
+        // JSON numbers are equal.  For example, "-12.30e-4" would have a
+        // canonical representation -123e-5.  This canonical representation can
+        // be computed by taking the returned 'significantDigits', "12.3",
+        // ignoring the '.' character at 'significantDigitsOffset' and
+        // incorporating 'isNegative' to get the canonical singificant digits
+        // -123, then combining 'exponent' ("4") with 'isExponentNegative' to
+        // get the exponent of -4 and then adding the returned
+        // 'significantDigitsBias' of -1 to that exponent to get the canonical
+        // exponent of -5.  Combining the canonical significant digits (-123)
+        // and the canonical exponent (-5) results in the canonical
+        // representation -123e-5.
 
     static void logUnparseableJsonNumber(const bsl::string_view& value);
         // Log the specified 'value' (for which 'isValidNumber' should be
