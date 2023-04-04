@@ -952,10 +952,9 @@ bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
 namespace {
 namespace u {
 
-Util::ParseConfiguration basic, relaxedBasic;
-const Util::ParseConfiguration BASIC = basic.setBasic();
-const Util::ParseConfiguration RELAXED_BASIC =
-                                          relaxedBasic.setBasic().setRelaxed();
+const Util::ParseConfiguration& BASIC = Util::ParseConfiguration().setBasic();
+const Util::ParseConfiguration& RELAXED_BASIC =
+                            Util::ParseConfiguration().setBasic().setRelaxed();
 
 void removeCharFromString(bsl::string *str, char chr, int limit = INT_MAX)
 {
@@ -17138,6 +17137,12 @@ if (veryVerbose)
         if (verbose) cout << endl
                           << "GENERATE 'TimeInterval'" << endl
                           << "=======================" << endl;
+
+        ASSERT(u::BASIC.basic());
+        ASSERT(! u::BASIC.relaxed());
+
+        ASSERT(u::RELAXED_BASIC.basic());
+        ASSERT(u::RELAXED_BASIC.relaxed());
 
         typedef bsls::TimeInterval TYPE;
 

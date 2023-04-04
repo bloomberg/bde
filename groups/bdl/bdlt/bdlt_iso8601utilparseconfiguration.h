@@ -36,13 +36,6 @@ BSLS_IDENT("$Id: $")
 // Note that in parsing, the ':' between the hour and minute fields of the time
 // zone is always optional.
 //
-///Default Configuration
-///---------------------
-// This component also provides a (process-wide) default configuration that may
-// be set and retrieved via the 'setDefaultConfiguration' and
-// 'defaultConfiguration' class methods, respectively.  See Usage Example 2 for
-// further details.
-//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -61,8 +54,7 @@ BSLS_IDENT("$Id: $")
 // The 'setBasic' sets the 'basic' attribute, leaves the 'relaxed' attribute
 // alone:
 //..
-//      Config& c2 = c.setBasic();
-//      assert(&c2 == &c);            // a reference, not a copy, is returned
+//      Config c2 = c.setBasic();
 //      assert( c.basic());
 //      assert(!c.relaxed());
 //..
@@ -76,12 +68,10 @@ BSLS_IDENT("$Id: $")
 //
 //          // 'c' can have any valid state at this point.
 //
-//          Config *p;
-//
-//          p = &c.setBasic(basic);
-//          assert(&c == p);
-//          p = &c.setRelaxed(relaxed);
-//          assert(&c == p);
+//          const Config& c3 = c.setBasic(basic);
+//          assert(&c3 != &c);                // copy, not reference, returned
+//          const Config& c4 = c.setRelaxed(relaxed);
+//          assert(&c4 != &c);                // copy, not reference, returned
 //
 //          assert(c.basic()   == basic);
 //          assert(c.relaxed() == relaxed);
@@ -124,25 +114,15 @@ namespace bdlt {
 class Iso8601UtilParseConfiguration {
     // This unconstrained (value-semantic) attribute class characterizes how to
     // configure certain behavior in 'Iso8601Util' functions.  Currently, only
-    // the 'generate' and 'generateRaw' methods of that utility are affected by
+    // the 'parse' methods of that utility are affected by
     // 'Iso8601UtilConfiguration' settings.  See the Attributes section under
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
   private:
-    // PRIVATE TYPES
-    enum {
-        // This enumeration denotes the distinct bits that define the values of
-        // each of the four configuration attributes.
-
-        k_BASIC_BIT   = 0x01,
-        k_RELAXED_BIT = 0x02,
-
-        k_MASK = k_BASIC_BIT | k_RELAXED_BIT
-    };
-
     // DATA
-    unsigned char    d_valueMask;      // bitmask defining configuration
+    bool             d_basic;
+    bool             d_relaxed;
 
     // FRIENDS
     friend bool operator==(Iso8601UtilParseConfiguration,
@@ -160,26 +140,25 @@ class Iso8601UtilParseConfiguration {
         //  basic()   == false
         //..
 
-    // Iso8601UtilParseConfiguration(
-    //                const Iso8601UtilParseConfiguration& original) = default;
+    // Iso8601UtilParseConfiguration( const Iso8601UtilParseConfiguration&
+    // original) = default;
         // Create an 'Iso8601UtilConfiguration' object having the value of the
         // specified 'original' configuration.
 
     ~Iso8601UtilParseConfiguration();
         // Destroy this object.
 
-    // MANIPULATORS
-    // Iso8601UtilParseConfiguration& operator=(
-    //                     const Iso8601UtilParseConfiguration& rhs) = default;
+    // MANIPULATORS Iso8601UtilParseConfiguration& operator=( const
+    // Iso8601UtilParseConfiguration& rhs) = default;
         // Assign to this object the value of the specified 'rhs'
         // configuration, and return a reference providing modifiable access to
         // this object.
 
-    Iso8601UtilParseConfiguration& setBasic(bool value = true);
+    Iso8601UtilParseConfiguration setBasic(bool value = true);
         // Set the 'basic' field of this object to the specified 'value' and
         // return a copy of this object.
 
-    Iso8601UtilParseConfiguration& setRelaxed(bool value = true);
+    Iso8601UtilParseConfiguration setRelaxed(bool value = true);
         // Set the 'relaxed' field of this object to the specified 'value' and
         // return a copy of this object.
 
@@ -216,19 +195,16 @@ class Iso8601UtilParseConfiguration {
 bool operator==(Iso8601UtilParseConfiguration lhs,
                 Iso8601UtilParseConfiguration rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration' objects
-    // have the same value if each of their 'fractionalSecondPrecision',
-    // 'omitColonInZoneDesignator', 'useCommaForDecimalSign', and
-    // 'useZAbbreviationForUtc' attributes (respectively) have the same value.
+    // value, and 'false' otherwise.  Two 'Iso8601UtilParseConfiguration'
+    // objects have the same value if each of their 'basic' and 'relaxed'
+    // attributes (respectively) have the same value.
 
 bool operator!=(Iso8601UtilParseConfiguration lhs,
                 Iso8601UtilParseConfiguration rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration'
-    // objects do not have the same value if any of their
-    // 'fractionalSecondPrecision', 'omitColonInZoneDesignator',
-    // 'useCommaForDecimalSign', or 'useZAbbreviationForUtc' attributes
-    // (respectively) do not have the same value.
+    // objects do not have the same value if either of their 'basic' or
+    // 'relaxed' attributes (respectively) do not have the same value.
 
 bsl::ostream& operator<<(bsl::ostream&                        stream,
                          const Iso8601UtilParseConfiguration& object);
@@ -250,57 +226,45 @@ bsl::ostream& operator<<(bsl::ostream&                        stream,
 // CREATORS
 inline
 Iso8601UtilParseConfiguration::Iso8601UtilParseConfiguration()
-: d_valueMask(0)
+: d_basic(false)
+, d_relaxed(false)
 {
 }
 
 inline
 Iso8601UtilParseConfiguration::~Iso8601UtilParseConfiguration()
-{
-    BSLS_ASSERT_SAFE(0 == (~k_MASK & d_valueMask));
-}
+{}
 
 // MANIPULATORS
 inline
-Iso8601UtilParseConfiguration& Iso8601UtilParseConfiguration::setBasic(
+Iso8601UtilParseConfiguration Iso8601UtilParseConfiguration::setBasic(
                                                                     bool value)
 {
-    if (value) {
-        d_valueMask |= static_cast<unsigned char>(k_BASIC_BIT);
-    }
-    else {
-        d_valueMask &= static_cast<unsigned char>(~k_BASIC_BIT);
-    }
+    d_basic = value;
 
     return *this;
 }
 
 inline
-Iso8601UtilParseConfiguration& Iso8601UtilParseConfiguration::setRelaxed(
+Iso8601UtilParseConfiguration Iso8601UtilParseConfiguration::setRelaxed(
                                                                     bool value)
 {
-    if (value) {
-        d_valueMask |= static_cast<unsigned char>(k_RELAXED_BIT);
-    }
-    else {
-        d_valueMask &= static_cast<unsigned char>(~k_RELAXED_BIT);
-    }
+    d_relaxed = value;
 
     return *this;
 }
-
 
 // ACCESSORS
 inline
 bool Iso8601UtilParseConfiguration::basic() const
 {
-    return d_valueMask & k_BASIC_BIT;
+    return d_basic;
 }
 
 inline
 bool Iso8601UtilParseConfiguration::relaxed() const
 {
-    return d_valueMask & k_RELAXED_BIT;
+    return d_relaxed;
 }
 
 }  // close package namespace
@@ -310,14 +274,14 @@ inline
 bool bdlt::operator==(Iso8601UtilParseConfiguration lhs,
                       Iso8601UtilParseConfiguration rhs)
 {
-    return lhs.d_valueMask == rhs.d_valueMask;
+    return lhs.d_basic == rhs.d_basic && lhs.d_relaxed == rhs.d_relaxed;
 }
 
 inline
 bool bdlt::operator!=(Iso8601UtilParseConfiguration lhs,
                       Iso8601UtilParseConfiguration rhs)
 {
-    return lhs.d_valueMask != rhs.d_valueMask;
+    return lhs.d_basic != rhs.d_basic || lhs.d_relaxed != rhs.d_relaxed;
 }
 
 }  // close enterprise namespace

@@ -60,42 +60,29 @@ using bsl::ostream;
 //: o No memory is ever allocated from the default allocator.
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
-// CLASS METHODS
-// [11] static Config defaultConfiguration();
-// [11] static void setDefaultConfiguration(const Config& config);
-//
 // CREATORS
-// [ 2] Iso8601UtilConfiguration();
-// [ 7] Iso8601UtilConfiguration(const Config& original);
-// [ 2] ~Iso8601UtilConfiguration();
+// [ 2] Config();
+// [ 6] Config(const Config& original);
+// [ 2] ~Config();
 //
 // MANIPULATORS
-// [ 9] Config& operator=(const Config& rhs);
-// [ 2] void setFractionalSecondPrecision(int value);
-// [ 2] void setOmitColonInZoneDesignator(bool value);
-// [ 2] void setUseCommaForDecimalSign(bool value);
-// [ 2] void setUseZAbbreviationForUtc(bool value);
+// [ 7] Config& operator=(const Config& rhs);
+// [ 2] void setBasic(int value);
+// [ 2] void setRelaxed(bool value);
 //
 // ACCESSORS
-// [ 4] int  fractionalSecondPrecision() const;
-// [ 4] bool omitColonInZoneDesignator() const;
-// [ 4] bool useCommaForDecimalSign() const;
-// [ 4] bool useZAbbreviationForUtc() const;
+// [ 3] bool basic() const;
+// [ 3] bool relaxed() const;
 //
-// [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+// [ 4] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const Config& lhs, const Config& rhs);
-// [ 6] bool operator!=(const Config& lhs, const Config& rhs);
-// [ 5] ostream& operator<<(ostream& s, const Config& d);
+// [ 5] bool operator==(const Config& lhs, const Config& rhs);
+// [ 5] bool operator!=(const Config& lhs, const Config& rhs);
+// [ 4] ostream& operator<<(ostream& s, const Config& d);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] USAGE EXAMPLE
-// [ *] CONCERN: This test driver is reusable w/other, similar components.
-// [ *] CONCERN: In no case does memory come from the global allocator.
-// [ *] CONCERN: In no case does memory come from the default allocator.
-// [ 5] CONCERN: All accessor methods are declared 'const'.
-// [10] Reserved for 'bslx' streaming.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -214,7 +201,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -254,8 +241,7 @@ int main(int argc, char *argv[])
 // The 'setBasic' sets the 'basic' attribute, leaves the 'relaxed' attribute
 // alone:
 //..
-        Config& c2 = c.setBasic();
-        ASSERT(&c2 == &c);            // a reference, not a copy, is returned
+        Config c2 = c.setBasic();
         ASSERT( c.basic());
         ASSERT(!c.relaxed());
 //..
@@ -269,12 +255,10 @@ int main(int argc, char *argv[])
 
             // 'c' can have any valid state at this point.
 
-            Config *p;
-
-            p = &c.setBasic(basic);
-            ASSERT(&c == p);
-            p = &c.setRelaxed(relaxed);
-            ASSERT(&c == p);
+            const Config& c3 = c.setBasic(basic);
+            ASSERT(&c3 != &c);                // copy, not reference, returned
+            const Config& c4 = c.setRelaxed(relaxed);
+            ASSERT(&c4 != &c);                // copy, not reference, returned
 
             ASSERT(c.basic()   == basic);
             ASSERT(c.relaxed() == relaxed);
@@ -301,46 +285,7 @@ int main(int argc, char *argv[])
         }
 //..
       } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // CLASS METHODS
-        //   There are no class methods.
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "CLASS METHODS" << endl
-                          << "=============" << endl;
-      } break;
-      case 10: {
-        // --------------------------------------------------------------------
-        // BDEX STREAMING
-        //   Ensure that we can serialize the value of any object of the class,
-        //   and then deserialize that value back into any object of the class.
-        //
-        // Concerns:
-        //   N/A
-        //
-        // Plan:
-        //   N/A
-        //
-        // Testing:
-        //   Reserved for 'bslx' streaming.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "BDEX STREAMING" << endl
-                          << "==============" << endl;
-
-        if (verbose) cout << "Not yet implemented." << endl;
-
-      } break;
-      case 9: {
+      case 7: {
         // --------------------------------------------------------------------
         // COPY-ASSIGNMENT OPERATOR
         //   Ensure that we can assign the value of any object of the class to
@@ -526,33 +471,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
-        //   exchange the values of any two objects.
-        //
-        // Concerns:
-        //   N/A
-        //
-        // Plan:
-        //   N/A
-        //
-        // Testing:
-        //  Reserved for 'swap' testing.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "SWAP MEMBER AND FREE FUNCTIONS" << endl
-                          << "==============================" << endl;
-
-        if (verbose) {
-            cout << "Not implemented for 'bdlt::Iso8601UtilConfiguration'."
-                 << endl;
-        }
-
-      } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // COPY CONSTRUCTOR
         //   Ensure that we can create a distinct object of the class from any
@@ -587,7 +506,7 @@ int main(int argc, char *argv[])
         //:     2 'Z' still has the same value as that of 'ZZ'.  (C-3)
         //
         // Testing:
-        //   Iso8601UtilConfiguration(const Config& original);
+        //   Config(const Config& original);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -647,7 +566,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
         //   Ensure that '==' and '!=' are the operational definition of value.
@@ -816,7 +735,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
@@ -1123,13 +1042,13 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the three basic accessors returns the value of the
+        //: 1 Each of the two basic accessors returns the value of the
         //:   corresponding attribute of the object.
         //:
         //: 2 Each basic accessor method is declared 'const'.
@@ -1147,10 +1066,8 @@ int main(int argc, char *argv[])
         //:     expected value.  (C-1..2)
         //
         // Testing:
-        //   int  fractionalSecondPrecision() const;
-        //   bool omitColonInZoneDesignator() const;
-        //   bool useCommaForDecimalSign() const;
-        //   bool useZAbbreviationForUtc() const;
+        //   bool basic() const;
+        //   bool relaxed() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1185,31 +1102,6 @@ int main(int argc, char *argv[])
 
             ASSERTV(ILINE, IBASIC   == X.basic());
             ASSERTV(ILINE, IRELAXED == X.relaxed());
-        }
-
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'gg'
-        //   There is no 'gg' function for this component.
-        //
-        // Concerns:
-        //   N/A
-        //
-        // Plan:
-        //   N/A
-        //
-        // Testing:
-        //   Reserved for 'gg' generator function.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "GENERATOR FUNCTION 'gg'" << endl
-                          << "=======================" << endl;
-
-        if (verbose) {
-            cout << "No 'gg' function for 'bdlt::Iso8601UtilConfiguration'."
-                 << endl;
         }
 
       } break;
@@ -1263,10 +1155,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   Iso8601UtilConfiguration();
         //   ~Iso8601UtilConfiguration();
-        //   void setFractionalSecondPrecision(int value);
-        //   void setOmitColonInZoneDesignator(bool value);
-        //   void setUseCommaForDecimalSign(bool value);
-        //   void setUseZAbbreviationForUtc(bool value);
+        //   void setBasic(int value);
+        //   void setRelaxed(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1285,34 +1175,32 @@ int main(int argc, char *argv[])
             ASSERT(!X.basic());
             ASSERT(!X.relaxed());
 
-            Obj *pmX1;
+            Obj mX1;    const Obj& X1 = mX1;
             if (IDEFAULT && IBASIC) {
-                pmX1 = &mX.setBasic();
+                mX1 = mX.setBasic();
             }
             else {
-                pmX1 = &mX.setBasic(IBASIC);
+                mX1 = mX.setBasic(IBASIC);
             }
-            Obj& mX1 = *pmX1;    const Obj& X1 = mX1;
-            ASSERT(&X1 == &X);
             ASSERT(X.basic()  == IBASIC);
             ASSERT(X1.basic() == IBASIC);
             ASSERT(!X.relaxed());
             ASSERT(!X1.relaxed());
 
-            Obj *pmX2;
             if (IDEFAULT && IRELAXED) {
-                pmX2 = &mX1.setRelaxed();
+                const Obj& mC = mX1.setRelaxed();
+                ASSERT(&mC != &mX1);
+                ASSERT(mC.relaxed() == X1.relaxed());
             }
             else {
-                pmX2 = &mX1.setRelaxed(IRELAXED);
+                const Obj& mC = mX1.setRelaxed(IRELAXED);
+                ASSERT(&mC != &mX1);
+                ASSERT(mC.relaxed() == X1.relaxed());
             }
-            Obj& mX2 = *pmX2;    const Obj& X2 = mX2;
-            ASSERT(&X2 == &X1);
-            ASSERT(&X2 == &X);
+            Obj mX2 = mX1;    const Obj& X2 = mX2;
             ASSERT(X.basic()    == IBASIC);
             ASSERT(X1.basic()   == IBASIC);
             ASSERT(X2.basic()   == IBASIC);
-            ASSERT(X.relaxed()  == IRELAXED);
             ASSERT(X1.relaxed() == IRELAXED);
             ASSERT(X2.relaxed() == IRELAXED);
 
@@ -1321,20 +1209,16 @@ int main(int argc, char *argv[])
             ASSERT(!Y.basic());
             ASSERT(!Y.relaxed());
 
-            Obj& mY1 = mY.setRelaxed(IRELAXED);    const Obj& Y1 = mY1;
-            ASSERT(&Y1 == &Y);
+            Obj mY1 = mY.setRelaxed(IRELAXED);    const Obj& Y1 = mY1;
             ASSERT(Y.relaxed()  == IRELAXED);
             ASSERT(Y1.relaxed() == IRELAXED);
             ASSERT(!Y.basic());
             ASSERT(!Y1.basic());
 
-            Obj& mY2 = mY1.setBasic(IBASIC);    const Obj& Y2 = mY2;
-            ASSERT(&Y2 == &Y1);
-            ASSERT(&Y2 == &Y);
+            Obj mY2 = mY1.setBasic(IBASIC);    const Obj& Y2 = mY2;
             ASSERT(Y.relaxed()  == IRELAXED);
             ASSERT(Y1.relaxed() == IRELAXED);
             ASSERT(Y2.relaxed() == IRELAXED);
-            ASSERT(Y.basic()    == IBASIC);
             ASSERT(Y1.basic()   == IBASIC);
             ASSERT(Y2.basic()   == IBASIC);
         }
@@ -1372,6 +1256,9 @@ int main(int argc, char *argv[])
 
         ASSERT(!X.basic());
         ASSERT( X.relaxed());
+
+        ASSERT( Obj().setBasic().basic());
+        ASSERT(!Obj().setBasic().relaxed());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
