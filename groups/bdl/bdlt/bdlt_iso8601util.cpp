@@ -1061,20 +1061,22 @@ int parseImp(Datetime           *result,
     // 2. Account for edge cases.
 
     if (tzOffset > 0) {
-        static Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000, 000);
+        static const Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000, 000);
+        Datetime minBoundary(minDatetime);
 
-        minDatetime.addMinutes(tzOffset);
+        minBoundary.addMinutes(tzOffset);
 
-        if (minDatetime > localDatetime) {
+        if (minBoundary > localDatetime) {
             return -1;                                                // RETURN
         }
     }
     else if (tzOffset < 0) {
-        static Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
+        static const Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
+        Datetime maxBoundary(maxDatetime);
 
-        maxDatetime.addMinutes(tzOffset);
+        maxBoundary.addMinutes(tzOffset);
 
-        if (maxDatetime < localDatetime) {
+        if (maxBoundary < localDatetime) {
             return -1;                                                // RETURN
         }
     }
