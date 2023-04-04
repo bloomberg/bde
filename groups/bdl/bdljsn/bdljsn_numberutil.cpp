@@ -283,7 +283,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         // This value will not be an integer, but we still must compute the
         // closest integer.  We truncate the fractional digits.
 
-        adjustedSignificant.remove_suffix(-exponent);
+        adjustedSignificant.remove_suffix(static_cast<bsl::size_t>(-exponent));
 
         //  If the significant digits previously had a separator, and we've
         //  adjusted the end of the significant digits past the separator or
