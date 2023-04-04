@@ -87,9 +87,9 @@ BSLS_IDENT("$Id: $")
 // All macros defined in this component are thread-safe, and can be invoked
 // concurrently by multiple threads.
 //
-// Additionally, log records created by these macros are atomic, and
-// 'ball::Observer' implementations provided in 'ball' will guarantee that
-// output for different log records are not interleaved.
+// Additionally, each use of a logging macro will create a distinct log record,
+// and 'ball::Observer' implementations (like those in 'ball') generally
+// guarantee that output for different log records are not interleaved.
 //
 ///Macro Reference
 ///---------------
