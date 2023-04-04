@@ -9,17 +9,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <emmintrin.h>
 #endif
 
-#if (BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L)
-#define BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
-#endif
-
 namespace BloombergLP {
 
 namespace bsls {
 
-#ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
 const SpinLock SpinLock::s_unlocked = BSLS_SPINLOCK_UNLOCKED;
-#endif
 
 void SpinLock::pause() {
 #if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
