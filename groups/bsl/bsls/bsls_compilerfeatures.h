@@ -980,8 +980,8 @@ BSLS_IDENT("$Id: $")
   #define BSLS_COMPILERFEATURES_SUPPORT_CTAD                                  1
 #endif
 
-#if defined(__cpp_impl_three_way_comparison) &&                               \
-                                     __cpp_impl_three_way_comparison >= 201907L
+#if defined(__cpp_impl_three_way_comparison) &&                              \
+                                    __cpp_impl_three_way_comparison >= 201907L
   #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                  1
 #endif
 
@@ -1028,20 +1028,29 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS        1
   #endif  // before gcc 12.0
 
+  #if !defined(__GXX_EXPERIMENTAL_CXX0X__) ||                                \
+                            (__cplusplus < 201500 && defined(__STRICT_ANSI__))
+    // Supported gcc compilers *always* define '__cpp_hex_float', even if the
+    // core language feature is not supported in the current configuration of
+    // a build, and they define it to the exact same value ('201603LL')
+    // regardless of actual support for literals.  We remedy this by
+    // undefining the hexfloat-literal-support macro in those cases when it
+    // is not really supported, but gcc said so.  There are 2 such cases:
+    //: 1 Language mode is below C++11
+    //: 2 Language mode is below C++17 experimental core language support and
+    //:   GNU extensions are not enabled.
+    //
+    // '__GXX_EXPERIMENTAL_CXX0X__' is defined when at least basic C++11
+    // features are present (should be used instead of '__cplusplus').
+    // g++ defines the '__cplusplus' macro to the non-standard value of
+    // 201500 to indicate experimental C++17 support.
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS)
+      #undef BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
+    #endif  // '__cpp_hex_float' was defined, but is not supported.
+  #endif  // No C++11 or GNU extensions not enabled, C++17 not enabled
+
   // GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
   #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-
-    // GCC defines the '__cplusplus' macro to the non-standard value of 201500
-    // to indicate experimental C++17 support.
-    #if defined(__STRICT_ANSI__) && __cplusplus < 201500
-      // Hexfloat literals are a GNU extension until C++17, but g++ defined the
-      // feature detection macro '__cpp_hex_float' even when extensions are not
-      // enabled, so we have defined this macro.
-      #if defined(BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS)
-        #undef BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
-      #endif  // '__cpp_hex_float' was defined but is not supported
-    #endif  // GNU extensions not enabled, C++17 not enabled
-
     #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
       #undef  BSLS_COMPILERFEATURES_CPLUSPLUS
       #define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
@@ -1149,7 +1158,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES                   1
   #endif
 
-  #if __has_feature(cxx_reference_qualified_functions) &&                     \
+  #if __has_feature(cxx_reference_qualified_functions) &&                    \
                                           __has_feature(cxx_rvalue_references)
     #define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS                      1
   #endif
@@ -1170,7 +1179,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT                       1
   #endif
 
-  #if __has_feature(cxx_inline_namespaces) ||                                 \
+  #if __has_feature(cxx_inline_namespaces) ||                                \
                                         __has_extension(cxx_inline_namespaces)
     #define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE                    1
   #endif
@@ -1243,14 +1252,14 @@ BSLS_IDENT("$Id: $")
       // Note that Clang supports __attribute__((noreturn)) in earlier versions
   #endif
 
-  #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L &&                            \
+  #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L &&                           \
                                            defined(__GXX_EXPERIMENTAL_CXX0X__)
     #undef  BSLS_COMPILERFEATURES_CPLUSPLUS
     #define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
   #endif  // too old standard date fixed up
 
-  #if (__cplusplus >= 201103L ||                                              \
-       (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))        \
+  #if (__cplusplus >= 201103L ||                                             \
+       (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))       \
       && __has_include(<type_traits>)
     #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER                       1
   #endif  // at least C++11 support and has the header
@@ -1265,7 +1274,7 @@ BSLS_IDENT("$Id: $")
   // When compiling in >= C++11 mode on a non-Darwin platform, assume that the
   // Clang version is at least 3.0 and accompanied by a GCC toolchain that is
   // at least version 4.8 and which supports clang.
-  #if defined(__GXX_EXPERIMENTAL_CXX0X__) &&                                  \
+  #if defined(__GXX_EXPERIMENTAL_CXX0X__) &&                                 \
       (!defined(__APPLE_CC__) || __APPLE_CC__ >= 6000)
     #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER                       1
   #endif
@@ -1674,7 +1683,7 @@ BSLS_IDENT("$Id: $")
 //                        ENFORCE FEATURE INTERACTIONS
 // ============================================================================
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&              \
    !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
     #undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1703,15 +1712,15 @@ BSLS_IDENT("$Id: $")
 
     #define BSLS_COMPILERFEATURES_NILTR(n) BSLS_COMPILERFEATURES_NILT,
 
-    #define BSLS_COMPILERFEATURES_FILLT(n)                                    \
-        BSLS_MACROREPEAT(n, BSLS_COMPILERFEATURES_NILTR)                      \
-                                                     BSLS_COMPILERFEATURES_NILT
+    #define BSLS_COMPILERFEATURES_FILLT(n)                                   \
+        BSLS_MACROREPEAT(n, BSLS_COMPILERFEATURES_NILTR)                     \
+                                                    BSLS_COMPILERFEATURES_NILT
 
     #define BSLS_COMPILERFEATURES_NILVR(n) BSLS_COMPILERFEATURES_NILV,
 
-    #define BSLS_COMPILERFEATURES_FILLV(n)                                    \
-        BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR)                       \
-                                                     BSLS_COMPILERFEATURES_NILV
+    #define BSLS_COMPILERFEATURES_FILLV(n)                                   \
+        BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR)                      \
+                                                    BSLS_COMPILERFEATURES_NILV
 
 namespace BloombergLP {
 namespace bsls {
@@ -1741,8 +1750,8 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
     // 'const T&', the classic way to accept arguments of unknown
     // rvalue/lvalue-ness.
 
-  #define BSLS_COMPILERFEATURES_FORWARD(T,V)                                  \
-                                         ::BloombergLP::bslmf::Util::forward(V)
+  #define BSLS_COMPILERFEATURES_FORWARD(T,V)                                 \
+                                        ::BloombergLP::bslmf::Util::forward(V)
     // On compilers that support C++11 perfect forwarding, replace with
     // 'bsl::forward<T>(V)', i.e., use perfect-forwarding; otherwise, replace
     // with '(V)', the classic way to forward arguments safely.
@@ -1755,8 +1764,8 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 
   #define BSLS_COMPILERFEATURES_FORWARD_REF(T) T&&
 
-  #define BSLS_COMPILERFEATURES_FORWARD(T,V)                                  \
-                                       ::BloombergLP::bsls::Util::forward<T>(V)
+  #define BSLS_COMPILERFEATURES_FORWARD(T,V)                                 \
+                                      ::BloombergLP::bsls::Util::forward<T>(V)
 
 #endif  // forward-workaround for simulation
 
