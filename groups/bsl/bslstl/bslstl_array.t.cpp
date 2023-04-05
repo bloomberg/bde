@@ -120,6 +120,7 @@ using namespace bslstl;
 // [16] bool operator>(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
 // [16] bool operator<=(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
 // [16] bool operator>=(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
+// [16] auto operator<=>(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
 // [ 8] void swap(array<TYPE,SIZE>&, array<TYPE,SIZE>&);
 // [21] std::tuple_element<bsl::array<TYPE, SIZE> >
 // [21] std::tuple_size<bsl::array<TYPE, SIZE> >
@@ -3109,6 +3110,8 @@ void TestDriver<TYPE, SIZE>::testCase16()
     //: 2 Comparison operators work on 0 length arrays.
     //:
     //: 3 Only operator '<' is used to perform comparisons.
+    //:
+    //: 4 Operator '<=>' is defined when available.
     //
     // Plan:
     //: 1 Create a variety of spec strings for each length.
@@ -3124,6 +3127,7 @@ void TestDriver<TYPE, SIZE>::testCase16()
     //  bool operator>(const array& lhs, const array& rhs);
     //  bool operator<=(const array& lhs, const array& rhs);
     //  bool operator>=(const array& lhs, const array& rhs);
+    //  auto operator<=>(const array& lhs, const array& rhs);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\t\tof length " ZU "\n", SIZE);
@@ -3163,13 +3167,23 @@ void TestDriver<TYPE, SIZE>::testCase16()
 
             if (0 > strcmp(SPEC1, SPEC2)) {
                 ASSERTV(SPEC1, SPEC2, X1 < X2);
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+                ASSERTV(SPEC1, SPEC2, X1 <=> X2 < 0);
+#endif
             }
             else if (0 == strcmp(SPEC1, SPEC2)) {
                 ASSERTV(SPEC1, SPEC2, X1 <= X2);
                 ASSERTV(SPEC1, SPEC2, X1 >= X2);
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+                ASSERTV(SPEC1, SPEC2, X1 <=> X2 <= 0);
+                ASSERTV(SPEC1, SPEC2, X1 <=> X2 >= 0);
+#endif
             }
             else {
                 ASSERTV(SPEC1, SPEC2, X1 > X2);
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+                ASSERTV(SPEC1, SPEC2, X1 <=> X2 > 0);
+#endif
             }
         }
     }

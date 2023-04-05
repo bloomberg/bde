@@ -158,11 +158,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_algorithm.h>
 #include <bslstl_iterator.h>
 #include <bslstl_stdexceptutil.h>
 
 #include <bslalg_arrayprimitives.h>
 #include <bslalg_rangecompare.h>
+#include <bslalg_synththreewayutil.h>
 #include <bslalg_hasstliterators.h>
 
 #include <bslh_hash.h>
@@ -443,6 +445,18 @@ bool operator==(const array<VALUE_TYPE, SIZE>& lhs,
     // element has the same value as the corresponding element in the other
     // array.
 
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class VALUE_TYPE, size_t SIZE>
+BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
+                                           const array<VALUE_TYPE, SIZE>& lhs,
+                                           const array<VALUE_TYPE, SIZE>& rhs);
+    // Perform a lexicographic three-way comparison of the specified 'lhs' and
+    // the specified 'rhs' arrays by using the comparison operators of
+    // 'VALUE_TYPE' on each element; return the result of that comparison.
+
+#else
+
 template <class VALUE_TYPE, size_t SIZE>
 bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
                 const array<VALUE_TYPE, SIZE>& rhs);
@@ -479,6 +493,8 @@ bool operator>=(const array<VALUE_TYPE, SIZE>& lhs,
     // Return 'true' if the specified 'lhs' is lexicographically greater than
     // the specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
     // each element or if 'lhs' and 'rhs' are equal; return 'false' otherwise.
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class VALUE_TYPE, size_t SIZE>
@@ -901,6 +917,23 @@ bool bsl::operator==(const array<VALUE_TYPE, SIZE>& lhs,
                                                     rhs.size());
 }
 
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class VALUE_TYPE, size_t SIZE>
+BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> bsl::operator<=>(
+                                            const array<VALUE_TYPE, SIZE>& lhs,
+                                            const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return bsl::lexicographical_compare_three_way(
+                              lhs.begin(),
+                              lhs.end(),
+                              rhs.begin(),
+                              rhs.end(),
+                              BloombergLP::bslalg::SynthThreeWayUtil::compare);
+}
+
+#else
+
 template <class VALUE_TYPE, size_t SIZE>
 bool bsl::operator!=(const array<VALUE_TYPE, SIZE>& lhs,
                      const array<VALUE_TYPE, SIZE>& rhs)
@@ -940,6 +973,8 @@ bool bsl::operator>=(const array<VALUE_TYPE, SIZE>& lhs,
 {
     return !(lhs < rhs);
 }
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class VALUE_TYPE, size_t SIZE>
@@ -1005,7 +1040,8 @@ void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
 
 #endif  // BSLSTL_ARRAY_IS_ALIASED
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#if defined(BSLSTL_ARRAY_IS_ALIASED) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
 namespace bsl {
 using std::to_array;
 }  // close namespace bsl
@@ -1032,7 +1068,8 @@ array<typename remove_cv<TYPE>::type, SIZE> to_array( TYPE (&&src)[SIZE] );
     // be 'MoveConstructible' and, in C++ versions prior to C++14, must also
     // be 'DefaultConstructible'.
 
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif  // BSLSTL_ARRAY_IS_ALIASED &&
+        // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 }  // close namespace bsl
 

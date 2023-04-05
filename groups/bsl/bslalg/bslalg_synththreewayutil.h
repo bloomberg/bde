@@ -76,6 +76,8 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) &&            \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
 
+#define BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE 1
+
 #include <bslmf_booleantestable.h>
 
 #include <concepts>
