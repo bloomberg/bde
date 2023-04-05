@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 #include <barrier>
 
@@ -26,7 +26,7 @@ namespace bsl {
 
 }  // close package namespace
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 #endif
 

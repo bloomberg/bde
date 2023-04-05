@@ -12,7 +12,8 @@
 #include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) &&            \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
 typedef bslalg::SynthThreeWayUtil Obj;
 #endif
 
@@ -110,7 +111,9 @@ static bool veryVeryVeryVerbose;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) &&            \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
 namespace {
 
                            // =======================
@@ -221,7 +224,8 @@ bslalg::SynthThreeWayUtil::Result<T> operator<=>(const list<T,A>& lhs,
 }
 //..
 
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&
+        // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -259,7 +263,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) &&            \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
         // Create some instance of the template
         list<int> list1, list2;
 
@@ -299,7 +304,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'SynthThreeWayUtil::compare'"
                             "\n===================================\n");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) &&            \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
         testCase3<TypeWithSpaceship, std::strong_ordering>();
         testCase3<TypeWithLessOnly, std::weak_ordering>();
 #endif
@@ -320,7 +326,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) &&            \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
         Wrapped<int> v1{1}, v2{2};
 
         ASSERT(v1 <  v2);

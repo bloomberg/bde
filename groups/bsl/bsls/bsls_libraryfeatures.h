@@ -46,12 +46,8 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY: C++20 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED: 'result_of' et al. gone
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: <version>
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER: <barrier>
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH: <latch>
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS: <concepts>
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: <ranges>
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: <semaphore>
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN: <stop_token>
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY: 'to_array' available
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES:
 //                                                  atomic_[un]signed_lock_free
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS:
@@ -507,14 +503,21 @@ BSLS_IDENT("$Id: $")
 //:
 //: o The following headers can be included:
 //:
+//:   o <barrier>
+//:   o <bit>
+//:   o <latch>
+//:   o <numbers>
+//:   o <semaphore>
+//:   o <source_location>
 //:   o <span>
+//:   o <stop_token>
 //:
 //
 // This macro is defined first for the following compiler versions:
 //
-//:   o GCC 10
-//:   o clang 11
-//:   o Microsoft Visual Studio 2019 / MSVC 19.20 19.30
+//:   o GCC 11.1
+//:   o clang 15
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
@@ -935,19 +938,6 @@ BSLS_IDENT("$Id: $")
 //:   o clang 14 and later, or clang using at least GCC 9 GNU C++ Library
 //:   o Microsoft Visual Studio 2017 15.7 / MSVC 19.14 and later
 //
-///'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'
-///-----------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' macro is defined if the
-// 'std::to_array' templates are available.
-//
-// 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is the equivalent of
-// '__cpp_lib_to_array >= 201907L'.
-//
-// This macro is defined first for the following compiler versions:
-//:   o GCC 10.1
-//:   o clang 11.0
-//:   o Microsoft Visual Studio 2019 / MSVC 19.25
-//
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION'
 ///-----------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION' macro is defined if the native
@@ -966,23 +956,14 @@ BSLS_IDENT("$Id: $")
 //:   o clang 7 and later, or clang using at least GCC 9 GNU C++ Library
 //:   o Microsoft Visual Studio 2019 16.2 / MSVC 19.22 and later
 //
-/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER'
-///-----------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER' macro is defined if the native
-// standard library provides the <barrier> header and implements all required
-// content with no major issues.
-//
-// This macro is defined if the standard '__cpp_lib_barrier' feature-test macro
-// is defined.
-//
-/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH'
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS'
 ///---------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH' macro is defined if the native
-// standard library provides the <latch> header and implements all required
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS' macro is defined if the native
+// standard library provides the <concepts> header and implements all required
 // content with no major issues.
 //
-// This macro is defined if the standard '__cpp_lib_latch' feature-test macro
-// is defined.
+// This macro is defined if the standard '__cpp_lib_concepts' feature-test
+// macro is defined and '__cpp_lib_concepts >= 202002L'.
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES'
 ///---------------------------------------
@@ -991,25 +972,7 @@ BSLS_IDENT("$Id: $")
 // content with no major issues.
 //
 // This macro is defined if the standard '__cpp_lib_ranges' feature-test macro
-// is defined.
-//
-/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE'
-///-------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE' macro is defined if the
-// native standard library provides the <semaphore> header and implements all
-// required content with no major issues.
-//
-// This macro is defined if the standard '__cpp_lib_semaphore' feature-test
-// macro is defined.
-//
-/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN'
-///-------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN' macro is defined if the
-// native standard library provides the <stop_token> header and implements all
-// required content with no major issues.
-//
-// This macro is defined if the standard '__cpp_lib_jthread' feature-test
-// macro is defined.
+// is defined and '__cpp_lib_ranges >= 202110L'.
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES'
 ///---------------------------------------------------------------
@@ -1413,11 +1376,11 @@ BSLS_IDENT("$Id: $")
         #endif
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS         1
     #endif
-    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+    #if __cplusplus >= 202002L
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION                    1
         #endif
-        #if BSLS_PLATFORM_CMP_VERSION >= 100000
+        #if BSLS_PLATFORM_CMP_VERSION >= 110100
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY           1
         #endif
     #endif
@@ -1575,7 +1538,7 @@ BSLS_IDENT("$Id: $")
                 #define BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION                1
             #endif
 
-            #if BSLS_PLATFORM_CMP_VERSION >= 110000
+            #if BSLS_PLATFORM_CMP_VERSION >= 150000
                 #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY       1
             #endif
         #endif
@@ -1660,8 +1623,14 @@ BSLS_IDENT("$Id: $")
                 #define BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION                1
             #endif
 
-            #if BSLS_PLATFORM_CMP_VERSION >= 110000
-                #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY       1
+            #if BSLS_PLATFORM_CMP_VERSION >= 150000
+                #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) &&               \
+                    defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE >= 11
+                    #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY   1
+                #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) &&            \
+                      defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 15
+                    #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY   1
+                #endif
             #endif
         #endif
     #endif
@@ -1765,20 +1734,13 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION                    1
         #endif
 
-        // C++20 library features introduced in Visual Studio 2020
+        // C++20 library features introduced in Visual Studio 2022
 
-        // VS 2020 17.0
+        // VS 2022 17.0.1
         #if BSLS_PLATFORM_CMP_VERSION >= 1930
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY           1
         #endif
     #endif  // At least C++20
-
-    // Define macros for C++20 features that may be detected via '__cpp_lib_*'
-    // macros.
-
-    #if defined(__cpp_lib_to_array) && __cpp_lib_to_array >= 201907L
-        #define BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY                           1
-    #endif
 
     // If _HAS_AUTO_PTR_ETC is defined, use its value as the deciding one for
     // whether the C++17 deprecated names are gone.
@@ -1831,43 +1793,40 @@ BSLS_IDENT("$Id: $")
 //                    STANDARD FEATURE-DETECTION MACROS
 // ----------------------------------------------------------------------------
 
-#if BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
 #include <version>
-#endif
 
-#if defined(__cpp_lib_barrier) && __cpp_lib_barrier >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER                                1
-#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+// Individual features should only be available if we claim to support the
+// baseline functionality of the C++20 library standard.
 
-#if defined(__cpp_lib_latch) && __cpp_lib_latch >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH                                  1
+#if defined(__cpp_lib_concepts) && __cpp_lib_concepts >= 202002L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS                               1
 #endif
 
 #if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 202110L
 #define BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES                                 1
 #endif
 
-#if defined(__cpp_lib_semaphore) && __cpp_lib_semaphore >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE                              1
-#endif
-
-#if defined(__cpp_lib_jthread) && __cpp_lib_jthread >= 201911L
-# define BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN                            1
-#endif
-
-#if __cpp_lib_atomic_lock_free_type_aliases >= 201907L
+#if defined(__cpp_lib_atomic_lock_free_type_aliases) &&                       \
+    __cpp_lib_atomic_lock_free_type_aliases >= 201907L
 #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES          1
 #endif
 
-#if __cpp_lib_atomic_wait >= 201907L && \
-                                      !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+#if defined(__cpp_lib_atomic_wait) &&                                         \
+    __cpp_lib_atomic_wait >= 201907L &&                                       \
+    !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
 #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS             1
 #endif
 
-#if __cpp_lib_atomic_flag_test >= 201907L && \
-                                      !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+#if defined(__cpp_lib_atomic_flag_test) &&                                    \
+    __cpp_lib_atomic_flag_test >= 201907L &&                                  \
+    !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
 #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS        1
 #endif
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
 
 // ============================================================================
 //                         DEFINE LINK-COERCION SYMBOL

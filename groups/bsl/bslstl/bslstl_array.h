@@ -1005,7 +1005,7 @@ void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
 
 #endif  // BSLSTL_ARRAY_IS_ALIASED
 
-#if BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 namespace bsl {
 using std::to_array;
 }  // close namespace bsl

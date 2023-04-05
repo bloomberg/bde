@@ -71,8 +71,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) &&            \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
 
 #include <bslmf_booleantestable.h>
 
@@ -144,7 +146,8 @@ struct SynthThreeWayUtil {
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON  &&
+        // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 #endif
 

@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 #include <concepts>
 
@@ -68,7 +68,7 @@ concept BooleanTestable =
 
 }  // close package namespace
 }  // close enterprise namespace
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 #endif
 

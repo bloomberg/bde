@@ -790,7 +790,7 @@ size_t CountingFunctor::s_count = 0;
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 class CompletionFunction {
     // This class minimally satisfies the requirements of the 'bsl::barrier'
     // template parameter.
@@ -799,7 +799,7 @@ class CompletionFunction {
     // MANIPULATORS
     void operator()() noexcept {}
 };
-#endif  // BSLS_LIBRARYFEATURES_HAS_BARRIER
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
@@ -2041,18 +2041,14 @@ int main(int argc, char *argv[])
             printf("\nTESTING C++20 THREAD_COORDINATION CLASSES"
                    "\n=========================================\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
        bsl::barrier<CompletionFunction> barrier(0);
        ASSERT((bsl::is_same_v<std::barrier<CompletionFunction>,
                               bsl::barrier<CompletionFunction> >));
-#endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
        bsl::latch latch(0);
        ASSERT((bsl::is_same_v<std::latch, bsl::latch>));
-#endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
        bsl::counting_semaphore countingSemaphore(0);
        ASSERT((bsl::is_same_v<std::counting_semaphore<1>,
                               bsl::counting_semaphore<1> >));

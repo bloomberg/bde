@@ -15,10 +15,6 @@
     #include <string.h>  // for 'strchr'
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
-    #include <array> // for 'std::to_array'
-#endif
-
 // Verify assumption that the BASELINE C++11 library includes all of the new
 // library headers not covered by a more specific macro.  Note that we actively
 // #include each header to check for errors, though this could switch to using
@@ -100,14 +96,9 @@
 // Verify assumption that the BASELINE C++20 library includes all of the new
 // library headers not covered by a more specific macro.
 
-// Verify assumption that <barrier> can be included.
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER)
-    #include <barrier>
-#endif
-
-// Verify assumption that <latch> can be included.
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH)
-    #include <latch>
+// Verify assumption that <concepts> can be included.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    #include <concepts>
 #endif
 
 // Verify assumption that <ranges> can be included.
@@ -115,17 +106,11 @@
     #include <ranges>
 #endif
 
-// Verify assumption that <semaphore> can be included.
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE)
-    #include <semaphore>
-#endif
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+    #include <barrier>
+    #include <latch>
+    #include <semaphore>
     #include <span>
-#endif
-
-// Verify assumption that <stop_token> can be included.
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN)
     #include <stop_token>
 #endif
 
@@ -220,15 +205,11 @@
 // [18] BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
 // [17] BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
-// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
-// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
-// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
-// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
-// [20] BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -239,7 +220,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [21] USAGE EXAMPLE
+// [20] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -406,15 +387,8 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION_defined =
                                                                          false;
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER)
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH)
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
                                                                           true;
 #else
                                                                          false;
@@ -422,20 +396,6 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE)
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN)
                                                                           true;
 #else
                                                                          false;
@@ -468,6 +428,19 @@ bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined =
                     // case 19
 
 #include <vector> // for 'ranges'
+namespace case19 {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class TYPE>
+requires std::equality_comparable<TYPE>
+constexpr bool equal(const TYPE& lhs, const TYPE& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' are equal.  This function
+    // is used to conform concepts availability.
+{
+    return lhs == rhs;
+}
+#endif
+
+}  // close namespace case19
 
                     // case 13
 
@@ -1341,16 +1314,9 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER: ");
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH: ");
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH) );
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1358,20 +1324,6 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
     printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE: ");
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN: ");
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1611,7 +1563,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 21: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1632,55 +1584,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
       } break;
-      case 20: {
-        // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'
-        //
-        // Concerns:
-        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined,
-        //:   'std::to_array' is available.
-        //
-        // Plan:
-        //: 1 Make simple use of 'std::to_array' to verify its availability
-        //:   if 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined.
-        //
-        // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
-        // --------------------------------------------------------------------
-
-        if (verbose) {
-            printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'\n"
-                   "=================================================\n");
-        }
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY)
-        // String is there since the macro will get replaced by value.
-        ASSERTV("__cpp_lib_to_array >= 201907L check",
-                __cpp_lib_to_array,
-                __cpp_lib_to_array >= 201907L);
-
-
-        if (veryVerbose) printf("... testing to_array(T&[N])\n");
-        {
-            int src[5] = {1, 2, 3, 4, 5};
-            std::array<int, 5> dest = std::to_array(src);
-            for (std::size_t i = 0; i < sizeof(src)/sizeof(*src); ++i) {
-                ASSERTV(i, src[i], dest[i], src[i] == dest[i]);
-            }
-        }
-
-
-        if (veryVerbose) printf("... testing to_array(T&&[N])\n");
-        {
-            int src[5] = {1, 2, 3, 4, 5};
-            int check[5] = {1, 2, 3, 4, 5};
-            std::array<int, 5> dest = std::to_array(std::move(src));
-            for (std::size_t i = 0; i < sizeof(check)/sizeof(*check); ++i) {
-                ASSERTV(i, dest[i], check[i], dest[i] == check[i]);
-            }
-        }
-#endif
-      } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING BSLS_LIBRARYFEATURES_HAS_CPP20_MISCELLANY
@@ -1689,28 +1592,19 @@ int main(int argc, char *argv[])
         //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION' is defined only when the
         //:   native standard library provides it.
         //:
-        //: 2 'BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER' is defined only when the
-        //:   native standard library provides it.
-        //:
-        //: 3 'BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH' is defined only when the
-        //:   native standard library provides it.
-        //:
-        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE' is defined only when
+        //: 2 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS' is defined only when
         //:   the native standard library provides it.
         //:
-        //: 5 'BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN' is defined only when
-        //:   the native standard library provides it.
-        //:
-        //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' is defined only when the
+        //: 3 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' is defined only when the
         //:   native standard library provides it.
         //:
-        //: 7 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' is
+        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' is
         //:   defined only when the native standard library provides it.
         //:
-        //: 8 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is
+        //: 5 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is
         //:   defined only when the native standard library provides it.
         //:
-        //: 9 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
+        //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
         //:   is defined only when the native standard library provides it.
         //
         // Plan:
@@ -1719,10 +1613,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
-        //   BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
-        //   BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
-        //   BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
-        //   BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
@@ -1735,43 +1626,17 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION_defined)
-            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER_defined)
-            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH_defined)
-            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE_defined)
-            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined)
     P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES_defined)
     P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS_defined)
     P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined)
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BARRIER
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
         {
-            std::barrier barrier(1);
-            (void) barrier;
-        }
-#endif
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_LATCH
-        {
-            std::latch latch(0);
-            (void) latch;
-        }
-#endif
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SEMAPHORE
-        {
-            std::counting_semaphore countingSemaphore(0);
-            std::binary_semaphore binarySemaphore(0);
-
-            (void) countingSemaphore;
-            (void) binarySemaphore;
-        }
-#endif
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_STOP_TOKEN
-        {
-            (void) std::nostopstate;
+            ASSERT( case19::equal(2,2));
+            ASSERT(!case19::equal(1,2));
         }
 #endif
 
@@ -2077,7 +1942,13 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is defined only
         //:   when the native standard library provides a baseline of C++20
-        //:   library features (span).
+        //:   library features, including:
+        //:       o 'span'
+        //:       o 'barrier'
+        //:       o 'latch'
+        //:       o 'countingSemaphore'
+        //:       o 'nostopstate'
+        //:       o 'to_array'
         //
         // Plan:
         //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is
@@ -2100,6 +1971,56 @@ int main(int argc, char *argv[])
         {
             std::span<int> x;
             (void) x;
+        }
+
+        {
+            std::barrier barrier(1);
+            (void) barrier;
+        }
+
+        {
+            std::latch latch(0);
+            (void) latch;
+        }
+
+        {
+            std::counting_semaphore countingSemaphore(0);
+            std::binary_semaphore binarySemaphore(0);
+
+            (void) countingSemaphore;
+            (void) binarySemaphore;
+        }
+
+        {
+            (void) std::nostopstate;
+        }
+
+        {
+            // String is there since the macro will get replaced by value.
+            ASSERTV("__cpp_lib_to_array >= 201907L check",
+                    __cpp_lib_to_array,
+                    __cpp_lib_to_array >= 201907L);
+
+            if (veryVerbose) printf("... testing to_array(T&[N])\n");
+            {
+                int src[5] = {1, 2, 3, 4, 5};
+                std::array<int, 5> dest = std::to_array(src);
+                for (std::size_t i = 0; i < sizeof(src)/sizeof(*src); ++i) {
+                    ASSERTV(i, src[i], dest[i], src[i] == dest[i]);
+                }
+            }
+
+            if (veryVerbose) printf("... testing to_array(T&&[N])\n");
+            {
+                int src[5] = {1, 2, 3, 4, 5};
+                int check[5] = {1, 2, 3, 4, 5};
+                std::array<int, 5> dest = std::to_array(std::move(src));
+                for (std::size_t i = 0;
+                     i < sizeof(check)/sizeof(*check);
+                     ++i) {
+                    ASSERTV(i, dest[i], check[i], dest[i] == check[i]);
+                }
+            }
         }
 #endif
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
