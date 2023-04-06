@@ -1,5 +1,51 @@
-bsl-internal (3.115.1.0) unstable; urgency=low
+bsl-internal (3.116.0.0) unstable; urgency=low
 
+  * 3b872f6a8 Bumped version to 3.116.0.0
+  * 134064a30 <=> added (#4208)
+  * 555130835 C++20 work: Add the ‘operator<=>’ to the 'bslstl::vector' (DRQS 171318811) (#4207)
+  * 948017f3c C++20 work: Add the ‘operator<=>’ to the 'bslstl::list' (DRQS 171318804) (#4188)
+  * 3a66fd7fe C++20 work: Add aliases for the new entities (DRQS 171318654) (#4183)
+  * 34a2c2b53 C++20 work: Add aliases to <bslstl_chrono.h> (DRQS 171318647) (#4157)
+  * b2202b3e5 C++20 work: Add the ‘operator<=>’ to the 'bslstl::deque' (DRQS 171318802) (#4198)
+  * 34725ab30 Feature testing for make_unique_for_overwrite (#4175)
+  * 627398df3 Merge pull request #4206 from afeher/drqs-171770523-fix-gcc10-cpp03-hexfloat-feature-detection
+  * 863fbbe9e C++20 work: Add the ‘operator<=>’ to the 'bslstl::array' (DRQS 171318794) (#4191)
+  * 6daf036bf New cpp20 baseline has been set. DRQS 171628630 (#4194)
+  * 990462d4e Fix compilerfeatures test & cleanup (#4192)
+  * e99a7f2dd Clarify the thread safety of BALL logging macros (#4202)
+  * 92cd29d9d Revert bsls_spinlock constexpr constructor instead of aggregate init (#4197)
+  * a6ff4bdcf Bdlde charconvertutf16 support char16 t drqs 171144779 (#4093)
+  * 26b076899 Simplify numberutil decode (#4196)
+  * 205239a2c Bdljsn numberutil iterators (#4178)
+  * 30355e873 bslstl_optional.t: skip problematic test on Clang w/ LLVM lib as well (#4138)
+  * 60e709261 Remove unnused includes (#4195)
+  * 23f4fb9b6 bdljsn_jsonnumber: Document numerical equality comparison (#4190)
+  * b5f4678d1 Work around XLC warnings on AIX (#4189)
+  * 141b436b8 Fix __LINE__ usage for -ZI MSVC flag (#4114)
+  * b4a68e1c9 An error in the 'bslstl_string_test.t.cpp' has been fixed (#4181)
+  * 2802ae327 Fix use-after-free in unordered_map tests. Found by ASAN (#4184)
+  * 250421fe6 drqs-168653902: balb_pipetaskmanager  (#4036)
+  * fb28f05a8 C++20 work: Add <bsl_compare.h> header and alias standard entities (DRQS 171318582 ) (#4139)
+  * 070bb7fb6 Make 'bsl::StringRefImp' trivially copyable (#4186)
+  * fbfbf3812 Add 'contains' for unordered map/multimap (#4148)
+  * 549c6ba7a Add 'contains' for set/multiset (#4147)
+  * 35569d9d2 C++20 work: Add aliases to <bsl_atomic.h> (DRQS 171318646) (#4176)
+  * c48cca006 bsls_spinlock: Value-initialize the atomic member in constexpr constructors (#4182)
+  * 7dde80bfb Fix string_view test to not do out-of-bound reads on empty data sets.  Caught by Address Sanitizer (#4179)
+  * 430bf54eb bsls_spinlock constexpr constructor instead of aggregate initialization in C++17 and later (#4162)
+  * 53cc89999 correct test case 4 (#4171)
+  * 0aff0448a update doc and prevent silent failures (#4173)
+  * 35c1df15a bdlpcre::RegEx - better support for duplicate named patterns (DRQS 171250437) (#4120)
+  * f14a9f7e1 C++20 - to_array impl (#4131)
+  * 09954d17d Make BitwiseCopyableTestType actually trivially_copyable (#4168)
+  * 33d52eeed Merge pull request #4159 from bchapman/bdlb_nullableallocatedvalue-comparisons-drqs-171542817
+  * 14d137199 Merge pull request #4166 from bchapman/bslmt_threadattributes-doc-sun-thread-name-drqs-171501611
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 6 Apr 2023 15:56:47 -0400
+
+bsl-internal (3.115.1.0) git; urgency=low
+
+  * 4c68062c0 Changelog for version 3.115.1.0
   * a83ce2f90 Bumped version to 3.115.1.0
   * d53cb3ef0 Fix pkg-config in dpkg (#4174)
   * 7828ecee4 Add deduction guides for bsl::vector (#4169)
@@ -8,7 +54,7 @@ bsl-internal (3.115.1.0) unstable; urgency=low
   * 2ff3abd0a Constrained versions of algorithms have been added (#4163)
   * 19d145224 'starts_with' and 'ends_with' have been added to 'bslstl::basic_string'. DRQS 171318724 (#4125)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 16 Mar 2023 16:19:05 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 16 Mar 2023 16:36:34 -0400
 
 bsl-internal (3.115.0.0) git; urgency=low
 
