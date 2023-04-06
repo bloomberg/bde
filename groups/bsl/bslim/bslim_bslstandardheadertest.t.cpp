@@ -996,12 +996,14 @@ int main(int argc, char *argv[])
         alignas(int) char buf[sizeof(int)];
         bsl::destroy_at(bsl::construct_at<int>(reinterpret_cast<int*>(buf)));
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
 #if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_RELSEASE >= 12
         // GNU libstdc++ 11 doesn't define this (but defines the functions)
         BSLMF_ASSERT(__cpp_lib_smart_ptr_for_overwrite >= 202002L);
 #endif
         (void) bsl::make_unique_for_overwrite<int>();
         (void) bsl::make_unique_for_overwrite<int[]>(4);
+#endif
         //bsl::make_shared_for_overwrite() // own implementation
         //bsl::allocate_shared_for_overwrite() // own implementation
 

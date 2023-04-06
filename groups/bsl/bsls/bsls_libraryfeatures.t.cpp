@@ -210,6 +210,7 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -420,6 +421,14 @@ bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS_defined =
 static const
 bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
                                                                           true;
 #else
                                                                          false;
@@ -1606,6 +1615,9 @@ int main(int argc, char *argv[])
         //:
         //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
         //:   is defined only when the native standard library provides it.
+        //:
+        //: 7 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' is
+        //:   defined only when the native standard library provides it.
         //
         // Plan:
         //: 1 When these macros are defined include the appropriate headers and
@@ -1618,6 +1630,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -1631,6 +1644,7 @@ int main(int argc, char *argv[])
     P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES_defined)
     P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS_defined)
     P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined)
+          P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE_defined)
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
@@ -1674,6 +1688,13 @@ int main(int argc, char *argv[])
             (void) std::atomic_flag_test_explicit(ptr,
                                                   std::memory_order::relaxed);
         };
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
+        {
+            (void) std::make_unique_for_overwrite<int>();
+            (void) std::make_unique_for_overwrite<int[]>(4);
+        }
 #endif
       } break;
       case 18: {

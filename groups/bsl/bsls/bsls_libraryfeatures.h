@@ -54,6 +54,7 @@ BSLS_IDENT("$Id: $")
 //                                             bsl::atomic_flag_wait[_explicit]
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS:
 //                                             bsl::atomic_flag_test[_explicit]
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: '*_for_overwrite'
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -996,6 +997,11 @@ BSLS_IDENT("$Id: $")
 // defined if the 'bsl::atomic_flag_test' and 'bsl::atomic_flag_test_explicit'
 // functions are available.
 //
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE'
+///---------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' macro is
+// defined if the 'bsl::make_unique_for_overwrite' function is available.
+//
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
@@ -1823,6 +1829,12 @@ BSLS_IDENT("$Id: $")
     __cpp_lib_atomic_flag_test >= 201907L &&                                  \
     !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
 #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS        1
+#endif
+
+#if __cpp_lib_smart_ptr_for_overwrite >= 202022L \
+ || defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE == 11
+// GNU libstdc++ 11 doesn't define the macro but defines the functions
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE              1
 #endif
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
