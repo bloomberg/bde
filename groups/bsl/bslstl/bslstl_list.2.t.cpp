@@ -4166,7 +4166,9 @@ void TestDriver2<TYPE,ALLOC>::test20_comparisonOps(bsl::true_type)
     //: 2 'operator>', 'operator<=', and 'operator>=' are correctly tied to
     //:   'operator<'.
     //:
-    //: 3 That traits get selected properly.
+    //: 3 'operator<=>' is consistent with '<', '>', '<=', '>='.
+    //:
+    //: 4 That traits get selected properly.
     //
     // Plan:
     //: 1 For a variety of lists of different sizes and different values, test
@@ -4177,6 +4179,7 @@ void TestDriver2<TYPE,ALLOC>::test20_comparisonOps(bsl::true_type)
     //   bool operator>(const list<T,A>&, const list<T,A>&);
     //   bool operator<=(const list<T,A>&, const list<T,A>&);
     //   bool operator>=(const list<T,A>&, const list<T,A>&);
+    //   auto operator<=>(const list&, const list&);
     // ------------------------------------------------------------------------
 
     // NOTE: These specs must be sorted in lexicographical order
@@ -4273,6 +4276,13 @@ void TestDriver2<TYPE,ALLOC>::test20_comparisonOps(bsl::true_type)
                 ASSERTV(si, sj, isGE == (U >= V));
                 ASSERTV(si, sj, (U <  V) == !(U >= V));
                 ASSERTV(si, sj, (U >  V) == !(U <= V));
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+                const auto cmp = U <=> V;
+                ASSERTV(si, sj, isLT == (cmp <  0));
+                ASSERTV(si, sj, isLE == (cmp <= 0));
+                ASSERTV(si, sj, isGT == (cmp >  0));
+                ASSERTV(si, sj, isGE == (cmp >= 0));
+#endif
             }
         }
     }
@@ -10296,7 +10306,9 @@ int main(int argc, char *argv[])
         //: 2 'operator>', 'operator<=', and 'operator>=' are correctly tied to
         //:   'operator<'.
         //:
-        //: 3 That traits get selected properly.
+        //: 3 'operator<=>' is consistent with '<', '>', '<=', '>='.
+        //:
+        //: 4 That traits get selected properly.
         //
         // Plan:
         //: 1 For a variety of lists of different sizes and different values,
@@ -10307,6 +10319,8 @@ int main(int argc, char *argv[])
         //   bool operator>(const list&, const list&);
         //   bool operator<=(const list&, const list&);
         //   bool operator>=(const list&, const list&);
+        //   bool operator>=(const list&, const list&);
+        //   auto operator<=>(const list&, const list&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING COMPARISON FREE OPERATORS\n"

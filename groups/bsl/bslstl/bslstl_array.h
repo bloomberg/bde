@@ -445,6 +445,19 @@ bool operator==(const array<VALUE_TYPE, SIZE>& lhs,
     // element has the same value as the corresponding element in the other
     // array.
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template <class VALUE_TYPE, size_t SIZE>
+bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs);
+    // Return 'true' if the specified 'lhs' does not have the same value as the
+    // specified 'rhs'; return false otherwise.  Two arrays do not have the
+    // same value if some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 template <class VALUE_TYPE, size_t SIZE>
@@ -456,15 +469,6 @@ BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
     // 'VALUE_TYPE' on each element; return the result of that comparison.
 
 #else
-
-template <class VALUE_TYPE, size_t SIZE>
-bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
-                const array<VALUE_TYPE, SIZE>& rhs);
-    // Return 'true' if the specified 'lhs' does not have the same value as the
-    // specified 'rhs'; return false otherwise.  Two arrays do not have the
-    // same value if some element in the ordered sequence of elements of 'lhs'
-    // does not have the same value as the corresponding element in the ordered
-    // sequence of elements of 'rhs'.
 
 template <class VALUE_TYPE, size_t SIZE>
 bool operator<(const array<VALUE_TYPE, SIZE>& lhs,
@@ -917,6 +921,17 @@ bool bsl::operator==(const array<VALUE_TYPE, SIZE>& lhs,
                                                     rhs.size());
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template <class VALUE_TYPE, size_t SIZE>
+bool bsl::operator!=(const array<VALUE_TYPE, SIZE>& lhs,
+                     const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 template <class VALUE_TYPE, size_t SIZE>
@@ -933,13 +948,6 @@ BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> bsl::operator<=>(
 }
 
 #else
-
-template <class VALUE_TYPE, size_t SIZE>
-bool bsl::operator!=(const array<VALUE_TYPE, SIZE>& lhs,
-                     const array<VALUE_TYPE, SIZE>& rhs)
-{
-    return !(lhs == rhs);
-}
 
 template <class VALUE_TYPE, size_t SIZE>
 bool bsl::operator<(const array<VALUE_TYPE, SIZE>& lhs,

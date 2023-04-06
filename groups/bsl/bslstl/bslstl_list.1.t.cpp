@@ -1933,10 +1933,15 @@ void TestDriver1<TYPE,ALLOC>::test06_equalityOp()
         using namespace bsl;
 
         operatorPtr operatorEq = operator==;
-        operatorPtr operatorNe = operator!=;
-
         (void) operatorEq;  // quash potential compiler warnings
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        operatorPtr operatorNe = operator!=;
         (void) operatorNe;
+#else
+        bool ne = Obj() != Obj();
+        (void) ne;
+#endif
     }
 
     static const char *SPECS[] = {
