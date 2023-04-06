@@ -55,6 +55,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS:
 //                                             bsl::atomic_flag_test[_explicit]
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: '*_for_overwrite'
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR: <chrono> Calendar/TZ additions
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -1002,6 +1003,14 @@ BSLS_IDENT("$Id: $")
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' macro is
 // defined if the 'bsl::make_unique_for_overwrite' function is available.
 //
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR'
+///------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR' is defined if the C++20
+// Calendar/TZ feature is available in 'bsl::chrono' namespace.
+//
+// This macro is defined if the standard '__cpp_lib_chrono' feature-test macro
+// has at least '201907L' value.
+//
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
@@ -1835,6 +1844,10 @@ BSLS_IDENT("$Id: $")
  || defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE == 11
 // GNU libstdc++ 11 doesn't define the macro but defines the functions
 #define BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE              1
+#endif
+
+#if __cpp_lib_chrono >= 201907L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR                               1
 #endif
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
