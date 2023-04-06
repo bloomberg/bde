@@ -1026,7 +1026,8 @@ void TestDriver2<TYPE, ALLOC>::testCase20()
     //   1) 'operator<' returns the lexicographic comparison on two arrays.
     //   2) 'operator>', 'operator<=', and 'operator>=' are correctly tied to
     //      'operator<'.
-    //   3) That traits get selected properly.
+    //   3) 'operator<=>' is consistent with '<', '>', '<=', '>='.
+    //   4) That traits get selected properly.
     //
     // Plan:
     //   For a variety of vectors of different sizes and different values, test
@@ -1039,6 +1040,7 @@ void TestDriver2<TYPE, ALLOC>::testCase20()
     //   bool operator>(const vector<T,A>&, const vector<T,A>&);
     //   bool operator<=(const vector<T,A>&, const vector<T,A>&);
     //   bool operator>=(const vector<T,A>&, const vector<T,A>&);
+    //   auto operator<=>(const vector<T,A>&, const vector<T,A>&);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nTesting '%s'.\n", NameOf<TYPE>().name());
@@ -1128,6 +1130,13 @@ void TestDriver2<TYPE, ALLOC>::testCase20()
                 ASSERTV(si, sj, !isLessEq == (U > V));
                 ASSERTV(si, sj,  isLessEq == (U <= V));
                 ASSERTV(si, sj, !isLess   == (U >= V));
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+                const auto cmp = U <=> V;
+                LOOP2_ASSERT(si, sj,  isLess   == (cmp < 0));
+                LOOP2_ASSERT(si, sj, !isLessEq == (cmp > 0));
+                LOOP2_ASSERT(si, sj,  isLessEq == (cmp <= 0));
+                LOOP2_ASSERT(si, sj, !isLess   == (cmp >= 0));
+#endif
             }
         }
     }

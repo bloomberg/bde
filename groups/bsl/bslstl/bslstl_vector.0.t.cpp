@@ -208,6 +208,7 @@
 // [20] bool operator>(const vector<T,A>&, const vector<T,A>&);
 // [20] bool operator<=(const vector<T,A>&, const vector<T,A>&);
 // [20] bool operator>=(const vector<T,A>&, const vector<T,A>&);
+// [20] auto operator<=>(const vector<T,A>&, const vector<T,A>&);
 //-----------------------------------------------------------------------------
 // [21] CONCERN: 'std::length_error' is used properly
 // [22] CONCERN: Vector support types with overloaded new/delete
@@ -1131,6 +1132,11 @@ class InputIterator {
         return result;
     }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+    bool operator==(const InputIterator&) const = default;
+
+#else
     friend bool operator==(const InputIterator& lhs, const InputIterator& rhs)
     {
         return lhs.d_ptr == rhs.d_ptr;
@@ -1140,6 +1146,7 @@ class InputIterator {
     {
         return lhs.d_ptr != rhs.d_ptr;
     }
+#endif
 };
 
                                // ===================
@@ -1488,10 +1495,12 @@ struct StatelessAllocator {
     {
         return true;
     }
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
     friend bool operator!=(StatelessAllocator, StatelessAllocator)
     {
         return false;
     }
+#endif
 };
 
 // TBD: duplicate these types as allocator-aware
