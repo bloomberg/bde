@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 114 components having 10 levels of physical
+ The 'bslstl' package currently has 115 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -59,6 +59,7 @@
       bslstl_hashtable_test2                                          !PRIVATE!
       bslstl_iomanip
       bslstl_priorityqueue
+      bslstl_span
       bslstl_string_test                                              !PRIVATE!
       bslstl_stringbuf
       bslstl_stringref
@@ -68,7 +69,8 @@
       bslstl_unorderedmultiset
       bslstl_unorderedset
 
-   5. bslstl_function
+   5. bslstl_array
+      bslstl_function
       bslstl_hashtable
       bslstl_list
       bslstl_randomaccessiterator
@@ -84,11 +86,9 @@
       bslstl_hashtablebucketiterator
       bslstl_hashtableiterator
       bslstl_iteratorutil
-      bslstl_span
       bslstl_stringrefdata
 
-   3. bslstl_array
-      bslstl_bidirectionalnodepool
+   3. bslstl_bidirectionalnodepool
       bslstl_chrono
       bslstl_errc
       bslstl_forwarditerator
@@ -104,6 +104,7 @@
       bslstl_badfunctioncall
       bslstl_badoptionalaccess
       bslstl_badweakptr
+      bslstl_compare
       bslstl_complex
       bslstl_equalto
       bslstl_function_isreferencecompatible                           !PRIVATE!
@@ -191,7 +192,7 @@
 : 'bslstl_chrono':
 :      Provide functionality of the corresponding C++ Standard header.
 :
-: 'bslstl_compare'
+: 'bslstl_compare':
 :      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_complex':
