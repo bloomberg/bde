@@ -56,6 +56,7 @@ BSLS_IDENT("$Id: $")
 //                                             bsl::atomic_flag_test[_explicit]
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: '*_for_overwrite'
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR: <chrono> Calendar/TZ additions
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV: 'mbrtoc8' & 'c8rtomb'
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -1011,6 +1012,11 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_chrono' feature-test macro
 // has at least '201907L' value.
 //
+/// 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV'
+///-----------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' macro is defined if the
+// 'bsl::mbrtoc8' and 'bsl::c8rtomb' functions are available.
+//
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
@@ -1849,6 +1855,11 @@ BSLS_IDENT("$Id: $")
 #if __cpp_lib_chrono >= 201907L
 #define BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR                               1
 #endif
+
+// The following macro is not defined as it is not covered by and C++20
+// standard feature test macro and it represents a feature not supported by any
+// current compilers.
+//#define BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV                        1
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION

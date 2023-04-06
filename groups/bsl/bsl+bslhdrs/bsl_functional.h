@@ -112,6 +112,10 @@ namespace bsl {
     using std::boyer_moore_horspool_searcher;
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    using std::bind_front;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+
 }  // close package namespace
 
 // Include Bloomberg's implementation.

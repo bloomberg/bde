@@ -212,6 +212,7 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -438,6 +439,13 @@ bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE_defined =
 static const
 bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV_defined =
+#ifdef              BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
                                                                           true;
 #else
                                                                          false;
@@ -1630,6 +1638,9 @@ int main(int argc, char *argv[])
         //:
         //: 8 'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR' is defined only when
         //:   the native standard library provides it.
+        //:
+        //: 9 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' is defined only
+        //:   when the native standard library provides it.
         //
         // Plan:
         //: 1 When these macros are defined include the appropriate headers and
@@ -1644,6 +1655,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -1659,6 +1671,7 @@ int main(int argc, char *argv[])
     P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined)
           P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE_defined)
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV_defined)
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
@@ -1720,6 +1733,17 @@ int main(int argc, char *argv[])
             using namespace std::chrono_literals;
             using std::chrono::May;
             (void) (1d/May/2000y);
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
+        {
+            (void) [](char8_t *out, std::mbstate_t *st) {
+                (void) std::mbrtoc8(out, "", 0U, st);
+            };
+            (void) [](char *out, std::mbstate_t *st) {
+                (void) std::c8rtomb(out, {}, st);
+            };
         }
 #endif
       } break;

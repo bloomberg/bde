@@ -203,6 +203,10 @@
     #include <bsl_filesystem.h>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
+    #include <bsl_execution.h>
+#endif
+
 #include <utility>     // 'std::pair'
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
@@ -233,6 +237,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [31] MISC C++20 ADDITIONS TO HEADERS
 // [30] C++20 'bsl_atomic.h' HEADER ADDITIONS
 // [29] C++20 'bsl_memory.h' HEADER ADDITIONS
 // [28] CONCERN: Entities from 'std::ranges' are available and usable.
@@ -870,6 +875,73 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 31: {
+        // --------------------------------------------------------------------
+        // TESTING MISC C++20 ADDITIONS TO HEADERS
+        //
+        // Concerns:
+        //: 1 'lerp' is available in C++20 mode in the 'bsl' namespace to users
+        //:   who include 'bsl_cmath.h'.
+        //:
+        //: 2 'midpoint' is available in C++20 mode in the 'bsl' namespace to
+        //:   users who include 'bsl_numeric.h'.
+        //:
+        //: 3 'mbrtoc8' and 'c8rtomb' are available in C++20 mode in the 'bsl'
+        //:   namespace to users who include 'bsl_cuchar.h' if
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' macro is defined.
+        //:
+        //: 4 'unsequenced_policy' and 'unseq' are available in C++20 mode in
+        //:   the 'bsl::execution' namespace to users who include
+        //:   'bsl_execution.h' if
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS' macro is
+        //:   defined.  (Implementation of the "parallel algorithms" feature
+        //:   often depends on 3rd-party libraries like Intel TBB, so it isn't
+        //:   always available.  That's why we need an additional check.)
+        //:
+        //: 5 'bind_front' is available in C++20 mode in the 'bsl' namespace to
+        //:   users who include 'bsl_functional.h'.
+        //:
+        //: 6 The feature test macros defined for the imported features are
+        //:   available and have appropriate values.
+        //
+        // Plan:
+        //: 1 Verify that
+        //:    o '__cpp_lib_interpolate >= 201902L',
+        //:    o '__cpp_lib_execution >= 201902L',
+        //:    o '__cpp_lib_bind_front >= 201907L'.
+        //:
+        //: 2 Form some valid expression with every name with 'bsl' prefix.
+        //
+        // Testing
+        //   MISC C++20 ADDITIONS TO HEADERS
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING MISC C++20 ADDITIONS TO HEADERS"
+                            "\n=======================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        BSLMF_ASSERT(__cpp_lib_interpolate >= 201902L);
+        (void) bsl::lerp(1.0, 1.0, 1.0);
+        (void) bsl::midpoint(1, 1);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
+        (void) [](char8_t *out, bsl::mbstate_t *st) {
+            (void) bsl::mbrtoc8(out, "", 0U, st);
+        };
+        (void) [](char *out, bsl::mbstate_t *st) {
+            (void) bsl::c8rtomb(out, {}, st);
+        };
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
+        BSLMF_ASSERT(__cpp_lib_execution >= 201902L);
+        (void) (bsl::execution::unsequenced_policy *) 0;
+        (void) bsl::execution::unseq;
+#endif
+
+        BSLMF_ASSERT(__cpp_lib_bind_front >= 201907L);
+        (void) bsl::bind_front([](int){}, 1);
+#endif
+      } break;
       case 30: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_atomic.h' HEADER ADDITIONS

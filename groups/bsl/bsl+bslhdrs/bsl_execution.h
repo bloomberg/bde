@@ -35,6 +35,11 @@ namespace bsl {
         using std::execution::parallel_unsequenced_policy;
         using std::execution::seq;
         using std::execution::sequenced_policy;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        using std::execution::unsequenced_policy;
+        using std::execution::unseq;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     }  // close execution namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
