@@ -610,7 +610,8 @@ void TestDriver2<TYPE,ALLOC>::testCase21()
     //   1) 'operator<' returns the lexicographic comparison on two arrays.
     //   2) 'operator>', 'operator<=', and 'operator>=' are correctly tied to
     //      'operator<'.
-    //   3) That traits get selected properly.
+    //   3) 'operator<=>' is consistent with '<', '>', '<=', '>='.
+    //   4) That traits get selected properly.
     //
     // Plan:
     //   For a variety of 'deque's of different sizes and different values,
@@ -623,6 +624,7 @@ void TestDriver2<TYPE,ALLOC>::testCase21()
     //   bool operator> (const deque& lhs, const deque& rhs);
     //   bool operator<=(const deque& lhs, const deque& rhs);
     //   bool operator>=(const deque& lhs, const deque& rhs);
+    //   auto operator<=>(const deque& lhs, const deque& rhs);
     // ------------------------------------------------------------------------
 
     static const char *SPECS[] = {
@@ -712,6 +714,13 @@ void TestDriver2<TYPE,ALLOC>::testCase21()
                 LOOP2_ASSERT(si, sj, !isLessEq == (U > V));
                 LOOP2_ASSERT(si, sj,  isLessEq == (U <= V));
                 LOOP2_ASSERT(si, sj, !isLess   == (U >= V));
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+                const auto cmp = U <=> V;
+                LOOP2_ASSERT(si, sj,  isLess   == (cmp < 0));
+                LOOP2_ASSERT(si, sj, !isLessEq == (cmp > 0));
+                LOOP2_ASSERT(si, sj,  isLessEq == (cmp <= 0));
+                LOOP2_ASSERT(si, sj, !isLess   == (cmp >= 0));
+#endif
             }
         }
     }
@@ -4792,6 +4801,7 @@ int main(int argc, char *argv[])
         //   bool operator> (const deque& lhs, const deque& rhs);
         //   bool operator<=(const deque& lhs, const deque& rhs);
         //   bool operator>=(const deque& lhs, const deque& rhs);
+        //   auto operator<=>(const deque& lhs, const deque& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING FREE COMPARISON OPERATORS\n"

@@ -405,6 +405,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_dequeprimitives.h>
 #include <bslalg_rangecompare.h>
 #include <bslalg_swaputil.h>
+#include <bslalg_synththreewayutil.h>
 #include <bslalg_typetraithasstliterators.h>
 
 #include <bslma_allocatortraits.h>
@@ -1466,6 +1467,7 @@ bool operator==(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
     // 'VALUE_TYPE'}).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
                 const deque<VALUE_TYPE, ALLOCATOR>& rhs);
@@ -1477,6 +1479,19 @@ bool operator!=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
     // sequence of elements of 'rhs'.  This method requires that the (template
     // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
     // on 'VALUE_TYPE'}).
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class VALUE_TYPE, class ALLOCATOR>
+BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
+                                      const deque<VALUE_TYPE, ALLOCATOR>& lhs,
+                                      const deque<VALUE_TYPE, ALLOCATOR>& rhs);
+    // Perform a lexicographic three-way comparison of the specified 'lhs' and
+    // the specified 'rhs' containers by using the comparison operators of
+    // 'VALUE_TYPE' on each element; return the result of that comparison.
+
+#else
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
@@ -1525,6 +1540,8 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
     // is not lexicographically less than 'rhs' (see 'operator<').  This method
     // requires that 'operator<', inducing a total order, be defined for
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>
@@ -3900,6 +3917,8 @@ bool operator==(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
     return true;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 bool operator!=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
@@ -3907,6 +3926,26 @@ bool operator!=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 {
     return !(lhs == rhs);
 }
+
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
+                                       const deque<VALUE_TYPE, ALLOCATOR>& lhs,
+                                       const deque<VALUE_TYPE, ALLOCATOR>& rhs)
+{
+    return bsl::lexicographical_compare_three_way(
+                              lhs.begin(),
+                              lhs.end(),
+                              rhs.begin(),
+                              rhs.end(),
+                              BloombergLP::bslalg::SynthThreeWayUtil::compare);
+}
+
+#else
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
@@ -3944,6 +3983,8 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 {
     return !(lhs < rhs);
 }
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>

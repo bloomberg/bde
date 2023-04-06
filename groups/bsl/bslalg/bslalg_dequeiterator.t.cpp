@@ -322,6 +322,14 @@ void TestDriver<VALUE_TYPE, BLOCK_LENGTH>::testCase1()
     ASSERT(!(X2 == X1));
     ASSERT(  X2 == X2 );
 
+    if (verbose) printf(
+        "\tc) Try comparison operators: x2 <op> x1, x2.\n");
+    ASSERT(  X1 < X2);
+    ASSERT(!(X2 < X1));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    ASSERT(X1 <=> X2 < 0);
+#endif
+
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (verbose) printf("\n 5b) Decrement x2."
                          "\t\t{ x1:A x2:A }\n");

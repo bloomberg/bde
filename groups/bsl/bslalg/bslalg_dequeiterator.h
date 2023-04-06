@@ -90,6 +90,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 
 #include <cstddef>  // std::size_t, std::ptrdiff_t
 
@@ -136,6 +137,17 @@ class DequeIterator {
         return lhs.d_value_p == rhs.d_value_p;
     }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    friend auto operator<=>(const DequeIterator& lhs, const DequeIterator& rhs)
+        // Perform a three-way comparison between the specified 'lhs' and 'rhs'
+        // iterators.  The behavior is undefined unless 'lhs' and 'rhs' are
+        // iterators over the same deque.
+    {
+        auto result = lhs.d_blockPtr_p <=> rhs.d_blockPtr_p;
+        return result == 0 ? lhs.d_value_p <=> rhs.d_value_p
+                           : result;
+    }
+#else
     friend bool operator!=(const DequeIterator& lhs, const DequeIterator& rhs)
         // Return 'true' if the specified 'lhs' iterator points to a different
         // element in the same block as the specified 'rhs' iterator, or points
@@ -164,6 +176,7 @@ class DequeIterator {
             return lhs.d_blockPtr_p < rhs.d_blockPtr_p;               // RETURN
         }
     }
+#endif
 
   public:
     // CREATORS
@@ -293,6 +306,12 @@ class DequeIterator<VALUE_TYPE, 1> {
         return lhs.d_blockPtr_p == rhs.d_blockPtr_p;
     }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    friend auto operator<=>(const DequeIterator& lhs, const DequeIterator& rhs)
+    {
+        return lhs.d_blockPtr_p <=> rhs.d_blockPtr_p;
+    }
+#else
     friend bool operator!=(const DequeIterator& lhs, const DequeIterator& rhs)
     {
         return lhs.d_blockPtr_p != rhs.d_blockPtr_p;
@@ -302,6 +321,7 @@ class DequeIterator<VALUE_TYPE, 1> {
     {
         return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
     }
+#endif
 
   public:
     // CREATORS
