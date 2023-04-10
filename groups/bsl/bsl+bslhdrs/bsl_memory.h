@@ -108,9 +108,10 @@ namespace bsl {
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-    using std::to_address;
     using std::assume_aligned;
     using std::construct_at;
+    using std::to_address;
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
     using std::make_unique_for_overwrite;
 #endif
