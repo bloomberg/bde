@@ -70,6 +70,27 @@ BSLS_IDENT("$Id: $")
 // support for a given feature may need to  be explicitly enabled by using an
 // appropriate compiler command-line option.
 //
+///Special Formatting Allowances
+///-----------------------------
+// In this file there are complex conditionals, and defining and undefining of
+// of many macros.  For this reason this file uses a few special formatting
+// rules:
+//
+//: 1 Only comments and the '1' (replacement text) of {Binary Macros} may be 79
+//:   characters long (plus newline).  Line continuation characters in long
+//:   preprocessor conditionals etc. must be placed onto column 78.  This is
+//:   to allow a human to easily scan the file for places where the feature
+//:   macros are defined.
+//:
+//: 2 Feature macro definitions that are commented out (to indicate that for a
+//:   given compiler + standard library combination the support does not exist)
+//:   must not have the replacement text (the number 1) be present so as not to
+//:   confuse a human reader.
+//:
+//: 3 Depending on the length of macro names and depth of necessary conditional
+//:   branches 2 spaces indentation may be used to ensure that most
+//:   preprocessor directives don't wrap and become hard to read.
+//
 ///Binary Macros
 ///-------------
 // Binary macros defined in this file (such as the
@@ -1051,6 +1072,7 @@ BSLS_IDENT("$Id: $")
 
   // GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
   #if defined(__GXX_EXPERIMENTAL_CXX0X__)
+
     #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
       #undef  BSLS_COMPILERFEATURES_CPLUSPLUS
       #define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L

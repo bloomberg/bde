@@ -343,8 +343,8 @@ class Log {
 #define BSLS_LOG(severity, ...)                                               \
   do {                                                                        \
     if (severity <= BloombergLP::bsls::Log::severityThreshold()) {            \
-      BloombergLP::bsls::Log::logFormattedMessage((severity),             \
-                          __FILE__,           \
+      BloombergLP::bsls::Log::logFormattedMessage((severity),                 \
+                                                  __FILE__,                   \
                                                   __LINE__,                   \
                                                   __VA_ARGS__);               \
     }                                                                         \

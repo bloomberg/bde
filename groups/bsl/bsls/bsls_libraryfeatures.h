@@ -485,7 +485,6 @@ BSLS_IDENT("$Id: $")
 //:   o <optional>
 //:   o <variant>
 //:   o <string_view>
-//:
 //
 // This macro is defined first for the following compiler versions:
 //
@@ -514,7 +513,6 @@ BSLS_IDENT("$Id: $")
 //:   o <source_location>
 //:   o <span>
 //:   o <stop_token>
-//:
 //
 // This macro is defined first for the following compiler versions:
 //
@@ -700,7 +698,7 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 8.3.0
 //:   o Microsoft Visual Studio 2017 / MSVC 19.10
 //:   o clang above 3.0 with GNU library
-//:   0 Apple clang all supported versions
+//:   o Apple clang all supported versions
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED'
 ///---------------------------------------------------
@@ -960,7 +958,7 @@ BSLS_IDENT("$Id: $")
 //:   o Microsoft Visual Studio 2019 16.2 / MSVC 19.22 and later
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS'
-///---------------------------------------
+///------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS' macro is defined if the native
 // standard library provides the <concepts> header and implements all required
 // content with no major issues.
@@ -1520,6 +1518,7 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY                      1
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF                     1
         #endif
+
         #if (defined(__GXX_EXPERIMENTAL_CXX0X__) || (_LIBCPP_STD_VER >= 11)) \
           && (__cplusplus >= 201103L)
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY           1
@@ -1592,13 +1591,14 @@ BSLS_IDENT("$Id: $")
         #endif
 
         #if defined(__cpp_lib_atomic_is_always_lock_free)
-        // There is no pre-processor define declared in libstdc++ to indicate
-        // that precise bitwidth atomics exist, but the libstdc++ shipping with
-        // GCC 7 also includes lock-free support in C++17 mode.  That feature
-        // does include a pre-processor definition, so use it as a stand-in for
-        // detecting precise bitwidth atomics.  This pre-processor definition
-        // will already only be defined when compiling in at least C++17
-        // standard mode, so there is no need for an additional check.
+            // There is no pre-processor define declared in libstdc++ to
+            // indicate that precise bitwidth atomics exist, but the libstdc++
+            // shipping with GCC 7 also includes lock-free support in C++17
+            // mode.  That feature does include a pre-processor definition, so
+            // use it as a stand-in for detecting precise bitwidth atomics.
+            // This pre-processor definition will already only be defined when
+            // compiling in at least C++17 standard mode, so there is no need
+            // for an additional check.
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS   1
         #endif
 
@@ -1608,6 +1608,7 @@ BSLS_IDENT("$Id: $")
                 #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS        1
             #endif
         #endif
+
         #if __cplusplus >= 201703L
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
@@ -1639,6 +1640,7 @@ BSLS_IDENT("$Id: $")
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
         #endif
+
         #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
             #if BSLS_PLATFORM_CMP_VERSION >= 90000
                 #define BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION                1
@@ -1664,7 +1666,7 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
 
     #if _GLIBCXX_USE_DEPRECATED
-        # undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     #endif
 #endif
 
@@ -1815,54 +1817,62 @@ BSLS_IDENT("$Id: $")
 // ----------------------------------------------------------------------------
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
-#include <version>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-// Individual features should only be available if we claim to support the
-// baseline functionality of the C++20 library standard.
-
-#if defined(__cpp_lib_concepts) && __cpp_lib_concepts >= 202002L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS                               1
+  #include <version>
 #endif
 
-#if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 202110L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES                                 1
-#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION) &&                       \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+  // Feature macros are defined by the '<version>' header, we do not test for
+  // their existence unless the header exists.  We make individual, additional
+  // features available only when we claim to support the baseline c++20
+  // standard library functionality.  We have separated the actual inclusion of
+  // '<version>' into its own, preceding, '#ifdef' block (and not embedded the
+  // 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' conditional block in it)
+  // to avoid adding yet another level of indentation.  The c++20 feature macro
+  // names are long to be descriptive, which can result in crowded and hard to
+  // read code even just with 2 spaces indentation.
 
-#if defined(__cpp_lib_atomic_lock_free_type_aliases) &&                       \
-    __cpp_lib_atomic_lock_free_type_aliases >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES          1
-#endif
+  #if defined(__cpp_lib_concepts) && __cpp_lib_concepts >= 202002L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS                           1
+  #endif
 
-#if defined(__cpp_lib_atomic_wait) &&                                         \
-    __cpp_lib_atomic_wait >= 201907L &&                                       \
-    !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS             1
-#endif
+  #if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 202110L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES                             1
+  #endif
 
-#if defined(__cpp_lib_atomic_flag_test) &&                                    \
-    __cpp_lib_atomic_flag_test >= 201907L &&                                  \
-    !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS        1
-#endif
+  #if defined(__cpp_lib_atomic_lock_free_type_aliases) &&                    \
+      __cpp_lib_atomic_lock_free_type_aliases >= 201907L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES      1
+  #endif
 
-#if __cpp_lib_smart_ptr_for_overwrite >= 202022L \
- || defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE == 11
-// GNU libstdc++ 11 doesn't define the macro but defines the functions
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE              1
-#endif
+  #if defined(__cpp_lib_atomic_wait) && __cpp_lib_atomic_wait >= 201907L &&  \
+      !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS         1
+  #endif
 
-#if __cpp_lib_chrono >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR                               1
-#endif
+  #if defined(__cpp_lib_atomic_flag_test) &&                                 \
+      __cpp_lib_atomic_flag_test >= 201907L &&                               \
+      !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS    1
+  #endif
 
-// The following macro is not defined as it is not covered by and C++20
-// standard feature test macro and it represents a feature not supported by any
-// current compilers.
-//#define BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV                        1
+  #if (defined(__cpp_lib_smart_ptr_for_overwrite) &&                         \
+       __cpp_lib_smart_ptr_for_overwrite >= 202022L) ||                      \
+       (defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE == 11)
+    // GNU libstdc++ 11 doesn't define the macro but defines the functions
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE          1
+  #endif
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+  #if defined(__cpp_lib_chrono) && __cpp_lib_chrono >= 201907L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR                           1
+  #endif
+
+  // The following macro is not defined as it is not covered by any C++20
+  // standard feature test macro and the feature it represents not supported by
+  // any current compilers.
+  //#define BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
 
 // ============================================================================
 //                         DEFINE LINK-COERCION SYMBOL
