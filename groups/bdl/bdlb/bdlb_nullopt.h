@@ -136,7 +136,7 @@ class NullOptType {
 
   public:
     // CLASS METHODS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
     static BSLS_KEYWORD_CONSTEXPR NullOptType makeInitialValue()
         // Return a value initialized 'NullOptType' object.  It is undefined
         // behavior to call this function other than to initialize the global
@@ -152,9 +152,8 @@ class NullOptType {
 #endif
 };
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-BSLS_KEYWORD_INLINE_CONSTEXPR NullOptType nullOpt =
-                                               NullOptType::makeInitialValue();
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
+inline constexpr NullOptType nullOpt = NullOptType::makeInitialValue();
 #else
 extern const NullOptType nullOpt;
 #endif

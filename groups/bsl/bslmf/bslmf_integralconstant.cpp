@@ -7,8 +7,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 // STATIC MEMBER VARIABLES
-BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, false>::VALUE;
-BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, true>::VALUE;
+const bool bsl::integral_constant<bool, false>::VALUE;
+const bool bsl::integral_constant<bool, true>::VALUE;
 #endif
 
 // ----------------------------------------------------------------------------

@@ -182,7 +182,7 @@ struct integral_constant<bool, false> : ::std::false_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<false> Type;
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = false;
+    static const bool VALUE = false;
 };
 
 template <>
@@ -192,7 +192,7 @@ struct integral_constant<bool, true> : ::std::true_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<true> Type;
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = true;
+    static const bool VALUE = true;
 };
 
 #else
@@ -214,7 +214,7 @@ struct integral_constant {
     typedef integral_constant type;
 
     // PUBLIC CLASS DATA
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER t_TYPE value = t_VAL;
+    static const t_TYPE value = t_VAL;
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
@@ -235,7 +235,7 @@ struct integral_constant<bool, t_VAL> {
     typedef integral_constant type;
 
     // PUBLIC CLASS DATA
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool value = t_VAL;
+    static const bool value = t_VAL;
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
@@ -243,7 +243,7 @@ struct integral_constant<bool, t_VAL> {
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<t_VAL> Type;
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool  VALUE = t_VAL;
+    static const bool  VALUE = t_VAL;
 };
 #endif //   defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
@@ -283,13 +283,12 @@ using bool_constant = integral_constant<bool, t_VALUE>;
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 // This variable will be supplied by the platform header, when available.
 template <class t_TYPE, t_TYPE t_VAL>
-BSLS_KEYWORD_CONSTEXPR_MEMBER t_TYPE
-    bsl::integral_constant<t_TYPE, t_VAL>::value;
+const t_TYPE bsl::integral_constant<t_TYPE, t_VAL>::value;
 
 template <bool t_VAL>
-BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, t_VAL>::value;
+const bool bsl::integral_constant<bool, t_VAL>::value;
 template <bool t_VAL>
-BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, t_VAL>::VALUE;
+const bool bsl::integral_constant<bool, t_VAL>::VALUE;
 
 // ACCESSORS
 template <class t_TYPE, t_TYPE t_VAL>

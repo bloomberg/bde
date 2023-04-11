@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Feb  2 14:32:06 2023
+// Generated on Mon Apr 10 11:09:05 2023
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -123,8 +123,8 @@
 #define BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,         \
                                                                 ANY_TYPE)     \
     BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(                   \
-                               TYPE,                                          \
-                               ANY_TYPE) = BloombergLP::bslstl::optNoSuchType
+                     TYPE,                                                    \
+                     ANY_TYPE) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_STD_OPTIONAL(TYPE,          \
                                                                ANY_TYPE)      \
@@ -136,8 +136,8 @@
 #define BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_STD_OPTIONAL(TYPE,         \
                                                                 ANY_TYPE)     \
     BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_STD_OPTIONAL(                   \
-                               TYPE,                                          \
-                               ANY_TYPE) = BloombergLP::bslstl::optNoSuchType
+                     TYPE,                                                    \
+                     ANY_TYPE) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(TYPE,        \
                                                                  ANY_TYPE)    \
@@ -149,8 +149,8 @@
 #define BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(TYPE,       \
                                                                   ANY_TYPE)   \
     BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(                 \
-                               TYPE,                                          \
-                               ANY_TYPE) = BloombergLP::bslstl::optNoSuchType
+                     TYPE,                                                    \
+                     ANY_TYPE) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR(     \
     TYPE, ANY_TYPE)                                                           \
@@ -162,8 +162,8 @@
 #define BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR(    \
     TYPE, ANY_TYPE)                                                           \
     BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCT_DOES_NOT_PROPAGATE_ALLOCATOR(         \
-                               TYPE,                                          \
-                               ANY_TYPE) = BloombergLP::bslstl::optNoSuchType
+                     TYPE,                                                    \
+                     ANY_TYPE) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM(TYPE, ANYTYPE)              \
     typename bsl::enable_if<                                                  \
@@ -173,8 +173,8 @@
 
 #define BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM(TYPE, ANYTYPE)             \
     BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM(                                \
-                                TYPE,                                         \
-                                ANYTYPE) = BloombergLP::bslstl::optNoSuchType
+                      TYPE,                                                   \
+                      ANYTYPE) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 # if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 #   define BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL(DERIVED)           \
@@ -186,7 +186,7 @@
 
 #   define BSLSTL_OPTIONAL_DECLARE_IF_DERIVED_FROM_OPTIONAL(DERIVED)          \
        BSLSTL_OPTIONAL_DEFINE_IF_DERIVED_FROM_OPTIONAL(DERIVED) =             \
-                                             BloombergLP::bslstl::optNoSuchType
+                                 BloombergLP::bslstl::Optional_OptNoSuchType(0)
 # endif
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_SAME(U, V)                                  \
@@ -195,7 +195,8 @@
         BloombergLP::bslstl::Optional_OptNoSuchType>::type
 
 #define BSLSTL_OPTIONAL_DECLARE_IF_SAME(U, V)                                 \
-    BSLSTL_OPTIONAL_DEFINE_IF_SAME(U, V) = BloombergLP::bslstl::optNoSuchType
+    BSLSTL_OPTIONAL_DEFINE_IF_SAME(U, V) =                                    \
+                                 BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(U, V)                              \
     typename bsl::enable_if<                                                  \
@@ -204,8 +205,8 @@
 
 #define BSLSTL_OPTIONAL_DECLARE_IF_NOT_SAME(U, V)                             \
     BSLSTL_OPTIONAL_DEFINE_IF_NOT_SAME(                                       \
-                                      U,                                      \
-                                      V) = BloombergLP::bslstl::optNoSuchType
+                            U,                                                \
+                            V) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_EXPLICIT_CONSTRUCT(U, V)                    \
     typename bsl::enable_if<                                                  \
@@ -214,8 +215,8 @@
 
 #define BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(U, V)                   \
     BSLSTL_OPTIONAL_DEFINE_IF_EXPLICIT_CONSTRUCT(                             \
-                                      U,                                      \
-                                      V) = BloombergLP::bslstl::optNoSuchType
+                            U,                                                \
+                            V) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_DEFINE_IF_NOT_EXPLICIT_CONSTRUCT(U, V)                \
     typename bsl::enable_if<                                                  \
@@ -224,8 +225,8 @@
 
 #define BSLSTL_OPTIONAL_DECLARE_IF_NOT_EXPLICIT_CONSTRUCT(U, V)               \
     BSLSTL_OPTIONAL_DEFINE_IF_NOT_EXPLICIT_CONSTRUCT(                         \
-                                      U,                                      \
-                                      V) = BloombergLP::bslstl::optNoSuchType
+                            U,                                                \
+                            V) = BloombergLP::bslstl::Optional_OptNoSuchType(0)
 
 #define BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE)       \
     typename bsl::enable_if<                                                  \
@@ -319,8 +320,8 @@ BSLS_KEYWORD_CONSTEXPR nullopt_t::nullopt_t(int) BSLS_KEYWORD_NOEXCEPT
     // 'constexpr' value, 'nullopt', below.
 }
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-BSLS_KEYWORD_INLINE_CONSTEXPR nullopt_t nullopt = nullopt_t(0);
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
+inline constexpr nullopt_t nullopt = nullopt_t(0);
 #  else
 extern const nullopt_t nullopt;
 #  endif
@@ -394,18 +395,7 @@ inline
 BSLS_KEYWORD_CONSTEXPR Optional_OptNoSuchType::Optional_OptNoSuchType(
                                                      int) BSLS_KEYWORD_NOEXCEPT
 {
-    // This 'constexpr' function has to be defined before initializing the
-    // 'constexpr' value, 'optNoSuchType', below.
 }
-
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-BSLS_KEYWORD_INLINE_CONSTEXPR Optional_OptNoSuchType optNoSuchType =
-    Optional_OptNoSuchType(0);
-# else
-extern const Optional_OptNoSuchType optNoSuchType;
-# endif
-    // Value of type 'Optional_OptNoSuchType' used as the default argument in
-    // functions that are constrained using a function argument.
 
                      // ==================================
                      // class Optional_PropagatesAllocator

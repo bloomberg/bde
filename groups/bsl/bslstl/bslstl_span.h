@@ -293,7 +293,7 @@ class span {
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -MN03  // Constant ... names must begin with 's_' or 'k_'
     // PUBLIC CLASS DATA
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER size_type extent = EXTENT;
+    static const size_type extent = EXTENT;
 // BDE_VERIFY pragma: pop
 
     // CREATORS
@@ -563,7 +563,7 @@ class span<TYPE, dynamic_extent> {
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -MN03  // Constant ... names must begin with 's_' or 'k_'
     // PUBLIC CLASS DATA
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER size_type extent = dynamic_extent;
+    static const size_type extent = dynamic_extent;
 // BDE_VERIFY pragma: pop
 
     // CREATORS

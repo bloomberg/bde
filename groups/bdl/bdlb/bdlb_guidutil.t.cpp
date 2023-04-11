@@ -339,10 +339,8 @@ struct BasicBloomFilter
 {
     BSLMF_ASSERT(0 == (BITS % 64ull));
 
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::uint64_t k_BUCKETS =
-        BITS / 64ull;
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::uint64_t k_BUCKET_BITMASK =
-        k_BUCKETS - 1ull;
+    static const bsl::uint64_t k_BUCKETS = BITS / 64ull;
+    static const bsl::uint64_t k_BUCKET_BITMASK = k_BUCKETS - 1ull;
 
     bsl::vector<uint64_t> d_filter;   // The filter of BITS bits.
 
@@ -1580,25 +1578,20 @@ int main(int argc, char *argv[])
         // Find duplicates; with only 2^64 unique GUIDs, there should be a 99%
         // chance of hitting a duplicate after only 13,034,599,789 iterations
         // given truly random inputs.
-        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t ITERATIONS =
-                                                                13034599789ull;
+        static const uint64_t ITERATIONS = 13034599789ull;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         // This is undersized but the best we can do on a 32-bit platform.
-        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t INITIAL_SIEVE_BITS =
-                                                           (1ull << 31);
+        static const uint64_t INITIAL_SIEVE_BITS = (1ull << 31);
         // This is undersized but the best we can do on a 32-bit platform.
-        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t CHECK_SIEVE_BITS =
-                                                           (1ull << 31);
+        static const uint64_t CHECK_SIEVE_BITS = (1ull << 31);
 #else
         // As we have 4 random numbers the optimum size is just under 8 bits
         // per item, but has to be a power of 2.
-        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t INITIAL_SIEVE_BITS =
-                                                           (1ull << 35) * 8ull;
+        static const uint64_t INITIAL_SIEVE_BITS = (1ull << 35) * 8ull;
         // We don't know what the hash size will be, so checkSieve is
         // deliberately oversized to speed up phase 2.
-        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t CHECK_SIEVE_BITS =
-                                                           (1ull << 32) * 8ull;
+        static const uint64_t CHECK_SIEVE_BITS = (1ull << 32) * 8ull;
 #endif
 
         bdlb::GuidState_Imp guidState;
