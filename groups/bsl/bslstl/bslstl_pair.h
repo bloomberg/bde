@@ -270,6 +270,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_hash.h>
 
+#include <bslalg_synththreewayutil.h>
+
 #include <bslh_hash.h>
 
 #include <bslma_allocator.h>
@@ -306,6 +308,10 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 #  include <tuple>  // 'std::tuple'
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+#include <concepts>
 #endif
 
 #include <utility> // 'std::pair' and (in C++11 mode) 'std::swap'
@@ -1663,6 +1669,7 @@ bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // 'lhs.first == rhs.first' and 'lhs.second == rhs.second'.  A call to this
     // operator will not compile unless both 'T1' and 'T2' supply 'operator=='.
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class T1, class T2>
 inline
 BSLS_KEYWORD_CONSTEXPR
@@ -1671,6 +1678,21 @@ bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // the same value and false otherwise.  'lhs' does not have the same value
     // as 'rhs' if 'lhs == rhs' would return false.  A call to this operator
     // will not compile unless a call to 'lhs == rhs' would compile.
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class T1, class T2>
+BSLS_KEYWORD_CONSTEXPR
+std::common_comparison_category_t<
+    BloombergLP::bslalg::SynthThreeWayUtil::Result<T1>,
+    BloombergLP::bslalg::SynthThreeWayUtil::Result<T2>
+> operator<=>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
+    // Perform a lexicographic three-way comparison of the specified 'lhs' and
+    // the specified 'rhs' pairs by using the comparison operators of 'T1' and
+    // 'T2'; return the result of that comparison.
+
+#else
 
 template <class T1, class T2>
 inline
@@ -1710,6 +1732,8 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // the specified 'rhs' and false otherwise.  'lhs' has a value greater than
     // or equal to 'rhs' if 'lhs' < 'rhs' would return false.  A call to this
     // operator will not compile unless a call to 'lhs < rhs' would compile.
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class T1, class T2>
@@ -3153,6 +3177,7 @@ bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
     return lhs.first == rhs.first && lhs.second == rhs.second;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class T1, class T2>
 inline
 BSLS_KEYWORD_CONSTEXPR
@@ -3160,6 +3185,24 @@ bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return ! (lhs == rhs);
 }
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class T1, class T2>
+BSLS_KEYWORD_CONSTEXPR
+std::common_comparison_category_t<
+    BloombergLP::bslalg::SynthThreeWayUtil::Result<T1>,
+    BloombergLP::bslalg::SynthThreeWayUtil::Result<T2>
+> operator<=>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
+{
+    using BloombergLP::bslalg::SynthThreeWayUtil;
+    auto result = SynthThreeWayUtil::compare(lhs.first, rhs.first);
+    return result == 0 ? SynthThreeWayUtil::compare(lhs.second, rhs.second)
+                       : result;
+}
+
+#else
 
 template <class T1, class T2>
 inline
@@ -3194,6 +3237,8 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return ! (lhs < rhs);
 }
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class T1, class T2>

@@ -168,6 +168,7 @@ using bsls::NameOf;
 // [ 2] bool operator>(const pair& x, const pair& y);
 // [ 2] bool operator<=(const pair& x, const pair& y);
 // [ 2] bool operator>=(const pair& x, const pair& y);
+// [ 2] auto operator<=>(const pair& x, const pair& y);
 // [ 5] void pair::swap(pair& rhs);
 // [ 5] void swap(pair& lhs, pair& rhs);
 // [ 6] hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
@@ -3210,6 +3211,25 @@ void testFunctionality()
         ASSERT(! (P2 <= P1));
         ASSERT(! (P1 >= P2));
 
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+        ASSERT(P2 <=> P3 == 0);
+        ASSERT(P1 <=> P2 != 0);
+        ASSERT(P1 <=> P2 <  0);
+        ASSERT(P2 <=> P1 >  0);
+        ASSERT(P1 <=> P2 <= 0);
+        ASSERT(P2 <=> P1 >= 0);
+        ASSERT(P3 <=> P2 <= 0);
+        ASSERT(P2 <=> P3 >= 0);
+
+        ASSERT(! (P1 <=> P2 == 0));
+        ASSERT(! (P3 <=> P2 != 0));
+        ASSERT(! (P2 <=> P1 <  0));
+        ASSERT(! (P1 <=> P2 >  0));
+        ASSERT(! (P2 <=> P3 <  0));
+        ASSERT(! (P3 <=> P2 >  0));
+        ASSERT(! (P2 <=> P1 <= 0));
+        ASSERT(! (P1 <=> P2 >= 0));
+#endif
         // Test assignment
         p1 = P2;
         ASSERT(P1 == P2);
@@ -10053,7 +10073,7 @@ int main(int argc, char *argv[])
         //:   constructor can be passed a 'bslma::Allocator' pointer and that
         //:   pointer is passed through to the member(s) that take it.
         //: 4 Assignment works as designed.
-        //: 5 Operators ==, !=, <, >, <=, and >= work as designed.
+        //: 5 Operators ==, !=, <, >, <=, >=, and <=> work as designed.
         //: 6 Constructors and relational operators are 'constexpr' under C++14
         //:   mode.
         //
@@ -10110,6 +10130,7 @@ int main(int argc, char *argv[])
         //   bool operator>(const pair& x, const pair& y);
         //   bool operator<=(const pair& x, const pair& y);
         //   bool operator>=(const pair& x, const pair& y);
+        //   auto operator<=>(const pair& x, const pair& y);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTIONALITY TEST"
@@ -10184,6 +10205,11 @@ int main(int argc, char *argv[])
         static_assert(!(pairII != pairII), "Operator != is not 'constexpr'.");
         static_assert(!(pairII >  pairII), "Operator > is not 'constexpr'.");
         static_assert(!(pairII <  pairII), "Operator < is not 'constexpr'.");
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+        static_assert(pairII <=> pairII == 0,
+                      "Operator <=> is not 'constexpr'.");
+#endif
 
         // Rvalue constructors
 
