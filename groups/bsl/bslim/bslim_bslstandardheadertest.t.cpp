@@ -237,7 +237,14 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
-// [31] MISC C++20 ADDITIONS TO HEADERS
+// [32] bsl::cmp_equal();
+// [32] bsl::cmp_not_equal();
+// [32] bsl::cmp_less();
+// [32] bsl::cmp_greater();
+// [32] bsl::cmp_less_equal();
+// [32] bsl::cmp_greater_equal();
+// [32] bsl::in_range();
+// [32] MISC C++20 ADDITIONS TO HEADERS
 // [30] C++20 'bsl_atomic.h' HEADER ADDITIONS
 // [29] C++20 'bsl_memory.h' HEADER ADDITIONS
 // [28] CONCERN: Entities from 'std::ranges' are available and usable.
@@ -875,6 +882,50 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 32: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 <BSL_UTILITY.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The C++20 special integer comparison functions all exist in
+        //:   namespace 'bsl'.
+        //:
+        //: 2 The feature test macros defined in '<utility>' are available and
+        //:   have appropriate values.
+        //
+        // Plan:
+        //: 1 Verify that '__cpp_lib_integer_comparison_functions >= 202002L'.
+        //:   (C-2)
+        //:
+        //: 2 Create simple examples that use these functions.  Compilation of
+        //:   the example demonstrates that the calls can be found in 'bsl'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   bsl::cmp_equal();
+        //   bsl::cmp_not_equal();
+        //   bsl::cmp_less();
+        //   bsl::cmp_greater();
+        //   bsl::cmp_less_equal();
+        //   bsl::cmp_greater_equal();
+        //   bsl::in_range();
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING C++20 <BSL_UTILITY.H> ADDITIONS"
+                            "\n=======================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        BSLMF_ASSERT(__cpp_lib_integer_comparison_functions >= 202002L);
+
+        ASSERT(!bsl::cmp_equal        (-1, 1U));
+        ASSERT( bsl::cmp_less         (-1, 1U));
+        ASSERT( bsl::cmp_less_equal   (-1, 1U));
+        ASSERT(!bsl::cmp_greater      (-1, 1U));
+        ASSERT(!bsl::cmp_greater_equal(-1, 1U));
+        ASSERT( bsl::cmp_not_equal    (-1, 1U));
+
+        ASSERT(!bsl::in_range<unsigned int>(-1));
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+      } break;
       case 31: {
         // --------------------------------------------------------------------
         // TESTING MISC C++20 ADDITIONS TO HEADERS
@@ -1017,7 +1068,7 @@ int main(int argc, char *argv[])
                                                   bsl::memory_order::relaxed);
         };
 #endif
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
       } break;
       case 29: {
         // --------------------------------------------------------------------

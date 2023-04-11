@@ -78,6 +78,15 @@ namespace bsl {
 #endif
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    using std::cmp_equal;
+    using std::cmp_not_equal;
+    using std::cmp_less;
+    using std::cmp_greater;
+    using std::cmp_less_equal;
+    using std::cmp_greater_equal;
+    using std::in_range;
+#endif
 }  // close package namespace
 
 // Include Bloomberg's implementation.
