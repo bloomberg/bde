@@ -282,6 +282,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_compare.h>
 #include <bslstl_deque.h>
 
 #include <bslalg_swaputil.h>
@@ -371,6 +372,12 @@ class stack {
     friend bool operator<=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
     template <class VAL, class CONT>
     friend bool operator>=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    template <class VAL, three_way_comparable CONT>
+    friend compare_three_way_result_t<CONT>
+    operator<=>(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+#endif
 
   public:
     // TRAITS
@@ -880,6 +887,17 @@ bool operator>=(const stack<VALUE, CONTAINER>& lhs,
 {
     return lhs.c >= rhs.c;
 }
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class VALUE, three_way_comparable CONTAINER>
+inline compare_three_way_result_t<CONTAINER>
+operator<=>(const stack<VALUE, CONTAINER>& lhs,
+            const stack<VALUE, CONTAINER>& rhs)
+{
+    return lhs.c <=> rhs.c;
+}
+#endif
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>

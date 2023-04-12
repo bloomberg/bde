@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  7 18:22:06 2022
+// Generated on Mon Apr 10 03:06:52 2023
 // Command line: sim_cpp11_features.pl bslstl_stack.h
 
 #ifdef COMPILING_BSLSTL_STACK_H
@@ -84,6 +84,12 @@ class stack {
     friend bool operator<=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
     template <class VAL, class CONT>
     friend bool operator>=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    template <class VAL, three_way_comparable CONT>
+    friend compare_three_way_result_t<CONT>
+    operator<=>(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+#endif
 
   public:
     // TRAITS
@@ -1035,6 +1041,17 @@ bool operator>=(const stack<VALUE, CONTAINER>& lhs,
     return lhs.c >= rhs.c;
 }
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class VALUE, three_way_comparable CONTAINER>
+inline compare_three_way_result_t<CONTAINER>
+operator<=>(const stack<VALUE, CONTAINER>& lhs,
+            const stack<VALUE, CONTAINER>& rhs)
+{
+    return lhs.c <=> rhs.c;
+}
+#endif
+
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
 inline
@@ -1054,7 +1071,7 @@ void swap(stack<VALUE, CONTAINER>& lhs,
 #endif // ! defined(INCLUDED_BSLSTL_STACK_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

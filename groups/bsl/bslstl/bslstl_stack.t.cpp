@@ -137,7 +137,7 @@ using namespace bsl;
 // [ 4] Primary Accessors
 //
 // FREE FUNCTIONS
-// [12] inequality comparisons: '<', '>', '<=', '>='
+// [12] inequality comparisons: '<', '>', '<=', '>=', '<=>'
 // [ 6] equality comparisons: '==', '!='
 // [ 5] operator<< (N/A)
 // ----------------------------------------------------------------------------
@@ -3663,6 +3663,18 @@ void TestDriver<CONTAINER>::testCase12()
                 ASSERTV(cont, SPECX, SPECY, LE == (Y >= X));
                 ASSERTV(cont, SPECX, SPECY, GT == (Y <  X));
                 ASSERTV(cont, SPECX, SPECY, GE == (Y <= X));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+                if constexpr (bsl::three_way_comparable<CONTAINER>) {
+                    ASSERTV(cont, SPECX, SPECY, EQ == (Y <=> X == 0));
+                    ASSERTV(cont, SPECX, SPECY, NE == (Y <=> X != 0));
+                    ASSERTV(cont, SPECX, SPECY, LT == (Y <=> X >  0));
+                    ASSERTV(cont, SPECX, SPECY, LE == (Y <=> X >= 0));
+                    ASSERTV(cont, SPECX, SPECY, GT == (Y <=> X <  0));
+                    ASSERTV(cont, SPECX, SPECY, GE == (Y <=> X <= 0));
+                }
+#endif
 
                 ASSERTV(cont, SPECX, SPECY, LT == !GE);
                 ASSERTV(cont, SPECX, SPECY, GT == !LE);
