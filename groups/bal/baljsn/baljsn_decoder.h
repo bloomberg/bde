@@ -150,6 +150,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_choicefunctions.h>
 #include <bdlat_customizedtypefunctions.h>
 #include <bdlat_enumfunctions.h>
+#include <bdlat_enumutil.h>
 #include <bdlat_formattingmode.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
@@ -708,9 +709,8 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    rc = bdlat_EnumFunctions::fromString(value,
-                                         tmpString.data(),
-                                         static_cast<int>(tmpString.size()));
+    rc = bdlat::EnumUtil::fromStringOrFallbackIfEnabled(
+        value, tmpString.data(), static_cast<int>(tmpString.size()));
 
     if (rc) {
         d_logStream << "Could not decode Enum String, value not allowed \""

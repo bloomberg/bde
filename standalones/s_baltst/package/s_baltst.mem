@@ -21,6 +21,7 @@ s_baltst_generatetestsequence
 s_baltst_generatetesttaggedvalue
 s_baltst_mychoice
 s_baltst_myenumeration
+s_baltst_myenumerationwithfallback
 s_baltst_mysequence
 s_baltst_mysequencewithanonymouschoice
 s_baltst_mysequencewitharray

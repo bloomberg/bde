@@ -55,6 +55,7 @@
 #include <s_baltst_generatetestnullablevalue.h>
 #include <s_baltst_generatetestsequence.h>
 #include <s_baltst_generatetesttaggedvalue.h>
+#include <s_baltst_myenumerationwithfallback.h>
 #include <s_baltst_mysequencewithchoice.h>
 #include <s_baltst_testchoice.h>
 #include <s_baltst_testcustomizedtype.h>
@@ -125,7 +126,8 @@ namespace test = BloombergLP::s_baltst;
 // [10] TESTING DECODING VECTORS OF VECTORS
 // [11] FLOATING-POINT VALUES ROUND-TRIP
 // [12] REPRODUCE SCENARIO FROM DRQS 169438741
-// [13] USAGE EXAMPLE
+// [13] FALLBACK ENUMERATORS
+// [14] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -36879,7 +36881,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -36984,6 +36986,93 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // FALLBACK ENUMERATORS
+        //
+        // Concerns:
+        //: 1 When decoding into an enumeration type with a fallback
+        //:   enumerator, if the encoded value corresponds to a known
+        //:   enumerator, that enumerator is the result of the decoding.
+        //: 2 When decoding into an enumeration type with a fallback
+        //:   enumerator, if the encoded value does not correspond to any known
+        //:   enumerator, the decoding still succeeds and produces the fallback
+        //:   enumerator value.
+        //
+        // Plan:
+        //: 1 Use the table-driven technique, specify a set of valid encoded
+        //:   values of the enumeration 'test:MyEnumerationWithFallback',
+        //:   including ones that correspond to both known and unknown
+        //:   enumerators, together with the expected result of decoding that
+        //:   value (either the corresponding enumerator value or the fallback
+        //:   enumerator value, respectively).
+        //: 2 Generate a JSON input string representing an array of encoded
+        //:   values by concatenating the encoded values specified in P-1,
+        //:   separated by commas, and delimited by '[' and ']'.
+        //:   Simultaneously, generate a vector of expected values, which
+        //:   consists of the enumerator values specified in P-1.
+        //: 3 Verify that the result of decoding the JSON input string created
+        //:   in P-2 equals the vector of expected values created in P-2
+        //:   (C-1..2).
+        //
+        // Note: The reason why this is a separate test case is to avoid
+        // further increasing the size of {'balb_testmessages'}, which would
+        // affect every component that depends on it.
+        //
+        // Testing:
+        //   FALLBACK ENUMERATORS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nFALLBACK ENUMERATORS"
+                          << "\n====================" << endl;
+
+        typedef test::MyEnumerationWithFallback Enum;
+
+        static const struct {
+            const char *d_json_p;
+            Enum::Value d_expected;
+        } DATA[] = {
+            { "\"VALUE1\"",  Enum::VALUE1  },
+            { "\"VALUE2\"",  Enum::VALUE2  },
+            { "\"UNKNOWN\"", Enum::UNKNOWN },
+            { "\"VALUE3\"",  Enum::UNKNOWN },
+        };
+        static const int DATA_LEN = sizeof(DATA) / sizeof(DATA[0]);
+
+        bsl::string input = "[";
+        bsl::vector<Enum::Value> expected;
+        for (int i = 0; i < DATA_LEN; i++) {
+            if (i > 0) {
+                input.push_back(',');
+            }
+            input.append(DATA[i].d_json_p);
+            expected.push_back(DATA[i].d_expected);
+        }
+        input.push_back(']');
+
+        for (int UTF8 = 0; UTF8 < 2; UTF8++) {
+            if (veryVerbose) { T_; P(UTF8); }
+
+            bsl::vector<Enum::Value>   value;
+            baljsn::DecoderOptions     options;
+            bdlsb::FixedMemInStreamBuf isb(input.data(), input.length());
+            Obj                        decoder;
+            if (UTF8) options.setValidateInputIsUtf8(true);
+
+            const int rc = decoder.decode(&isb, &value, options);
+
+            ASSERTV(decoder.loggedMessages(), rc, 0 == rc);
+            ASSERTV(isb.length(), 0 == isb.length());
+            ASSERTV(decoder.loggedMessages(),
+                    expected.size(),   value.size(),
+                    expected.size() == value.size());
+            if (expected.size() == value.size()) {
+                for (bsl::size_t i = 0; i < expected.size(); i++) {
+                    ASSERTV(expected[i], value[i], expected[i] == value[i]);
+                }
+            }
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------

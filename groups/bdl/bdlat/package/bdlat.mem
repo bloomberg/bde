@@ -7,6 +7,7 @@ bdlat_choicefunctions
 bdlat_customizedtypefunctions
 bdlat_enumeratorinfo
 bdlat_enumfunctions
+bdlat_enumutil
 bdlat_formattingmode
 bdlat_nullablevaluefunctions
 bdlat_nullablevalueutil

@@ -19,6 +19,8 @@ BSLS_IDENT("$Id: $")
 //  bdlat_IsBasicChoice<TYPE>:           true for generated "choice" types
 //  bdlat_IsBasicSequence<TYPE>:         true for generated "sequence" types
 //  bdlat_IsBasicEnumeration<TYPE>:      true for generated "enumeration" types
+//  bdlat_HasFallbackEnumerator<TYPE>:   true for generated "enumeration" types
+//                                       that have a "fallback" enumerator
 //  bdlat_BasicEnumerationWrapper<TYPE>: characteristics of enumeration type
 //  bdlat_IsBasicCustomizedType<TYPE>:   true for generated "customized" types
 //
@@ -32,6 +34,7 @@ BSLS_IDENT("$Id: $")
 //  BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)
 //  BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)
 //  BDLAT_DECL_ENUMERATION_TRAITS(ClassName)
+//  BDLAT_DECL_ENUMERATION_WITH_FALLBACK_TRAITS(ClassName)
 //  BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
 //  BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(ClassName)
 //  BDLAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)
@@ -40,10 +43,11 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides compile-time traits that pertain to
-// generated types.  The four traits provided, 'bdlat_IsBasicChoice',
+// generated types.  The five traits provided, 'bdlat_IsBasicChoice',
 // 'bdlat_IsBasicSequence', 'bdlat_IsBasicEnumeration',
-// 'bdlat_IsBasicCustomizedType' are used for generated "choice" types,
-// "sequence" types, "enumeration", and "customized type" types respectively.
+// 'bdlat_HasFallbackEnumerator', 'bdlat_IsBasicCustomizedType' are used for
+// generated "choice" types, "sequence" types, "enumeration", "enumeration"
+// with fallback enumerator, and "customized type" types respectively.
 //
 ///Usage
 ///-----
@@ -69,29 +73,35 @@ namespace BloombergLP {
 
 template <class TYPE>
 struct bdlat_IsBasicChoice :
-        bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicChoice>::type
-{
+        bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicChoice>::type {
     // This trait may be declared for "choice" types.
 };
 
 template <class TYPE>
 struct bdlat_IsBasicSequence :
-        bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicSequence>::type
-{
+        bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicSequence>::type {
     // This trait may be declared for "sequence" types.
 };
 
 template <class TYPE>
-struct bdlat_IsBasicEnumeration :
-        bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicEnumeration>::type
-{
+struct bdlat_IsBasicEnumeration
+: bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicEnumeration>::type {
     // This trait may be declared for "enumeration" types.
 };
 
 template <class TYPE>
+struct bdlat_HasFallbackEnumerator
+: bslmf::DetectNestedTrait<TYPE, bdlat_HasFallbackEnumerator>::type {
+    // This trait may be declared for "enumeration" types that have a fallback
+    // enumerator value.  If this trait is declared to be 'true' for the
+    // specified 'TYPE' but the trait 'bdlat_IsBasicEnumeration' has not
+    // previously been declared to be 'true' for 'TYPE', the behavior is
+    // undefined.
+};
+
+template <class TYPE>
 struct bdlat_IsBasicCustomizedType :
-        bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicCustomizedType>::type
-{
+        bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicCustomizedType>::type {
     // This trait may be declared for "customized type" types.
 };
 
@@ -146,6 +156,21 @@ struct bdlat_TypeTraitBasicEnumeration {
 
     template <class TYPE>
     struct Metafunction : bdlat_IsBasicEnumeration<TYPE>::type { };
+};
+
+struct bdlat_TypeTraitHasFallbackEnumerator {
+    // Legacy adaptor for bdlat_HasFallbackEnumerator.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration
+    : bslmf::NestedTraitDeclaration<TYPE,
+                                    bdlat_HasFallbackEnumerator> {
+        // This class template ties the 'bdlat_TypeTraitHasFallbackEnumerator'
+        // trait tag to the 'bdlat_HasFallbackEnumerator' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bdlat_HasFallbackEnumerator<TYPE>::type { };
 };
 
 struct bdlat_TypeTraitBasicCustomizedType {
@@ -244,6 +269,11 @@ struct bdlat_TypeTraitBasicCustomizedType {
     struct bdlat_BasicEnumerationWrapper<ClassName::Value> : ClassName {      \
         typedef ClassName Wrapper;                                            \
     };
+
+#define BDLAT_DECL_ENUMERATION_WITH_FALLBACK_TRAITS(ClassName)                \
+    BDLAT_DECL_ENUMERATION_TRAITS(ClassName)                                  \
+    template <>                                                               \
+    struct bdlat_HasFallbackEnumerator<ClassName::Value> : bsl::true_type { };
 
 #define BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)                           \
     template <>                                                               \

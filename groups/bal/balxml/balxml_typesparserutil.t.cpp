@@ -13,6 +13,7 @@
 
 #include <s_baltst_customizedstring.h>
 #include <s_baltst_myenumeration.h>
+#include <s_baltst_myenumerationwithfallback.h>
 
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_enumfunctions.h>
@@ -1745,6 +1746,21 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
+        if (verbose) cout << "\nTesting 'MyEnumerationWithFallback::Value'."
+                          << endl;
+        {
+            typedef test::MyEnumerationWithFallback::Value Obj;
+            static const RoundTripTestData<Obj> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     test::MyEnumerationWithFallback::VALUE1  },
+                { L_,     test::MyEnumerationWithFallback::VALUE2  },
+                { L_,     test::MyEnumerationWithFallback::UNKNOWN },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
         if (verbose) cout << "\nTesting 'CustomizedString'." << endl;
         {
             typedef test::CustomizedString Type;
@@ -2744,6 +2760,21 @@ int main(int argc, char *argv[])
             };
             printTextRoundTripScalarTester(DATA);
         }
+
+        if (verbose) cout << "\nTesting 'MyEnumerationWithFallback::Value'."
+                          << endl;
+        {
+            typedef test::MyEnumerationWithFallback::Value Obj;
+            static const RoundTripTestData<Obj> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     test::MyEnumerationWithFallback::VALUE1  },
+                { L_,     test::MyEnumerationWithFallback::VALUE2  },
+                { L_,     test::MyEnumerationWithFallback::UNKNOWN },
+            };
+            printTextRoundTripScalarTester(DATA);
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -3062,6 +3093,21 @@ int main(int argc, char *argv[])
                 //----    -----
                 { L_,     test::MyEnumeration::VALUE1 },
                 { L_,     test::MyEnumeration::VALUE2 },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'MyEnumerationWithFallback::Value'."
+                          << endl;
+        {
+            typedef test::MyEnumerationWithFallback::Value Obj;
+            static const RoundTripTestData<Obj> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     test::MyEnumerationWithFallback::VALUE1  },
+                { L_,     test::MyEnumerationWithFallback::VALUE2  },
+                { L_,     test::MyEnumerationWithFallback::UNKNOWN },
             };
             printDecimalRoundTripTester(DATA);
         }
@@ -4545,6 +4591,56 @@ int main(int argc, char *argv[])
                 //----    -----        ------
                 { L_,     "VALUE1X",    test::MyEnumeration::VALUE1,  },
                 { L_,     "VALUE2X",    test::MyEnumeration::VALUE2,  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE            = DATA[i].d_lineNum;
+                const char *INPUT           = DATA[i].d_input;
+                const int   INPUT_LENGTH    =
+                                      static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const Type  EXPECTED_RESULT = DATA[i].d_result;
+
+                Type mX;  const Type& X = mX;
+
+                int retCode = Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
+
+                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
+                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+            }
+        }
+        // Failure case for 'MyEnumeration::Value', where the enumerator is
+        // unknown. (In contrast, 'MyEnumerationWithFallback::Value', below,
+        // always succeeds in this case.)
+        {
+            typedef test::MyEnumeration::Value Type;
+
+            const char *INPUT = "VALUE3X";
+            const int   INPUT_LENGTH    =
+                                  static_cast<int>(bsl::strlen(INPUT)) - 1;
+            Type        mX;
+
+            const int   retCode = Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
+
+            ASSERTV(retCode, 0 != retCode);
+        }
+
+        if (verbose) cout << "\nUsing 'MyEnumerationWithFallback::Value'."
+                          << endl;
+        {
+            typedef test::MyEnumerationWithFallback::Value Type;
+
+            static const struct {
+                int         d_lineNum;
+                const char *d_input;
+                Type        d_result;
+            } DATA[] = {
+                //line input       result
+                //---- -----       ------
+                { L_,  "VALUE1X",  test::MyEnumerationWithFallback::VALUE1  },
+                { L_,  "UNKNOWNX", test::MyEnumerationWithFallback::UNKNOWN },
+                { L_,  "VALUE2X",  test::MyEnumerationWithFallback::VALUE2  },
+                { L_,  "VALUE3X",  test::MyEnumerationWithFallback::UNKNOWN },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6162,6 +6258,41 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nUsing 'MyEnumerationWithFallback::Value'."
+                          << endl;
+        {
+            typedef test::MyEnumerationWithFallback::Value Type;
+
+            static const struct {
+                int         d_lineNum;
+                const char *d_input;
+                Type        d_result;
+            } DATA[] = {
+                //line input       result
+                //---- -----       ------
+                { L_,  "VALUE1X",  test::MyEnumerationWithFallback::VALUE1  },
+                { L_,  "UNKNOWNX", test::MyEnumerationWithFallback::UNKNOWN },
+                { L_,  "VALUE2X",  test::MyEnumerationWithFallback::VALUE2  },
+                { L_,  "VALUE3X",  test::MyEnumerationWithFallback::UNKNOWN },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE            = DATA[i].d_lineNum;
+                const char *INPUT           = DATA[i].d_input;
+                const int   INPUT_LENGTH    =
+                                      static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const Type  EXPECTED_RESULT = DATA[i].d_result;
+
+                Type mX;  const Type& X = mX;
+
+                int retCode = Util::parseText(&mX, INPUT, INPUT_LENGTH);
+
+                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
+                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+            }
+        }
+
         if (verbose) cout << "\nUsing 'CustomizedString' (with success)."
                           << endl;
         {
@@ -6745,6 +6876,42 @@ int main(int argc, char *argv[])
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
                 LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'MyEnumerationWithFallback::Value'."
+                          << endl;
+        {
+            typedef test::MyEnumerationWithFallback::Value Type;
+
+            static const struct {
+                int         d_lineNum;
+                const char *d_input;
+                Type        d_result;
+            } DATA[] = {
+                //line    input   result
+                //----    -----   ------
+                { L_,     "0X",    test::MyEnumerationWithFallback::VALUE1  },
+                { L_,     "3X",    test::MyEnumerationWithFallback::UNKNOWN },
+                { L_,     "1X",    test::MyEnumerationWithFallback::VALUE2  },
+                { L_,     "2X",    test::MyEnumerationWithFallback::UNKNOWN },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE            = DATA[i].d_lineNum;
+                const char *INPUT           = DATA[i].d_input;
+                const int   INPUT_LENGTH    =
+                                      static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const Type  EXPECTED_RESULT = DATA[i].d_result;
+
+                Type mX = DATA[(i+1)%2].d_result;  const Type& X = mX;
+                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT != X);
+
+                int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
+
+                ASSERTV(LINE, retCode, 0               == retCode);
+                ASSERTV(LINE, EXPECTED_RESULT, X, EXPECTED_RESULT == X);
             }
         }
 

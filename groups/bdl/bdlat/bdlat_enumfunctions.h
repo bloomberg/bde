@@ -30,68 +30,93 @@ BSLS_IDENT("$Id: $")
 //      o load an enumeration value from a string value ('fromString').
 //      o load an integer value from an enumeration value ('toInt').
 //      o load a string value from an enumeration value ('toString').
+//      o set an enumeration to its fallback value ('makeFallback').
+//      o check whether an enumeration supports a fallback value
+//        ('hasFallback').
+//      o test whether an enumeration is equal to the fallback value
+//        ('isFallback').
 //..
-// Also, the meta-function 'IsEnumeration' contains a compile-time constant
-// 'VALUE' that is non-zero if the parameterized 'TYPE' exposes "enumeration"
-// behavior through the 'bdlat_EnumFunctions' 'namespace'.
+// The meta-functions 'IsEnumeration' and 'HasFallbackEnumerator' indicate
+// whether a type supports the above functions.  If the compile-time constant
+// 'IsEnumeration<TYPE>::VALUE' is declared to be nonzero, the type must
+// support the first four functions listed above.  If the compile-time constant
+// 'HasFallbackEnumerator<TYPE>::VALUE' is declared to be nonzero, the type
+// must also support the last three functions listed above.
 //
-// This component specializes all of these functions for types that have the
-// 'bdlat_TypeTraitBasicEnumeration' trait.
-//
-// Types that do not have the 'bdlat_TypeTraitBasicEnumeration' trait may have
-// the functions in the 'bdlat_EnumFunctions' 'namespace' specialized for them.
-// An example of this is provided in the 'Usage' section of this document.
+// This component provides default implementations of the above listed
+// functions and meta-functions for types that have the
+// 'bdlat_TypeTraitBasicEnumeration' trait.  For other types, one may
+// specialize the meta-functions and provide implementations for the functions
+// by declaring overloads of the corresponding customization points.  An
+// example of this is provided in the 'Usage' section of this document.
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate the usage of this component.
-// Suppose you had a C++ 'enum' type called 'MyEnum':
+// The following section illustrates intended use of this component.
+//
+// Suppose you have a C++ 'enum' type called 'ImageType' whose enumerators
+// represent supported formats for image files:
 //..
 // #include <bdlat_enumfunctions.h>
 // #include <bdlb_string.h>
-// #include <sstream>
-// #include <string>
+// #include <bsl_iostream.h>
+// #include <bsl_sstream.h>
+// #include <bsl_string.h>
 //
 // namespace BloombergLP {
 //
 // namespace mine {
 //
-// enum MyEnum {
-//     RED   = 1,
-//     GREEN = 2,
-//     BLUE  = 3
+// enum ImageType {
+//     JPG     = 0,
+//     PNG     = 1,
+//     GIF     = 2,
+//     UNKNOWN = 100
 // };
 //..
-// We can now make 'MyEnum' expose "enumeration" behavior by implementing all
-// the necessary 'bdlat_enum*' functions for 'MyEnum' inside the 'mine'
-// namespace.  First we should forward declare all the functions that we will
-// implement inside the 'mine' namespace:
+// We can now make 'ImageType' expose "enumeration" behavior by implementing
+// all the necessary 'bdlat_enum*' functions for 'ImageType' inside the 'mine'
+// namespace (*not* by attempting to declare specializations or overloads in
+// the 'bdlat_EnumFunctions' namespace).  First we should forward declare all
+// the functions that we will implement inside the 'mine' namespace:
 //..
-//      // MANIPULATORS
+// // MANIPULATORS
 //
-//      int bdlat_enumFromInt(MyEnum *result, int number);
-//          // Load into the specified 'result' the enumerator matching the
-//          // specified 'number'.  Return 0 on success, and a non-zero value
-//          // with no effect on 'result' if 'number' does not match any
-//          // enumerator.
+// int bdlat_enumFromInt(ImageType* result, int number);
+//     // Load into the specified 'result' the enumerator matching the
+//     // specified 'number'.  Return 0 on success, and a non-zero value
+//     // with no effect on 'result' if 'number' does not match any
+//     // enumerator.
 //
-//      int bdlat_enumFromString(MyEnum *result,
-//                               const char *string, int stringLength);
-//          // Load into the specified 'result' the enumerator matching the
-//          // specified 'string' of the specified 'stringLength'.  Return 0 on
-//          // success, and a non-zero value with no effect on 'result' if
-//          // 'string' and 'stringLength' do not match any enumerator.
+// int bdlat_enumFromString(ImageType  *result,
+//                          const char *string,
+//                          int         stringLength);
+//     // Load into the specified 'result' the enumerator matching the
+//     // specified 'string' of the specified 'stringLength'.  Return 0 on
+//     // success, and a non-zero value with no effect on 'result' if
+//     // 'string' and 'stringLength' do not match any enumerator.
 //
-//      // ACCESSORS
+// int bdlat_enumMakeFallback(ImageType *result);
+//     // Load into the specified 'result' the fallback enumerator value and
+//     // return 0 to indicate success.
 //
-//      void bdlat_enumToInt(int *result, const MyEnum& value);
-//          // Return the integer representation exactly matching the
-//          // enumerator name corresponding to the specified enumeration
-//          // 'value'.
+// // ACCESSORS
 //
-//      void bdlat_enumToString(bsl::string *result, const MyEnum& value);
-//          // Return the string representation exactly matching the enumerator
-//          // name corresponding to the specified enumeration 'value'.
+// void bdlat_enumToInt(int *result, const ImageType& value);
+//     // Load into the specified 'result' the integer representation of the
+//     // enumerator value held by the specified 'value'.
+//
+// void bdlat_enumToString(bsl::string *result, const ImageType& value);
+//     // Load into the specified 'result' the string representation of the
+//     // enumerator value held by the specified 'value'.
+//
+// bool bdlat_enumHasFallback(const ImageType&);
+//     // Return 'true' to indicate that this type supports a fallback
+//     // enumerator.
+//
+// bool bdlat_enumIsFallback(const ImageType& value);
+//     // Return 'true' if the specified 'value' equals the fallback
+//     // enumerator, and 'false' otherwise.
 //
 //  }  // close namespace mine
 //..
@@ -100,24 +125,25 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //
 //  inline
-//  int mine::bdlat_enumFromInt(MyEnum *result, int number)
+//  int mine::bdlat_enumFromInt(ImageType *result, int number)
 //  {
 //      enum { SUCCESS = 0, NOT_FOUND = -1 };
 //
 //      switch (number) {
-//        case RED: {
-//          *result = RED;
-//
+//        case JPG: {
+//          *result = JPG;
 //          return SUCCESS;
 //        }
-//        case GREEN: {
-//          *result = GREEN;
-//
+//        case PNG: {
+//          *result = PNG;
 //          return SUCCESS;
 //        }
-//        case BLUE: {
-//          *result = BLUE;
-//
+//        case GIF: {
+//          *result = GIF;
+//          return SUCCESS;
+//        }
+//        case UNKNOWN: {
+//          *result = UNKNOWN;
 //          return SUCCESS;
 //        }
 //        default: {
@@ -127,95 +153,127 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  int mine::bdlat_enumFromString(MyEnum    *result,
+//  int mine::bdlat_enumFromString(ImageType  *result,
 //                                 const char *string,
 //                                 int         stringLength)
 //  {
 //      enum { SUCCESS = 0, NOT_FOUND = -1 };
 //
-//      if (bdlb::String::areEqualCaseless("red",
-//                                        string,
-//                                        stringLength)) {
-//          *result = RED;
-//
+//      if (bdlb::String::areEqualCaseless("jpg",
+//                                         string,
+//                                         stringLength)) {
+//          *result = JPG;
 //          return SUCCESS;
 //      }
 //
-//      if (bdlb::String::areEqualCaseless("green",
-//                                        string,
-//                                        stringLength)) {
-//          *result = GREEN;
-//
+//      if (bdlb::String::areEqualCaseless("png",
+//                                         string,
+//                                         stringLength)) {
+//          *result = PNG;
 //          return SUCCESS;
 //      }
 //
-//      if (bdlb::String::areEqualCaseless("blue",
-//                                        string,
-//                                        stringLength)) {
-//          *result = BLUE;
+//      if (bdlb::String::areEqualCaseless("gif",
+//                                         string,
+//                                         stringLength)) {
+//          *result = GIF;
+//          return SUCCESS;
+//      }
 //
+//      if (bdlb::String::areEqualCaseless("unknown",
+//                                         string,
+//                                         stringLength)) {
+//          *result = UNKNOWN;
 //          return SUCCESS;
 //      }
 //
 //      return NOT_FOUND;
 //  }
 //
+//  inline
+//  int mine::bdlat_enumMakeFallback(ImageType *result)
+//  {
+//      *result = UNKNOWN;
+//      return 0;
+//  }
+//
 //  // ACCESSORS
 //
-//  void mine::bdlat_enumToInt(int *result, const MyEnum& value)
+//  inline
+//  void mine::bdlat_enumToInt(int *result, const ImageType& value)
 //  {
 //      *result = static_cast<int>(value);
 //  }
 //
-//  void mine::bdlat_enumToString(bsl::string    *result, const MyEnum&  value)
+//  inline
+//  void mine::bdlat_enumToString(bsl::string *result, const ImageType& value)
 //  {
 //      switch (value) {
-//        case RED: {
-//          *result = "RED";
+//        case JPG: {
+//          *result = "JPG";
 //        } break;
-//        case GREEN: {
-//          *result = "GREEN";
+//        case PNG: {
+//          *result = "PNG";
 //        } break;
-//        case BLUE: {
-//          *result = "BLUE";
+//        case GIF: {
+//          *result = "GIF";
+//        } break;
+//        case UNKNOWN: {
+//          *result = "UNKNOWN";
 //        } break;
 //        default: {
-//          *result = "UNKNOWN";
+//          *result = "INVALID";
 //        } break;
 //      }
 //  }
+//
+//  inline
+//  bool mine::bdlat_enumHasFallback(const ImageType&)
+//  {
+//      return true;
+//  }
+//
+//  inline
+//  bool mine::bdlat_enumIsFallback(const ImageType& value)
+//  {
+//      return value == UNKNOWN;
+//  }
 //..
-// Finally, we need to specialize the 'IsEnum' meta-function in the
-// 'bdlat_EnumFunctions' namespace for the 'mine::MyEnum' type.  This makes the
-// 'bdlat' infrastructure recognize 'MyEnum' as an enumeration abstraction:
+// Finally, we need to specialize the 'IsEnumeration' and
+// 'HasFallbackEnumerator' meta-functions in the 'bdlat_EnumFunctions'
+// namespace for the 'mine::ImageType' type.  This makes the 'bdlat'
+// infrastructure recognize 'ImageType' as an enumeration abstraction with a
+// fallback enumerator:
 //..
 //  namespace bdlat_EnumFunctions {
-//
-//      template <>
-//      struct IsEnumeration<mine::MyEnum> {
-//          enum { VALUE = 1 };
-//      };
-//
+//  template <>
+//  struct IsEnumeration<mine::ImageType> {
+//      enum { VALUE = 1 };
+//  };
+//  template <>
+//  struct HasFallbackEnumerator<mine::ImageType> {
+//      enum { VALUE = 1 };
+//  };
 //  }  // close namespace 'bdlat_EnumFunctions'
 //  }  // close namespace 'BloombergLP'
 //..
 // The 'bdlat' infrastructure (and any component that uses this infrastructure)
-// will now recognize 'MyEnum' as an "enumeration" type.  For example, suppose
-// we have the following XML data:
+// will now recognize 'ImageType' as an "enumeration" type with a fallback
+// enumerator.  For example, suppose we have the following XML data:
 //..
 //  <?xml version='1.0' encoding='UTF-8' ?>
-//  <MyEnum>GREEN</MyEnum>
+//  <ImageType>PNG</ImageType>
 //..
 // Using the 'balxml_decoder' component, we can load this XML data into a
-// 'MyEnum' object:
+// 'ImageType' object:
 //..
 //  #include <balxml_decoder.h>
 //
-//  void decodeMyEnumFromXML(bsl::istream& inputData)
+//  void decodeImageTypeFromXML(bsl::istream& inputData)
 //  {
 //      using namespace BloombergLP;
 //
-//      MyEnum object = 0;
+//      ImageType object = 0;
 //
 //      balxml::DecoderOptions options;
 //      balxml::MiniReader     reader;
@@ -224,41 +282,53 @@ BSLS_IDENT("$Id: $")
 //      balxml::Decoder decoder(&options, &reader, &errInfo);
 //      int result = decoder.decode(inputData, &object);
 //
-//      assert(0     == result);
-//      assert(GREEN == object);
+//      assert(0   == result);
+//      assert(PNG == object);
 //  }
 //..
 // Note that the 'bdlat' framework can be used for functionality other than
-// encoding/decoding into XML.  When 'mine::MyEnum' is plugged into the
+// encoding/decoding into XML.  When 'mine::ImageType' is plugged into the
 // framework, then it will be automatically usable within the framework.  For
-// example, the following snippets of code will convert a string from a stream
-// and load it into a 'mine::MyEnum' object:
+// example, consider the following generic functions that read a string from a
+// stream and decode its value into a 'bdlat' "enumeration" object:
 //..
-//  template <typename TYPE>
-//  void readMyEnum(bsl::istream& stream, TYPE *object)
+//  template <class TYPE>
+//  int readEnum(bsl::istream& stream, TYPE *object)
 //  {
 //      bsl::string value;
 //      stream >> value;
 //
-//      return bdlat_EnumType::fromString(object, value);
+//      return bdlat_EnumFunctions::fromString(object,
+//                                             value.c_str(),
+//                                             value.length())) {
+//  }
+//
+//  template <class TYPE>
+//  int readEnumOrFallback(bsl::istream& stream, TYPE *object)
+//  {
+//      const int rc = readEnum(stream, object);
+//      return (0 == rc) ? rc : bdlat_EnumFunctions::makeFallback(object);
 //  }
 //..
-// Now we have a generic function that takes an input stream and a 'Cusip'
-// object, and inputs its value.  We can use this generic function as follows:
+// We can use these generic functions with 'mine::ImageType' as follows:
 //..
 //  void usageExample()
 //  {
 //      using namespace BloombergLP;
 //
 //      bsl::stringstream ss;
-//      mine::MyEnum object;
+//      mine::ImageType   object;
 //
-//      ss << "GREEN" << bsl::endl << "BROWN" << bsl::endl;
+//      ss << "JPG\nWEBP\nWEBP\n";
 //
-//      assert(0           == readMyEnum(ss, &object));
-//      assert(mine::GREEN == object);
+//      assert(0             == readEnum(ss, &object));
+//      assert(mine::JPG     == object);
 //
-//      assert(0           != readMyEnum(ss, &object));
+//      assert(0             != readEnum(ss, &object));
+//      assert(mine::JPG     == object);
+//
+//      assert(0             == readEnumOrFallback(ss, &object));
+//      assert(mine::UNKNOWN == object);
 //  }
 //..
 
@@ -270,6 +340,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_metaint.h>
 
@@ -302,6 +373,22 @@ namespace bdlat_EnumFunctions {
         };
     };
 
+    template <class TYPE>
+    struct HasFallbackEnumerator {
+        // This 'struct' should be specialized for third-party types that need
+        // to declare the fact that they have a fallback enumerator value.
+        // Clients that specialize this struct must ensure that if
+        // 'HasFallbackEnumerator<TYPE>::VALUE' is true, then
+        // 'IsEnumeration<TYPE>::VALUE' is also true; otherwise, the behavior
+        // is undefined.
+
+        enum {
+            VALUE =
+                bslalg::HasTrait<TYPE,
+                                 bdlat_TypeTraitHasFallbackEnumerator>::VALUE
+        };
+    };
+
     // MANIPULATORS
     template <class TYPE>
     int fromInt(TYPE *result, int number);
@@ -316,19 +403,66 @@ namespace bdlat_EnumFunctions {
         // success, and a non-zero value with no effect on 'result' if 'string'
         // and 'stringLength' do not match any enumerator.
 
+    template <class TYPE>
+    int makeFallback(TYPE *result);
+        // Load into the specified 'result' the fallback enumerator value.
+        // Return 0 on success, and a non-zero value with no effect on 'result'
+        // if it does not have a fallback enumerator.
+
     // ACCESSORS
     template <class TYPE>
+    bool hasFallback(const TYPE& value);
+        // Return 'true' if the specified 'value' supports a fallback
+        // enumerator, and 'false' otherwise.
+
+    template <class TYPE>
+    bool isFallback(const TYPE& value);
+        // Return 'true' if the specified 'value' is equal to a fallback
+        // enumerator, and 'false' otherwise.
+
+    template <class TYPE>
     void toInt(int *result, const TYPE& value);
-        // Return the integer representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
+        // Load into the specified 'result' the integer representation of the
+        // enumerator value held by the specified 'value'.
 
     template <class TYPE>
     void toString(bsl::string *result, const TYPE& value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
-
+        // Load into the specified 'result' the string representation of the
+        // enumerator value held by the specified 'value'.
 
 }  // close namespace bdlat_EnumFunctions
+
+                    // ===================================
+                    // struct bdlat_EnumFunctions_ImplUtil
+                    // ===================================
+
+struct bdlat_EnumFunctions_ImplUtil {
+    ///Implementation Notes
+    ///--------------------
+    // The below functions use tag dispatch to provide an implementation of the
+    // fallback-related operations that either delegate to the associated
+    // customization points or immediately return a non-zero value to indicate
+    // failure, depending on whether the type does or does not satisfy the
+    // 'HasFallbackEnumerator' trait, respectively.  The purpose of doing this
+    // is so that the fallback-related operations can be used on any type, even
+    // enumeration types that do not have fallback enumerators.
+
+    // CLASS METHODS
+    template <class TYPE>
+    static int makeFallback(TYPE *result, bsl::true_type);
+    template <class TYPE>
+    static int makeFallback(TYPE *result, bsl::false_type);
+
+    template <class TYPE>
+    static bool hasFallback(const TYPE& value, bsl::true_type);
+    template <class TYPE>
+    static bool hasFallback(const TYPE& value, bsl::false_type);
+
+    template <class TYPE>
+    static bool isFallback(const TYPE& value, bsl::true_type);
+    template <class TYPE>
+    static bool isFallback(const TYPE& value, bsl::false_type);
+};
 
                             // ====================
                             // default declarations
@@ -340,6 +474,23 @@ namespace bdlat_EnumFunctions {
     // These default implementations assume the type of the acted-upon object
     // is a basic-enumeration type.  For more information about
     // basic-enumeration types, see {'bdlat_typetraits'}.
+    //
+    // In order to use a type as a 'bdlat' enumeration type that is *not* a
+    // basic-enumeration type, you must implement the below customization
+    // points for that type as overloads in the namespace that the type belongs
+    // to.  Overloading the 'bdlat_enumMakeFallback', 'bdlat_enumHasFallback',
+    // and 'bdlat_enumIsFallback' functions is required only if
+    // 'HasFallbackEnumerator' is 'true' for your type or class of types.  In
+    // that case, the three functions' behaviors must be consistent with each
+    // other, which means that the following axioms must hold for a non-const
+    // lvalue 'x':
+    //: 1 Whenever 'bdlat_enumHasFallback(x)' is 'false',
+    //:   'bdlat_enumMakeFallback(&x)' would fail by leaving 'x' unchanged and
+    //:   returning a nonzero value, and 'bdlat_enumIsFallback(x)' is 'false';
+    //: 2 Whenever 'bdlat_enumHasFallback(x)' is 'true',
+    //:   'bdlat_enumMakeFallback(&x)' would succeed by returning 0 and a
+    //:   call to 'bdlat_enumIsFallback(x)' immediately afterward would return
+    //:   'true'.
 
     // MANIPULATORS
     template <class TYPE>
@@ -350,12 +501,43 @@ namespace bdlat_EnumFunctions {
                              const char *string,
                              int         stringLength);
 
+    template <class TYPE>
+    int bdlat_enumMakeFallback(TYPE *result);
+        // Load into the specified 'result' the fallback enumerator value.
+        // Return 0 on success, and a non-zero value with no effect on 'result'
+        // if it does not have a fallback enumerator.  The behavior is
+        // undefined if this default implementation of 'bdlat_enumMakeFallback'
+        // is instantiated with a template parameter 'TYPE' such that
+        // 'bdlat_HasFallbackEnumerator<TYPE>' is 'false'.  Note that this is a
+        // customization point function and should not be called directly by
+        // user code.  Use 'bdlat_EnumFunctions::makeFallback' instead.
+
     // ACCESSORS
     template <class TYPE>
     void bdlat_enumToInt(int *result, const TYPE& value);
 
     template <class TYPE>
     void bdlat_enumToString(bsl::string *result, const TYPE& value);
+
+    template <class TYPE>
+    bool bdlat_enumHasFallback(const TYPE& value);
+        // Return 'true' if the specified 'value' supports a fallback
+        // enumerator, and 'false' otherwise.  The behavior is undefined if
+        // this default implementation of 'bdlat_enumHasFallback' is
+        // instantiated with a template parameter 'TYPE' such that
+        // 'bdlat_HasFallbackEnumerator<TYPE>' is 'false'.  Note that this is a
+        // customization point function and should not be called directly by
+        // user code.  Use 'bdlat_EnumFunctions::hasFallback' instead.
+
+    template <class TYPE>
+    bool bdlat_enumIsFallback(const TYPE& value);
+        // Return 'true' if the specified 'value' is equal to a fallback
+        // enumerator, and 'false' otherwise.  The behavior is undefined if
+        // this default implementation of 'bdlat_enumIsFallback' is
+        // instantiated with a template parameter 'TYPE' such that
+        // 'bdlat_HasFallbackEnumerator<TYPE>' is 'false'.  Note that this is a
+        // customization point function and should not be called directly by
+        // user code.  Use 'bdlat_EnumFunctions::isFallback' instead.
 
 }  // close namespace bdlat_EnumFunctions
 
@@ -384,7 +566,31 @@ int bdlat_EnumFunctions::fromString(TYPE       *result,
     return bdlat_enumFromString(result, string, stringLength);
 }
 
+template <class TYPE>
+inline
+int bdlat_EnumFunctions::makeFallback(TYPE *result)
+{
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+    return bdlat_EnumFunctions_ImplUtil::makeFallback(result, tag);
+}
+
 // ACCESSORS
+template <class TYPE>
+inline
+bool bdlat_EnumFunctions::hasFallback(const TYPE& value)
+{
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+    return bdlat_EnumFunctions_ImplUtil::hasFallback(value, tag);
+}
+
+template <class TYPE>
+inline
+bool bdlat_EnumFunctions::isFallback(const TYPE& value)
+{
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+    return bdlat_EnumFunctions_ImplUtil::isFallback(value, tag);
+}
+
 template <class TYPE>
 inline
 void bdlat_EnumFunctions::toInt(int *result, const TYPE& value)
@@ -400,6 +606,65 @@ void bdlat_EnumFunctions::toString(bsl::string *result, const TYPE& value)
     bdlat_enumToString(result, value);
 }
 
+                    // -----------------------------------
+                    // struct bdlat_EnumFunctions_ImplUtil
+                    // -----------------------------------
+
+// CLASS METHODS
+template <class TYPE>
+int bdlat_EnumFunctions_ImplUtil::makeFallback(TYPE *result, bsl::true_type)
+{
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+#endif
+    using bdlat_EnumFunctions::bdlat_enumMakeFallback;
+    return bdlat_enumMakeFallback(result);
+}
+
+template <class TYPE>
+int bdlat_EnumFunctions_ImplUtil::makeFallback(TYPE *result, bsl::false_type)
+{
+    static_cast<void>(result);
+    return -1;
+}
+
+template <class TYPE>
+bool bdlat_EnumFunctions_ImplUtil::hasFallback(const TYPE& value,
+                                               bsl::true_type)
+{
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+#endif
+    using bdlat_EnumFunctions::bdlat_enumHasFallback;
+    return bdlat_enumHasFallback(value);
+}
+
+template <class TYPE>
+bool bdlat_EnumFunctions_ImplUtil::hasFallback(const TYPE& value,
+                                               bsl::false_type)
+{
+    static_cast<void>(value);
+    return false;
+}
+
+template <class TYPE>
+bool bdlat_EnumFunctions_ImplUtil::isFallback(const TYPE& value,
+                                              bsl::true_type)
+{
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+#endif
+    using bdlat_EnumFunctions::bdlat_enumIsFallback;
+    return bdlat_enumIsFallback(value);
+}
+
+template <class TYPE>
+bool bdlat_EnumFunctions_ImplUtil::isFallback(const TYPE& value,
+                                              bsl::false_type)
+{
+    static_cast<void>(value);
+    return false;
+}
                             // -------------------
                             // default definitions
                             // -------------------
@@ -428,6 +693,21 @@ int bdlat_EnumFunctions::bdlat_enumFromString(TYPE       *result,
     return Wrapper::fromString(result, string, stringLength);
 }
 
+template <class TYPE>
+inline
+int bdlat_EnumFunctions::bdlat_enumMakeFallback(TYPE *result)
+{
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+    BSLMF_ASSERT(
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+    BSLMF_ASSERT(
+        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::VALUE));
+#endif
+
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::makeFallback(result);
+}
+
 // ACCESSORS
 template <class TYPE>
 inline
@@ -449,6 +729,36 @@ void bdlat_EnumFunctions::bdlat_enumToString(bsl::string *result,
 
     typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     *result = Wrapper::toString(value);
+}
+
+template <class TYPE>
+inline
+bool bdlat_EnumFunctions::bdlat_enumHasFallback(const TYPE& value)
+{
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+    BSLMF_ASSERT(
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+    BSLMF_ASSERT(
+        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::VALUE));
+#endif
+
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::hasFallback(value);
+}
+
+template <class TYPE>
+inline
+bool bdlat_EnumFunctions::bdlat_enumIsFallback(const TYPE& value)
+{
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+    BSLMF_ASSERT(
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+    BSLMF_ASSERT(
+        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::VALUE));
+#endif
+
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::isFallback(value);
 }
 
 }  // close enterprise namespace

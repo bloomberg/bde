@@ -18,6 +18,7 @@
 #include <s_baltst_employee.h>
 #include <s_baltst_mychoice.h>
 #include <s_baltst_myenumeration.h>
+#include <s_baltst_myenumerationwithfallback.h>
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
 #include <s_baltst_mysequencewitharray.h>
@@ -61,9 +62,11 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
+#include <bsl_iterator.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -5767,6 +5770,92 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
+            }
+        }
+
+        if (verbose) {
+            bsl::cout << "\nTesting with unknown value and no fallback."
+                      << bsl::endl;
+        }
+        {
+            if (veryVerbose) {
+                bsl::cout << "\tDecoding from explicit binary string."
+                          << bsl::endl;
+            }
+            const char DATA[] = "0A0102";
+
+            bsl::vector<char> data = loadFromHex(DATA);
+
+            test::MyEnumeration::Value valueIn = test::MyEnumeration::VALUE1;
+
+            bdlsb::FixedMemInStreamBuf isb(&data[0], data.size());
+            ASSERT(0 != decoder.decode(&isb, &valueIn));
+            printDiagnostic(decoder);
+
+            ASSERT(test::MyEnumeration::VALUE1 == valueIn);  // unchanged
+        }
+
+        if (verbose) bsl::cout << "\nTesting with unknown value and fallback."
+                               << bsl::endl;
+        {
+            if (veryVerbose) {
+                bsl::cout << "\tDecoding from explicit binary string."
+                          << bsl::endl;
+            }
+            const char DATA[] = "0A0103";
+
+            bsl::vector<char> data = loadFromHex(DATA);
+
+            test::MyEnumerationWithFallback::Value valueIn =
+                test::MyEnumerationWithFallback::VALUE1;
+
+            bdlsb::FixedMemInStreamBuf isb(&data[0], data.size());
+            ASSERT(0 == decoder.decode(&isb, &valueIn));
+            printDiagnostic(decoder);
+
+            ASSERT(test::MyEnumerationWithFallback::UNKNOWN == valueIn);
+        }
+
+        if (verbose) {
+            bsl::cout << "\nTesting encoding with no fallback and then "
+                      << "decoding with fallback"
+                      << bsl::endl;
+        }
+        {
+            const char *enumValueStrings[] = {"VALUE1", "VALUE2"};
+            const int numEnumValueStrings = bsl::size(enumValueStrings);
+            for (int i = 0; i < numEnumValueStrings; i++) {
+                const char *enumValueString = enumValueStrings[i];
+                const int   enumValueLength =
+                                static_cast<int>(bsl::strlen(enumValueString));
+                bdlsb::MemOutStreamBuf osb;
+                test::MyEnumeration::Value valueOut;
+                ASSERT(0 == test::MyEnumeration::fromString(&valueOut,
+                                                            enumValueString,
+                                                            enumValueLength));
+                test::MyEnumerationWithFallback::Value valueExpected;
+                ASSERT(0 == test::MyEnumerationWithFallback::fromString(
+                                                             &valueExpected,
+                                                             enumValueString,
+                                                             enumValueLength));
+
+                ASSERT(0 == encoder.encode(&osb, valueOut));
+
+                if (veryVerbose) {
+                    P(enumValueString)
+                    P(osb.length())
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                test::MyEnumerationWithFallback::Value valueIn =
+                                      test::MyEnumerationWithFallback::UNKNOWN;
+
+                ASSERT(valueExpected != valueIn);
+                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(0 == decoder.decode(&isb, &valueIn));
+                printDiagnostic(decoder);
+
+                ASSERT(valueExpected == valueIn);
             }
         }
 
