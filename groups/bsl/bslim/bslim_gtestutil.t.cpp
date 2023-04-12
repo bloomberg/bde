@@ -804,15 +804,15 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Testing non-empty 'bsl::wstring'." << endl;
         {
-            const int   EXTENDED_SYMBOL_SHIFT = sizeof(wchar_t) * 2;
-            const char *expectedBegin = NON_EMPTY_WCHAR_EXPECTED;
-            for (const wchar_t *begin = NON_EMPTY_WCHAR_STRING;
-                 begin != NON_EMPTY_WCHAR_STRING_END;
-                 ++begin) {
-                const char *expectedEnd = expectedBegin;
-                for (const wchar_t *end = begin;
-                     end != NON_EMPTY_WCHAR_STRING_END + 1;
-                     ++end) {
+            const int      EXTENDED_SYMBOL_SHIFT = sizeof(wchar_t) * 2;
+            const char    *expectedBegin         = NON_EMPTY_WCHAR_EXPECTED;
+            const wchar_t *begin                 = NON_EMPTY_WCHAR_STRING;
+
+            while (begin != NON_EMPTY_WCHAR_STRING_END) {
+                const char    *expectedEnd = expectedBegin;
+                const wchar_t *end         = begin;
+
+                while(end != NON_EMPTY_WCHAR_STRING_END) {
                     bsl::wstring        mNES(begin, end);
                     const bsl::wstring& NES = mNES;
 
@@ -828,26 +828,35 @@ int main(int argc, char *argv[])
                     ASSERTV(EXPECTED_NES, ossNES.str(),
                             EXPECTED_NES == ossNES.str());
 
+                    ++end;
+                    if (end != NON_EMPTY_WCHAR_STRING_END) {
+                        // adjust the expected result for the next iteration
 
-                    if (*end > 0 && *end < 128) {
-                        // '1' -> '1'
+                        if (*(end - 1) > 0 && *(end - 1) < 128) {
+                            // '1' -> '1'
 
-                        expectedEnd += 1;
-                    } else {
-                        // '0' -> "\x00000000" || '0' -> "\x0000"
+                            expectedEnd += 1;
+                        } else {
+                            // '0' -> "\x00000000" || '0' -> "\x0000"
 
-                        expectedEnd += (2 + EXTENDED_SYMBOL_SHIFT);
+                            expectedEnd += (2 + EXTENDED_SYMBOL_SHIFT);
+                        }
                     }
                 }
 
-                if (*begin > 0 && *begin < 128) {
-                    // '1' -> '1'
+                ++begin;
+                if (begin != NON_EMPTY_WCHAR_STRING_END) {
+                    // adjust the expected result for the next iteration
 
-                    expectedBegin += 1;
-                } else {
-                    // '0' -> "\x00000000" || '0' -> "\x0000"
+                    if (*(begin - 1) > 0 && *(begin - 1) < 128) {
+                        // '1' -> '1'
 
-                    expectedBegin += (2 + EXTENDED_SYMBOL_SHIFT);
+                        expectedBegin += 1;
+                    } else {
+                        // '0' -> "\x00000000" || '0' -> "\x0000"
+
+                        expectedBegin += (2 + EXTENDED_SYMBOL_SHIFT);
+                    }
                 }
             }
         }
