@@ -203,6 +203,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_compare.h>
 #include <bslstl_deque.h>
 
 #include <bslalg_swaputil.h>
@@ -277,6 +278,15 @@ class queue {
     template <class VALUE2, class CONTAINER2>
     friend bool operator>=(const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    template <class VALUE2, three_way_comparable CONTAINER2>
+    friend compare_three_way_result_t<CONTAINER2>
+    operator<=>(const queue<VALUE2, CONTAINER2>&,
+                const queue<VALUE2, CONTAINER2>&);
+#endif
+
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
         // This 'typedef' is a convenient alias for the utility associated with
@@ -827,6 +837,17 @@ bool operator>=(const queue<VALUE, CONTAINER>& lhs,
 {
     return lhs.c >= rhs.c;
 }
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class VALUE, three_way_comparable CONTAINER>
+inline compare_three_way_result_t<CONTAINER>
+operator<=>(const queue<VALUE, CONTAINER>& lhs,
+            const queue<VALUE, CONTAINER>& rhs)
+{
+    return lhs.c <=> rhs.c;
+}
+#endif
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
