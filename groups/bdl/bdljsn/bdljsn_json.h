@@ -861,12 +861,7 @@ class JsonObject {
 
     template <class INPUT_ITERATOR>
     typename bsl::enable_if<
-        bsl::is_convertible<typename bsl::iterator_traits<
-                                INPUT_ITERATOR>::value_type::first_type,
-                            const bsl::string>::value &&
-            bsl::is_convertible<typename bsl::iterator_traits<
-                                    INPUT_ITERATOR>::value_type::second_type,
-                                bdljsn::Json>::value,
+        !bsl::is_convertible<INPUT_ITERATOR, bsl::string_view>::value,
         void>::type
     insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Create a 'member' object for each iterator in the range starting at
@@ -2155,12 +2150,7 @@ bsl::pair<JsonObject::Iterator, bool> JsonObject::insert(
 template <class INPUT_ITERATOR>
 inline
 typename bsl::enable_if<
-    bsl::is_convertible<
-        typename bsl::iterator_traits<INPUT_ITERATOR>::value_type::first_type,
-        const bsl::string>::value &&
-        bsl::is_convertible<typename bsl::iterator_traits<
-                                INPUT_ITERATOR>::value_type::second_type,
-                            bdljsn::Json>::value,
+    !bsl::is_convertible<INPUT_ITERATOR, bsl::string_view>::value,
     void>::type
 JsonObject::insert(INPUT_ITERATOR first, INPUT_ITERATOR last)
 {

@@ -24,10 +24,13 @@
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_list.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bdljsn;
@@ -3833,6 +3836,222 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 42: {
+        // --------------------------------------------------------------------
+        // DRQS 171793948
+        //   Ensure that SFINAE of bdljsn::JsonObject::insert works correctly,
+        //   especially in C++03.
+        //
+        // Concerns:
+        //: 1 The bdljsn::JsonObject::insert overload taking iterators should
+        //:   be selected for any kind of applicable iterator.
+        //:
+        //: 2 The bdljsn::JsonObject::insert overload taking key and value
+        //:   types should be selected for any combination of types that are
+        //:   convertible to 'bsl::string_view', and convertible to Json,
+        //:   respectively.
+        //:
+        //: 3 Specifically, two parameters of type 'bsl::string' used to cause
+        //:   a build error in C++03, because of a limitation of
+        //:   'iterator_traits' in that version of the standard.
+        //
+        // Plan:
+        //: 1 Invoke the overload using different types of iterators, including
+        //:   pointers to array elements, and vector and list.
+        //:
+        //: 2 Invoke the overload using different types convertible to string,
+        //:   including 'bsl::string', 'const char*', and 'bsl::string_view'.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "DRQS 171793948" << endl
+                          << "==============" << endl;
+
+        typedef bsl::pair<bsl::string, bdljsn::Json> ModifiableKeyMember;
+        {
+            bdljsn::JsonObject               obj;
+            bsl::vector<ModifiableKeyMember> members(4);
+
+            members[0].first = "zero";
+            members[1].first = "one";
+            members[2].first = "two";
+            members[3].first = "three";
+
+            obj.insert(members.begin(), members.end());
+            ASSERTV(obj.size(), 4 == obj.size());
+        }
+        {
+            bdljsn::JsonObject  obj;
+            ModifiableKeyMember members[4];
+
+            members[0].first = "zero";
+            members[1].first = "one";
+            members[2].first = "two";
+            members[3].first = "three";
+
+            obj.insert(members,
+                       members + sizeof(members) / sizeof(members[0]));
+            ASSERTV(obj.size(), 4 == obj.size());
+        }
+        {
+            bdljsn::JsonObject             obj;
+            bsl::list<ModifiableKeyMember> members;
+
+            members.push_back(ModifiableKeyMember("zero", Json()));
+            members.push_back(ModifiableKeyMember("one", Json()));
+            members.push_back(ModifiableKeyMember("two", Json()));
+            members.push_back(ModifiableKeyMember("three", Json()));
+
+            obj.insert(members.begin(), members.end());
+            ASSERTV(obj.size(), 4 == obj.size());
+        }
+
+        const std::string      s0 = "s0";
+              std::string      s1 = "s1";
+        const bsl::string      s2 = "s2";
+              bsl::string      s3 = "s3";
+        const bsl::string_view s4 = "s4";
+              bsl::string_view s5 = "s5";
+
+        bdljsn::JsonObject obj;
+
+        obj.insert(s0,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s0,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s0,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s0,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s0,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s0,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s1,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s1,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s1,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s1,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s1,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s1,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s2,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s2,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s2,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s2,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s2,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s2,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s3,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s3,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s3,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s3,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s3,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s3,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s4,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s4,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s4,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s4,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s4,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s4,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s5,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s5,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s5,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s5,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s5,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s5,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        const std::string_view s6 = "s6";
+              std::string_view s7 = "s7";
+
+        obj.insert(s0,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s0,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s1,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s1,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s2,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s2,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s3,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s3,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s4,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s4,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s5,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s5,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s6,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s7,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        const std::pmr::string s8 = "s8";
+              std::pmr::string s9 = "s9";
+
+        obj.insert(s0,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s0,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s1,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s1,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s2,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s2,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s3,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s3,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s4,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s4,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s5,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s5,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s6,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s6,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s7,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s7,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s8,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s8,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+        obj.insert(s9,s0); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s1); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s2); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s3); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s4); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s5); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s6); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s7); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s8); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+        obj.insert(s9,s9); ASSERTV(obj.size(), 1== obj.size()); obj.clear();
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+      } break;
       case 41: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
