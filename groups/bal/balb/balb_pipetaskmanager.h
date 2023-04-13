@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balb::PipeTaskManager: message-to-handler dispatcher
 //
-//@SEE_ALSO: balb_controlmanage,r balb_pipecontrolchannel
+//@SEE_ALSO: balb_controlmanager, balb_pipecontrolchannel
 //
 //@DESCRIPTION: This component provides a mechanism, 'balb::PipeTaskManager',
 // that listens on a named pipe for messages that are typically used to
