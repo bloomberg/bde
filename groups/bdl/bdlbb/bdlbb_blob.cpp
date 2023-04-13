@@ -158,7 +158,7 @@ int Blob::assertInvariants() const
         totalSize += buffer(i).size();
     }
 
-    BSLS_ASSERT(totalSize == d_totalSize);
+    BSLS_ASSERT(totalSize == d_totalSize);  (void)totalSize;
 
     if (-1 == d_dataIndex) {
        BSLS_ASSERT(0 == d_dataLength);
