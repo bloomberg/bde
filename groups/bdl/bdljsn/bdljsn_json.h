@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // Where the Object and Array alternatives can recursively contain JSON.  Just
 // like this grammar, a 'bdljsn::Json' is a variant holding either an Object,
 // Array, String, Number, Boolean, or null.  These variant selections are
-// respresented by the following types:
+// represented by the following types:
 //
 //: o Object: 'JsonObject'
 //: o Array: 'JsonArray'
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // are handled when parsing a JSON document).  Note that the JSON RFC says that
 // Object member names "SHOULD be unique", and there is no standard behavior
 // for JSON parsers where member names are not unique (typically an in-process
-// respresentation with unique member names is used).
+// representation with unique member names is used).
 //
 ///Important Preconditions
 ///- - - - - - - - - - - -
@@ -239,14 +239,28 @@ class JsonArray {
     // implementation because our implementation permits the element type to be
     // incomplete (when just spelling the type name).
 
+  private:
+    // PRIVATE TYPES
+    typedef bsl::vector<Json> Elements;
+
   public:
     // TYPES
-    typedef bsl::vector<Json>::iterator       Iterator;
-    typedef bsl::vector<Json>::const_iterator ConstIterator;
+    typedef Elements::iterator        Iterator;
+    typedef Elements::const_iterator  ConstIterator;
+
+    typedef Elements::value_type      value_type;
+    typedef Elements::reference       reference;
+    typedef Elements::const_reference const_reference;
+
+    typedef Elements::iterator        iterator;
+    typedef Elements::const_iterator  const_iterator;
+
+    typedef Elements::difference_type difference_type;
+    typedef Elements::size_type       size_type;
 
   private:
     // DATA
-    bsl::vector<Json> d_elements;  // the underlying sequence of elements
+    Elements d_elements;  // the underlying sequence of elements
 
     // FRIENDS
     friend bool operator==(const JsonArray&, const JsonArray&);
@@ -671,10 +685,20 @@ class JsonObject {
 
   public:
     // TYPES
-    typedef Container::value_type     Member;
-    typedef Container::const_iterator ConstIterator;
-    typedef Container::iterator       Iterator;
-    typedef bsl::pair<Iterator, bool> IteratorAndStatus;
+    typedef Container::value_type      Member;
+    typedef Container::const_iterator  ConstIterator;
+    typedef Container::iterator        Iterator;
+    typedef bsl::pair<Iterator, bool>  IteratorAndStatus;
+
+    typedef Container::value_type      value_type;
+    typedef Container::reference       reference;
+    typedef Container::const_reference const_reference;
+
+    typedef Container::iterator        iterator;
+    typedef Container::const_iterator  const_iterator;
+
+    typedef Container::difference_type difference_type;
+    typedef Container::size_type       size_type;
 
   private:
     // DATA
@@ -841,10 +865,10 @@ class JsonObject {
         // 'first' element) of the object referred to by 'value' does not
         // already exist in this 'JsonObject'; otherwise, this method has no
         // effect.  Return a 'pair' whose 'first' member is an iterator
-        // referring to the (possibley newly inserted) 'value_type' object in
+        // referring to the (possibly newly inserted) 'value_type' object in
         // this 'JsonObject' whose key is equivalent to that of the object to
         // be inserted, and whose 'second' member is 'true' if a new value was
-        // inserted, and 'flase' if a value having an equivalent key was
+        // inserted, and 'false' if a value having an equivalent key was
         // already present.  The behavior is undefined unless 'member.first' is
         // valid UTF-8 (see 'bdlde::Utf8Util::isValid').
 
@@ -913,7 +937,7 @@ class JsonObject {
         // object associated with the specified 'key' in this 'JsonObject'.
         // The behavior is undefined unless 'key' is valid UTF-8 (see
         // 'bdlde::Utf8Util::isValid') and this 'JsonObject' already contains a
-        // 'Json' object assicated with 'key'.
+        // 'Json' object associated with 'key'.
 
     // BDE_VERIFY pragma: -FABC01
 
@@ -1425,10 +1449,10 @@ class Json {
 
     Json& operator[](const bsl::string_view& key);
         // Return a reference providing modifiable access to the 'Json' object
-        // assicated with the specified 'key' in the 'JsonObject' held by this
+        // associated with the specified 'key' in the 'JsonObject' held by this
         // object; if the 'JsonObject' does not already contain a 'Json' object
-        // assicated with 'key', first insert a new default-constructed 'Json'
-        // object assicated with 'key'.  The behavior is undefined unless
+        // associated with 'key', first insert a new default-constructed 'Json'
+        // object associated with 'key'.  The behavior is undefined unless
         // 'isObject()' returns true.
 
     Json& operator[](bsl::size_t index);
@@ -1453,10 +1477,10 @@ class Json {
         // loaded with the minimum representable value, for overflow, 'result'
         // will be loaded with the maximum representable value, for
         // non-integral values 'result' will be loaded with the integer part of
-        // 'value' (trucating the value to the nearest integer).  If the result
-        // is not an integer and also either overflows or underflows, it is
-        // treated as an overflow or underflow (respectively).  Note that this
-        // operation returns a status value (unlike similar floating point
+        // 'value' (truncating the value to the nearest integer).  If the
+        // result is not an integer and also either overflows or underflows, it
+        // is treated as an overflow or underflow (respectively).  Note that
+        // this operation returns a status value (unlike similar floating point
         // conversions) because typically it is an error if a conversion to an
         // integer results in an inexact value.  The behavior is undefined
         // unless 'isNumber()' returns true.
@@ -1544,7 +1568,7 @@ class Json {
         // object associated with the specified 'key' in this 'JsonObject'.
         // The behavior is undefined unless 'key' is valid UTF-8 (see
         // 'bdlde::Utf8Util::isValid') and this 'JsonObject' already contains a
-        // 'Json' object assicated with 'key'.
+        // 'Json' object associated with 'key'.
 
     const Json& operator[](bsl::size_t index) const;
         // Return a reference providing non-modifiable access to the element at
@@ -1677,7 +1701,7 @@ JsonArray::JsonArray(const JsonArray&  original,
 
 inline
 JsonArray::JsonArray(bslmf::MovableRef<JsonArray> original)
-    BSLS_KEYWORD_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 : d_elements(bslmf::MovableRefUtil::move(
                            bslmf::MovableRefUtil::access(original).d_elements))
 {

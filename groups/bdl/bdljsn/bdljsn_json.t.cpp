@@ -221,7 +221,7 @@ using bsl::flush;
 // [29] Json(double number, *a);
 // [29] Json(bdldfp::Decimal64 number, *a);
 // [29] Json(int number, *a);
-// [29] Json(unsinged int number, *a);
+// [29] Json(unsigned int number, *a);
 // [29] Json(bsls::Types::Int64 number, *a);
 // [29] Json(bsls::Types::Uint64 number, *a);
 // [29] Json(const JsonNumber& number, *a);
@@ -416,7 +416,7 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 
 // BDE_VERIFY pragma: -AR01 returning allocator aware by value
-// BDE_VERIFY pragma: -FD01 generater functions don't have contracts
+// BDE_VERIFY pragma: -FD01 generator functions don't have contracts
 
 Json       g (const char *spec);
 JsonObject go(const char *spec);
@@ -3329,7 +3329,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     }
 }
 
-// BDE_VERIFY pragma: +FD01 generater functions don't have contracts
+// BDE_VERIFY pragma: +FD01 generator functions don't have contracts
 // BDE_VERIFY pragma: +AR01 returning allocator aware by value
 
 template <class SPECIALIZATIONS_ONLY>
@@ -4550,7 +4550,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Manipulators modify the value in the expected way.
         //:
-        //: 2 Manipulators that return a reference providing modifyable access
+        //: 2 Manipulators that return a reference providing modifiable access
         //:   to 'Json' return a reference to the same object on which they are
         //:   invoked.
         //:
@@ -7741,7 +7741,7 @@ int main(int argc, char *argv[])
         //   Json(double number, *a);
         //   Json(bdldfp::Decimal64 number, *a);
         //   Json(int number, *a);
-        //   Json(unsinged int number, *a);
+        //   Json(unsigned int number, *a);
         //   Json(bsls::Types::Int64 number, *a);
         //   Json(bsls::Types::Uint64 number, *a);
         //   Json(const JsonNumber& number, *a);
@@ -12426,7 +12426,7 @@ int main(int argc, char *argv[])
         //:   that each modification operation will be intended to produce,
         //:   using the dedicated allocator.
         //:
-        //: 3 Construct a 'JsonArray' object using an initailizer-list, with
+        //: 3 Construct a 'JsonArray' object using an initializer-list, with
         //:   value the same as the target object 'K'.  Assert that the value
         //:   matches expectation.
         //:
