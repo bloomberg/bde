@@ -7,13 +7,13 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bos+stdhdrs in the bos package group
-//
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+
+#include <bsls_libraryfeatures.h>
 
 #include <cuchar>
 
@@ -27,6 +27,11 @@ namespace bsl {
     using std::c32rtomb;
     using std::mbrtoc16;
     using std::mbrtoc32;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
+    using std::mbrtoc8;
+    using std::c8rtomb;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 }  // close package namespace
 

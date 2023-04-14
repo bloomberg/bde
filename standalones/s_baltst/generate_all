@@ -14,6 +14,7 @@
 ./generate s_baltst_featuretestmessage.xsd
 ./generate s_baltst_mychoice.xsd
 ./generate s_baltst_myenumeration.xsd
+./generate s_baltst_myenumerationwithfallback.xsd
 ./generate s_baltst_mysequence.xsd
 ./generate s_baltst_mysequencewithanonymouschoice.xsd
 ./generate s_baltst_mysequencewitharray.xsd

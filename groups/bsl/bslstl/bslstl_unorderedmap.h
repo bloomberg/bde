@@ -315,6 +315,9 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.clear()                                          | O[n]               |
 //  +----------------------------------------------------+--------------------+
+//  | a.contains(k)                                      | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
 //  | a.find(k)                                          | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
@@ -1930,6 +1933,25 @@ class unordered_map {
         // unordered map maintains unique keys, the returned value will be
         // either 0 or 1.
 
+    bool contains(const key_type &key) const;
+        // Return 'true' if this unordered map contains an element whose key is
+        // equivalent to the specified 'key'.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
+            BloombergLP::bslmf::IsTransparentPredicate<EQUAL,
+                                                       LOOKUP_KEY>::value,
+        bool>::type
+    contains(const LOOKUP_KEY& key) const
+        // Return 'true' if this unordered map contains an element whose key is
+        // equivalent to the specified 'key'.
+        //
+        // Note: implemented inline due to Sun CC compilation error
+    {
+        return find(key) != end();
+    }
+
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this unordered map contains no elements, and
         // 'false' otherwise.
@@ -2895,6 +2917,14 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
     }
 
     return iterator(first.node()); // convert from const_iterator
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bool unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::contains(
+                                                     const key_type& key) const
+{
+    return find(key) != end();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

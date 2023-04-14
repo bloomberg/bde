@@ -451,7 +451,8 @@ int RegEx::prepareImp(char       *errorMessage,
                           | k_FLAG_DOTMATCHESALL
                           | k_FLAG_MULTILINE
                           | k_FLAG_UTF8
-                          | k_FLAG_JIT;
+                          | k_FLAG_JIT
+                          | k_FLAG_DUPNAMES;
     (void) VALID_FLAGS;
 
     BSLS_ASSERT(0 == (flags & ~VALID_FLAGS));
@@ -472,6 +473,7 @@ int RegEx::prepareImp(char       *errorMessage,
     pcreFlags |= flags & k_FLAG_DOTMATCHESALL ? PCRE2_DOTALL    : 0;
     pcreFlags |= flags & k_FLAG_MULTILINE     ? PCRE2_MULTILINE : 0;
     pcreFlags |= flags & k_FLAG_UTF8          ? PCRE2_UTF       : 0;
+    pcreFlags |= flags & k_FLAG_DUPNAMES      ? PCRE2_DUPNAMES  : 0;
 
     // Compile the new pattern.
 
@@ -606,6 +608,64 @@ int RegEx::matchImp(const RESULT_EXTRACTOR&  extractor,
     d_matchContext->releaseMatchContext(&matchContextData);
 
     return rc;
+}
+
+template <class Vector>
+inline
+void RegEx::namedSubpatternsImp(Vector *result) const
+{
+    BSLS_ASSERT(isPrepared());
+
+    uint32_t nameCount;
+    int rc = pcre2_pattern_info(d_patternCode_p,
+                                PCRE2_INFO_NAMECOUNT,
+                                &nameCount);
+    // The 'pcre2_pattern_info' functions called here will only report an error
+    // on invalid input, which would indicate a programming error in this
+    // component
+    BSLS_ASSERT(rc == 0);
+
+    result->clear();
+
+    if (nameCount == 0) {
+        return;                                                       // RETURN
+    }
+
+    result->reserve(nameCount);
+
+    uint32_t nameEntrySize;
+    rc = pcre2_pattern_info(d_patternCode_p,
+                            PCRE2_INFO_NAMEENTRYSIZE,
+                            &nameEntrySize);
+    BSLS_ASSERT(rc == 0);
+
+    PCRE2_SPTR nameTable;
+    rc = pcre2_pattern_info(d_patternCode_p,
+                            PCRE2_INFO_NAMETABLE,
+                            &nameTable);
+    BSLS_ASSERT(rc == 0);
+    (void) rc;
+
+    for (; nameCount--; nameTable += nameEntrySize) {
+#if PCRE2_CODE_UNIT_WIDTH == 8
+        // In the 8-bit library, the first two bytes of each entry are the
+        // number of the capturing parenthesis, most significant byte first.
+        uint16_t groupNum = nameTable[0];
+        groupNum = static_cast<uint16_t>((groupNum << 8) | nameTable[1]);
+
+        // The rest of the entry is the corresponding name, zero terminated.
+        const char *name = (const char *) (nameTable + 2);
+#else
+        // In the 16/32-bit library, the pointer points to 16/32-bit code
+        // units, the first of which contains the parenthesis number.
+        PCRE2_UCHAR groupNum = nameTable[0];
+
+        // The rest of the entry is the corresponding name, zero terminated.
+        PCRE2_SPTR name = nameTable + 1;
+#endif
+        result->push_back(typename Vector::value_type(
+                                            name, static_cast<int>(groupNum)));
+    }
 }
 
 template <class STRING>
@@ -1106,6 +1166,26 @@ int RegEx::replaceRaw(std::pmr::string        *result,
                       replacement,
                       options,
                       true);
+}
+#endif
+
+void RegEx::namedSubpatterns(
+                  bsl::vector<bsl::pair<bsl::string_view, int> > *result) const
+{
+    namedSubpatternsImp(result);
+}
+
+void RegEx::namedSubpatterns(
+                  std::vector<std::pair<bsl::string_view, int> > *result) const
+{
+    namedSubpatternsImp(result);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void RegEx::namedSubpatterns(
+             std::pmr::vector<std::pair<bsl::string_view, int> > *result) const
+{
+    namedSubpatternsImp(result);
 }
 #endif
 

@@ -70,27 +70,27 @@ namespace bsl {
                          // struct remove_cvref
                          // ===================
 
-template <class TYPE>
+template <class t_TYPE>
 struct remove_cvref {
     // This 'struct' template implements the 'remove_cvref' meta-function
     // defined in the C++20 standard [meta.trans.other], providing an alias,
     // 'type', that returns the result.  'type' has the same type as the
-    // (template parameter) 'TYPE' except that its reference-ness has been
+    // (template parameter) 't_TYPE' except that its reference-ness has been
     // stripped and any top-level cv-qualifiers have been removed.
 
     // PUBLIC TYPES
     typedef typename bsl::remove_cv<
-        typename bsl::remove_reference<TYPE>::type>::type type;
+        typename bsl::remove_reference<t_TYPE>::type>::type type;
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE' except that its reference-ness has been stripped
+        // parameter) 't_TYPE' except that its reference-ness has been stripped
         // and any top-level cv-qualifier has been removed.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using remove_cvref_t = typename remove_cvref<TYPE>::type;
+template <class t_TYPE>
+using remove_cvref_t = typename remove_cvref<t_TYPE>::type;
     // 'remove_cvref_t' is an alias to the return type of the
     // 'bsl::remove_cvref' meta-function.  Note, that the 'remove_cvref_t'
     // avoids the '::type' suffix and 'typename' prefix when we want to use the

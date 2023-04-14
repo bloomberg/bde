@@ -37,6 +37,31 @@ BSLS_IDENT("$Id: $")
 // new thread which listens to the pipe for messages until 'shutdown' is
 // called.
 //
+///Pipe Atomicity
+/// - - - - - - -
+// Users that expect multiple concurrent writers to a single pipe must be aware
+// that the message content might be corrupted (interleaved) unless:
+//
+//: 1 Each message is written to the pipe in a single 'write' system call.
+//: 2 The length of each message is less than 'PIPE_BUF' (the limit for
+//:   guaranteed atomicity).
+//
+// The value 'PIPE_BUF' depends on the platform:
+//..
+//   +------------------------------+------------------+
+//   | Platform                     | PIPE_BUF (bytes) |
+//   +------------------------------+------------------+
+//   | POSIX (minimum requirement)) |    512           |
+//   | IBM                          | 32,768           |
+//   | SUN                          | 32,768           |
+//   | Linux                        | 65,536           |
+//   | Windows                      | 65,536           |
+//   +------------------------------+------------------+
+//..
+//
+// Also note that Linux allows the 'PIPE_BUF' size to be changed via the
+// 'fcntl' system call.
+//
 ///Pipe Names
 ///----------
 // This component requires a fully-qualified native pipe name.
@@ -279,7 +304,14 @@ class PipeControlChannel {
         // success, and a non-zero value otherwise.
 
     void dispatchMessageUpTo(const bsl::vector<char>::iterator& iter);
-        // Dispatch the message that extends up to the specified 'iter'.
+        // Dispatch the message that extends up to (but not including) the
+        // specified 'iter' (which is an iterator into 'd_buffer'), then erase
+        // the prefix that extends up to (and including) 'iter'.
+
+    bool dispatchLeftoverMessage();
+        // If there is a newline character in 'd_buffer', call
+        // 'dispatchMessageUpTo' with the location of that newline character
+        // and return 'true'; otherwise, return 'false'.
 
     void destroyNamedPipe();
         // Close the named pipe.
@@ -348,6 +380,13 @@ class PipeControlChannel {
     // ACCESSORS
     const bsl::string& pipeName() const;
         // Return the fully qualified system name of the pipe.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
                     // ====================================
@@ -413,14 +452,13 @@ struct PipeControlChannel_CStringUtil {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-inline
-const bsl::string& PipeControlChannel::pipeName() const
-{
-    return d_pipeName;
-}
+                          // ------------------------
+                          // class PipeControlChannel
+                          // ------------------------
 
+// MANIPULATORS
 template <class STRING_TYPE>
-int PipeControlChannel::start(const STRING_TYPE&             pipeName)
+int PipeControlChannel::start(const STRING_TYPE& pipeName)
 {
     return start(PipeControlChannel_CStringUtil::flatten(pipeName),
                  bslmt::ThreadAttributes());
@@ -432,6 +470,21 @@ int PipeControlChannel::start(const STRING_TYPE&             pipeName,
 {
     return start(PipeControlChannel_CStringUtil::flatten(pipeName),
                  threadAttributes);
+}
+
+// ACCESSORS
+inline
+const bsl::string& PipeControlChannel::pipeName() const
+{
+    return d_pipeName;
+}
+
+                    // Aspects
+
+inline
+bslma::Allocator *PipeControlChannel::allocator() const
+{
+    return d_pipeName.get_allocator().mechanism();
 }
 
                     // ------------------------------------

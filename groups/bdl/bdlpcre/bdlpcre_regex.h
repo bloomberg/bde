@@ -121,6 +121,17 @@ BSLS_IDENT("$Id$ $CSID$")
 // negative class such as '[^a]' always matches newline characters, independent
 // of the setting of this option.
 //
+///Allow Duplicate Named Groups (sub-patterns)
+///- - - - - - - - - - - - - - - - - - - - - -
+// If 'RegEx::k_FLAG_DUPNAMES' is included in the flags supplied to 'prepare',
+// then sub-pattern names can be used more than once.  Alternatively this
+// feature can be turned on within a pattern by a '(?J)' option setting
+// (see https://www.pcre.org/current/doc/html/pcre2syntax.html#SEC16).  The
+// 'subpatternIndex(name)' call will fail if 'name' is used more than once - in
+// that case, the 'namedSubpatterns()' call should be used.
+// 'namedSubpatterns()' returns a set of (name, index) pairs used in the
+// pattern.
+//
 /// Creating a New String with Replacement
 ///---------------------------------------
 // A new string can be created by applying the regular expression pattern to
@@ -725,6 +736,7 @@ class RegEx {
         //  k_FLAG_MULTILINE
         //  k_FLAG_UTF8
         //  k_FLAG_JIT
+        //  k_FLAG_DUPNAMES
         //..
         // Note that the flag 'k_FLAG_JIT' is ignored if 'isJitAvailable()' is
         // 'false'.
@@ -758,6 +770,10 @@ class RegEx {
         // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
         // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
         // 'k_FLAG_UTF8' but 'false == skipUTF8Validation'.
+
+    template <class Vector>
+    void namedSubpatternsImp(Vector *result) const;
+        // 'namedSubpatterns()' implementation.
 
     template <class STRING>
     int replaceImp(STRING                  *result,
@@ -809,8 +825,11 @@ class RegEx {
 
         k_FLAG_UTF8          = 1 << 3,  // UTF-8 support
 
-        k_FLAG_JIT           = 1 << 4   // just-in-time compiling optimization
+        k_FLAG_JIT           = 1 << 4,  // just-in-time compiling optimization
                                         // requested
+
+        k_FLAG_DUPNAMES      = 1 << 5   // allow duplicate named groups
+                                        // (sub-patterns)
     };
 
     enum {
@@ -917,6 +936,7 @@ class RegEx {
         //  k_FLAG_MULTILINE
         //  k_FLAG_UTF8
         //  k_FLAG_JIT
+        //  k_FLAG_DUPNAMES
         //..
         // Note that the flag 'k_FLAG_JIT' is ignored if 'isJitAvailable()' is
         // 'false'.
@@ -943,6 +963,7 @@ class RegEx {
         //  k_FLAG_MULTILINE
         //  k_FLAG_UTF8
         //  k_FLAG_JIT
+        //  k_FLAG_DUPNAMES
         //..
         // Also note that 'k_FLAG_JIT' is ignored, but still returned by this
         // method, if 'isJitAvailable()' is 'false'.
@@ -1356,6 +1377,21 @@ class RegEx {
         // successful call, 'result' will contain exactly
         // 'numSubpatterns() + 1' elements.
 
+    void namedSubpatterns(
+                 bsl::vector<bsl::pair<bsl::string_view, int> > *result) const;
+    void namedSubpatterns(
+                 std::vector<std::pair<bsl::string_view, int> > *result) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void namedSubpatterns(
+            std::pmr::vector<std::pair<bsl::string_view, int> > *result) const;
+#endif
+        // Load into the specified 'result' the mapping between the sub-pattern
+        // names and their indices.  The names are in alphabetical order.  If
+        // duplicate named groups were enabled for this regular expression (see
+        // component documentation for {Allow Duplicate Named Groups
+        // (sub-patterns)} then a sub-pattern name may appear multiple times.
+        // The behavior is undefined unless 'isPrepared()' is 'true'.
+
     int numSubpatterns() const;
         // Return the number of sub-patterns in the pattern held by this
         // regular-expression object ('pattern()').  The behavior is undefined
@@ -1456,10 +1492,12 @@ class RegEx {
         // Return the 1-based index of the sub-pattern having the specified
         // 'name' in the pattern held by this regular-expression object
         // ('pattern()'); return -1 if 'pattern()' does not contain a
-        // sub-pattern identified by 'name'.  The behavior is undefined unless
-        // 'isPrepared() == true'.  Note that the returned value is intended to
-        // be used as an index into the 'bsl::vector<bsl::pair<int, int> >'
-        // returned by 'match'.
+        // sub-pattern identified by 'name' or 'name' is not unique.  The
+        // behavior is undefined unless 'isPrepared() == true'.  Note that the
+        // returned value is intended to be used as an index into the
+        // 'bsl::vector<bsl::pair<int, int> >' returned by 'match'.  Also note
+        // that the function 'namedSubpatterns' can be used to find the
+        // sub-pattern index when there are duplicate named sub-patterns.
 };
 
 // ============================================================================

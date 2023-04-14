@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace abcd {
 //
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct C11Trait : bsl::false_type {
 //  };
 //
@@ -103,29 +103,29 @@ BSLS_IDENT("$Id: $")
 //
 // Therefore, the simplest maximally-compatible trait would look like this:
 //..
-//  template <class TYPE>
-//  struct MyTrait : bslmf::DetectNestedTrait<TYPE, MyTrait>::type {};
+//  template <class t_TYPE>
+//  struct MyTrait : bslmf::DetectNestedTrait<t_TYPE, MyTrait>::type {};
 //..
 // A trait having more complex default logic could derive from
 // 'bsl::integral_constant' using the 'value' member of
 // 'bslmf::DetectNestedTrait', such as:
 //..
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct ComplexTrait : bsl::integral_constant<bool,
-//                          bslmf::DetectNestedTrait<TYPE, ComplexTrait>::value
-//                          || SomeOtherTrait<TYPE>::value> {
+//                       bslmf::DetectNestedTrait<t_TYPE, ComplexTrait>::value
+//                       || SomeOtherTrait<t_TYPE>::value> {
 //  };
 //..
 // These are the only recommended uses of
-// 'bslmf::DetectNestedTrait<TYPE, TRAIT>::type' and
-// 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value'.
+// 'bslmf::DetectNestedTrait<t_TYPE, t_TRAIT>::type' and
+// 'bslmf::DetectNestedTrait<t_TYPE, t_TRAIT>::value'.
 //
 ///Detecting Legacy Traits
 ///-----------------------
-// If a trait, 'TRAIT', has been associated with a type, 'TYPE', using one of
-// the 'BSLMF_NESTED_TRAIT_DECLARATION*' macros then
-// 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from 'bsl::true_type'.
-// Otherwise, 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from
+// If a trait, 't_TRAIT', has been associated with a type, 't_TYPE', using one
+// of the 'BSLMF_NESTED_TRAIT_DECLARATION*' macros then
+// 'bslmf::DetectNestedTrait<t_TYPE, t_TRAIT>' derives from 'bsl::true_type'.
+// Otherwise, 'bslmf::DetectNestedTrait<t_TYPE, t_TRAIT>' derives from
 // 'bsl::false_type'.
 //
 // Therefore, if a trait 'abcd::BarTrait' has been associated with a class
@@ -145,8 +145,9 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close namespace xyza
 //..
-// then 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value' will evaluate to 'true'
-// and 'bslmf::DetectNestedTrait<TYPE, TRAIT>::type' will be 'bsl::true_type'.
+// then 'bslmf::DetectNestedTrait<t_TYPE, t_TRAIT>::value' will evaluate to
+// 'true' and 'bslmf::DetectNestedTrait<t_TYPE, t_TRAIT>::type' will be
+// 'bsl::true_type'.
 //
 ///Usage
 ///-----
@@ -172,15 +173,15 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace abcd {
 //
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct RequiresLockTrait :
-//                    bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type {
+//                  bslmf::DetectNestedTrait<t_TYPE, RequiresLockTrait>::type {
 //  };
 //
 //  } // close package namespace
 //..
 // Notice that 'RequiresLockTrait' derives from
-// 'bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type' using the
+// 'bslmf::DetectNestedTrait<t_TYPE, RequiresLockTrait>::type' using the
 // curiously recurring template pattern.
 //
 // Then, in package 'xyza', we declare a type, 'DoesNotRequireALockType', that
@@ -267,8 +268,8 @@ BSLS_IDENT("$Id: $")
 //  } // close namespace abcd
 //..
 // Now, we can write a function that inspects
-// 'abcd::RequiresLockTrait<TYPE>::value' to test whether or not various types
-// are associated with 'abcd::RequiresLockTrait':
+// 'abcd::RequiresLockTrait<t_TYPE>::value' to test whether or not various
+// types are associated with 'abcd::RequiresLockTrait':
 //..
 //  void example1()
 //  {
@@ -341,12 +342,12 @@ namespace bslmf {
                         // class DetectNestedTrait_Imp
                         // ===========================
 
-template <class TYPE, template <class> class TRAIT, class = void>
+template <class t_TYPE, template <class> class t_TRAIT, class = void>
 struct DetectNestedTrait_Imp {
-    // Metafunction to detect whether the specified 'TRAIT' parameter is
-    // associated with the specified 'TYPE' parameter using the nested type
+    // Metafunction to detect whether the specified 't_TRAIT' parameter is
+    // associated with the specified 't_TYPE' parameter using the nested type
     // trait mechanism.  The nested 'type' is an alias for 'bsl::false_type'
-    // unless 'TYPE' is a class type that the user has associated with the
+    // unless 't_TYPE' is a class type that the user has associated with the
     // specified trait using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  Class
     // types detect such association in the specialization below.
 
@@ -354,78 +355,80 @@ struct DetectNestedTrait_Imp {
     typedef bsl::false_type type;
 };
 
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait_Imp<TYPE, TRAIT, BSLMF_VOIDTYPE(int TYPE::*)> {
-    // This template specialization detects whether the specified 'TRAIT'
-    // parameter is associated with the specified 'TYPE' parameter, which is
+template <class t_TYPE, template <class> class t_TRAIT>
+struct DetectNestedTrait_Imp<t_TYPE, t_TRAIT, BSLMF_VOIDTYPE(int t_TYPE::*)> {
+    // This template specialization detects whether the specified 't_TRAIT'
+    // parameter is associated with the specified 't_TYPE' parameter, which is
     // constrained to be a class type, using the nested type trait mechanism.
-    // The nested 'type' is an alias for 'bsl::true_type' if and only if 'TYPE'
-    // is associated with 'TRAIT' using the 'BSLMF_NESTED_TRAIT_DECLARATION'
-    // macro, and for 'bsl::false_type' otherwise.  Note that nested trait
-    // associations are not inherited by derived classes, which must be
-    // associated in their own right.
+    // The nested 'type' is an alias for 'bsl::true_type' if and only if
+    // 't_TYPE' is associated with 't_TRAIT' using the
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro, and for 'bsl::false_type'
+    // otherwise.  Note that nested trait associations are not inherited by
+    // derived classes, which must be associated in their own right.
 
   private:
     // PRIVATE CLASS METHODS
-    static char check(NestedTraitDeclaration<TYPE, TRAIT>, int);
+    static char check(NestedTraitDeclaration<t_TYPE, t_TRAIT>, int);
         // Declared but not defined.  This overload is selected if called with
-        // a type convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'
+        // a type convertible to 'NestedTraitDeclaration<t_TYPE, t_TRAIT>'
 
     static int check(MatchAnyType, ...);
         // Declared but not defined.  This overload is selected if called with
-        // a type not convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'
+        // a type not convertible to 'NestedTraitDeclaration<t_TYPE, t_TRAIT>'
 
   private:
     // PRIVATE TYPES
-    enum { k_ENSURE_TYPE_IS_COMPLETE = sizeof(TYPE) };
+    enum { k_ENSURE_TYPE_IS_COMPLETE = sizeof(t_TYPE) };
 
     enum {
-        k_CONVERTIBLE_TO_NESTED_TRAIT = sizeof(check(TypeRep<TYPE>::rep(), 0))
-                                      == sizeof(char),
-        k_CONVERTIBLE_TO_ANY_TYPE     = IsConvertibleToAny<TYPE>::value
+        k_CONVERTIBLE_TO_NESTED_TRAIT = sizeof(check(TypeRep<t_TYPE>::rep(),
+                                                     0)) == sizeof(char),
+        k_CONVERTIBLE_TO_ANY_TYPE     = IsConvertibleToAny<t_TYPE>::value
     };
 
     enum {
         k_VALUE = k_CONVERTIBLE_TO_NESTED_TRAIT && !k_CONVERTIBLE_TO_ANY_TYPE
-        // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
-        // trait mechanism; otherwise zero.
+        // Non-zero if 't_TRAIT' is associated with 't_TYPE' using the nested
+        // type trait mechanism; otherwise zero.
     };
 
   public:
     // PUBLIC TYPES
     typedef bsl::integral_constant<bool, k_VALUE> type;
         // Type representing the result of this metafunction.  An alias for
-        // 'bsl::true_type' if 'TRAIT' is associated with 'TYPE' using the
+        // 'bsl::true_type' if 't_TRAIT' is associated with 't_TYPE' using the
         // nested type trait mechanism; otherwise an alias for
         // 'bsl::false_type'.
 };
-
 
                         // =======================
                         // class DetectNestedTrait
                         // =======================
 
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::type {
+template <class t_TYPE, template <class> class t_TRAIT>
+struct DetectNestedTrait : DetectNestedTrait_Imp<t_TYPE, t_TRAIT>::type {
     // This 'struct' template metafunction detects whether the specified
-    // 'TRAIT' parameter is associated with the specified 'TYPE' parameter
+    // 't_TRAIT' parameter is associated with the specified 't_TYPE' parameter
     // using the nested type trait mechanism.  This trait derives from
-    // 'bsl::true_type' if and only if 'TYPE' is a class type that associated
+    // 'bsl::true_type' if and only if 't_TYPE' is a class type that associated
     // with the specified trait using the 'BSLMF_NESTED_TRAIT_DECLARATION'
     // macro, and from 'bsl::false_type' otherwise.  Users should not
     // specialize this trait directly for their types, but should always use
     // the macro to make a nested trait association.
 };
 
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<const TYPE, TRAIT>
-    : DetectNestedTrait_Imp<TYPE, TRAIT>::type {};
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<volatile TYPE, TRAIT>
-    : DetectNestedTrait_Imp<TYPE, TRAIT>::type {};
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<const volatile TYPE, TRAIT>
-    : DetectNestedTrait_Imp<TYPE, TRAIT>::type {};
+template <class t_TYPE, template <class> class t_TRAIT>
+struct DetectNestedTrait<const t_TYPE, t_TRAIT>
+: DetectNestedTrait_Imp<t_TYPE, t_TRAIT>::type {
+};
+template <class t_TYPE, template <class> class t_TRAIT>
+struct DetectNestedTrait<volatile t_TYPE, t_TRAIT>
+: DetectNestedTrait_Imp<t_TYPE, t_TRAIT>::type {
+};
+template <class t_TYPE, template <class> class t_TRAIT>
+struct DetectNestedTrait<const volatile t_TYPE, t_TRAIT>
+: DetectNestedTrait_Imp<t_TYPE, t_TRAIT>::type {
+};
     // Partial specializations to ensure that cv-qualified types have the same
     // association with a nested trait as their unqualified counterpart.  Note
     // that we delegate directly to the '_Imp' class template, rather than back

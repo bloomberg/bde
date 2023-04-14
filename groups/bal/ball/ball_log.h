@@ -87,6 +87,10 @@ BSLS_IDENT("$Id: $")
 // All macros defined in this component are thread-safe, and can be invoked
 // concurrently by multiple threads.
 //
+// Additionally, each use of a logging macro will create a distinct log record,
+// and 'ball::Observer' implementations (like those in 'ball') generally
+// guarantee that output for different log records are not interleaved.
+//
 ///Macro Reference
 ///---------------
 // This section documents the preprocessor macros defined in this component.
@@ -1536,12 +1540,12 @@ struct Log {
         // *Category*.  Return 0 if the logger manager singleton is not
         // initialized.
 
-    template <int SEVERITY>
+    template <int t_SEVERITY>
     static const CategoryHolder *categoryHolderIfEnabled(
                                          const CategoryHolder *categoryHolder);
         // Return the specified 'categoryHolder' if the severity warrants
-        // logging according to the specified 'SEVERITY' and 'categoryHolder',
-        // and 0 otherwise.
+        // logging according to the specified 't_SEVERITY' and
+        // 'categoryHolder', and 0 otherwise.
 
     static void setCategory(CategoryHolder *categoryHolder,
                             const char     *categoryName);
@@ -1769,7 +1773,7 @@ class Log_Formatter {
                                  // ----------
 
 // CLASS METHODS
-template <int SEVERITY>
+template <int t_SEVERITY>
 inline
 const CategoryHolder *Log::categoryHolderIfEnabled(
                                           const CategoryHolder *categoryHolder)
@@ -1779,11 +1783,11 @@ const CategoryHolder *Log::categoryHolderIfEnabled(
     // we expect TRACE and DEBUG messages not to be logged and thus they are
     // marked with unlikely performance hints.
 
-    if (SEVERITY <= Severity::e_INFO) {
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                    categoryHolder->threshold() >= SEVERITY)) {
+    if (t_SEVERITY <= Severity::e_INFO) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(categoryHolder->threshold() >=
+                                                t_SEVERITY)) {
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                           Log::isCategoryEnabled(categoryHolder, SEVERITY))) {
+                         Log::isCategoryEnabled(categoryHolder, t_SEVERITY))) {
                 return categoryHolder;                                // RETURN
             }
             else {
@@ -1795,11 +1799,11 @@ const CategoryHolder *Log::categoryHolderIfEnabled(
     }
     else {
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                    categoryHolder->threshold() >= SEVERITY)) {
+                                  categoryHolder->threshold() >= t_SEVERITY)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                           Log::isCategoryEnabled(categoryHolder, SEVERITY))) {
+                         Log::isCategoryEnabled(categoryHolder, t_SEVERITY))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 return categoryHolder;                                // RETURN

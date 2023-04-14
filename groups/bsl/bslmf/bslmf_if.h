@@ -106,20 +106,19 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-                         // =========
-                         // struct If
-                         // =========
+                                 // =========
+                                 // struct If
+                                 // =========
 
-template <int   CONDITION,
-          class IF_TRUE_TYPE = Nil, class IF_FALSE_TYPE = Nil>
+template <int t_CONDITION,
+          class t_IF_TRUE_TYPE  = Nil,
+          class t_IF_FALSE_TYPE = Nil>
 struct If {
-    // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
-    // and 'IF_FALSE_TYPE' otherwise.
+    // This meta-function selects 't_IF_TRUE_TYPE' if 't_CONDITION' is
+    // non-zero.  and 't_IF_FALSE_TYPE' otherwise.
 
-    typedef typename bsl::conditional<CONDITION,
-                                      IF_TRUE_TYPE,
-                                      IF_FALSE_TYPE>::type
-            Type;
+    typedef typename bsl::
+        conditional<t_CONDITION, t_IF_TRUE_TYPE, t_IF_FALSE_TYPE>::type Type;
 };
 
 }  // close package namespace

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 15 22:06:02 2022
+// Generated on Wed Feb  1 13:02:05 2023
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -8939,6 +8939,12 @@ void ArrayPrimitives_Imp::shiftAndInsert(
         valuePtr += 1; // new address after the shift
     }
 
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+// clang does not support this pragma
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+
     // shift
     std::memmove(begin + 1, begin, (end - begin) * sizeof(ValueType));
 
@@ -8947,6 +8953,10 @@ void ArrayPrimitives_Imp::shiftAndInsert(
                            allocator,
                            begin,
                            bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
+
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+#pragma GCC diagnostic pop
+#endif
 }
 
 template <class ALLOCATOR>
@@ -8975,7 +8985,15 @@ void ArrayPrimitives_Imp::shiftAndInsert(
 
     // shift
     size_t bytesNum = (end - begin) * sizeof(ValueType);
+
+
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+// clang does not support this pragma
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
     std::memmove(begin + 1, begin, bytesNum);
+
 
     class ElementsProctor {
         // Moves the elements back if 'construct' throws.
@@ -8994,12 +9012,16 @@ void ArrayPrimitives_Imp::shiftAndInsert(
         void release() { d_bytesNum = 0; }
     } proctor(begin, bytesNum);
 
+
     // insert
     bsl::allocator_traits<ALLOCATOR>::construct(
                            allocator,
                            begin,
                            bslmf::MovableRefUtil::move_if_noexcept(*valuePtr));
     proctor.release();
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+#pragma GCC diagnostic pop
+#endif
 }
 
 template <class ALLOCATOR>
@@ -9090,7 +9112,7 @@ typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
 #endif // ! defined(INCLUDED_BSLALG_ARRAYPRIMITIVES_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

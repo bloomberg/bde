@@ -234,10 +234,10 @@ class ControlManager_Entry {
         // Destroy this object.
 
     // MANIPULATORS
-    int registerHandler(const bsl::string_view&    prefix,
-                        const bsl::string_view&    arguments,
-                        const bsl::string_view&    description,
-                        const ControlHandler&      handler);
+    int registerHandler(const bsl::string_view& prefix,
+                        const bsl::string_view& arguments,
+                        const bsl::string_view& description,
+                        const ControlHandler&   handler);
         // Register the specified 'handler' to be invoked whenever a control
         // message having the specified case-insensitive 'prefix' is received
         // for this control manager.  Also register the specified 'arguments'
@@ -246,6 +246,13 @@ class ControlManager_Entry {
         // printed by 'printUsage'.  Return a positive value if an existing
         // callback was replaced, return 0 if no replacement occurred, and
         // return a negative value otherwise.
+
+    int registerUsageHandler(bsl::ostream& stream);
+        // Register a handler that, on receipt of a (case-insensitive) "HELP"
+        // message, prints to the specified stream a list of this
+        // 'ControlManager's registered commands and their documentation.
+        // Return a positive value if an existing callback was replaced, return
+        // 0 if no replacement occurred, and return a negative value otherwise.
 
     int deregisterHandler(const bsl::string_view& prefix);
         // Deregister the callback function previously registered to handle the
@@ -278,15 +285,21 @@ class ControlManager_Entry {
         // Invoke 'printUsage' passing the specified '*stream' and 'preamble'.
         // Suitable for binding using the bdlf::BindUtil package.
 
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
+                        // ------------------------------------------
                         // class ControlManager::ControlManager_Entry
-                        // --------------------------
+                        // ------------------------------------------
 
 // MANIPULATORS
 inline
@@ -338,6 +351,14 @@ void ControlManager::printUsageHelper(bsl::ostream            *stream,
                                       const bsl::string_view&  preamble) const
 {
     printUsage(*stream, preamble);
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *ControlManager::allocator() const
+{
+    return d_allocator_p;
 }
 
 }  // close package namespace

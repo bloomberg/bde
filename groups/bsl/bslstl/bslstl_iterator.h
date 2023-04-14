@@ -827,6 +827,16 @@ reverse_iterator<const T *> crend(const T (&array)[N]);
     // position one before the first element in the specified 'array'.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
+namespace ranges {
+
+using std::ranges::distance;
+
+}
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================

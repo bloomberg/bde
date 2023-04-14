@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 // defined that indicates that a type's methods must not be called unless a
 // known lock is first acquired:
 //..
-//  namespace abcd { template <class TYPE> struct RequiresLockTrait; }
+//  namespace abcd { template <class t_TYPE> struct RequiresLockTrait; }
 //..
 // The implementation of 'abcd::RequiresLockTrait' is not shown.
 //
@@ -158,14 +158,14 @@ namespace bslmf {
                         // class NestedTraitDeclaration
                         // ============================
 
-template <class TYPE, template <class T> class TRAIT, bool COND = true>
+template <class t_TYPE, template <class t_T> class t_TRAIT, bool t_COND = true>
 class NestedTraitDeclaration {
-    // Class 'TYPE' will be convertible to
-    // 'NestedTraitDeclaration<TYPE,TRAIT,true>' if 'TRAIT' is associated with
-    // 'TYPE' using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  Nested trait
-    // detection depends on 'COND' being true.  If 'COND' is false, the nested
-    // trait detection will not see the conversion it is looking for and will
-    // not associate 'TRAIT' with 'TYPE'.  This feature is used by
+    // Class 't_TYPE' will be convertible to
+    // 'NestedTraitDeclaration<t_TYPE,t_TRAIT,true>' if 't_TRAIT' is associated
+    // with 't_TYPE' using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  Nested
+    // trait detection depends on 't_COND' being true.  If 't_COND' is false,
+    // the nested trait detection will not see the conversion it is looking for
+    // and will not associate 't_TRAIT' with 't_TYPE'.  This feature is used by
     // 'BSLMF_NESTED_TRAIT_DECLARATION_IF' to turn a trait on or off depending
     // on a compile-time condition (usually another trait).
 
@@ -184,23 +184,24 @@ class NestedTraitDeclaration {
                     // macro BSLMF_NESTED_TRAIT_DECLARATION
                     // ====================================
 
-#define BSLMF_NESTED_TRAIT_DECLARATION(TYPE, TRAIT)                          \
-    operator BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT>() const \
-    {                                                                        \
-        return BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT>();    \
-    }                                                                        \
+#define BSLMF_NESTED_TRAIT_DECLARATION(t_TYPE, t_TRAIT)                       \
+    operator BloombergLP::bslmf::NestedTraitDeclaration<t_TYPE, t_TRAIT>()    \
+        const                                                                 \
+    {                                                                         \
+        return BloombergLP::bslmf::NestedTraitDeclaration<t_TYPE, t_TRAIT>(); \
+    }
 
 #ifdef __CDT_PARSER__
 // Work around an Eclise CDT bug where it fails to parse the conditional trait
 // declaration.  See internal DRQS 47839133.
-#define BSLMF_NESTED_TRAIT_DECLARATION_IF(TYPE, TRAIT, COND)
+#define BSLMF_NESTED_TRAIT_DECLARATION_IF(t_TYPE, t_TRAIT, t_COND)
 #else
-#define BSLMF_NESTED_TRAIT_DECLARATION_IF(TYPE, TRAIT, COND)                 \
-    operator BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT,         \
-                                                        COND >() const       \
-    {                                                                        \
-        return                                                               \
-            BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT, COND >();\
+#define BSLMF_NESTED_TRAIT_DECLARATION_IF(t_TYPE, t_TRAIT, t_COND)            \
+    operator BloombergLP::bslmf::                                             \
+        NestedTraitDeclaration<t_TYPE, t_TRAIT, t_COND>() const               \
+    {                                                                         \
+        return BloombergLP::bslmf::                                           \
+            NestedTraitDeclaration<t_TYPE, t_TRAIT, t_COND>();                \
     }
 #endif
 

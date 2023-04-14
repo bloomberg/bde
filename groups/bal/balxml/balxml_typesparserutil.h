@@ -132,6 +132,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlat_customizedtypefunctions.h>
 #include <bdlat_enumfunctions.h>
+#include <bdlat_enumutil.h>
 #include <bdlat_formattingmode.h>
 #include <bdlat_nullablevaluefunctions.h>
 #include <bdlat_nullablevalueutil.h>
@@ -1047,7 +1048,7 @@ int TypesParserUtil_Imp::parseDecimal(
         return k_FAILURE;                                             // RETURN
     }
 
-    return bdlat_EnumFunctions::fromInt(result, intValue);
+    return bdlat::EnumUtil::fromIntOrFallbackIfEnabled(result, intValue);
 }
 
 template <class TYPE>
@@ -1105,7 +1106,8 @@ int TypesParserUtil_Imp::parseDefault(
                                   int                              inputLength,
                                   bdlat_TypeCategory::Enumeration)
 {
-    return bdlat_EnumFunctions::fromString(result, input, inputLength);
+    return bdlat::EnumUtil::fromStringOrFallbackIfEnabled(
+        result, input, inputLength);
 }
 
 template <class TYPE>
@@ -1486,7 +1488,8 @@ int TypesParserUtil_Imp::parseText(
                                   int                              inputLength,
                                   bdlat_TypeCategory::Enumeration)
 {
-    return bdlat_EnumFunctions::fromString(result, input, inputLength);
+    return bdlat::EnumUtil::fromStringOrFallbackIfEnabled(
+        result, input, inputLength);
 }
 
 template <class TYPE>

@@ -103,7 +103,10 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
                                              // 0's.
         const int mask      = 0xa72c3dca;    // pure garbage
 
-        enum { k_LINE = __LINE__ };
+        // k_LINE is not declared as enum as __LINE__ in some windows
+        // compilation modes cannot be evaluated as compile time constant.
+        // See DRQS 169040262 for details.
+        const int k_LINE = __LINE__;
 
         for (int jj = 0; !(jj & loopGuard); ++jj) {
             line ^= (jj & mask);

@@ -1535,6 +1535,20 @@ void testTransparentComparator(Container& container,
     ASSERT(container.end()                  == NON_EXISTING_F);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
+    // Testing 'contains'.
+
+    const bool EXISTING_CONTAINS = container.contains(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(true == EXISTING_CONTAINS);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+    ASSERT(false == NON_EXISTING_CONTAINS);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
     // Testing 'count'.
 
     const Count EXPECTED_C = 1;
@@ -8573,10 +8587,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //
     // Concerns:
     //: 1 If the key being searched exists in the container, 'find' returns the
-    //:   iterator referring to the existing element.
+    //:   iterator referring to the existing element and 'contains' returns
+    //:   'true'.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
-    //:   returns the 'end' iterator.
+    //:   returns the 'end' iterator and 'contains' returns 'false'.
     //:
     //: 3 'equal_range(key)' returns 'std::make_pair(fird(key), ++find(key))'.
     //:
@@ -8602,6 +8617,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //:   4 Verify no memory is allocated from any allocators.  (C-4)
     //
     // Testing:
+    //   bool contains(const key_type& key);
+    //   bool contains(const LOOKUP_KEY& key);
     //   iterator find(const key_type& key);
     //   const_iterator find(const key_type& key) const;
     //   size_type count(const key_type& key) const;
@@ -8656,6 +8673,24 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
                     const size_t idx = tj / 2;
                     ASSERTV(ti, tj, CITER[idx] ==  X.find(VALUES[tj].first));
                     ASSERTV(ti, tj, ITER[idx]  == mX.find(VALUES[tj].first));
+
+                    bool cShouldBeFound = CITER[idx] != X.end();
+                    ASSERTV(
+                           ti,
+                           tj,
+                           cShouldBeFound,
+                           cShouldBeFound == X.contains(VALUES[tj].first));
+
+                    bool shouldBeFound  = ITER[idx] != mX.end();
+                    ASSERTV(cShouldBeFound,
+                            shouldBeFound,
+                            cShouldBeFound == shouldBeFound);
+
+                    ASSERTV(
+                           ti,
+                           tj,
+                           shouldBeFound,
+                           shouldBeFound == mX.contains(VALUES[tj].first));
 
                     ASSERTV( X.end() != CITER[idx]);
                     ASSERTV(mX.end() != ITER[ idx]);
@@ -10129,7 +10164,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'find'
+        // TESTING 'find', 'contains'
         // --------------------------------------------------------------------
 
         RUN_EACH_TYPE(TestDriver,

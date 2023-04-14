@@ -114,6 +114,12 @@ int Decoder::skipUnknownElement(const bsl::string_view& elementName)
         // encounter the matching end array token (']').
 
         int skippingDepth = 1;
+
+        // Since we skip all the data associated with this element we can relax
+        // our restrictions on array homogeneity.  See {DRQS 171296111} for
+        // more details.
+        d_tokenizer.setAllowHeterogenousArrays(true);
+
         while (skippingDepth) {
             // Use 'skippingDepth' to keep track of how we have descended and
             // when to return.
@@ -160,6 +166,7 @@ int Decoder::skipUnknownElement(const bsl::string_view& elementName)
               } break;
             }
         }
+        d_tokenizer.setAllowHeterogenousArrays(false);
     }
 
     return 0;

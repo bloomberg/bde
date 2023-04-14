@@ -81,11 +81,11 @@ namespace bsl {
                         // struct is_copy_constructible
                         // ============================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_copy_constructible;
     // This 'struct' template implements a meta-function to determine whether
-    // the (template parameter) 'TYPE' is copy constructible.  This 'struct'
-    // derives from 'bsl::true_type' if the 'TYPE' is copy constructible, and
+    // the (template parameter) 't_TYPE' is copy constructible.  This 'struct'
+    // derives from 'bsl::true_type' if the 't_TYPE' is copy constructible, and
     // from 'bsl::false_type' otherwise.  This meta-function has the same
     // syntax as the 'is_copy_constructible' meta-function defined in the C++11
     // standard [meta.unary.prop]; on C++03 platforms, however, this
@@ -128,21 +128,20 @@ namespace bsl {
 // The implementation below preemptively implements the expected resolution of
 // that issue on all platforms.
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_copy_constructible
-     : bsl::integral_constant<bool, (bsl::is_array<TYPE>::value
-                                     ? false
-                                     : std::is_copy_constructible<TYPE>::value)
-                              >
-{
+: bsl::integral_constant<bool,
+                         (bsl::is_array<t_TYPE>::value
+                              ? false
+                              : std::is_copy_constructible<t_TYPE>::value)> {
     // This specialization largely defers to the native trait on supported
     // C++11 compilers.  See {Implementation Notes} above.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_copy_constructible_v = is_copy_constructible<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_copy_constructible_v =
+                                          is_copy_constructible<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_copy_constructible' meta-function.
 #endif
@@ -158,16 +157,15 @@ namespace bslmf {
                        // struct IsCopyConstructible_Imp
                        // ==============================
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsCopyConstructible_Imp
-    : bsl::integral_constant<bool,
-                             bsl::is_trivially_copyable<TYPE>::value
-                          || bsl::is_reference<TYPE>::value
-                          || !(bsl::is_volatile<TYPE>::value
-                            || bsl::is_function<TYPE>::value)>
-{
+: bsl::integral_constant<bool,
+                         bsl::is_trivially_copyable<t_TYPE>::value ||
+                             bsl::is_reference<t_TYPE>::value ||
+                             !(bsl::is_volatile<t_TYPE>::value ||
+                               bsl::is_function<t_TYPE>::value)> {
     // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' has a copy
+    // the (non-cv-qualified) (template parameter) 't_TYPE' has a copy
     // constructor.
 };
 
@@ -185,9 +183,8 @@ struct IsCopyConstructible_Imp<volatile void> : bsl::false_type
     // a copy constructor, despite being a fundamental type.
 };
 
-template <class TYPE>
-struct IsCopyConstructible_Imp<TYPE *volatile> : bsl::true_type
-{
+template <class t_TYPE>
+struct IsCopyConstructible_Imp<t_TYPE *volatile> : bsl::true_type {
     // This explicit specialization reports that volatile pointer objects have
     // a copy constructor, just like a fundamental type.
 };
@@ -201,45 +198,41 @@ namespace bsl {
                         // struct is_copy_constructible (C++03)
                         // ====================================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_copy_constructible
-: BloombergLP::bslmf::IsCopyConstructible_Imp<TYPE>::type {
+: BloombergLP::bslmf::IsCopyConstructible_Imp<t_TYPE>::type {
     // The primary template for this traits handles only non-'const'-qualified
     // types; partial specializations will handle some interesting cases,
     // including the remaining 'const'-qualified types.
 };
 
-template <class TYPE>
-struct is_copy_constructible<const TYPE> : is_copy_constructible<TYPE>::type
-{
+template <class t_TYPE>
+struct is_copy_constructible<const t_TYPE>
+: is_copy_constructible<t_TYPE>::type {
     // This partial specialization ensures that const-qualified types have the
     // same result as their element type.
 };
 
-template <class TYPE, size_t LEN>
-struct is_copy_constructible<TYPE[LEN]> : false_type
-{
+template <class t_TYPE, size_t t_LEN>
+struct is_copy_constructible<t_TYPE[t_LEN]> : false_type {
     // This partial specialization ensures that array types have the result
     // 'false'.
 };
 
-template <class TYPE, size_t LEN>
-struct is_copy_constructible<const TYPE[LEN]> : false_type
-{
+template <class t_TYPE, size_t t_LEN>
+struct is_copy_constructible<const t_TYPE[t_LEN]> : false_type {
     // This partial specialization ensures that const-qualified array types
     // have result 'false'.
 };
 
-template <class TYPE, size_t LEN>
-struct is_copy_constructible<volatile TYPE[LEN]> : false_type
-{
+template <class t_TYPE, size_t t_LEN>
+struct is_copy_constructible<volatile t_TYPE[t_LEN]> : false_type {
     // This partial specialization ensures that volatile-qualified array types
     // have the result 'false'.
 };
 
-template <class TYPE, size_t LEN>
-struct is_copy_constructible<const volatile TYPE[LEN]> : false_type
-{
+template <class t_TYPE, size_t t_LEN>
+struct is_copy_constructible<const volatile t_TYPE[t_LEN]> : false_type {
     // This partial specialization ensures that const-volatile-qualified array
     // types have the result false.
 };
@@ -248,30 +241,26 @@ struct is_copy_constructible<const volatile TYPE[LEN]> : false_type
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
 // correctly handling arrays of unknown bound as template parameters.
 
-template <class TYPE>
-struct is_copy_constructible<TYPE[]> : false_type
-{
+template <class t_TYPE>
+struct is_copy_constructible<t_TYPE[]> : false_type {
     // This partial specialization ensures that array-of-unknown-bound types
     // have the result 'false'.
 };
 
-template <class TYPE>
-struct is_copy_constructible<const TYPE[]> : false_type
-{
+template <class t_TYPE>
+struct is_copy_constructible<const t_TYPE[]> : false_type {
     // This partial specialization ensures that const-qualified
     // array-of-unknown-bound types have the result 'false'.
 };
 
-template <class TYPE>
-struct is_copy_constructible<volatile TYPE[]> : false_type
-{
+template <class t_TYPE>
+struct is_copy_constructible<volatile t_TYPE[]> : false_type {
     // This partial specialization ensures that volatile-qualified
     // array-of-unknown-bound types have the result 'false'.
 };
 
-template <class TYPE>
-struct is_copy_constructible<const volatile TYPE[]> : false_type
-{
+template <class t_TYPE>
+struct is_copy_constructible<const volatile t_TYPE[]> : false_type {
     // This partial specialization ensures that const-volatile-qualified
     // array-of-unknown-bound types have the result 'false'.
 };

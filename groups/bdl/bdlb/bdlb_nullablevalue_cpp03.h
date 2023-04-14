@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct 26 13:51:43 2022
+// Generated on Tue Jan  3 10:43:15 2023
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -1856,16 +1856,28 @@ bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 
 }  // close enterprise namespace
 
-#ifdef  BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
+#ifdef BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
 // This hack works around a bug in gcc's defintion for is-optional.  See
 // bslstl_optional.h for more information.
 
 namespace std {
 template <typename _Tp>
-inline
-constexpr bool __is_optional_v<BloombergLP::bdlb::NullableValue<_Tp> > = true;
+inline constexpr bool __is_optional_v<BloombergLP::bdlb::NullableValue<_Tp>> =
+    true;
 }
-#endif  // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
+#endif // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
+
+#ifdef BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_MSVC_WORKAROUND_NEEDED
+// This hack works around a bug in MSVC's C++20 defintion for is-optional. See
+// bslstl_optional.h for more information.
+
+namespace std {
+template <typename _Tp>
+inline
+constexpr bool _Is_specialization_v<BloombergLP::bdlb::NullableValue<_Tp>,
+                                    std::optional> = true;
+}
+#endif  // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_MSVC_WORKAROUND_NEEDED
 
 #else // if ! defined(DEFINED_BDLB_NULLABLEVALUE_H)
 # error Not valid except when included from bdlb_nullablevalue.h
@@ -1874,7 +1886,7 @@ constexpr bool __is_optional_v<BloombergLP::bdlb::NullableValue<_Tp> > = true;
 #endif // ! defined(INCLUDED_BDLB_NULLABLEVALUE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

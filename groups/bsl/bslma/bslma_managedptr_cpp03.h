@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Oct 17 10:42:50 2022
 // Command line: sim_cpp11_features.pl bslma_managedptr.h
 
 #ifdef COMPILING_BSLMA_MANAGEDPTR_H
@@ -146,12 +146,7 @@ class ManagedPtr {
         // object managed by a 'ManagedPtr' object.
 
     typedef TARGET_TYPE element_type;
-        // Alias to the 'TARGET_TYPE' template parameter.  Note that
-        // 'element_type' refers to the same type as 'ElementType'.
-
-    typedef TARGET_TYPE ElementType;
-        // Alias to the 'TARGET_TYPE' template parameter.  Note that
-        // 'ElementType' refers to the same type as 'element_type'.
+        // Alias to the 'TARGET_TYPE' template parameter.
 
   private:
     // PRIVATE TYPES
@@ -3435,7 +3430,7 @@ struct is_nothrow_move_constructible<
 #endif // ! defined(INCLUDED_BSLMA_MANAGEDPTR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 // in the thread pool, matching the "void function/void pointer" interface.
 // The single 'void *' argument is received and cast to point to a
 // 'struct my_FastSearchJobInfo', which then points to the search string and a
-// single file to be searched.  Note that different 'my_FastSearchInfo'
+// single file to be searched.  Note that different 'my_FastSearchJobInfo'
 // structures for the same search request will differ only in the attribute
 // 'd_path', which points to a specific filename among the set of files to be
 // searched; other fields will be identical across all structures for a given
@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //..
 //   static void myFastSearchJob(void *arg)
 //   {
-//       myFastSearchJobInfo *job =  (myFastSearchJobInfo*)arg;
+//       my_FastSearchJobInfo *job =  (my_FastSearchJobInfo*)arg;
 //       FILE *file;
 //
 //       file = fopen(job->d_path->c_str(), "r");
@@ -258,12 +258,12 @@ BSLS_IDENT("$Id: $")
 //
 // To illustrate the Functor Interface, we will make two small changes to the
 // usage example above.  First, we change the signature of the function that
-// executes a single job, so that it uses a 'myFastSearchJobInfo' pointer
+// executes a single job, so that it uses a 'my_FastSearchJobInfo' pointer
 // rather than a 'void' pointer.  With this change, we can remove the first
 // executable statement, which casts the 'void *' pointer to
-// 'myFastSearchJobInfo *'.
+// 'my_FastSearchJobInfo *'.
 //..
-//   static void myFastFunctorSearchJob(myFastSearchJobInfo *job)
+//   static void myFastFunctorSearchJob(my_FastSearchJobInfo *job)
 //   {
 //       FILE *file;
 //

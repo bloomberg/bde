@@ -332,6 +332,9 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ(bsl::is_integral, value, bool, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, char, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, wchar_t, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, char8_t, true);
+#endif
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
         TYPE_ASSERT_CVQ(bsl::is_integral, value, char16_t, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, char32_t, true);

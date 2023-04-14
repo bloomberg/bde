@@ -18,6 +18,7 @@
 
 #include <bslmf_assert.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_iscopyconstructible.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_removeconst.h>
@@ -174,6 +175,8 @@ using bsl::pair;
 // [24] const VALUE& at(const KEY&) const;
 //
 // search:
+// [13] bool contains(const key_type& key);
+// [13] bool contains(const LOOKUP_KEY& key);
 // [13] size_type count(const KEY& key) const;
 // [13] pair<iterator, iterator> equal_range(const KEY& key);
 // [13] pair<const_iter, const_iter> equal_range(const KEY&) const;
@@ -6344,6 +6347,57 @@ TestIncompleteType::~TestIncompleteType()
 }
 #endif
 
+                            // =================
+                            // struct NeqFunctor
+                            // =================
+
+template <class TYPE, bool = bsl::is_copy_constructible<TYPE>::value>
+class NeqFunctor;
+    // A class for storing a value away, and later comparing it to a second
+    // value.   The 'operator()' returns the equivalent of "not equal to",
+    // hence the name 'neqFunctor'.   If the template parameter class 'TYPE'
+    // is not copy-constructible, then the copy is not made, and the functor
+    // will return 'true' for all values passed.
+
+template <class TYPE>
+class NeqFunctor<TYPE, false> {
+     // The specialization for non-copyable types.  Do not save a value, always
+     // return true.
+  public:
+    NeqFunctor(const TYPE &)
+        // Do nothing.
+    {
+    }
+
+    bool operator()(const TYPE &) const
+        // Return 'true'.
+    {
+        return true;
+    }
+};
+
+template <class TYPE>
+class NeqFunctor<TYPE, true> {
+     // The specialization for copyable types.  Save a copy of the value passed
+     // to the constructor, and use it for comparison in the 'operator()'.
+  public:
+    NeqFunctor(const TYPE &value)
+        // Save off the specified 'value' for use later.
+    : d_value(value)
+    {
+    }
+
+    bool operator()(const TYPE &other) const
+        // Return 'true' when the specified 'other' compares 'not equal' to the
+        // saved value, and 'false' otherwise.
+    {
+        return d_value != other;
+    }
+
+  private:
+    TYPE d_value;
+};
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -9871,13 +9925,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
             }
 
             // ----------------------------------------------------------------
+            // We use 'NeqFunctor' to save a copy of the key for comparison
+            // later.  If the key type is not copyable, then 'NeqFunctor' will
+            // not copy it, and simply report that all existing keys are not
+            // equal.
 
             if (veryVerbose) printf("\n\tTesting 'erase(it)'.\n");
             {
                 size_t sz = X.size();
                 for (Iter it = mX.begin(), nextIt; mX.end() != it;
                                                                  it = nextIt) {
-                    const KEY& K = it->first;
+                    NeqFunctor<KEY> neq(it->first);
 
                     numPasses = 0;
                     EXCEPTION_TEST_BEGIN(mX) {
@@ -9889,10 +9947,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
 
                     ASSERTV(X.size(), sz, X.size() == --sz);
 
+                    // Ensure that the key is no longer in the map, and the
+                    // iterator returned by 'erase' points to an element in the
+                    // map.
                     bool found = mX.end() == nextIt;
                     for (Iter itB = mX.begin(); mX.end() != itB; ++itB) {
                         ASSERTV(it != itB);
-                        ASSERTV(K != itB->first);
+                        ASSERTV(neq(itB->first));
                         if (nextIt == itB) {
                             found = true;
                         }

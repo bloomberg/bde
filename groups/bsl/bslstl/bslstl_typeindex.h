@@ -230,6 +230,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
+#include <bslstl_compare.h>
+
 #include <functional>
 #include <typeinfo>
 
@@ -280,10 +282,17 @@ class type_index {
         // same value, and 'false' otherwise.  Two 'type_index' objects have
         // the same value if they refer to the same type.
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
     bool operator!=(const type_index& other) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this and the specified 'other' objects do not have
         // the same value, and 'false' otherwise.  Two 'type_index' objects do
         // not have the same value if they refer to different types.
+#else
+    strong_ordering operator<=>(const type_index& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Perform a three-way comparison with the specified 'other' object;
+        // return the result of that comparison.
+#endif
 
     bool operator< (const type_index& other) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the type referenced by this object is ordered
@@ -348,12 +357,23 @@ bool type_index::operator==(const type_index& other) const
     return *d_targetType_p == *other.d_targetType_p;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 inline
 bool type_index::operator!=(const type_index& other) const
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return *d_targetType_p != *other.d_targetType_p;
 }
+#else
+inline
+strong_ordering type_index::operator<=>(const type_index& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return *d_targetType_p == *other.d_targetType_p ? strong_ordering::equal :
+      d_targetType_p->before(*other.d_targetType_p) ? strong_ordering::less :
+                                                      strong_ordering::greater;
+}
+#endif
 
 inline
 bool type_index::operator<(const type_index& other) const BSLS_KEYWORD_NOEXCEPT
@@ -407,10 +427,6 @@ void bsl::hashAppend(HASHALG& hashAlg, const type_index& object)
 }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# ifdef std
-#   undef std
-#   define BSLSTL_ERROR_STD_DEFINED
-# endif // std
 
 namespace std {
                         // ---------------------------
@@ -436,10 +452,6 @@ struct hash<bsl::type_index> {
 
 }  // close namespace std
 
-# ifdef BSLSTL_ERROR_STD_DEFINED
-#   undef BSLSTL_ERROR_STD_DEFINED
-#   define std bsl
-# endif // BSLSTL_ERROR_STD_DEFINED
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #endif

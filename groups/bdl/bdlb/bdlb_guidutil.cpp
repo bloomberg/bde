@@ -169,13 +169,15 @@ inline int getPid()
     // allows us to call it inline within the component.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    return 0;
+    // Return a placeholder; the actual PID is not important since there is no
+    // possibility of forking on Windows.
+    return 1;
 #else
     return static_cast<int>(::getpid());
 #endif
 }
 
-static bsls::AtomicInt s_pid(-1);
+static bsls::AtomicInt s_pid;
 
 extern "C" void guidUtilForkChildCallback()
     // Callback for the child process as set by pthread_atfork.  If the process
@@ -183,7 +185,7 @@ extern "C" void guidUtilForkChildCallback()
     // point during the forking process we are guaranteed to only have a single
     // running thread.
 {
-    s_pid = -1;
+    s_pid = 0;
 }
 
 void registerForkCallback()
@@ -284,7 +286,7 @@ void GuidUtil::generateNonSecure(Guid *result, bsl::size_t numGuids)
     static GuidState_Imp *guidStatePtr;
     static bslmt::Mutex  *pcgMutexPtr;
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(-1 == s_pid.loadRelaxed())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!s_pid.loadRelaxed())) {
         BSLMT_ONCE_DO
         {
             registerForkCallback();
@@ -298,7 +300,7 @@ void GuidUtil::generateNonSecure(Guid *result, bsl::size_t numGuids)
 
         bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
 
-        if (-1 == s_pid.load()) {
+        if (!s_pid.load()) {
             s_pid = getPid();
             reseed(guidStatePtr);
         }

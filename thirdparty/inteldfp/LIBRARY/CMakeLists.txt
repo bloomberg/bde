@@ -281,8 +281,13 @@ target_include_directories(
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:include/${target}>)
 
+bbs_add_target_thread_flags(${target} PRIVATE)
+
 # This variable controls the set of headers to install
 set(${target}_INCLUDE_FILES ${${target}_INCLUDE_FILES} PARENT_SCOPE)
 
 bbs_install_target(${target})
 bbs_emit_pkg_config(${target})
+
+set_target_properties(${target} PROPERTIES BB_UOR_PARTITION thirdparty)
+bbs_emit_bde_metadata(${target})

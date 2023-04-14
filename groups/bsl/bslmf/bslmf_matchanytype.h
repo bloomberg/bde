@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bslmf::MatchAnyType: generic type to which any type can be converted
-//  bslmf::TypeRep: meta-function for providing a reference to 'TYPE'
+//  bslmf::TypeRep: meta-function for providing a reference to 't_TYPE'
 //
 //@DESCRIPTION: 'bslmf::MatchAnyType' is a type to which any type can be
 // implicitly converted.  This is useful for creating an overloaded function
@@ -107,12 +107,18 @@ namespace bslmf {
 struct MatchAnyType {
     // Any type can be converted into this type.
 
-    template <class TYPE> MatchAnyType(const TYPE&) { }             // IMPLICIT
-        // This constructor will match any rvalue or any non-volatile lvalue.
-        // A non-'const' version of this constructor is not necessary and will
-        // cause some compilers to complain of ambiguities.
+    template <class t_TYPE>
+    MatchAnyType(const t_TYPE&)
+    {
+    }                                                               // IMPLICIT
+    // This constructor will match any rvalue or any non-volatile lvalue.  A
+    // non-'const' version of this constructor is not necessary and will cause
+    // some compilers to complain of ambiguities.
 
-    template <class TYPE> MatchAnyType(const volatile TYPE&) { }    // IMPLICIT
+    template <class t_TYPE>
+    MatchAnyType(const volatile t_TYPE&)
+    {
+    }                                                               // IMPLICIT
         // This constructor will match any volatile lvalue.  According to the
         // standard, it should NOT match an rvalue.  A non-'const' version of
         // this constructor is not necessary and will cause some compilers to
@@ -124,36 +130,36 @@ struct MatchAnyType {
                         // =============
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class TYPE>
+template <class t_TYPE>
 struct TypeRep {
-    // Generate a reference to 'TYPE' for use in meta-functions.
+    // Generate a reference to 't_TYPE' for use in meta-functions.
 
-//    static TYPE&& rep();
-    static typename bsl::add_rvalue_reference<TYPE>::type rep();
-        // Provide a reference to a 'TYPE' object.  This function has no body
+    //    static t_TYPE&& rep();
+    static typename bsl::add_rvalue_reference<t_TYPE>::type rep();
+        // Provide a reference to a 't_TYPE' object.  This function has no body
         // and must never be called at run time.  Thus, it does not matter if
-        // 'TYPE' has a default constructor or not.
+        // 't_TYPE' has a default constructor or not.
 };
 #else
-template <class TYPE>
+template <class t_TYPE>
 struct TypeRep {
-    // Generate a reference to 'TYPE' for use in meta-functions.
+    // Generate a reference to 't_TYPE' for use in meta-functions.
 
-    static TYPE& rep();
-        // Provide a reference to a 'TYPE' object.  This function has no body
+    static t_TYPE& rep();
+        // Provide a reference to a 't_TYPE' object.  This function has no body
         // and must never be called at run time.  Thus, it does not matter if
-        // 'TYPE' has a default constructor or not.
+        // 't_TYPE' has a default constructor or not.
 };
 
-template <class TYPE>
-struct TypeRep<TYPE&> {
-    // Generate a reference to 'TYPE' for use in meta-functions.  This is a
+template <class t_TYPE>
+struct TypeRep<t_TYPE&> {
+    // Generate a reference to 't_TYPE' for use in meta-functions.  This is a
     // partial specialization of 'TypeRep' instantiated with a reference.
 
-    static TYPE& rep();
-        // Provide a reference to a 'TYPE' object.  This function has no body
+    static t_TYPE& rep();
+        // Provide a reference to a 't_TYPE' object.  This function has no body
         // and must never be called at run time.  Thus, it does not matter if
-        // 'TYPE' has a default constructor or not.
+        // 't_TYPE' has a default constructor or not.
 };
 #endif
 

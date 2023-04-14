@@ -97,7 +97,7 @@ struct Nil {
                       // struct IsNil
                       // ============
 
-template <class T>
+template <class t_T>
 struct IsNil : bsl::false_type {
 };
 

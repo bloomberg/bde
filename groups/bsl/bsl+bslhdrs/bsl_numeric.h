@@ -7,8 +7,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bos+stdhdrs in the bos package group
-//
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
@@ -44,6 +42,10 @@ namespace bsl {
     using std::reduce;
     using std::transform_reduce;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    using std::midpoint;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by

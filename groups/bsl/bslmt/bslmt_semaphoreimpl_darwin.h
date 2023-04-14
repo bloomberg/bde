@@ -73,7 +73,9 @@ class SemaphoreImpl<Platform::DarwinSemaphore> {
   public:
     // CREATORS
     SemaphoreImpl(int count);
-        // Create a semaphore initialized to the specified 'count'.
+        // Create a semaphore initialized to the specified 'count'.  This
+        // method does not return normally unless there are sufficient system
+        // resources to construct the object.
 
     ~SemaphoreImpl();
         // Destroy a semaphore
@@ -153,7 +155,7 @@ int bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::getValue() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

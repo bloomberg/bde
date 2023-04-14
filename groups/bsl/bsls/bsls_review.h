@@ -760,13 +760,13 @@ BSLS_IDENT("$Id: $")
 // will only be invoked when a violation happens) in order to facilitate use
 // within 'constexpr' functions.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
     #define BSLS_REVIEW_REVIEW_COUNT_IMP                                      \
-        constexpr auto countLambda = []{                                      \
-            static BloombergLP::bsls::Review::Count count = {0};              \
-            return &count;                                                    \
-        };                                                                    \
-        int lastCount = BloombergLP::bsls::Review::updateCount(countLambda());
+        int lastCount = BloombergLP::bsls::Review::updateCount(               \
+            []{                                                               \
+                static BloombergLP::bsls::Review::Count count = {0};          \
+                return &count;                                                \
+            }() );
 #else
     #define BSLS_REVIEW_REVIEW_COUNT_IMP                                      \
         static BloombergLP::bsls::Review::Count count = {0};                  \

@@ -34,6 +34,23 @@ BSLS_IDENT("$Id: $")
 // 'using namespace bsl::chrono_literals' to minimize the scope of the using
 // declaration.
 //
+///C++20 Calendar/TZ feature on Windows
+///------------------------------------
+// This feature has been provided by MSVC++ compiler since VS 2019 16.10.  But
+// that release was shipped with the following important note:
+//
+// "While the STL generally provides all features on all supported versions of
+// Windows, leap seconds and time zones (which change over time) require OS
+// support that was added to Windows 10.  Specifically, updating the leap
+// second database requires Windows 10 version 1809 or later, and time zones
+// require 'icu.dll' which is provided by Windows 10 version 1903/19H1 or
+// later.  This applies to both client and server OSes; note that Windows
+// Server 2019 is based on Windows 10 version 1809."
+//
+// If the feature is used on a host that doesn't provide 'icu.dll', an
+// exception with "The specified module could not be found." message will be
+// thrown.  That is why this feature is disabled by default on Windows.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -71,6 +88,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
@@ -112,6 +130,113 @@ namespace bsl {
         using std::chrono::ceil;
         using std::chrono::floor;
         using std::chrono::round;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+        // Calendar and Time Zones
+        using std::chrono::days;
+        using std::chrono::weeks;
+        using std::chrono::months;
+        using std::chrono::years;
+
+        using std::chrono::is_clock;
+        using std::chrono::is_clock_v;
+        //using std::chrono::system_clock;
+            using std::chrono::sys_time;
+            using std::chrono::sys_seconds;
+            using std::chrono::sys_days;
+        using std::chrono::file_clock;
+            using std::chrono::file_time;
+        using std::chrono::local_t;
+            using std::chrono::local_time;
+            using std::chrono::local_seconds;
+            using std::chrono::local_days;
+
+        using std::chrono::clock_time_conversion;
+        using std::chrono::clock_cast;
+
+        using std::chrono::last_spec;
+        using std::chrono::last;
+        using std::chrono::day;
+        using std::chrono::month;
+            using std::chrono::January;
+            using std::chrono::February;
+            using std::chrono::March;
+            using std::chrono::April;
+            using std::chrono::May;
+            using std::chrono::June;
+            using std::chrono::July;
+            using std::chrono::August;
+            using std::chrono::September;
+            using std::chrono::October;
+            using std::chrono::November;
+            using std::chrono::December;
+        using std::chrono::year;
+        using std::chrono::weekday;
+            using std::chrono::Sunday;
+            using std::chrono::Monday;
+            using std::chrono::Tuesday;
+            using std::chrono::Wednesday;
+            using std::chrono::Thursday;
+            using std::chrono::Friday;
+            using std::chrono::Saturday;
+        using std::chrono::weekday_indexed;
+        using std::chrono::weekday_last;
+
+        using std::chrono::month_day;
+        using std::chrono::month_day_last;
+        using std::chrono::month_weekday;
+        using std::chrono::month_weekday_last;
+        using std::chrono::year_month;
+        using std::chrono::year_month_day;
+        using std::chrono::year_month_day_last;
+        using std::chrono::year_month_weekday;
+        using std::chrono::year_month_weekday_last;
+
+        using std::chrono::hh_mm_ss;
+
+        using std::chrono::is_am;
+        using std::chrono::is_pm;
+        using std::chrono::make12;
+        using std::chrono::make24;
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+        using std::chrono::utc_clock;
+            using std::chrono::utc_time;
+            using std::chrono::utc_seconds;
+        using std::chrono::tai_clock;
+            using std::chrono::tai_time;
+            using std::chrono::tai_seconds;
+        using std::chrono::gps_clock;
+            using std::chrono::gps_time;
+            using std::chrono::gps_seconds;
+
+        using std::chrono::tzdb;
+        using std::chrono::tzdb_list;
+        using std::chrono::sys_info;
+        using std::chrono::local_info;
+        using std::chrono::get_tzdb_list;
+        using std::chrono::get_tzdb;
+        using std::chrono::remote_version;
+        using std::chrono::reload_tzdb;
+
+        using std::chrono::time_zone;
+        using std::chrono::choose;
+        using std::chrono::zoned_traits;
+        using std::chrono::zoned_time;
+        using std::chrono::zoned_seconds;
+        using std::chrono::time_zone_link;
+
+        using std::chrono::nonexistent_local_time;
+        using std::chrono::ambiguous_local_time;
+
+        using std::chrono::leap_second;
+        using std::chrono::leap_second_info;
+        using std::chrono::get_leap_second_info;
+#endif
+
+        using std::chrono::from_stream;
+        using std::chrono::parse;
 #endif
     }  // close namespace chrono
 

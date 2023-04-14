@@ -24,15 +24,15 @@ BSLS_IDENT("$Id: $")
 //: o 'sortMembers': sort the members of any Object elements in the output JSON
 //:   (default: 'false')
 //: o 'style': the style of the resulting output
-//:    o 'e_COMPACT' (default): render with no added white space
-//:    o 'e_ONELINE': render a human readable single-line format (e.g., for
-//:      logging)
-//:    o 'e_PRETTY': render a multi-line human readable format
-//: o 'spacesPerLevel': for the 'e_PRETTY' style, the number of spaces added for
-//    each additional nesting level (default 4)
-//: o 'initialIndentationLevel': for the 'e_PRETTY' style, the number of sets of
-//    'spacesPerLevel' spaces added to every line of the output, including the
-//    first and last lines (default 0)
+//:   o 'e_COMPACT' (default): render with no added white space
+//:   o 'e_ONELINE': render a human readable single-line format (e.g., for
+//:     logging)
+//:   o 'e_PRETTY': render a multi-line human readable format
+//: o 'spacesPerLevel': for the 'e_PRETTY' style, the number of spaces added
+//:   for each additional nesting level (default 4)
+//: o 'initialIndentationLevel': for the 'e_PRETTY' style, the number of sets
+//:   of 'spacesPerLevel' spaces added to every line of the output, including
+//:   the first and last lines (default 0)
 //
 // The example below shows the various write styles:
 //..
@@ -72,8 +72,9 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // By default, 'bdljsn::JsonUtil::read' will report an error for input where a
 // valid JSON document is followed by additional text unless the trailing text
-// consists solely of white space characters.  This behavior is configured by the
-// 'bdljsn::ReadOptions' attribute, "allowTrailingText" (which defaults to 'false').
+// consists solely of white space characters.  This behavior is configured by
+// the 'bdljsn::ReadOptions' attribute, "allowTrailingText" (which defaults to
+// 'false').
 //
 // If "allowTrailingText" is 'true', then 'bdljsn::JsonUtil::read' will return
 // success where a valid JSON document is followed by additional text as long
@@ -306,10 +307,10 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == rc);
 //
 //  // Using 'e_PRETTY' style (with 'initialIndentLevel' as 1):
-//  assert(R"JSON(    {
-//          "a": 1,
-//          "b": []
-//      })JSON" == output);
+//  assert(R"JSON({
+//      "a": 1,
+//      "b": []
+//  })JSON" == output);
 //..
 
 #include <bdlscm_version.h>
@@ -331,7 +332,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 
-    namespace BloombergLP {
+namespace BloombergLP {
 namespace bdljsn {
 
                               // ===============

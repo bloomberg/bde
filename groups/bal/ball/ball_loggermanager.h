@@ -1720,17 +1720,17 @@ class LoggerManager {
         // 'observerName' in the registry of this logger manager, and an empty
         // shared pointer if there is no such observer otherwise.
 
-    template <class OBSERVER>
-    int findObserver(bsl::shared_ptr<OBSERVER> *result,
-                     const bsl::string_view&    observerName);
+    template <class t_OBSERVER>
+    int findObserver(bsl::shared_ptr<t_OBSERVER> *result,
+                     const bsl::string_view&      observerName);
         // Load into the specified 'result' a shared pointer to the observer of
-        // (template parameter) 'OBSERVER' type having the specified
+        // (template parameter) 't_OBSERVER' type having the specified
         // 'observerName' in the registry of this logger manager, and an empty
         // shared pointer if there is no such observer otherwise.  Return 0 if
         // a non-empty shared pointer was loaded, and a non-zero value
         // otherwise.  Note that an empty shared pointer will be loaded if
         // either no observer having 'observerName' is in the registry or the
-        // observer registered with that name is not of 'OBSERVER' type.
+        // observer registered with that name is not of 't_OBSERVER' type.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     Observer *observer();
@@ -1831,8 +1831,8 @@ class LoggerManager {
         // by this logger manager, and indicate the publication cause to be
         // 'MANUAL_PUBLISH_ALL'.
 
-    template <class CATEGORY_VISITOR>
-    void visitCategories(const CATEGORY_VISITOR& visitor);
+    template <class t_CATEGORY_VISITOR>
+    void visitCategories(const t_CATEGORY_VISITOR& visitor);
         // Invoke the specified 'visitor' functor on each category managed by
         // this object, providing that functor modifiable access to each
         // category.  'visitor' must be a functor that can be called as if it
@@ -1841,11 +1841,11 @@ class LoggerManager {
         //  void operator()(Category *);
         //..
 
-    template <class OBSERVER_VISITOR>
+    template <class t_OBSERVER_VISITOR>
     void visitObservers(
-                  BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor);
+                BSLS_COMPILERFEATURES_FORWARD_REF(t_OBSERVER_VISITOR) visitor);
         // Invoke the specified 'visitor' functor of (template parameter)
-        // 'OBSERVER_VISITOR' type on each element in the registry of this
+        // 't_OBSERVER_VISITOR' type on each element in the registry of this
         // logger manager, supplying that functor modifiable access to each
         // observer.  'visitor' must be a functor that can be called as if it
         // had the following signature:
@@ -1882,17 +1882,17 @@ class LoggerManager {
         // 'observerName' in the registry of this logger manager, and an empty
         // shared pointer if there is no such observer otherwise.
 
-    template <class OBSERVER>
-    int findObserver(bsl::shared_ptr<const OBSERVER> *result,
-                     const bsl::string_view&          observerName) const;
+    template <class t_OBSERVER>
+    int findObserver(bsl::shared_ptr<const t_OBSERVER> *result,
+                     const bsl::string_view&            observerName) const;
         // Load into the specified 'result' a shared pointer to the observer of
-        // (template parameter) 'OBSERVER' type having the specified
+        // (template parameter) 't_OBSERVER' type having the specified
         // 'observerName' in the registry of this logger manager, and an empty
         // shared pointer if there is no such observer otherwise.  Return 0 if
         // a non-empty shared pointer was loaded, and a non-zero value
         // otherwise.  Note that an empty shared pointer will be loaded if
         // either no observer having 'observerName' is in the registry or the
-        // observer registered with that name is not of 'OBSERVER' type.
+        // observer registered with that name is not of 't_OBSERVER' type.
 
     bool isCategoryEnabled(const Category *category, int severity) const;
         // Return 'true' if the specified 'severity' is more severe (i.e., is
@@ -1945,8 +1945,8 @@ class LoggerManager {
         // registered with this logger manager, or 0 if there is no registered
         // user populator functor.
 
-    template <class CATEGORY_VISITOR>
-    void visitCategories(const CATEGORY_VISITOR& visitor) const;
+    template <class t_CATEGORY_VISITOR>
+    void visitCategories(const t_CATEGORY_VISITOR& visitor) const;
         // Invoke the specified 'visitor' functor on each category managed by
         // this object, providing that functor non-modifiable access to each
         // category.  'visitor' must be a functor that can be called as if it
@@ -1955,11 +1955,11 @@ class LoggerManager {
         //  void operator()(const Category *);
         //..
 
-    template <class OBSERVER_VISITOR>
+    template <class t_OBSERVER_VISITOR>
     void visitObservers(
-            BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor) const;
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_OBSERVER_VISITOR) visitor) const;
         // Invoke the specified 'visitor' functor of (template parameter)
-        // 'OBSERVER_VISITOR' type on each element in the registry of this
+        // 't_OBSERVER_VISITOR' type on each element in the registry of this
         // logger manager, supplying that functor modifiable access to each
         // observer.  'visitor' must be a functor that can be called as if it
         // had the following signature:
@@ -1968,7 +1968,7 @@ class LoggerManager {
         //                  const bsl::string_view&          observerName);
         //..
 
-                     // Threshold Level Management Accessors
+    // Threshold Level Management Accessors
 
     const ThresholdAggregate& defaultThresholdLevels() const;
         // Return the default threshold levels associated with this logger
@@ -2252,10 +2252,10 @@ LoggerManager::findObserver(const bsl::string_view& observerName)
     return d_observer->findObserver(observerName);
 }
 
-template <class OBSERVER>
+template <class t_OBSERVER>
 inline
-int LoggerManager::findObserver(bsl::shared_ptr<OBSERVER> *result,
-                                const bsl::string_view&    observerName)
+int LoggerManager::findObserver(bsl::shared_ptr<t_OBSERVER> *result,
+                                const bsl::string_view&      observerName)
 {
     return d_observer->findObserver(result, observerName);
 }
@@ -2324,20 +2324,20 @@ void LoggerManager::publishAll()
     publishAllImp(Transmission::e_MANUAL_PUBLISH_ALL);
 }
 
-template <class CATEGORY_VISITOR>
+template <class t_CATEGORY_VISITOR>
 inline
-void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor)
+void LoggerManager::visitCategories(const t_CATEGORY_VISITOR& visitor)
 {
     d_categoryManager.visitCategories(visitor);
 }
 
-template <class OBSERVER_VISITOR>
+template <class t_OBSERVER_VISITOR>
 inline
 void LoggerManager::visitObservers(
-                   BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(t_OBSERVER_VISITOR) visitor)
 {
     d_observer->visitObservers(
-                     BSLS_COMPILERFEATURES_FORWARD(OBSERVER_VISITOR, visitor));
+                   BSLS_COMPILERFEATURES_FORWARD(t_OBSERVER_VISITOR, visitor));
 }
 
 // ACCESSORS
@@ -2386,11 +2386,11 @@ LoggerManager::findObserver(const bsl::string_view& observerName) const
     return observerPtr->findObserver(observerName);
 }
 
-template <class OBSERVER>
+template <class t_OBSERVER>
 inline
 int LoggerManager::findObserver(
-                           bsl::shared_ptr<const OBSERVER> *result,
-                           const bsl::string_view&          observerName) const
+                         bsl::shared_ptr<const t_OBSERVER> *result,
+                         const bsl::string_view&            observerName) const
 {
     const BroadcastObserver *observerPtr = d_observer.get();
 
@@ -2415,20 +2415,20 @@ const RuleSet& LoggerManager::ruleSet() const
     return d_categoryManager.ruleSet();
 }
 
-template <class CATEGORY_VISITOR>
+template <class t_CATEGORY_VISITOR>
 inline
-void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor) const
+void LoggerManager::visitCategories(const t_CATEGORY_VISITOR& visitor) const
 {
     d_categoryManager.visitCategories(visitor);
 }
 
-template <class OBSERVER_VISITOR>
+template <class t_OBSERVER_VISITOR>
 inline
 void LoggerManager::visitObservers(
-             BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor) const
+           BSLS_COMPILERFEATURES_FORWARD_REF(t_OBSERVER_VISITOR) visitor) const
 {
     d_observer->visitObservers(
-                     BSLS_COMPILERFEATURES_FORWARD(OBSERVER_VISITOR, visitor));
+                   BSLS_COMPILERFEATURES_FORWARD(t_OBSERVER_VISITOR, visitor));
 }
 
                         // ------------------------------

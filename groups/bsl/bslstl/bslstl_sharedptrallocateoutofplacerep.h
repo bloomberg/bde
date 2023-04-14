@@ -83,7 +83,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  };
 //..
 // Note that 'deleteObject' is provided by all 'bslma' allocators and by any
-// object that implements the 'bcema_Deleter' protocol.  Thus, any of these
+// object that implements the 'bdlma::Deleter' protocol.  Thus, any of these
 // objects can be used as a factory deleter.  The purpose of this design is to
 // allow 'bslma' allocators and factories to be used seamlessly as deleters.
 //

@@ -9,8 +9,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdljsn::Json: representation of a JSON document
-//  bdljsn::JsonArray: representation of a JSON object
-//  bdljsn::JsonObject: representation of a JSON array
+//  bdljsn::JsonArray: representation of a JSON array
+//  bdljsn::JsonObject: representation of a JSON object
 //
 //@SEE_ALSO: bdljsn_jsonutil, bdljsn_jsonnumber, bdljsn_jsonnull
 //
@@ -19,8 +19,8 @@ BSLS_IDENT("$Id: $")
 // also provides 'bdljsn::JsonArray' and 'bdljsn::JsonObject' types for
 // representing JSON Arrays and Objects respectively.
 //
-// 'bdljsn::Json' has a close structural similarity to the JSON grammar
-// itself, which at a high-level looks like:
+// 'bdljsn::Json' has a close structural similarity to the JSON grammar itself,
+// which at a high-level looks like:
 //..
 //  JSON ::= Object
 //         | Array
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // Where the Object and Array alternatives can recursively contain JSON.  Just
 // like this grammar, a 'bdljsn::Json' is a variant holding either an Object,
 // Array, String, Number, Boolean, or null.  These variant selections are
-// respresented by the following types:
+// represented by the following types:
 //
 //: o Object: 'JsonObject'
 //: o Array: 'JsonArray'
@@ -69,13 +69,13 @@ BSLS_IDENT("$Id: $")
 // are handled when parsing a JSON document).  Note that the JSON RFC says that
 // Object member names "SHOULD be unique", and there is no standard behavior
 // for JSON parsers where member names are not unique (typically an in-process
-// respresentation with unique member names is used).
+// representation with unique member names is used).
 //
 ///Important Preconditions
 ///- - - - - - - - - - - -
-// In order to preserve the invariant that all 'bdljsn::Json' objects are
-// valid JSON documents there are some constructors and assignment operations
-// in 'bdljsn' package that have notable preconditions:
+// In order to preserve the invariant that all 'bdljsn::Json' objects are valid
+// JSON documents there are some constructors and assignment operations in
+// 'bdljsn' package that have notable preconditions:
 //
 //: o 'bdljsn::JsonNumber' constructors from string require that the string
 //:    conform to the JSON grammar for a number (see
@@ -113,10 +113,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Constructor a Basic 'bdljsn::Json' Object
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Most often 'bdljsn::Json' objects will be written and read from
-// JSON text using 'bdljsn_jsonutil'.  In this simple example, we demonstrate
-// manually creating the document below and then verify the properties of the
-// resulting object:
+// Most often 'bdljsn::Json' objects will be written and read from JSON text
+// using 'bdljsn_jsonutil'.  In this simple example, we demonstrate manually
+// creating the document below and then verify the properties of the resulting
+// object:
 //..
 //  {
 //      "number": 3.14,
@@ -185,8 +185,6 @@ BSLS_IDENT("$Id: $")
 //  subObject.insert("boolean", false);
 //  json.theObject().insert("object", bsl::move(subObject));
 //..
-
-
 #include <bdlscm_version.h>
 
 #include <bdlb_variant.h>
@@ -202,6 +200,7 @@ BSLS_IDENT("$Id: $")
 #include <bdldfp_decimal.h>
 
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
@@ -217,8 +216,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #include <bsls_util.h>
 
-#include <bsl_deque.h>
-#include <bsl_iostream.h>
 #include <bsl_iterator.h>
 #include <bsl_unordered_map.h>
 #include <bsl_vector.h>
@@ -242,14 +239,28 @@ class JsonArray {
     // implementation because our implementation permits the element type to be
     // incomplete (when just spelling the type name).
 
+  private:
+    // PRIVATE TYPES
+    typedef bsl::vector<Json> Elements;
+
   public:
     // TYPES
-    typedef bsl::vector<Json>::iterator       Iterator;
-    typedef bsl::vector<Json>::const_iterator ConstIterator;
+    typedef Elements::iterator        Iterator;
+    typedef Elements::const_iterator  ConstIterator;
+
+    typedef Elements::value_type      value_type;
+    typedef Elements::reference       reference;
+    typedef Elements::const_reference const_reference;
+
+    typedef Elements::iterator        iterator;
+    typedef Elements::const_iterator  const_iterator;
+
+    typedef Elements::difference_type difference_type;
+    typedef Elements::size_type       size_type;
 
   private:
     // DATA
-    bsl::vector<Json> d_elements;  // the underlying sequence of elements
+    Elements d_elements;  // the underlying sequence of elements
 
     // FRIENDS
     friend bool operator==(const JsonArray&, const JsonArray&);
@@ -357,6 +368,11 @@ class JsonArray {
         // thrown, '*this' is left in a valid but unspecified state.
 #endif
 
+    Json& operator[](bsl::size_t index);
+        // Return a reference providing modifiable access to the element at the
+        // specified 'index' in this 'JsonArray'.  The behavior is undefined
+        // unless 'index < size()'.
+
     template <class INPUT_ITERATOR>
     void assign(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Assign to this object the value resulting from first clearing this
@@ -373,6 +389,8 @@ class JsonArray {
         // behavior is undefined unless 'first' and 'last' refer to a range of
         // valid values where 'first' is at a position at or before 'last'.
 
+    // BDE_VERIFY pragma: -FABC01
+
     Iterator begin();
         // Return an iterator providing modifiable access to the first element
         // in this 'JsonArray, or the past-the-end iterator if this 'JsonArray'
@@ -381,11 +399,6 @@ class JsonArray {
     Iterator end();
         // Return the past-the-end iterator providing modifiable access to this
         // 'JsonArray'.
-
-    Json& operator[](bsl::size_t index);
-        // Return a reference providing modifiable access to the element at the
-        // specified 'index' in this 'JsonArray'.  The behavior is undefined
-        // unless 'index < size()'.
 
     Json& front();
         // Return a reference providing modifiable access to the first element
@@ -397,23 +410,39 @@ class JsonArray {
         // in this 'JsonArray'.  The behavior is undefined unless this
         // 'JsonArray' is not empty.
 
-    void resize(bsl::size_t count);
-        // Change the size of this 'JsonArray' to the specified 'count'.  If
-        // 'count < size()', the elements in the range '[count .. size())' are
-        // erased, and this function does not throw.  If 'count > size()', the
-        // (newly created) elements in the range '[size() .. count)' are
-        // default-constructed 'Json' objects, and if an exception is thrown,
-        // '*this' is unaffected.  Throw 'bsl::length_error' if
-        // 'count > maxSize()'.
+    // BDE_VERIFY pragma: +FABC01
 
-    void resize(bsl::size_t count, const Json& json);
-        // Change the size of this JsonArray to the specified 'count',
-        // inserting copies of the specified 'json' at the end if
-        // 'count > size()'.  If 'count < size()', the elements in the range
-        // '[count .. size())' are erased 'json' is ignored, and this method
-        // does not throw.  If 'count > size()' and an exception is thrown,
-        // '*this' is unaffected.  Throw 'bsl::length_error' if
-        // 'count > maxSize()'.
+    void clear();
+        // Remove all elements from this 'JsonArray' making its size 0.  Note
+        // that although this 'JsonArray' is empty after this method returns,
+        // it preserves the same capacity it had before the method was called.
+
+    Iterator erase(bsl::size_t index);
+        // Remove from this 'JsonArray' the element at the specified 'index',
+        // and return an iterator providing modifiable access to the element
+        // immediately following the removed element, or the position returned
+        // by the method 'end' if the removed element was the last in the
+        // sequence.  The behavior is undefined unless 'index' is in the range
+        // '[0 .. size())'.
+
+    Iterator erase(ConstIterator position);
+        // Remove from this 'JsonArray' the element at the specified
+        // 'position', and return an iterator providing modifiable access to
+        // the element immediately following the removed element, or the
+        // position returned by the method 'end' if the removed element was the
+        // last in the sequence.  The behavior is undefined unless 'position'
+        // is an iterator in the range '[cbegin() .. cend())'.
+
+    Iterator erase(ConstIterator first, ConstIterator last);
+        // Remove from this 'JsonArray' the sequence of elements starting at
+        // the specified 'first' position and ending before the specified
+        // 'last' position, and return an iterator providing modifiable access
+        // to the element immediately following the last removed element, or
+        // the position returned by the method 'end' if the removed elements
+        // were last in the sequence.  The behavior is undefined unless 'first'
+        // is an iterator in the range '[cbegin() .. cend()]' (both endpoints
+        // included) and 'last' is an iterator in the range '[first .. cend()]'
+        // (both endpoints included).
 
     Iterator insert(bsl::size_t index, const Json& json);
         // Insert at the specified 'index' in this JsonArray a copy of the
@@ -487,32 +516,9 @@ class JsonArray {
         // included), and 'first' and 'last' refer to a range of valid values
         // where 'first' is at a position at or before 'last'.
 
-    Iterator erase(bsl::size_t index);
-        // Remove from this 'JsonArray' the element at the specified 'index',
-        // and return an iterator providing modifiable access to the element
-        // immediately following the removed element, or the position returned
-        // by the method 'end' if the removed element was the last in the
-        // sequence.  The behavior is undefined unless 'index' is in the range
-        // '[0 .. size())'.
-
-    Iterator erase(ConstIterator position);
-        // Remove from this 'JsonArray' the element at the specified
-        // 'position', and return an iterator providing modifiable access to
-        // the element immediately following the removed element, or the
-        // position returned by the method 'end' if the removed element was the
-        // last in the sequence.  The behavior is undefined unless 'position'
-        // is an iterator in the range '[cbegin() .. cend())'.
-
-    Iterator erase(ConstIterator first, ConstIterator last);
-        // Remove from this 'JsonArray' the sequence of elements starting at
-        // the specified 'first' position and ending before the specified
-        // 'last' position, and return an iterator providing modifiable access
-        // to the element immediately following the last removed element, or
-        // the position returned by the method 'end' if the removed elements
-        // were last in the sequence.  The behavior is undefined unless 'first'
-        // is an iterator in the range '[cbegin() .. cend()]' (both endpoints
-        // included) and 'last' is an iterator in the range '[first .. cend()]'
-        // (both endpoints included).
+    void popBack();
+        // Erase the last element from this 'JsonArray'.  The behavior is
+        // undefined if this JsonArray is empty.
 
     void pushBack(const Json& json);
         // Append to the end of this 'JsonArray' a copy of the specified
@@ -525,14 +531,23 @@ class JsonArray {
         // exception is thrown, '*this' is unaffected.  Throw
         // 'bsl::length_error' if 'size() == maxSize()'.
 
-    void popBack();
-        // Erase the last element from this 'JsonArray'.  The behavior is
-        // undefined if this JsonArray is empty.
+    void resize(bsl::size_t count);
+        // Change the size of this 'JsonArray' to the specified 'count'.  If
+        // 'count < size()', the elements in the range '[count .. size())' are
+        // erased, and this function does not throw.  If 'count > size()', the
+        // (newly created) elements in the range '[size() .. count)' are
+        // default-constructed 'Json' objects, and if an exception is thrown,
+        // '*this' is unaffected.  Throw 'bsl::length_error' if
+        // 'count > maxSize()'.
 
-    void clear();
-        // Remove all elements from this 'JsonArray' making its size 0.  Note
-        // that although this JsonArray is empty after this method returns, it
-        // preserves the same capacity it had before the method was called.
+    void resize(bsl::size_t count, const Json& json);
+        // Change the size of this JsonArray to the specified 'count',
+        // inserting copies of the specified 'json' at the end if
+        // 'count > size()'.  If 'count < size()', the elements in the range
+        // '[count .. size())' are erased 'json' is ignored, and this method
+        // does not throw.  If 'count > size()' and an exception is thrown,
+        // '*this' is unaffected.  Throw 'bsl::length_error' if
+        // 'count > maxSize()'.
 
     void swap(JsonArray& other);
         // Exchange the value of this object with that of the specified 'other'
@@ -546,6 +561,8 @@ class JsonArray {
         // Return a reference providing non-modifiable access to the element at
         // the specified 'index' in this 'JsonArray'.  The behavior is
         // undefined unless 'index < size()'.
+
+    // BDE_VERIFY pragma: -FABC01
 
     ConstIterator begin() const BSLS_KEYWORD_NOEXCEPT;
     ConstIterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
@@ -568,6 +585,8 @@ class JsonArray {
         // element in this 'JsonArray'.  The behavior is undefined unless this
         // 'JsonArray' is not empty.
 
+    // BDE_VERIFY pragma: +FABC01
+
     bool empty() const;
         // Return 'true' if this 'JsonArray' has size 0, and 'false' otherwise.
 
@@ -578,6 +597,15 @@ class JsonArray {
 
     bslma::Allocator *allocator() const BSLS_KEYWORD_NOEXCEPT;
         // Return the allocator used by this object to allocate memory.
+
+    bsl::size_t maxSize() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a theoretical upper bound on the largest number of elements
+        // that this 'JsonArray' could possibly hold.  Note that there is no
+        // guarantee that the 'JsonArray' can successfully grow to the returned
+        // size, or even close to that size without running out of resources.
+        // Also note that requests to create a 'JsonArray' longer than this
+        // number of elements are guaranteed to raise a 'bsl::length_error'
+        // exception.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
@@ -595,15 +623,6 @@ class JsonArray {
         // valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
-
-    bsl::size_t maxSize() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this 'JsonArray' could possibly hold.  Note that there is no
-        // guarantee that the 'JsonArray' can successfully grow to the returned
-        // size, or even close to that size without running out of resources.
-        // Also note that requests to create a 'JsonArray' longer than this
-        // number of elements are guaranteed to raise a 'bsl::length_error'
-        // exception.
 };
 
 // FREE OPERATORS
@@ -666,9 +685,20 @@ class JsonObject {
 
   public:
     // TYPES
-    typedef Container::value_type     Member;
-    typedef Container::const_iterator ConstIterator;
-    typedef Container::iterator       Iterator;
+    typedef Container::value_type      Member;
+    typedef Container::const_iterator  ConstIterator;
+    typedef Container::iterator        Iterator;
+    typedef bsl::pair<Iterator, bool>  IteratorAndStatus;
+
+    typedef Container::value_type      value_type;
+    typedef Container::reference       reference;
+    typedef Container::const_reference const_reference;
+
+    typedef Container::iterator        iterator;
+    typedef Container::const_iterator  const_iterator;
+
+    typedef Container::difference_type difference_type;
+    typedef Container::size_type       size_type;
 
   private:
     // DATA
@@ -766,6 +796,15 @@ class JsonObject {
         // additional element in 'rhs', if any, is move-inserted into this
         // 'JsonObject'.  'rhs' is left in a valid but unspecified state.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    JsonObject& operator=(std::initializer_list<Member> members);
+        // Assign to this object the value resulting from first clearing this
+        // 'JsonObject' and then inserting (in order) each 'Member' object in
+        // the specified 'members' initializer list.  Return a reference to
+        // `*this`.  If an exception is thrown, '*this' is left in a valid but
+        // unspecified state.
+#endif
+
     Json& operator[](const bsl::string_view& key);
         // Return a reference providing modifiable access to the 'Json' object
         // associated with the specified 'key' in this 'JsonObject'; if this
@@ -773,6 +812,8 @@ class JsonObject {
         // with 'key', first insert a new default-constructed 'Json' object
         // associated with 'key'.  The behavior is undefined unless 'key' is
         // valid UTF-8 (see 'bdlde::Utf8Util::isValid').
+
+    // BDE_VERIFY pragma: -FABC01
 
     Iterator begin() BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing modifiable access to the first 'Member'
@@ -784,20 +825,50 @@ class JsonObject {
         // position in the sequence of 'Member' objects maintained by this
         // 'JsonObject'.
 
+    // BDE_VERIFY pragma: +FABC01
+
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all entries from this 'JsonObject'.  Note that this
         // 'JsonObject' will be empty after calling this method, but allocated
         // memory may be retained for future use.
+
+    bsl::size_t erase(const bsl::string_view& key);
+        // Remove from this 'JsonObject' the 'Member' object having the
+        // specified 'key', if it exists, and return 1; otherwise (there is no
+        // object with a key equivalent to 'key' in this 'JsonObject') return 0
+        // with no other effect.  This method invalidates only iterators and
+        // references to the removed element and previously saved values of the
+        // 'end()' iterator, and preserves the relative order of the elements
+        // not removed.
+
+    Iterator erase(Iterator position);
+    Iterator erase(ConstIterator position);
+        // Remove from this unordered map the 'value_type' object at the
+        // specified 'position', and return an iterator referring to the
+        // element immediately following the removed element, or to the
+        // past-the-end position if the removed element was the last element in
+        // the sequence of elements maintained by this unordered map.  This
+        // method invalidates only iterators and references to the removed
+        // element and previously saved values of the 'end()' iterator, and
+        // preserves the relative order of the elements not removed.  The
+        // behavior is undefined unless 'position' refers to a 'value_type'
+        // object in this unordered map.
+
+    Iterator find(const bsl::string_view& key);
+        // Return an iterator providing modifiable access to the 'Member'
+        // object in this 'JsonObject' with a key equivalent to the specified
+        // 'key', if such an entry exists, and the past-the-end iterator
+        // ('end') otherwise.
 
     bsl::pair<Iterator, bool> insert(const Member& member);
         // Insert the specified 'member' into this 'JsonObject' if the key (the
         // 'first' element) of the object referred to by 'value' does not
         // already exist in this 'JsonObject'; otherwise, this method has no
         // effect.  Return a 'pair' whose 'first' member is an iterator
-        // referring to the (possibley newly inserted) 'value_type' object in
+        // referring to the (possibly newly inserted) 'value_type' object in
         // this 'JsonObject' whose key is equivalent to that of the object to
         // be inserted, and whose 'second' member is 'true' if a new value was
-        // inserted, and 'flase' if a value having an equivalent key was
+        // inserted, and 'false' if a value having an equivalent key was
         // already present.  The behavior is undefined unless 'member.first' is
         // valid UTF-8 (see 'bdlde::Utf8Util::isValid').
 
@@ -814,12 +885,7 @@ class JsonObject {
 
     template <class INPUT_ITERATOR>
     typename bsl::enable_if<
-        bsl::is_convertible<typename bsl::iterator_traits<
-                                INPUT_ITERATOR>::value_type::first_type,
-                            const bsl::string>::value &&
-            bsl::is_convertible<typename bsl::iterator_traits<
-                                    INPUT_ITERATOR>::value_type::second_type,
-                                bdljsn::Json>::value,
+        !bsl::is_convertible<INPUT_ITERATOR, bsl::string_view>::value,
         void>::type
     insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Create a 'member' object for each iterator in the range starting at
@@ -858,39 +924,6 @@ class JsonObject {
         // inserted, and 'false' otherwise.  The behavior is undefined unless
         // 'key' is valid UTF-8 (see 'bdlde::Utf8Util::isValid').
 
-    bsl::size_t erase(const bsl::string_view& key);
-        // Remove from this 'JsonObject' the 'Member' object having the
-        // specified 'key', if it exists, and return 1; otherwise (there is no
-        // object with a key equivalent to 'key' in this 'JsonObject') return 0
-        // with no other effect.  This method invalidates only iterators and
-        // references to the removed element and previously saved values of the
-        // 'end()' iterator, and preserves the relative order of the elements
-        // not removed.
-
-    Iterator erase(Iterator position);
-    Iterator erase(ConstIterator position);
-        // Remove from this unordered map the 'value_type' object at the
-        // specified 'position', and return an iterator referring to the
-        // element immediately following the removed element, or to the
-        // past-the-end position if the removed element was the last element in
-        // the sequence of elements maintained by this unordered map.  This
-        // method invalidates only iterators and references to the removed
-        // element and previously saved values of the 'end()' iterator, and
-        // preserves the relative order of the elements not removed.  The
-        // behavior is undefined unless 'position' refers to a 'value_type'
-        // object in this unordered map.
-
-    Iterator erase(ConstIterator first, ConstIterator last);
-        // Remove from this 'JsonObject' the 'Member' objects starting at the
-        // specified 'first' position up to, but not including, the specified
-        // 'last' position, and return 'last'.  This method invalidates only
-        // iterators and references to the removed element and previously saved
-        // values of the 'end()' iterator, and preserves the relative order of
-        // the elements not removed.  The behavior is undefined unless 'first'
-        // and 'last' either refer to elements in this unordered map or are the
-        // 'end' iterator, and the 'first' position is at or before the 'last'
-        // position in the iteration sequence provided by this container.
-
     void swap(JsonObject& other);
         // Exchange the value of this object with that of the specified 'other'
         // object.  If an exception is thrown, both objects are left in valid
@@ -898,19 +931,15 @@ class JsonObject {
         // The behavior is undefined unless this object was created with the
         // same allocator as 'other'.
 
-    Iterator find(const bsl::string_view& key);
-        // Return an iterator providing modifiable access to the 'Member'
-        // object in this 'JsonObject' with a key equivalent to the specified
-        // 'key', if such an entry exists, and the past-the-end iterator
-        // ('end') otherwise.
-
     // ACCESSORS
     const Json& operator[](const bsl::string_view& key) const;
         // Return a reference providing non-modifiable access to the 'Json'
         // object associated with the specified 'key' in this 'JsonObject'.
         // The behavior is undefined unless 'key' is valid UTF-8 (see
         // 'bdlde::Utf8Util::isValid') and this 'JsonObject' already contains a
-        // 'Json' object assicated with 'key'.
+        // 'Json' object associated with 'key'.
+
+    // BDE_VERIFY pragma: -FABC01
 
     ConstIterator begin() const BSLS_KEYWORD_NOEXCEPT;
     ConstIterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
@@ -925,11 +954,7 @@ class JsonObject {
         // past-the-end position in the sequence of 'Member' objects maintained
         // by this 'JsonObject'.
 
-    ConstIterator find(const bsl::string_view& key) const;
-        // Return an iterator providing non-modifiable access to the 'Member'
-        // object in this 'JsonObject' with a key equivalent to the specified
-        // 'key', if such an entry exists, and the past-the-end iterator
-        // ('end') otherwise.
+    // BDE_VERIFY pragma: +FABC01
 
     bool contains(const bsl::string_view& key) const;
         // Return 'true' if there is a 'Member' object in this 'JsonObject'
@@ -939,6 +964,12 @@ class JsonObject {
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this 'JsonObject' contains no elements, and 'false'
         // otherwise.
+
+    ConstIterator find(const bsl::string_view& key) const;
+        // Return an iterator providing non-modifiable access to the 'Member'
+        // object in this 'JsonObject' with a key equivalent to the specified
+        // 'key', if such an entry exists, and the past-the-end iterator
+        // ('end') otherwise.
 
     bsl::size_t size() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of elements in this 'JsonObject'.
@@ -1155,10 +1186,12 @@ class Json {
         // supply memory.  The behavior is undefined unless 'string' is valid
         // UTF-8 (see 'bdlde::Utf8Util::isValid').
 
+    // BDE_VERIFY pragma: -IND01 DEDUCE macro confuses bde_verify
+
     template <class STRING_TYPE>
     explicit Json(
                BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string,
-               bslma::Allocator *basicAllocator = 0,
+               bslma::Allocator                    *basicAllocator = 0,
                typename bsl::enable_if<
                    bsl::is_same<STRING_TYPE, bsl::string>::value>::type * = 0);
         // Create a 'Json' object having the type 'bsl::string' and the same
@@ -1172,6 +1205,7 @@ class Json {
         // 'bsl::string'.  The behavior is undefined unless 'string' is valid
         // UTF-8 (see 'bdlde::Utf8Util::isValid').
 
+    // BDE_VERIFY pragma: +IND01 DEDUCE macro confuses bde_verify
     // BDE_VERIFY pragma: +FD06 'string' and 'bsl::string' are too similar
     // BDE_VERIFY pragma: +FD07 'string' and 'bsl::string' are too similar
 
@@ -1222,7 +1256,7 @@ class Json {
 
     template <class STRING_TYPE>
     typename bsl::enable_if<bsl::is_same<STRING_TYPE, bsl::string>::value,
-                            Json&>::type
+                            Json>::type&
     operator=(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  The
@@ -1343,11 +1377,11 @@ class Json {
         bsl::is_same<STRING_TYPE, bsl::string>::value>::type
         makeString(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string);
         // Create an instance of type 'bsl::string' in this object, using the
-        // allocator currently held by this object to supply memory. Optionally
-        // specify 'string' to initialize the 'bsl::string' created. This
-        // method first destroys the current value held by this object (even if
-        // the type currently held is 'bsl::string').  This function does not
-        // participate in overload resolution unless the specified
+        // allocator currently held by this object to supply memory.
+        // Optionally specify 'string' to initialize the 'bsl::string' created.
+        // This method first destroys the current value held by this object
+        // (even if the type currently held is 'bsl::string').  This function
+        // does not participate in overload resolution unless the specified
         // 'STRING_TYPE' is 'bsl::string'.  The behavior is undefined unless
         // 'string' is valid UTF-8 (see 'bdlde::Utf8Util::isValid').
 
@@ -1415,10 +1449,10 @@ class Json {
 
     Json& operator[](const bsl::string_view& key);
         // Return a reference providing modifiable access to the 'Json' object
-        // assicated with the specified 'key' in the 'JsonObject' held by this
+        // associated with the specified 'key' in the 'JsonObject' held by this
         // object; if the 'JsonObject' does not already contain a 'Json' object
-        // assicated with 'key', first insert a new default-constructed 'Json'
-        // object assicated with 'key'.  The behavior is undefined unless
+        // associated with 'key', first insert a new default-constructed 'Json'
+        // object associated with 'key'.  The behavior is undefined unless
         // 'isObject()' returns true.
 
     Json& operator[](bsl::size_t index);
@@ -1428,6 +1462,50 @@ class Json {
         // 'index < theArray().size()'.
 
     // ACCESSORS
+    // BDE_VERIFY pragma: -FABC01
+    int asInt(int *result) const;
+    int asInt64(bsls::Types::Int64 *result) const;
+    int asUint(unsigned int *result) const;
+    int asUint64(bsls::Types::Uint64 *result) const;
+        // Load into the specified 'result' the integer value of the value of
+        // type 'JsonNumber' held by this object.  Return 0 on success,
+        // 'JsonNumber::k_OVERFLOW' if 'value' is larger than can be
+        // represented by 'result', 'JsonNumber::k_UNDERFLOW' if 'value' is
+        // smaller than can be represented by 'result', and
+        // 'JsonNumber::k_NOT_INTEGRAL' if 'value' is not an integral number
+        // (i.e., there is a fractional part).  For underflow, 'result' will be
+        // loaded with the minimum representable value, for overflow, 'result'
+        // will be loaded with the maximum representable value, for
+        // non-integral values 'result' will be loaded with the integer part of
+        // 'value' (truncating the value to the nearest integer).  If the
+        // result is not an integer and also either overflows or underflows, it
+        // is treated as an overflow or underflow (respectively).  Note that
+        // this operation returns a status value (unlike similar floating point
+        // conversions) because typically it is an error if a conversion to an
+        // integer results in an inexact value.  The behavior is undefined
+        // unless 'isNumber()' returns true.
+
+    float             asFloat() const;
+    double            asDouble() const;
+    bdldfp::Decimal64 asDecimal64() const;
+        // Return the closest floating point representation to the value of the
+        // type 'JsonNumber' held by this object.  If this number is outside
+        // the representable range, return +INF or -INF (as appropriate).  The
+        // behavior is undefined unless 'isNumber()' returns true.
+    // BDE_VERIFY pragma: +FABC01
+
+    int asDecimal64Exact(bdldfp::Decimal64 *result) const;
+        // Load the specified 'result' with the closest floating point
+        // representation to the value of type 'JsonNumber' held by this
+        // object, even if a non-zero status is returned.  Return 0 if this
+        // number can be represented exactly, and return
+        // 'JsonNumber::k_INEXACT' if 'value' cannot be represented exactly.
+        // If this number is outside the representable range, load 'result'
+        // with +INF or -INF (as appropriate).  A number can be represented
+        // exactly as a 'Decimal64' if, for the significand and exponent,
+        // 'abs(significand) <= 9,999,999,999,999,999' and '-398 <= exponent <=
+        // 369'.  The behavior is undefined unless 'isNumber()' returns true;
+
     bool isArray() const;
         // Return true if the value held by this object is of type 'JsonArray',
         // and false otherwise.
@@ -1485,54 +1563,12 @@ class Json {
     JsonType::Enum type() const BSLS_KEYWORD_NOEXCEPT;
         // Return the type of this 'Json' value.
 
-    int asInt(int *result) const;
-    int asInt64(bsls::Types::Int64 *result) const;
-    int asUint(unsigned int *result) const;
-    int asUint64(bsls::Types::Uint64 *result) const;
-        // Load into the specified 'result' the integer value of the value of
-        // type 'JsonNumber' held by this object.  Return 0 on success,
-        // 'JsonNumber::k_OVERFLOW' if 'value' is larger than can be
-        // represented by 'result', 'JsonNumber::k_UNDERFLOW' if 'value' is
-        // smaller than can be represented by 'result', and
-        // 'JsonNumber::k_NOT_INTEGRAL' if 'value' is not an integral number
-        // (i.e., there is a fractional part).  For underflow, 'result' will be
-        // loaded with the minimum representable value, for overflow, 'result'
-        // will be loaded with the maximum representable value,  for
-        // non-integral values 'result' will be loaded with the integer part of
-        // 'value' (trucating the value to the nearest integer).  If the result
-        // is not an integer and also either overflows or underflows, it is
-        // treated as an overflow or underflow (respectively).  Note that this
-        // operation returns a status value (unlike similar floating point
-        // conversions) because typically it is an error if a conversion to an
-        // integer results in an inexact value.  The behavior is undefined
-        // unless 'isNumber()' returns true.
-
-    float             asFloat() const;
-    double            asDouble() const;
-    bdldfp::Decimal64 asDecimal64() const;
-        // Return the closest floating point representation to the value of the
-        // type 'JsonNumber' held by this object.  If this number is outside
-        // the representable range, return +INF or -INF (as appropriate).  The
-        // behavior is undefined unless 'isNumber()' returns true.
-
-    int asDecimal64Exact(bdldfp::Decimal64 *result) const;
-        // Load the specified 'result' with the closest floating point
-        // representation to the value of type 'JsonNumber' held by this
-        // object, even if a non-zero status is returned.  Return 0 if this
-        // number can be represented exactly, and return
-        // 'JsonNumber::k_INEXACT' if 'value' cannot be represented exactly.
-        // If this number is outside the representable range, load 'result'
-        // with +INF or -INF (as appropriate).  A number can be represented
-        // exactly as a 'Decimal64'if, for the significand and exponent,
-        // 'abs(significand) <= 9,999,999,999,999,999' and '-398 <= exponent <=
-        // 369'.  The behavior is undefined unless 'isNumber()' returns true;
-
     const Json& operator[](const bsl::string_view& key) const;
         // Return a reference providing non-modifiable access to the 'Json'
         // object associated with the specified 'key' in this 'JsonObject'.
         // The behavior is undefined unless 'key' is valid UTF-8 (see
         // 'bdlde::Utf8Util::isValid') and this 'JsonObject' already contains a
-        // 'Json' object assicated with 'key'.
+        // 'Json' object associated with 'key'.
 
     const Json& operator[](bsl::size_t index) const;
         // Return a reference providing non-modifiable access to the element at
@@ -1665,7 +1701,7 @@ JsonArray::JsonArray(const JsonArray&  original,
 
 inline
 JsonArray::JsonArray(bslmf::MovableRef<JsonArray> original)
-    BSLS_KEYWORD_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 : d_elements(bslmf::MovableRefUtil::move(
                            bslmf::MovableRefUtil::access(original).d_elements))
 {
@@ -1674,10 +1710,16 @@ JsonArray::JsonArray(bslmf::MovableRef<JsonArray> original)
 inline
 JsonArray::JsonArray(bslmf::MovableRef<JsonArray>  original,
                      bslma::Allocator             *basicAllocator)
-: d_elements(bslmf::MovableRefUtil::move(
-                           bslmf::MovableRefUtil::access(original).d_elements),
-             basicAllocator)
+: d_elements(basicAllocator)
 {
+    JsonArray& originalAsLvalue = bslmf::MovableRefUtil::access(original);
+
+    if (basicAllocator == originalAsLvalue.allocator()) {
+        d_elements = bslmf::MovableRefUtil::move(originalAsLvalue.d_elements);
+    }
+    else {
+        d_elements = originalAsLvalue.d_elements;
+    }
 }
 
 template <class INPUT_ITERATOR>
@@ -1746,9 +1788,21 @@ void JsonArray::assign(std::initializer_list<Json> initializer)
 #endif
 
 inline
+Json& JsonArray::back()
+{
+    return d_elements.back();
+}
+
+inline
 JsonArray::Iterator JsonArray::begin()
 {
     return d_elements.begin();
+}
+
+inline
+void JsonArray::clear()
+{
+    d_elements.clear();
 }
 
 inline
@@ -1758,21 +1812,27 @@ JsonArray::Iterator JsonArray::end()
 }
 
 inline
+JsonArray::Iterator JsonArray::erase(bsl::size_t index)
+{
+    return d_elements.erase(d_elements.begin() + index);
+}
+
+inline
+JsonArray::Iterator JsonArray::erase(ConstIterator position)
+{
+    return d_elements.erase(position);
+}
+
+inline
+JsonArray::Iterator JsonArray::erase(ConstIterator first, ConstIterator last)
+{
+    return d_elements.erase(first, last);
+}
+
+inline
 Json& JsonArray::front()
 {
     return d_elements.front();
-}
-
-inline
-Json& JsonArray::back()
-{
-    return d_elements.back();
-}
-
-inline
-void JsonArray::clear()
-{
-    d_elements.clear();
 }
 
 inline
@@ -1821,28 +1881,9 @@ JsonArray::Iterator JsonArray::insert(ConstIterator  position,
 }
 
 inline
-void JsonArray::swap(JsonArray& other)
+void JsonArray::popBack()
 {
-    BSLS_ASSERT(allocator() == other.allocator());
-    d_elements.swap(other.d_elements);
-}
-
-inline
-JsonArray::Iterator JsonArray::erase(bsl::size_t index)
-{
-    return d_elements.erase(d_elements.begin() + index);
-}
-
-inline
-JsonArray::Iterator JsonArray::erase(ConstIterator position)
-{
-    return d_elements.erase(position);
-}
-
-inline
-JsonArray::Iterator JsonArray::erase(ConstIterator first, ConstIterator last)
-{
-    return d_elements.erase(first, last);
+    d_elements.pop_back();
 }
 
 inline
@@ -1858,12 +1899,6 @@ void JsonArray::pushBack(bslmf::MovableRef<Json> json)
 }
 
 inline
-void JsonArray::popBack()
-{
-    d_elements.pop_back();
-}
-
-inline
 void JsonArray::resize(bsl::size_t count)
 {
     d_elements.resize(count);
@@ -1873,6 +1908,13 @@ inline
 void JsonArray::resize(bsl::size_t count, const Json& json)
 {
     d_elements.resize(count, json);
+}
+
+inline
+void JsonArray::swap(JsonArray& other)
+{
+    BSLS_ASSERT(allocator() == other.allocator());
+    d_elements.swap(other.d_elements);
 }
 
 // ACCESSORS
@@ -1890,15 +1932,15 @@ bslma::Allocator *JsonArray::allocator() const BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
-JsonArray::ConstIterator JsonArray::begin() const BSLS_KEYWORD_NOEXCEPT
+const Json& JsonArray::back() const
 {
-    return d_elements.begin();
+    return d_elements.back();
 }
 
 inline
-JsonArray::ConstIterator JsonArray::end() const BSLS_KEYWORD_NOEXCEPT
+JsonArray::ConstIterator JsonArray::begin() const BSLS_KEYWORD_NOEXCEPT
 {
-    return d_elements.end();
+    return d_elements.begin();
 }
 
 inline
@@ -1914,33 +1956,33 @@ JsonArray::ConstIterator JsonArray::cend() const BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
-const Json& JsonArray::front() const
-{
-    return d_elements.front();
-}
-
-inline
-const Json& JsonArray::back() const
-{
-    return d_elements.back();
-}
-
-inline
 bool JsonArray::empty() const
 {
     return d_elements.empty();
 }
 
 inline
-bsl::size_t JsonArray::size() const
+JsonArray::ConstIterator JsonArray::end() const BSLS_KEYWORD_NOEXCEPT
 {
-    return d_elements.size();
+    return d_elements.end();
+}
+
+inline
+const Json& JsonArray::front() const
+{
+    return d_elements.front();
 }
 
 inline
 bsl::size_t JsonArray::maxSize() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_elements.max_size();
+}
+
+inline
+bsl::size_t JsonArray::size() const
+{
+    return d_elements.size();
 }
 
                               // ----------------
@@ -1978,10 +2020,16 @@ JsonObject::JsonObject(bslmf::MovableRef<JsonObject> original)
 inline
 JsonObject::JsonObject(bslmf::MovableRef<JsonObject>  original,
                        bslma::Allocator              *basicAllocator)
-: d_members(bslmf::MovableRefUtil::move(
-                            bslmf::MovableRefUtil::access(original).d_members),
-            basicAllocator)
+: d_members(basicAllocator)
 {
+    JsonObject& originalAsLvalue = bslmf::MovableRefUtil::access(original);
+
+    if (basicAllocator == originalAsLvalue.allocator()) {
+        d_members = bslmf::MovableRefUtil::move(originalAsLvalue.d_members);
+    }
+    else {
+        d_members = originalAsLvalue.d_members;
+    }
 }
 
 template <class INPUT_ITERATOR>
@@ -2029,10 +2077,24 @@ JsonObject& JsonObject::operator=(const JsonObject& rhs)
 inline
 JsonObject& JsonObject::operator=(bslmf::MovableRef<JsonObject> rhs)
 {
-    d_members = bslmf::MovableRefUtil::move(
-                                 bslmf::MovableRefUtil::access(rhs).d_members);
+    Container& rhsMembers = bslmf::MovableRefUtil::access(rhs).d_members;
+    if (d_members.get_allocator() == rhsMembers.get_allocator()) {
+        d_members = bslmf::MovableRefUtil::move(rhsMembers);
+    }
+    else {
+        d_members = rhsMembers;
+    }
     return *this;
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+inline
+JsonObject& JsonObject::operator=(std::initializer_list<Member> members)
+{
+    d_members = members;
+    return *this;
+}
+#endif
 
 inline
 Json& JsonObject::operator[](const bsl::string_view& key)
@@ -2052,15 +2114,44 @@ JsonObject::Iterator JsonObject::begin() BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
+void JsonObject::clear() BSLS_KEYWORD_NOEXCEPT
+{
+    d_members.clear();
+}
+
+inline
 JsonObject::Iterator JsonObject::end() BSLS_KEYWORD_NOEXCEPT
 {
     return d_members.end();
 }
 
 inline
-void JsonObject::clear() BSLS_KEYWORD_NOEXCEPT
+bsl::size_t JsonObject::erase(const bsl::string_view& key)
 {
-    d_members.clear();
+    Iterator it = d_members.find(key);
+    if (it == d_members.end()) {
+        return 0;                                                     // RETURN
+    }
+    d_members.erase(it);
+    return 1;
+}
+
+inline
+JsonObject::Iterator JsonObject::erase(Iterator position)
+{
+    return d_members.erase(position);
+}
+
+inline
+JsonObject::Iterator JsonObject::erase(ConstIterator position)
+{
+    return d_members.erase(position);
+}
+
+inline
+JsonObject::Iterator JsonObject::find(const bsl::string_view& key)
+{
+    return d_members.find(key);
 }
 
 inline
@@ -2083,12 +2174,7 @@ bsl::pair<JsonObject::Iterator, bool> JsonObject::insert(
 template <class INPUT_ITERATOR>
 inline
 typename bsl::enable_if<
-    bsl::is_convertible<
-        typename bsl::iterator_traits<INPUT_ITERATOR>::value_type::first_type,
-        const bsl::string>::value &&
-        bsl::is_convertible<typename bsl::iterator_traits<
-                                INPUT_ITERATOR>::value_type::second_type,
-                            bdljsn::Json>::value,
+    !bsl::is_convertible<INPUT_ITERATOR, bsl::string_view>::value,
     void>::type
 JsonObject::insert(INPUT_ITERATOR first, INPUT_ITERATOR last)
 {
@@ -2123,37 +2209,10 @@ bsl::pair<JsonObject::Iterator, bool> JsonObject::insert(
                                 BSLS_COMPILERFEATURES_FORWARD_REF(VALUE) value)
 {
     BSLS_ASSERT(bdlde::Utf8Util::isValid(key.data(), key.size()));
-    return insert(Member(bsl::string(key),
-                         Json(BSLS_COMPILERFEATURES_FORWARD(VALUE, value))));
-}
-
-inline
-bsl::size_t JsonObject::erase(const bsl::string_view& key)
-{
-    Iterator it = d_members.find(key);
-    if (it == d_members.end()) {
-        return 0;                                                     // RETURN
-    }
-    d_members.erase(it);
-    return 1;
-}
-
-inline
-JsonObject::Iterator JsonObject::erase(Iterator position)
-{
-    return d_members.erase(position);
-}
-
-inline
-JsonObject::Iterator JsonObject::erase(ConstIterator position)
-{
-    return d_members.erase(position);
-}
-
-inline
-JsonObject::Iterator JsonObject::erase(ConstIterator first, ConstIterator last)
-{
-    return d_members.erase(first, last);
+    Json   json(BSLS_COMPILERFEATURES_FORWARD(VALUE, value), allocator());
+    Member member(key, Json(), allocator());
+    member.second = bslmf::MovableRefUtil::move(json);
+    return insert(bslmf::MovableRefUtil::move(member));
 }
 
 inline
@@ -2161,12 +2220,6 @@ void JsonObject::swap(JsonObject& other)
 {
     BSLS_ASSERT(allocator() == other.allocator());
     d_members.swap(other.d_members);
-}
-
-inline
-JsonObject::Iterator JsonObject::find(const bsl::string_view& key)
-{
-    return d_members.find(key);
 }
 
 // ACCESSORS
@@ -2179,15 +2232,15 @@ const Json& JsonObject::operator[](const bsl::string_view& key) const
 }
 
 inline
-JsonObject::ConstIterator JsonObject::begin() const BSLS_KEYWORD_NOEXCEPT
+bslma::Allocator *JsonObject::allocator() const BSLS_KEYWORD_NOEXCEPT
 {
-    return d_members.begin();
+    return d_members.get_allocator().mechanism();
 }
 
 inline
-JsonObject::ConstIterator JsonObject::end() const BSLS_KEYWORD_NOEXCEPT
+JsonObject::ConstIterator JsonObject::begin() const BSLS_KEYWORD_NOEXCEPT
 {
-    return d_members.end();
+    return d_members.begin();
 }
 
 inline
@@ -2203,12 +2256,6 @@ JsonObject::ConstIterator JsonObject::cend() const BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
-JsonObject::ConstIterator JsonObject::find(const bsl::string_view& key) const
-{
-    return d_members.find(key);
-}
-
-inline
 bool JsonObject::contains(const bsl::string_view& key) const
 {
     return d_members.find(key) != d_members.end();
@@ -2221,15 +2268,21 @@ bool JsonObject::empty() const BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
-bsl::size_t JsonObject::size() const BSLS_KEYWORD_NOEXCEPT
+JsonObject::ConstIterator JsonObject::end() const BSLS_KEYWORD_NOEXCEPT
 {
-    return d_members.size();
+    return d_members.end();
 }
 
 inline
-bslma::Allocator *JsonObject::allocator() const BSLS_KEYWORD_NOEXCEPT
+JsonObject::ConstIterator JsonObject::find(const bsl::string_view& key) const
 {
-    return d_members.get_allocator().mechanism();
+    return d_members.find(key);
+}
+
+inline
+bsl::size_t JsonObject::size() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_members.size();
 }
                                  // ----------
                                  // class Json
@@ -2381,14 +2434,13 @@ Json::Json(const bsl::string_view& string, bslma::Allocator *basicAllocator)
 template <class STRING_TYPE>
 inline
 Json::Json(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string,
-           bslma::Allocator *basicAllocator,
+           bslma::Allocator                    *basicAllocator,
            typename bsl::enable_if<
                bsl::is_same<STRING_TYPE, bsl::string>::value>::type *)
-: d_value(basicAllocator)
+: d_value(bslmf::MovableRefUtil::move(string), basicAllocator)
 {
-    BSLS_ASSERT(
-              bdlde::Utf8Util::isValid(bslmf::MovableRefUtil::access(string)));
-    d_value.createInPlace<bsl::string>(bslmf::MovableRefUtil::move(string));
+    BSLS_ASSERT(bdlde::Utf8Util::isValid(
+                   bslmf::MovableRefUtil::access(d_value.the<bsl::string>())));
 }
 
 // MANIPULATORS
@@ -2403,7 +2455,7 @@ inline
 Json& Json::operator=(bslmf::MovableRef<Json> rhs)
 {
     Json& rhsRef = bslmf::MovableRefUtil::access(rhs);
-    d_value = bslmf::MovableRefUtil::move(rhsRef.d_value);
+    d_value      = bslmf::MovableRefUtil::move(rhsRef.d_value);
     return *this;
 }
 
@@ -2466,7 +2518,7 @@ Json& Json::operator=(const JsonNumber& rhs)
 inline
 Json& Json::operator=(bslmf::MovableRef<JsonNumber> rhs)
 {
-    d_value.createInPlace<JsonNumber>(bslmf::MovableRefUtil::move(rhs));
+    d_value = bslmf::MovableRefUtil::move(rhs);
     return *this;
 }
 
@@ -2486,7 +2538,7 @@ Json& Json::operator=(const bsl::string_view& rhs)
 
 template <class STRING_TYPE>
 typename bsl::enable_if<bsl::is_same<STRING_TYPE, bsl::string>::value,
-                        Json&>::type
+                        Json>::type&
     Json::operator=(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) rhs)
 {
     makeString(bslmf::MovableRefUtil::move(rhs));
@@ -2642,12 +2694,13 @@ typename bsl::enable_if<bsl::is_same<STRING_TYPE, bsl::string>::value>::type
 {
     BSLS_ASSERT(
               bdlde::Utf8Util::isValid(bslmf::MovableRefUtil::access(string)));
-    d_value.createInPlace<bsl::string>(bslmf::MovableRefUtil::move(string));
+    d_value = bslmf::MovableRefUtil::move(string);
 }
 
 inline
 void Json::swap(Json& other)
 {
+    BSLS_ASSERT(allocator() == other.allocator());
     d_value.swap(other.d_value);
 }
 
@@ -2779,6 +2832,63 @@ bslma::Allocator *Json::allocator() const BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
+bdldfp::Decimal64 Json::asDecimal64() const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asDecimal64();
+}
+
+inline
+int Json::asDecimal64Exact(bdldfp::Decimal64 *result) const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asDecimal64Exact(result);
+}
+
+inline
+double Json::asDouble() const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asDouble();
+}
+
+inline
+float Json::asFloat() const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asFloat();
+}
+
+inline
+int Json::asInt(int *result) const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asInt(result);
+}
+
+inline
+int Json::asInt64(bsls::Types::Int64 *result) const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asInt64(result);
+}
+
+inline
+int Json::asUint(unsigned int *result) const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asUint(result);
+}
+
+inline
+int Json::asUint64(bsls::Types::Uint64 *result) const
+{
+    BSLS_ASSERT(isNumber());
+    return theNumber().asUint64(result);
+}
+
+
+inline
 const JsonArray& Json::theArray() const
 {
     return d_value.the<JsonArray>();
@@ -2819,63 +2929,6 @@ JsonType::Enum Json::type() const BSLS_KEYWORD_NOEXCEPT
 {
     return static_cast<JsonType::Enum>(d_value.typeIndex() - 1);
 }
-
-inline
-int Json::asInt(int *result) const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asInt(result);
-}
-
-inline
-int Json::asInt64(bsls::Types::Int64 *result) const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asInt64(result);
-}
-
-inline
-int Json::asUint(unsigned int *result) const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asUint(result);
-}
-
-inline
-int Json::asUint64(bsls::Types::Uint64 *result) const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asUint64(result);
-}
-
-inline
-float Json::asFloat() const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asFloat();
-}
-
-inline
-double Json::asDouble() const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asDouble();
-}
-
-inline
-bdldfp::Decimal64 Json::asDecimal64() const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asDecimal64();
-}
-
-inline
-int Json::asDecimal64Exact(bdldfp::Decimal64 *result) const
-{
-    BSLS_ASSERT(isNumber());
-    return theNumber().asDecimal64Exact(result);
-}
-
 inline
 const Json& Json::operator[](const bsl::string_view& key) const
 {
@@ -2996,7 +3049,17 @@ void bdljsn::hashAppend(HASHALG& hashAlg, const bdljsn::JsonObject& object)
 inline
 void bdljsn::swap(bdljsn::JsonObject& a, bdljsn::JsonObject& b)
 {
-    bslalg::SwapUtil::swap(&a.d_members, &b.d_members);
+    if (a.allocator() == b.allocator()) {
+        bslalg::SwapUtil::swap(&a.d_members, &b.d_members);
+    }
+    else {
+        bslma::Allocator *const allocA = a.allocator();
+        bslma::Allocator *const allocB = b.allocator();
+        JsonObject              ta(b, allocA);
+        JsonObject              tb(a, allocB);
+        swap(a, ta);
+        swap(b, tb);
+    }
 }
 
 inline

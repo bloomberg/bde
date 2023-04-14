@@ -97,7 +97,8 @@ using namespace bdlpcre;
 // [17] UNICODE CHARACTER PROPERTY SUPPORT
 // [18] MEMORY ALIGNMENT
 // [19] CONCERN: 'match' IS THREAD-SAFE
-// [20] USAGE EXAMPLE
+// [21] DUPLICATE NAMED GROUPS
+// [22] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -636,6 +637,19 @@ extern "C" void *testPrepareFunction(void *threadArg)
     return 0;
 }
 
+int countNames(
+    const bsl::vector<bsl::pair<bsl::string_view,int> >&  names,
+    const char                                           *name)
+{
+    int count = 0;
+    for (unsigned i = 0; i < names.size(); ++i) {
+        if (names[i].first == name) {
+            ++count;
+        }
+    }
+    return count;
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -744,7 +758,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -796,6 +810,172 @@ int main(int argc, char *argv[])
         ASSERT(" This is the subject text" == subject);
 //  }
 //..
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING DUPLICATE NAMED GROUPS
+        //
+        // Concerns:
+        //: 1 Duplicate sub-pattern names (named groups) are allowed iff
+        //:   the pattern is prepared with 'k_FLAG_DUPNAMES' flag or the '(?J)'
+        //:   option is used inside the pattern.
+        //:
+        //: 2 The 'namedSubpatterns' function correctly returns a full set of
+        //:   the used named sub-patterns.  Each duplicate name has own
+        //:   corresponding index.
+        //:
+        //: 3 The 'RegEx::match' function works correctly if duplicate
+        //:   sub-pattern names are used.
+        //:
+        //: 4 The 'namedSubpatterns' function work correctly for non-duplicate
+        //:   names as well.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a pattern with duplicated sub-pattern names.  Call the
+        //:   'prepare' function:
+        //:     1.1 Without 'k_FLAG_DUPNAMES' flag and '(?J)' option.  Verify
+        //:         that the function fails.
+        //:     1.2 With '(?J)' option.  Verify that the function succeeds.
+        //:     1.3 With 'k_FLAG_DUPNAMES' flag.  Verify that the function
+        //:         succeeds.
+        //:
+        //: 2 Verify that the 'subpatternIndex' returns error for the duplicate
+        //:   sub-pattern name.
+        //:
+        //: 3 Call the 'namedSubpatterns' function and verify that the returned
+        //:   object contains the duplicate name with more than one index.
+        //:
+        //: 4 Verify that the 'RegEx::match' function works well for the
+        //:   pattern with duplicate sub-pattern names.
+        //:
+        //: 5 Prepare a pattern with 2 differently named sub-patterns.  Call
+        //:   the 'namedSubpatterns' function.  Verify that the set contains
+        //    exactly one element for each of the sub-pattern names.
+        //:
+        //: 6 Do negative testing to verify that asserts catch all the
+        //:   undefined behavior in the contract.
+        //
+        // Testing:
+        //   DUPLICATE NAMED GROUPS
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING DUPLICATE NAMED GROUPS"
+                          << "\n==============================" << endl;
+
+        typedef bsl::vector<bsl::pair<bsl::string_view,int> > NamedSubpatterns;
+
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+        Obj mX(&ta);  const Obj& X = mX;
+
+        const char PATTERN[] = "(?<group>\\d+)\\.(?<group>\\d+)";
+        const char SUBJECT[] = "12.34";
+
+        const char SUBPATTERN_NAME[] = "group";
+
+        if (veryVerbose) {
+            T_ P_(PATTERN) P(SUBPATTERN_NAME)
+        }
+
+        bsl::string errorMsg;
+        size_t      errorOffset;
+
+        if (verbose) cout << "\tVerify not supplying duplicate option"
+                             " results in an error" << endl;
+        {
+            int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN);
+            ASSERTV(errorMsg, errorOffset, retCode != 0);
+        }
+
+        if (verbose) cout << "\tSupply (?J) in the regular expression" << endl;
+        {
+            bsl::string pattern("(?J)");
+            pattern += PATTERN;
+            int retCode = mX.prepare(&errorMsg, &errorOffset, pattern.c_str());
+            ASSERTV(errorMsg, errorOffset, retCode == 0);
+        }
+
+        if (verbose) cout << "\tSupply 'k_FLAG_DUPNAMES' flag to prepare" <<
+                                                                          endl;
+        {
+            int retCode = mX.prepare(&errorMsg,
+                                     &errorOffset,
+                                     PATTERN,
+                                     Obj::k_FLAG_DUPNAMES);
+            ASSERTV(errorMsg, errorOffset, retCode == 0);
+        }
+
+        if (verbose) cout << "\tVerify 'subpatternIndex()' fails with"
+                             " duplicate name" << endl;
+        {
+            ASSERT(X.subpatternIndex(SUBPATTERN_NAME) == -1);
+        }
+
+        if (verbose) cout << "\tVerify 'namedSubpatterns()'" << endl;
+        {
+            NamedSubpatterns subpatterns;
+            X.namedSubpatterns(&subpatterns);
+
+            int subpatternsFound = 0;
+            for (NamedSubpatterns::const_iterator name  = subpatterns.begin();
+                                                  name != subpatterns.end();
+                                                  ++name) {
+                if (veryVerbose) {
+                    cout << name->first << ": " << name->second << '\n';
+                }
+                if (name->first == SUBPATTERN_NAME) {
+                    subpatternsFound++;
+                    ASSERT(name->second == 1 || name->second == 2);
+                }
+            }
+            ASSERT(subpatternsFound > 1); // more than one index
+        }
+
+        if (verbose) cout << "\tVerify 'RegEx::match()'" << endl;
+        {
+            bsl::vector<bsl::string_view> matches;
+            int retCode = X.match(&matches, SUBJECT);
+            ASSERTV(retCode, retCode == 0);
+
+            if (veryVerbose) {
+                cout << "Matches (" << matches.size() << "): "<< endl;
+                for (unsigned i = 0; i < matches.size(); i++) {
+                    cout << i << ": " << matches[i] << endl;
+                }
+            }
+            ASSERTV(matches.size() == 3);
+            ASSERTV(matches[0] == SUBJECT);
+            ASSERTV(matches[1] == "12");
+            ASSERTV(matches[2] == "34");
+        }
+
+        if (verbose) cout << "\tVerify that the feature works for"
+                             " non-duplicate names as well" << endl;
+        {
+            const char PATTERN[] = "(?<name1>\\d+)\\.(?<name2>\\d+)";
+
+            int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN);
+            ASSERTV(errorMsg, errorOffset, retCode == 0);
+
+            NamedSubpatterns subpatterns;
+            X.namedSubpatterns(&subpatterns);
+
+            ASSERT(countNames(subpatterns, "name1") == 1);
+            ASSERT(countNames(subpatterns, "name2") == 1);
+            ASSERT(countNames(subpatterns, "nonexistent") == 0);
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            NamedSubpatterns subpatterns;
+            ASSERT_PASS(X.namedSubpatterns(&subpatterns));
+
+            Obj unprepared(&ta);
+            ASSERT_FAIL(unprepared.namedSubpatterns(&subpatterns));
+        }
       } break;
       case 20: {
         // --------------------------------------------------------------------

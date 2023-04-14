@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov  1 08:34:10 2022
+// Generated on Mon Apr 10 03:24:44 2023
 // Command line: sim_cpp11_features.pl bslstl_queue.h
 
 #ifdef COMPILING_BSLSTL_QUEUE_H
@@ -39,6 +39,11 @@ class queue {
     // 'VALUE' type, to provide a first-in-first-out queue data structure.  The
     // container object held by a 'queue' class object is referenced as 'c' in
     // the following function-level documentation.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // STATIC CHECK: Type mismatch is UB per C++17
+    BSLMF_ASSERT((is_same<VALUE, typename CONTAINER::value_type>::value));
+#endif
 
     // FRIENDS
     template <class VALUE2, class CONTAINER2>
@@ -64,6 +69,15 @@ class queue {
     template <class VALUE2, class CONTAINER2>
     friend bool operator>=(const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    template <class VALUE2, three_way_comparable CONTAINER2>
+    friend compare_three_way_result_t<CONTAINER2>
+    operator<=>(const queue<VALUE2, CONTAINER2>&,
+                const queue<VALUE2, CONTAINER2>&);
+#endif
+
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
         // This 'typedef' is a convenient alias for the utility associated with
@@ -1056,6 +1070,17 @@ bool operator>=(const queue<VALUE, CONTAINER>& lhs,
     return lhs.c >= rhs.c;
 }
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class VALUE, three_way_comparable CONTAINER>
+inline compare_three_way_result_t<CONTAINER>
+operator<=>(const queue<VALUE, CONTAINER>& lhs,
+            const queue<VALUE, CONTAINER>& rhs)
+{
+    return lhs.c <=> rhs.c;
+}
+#endif
+
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
 inline
@@ -1075,7 +1100,7 @@ void swap(queue<VALUE, CONTAINER>& lhs,
 #endif // ! defined(INCLUDED_BSLSTL_QUEUE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

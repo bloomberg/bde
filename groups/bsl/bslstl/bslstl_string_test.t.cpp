@@ -133,6 +133,11 @@ using bsls::nameOfType;
 // =============================
 // [11] TRAITS
 //
+// TYPES:
+// [40] bsl::u8string
+// [40] bsl::u16string
+// [40] bsl::u32string
+//
 // CREATORS:
 // [ 2] basic_string(const ALLOC& a = ALLOC());
 // [ 7] basic_string(const basic_string& original);
@@ -288,6 +293,12 @@ using bsls::nameOfType;
 // [24] int compare(const STRING_VIEW_LIKE_TYPE& str) const;
 // [24] int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& str) const;
 // [24] int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& s, p2, n2) const;
+// [41] bool starts_with(basic_string_view characterString) const;
+// [41] bool starts_with(CHAR_TYPE character) const;
+// [41] bool starts_with(const CHAR_TYPE *characterString) const;
+// [41] bool ends_with(basic_string_view characterString) const;
+// [41] bool ends_with(CHAR_TYPE character) const;
+// [41] bool ends_with(const CHAR_TYPE *characterString) const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const string<C,CT,A>&, const string<C,CT,A>&);
@@ -367,10 +378,9 @@ using bsls::nameOfType;
 // [37] string operator+(const string&&,     CHAR);
 // [37] string operator+(CHAR,               const string&);
 // [37] string operator+(CHAR,               const string&&);
-// [38] CLASS TEMPLATE DEDUCTION GUIDES
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [40] USAGE EXAMPLE
+// [41] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -548,15 +558,21 @@ BSLA_MAYBE_UNUSED const int NUM_ALLOCS[] = {
 // redundancy involved in the manual evaluation of the formula below.
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
-const size_t k_SHORT_BUFFER_CAPACITY_CHAR    = 19;
-const size_t k_SHORT_BUFFER_CAPACITY_WCHAR_T = 2 == sizeof(wchar_t) ? 9
-                                             : 4 == sizeof(wchar_t) ? 4
-                                             : 20 / sizeof(wchar_t) - 1;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR     = 19;
+const size_t k_SHORT_BUFFER_CAPACITY_WCHAR_T  = 2 == sizeof(wchar_t) ? 9
+                                              : 4 == sizeof(wchar_t) ? 4
+                                              : 20 / sizeof(wchar_t) - 1;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR8_T  = k_SHORT_BUFFER_CAPACITY_CHAR;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR16_T = 9;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR32_T = 4;
 #elif defined(BSLS_PLATFORM_CPU_64_BIT)
-const size_t k_SHORT_BUFFER_CAPACITY_CHAR    = 23;
-const size_t k_SHORT_BUFFER_CAPACITY_WCHAR_T = 2 == sizeof(wchar_t) ? 11
-                                             : 4 == sizeof(wchar_t) ? 5
-                                             : 24 / sizeof(wchar_t) - 1;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR     = 23;
+const size_t k_SHORT_BUFFER_CAPACITY_WCHAR_T  = 2 == sizeof(wchar_t) ? 11
+                                              : 4 == sizeof(wchar_t) ? 5
+                                              : 24 / sizeof(wchar_t) - 1;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR8_T  = k_SHORT_BUFFER_CAPACITY_CHAR;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR16_T = 11;
+const size_t k_SHORT_BUFFER_CAPACITY_CHAR32_T = 5;
 #else
 // Unknown platform configuration is likely to error when trying to use either
 // of the two constants not defined in this block.
@@ -573,6 +589,21 @@ template <>
 struct ExpectedShortBufferCapacity<wchar_t>
     : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_WCHAR_T> {};
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+template <>
+struct ExpectedShortBufferCapacity<char8_t>
+    : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_CHAR8_T> {};
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+template <>
+struct ExpectedShortBufferCapacity<char16_t>
+    : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_CHAR16_T> {};
+template <>
+struct ExpectedShortBufferCapacity<char32_t>
+    : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_CHAR32_T> {};
+#endif
+
 extern char BSLSTL_STRING_TEST_ONLY_INCOMPLETE_CHAR_ARRAY[];
 // This variable is required to reproduce specific AIX issue, when we are not
 // able to convert inclomplete char arrays.  To reproduce this situation we
@@ -586,49 +617,73 @@ extern char BSLSTL_STRING_TEST_ONLY_INCOMPLETE_CHAR_ARRAY[];
 // Support function overloads for printing debug info, discovered via ADL.
 namespace bsl {
 
-template <class TRAITS, class ALLOC>
-void debugprint(const bsl::basic_string<char, TRAITS, ALLOC>& v)
-    // Print the contents of the specified string 'v' to 'stdout', then flush.
+template <class CHAR_TYPE, class TRAITS, class ALLOC>
+void debugprint(const bsl::basic_string<CHAR_TYPE, TRAITS, ALLOC>& v)
 {
     if (v.empty()) {
         printf("<empty>");
     }
     else {
         for (size_t i = 0; i < v.size(); ++i) {
-            printf("%c", v[i]);
+            printf("%lc", static_cast<wchar_t>(v[i]));
         }
     }
     fflush(stdout);
 }
 
-template <class TRAITS, class ALLOC>
-void debugprint(const bsl::basic_string<wchar_t, TRAITS, ALLOC>& v)
-    // Print the contents of the specified string 'v' to 'stdout', then flush.
-{
-    if (v.empty()) {
-        printf("<empty>");
-    }
-    else {
-        for (size_t i = 0; i < v.size(); ++i) {
-            printf("%lc", wint_t(v[i]));
-        }
-    }
-    fflush(stdout);
-}
 }  // close namespace bsl
 
 // Legacy debug print support.
-inline
-void dbg_print(const char *s) { printf("\"%s\"", s); }
-void dbg_print(const wchar_t *s)
+
+template <class CHAR_TYPE>
+void dbg_print_impl(const CHAR_TYPE *s)
 {
     putchar('"');
-    while (*s) {
-        printf("%lc", wint_t(*s));
-        ++s;
+    if (sizeof(CHAR_TYPE) == sizeof(char)) {
+        printf("%s", reinterpret_cast<const char *>(s));
+    }
+    else {
+        while (*s) {
+            printf("%lc", static_cast<wchar_t>(*s));
+            ++s;
+        }
     }
     putchar('"');
 }
+
+inline
+void dbg_print(const char *s)
+{
+    dbg_print_impl(s);
+}
+
+inline
+void dbg_print(const wchar_t *s)
+{
+    dbg_print_impl(s);
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+inline
+void dbg_print(const char8_t *s)
+{
+    dbg_print_impl(s);
+}
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+inline
+void dbg_print(const char16_t *s)
+{
+    dbg_print_impl(s);
+}
+
+inline
+void dbg_print(const char32_t *s)
+{
+    dbg_print_impl(s);
+}
+#endif
 
 // Generic debug print function (3-arguments).
 template <class TYPE>
@@ -706,21 +761,47 @@ void debugprint(const std::initializer_list<char>& v)
     fflush(stdout);
 }
 
-void debugprint(const std::initializer_list<wchar_t>& v)
+template <class CHAR_TYPE>
+inline
+void debugprint_impl(const std::initializer_list<CHAR_TYPE>& v)
 {
     if (0 == v.size()) {
         printf("<empty>");
     }
     else {
-        for (std::initializer_list<wchar_t>::iterator itr  = v.begin(),
-                                                      end  = v.end();
-                                                      end != itr;
-                                                      ++itr) {
-            printf("'l%c'", *itr);
+        typedef typename std::initializer_list<CHAR_TYPE>::iterator It;
+
+        for (It itr = v.begin(), end = v.end(); end != itr; ++itr) {
+            printf("'l%c'", static_cast<wchar_t>(*itr));
         }
     }
     fflush(stdout);
 }
+
+void debugprint(const std::initializer_list<wchar_t>& v)
+{
+    debugprint_impl(v);
+}
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+void debugprint(const std::initializer_list<char8_t>& v)
+{
+    debugprint_impl(v);
+}
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+void debugprint(const std::initializer_list<char16_t>& v)
+{
+    debugprint_impl(v);
+}
+
+void debugprint(const std::initializer_list<char32_t>& v)
+{
+    debugprint_impl(v);
+}
+# endif
+
 }  // close namespace std
 
 #endif
@@ -1315,6 +1396,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase41();
+        // Test 'starts_with' and 'ends_with'.
+
     static void testCase39();
         // Test 'shrink_to_fit'.
 
@@ -1596,6 +1680,452 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
 
 template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'starts_with' AND 'ends_with'
+    //
+    // Concerns:
+    //: 1 The 'starts_with' and 'ends_with' methods work correctly for objects
+    //:   of any size and content.
+    //:
+    //: 2 The null character is handled correctly regardless of whether it
+    //:   belongs to the object or to the string for search.
+    //:
+    //: 3 An empty string is handled correctly regardless of whether it
+    //:   is an empty object or an empty string for search.
+    //:
+    //: 4 No additional memory allocation occurs.
+    //:
+    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    //
+    // Plan:
+    //: 1 Using a loop-based approach, construct a set of objects and a set
+    //:   of strings for search having different sizes and content.
+    //:
+    //: 2 Call every overload of the 'starts_with' and 'ends_with' methods and
+    //:   verify the results.  Verify that no memory was allocated by the
+    //:   default allocator.  (C-1, 3)
+    //:
+    //: 3 Using a table-based approach, construct a set of objects and a set
+    //:   of strings for search having different sizes and content and
+    //:   containing the null character.
+    //:
+    //: 4 Call 'string_view' and single characters overloads of the
+    //:   'starts_with' and 'ends_with' methods and verify the results.
+    //:   Verify that no memory was allocated by the default allocator.
+    //:
+    //: 5 Using a table-based approach, construct a set of objects containing
+    //:   the null character and a set of strings for search having different
+    //:   sizes.  Due to the c-strings peculiarity when the first null
+    //:   character encountered is considered the end of the string, we have to
+    //:   create a separate table, different from the table from P-3.  In this
+    //:   table only object specifications contain null characters.
+    //:
+    //: 6 Call c-string overloads of the 'starts_with' and 'ends_with'
+    //:   methods and verify the results.  Verify that no memory was allocated
+    //:   by the default allocator.  (C-2, 4)
+    //:
+    //: 7 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+    //
+    // Testing:
+    //   bool starts_with(basic_string_view characterString) const;
+    //   bool starts_with(CHAR_TYPE character) const;
+    //   bool starts_with(const CHAR_TYPE *characterString) const;
+    //   bool ends_with(basic_string_view characterString) const;
+    //   bool ends_with(CHAR_TYPE character) const;
+    //   bool ends_with(const CHAR_TYPE *characterString) const;
+    // ------------------------------------------------------------------------
+
+    typedef bsl::basic_string_view<TYPE> StringView;
+
+    const char   *ty = bsls::NameOf<TYPE>();
+
+    if (verbose) printf("\tTesting basic behavior\n");
+    {
+        const char   *SPEC   = "ABCDEFGHIJKL";
+        const Obj     DATA(g(SPEC));
+        const size_t  LENGTH = DATA.length();
+
+        // Despite there is no overload that accepts 'basic_string' object, we
+        // are going to use such object as a basis for parameters.
+
+        Obj        mX;          // object to search in
+        const Obj& X = mX;
+        Obj        mStr;        // string for search
+        const Obj& Str = mStr;
+
+        mX.reserve(LENGTH);
+        mStr.reserve(LENGTH);
+
+        for (size_t i = 0; i < LENGTH; ++i) {
+            const size_t OBJ_INDEX = i;
+            for (size_t j = 0; j <= LENGTH - OBJ_INDEX; ++j) {
+                const size_t OBJ_LENGTH = j;
+
+                // Make sure that we don't go beyond the boundaries of the
+                // original data.
+                ASSERTV(LENGTH, OBJ_INDEX, OBJ_LENGTH,
+                        LENGTH >= OBJ_INDEX + OBJ_LENGTH);
+                mX.assign(DATA.data() + OBJ_INDEX, OBJ_LENGTH);
+
+                for (size_t k = 0; k < LENGTH; ++k) {
+                    const size_t STR_INDEX = k;
+                    for (size_t l = 0; l <= LENGTH - STR_INDEX; ++l) {
+                        const size_t STR_LENGTH = l;
+
+                        // Make sure that we don't go beyond the boundaries of
+                        // the original data.
+                        ASSERTV(LENGTH, STR_INDEX, STR_LENGTH,
+                                LENGTH >= STR_INDEX + STR_LENGTH);
+                        mStr.assign(DATA.data() + STR_INDEX, STR_LENGTH);
+
+                        if (veryVerbose) {
+                            T_ T_ P_(ty)
+                                  P_(OBJ_INDEX)
+                                  P_(OBJ_LENGTH)
+                                  P_(STR_INDEX)
+                                  P (STR_LENGTH);
+                        }
+
+                        // Calculation of expected results.
+
+                        const bool EXP_S_RESULT = (OBJ_INDEX  == STR_INDEX &&
+                                                   OBJ_LENGTH >= STR_LENGTH)
+                                               || (0 == STR_LENGTH);
+
+                        const bool EXP_E_RESULT = (OBJ_INDEX <= STR_INDEX &&
+                                                   OBJ_INDEX + OBJ_LENGTH ==
+                                                   STR_INDEX + STR_LENGTH)
+                                               || (0 == STR_LENGTH);
+
+                        // Objects for search.
+
+                        const StringView  SV(Str.data(), Str.length());
+                        const TYPE       *C_STR = Str.data();
+
+                        // The test itself.
+
+                        Tam dam(defaultAllocator_p);
+
+                        ASSERTV(ty, X, Str, EXP_S_RESULT,
+                                EXP_S_RESULT == X.starts_with(SV));
+                        ASSERTV(ty, X, Str, EXP_S_RESULT,
+                                EXP_S_RESULT == X.starts_with(C_STR));
+
+                        ASSERTV(ty, X, Str, EXP_E_RESULT,
+                                EXP_E_RESULT == X.ends_with(SV));
+                        ASSERTV(ty, X, Str, EXP_E_RESULT,
+                                EXP_E_RESULT == X.ends_with(C_STR));
+
+                        ASSERT(dam.isTotalSame());
+                    }
+
+                    // Testing overload with single character.
+
+                    {
+                        const TYPE CH          = DATA[STR_INDEX];
+                        const bool S_CH_RESULT = OBJ_LENGTH != 0 &&
+                                                 OBJ_INDEX  == STR_INDEX;
+                        const bool E_CH_RESULT = OBJ_LENGTH != 0 &&
+                                       OBJ_INDEX + OBJ_LENGTH - 1 == STR_INDEX;
+
+                        Tam dam(defaultAllocator_p);
+
+                        ASSERTV(ty, X, CH, S_CH_RESULT,
+                                S_CH_RESULT == X.starts_with(CH));
+                        ASSERTV(ty, X, CH, E_CH_RESULT,
+                                E_CH_RESULT == X.ends_with(CH));
+
+                        ASSERT(dam.isTotalSame());
+                    }
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\tTesting null character\n");
+    // Note that since we use c-strings for specifications we have to replace
+    // null characters with zero symbols in the table.
+    {
+        // Testing 'string_view' and single character overloads.
+        {
+            static const struct {
+                int         d_lineNum;     // source line number
+
+                const char *d_objSpec_p;   // object specification string
+
+                const char *d_strSpec_p;   // specification for search string
+
+                bool        d_startsWith;  // expected result of the
+                                           // 'starts_with'
+
+                bool        d_endsWith;    // expected result of the
+                                           // 'ends_with'
+            } DATA[] = {
+                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
+                //----  -------- -------- ----------- ---------
+                { L_,   "",      "0",     false,      false    },
+                { L_,   "",      "00",    false,      false    },
+                { L_,   "",      "0A",    false,      false    },
+                { L_,   "",      "A0",    false,      false    },
+                { L_,   "",      "000",   false,      false    },
+
+                { L_,   "0",     "",      true,       true     },
+                { L_,   "0",     "0",     true,       true     },
+                { L_,   "0",     "A",     false,      false    },
+                { L_,   "0",     "00",    false,      false    },
+                { L_,   "0",     "0A",    false,      false    },
+                { L_,   "0",     "A0",    false,      false    },
+                { L_,   "0",     "000",   false,      false    },
+                { L_,   "A",     "0",     false,      false    },
+                { L_,   "A",     "A",     true,       true     },
+                { L_,   "A",     "00",    false,      false    },
+                { L_,   "A",     "0A",    false,      false    },
+                { L_,   "A",     "A0",    false,      false    },
+                { L_,   "A",     "000",   false,      false    },
+
+                { L_,   "00",    "",      true,       true     },
+                { L_,   "00",    "0",     true,       true     },
+                { L_,   "00",    "A",     false,      false    },
+                { L_,   "00",    "00",    true,       true     },
+                { L_,   "00",    "0A",    false,      false    },
+                { L_,   "00",    "A0",    false,      false    },
+                { L_,   "00",    "000",   false,      false    },
+                { L_,   "00",    "00A",   false,      false    },
+                { L_,   "00",    "0A0",   false,      false    },
+                { L_,   "00",    "A00",   false,      false    },
+                { L_,   "00",    "0000",  false,      false    },
+
+                { L_,   "0A",    "",      true,       true     },
+                { L_,   "0A",    "0",     true,       false    },
+                { L_,   "0A",    "A",     false,      true     },
+                { L_,   "0A",    "00",    false,      false    },
+                { L_,   "0A",    "0A",    true,       true     },
+                { L_,   "0A",    "A0",    false,      false    },
+                { L_,   "0A",    "000",   false,      false    },
+                { L_,   "0A",    "00A",   false,      false    },
+                { L_,   "0A",    "0A0",   false,      false    },
+                { L_,   "0A",    "A00",   false,      false    },
+                { L_,   "0A",    "0000",  false,      false    },
+
+                { L_,   "A0",    "",      true,       true     },
+                { L_,   "A0",    "0",     false,      true     },
+                { L_,   "A0",    "A",     true,       false    },
+                { L_,   "A0",    "00",    false,      false    },
+                { L_,   "A0",    "0A",    false,      false    },
+                { L_,   "A0",    "A0",    true,       true     },
+                { L_,   "A0",    "000",   false,      false    },
+                { L_,   "A0",    "00A",   false,      false    },
+                { L_,   "A0",    "0A0",   false,      false    },
+                { L_,   "A0",    "A00",   false,      false    },
+                { L_,   "A0",    "0000",  false,      false    },
+
+                { L_,   "000",   "",      true,       true     },
+                { L_,   "000",   "0",     true,       true     },
+                { L_,   "000",   "00",    true,       true     },
+                { L_,   "000",   "0A",    false,      false    },
+                { L_,   "000",   "A0",    false,      false    },
+                { L_,   "000",   "000",   true,       true     },
+                { L_,   "000",   "00A",   false,      false    },
+                { L_,   "000",   "0A0",   false,      false    },
+                { L_,   "000",   "A00",   false,      false    },
+                { L_,   "000",   "0000",  false,      false    },
+            };
+
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int     LINE         = DATA[i].d_lineNum;
+                const char   *OBJ_SPEC     = DATA[i].d_objSpec_p;
+                const size_t  OBJ_SPEC_LEN = strlen(OBJ_SPEC);
+                const char   *STR_SPEC     = DATA[i].d_strSpec_p;
+                const size_t  STR_SPEC_LEN = strlen(STR_SPEC);
+                const bool    EXP_S_RES    = DATA[i].d_startsWith;
+                const bool    EXP_E_RES    = DATA[i].d_endsWith;
+
+                if (veryVerbose) {
+                    T_ T_ P_(ty) P_(LINE) P_(OBJ_SPEC) P(STR_SPEC);
+                }
+                Obj        mX;      // object to search in
+                const Obj& X = mX;
+                Obj        mStr;    // string for search,
+                const Obj& Str = mStr;
+
+                // Expected results for the single character overload.
+
+                const bool EXP_0_S = 0 == OBJ_SPEC_LEN ? false
+                                                       : '0' == OBJ_SPEC[0];
+                const bool EXP_A_S = 0 == OBJ_SPEC_LEN ? false
+                                                       : 'A' == OBJ_SPEC[0];
+                const bool EXP_0_E = 0 == OBJ_SPEC_LEN
+                                   ? false
+                                   : '0' == OBJ_SPEC[OBJ_SPEC_LEN - 1];
+                const bool EXP_A_E = 0 == OBJ_SPEC_LEN
+                                   ? false
+                                   : 'A' == OBJ_SPEC[OBJ_SPEC_LEN - 1];
+
+                // Populating strings.
+
+                for (size_t j = 0; j < OBJ_SPEC_LEN; ++j) {
+                    if ('0' == OBJ_SPEC[j]) {
+                        mX.push_back(0);
+                    }
+                    else if ('A' == OBJ_SPEC[j]) {
+                        mX.push_back('A');
+                    }
+                }
+
+                for (size_t j = 0; j < STR_SPEC_LEN; ++j) {
+                    if ('0' == STR_SPEC[j]) {
+                        mStr.push_back(0);
+                    }
+                    else if ('A' == STR_SPEC[j]) {
+                        mStr.push_back('A');
+                    }
+                }
+
+                const StringView SV(Str.data(), Str.length());
+
+                // Testing single character overload.
+
+                Tam dam(defaultAllocator_p);
+
+                ASSERTV(LINE, OBJ_SPEC, EXP_0_S,
+                        EXP_0_S == X.starts_with(TYPE(0)));
+                ASSERTV(LINE, OBJ_SPEC, EXP_A_S,
+                        EXP_A_S == X.starts_with('A'));
+                ASSERTV(LINE, OBJ_SPEC, EXP_0_E,
+                        EXP_0_E == X.ends_with(TYPE(0)));
+                ASSERTV(LINE, OBJ_SPEC, EXP_A_E, EXP_A_E == X.ends_with('A'));
+
+                // Testing 'string_view' overload.
+
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_S_RES,
+                        EXP_S_RES == X.starts_with(SV));
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_E_RES,
+                        EXP_E_RES == X.ends_with(SV));
+
+                ASSERT(dam.isTotalSame());
+            }
+        }
+        // Testing c-string overload
+        {
+           static const struct {
+                int         d_lineNum;     // source line number
+
+                const char *d_objSpec_p;   // object specification string
+
+                const char *d_strSpec_p;   // specification for search string
+
+                bool        d_startsWith;  // expected result of the
+                                           // 'starts_with'
+
+                bool        d_endsWith;    // expected result of the
+                                           // 'ends_with'
+            } DATA[] = {
+                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
+                //----  -------- -------- ----------- ---------
+                { L_,   "0",     "",      true,       true     },
+                { L_,   "0",     "A",     false,      false    },
+                { L_,   "0",     "AA",    false,      false    },
+                { L_,   "0",     "AAA",   false,      false    },
+
+                { L_,   "00",    "",      true,       true     },
+                { L_,   "00",    "A",     false,      false    },
+                { L_,   "00",    "AA",    false,      false    },
+                { L_,   "00",    "AAA",   false,      false    },
+
+                { L_,   "0A",    "",      true,       true     },
+                { L_,   "0A",    "A",     false,      true     },
+                { L_,   "0A",    "AA",    false,      false    },
+                { L_,   "0A",    "AAA",   false,      false    },
+
+                { L_,   "A0",    "",      true,       true     },
+                { L_,   "A0",    "A",     true,       false    },
+                { L_,   "A0",    "AA",    false,      false    },
+                { L_,   "A0",    "AAA",   false,      false    },
+
+                { L_,   "000",   "",      true,       true     },
+                { L_,   "000",   "A",     false,      false    },
+                { L_,   "000",   "AA",    false,      false    },
+                { L_,   "000",   "AAA",   false,      false    },
+            };
+
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int     LINE         = DATA[i].d_lineNum;
+                const char   *OBJ_SPEC     = DATA[i].d_objSpec_p;
+                const size_t  OBJ_SPEC_LEN = strlen(OBJ_SPEC);
+                const char   *STR_SPEC     = DATA[i].d_strSpec_p;
+                const size_t  STR_SPEC_LEN = strlen(STR_SPEC);
+                const bool    EXP_S_RES    = DATA[i].d_startsWith;
+                const bool    EXP_E_RES    = DATA[i].d_endsWith;
+
+                if (veryVerbose) {
+                    T_ T_ P_(ty) P_(LINE) P_(OBJ_SPEC) P(STR_SPEC);
+                }
+                Obj        mX;      // object to search in
+                const Obj& X = mX;
+                Obj        mStr;    // string for search,
+                const Obj& Str = mStr;
+
+                // Populating strings.
+
+                for (size_t j = 0; j < OBJ_SPEC_LEN; ++j) {
+                    if ('0' == OBJ_SPEC[j]) {
+                        mX.push_back(0);
+                    }
+                    else if ('A' == OBJ_SPEC[j]) {
+                        mX.push_back('A');
+                    }
+                }
+
+                for (size_t j = 0; j < STR_SPEC_LEN; ++j) {
+                    if ('0' == STR_SPEC[j]) {
+                        mStr.push_back(0);
+                    }
+                    else if ('A' == STR_SPEC[j]) {
+                        mStr.push_back('A');
+                    }
+                }
+
+                const TYPE *C_STR = Str.data();
+                Tam         dam(defaultAllocator_p);
+
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_S_RES,
+                        EXP_S_RES == X.starts_with(C_STR));
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_E_RES,
+                        EXP_E_RES == X.ends_with(C_STR));
+
+                ASSERT(dam.isTotalSame());
+            }
+        }
+    }
+
+    if (verbose) printf("\tNegative testing\n");
+
+    {
+        bsls::AssertTestHandlerGuard guard;
+
+        Obj         mX;
+        const Obj&  X = mX;
+        const TYPE *validPtr  = X.data();
+        const TYPE *nullPtr   = 0;
+
+        ASSERT_SAFE_FAIL(X.starts_with(nullPtr ));
+        ASSERT_SAFE_PASS(X.starts_with(validPtr));
+
+        ASSERT_SAFE_FAIL(X.ends_with(nullPtr ));
+        ASSERT_SAFE_PASS(X.ends_with(validPtr));
+
+    }
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase39()
 {
     // ------------------------------------------------------------------------
@@ -1782,9 +2312,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
     //:       (C-4)
     //:
     //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid date and 'numDays' values, but not triggered
-    //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-    //:   (C-5)
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
     //
     // Testing:
     //   string operator+(const string&,      const string&);
@@ -19984,6 +20513,144 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 41: {
+        // --------------------------------------------------------------------
+        // TESTING 'starts_with' AND 'ends_with'
+        //
+        // Concerns:
+        //: 1 The 'starts_with' and 'ends_with' methods work correctly for
+        //:   objects of any size and content.
+        //:
+        //: 2 The null character is handled correctly regardless of whether it
+        //:   belongs to the object or to the string for search.
+        //:
+        //: 3 An empty string is handled correctly regardless of whether it
+        //:   is an empty object or an empty string for search.
+        //:
+        //: 4 No additional memory allocation occurs.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using a loop-based approach, construct a set of objects and a set
+        //:   of strings for search having different sizes and content.
+        //:
+        //: 2 Call every overload of the 'starts_with' and 'ends_with' methods
+        //:   and verify the results.  Verify that no memory was allocated by
+        //:   the default allocator.  (C-1, 3)
+        //:
+        //: 3 Using a table-based approach, construct a set of objects and a
+        //:   set of strings for search having different sizes and content and
+        //:   containing the null character.
+        //:
+        //: 4 Call 'string_view' and single characters overloads of the
+        //:   'starts_with' and 'ends_with' methods and verify the results.
+        //:   Verify that no memory was allocated by the default allocator.
+        //:
+        //: 5 Using a table-based approach, construct a set of objects
+        //:   containing the null character and a set of strings for search
+        //:   having different sizes.  Due to the c-strings peculiarity when
+        //:   the first null character encountered is considered the end of the
+        //:   string, we have to create a separate table, different from the
+        //:   table from P-3.  In this table only object specifications contain
+        //:   null characters.
+        //:
+        //: 6 Call c-string overloads of the 'starts_with' and 'ends_with'
+        //:   methods and verify the results.  Verify that no memory was
+        //:   allocated by the default allocator.  (C-2, 4)
+        //:
+        //: 7 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-5)
+        //
+        // Testing:
+        //   bool starts_with(basic_string_view characterString) const;
+        //   bool starts_with(CHAR_TYPE character) const;
+        //   bool starts_with(const CHAR_TYPE *characterString) const;
+        //   bool ends_with(basic_string_view characterString) const;
+        //   bool ends_with(CHAR_TYPE character) const;
+        //   bool ends_with(const CHAR_TYPE *characterString) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING 'starts_with' AND 'ends_with'\n"
+                                 "=====================================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase41();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase41();
+      } break;
+      case 40: {
+        // --------------------------------------------------------------------
+        // TESTING C++11 WIDE STRINGS
+        //
+        // Concerns:
+        //: 1 That 'u16string' and 'u32string' exist on all C++ versions at and
+        //:   after C++11.
+        //:
+        //: 2 That 'u8string' exists on and after C++20.
+        //
+        // Plan:
+        //: 1 On or after the required versions of C++, create some strings of
+        //:   the types under test, compare them, and assign between them.
+        //
+        // Testing;
+        //   bsl::u8string
+        //   bsl::u16string
+        //   bsl::u32string
+        // --------------------------------------------------------------------
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        const char8_t arr8A[] = { 'a', 'b', 'c', 'd', 0 };
+
+        bsl::u8string s8A(arr8A), s8B;
+
+        ASSERT(!s8A.empty());
+        ASSERT( s8B.empty());
+        ASSERT(4 == s8A.length());
+        ASSERT(s8A != s8B);
+
+        s8B = s8A;
+
+        ASSERT(!s8B.empty());
+        ASSERT(4 == s8B.length());
+        ASSERT(s8A == s8B);
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        const char16_t arr16A[] = { 'a', 'b', 'c', 'd', 0 };
+
+        bsl::u16string s16A(arr16A), s16B;
+
+        ASSERT(!s16A.empty());
+        ASSERT( s16B.empty());
+        ASSERTV(s16A.length(), 4 == s16A.length());
+        ASSERT(s16A != s16B);
+
+        s16B = s16A;
+
+        ASSERT(!s16B.empty());
+        ASSERTV(s16B.length(), 4 == s16B.length());
+        ASSERT(s16A == s16B);
+
+        const char32_t arr32A[] = { 'a', 'b', 'c', 'd', 0 };
+
+        bsl::u32string s32A(arr32A), s32B;
+
+        ASSERT(!s32A.empty());
+        ASSERT( s32B.empty());
+        ASSERT(4 == s32A.length());
+        ASSERT(s32A != s32B);
+
+        s32B = s32A;
+
+        ASSERT(!s32B.empty());
+        ASSERT(4 == s32B.length());
+        ASSERT(s32A == s32B);
+#endif
+      } break;
       case 39: {
         // --------------------------------------------------------------------
         // TESTING 'shrink_to_fit'
@@ -20026,6 +20693,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase39();
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase39();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase39();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase39();
+#endif
       } break;
       case 38: {
         //---------------------------------------------------------------------
@@ -20102,9 +20782,9 @@ int main(int argc, char *argv[])
         //:       (C-4)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid date and 'numDays' values, but not
-        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-5)
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-5)
         //
         // Testing:
         //   string operator+(const string&,      const string&);
@@ -20152,6 +20832,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase36();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase36();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase36();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase36();
+#endif
       } break;
       case 35: {
         // --------------------------------------------------------------------
@@ -20220,6 +20912,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase35();
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase35();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase35();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase35();
+#endif
 
         if (verbose)
             printf("\n... with 'false' allocator propagation properties.\n");
@@ -20584,8 +21289,18 @@ int main(int argc, char *argv[])
                             "\n====================================\n");
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-        TestDriver<char   >::testCase33();
-        TestDriver<wchar_t>::testCase33();
+        TestDriver<char    >::testCase33();
+        TestDriver<wchar_t >::testCase33();
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        TestDriver<char8_t >::testCase33();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TestDriver<char16_t>::testCase33();
+        TestDriver<char32_t>::testCase33();
+# endif
+
 #else
         if (verbose) printf("\nSkip %d: Requires C++11 Initializers\n", test);
 #endif
@@ -22500,6 +23215,17 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase29();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase29();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase29();
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase29();
+#endif
       } break;
       case 28: {
         // --------------------------------------------------------------------
@@ -22599,6 +23325,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase26();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase26();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase26();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase26();
+#endif
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -22627,6 +23365,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase25();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase25();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase25();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase25();
+#endif
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -22672,6 +23422,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase24();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase24();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase24();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase24();
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative testing comparisons"
                             "\n============================\n");
@@ -22681,8 +23444,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase24Negative();
-#endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase24Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase24Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase24Negative();
+# endif
+#endif
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -22705,6 +23480,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase23();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase23();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase23();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase23();
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing 'copy'"
                             "\n==========================\n");
@@ -22714,8 +23502,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase23Negative();
-#endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase23Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase23Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase23Negative();
+# endif
+#endif
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -22766,6 +23566,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase22();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase22();
+# endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase22();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase22();
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative testing 'find...' methods."
                             "\n===================================\n");
@@ -22775,6 +23588,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase22Negative();
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase22Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase22Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase22Negative();
+# endif
 #endif
 
       } break;
@@ -22799,6 +23625,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase21();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase21();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase21();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase21();
+#endif
+
         if (verbose) printf("\nTesting Allocator Propagation on Swap"
                             "\n=====================================\n");
         TestDriver<char>::testCase21_propagate_on_container_swap();
@@ -22810,6 +23649,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: See 'TestDriver<CHAR_TYPE>::testCase20' for details.
+        //
+        //  This test case was taking 6 times too long on C++11 and beyond, so
+        //  we are disabling most of the testing except in verbose mode.
         //
         // Testing:
         //   basic_string& replace(pos1, n1, const string& str);
@@ -22839,11 +23681,45 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase20();
 
+        if (verbose) {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+            if (verbose) printf("\n... with 'char8_t'.\n");
+            TestDriver<char8_t>::testCase20();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+            if (verbose) printf("\n... with 'char16_t'.\n");
+            TestDriver<char16_t>::testCase20();
+
+            if (verbose) printf("\n... with 'char32_t'.\n");
+            TestDriver<char32_t>::testCase20();
+#endif
+        }
+
+
         if (verbose) printf("\n... with 'char' & matching integral types.\n");
         TestDriver<char>::testCase20MatchTypes();
 
         if (verbose) printf("\n... with 'wchar_t' & matching integ types.\n");
         TestDriver<wchar_t>::testCase20MatchTypes();
+
+        if (verbose) {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+            if (verbose) printf(
+                          "\n... with 'char8_t' & matching integral types.\n");
+            TestDriver<char8_t>::testCase20MatchTypes();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+            if (verbose) printf(
+                         "\n... with 'char16_t' & matching integral types.\n");
+            TestDriver<char16_t>::testCase20MatchTypes();
+
+            if (verbose) printf(
+                         "\n... with 'char32_t' & matching integral types.\n");
+            TestDriver<char32_t>::testCase20MatchTypes();
+#endif
+        }
 
         if (verbose) printf("\nTesting 'replace' with range"
                             "\n============================\n");
@@ -22864,6 +23740,36 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase20Range(CharArray<wchar_t>());
 
+        if (verbose) {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+            if (verbose) printf("\n... with 'char8_t' "
+                                "and arbitrary input iterator.\n");
+            TestDriver<char8_t>::testCase20Range(CharList<char8_t>());
+
+            if (verbose) printf("\n... with 'char8_t' "
+                                "and arbitrary random-access iterator.\n");
+            TestDriver<char8_t>::testCase20Range(CharArray<char8_t>());
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+            if (verbose) printf("\n... with 'char16_t' "
+                                "and arbitrary input iterator.\n");
+            TestDriver<char16_t>::testCase20Range(CharList<char16_t>());
+
+            if (verbose) printf("\n... with 'char16_t' "
+                                "and arbitrary random-access iterator.\n");
+            TestDriver<char16_t>::testCase20Range(CharArray<char16_t>());
+
+            if (verbose) printf("\n... with 'char32_t' "
+                                "and arbitrary input iterator.\n");
+            TestDriver<char32_t>::testCase20Range(CharList<char32_t>());
+
+            if (verbose) printf("\n... with 'char32_t' "
+                                "and arbitrary random-access iterator.\n");
+            TestDriver<char32_t>::testCase20Range(CharArray<char32_t>());
+#endif
+        }
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing 'replace'"
                             "\n==========================\n");
@@ -22873,8 +23779,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase20Negative();
-#endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase20Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase20Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase20Negative();
+# endif
+#endif
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -22899,6 +23817,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase19();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase19();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase19();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase19();
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing for 'erase' and 'pop_back'"
                             "\n===========================================\n");
@@ -22908,6 +23839,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase19Negative();
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase19Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase19Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase19Negative();
+# endif
 #endif
 
       } break;
@@ -22941,6 +23885,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase18();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase18();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase18();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase18();
+#endif
+
         if (verbose) printf("\nTesting Range Insertion"
                             "\n=======================\n");
 
@@ -22960,6 +23917,35 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase18Range(CharArray<wchar_t>());
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char8_t>::testCase18Range(CharList<char8_t>());
+
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char8_t>::testCase18Range(CharArray<char8_t>());
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char16_t>::testCase18Range(CharList<char16_t>());
+
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char16_t>::testCase18Range(CharArray<char16_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char32_t>::testCase18Range(CharList<char32_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char32_t>::testCase18Range(CharArray<char32_t>());
+#endif
+
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Insertion"
                             "\n==========================\n");
@@ -22969,8 +23955,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase18Negative();
-#endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase18Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase18Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase18Negative();
+# endif
+#endif
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -23006,6 +24004,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase17();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase17();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase17();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase17();
+#endif
+
         if (verbose) printf("\nTesting Range Append"
                             "\n====================\n");
 
@@ -23025,6 +24036,34 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase17Range(CharArray<wchar_t>());
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char8_t>::testCase17Range(CharList<char8_t>());
+
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char8_t>::testCase17Range(CharArray<char8_t>());
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char16_t>::testCase17Range(CharList<char16_t>());
+
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char16_t>::testCase17Range(CharArray<char16_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char32_t>::testCase17Range(CharList<char32_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char32_t>::testCase17Range(CharArray<char32_t>());
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Range Append"
                             "\n=============================\n");
@@ -23034,6 +24073,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase17Negative();
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase17Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase17Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase17Negative();
+# endif
 #endif
 
       } break;
@@ -23064,6 +24116,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase16();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase16();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase16();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase16();
+#endif
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -23090,6 +24154,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase15();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase15();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase15();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase15();
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Element Access"
                             "\n===============================\n");
@@ -23099,6 +24176,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase15Negative();
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase15Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase15Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase15Negative();
+# endif
 #endif
 
       } break;
@@ -23127,6 +24217,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase14();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase14();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase14();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase14();
+#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -23158,6 +24260,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase13();
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase13();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase13();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase13();
+#endif
+
 
         if (verbose) printf("\nTesting Initial-Range Assignment"
                             "\n================================\n");
@@ -23194,6 +24310,59 @@ int main(int argc, char *argv[])
                             "and 'StringViewLike' object.\n");
         TestDriver<wchar_t>::testCase13StrViewLike();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char8_t>::testCase13InputIterator();
+
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary forward iterator.\n");
+        TestDriver<char8_t>::testCase13Range(CharList<char8_t>());
+
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char8_t>::testCase13Range(CharArray<char8_t>());
+
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and 'StringViewLike' object.\n");
+        TestDriver<char8_t>::testCase13StrViewLike();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char16_t>::testCase13InputIterator();
+
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary forward iterator.\n");
+        TestDriver<char16_t>::testCase13Range(CharList<char16_t>());
+
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char16_t>::testCase13Range(CharArray<char16_t>());
+
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and 'StringViewLike' object.\n");
+        TestDriver<char16_t>::testCase13StrViewLike();
+
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char32_t>::testCase13InputIterator();
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary forward iterator.\n");
+        TestDriver<char32_t>::testCase13Range(CharList<char32_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char32_t>::testCase13Range(CharArray<char32_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and 'StringViewLike' object.\n");
+        TestDriver<char32_t>::testCase13StrViewLike();
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Assignment"
                             "\n===========================\n");
@@ -23203,8 +24372,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase13Negative();
-#endif
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase13Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase13Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase13Negative();
+# endif
+#endif
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -23233,6 +24414,21 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase12();
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase12();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase12();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase12();
+#endif
+
+
+
         if (verbose) printf("\nTesting Initial-Range Constructor"
                             "\n=================================\n");
 
@@ -23252,6 +24448,36 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase12Range(CharArray<wchar_t>());
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char8_t>::testCase12Range(CharList<char8_t>());
+
+        if (verbose) printf("\n... with 'char8_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char8_t>::testCase12Range(CharArray<char8_t>());
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char16_t>::testCase12Range(CharList<char16_t>());
+
+        if (verbose) printf("\n... with 'char16_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char16_t>::testCase12Range(CharArray<char16_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char32_t>::testCase12Range(CharList<char32_t>());
+
+        if (verbose) printf("\n... with 'char32_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char32_t>::testCase12Range(CharArray<char32_t>());
+#endif
+
+
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative testing of Constructors"
                             "\n================================\n");
@@ -23261,6 +24487,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase12Negative();
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with 'char8_t'.\n");
+        TestDriver<char8_t>::testCase12Negative();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with 'char16_t'.\n");
+        TestDriver<char16_t>::testCase12Negative();
+
+        if (verbose) printf("\n... with 'char32_t'.\n");
+        TestDriver<char32_t>::testCase12Negative();
+# endif
+
 #endif
 
       } break;

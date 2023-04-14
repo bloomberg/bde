@@ -176,8 +176,8 @@ template <class T> inline bool isConst(const T&) { return true; }
 //..
       #include <bslmf_integralconstant.h>
 
-      template <class T>
-      int doSomethingImp(T *t, bsl::true_type)
+      template <class t_T>
+      int doSomethingImp(t_T *t, bsl::true_type)
       {
           // slow, generic implementation
           // ...
@@ -185,17 +185,17 @@ template <class T> inline bool isConst(const T&) { return true; }
           return 11;
       }
 
-      template <class T>
-      int doSomethingImp(T *t, bsl::false_type)
+      template <class t_T>
+      int doSomethingImp(t_T *t, bsl::false_type)
       {
-          // fast implementation that works only for some types of T
+          // fast implementation that works only for some types of 't_T'
           // ...
           (void) t;
           return 55;
       }
 
-      template <bool IsSlow, class T>
-      int doSomething(T *t)
+      template <bool IsSlow, class t_T>
+      int doSomething(t_T *t)
       {
           // Dispatch to an implementation depending on the (compile-time)
           // value of 'IsSlow'.
@@ -247,11 +247,11 @@ template <class T> inline bool isConst(const T&) { return true; }
 // so that it does not require the user to specify the 'IsSlow' template
 // argument:
 //..
-      template <class T>
-      int doSomething2(T *t)
+      template <class t_T>
+      int doSomething2(t_T *t)
       {
           // Automatically detect whether to use slow or fast imp.
-          const bool isSlow = IsFloatingPoint<T>::value;
+          const bool isSlow = IsFloatingPoint<t_T>::value;
           return doSomethingImp(t, bsl::integral_constant<bool, isSlow>());
       }
 

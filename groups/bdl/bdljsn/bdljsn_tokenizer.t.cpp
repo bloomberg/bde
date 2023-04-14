@@ -70,6 +70,7 @@ using bsl::endl;
 // ACCESSORS
 // [ 4] TokenType tokenType() const;
 // [14] bool allowStandAloneValues() const;
+// [ 3] bool allowTrailingTopLevelComma() const;
 // [15] bool allowHeterogenousArrays() const;
 // [ 4] int value(bslstl::StringRef *data) const;
 // [18] bool utf8ErrorIsSet() const;
@@ -542,7 +543,8 @@ int main(int argc, char *argv[])
     const char *INPUT = "    {\n"
                         "        \"street\" : \"Lexington Ave\",\n"
                         "        \"state\" : \"New York\",\n"
-                        "        \"zipcode\" : 10022\n"
+                        "        \"zipcode\" : \"10022-1331\",\n"
+                        "        \"floorCount\" : 55\n"
                         "    }";
 //..
 // Next, we will construct populate a 'streambuf' with this data:
@@ -560,8 +562,9 @@ int main(int argc, char *argv[])
     struct Address {
         bsl::string d_street;
         bsl::string d_state;
-        int         d_zipcode;
-    } address = { "", "", 0 };
+        bsl::string d_zipcode;
+        int         d_floorCount;
+    } address = { "", "", "", 0 };
 //..
 // Then, we will traverse the JSON data one node at a time:
 //..
@@ -614,7 +617,12 @@ int main(int argc, char *argv[])
             ASSERT(!rc);
         }
         else if (elementName == "zipcode") {
-            rc = bdljsn::NumberUtil::asInt(&address.d_zipcode, nodeValue);
+            rc = bdljsn::StringUtil::readString(&address.d_zipcode, nodeValue);
+            ASSERT(!rc);
+        }
+        else if (elementName == "floorCount") {
+            rc = bdljsn::NumberUtil::asInteger(&address.d_floorCount,
+                                               nodeValue);
             ASSERT(!rc);
         }
 
@@ -627,7 +635,8 @@ int main(int argc, char *argv[])
 //..
     ASSERT("Lexington Ave" == address.d_street);
     ASSERT("New York"      == address.d_state);
-    ASSERT(10022           == address.d_zipcode);
+    ASSERT("10022-1331"    == address.d_zipcode);
+    ASSERT(55              == address.d_floorCount);
 //..
       } break;
       case 19: {
@@ -7154,7 +7163,11 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Top-level trailing commas are allowed by default.
         //:
-        //: 2 Passing 'true' to 'setAllowNonUtf8StringLiterals' disallows them.
+        //: 2 Passing 'false' to 'setAllowTrailingTopLevelComma' disallows
+        //:   them.
+        //:
+        //: 3 The accessor 'allowTrailingTopLevelComma' reports a value
+        //:   consistent with the expected value and the demonstrated behavior.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -7164,6 +7177,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int setAllowTrailingTopLevelComma();
+        //   bool allowTrailingTopLevelComma() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7293,6 +7307,7 @@ int main(int argc, char *argv[])
                 mX.reset(iss.rdbuf());
 
                 mX.setAllowTrailingTopLevelComma(tlcFlag);
+                ASSERT(tlcFlag == X.allowTrailingTopLevelComma());
 
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
                 ASSERTV(X.currentPosition(), 0 == X.currentPosition());

@@ -14,10 +14,11 @@ BSLS_IDENT("$Id: $")
 // 'bslmf::IsAccessibleBaseOf', that determines whether one class is an
 // accessible base class of another class.  The static constant
 // 'bslmf::IsAccessibleBaseOf::value' is 'true' if the template parameter
-// 'BASE' class is an accessible base class of, or the same class as, the
-// template parameter 'DERIVED'.  Otherwise, 'bslmf::IsAccessibleBaseOf::value'
-// is 'false'.  The specific cases of private, protected, and ambiguous
-// inheritance are not supported for versions of C++ prior to 11.
+// 't_BASE' class is an accessible base class of, or the same class as, the
+// template parameter 't_DERIVED'.  Otherwise,
+// 'bslmf::IsAccessibleBaseOf::value' is 'false'.  The specific cases of
+// private, protected, and ambiguous inheritance are not supported for versions
+// of C++ prior to 11.
 //
 ///Usage
 ///-----
@@ -78,14 +79,15 @@ namespace bslmf {
                           // class IsAccessibleBaseOf
                           // ========================
 
-template <class BASE, class DERIVED>
+template <class t_BASE, class t_DERIVED>
 class IsAccessibleBaseOf
 : public bsl::integral_constant<
       bool,
-      bsl::is_class<typename bsl::remove_cv<BASE>::type>::value &&
-          bsl::is_class<typename bsl::remove_cv<DERIVED>::type>::value &&
-          bsl::is_convertible<typename bsl::remove_cv<DERIVED>::type *,
-                              typename bsl::remove_cv<BASE>::type *>::value> {
+      bsl::is_class<typename bsl::remove_cv<t_BASE>::type>::value &&
+          bsl::is_class<typename bsl::remove_cv<t_DERIVED>::type>::value &&
+          bsl::is_convertible<
+              typename bsl::remove_cv<t_DERIVED>::type *,
+              typename bsl::remove_cv<t_BASE>::type *>::value> {
     // This 'struct' template provides a type trait to determine if one class
     // is an accessible base class of another class.  Note that, while similar
     // to 'std::is_base_of', when the derived relationship is via private,

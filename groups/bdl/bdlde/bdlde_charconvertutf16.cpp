@@ -286,6 +286,26 @@ wchar_t hostToSwapped<wchar_t, 2>(wchar_t uc)
 }
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <>
+inline
+char16_t swappedToHost<char16_t, 2>(char16_t uc)
+    // Return the value of the specified 'uc' in host byte order, where 'uc' is
+    // assumed to be in a swapped state.
+{
+    return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
+}
+
+template <>
+inline
+char16_t hostToSwapped<char16_t, 2>(char16_t uc)
+    // Return the value of the specified 'uc' with its bytes swapped, where
+    // 'uc' is assumed to be in host byte order.
+{
+    return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
+}
+#endif
+
 template <>
 inline
 wchar_t swappedToHost<wchar_t, 4>(wchar_t uc)
@@ -1613,16 +1633,21 @@ int localUtf16ToUtf8(char             *dstBuffer,
 
 template <class CONTAINER>
 void resizeToZeroTerminate(
-                          CONTAINER   *container,
-                          bsl::size_t  numBytesWritten,
-                          typename bsl::enable_if<
-                              bsl::is_same<CONTAINER, bsl::string>::value
-                           || bsl::is_same<CONTAINER, bsl::wstring>::value
-                           || bsl::is_same<CONTAINER, std::string>::value
-                           || bsl::is_same<CONTAINER, std::wstring>::value
+                        CONTAINER   *container,
+                        bsl::size_t  numBytesWritten,
+                        typename bsl::enable_if<
+                            bsl::is_same<CONTAINER, bsl::string>::value
+                         || bsl::is_same<CONTAINER, bsl::wstring>::value
+                         || bsl::is_same<CONTAINER, std::string>::value
+                         || bsl::is_same<CONTAINER, std::wstring>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                         || bsl::is_same<CONTAINER, bsl::u16string>::value
+                         || bsl::is_same<CONTAINER, std::u16string>::value
+#endif
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                           || bsl::is_same<CONTAINER, std::pmr::string>::value
-                           || bsl::is_same<CONTAINER, std::pmr::wstring>::value
+                         || bsl::is_same<CONTAINER, std::pmr::string>::value
+                         || bsl::is_same<CONTAINER, std::pmr::wstring>::value
+                         || bsl::is_same<CONTAINER, std::pmr::u16string>::value
 #endif
                           , void *>::type = 0)
     // Truncate the specified container in accordance with the specified
@@ -1904,6 +1929,33 @@ int utf16ToUtf8Impl(CONTAINER                           *dstContainer,
                                            errorByte);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CONTAINER>
+int utf16ToUtf8Impl(CONTAINER                           *dstContainer,
+                    const bsl::u16string_view&           srcString,
+                    bsl::size_t                         *numCodePointsWritten,
+                    char                                 errorByte,
+                    BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
+{
+    Utf16::PtrBasedEnd<char16_t> endFunctor(
+                                        srcString.data() + srcString.length());
+
+    return BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
+               ? localUtf16ToUtf8Container(dstContainer,
+                                           srcString.data(),
+                                           endFunctor,
+                                           NoOpSwapper<char16_t>(),
+                                           numCodePointsWritten,
+                                           errorByte)
+               : localUtf16ToUtf8Container(dstContainer,
+                                           srcString.data(),
+                                           endFunctor,
+                                           Swapper<char16_t>(),
+                                           numCodePointsWritten,
+                                           errorByte);
+}
+#endif
+
 template <class CONTAINER>
 int utf16ToUtf8Impl(CONTAINER                           *dstobject,
                     const wchar_t                       *srcString,
@@ -2048,6 +2100,93 @@ int CharConvertUtf16::utf8ToUtf16(std::pmr::wstring *dstWstring,
                               errorWord,
                               byteOrder);
 }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+int CharConvertUtf16::utf8ToUtf16(
+                                 bsl::u16string          *dst16string,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 char16_t                 errorChar,
+                                 ByteOrder::Enum          byteOrder)
+{
+    return u::utf8ToUtf16Impl(dst16string,
+                              srcString,
+                              numCodePointsWritten,
+                              errorChar,
+                              byteOrder);
+}
+
+int CharConvertUtf16::utf8ToUtf16(
+                                 std::u16string          *dst16string,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 char16_t                 errorChar,
+                                 ByteOrder::Enum          byteOrder)
+{
+    return u::utf8ToUtf16Impl(dst16string,
+                              srcString,
+                              numCodePointsWritten,
+                              errorChar,
+                              byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf8ToUtf16(
+                                 std::pmr::u16string     *dst16string,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 char16_t                 errorChar,
+                                 ByteOrder::Enum          byteOrder)
+{
+    return u::utf8ToUtf16Impl(dst16string,
+                              srcString,
+                              numCodePointsWritten,
+                              errorChar,
+                              byteOrder);
+}
+#endif
+
+int CharConvertUtf16::utf8ToUtf16(bsl::u16string     *dst16string,
+                                  const char         *srcString,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  char16_t            errorChar,
+                                  ByteOrder::Enum     byteOrder)
+{
+    return u::utf8ToUtf16Impl(dst16string,
+                              srcString,
+                              numCodePointsWritten,
+                              errorChar,
+                              byteOrder);
+}
+
+int CharConvertUtf16::utf8ToUtf16(std::u16string     *dst16string,
+                                  const char         *srcString,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  char16_t            errorChar,
+                                  ByteOrder::Enum     byteOrder)
+{
+    return u::utf8ToUtf16Impl(dst16string,
+                              srcString,
+                              numCodePointsWritten,
+                              errorChar,
+                              byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf8ToUtf16(std::pmr::u16string *dst16string,
+                                  const char          *srcString,
+                                  bsl::size_t         *numCodePointsWritten,
+                                  char16_t             errorChar,
+                                  ByteOrder::Enum      byteOrder)
+{
+    return u::utf8ToUtf16Impl(dst16string,
+                              srcString,
+                              numCodePointsWritten,
+                              errorChar,
+                              byteOrder);
+}
+#endif
 #endif
 
 int CharConvertUtf16::utf8ToUtf16(
@@ -2256,6 +2395,67 @@ int CharConvertUtf16::utf8ToUtf16(wchar_t         *dstBuffer,
                                  errorWord);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+int CharConvertUtf16::utf8ToUtf16(char16_t        *dstBuffer,
+                                  bsl::size_t      dstCapacity,
+                                  const char      *srcString,
+                                  bsl::size_t     *numCodePointsWritten,
+                                  bsl::size_t     *numWordsWritten,
+                                  char16_t         errorWord,
+                                  ByteOrder::Enum  byteOrder)
+{
+    u::Utf8::ZeroBasedEnd endFunctor;
+
+    return ByteOrder::e_HOST == byteOrder
+           ? u::localUtf8ToUtf16(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString,
+                                 endFunctor,
+                                 u::NoOpSwapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numWordsWritten,
+                                 errorWord)
+           : u::localUtf8ToUtf16(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString,
+                                 endFunctor,
+                                 u::Swapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numWordsWritten,
+                                 errorWord);
+}
+
+int CharConvertUtf16::utf8ToUtf16(
+                                 char16_t                *dstBuffer,
+                                 bsl::size_t              dstCapacity,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 bsl::size_t             *numWordsWritten,
+                                 char16_t                 errorWord,
+                                 ByteOrder::Enum          byteOrder)
+{
+    u::Utf8::PtrBasedEnd endFunctor(srcString.data() + srcString.length());
+
+    return ByteOrder::e_HOST == byteOrder
+           ? u::localUtf8ToUtf16(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString.data(),
+                                 endFunctor,
+                                 u::NoOpSwapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numWordsWritten,
+                                 errorWord)
+           : u::localUtf8ToUtf16(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString.data(),
+                                 endFunctor,
+                                 u::Swapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numWordsWritten,
+                                 errorWord);
+}
+#endif
+
                         // -- UTF-16 to UTF-8 Methods
 
 bsl::size_t CharConvertUtf16::computeRequiredUtf8Bytes(
@@ -2276,6 +2476,27 @@ bsl::size_t CharConvertUtf16::computeRequiredUtf8Bytes(
            ? requiredUtf8BytesImp(srcBuffer, ZBEnd(), NoSwap())
            : requiredUtf8BytesImp(srcBuffer, ZBEnd(), Swap());
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+bsl::size_t CharConvertUtf16::computeRequiredUtf8Bytes(
+                                                    const char16_t  *srcBuffer,
+                                                    const char16_t  *endPtr,
+                                                    ByteOrder::Enum  byteOrder)
+{
+    typedef u::Utf16::PtrBasedEnd<char16_t>  PBEnd;
+    typedef u::Utf16::ZeroBasedEnd<char16_t> ZBEnd;
+    typedef u::NoOpSwapper<char16_t>         NoSwap;
+    typedef u::Swapper<char16_t>             Swap;
+
+    return endPtr
+         ? bdlde::ByteOrder::e_HOST == byteOrder
+           ? requiredUtf8BytesImp(srcBuffer, PBEnd(endPtr), NoSwap())
+           : requiredUtf8BytesImp(srcBuffer, PBEnd(endPtr), Swap())
+         : bdlde::ByteOrder::e_HOST == byteOrder
+           ? requiredUtf8BytesImp(srcBuffer, ZBEnd(), NoSwap())
+           : requiredUtf8BytesImp(srcBuffer, ZBEnd(), Swap());
+}
+#endif
 
 bsl::size_t CharConvertUtf16::computeRequiredUtf8Bytes(
                                                const unsigned short *srcBuffer,
@@ -2469,6 +2690,93 @@ int CharConvertUtf16::utf16ToUtf8(std::pmr::string *dstString,
 }
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+int CharConvertUtf16::utf16ToUtf8(
+                              bsl::string                *dstString,
+                              const bsl::u16string_view&  srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              char                        errorByte,
+                              ByteOrder::Enum             byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstString,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+int CharConvertUtf16::utf16ToUtf8(
+                              std::string                *dstString,
+                              const bsl::u16string_view&  srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              char                        errorByte,
+                              ByteOrder::Enum             byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstString,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(
+                              std::pmr::string           *dstString,
+                              const bsl::u16string_view&  srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              char                        errorByte,
+                              ByteOrder::Enum             byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstString,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+#endif
+
+int CharConvertUtf16::utf16ToUtf8(bsl::string      *dstString,
+                                  const char16_t   *srcString,
+                                  bsl::size_t      *numCodePointsWritten,
+                                  char              errorByte,
+                                  ByteOrder::Enum   byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstString,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+int CharConvertUtf16::utf16ToUtf8(std::string      *dstString,
+                                  const char16_t   *srcString,
+                                  bsl::size_t      *numCodePointsWritten,
+                                  char              errorByte,
+                                  ByteOrder::Enum   byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstString,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(std::pmr::string  *dstString,
+                                  const char16_t    *srcString,
+                                  bsl::size_t       *numCodePointsWritten,
+                                  char               errorByte,
+                                  ByteOrder::Enum    byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstString,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+#endif
+#endif
+
 int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
                                   const unsigned short *srcString,
                                   bsl::size_t          *numCodePointsWritten,
@@ -2641,6 +2949,94 @@ int CharConvertUtf16::utf16ToUtf8(std::pmr::vector<char> *dstVector,
 }
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+int CharConvertUtf16::utf16ToUtf8(
+                              bsl::vector<char>          *dstVector,
+                              const bsl::u16string_view&  srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              char                        errorByte,
+                              ByteOrder::Enum             byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstVector,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+int CharConvertUtf16::utf16ToUtf8(
+                              std::vector<char>          *dstVector,
+                              const bsl::u16string_view&  srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              char                        errorByte,
+                              ByteOrder::Enum             byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstVector,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(
+                              std::pmr::vector<char>     *dstVector,
+                              const bsl::u16string_view&  srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              char                        errorByte,
+                              ByteOrder::Enum             byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstVector,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+#endif
+
+int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>  *dstVector,
+                                  const char16_t     *srcString,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  char                errorByte,
+                                  ByteOrder::Enum     byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstVector,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+int CharConvertUtf16::utf16ToUtf8(std::vector<char>  *dstVector,
+                                  const char16_t     *srcString,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  char                errorByte,
+                                  ByteOrder::Enum     byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstVector,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(
+                                 std::pmr::vector<char>  *dstVector,
+                                 const char16_t          *srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 char                     errorByte,
+                                 ByteOrder::Enum          byteOrder)
+{
+    return u::utf16ToUtf8Impl(dstVector,
+                              srcString,
+                              numCodePointsWritten,
+                              errorByte,
+                              byteOrder);
+}
+#endif
+#endif
+
 int CharConvertUtf16::utf16ToUtf8(char                 *dstBuffer,
                                   bsl::size_t           dstCapacity,
                                   const unsigned short *srcString,
@@ -2760,6 +3156,69 @@ int CharConvertUtf16::utf16ToUtf8(char            *dstBuffer,
                                  numBytesWritten,
                                  errorByte);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+int CharConvertUtf16::utf16ToUtf8(
+                              char                       *dstBuffer,
+                              bsl::size_t                 dstCapacity,
+                              const bsl::u16string_view&  srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              bsl::size_t                *numBytesWritten,
+                              char                        errorByte,
+                              ByteOrder::Enum             byteOrder)
+{
+    u::Utf16::PtrBasedEnd<char16_t> endFunctor(
+                                        srcString.data() + srcString.length());
+
+    return ByteOrder::e_HOST == byteOrder
+           ? u::localUtf16ToUtf8(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString.data(),
+                                 endFunctor,
+                                 u::NoOpSwapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numBytesWritten,
+                                 errorByte)
+           : u::localUtf16ToUtf8(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString.data(),
+                                 endFunctor,
+                                 u::Swapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numBytesWritten,
+                                 errorByte);
+}
+
+int CharConvertUtf16::utf16ToUtf8(char            *dstBuffer,
+                                  bsl::size_t      dstCapacity,
+                                  const char16_t  *srcString,
+                                  bsl::size_t     *numCodePointsWritten,
+                                  bsl::size_t     *numBytesWritten,
+                                  char             errorByte,
+                                  ByteOrder::Enum  byteOrder)
+{
+    u::Utf16::ZeroBasedEnd<char16_t> endFunctor;
+
+    return ByteOrder::e_HOST == byteOrder
+           ? u::localUtf16ToUtf8(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString,
+                                 endFunctor,
+                                 u::NoOpSwapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numBytesWritten,
+                                 errorByte)
+           : u::localUtf16ToUtf8(dstBuffer,
+                                 u::Capacity(dstCapacity),
+                                 srcString,
+                                 endFunctor,
+                                 u::Swapper<char16_t>(),
+                                 numCodePointsWritten,
+                                 numBytesWritten,
+                                 errorByte);
+}
+#endif
+
 }  // close package namespace
 
 }  // close enterprise namespace

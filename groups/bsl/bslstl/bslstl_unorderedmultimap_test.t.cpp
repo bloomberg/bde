@@ -1337,6 +1337,20 @@ void testTransparentComparator(Container& container,
     ASSERT(container.end()                  == NON_EXISTING_F);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
+    // Testing 'contains'.
+
+    const bool EXISTING_CONTAINS = container.contains(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(true == EXISTING_CONTAINS);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+    ASSERT(false == NON_EXISTING_CONTAINS);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
     // Testing 'count'.
 
     const Count EXPECTED_C = initKeyValue ? initKeyValue : 1;
@@ -6952,14 +6966,15 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING FIND, EQUAL_RANGE, COUNT
+    // TESTING FIND, CONTAINS, EQUAL_RANGE, COUNT
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' returns the
-    //:   iterator referring the existing element.
+    //:   iterator referring to the existing element and 'contains' returns
+    //:   'true'.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
-    //:   returns the 'end' iterator.
+    //:   returns the 'end' iterator and 'contains' returns 'false'.
     //:
     //: 3 'equal_range(key)' returns all elements equivalent to 'key'.
     //:
@@ -6975,6 +6990,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //:  TBD
     //
     // Testing:
+    //   bool contains(const key_type& key);
+    //   bool contains(const LOOKUP_KEY& key);
     //   size_type count(const key_type& key) const;
     //   bsl::pair<iterator, iterator> equal_range(const key_type& key);
     //   bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
@@ -7041,6 +7058,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERT(it == X.find(VALUES[c - 'A'].first));
                 ASSERT(1 == numPasses);
+
+                bool cShouldBeFound = it != mX.end();
+                ASSERTV(c,
+                        cShouldBeFound,
+                        cShouldBeFound == mX.contains(VALUES[c - 'A'].first));
 
                 const size_t expectedCount = numCharInstances(SPEC, c);
 
@@ -8395,7 +8417,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'find', 'equal_range', 'count'
+        // TESTING 'find', 'contains', 'equal_range', 'count'
         // --------------------------------------------------------------------
 
         RUN_EACH_TYPE(TestDriver,

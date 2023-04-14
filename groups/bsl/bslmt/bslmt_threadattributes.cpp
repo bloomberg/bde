@@ -9,6 +9,8 @@
 
 #include <bslmt_threadattributes.h>
 
+#include <bslim_printer.h>
+
 #include <bslmt_platform.h>
 
 #include <bsls_assert.h>
@@ -17,6 +19,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_c_limits.h>
+#include <bsl_ostream.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_threadattributes_cpp,"$Id$ $CSID$")
@@ -73,6 +76,27 @@ bslmt::ThreadAttributes& bslmt::ThreadAttributes::operator=(
     d_threadName          = rhs.d_threadName;
 
     return *this;
+}
+
+// ACCESSORS
+bsl::ostream& bslmt::ThreadAttributes::print(
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+
+    printer.printAttribute("detachedState", d_detachedState);
+    printer.printAttribute("guardSize", d_guardSize);
+    printer.printAttribute("inheritSchedule", d_inheritScheduleFlag);
+    printer.printAttribute("schedulingPolicy", d_schedulingPolicy);
+    printer.printAttribute("schedulingPriority", d_schedulingPriority);
+    printer.printAttribute("stackSize", d_stackSize);
+    printer.printAttribute("threadName", d_threadName);
+
+    printer.end();
+    return stream;
 }
 
 // FREE OPERATORS

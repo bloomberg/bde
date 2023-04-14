@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single trait metafunction,
 // 'bslmf::IsBitwiseEqualityComparable', which allows generic code to determine
-// whether objects of the specified 'TYPE' can be compared using 'memcmp'.
+// whether objects of the specified 't_TYPE' can be compared using 'memcmp'.
 // Such types are said to be bitwise EqualityComparable.  Observe that this
 // trait may be 'true' only for object types, even though, for example,
 // reference types may be guaranteed identical bit representations when they
@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // For a type to be bitwise EqalityComparable, each bit of its object
 // representation must be significant in the value representation, and distinct
 // sequences of bits represent different values, i.e., this trait is an
-// assertion that the specified 'TYPE' has unique representations for each
+// assertion that the specified 't_TYPE' has unique representations for each
 // possible value, and no padding bits.  This property is deemed to hold for
 // 'bool' and enumerations where, in practice, the compiler will enforce a
 // value representation over all the seemingly unused bits.  For a C++17 tool
@@ -30,11 +30,11 @@ BSLS_IDENT("$Id: $")
 // 'std::has_unique_object_representation' trait.
 //
 // Note that as arrays are not allowed to introduce padding, arrays of a
-// bitwise EqualityComparable 'TYPE' are also bitwise EqualityComparable, even
-// though they do not provide an overloaded 'operator=='.  While transforming
-// comparisons of a single object using this trait into calls to 'memcmp' is
-// unlikely to be profitable, transforming comparisons of a whole array into a
-// single 'memcmp' call is more likely to be beneficial.
+// bitwise EqualityComparable 't_TYPE' are also bitwise EqualityComparable,
+// even though they do not provide an overloaded 'operator=='.  While
+// transforming comparisons of a single object using this trait into calls to
+// 'memcmp' is unlikely to be profitable, transforming comparisons of a whole
+// array into a single 'memcmp' call is more likely to be beneficial.
 //
 ///Usage
 ///-----
@@ -191,17 +191,17 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we write a function template to compare two arrays of the same type:
 //..
-//  template <class TYPE>
-//  bool rangeCompare(const TYPE *start, size_t length, const TYPE *other)
+//  template <class t_TYPE>
+//  bool rangeCompare(const t_TYPE *start, size_t length, const t_TYPE *other)
 //  {
 //..
 // If we detect the bitwise EqualityComparable trait, we rely on the optimized
 // 'memcmp' function:
 //..
-//      if (bslmf::IsBitwiseEqualityComparable<TYPE>::value) {
+//      if (bslmf::IsBitwiseEqualityComparable<t_TYPE>::value) {
 //          return 0 == memcmp(start,
 //                             other,
-//                             length * sizeof(TYPE));                // RETURN
+//                             length * sizeof(t_TYPE));              // RETURN
 //      }
 //..
 // Otherwise we iterate over the range directly until we find a pair of
@@ -291,44 +291,44 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace BloombergLP {
 //
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct NotComparable
 //  {
-//      TYPE d_value;
+//      t_TYPE d_value;
 //  };
 //..
 // Then, we define the class template 'PotentiallyComparable1', which uses
 // partial template specialization to associate the
-// 'IsBitwiseEqualityComparable' trait with each instantiation on a 'TYPE' that
-// is itself bitwise EqualityComparable:
+// 'IsBitwiseEqualityComparable' trait with each instantiation on a 't_TYPE'
+// that is itself bitwise EqualityComparable:
 //..
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct PotentiallyComparable1
 //  {
-//      TYPE d_value;
+//      t_TYPE d_value;
 //  };
 //
 //  namespace bslmf {
-//      template <class TYPE>
-//      struct IsBitwiseEqualityComparable<PotentiallyComparable1<TYPE> >
-//          : IsBitwiseEqualityComparable<TYPE>::type {
+//      template <class t_TYPE>
+//      struct IsBitwiseEqualityComparable<PotentiallyComparable1<t_TYPE> >
+//          : IsBitwiseEqualityComparable<t_TYPE>::type {
 //      };
 //  }  // close namespace bslmf
 //..
 // Next, we define the class template'PotentiallyComparable2', which uses the
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the
-// 'IsBitwiseEqualityComparable' trait with each instantiation on a 'TYPE' that
-// is itself bitwise EqualityComparable:
+// 'IsBitwiseEqualityComparable' trait with each instantiation on a 't_TYPE'
+// that is itself bitwise EqualityComparable:
 //..
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  struct PotentiallyComparable2
 //  {
-//      TYPE d_value;
+//      t_TYPE d_value;
 //
 //      BSLMF_NESTED_TRAIT_DECLARATION_IF(
-//                            PotentiallyComparable2,
-//                            bslmf::IsBitwiseEqualityComparable,
-//                            bslmf::IsBitwiseEqualityComparable<TYPE>::value);
+//                          PotentiallyComparable2,
+//                          bslmf::IsBitwiseEqualityComparable,
+//                          bslmf::IsBitwiseEqualityComparable<t_TYPE>::value);
 //  };
 //..
 // Finally, we check that the traits are correctly associated by instantiating
@@ -379,7 +379,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsBitwiseEqualityComparable;
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
@@ -387,12 +387,13 @@ struct IsBitwiseEqualityComparable;
                      // struct IsBitwiseEqualityComparable_Scalar
                      // =========================================
 
-template <class TYPE, class = void>
-struct IsBitwiseEqualityComparable_Imp2 : bsl::false_type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable_Imp2<TYPE, BSLMF_VOIDTYPE(TYPE[])>
-    : bsl::true_type {
-    // This implementation-detail trait determines whether 'TYPE' is a scalar
+template <class t_TYPE, class = void>
+struct IsBitwiseEqualityComparable_Imp2 : bsl::false_type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable_Imp2<t_TYPE, BSLMF_VOIDTYPE(t_TYPE[])>
+: bsl::true_type {
+    // This implementation-detail trait determines whether 't_TYPE' is a scalar
     // type (an arithmetic type, enumeration, pointer, or pointer-to-member).
     // This implementation takes advantage of a previous layer of filtering
     // handling all class-types, so any remaining types that are valid as array
@@ -404,14 +405,15 @@ struct IsBitwiseEqualityComparable_Imp2<TYPE, BSLMF_VOIDTYPE(TYPE[])>
                      // struct IsBitwiseEqualityComparable_Imp
                      // ======================================
 
-template <class TYPE, class = void>
+template <class t_TYPE, class = void>
 struct IsBitwiseEqualityComparable_Imp
-    :  IsBitwiseEqualityComparable_Imp2<TYPE>::type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
-    : DetectNestedTrait<TYPE, IsBitwiseEqualityComparable>::type {
+: IsBitwiseEqualityComparable_Imp2<t_TYPE>::type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable_Imp<t_TYPE, BSLMF_VOIDTYPE(int t_TYPE::*)>
+: DetectNestedTrait<t_TYPE, IsBitwiseEqualityComparable>::type {
     // This trait 'struct' derives from 'bsl::true_type' if (the template
-    // paramter) 'TYPE' is a scalar type or a class with a nested trait
+    // paramter) 't_TYPE' is a scalar type or a class with a nested trait
     // declaration for the 'bslmf::IsBitwiseEqualityComparable' trait, and from
     // 'bsl::false_type' otherwise.  Note that this template handles only the
     // class-type cases, delegating the final filtering for scalar types to a
@@ -422,14 +424,14 @@ struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
                      // struct IsBitwiseEqualityComparable_Imp
                      // ======================================
 
-template <class TYPE, class = void>
-struct IsBitwiseEqualityComparable_Imp
-    :  bsl::is_const<const TYPE>::type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
-    : DetectNestedTrait<TYPE, IsBitwiseEqualityComparable>::type {
+template <class t_TYPE, class = void>
+struct IsBitwiseEqualityComparable_Imp : bsl::is_const<const t_TYPE>::type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable_Imp<t_TYPE, BSLMF_VOIDTYPE(int t_TYPE::*)>
+: DetectNestedTrait<t_TYPE, IsBitwiseEqualityComparable>::type {
     // This trait 'struct' derives from 'bsl::true_type' if (the template
-    // paramter) 'TYPE' is a scalar type or a class with a nested trait
+    // paramter) 't_TYPE' is a scalar type or a class with a nested trait
     // declaration for the 'bslmf::IsBitwiseEqualityComparable' trait, and from
     // 'bsl::false_type' otherwise.  Note that this implementation relies on
     // the fact that reference and function types cannot be cv-qualified, and
@@ -442,58 +444,69 @@ struct IsBitwiseEqualityComparable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
                      // struct IsBitwiseEqualityComparable
                      // ==================================
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsBitwiseEqualityComparable
-     : IsBitwiseEqualityComparable_Imp<TYPE>::type {
+: IsBitwiseEqualityComparable_Imp<t_TYPE>::type {
     // This trait 'struct' is a metafunction that determines whether the
-    // specified parameter 'TYPE' is bitwise EqualityComparable.  If
-    // 'IsBitwiseEqualityComparable<TYPE>' is derived from 'true_type' then
-    // 'TYPE' is bitwise EqualityComparable.  Otherwise, bitwise equality
-    // comparability cannot be inferred for 'TYPE'.  This trait can be
+    // specified parameter 't_TYPE' is bitwise EqualityComparable.  If
+    // 'IsBitwiseEqualityComparable<t_TYPE>' is derived from 'true_type' then
+    // 't_TYPE' is bitwise EqualityComparable.  Otherwise, bitwise equality
+    // comparability cannot be inferred for 't_TYPE'.  This trait can be
     // associated with a bitwise EqualityComparable user-defined class by
     // specializing this class or by using the 'BSLMF_NESTED_TRAIT_DECLARATION'
     // macro.
 };
 
-template <class TYPE>
-struct IsBitwiseEqualityComparable<const TYPE>
-     : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable<volatile  TYPE>
-     : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable<const volatile TYPE>
-     : IsBitwiseEqualityComparable<TYPE>::type {};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable<const t_TYPE>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable<volatile t_TYPE>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable<const volatile t_TYPE>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
     // Partial specializations for cv-qualified types channel to a single
     // instantiation of the implementation type.  Note that we cannot derive
     // through the 'Imp' type directly as we would not correctly handle
     // cv-qualified types that have been explicitly specialized by our users.
 
-template <class TYPE, size_t LEN>
-struct IsBitwiseEqualityComparable<TYPE[LEN]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE, size_t LEN>
-struct IsBitwiseEqualityComparable<const TYPE[LEN]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE, size_t LEN>
-struct IsBitwiseEqualityComparable<volatile TYPE[LEN]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE, size_t LEN>
-struct IsBitwiseEqualityComparable<const volatile TYPE[LEN]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseEqualityComparable<t_TYPE[t_LEN]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseEqualityComparable<const t_TYPE[t_LEN]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseEqualityComparable<volatile t_TYPE[t_LEN]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE, size_t t_LEN>
+struct IsBitwiseEqualityComparable<const volatile t_TYPE[t_LEN]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
 
-template <class TYPE>
-struct IsBitwiseEqualityComparable<TYPE[]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable<const TYPE[]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable<volatile TYPE[]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
-template <class TYPE>
-struct IsBitwiseEqualityComparable<const volatile TYPE[]>
-   : IsBitwiseEqualityComparable<TYPE>::type {};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable<t_TYPE[]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable<const t_TYPE[]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable<volatile t_TYPE[]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
+template <class t_TYPE>
+struct IsBitwiseEqualityComparable<const volatile t_TYPE[]>
+: IsBitwiseEqualityComparable<t_TYPE>::type {
+};
     // Partial specializations for array types, as arrays have a contiguity
     // guarantee (that can inferred from pointer arithmetic rules) so this if a
     // type is bitwise equality comparable, we can be sure there is no padding

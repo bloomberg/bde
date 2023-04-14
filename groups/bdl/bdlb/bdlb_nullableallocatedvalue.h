@@ -97,9 +97,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlb {
 
-                  // ==================================
-                  // class NullableAllocatedValue<TYPE>
-                  // ==================================
+                      // ==================================
+                      // class NullableAllocatedValue<TYPE>
+                      // ==================================
 
 template <class TYPE>
 class NullableAllocatedValue {
@@ -150,7 +150,7 @@ class NullableAllocatedValue {
         // default allocator is used.
 
     NullableAllocatedValue(const TYPE&       value,
-                           bslma::Allocator *basicAllocator = 0);
+                           bslma::Allocator *basicAllocator = 0);   // IMPLICIT
         // Create a nullable object having the specified 'value'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -274,6 +274,19 @@ bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
     // compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  A nullable object and a value of some
+    // type have the same value if the nullable object is non-null and its
+    // underlying value compares equal to the other value.  Note that this
+    // function will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not
+    // compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' nullable objects do not
@@ -282,6 +295,123 @@ bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
     // are non-null and the values of their underlying objects do not compare
     // equal.  Note that this function will fail to compile if 'LHS_TYPE' and
     // 'RHS_TYPE' are not compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  A nullable object and a value of
+    // some type do not have the same value if either the nullable object is
+    // null, or its underlying value does not compare equal to the other value.
+    // Note that this function will fail to compile if 'LHS_TYPE' and
+    // 'RHS_TYPE' are not compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
+    // ordered before 'rhs' if 'lhs' is null and 'rhs' is non-null or if both
+    // are non-null and 'lhs.value()' is ordered before 'rhs.value()'.  Note
+    // that this function will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are
+    // not compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const RHS_TYPE&                         rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered before
+    // 'rhs' if 'lhs' is null or 'lhs.value()' is ordered before 'rhs'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const LHS_TYPE&                         lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the specified
+    // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered before
+    // 'rhs' if 'rhs' is not null and 'lhs' is ordered before 'rhs.value()'.
+
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note
+    // that this operator returns '!(rhs < lhs)' when both operands are of
+    // 'NullableValue' type.  Also note that this function will fail to compile
+    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
+    // otherwise.  (See 'operator<' and 'operator=='.)  Note that this operator
+    // returns '!(rhs < lhs)'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note that this
+    // operator returns '!(rhs < lhs)'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
+    // ordered after 'rhs' if 'lhs' is non-null and 'rhs' is null or if both
+    // are non-null and 'lhs.value()' is ordered after 'rhs.value()'.  Note
+    // that this operator returns 'rhs < lhs' when both operands are of
+    // 'NullableValue' type.  Also note that this function will fail to compile
+    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const RHS_TYPE&                         rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered after
+    // 'rhs' if 'lhs' is not null and 'lhs.value()' is ordered after 'rhs'.
+    // Note that this operator returns 'rhs < lhs'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const LHS_TYPE&                         lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered after
+    // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'.  Note
+    // that this operator returns 'rhs < lhs'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
+    // that this operator returns '!(lhs < rhs)' when both operands are of
+    // 'NullableValue' type.  Also note that this function will fail to compile
+    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const RHS_TYPE&                         rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
+    // otherwise.  (See 'operator>' and 'operator=='.)  Note that this operator
+    // returns '!(lhs < rhs)'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const LHS_TYPE&                         lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note that this
+    // operator returns '!(lhs < rhs)'.
 
 template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&                       stream,
@@ -582,11 +712,27 @@ inline
 bool bdlb::operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
                       const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() == rhs.value();                            // RETURN
+    if (lhs.isNull()) {
+        return rhs.isNull();                                          // RETURN
     }
 
-    return lhs.isNull() == rhs.isNull();
+    return rhs.isNull() ? false : lhs.value() == rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? false : lhs.value() == rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? false : lhs == rhs.value();
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -594,11 +740,139 @@ inline
 bool bdlb::operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                       const NullableAllocatedValue<RHS_TYPE>& rhs)
 {
-    if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() != rhs.value();                            // RETURN
+    if (lhs.isNull()) {
+        return !rhs.isNull();                                         // RETURN
     }
 
-    return lhs.isNull() != rhs.isNull();
+    return rhs.isNull() ? true : lhs.value() != rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? true : lhs.value() != rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? true : lhs != rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (rhs.isNull()) {
+        return false;                                                 // RETURN
+    }
+
+    return lhs.isNull() ? true : lhs.value() < rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? true : lhs.value() < rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const LHS_TYPE&                         lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? false : lhs < rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.isNull()) {
+        return true;                                                  // RETURN
+    }
+
+    return rhs.isNull() ? false : lhs.value() <= rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? true : lhs.value() <= rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? false : lhs <= rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.isNull()) {
+        return false;                                                 // RETURN
+    }
+
+    return rhs.isNull() ? true : lhs.value() > rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? false : lhs.value() > rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const LHS_TYPE&                         lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? true : lhs > rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (rhs.isNull()) {
+        return true;                                                  // RETURN
+    }
+
+    return lhs.isNull() ? false : lhs.value() >= rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                         rhs)
+{
+    return lhs.isNull() ? false : lhs.value() >= rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const LHS_TYPE&                         lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    return rhs.isNull() ? true : lhs >= rhs.value();
 }
 
 template <class TYPE>

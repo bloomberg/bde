@@ -307,6 +307,8 @@ int main(int argc, char *argv[])
             char result[k_DATA_LENGTH];
             bsl::memset(data, '*', k_DATA_LENGTH);
 
+            const std::streamoff DATA_LENGTH_STREAMOFF = k_DATA_LENGTH;
+
             for (int i = 0; i < k_DATA_LENGTH; ++i) {
                 bdlbb::Blob blob(&fa, &ta);
                 {
@@ -315,7 +317,7 @@ int main(int argc, char *argv[])
                     data[i] = EOF_VAL;
                     LOOP_ASSERT(i, k_DATA_LENGTH ==
                                                out.sputn(data, k_DATA_LENGTH));
-                    LOOP_ASSERT(i, k_DATA_LENGTH ==
+                    LOOP_ASSERT(i, DATA_LENGTH_STREAMOFF ==
                                                  out.pubseekoff(0, CUR, OUT1));
                     LOOP_ASSERT(i, k_DATA_LENGTH == blob.length());
                     LOOP_ASSERT(i, k_DATA_LENGTH == in.sgetn(result,
@@ -494,6 +496,8 @@ int main(int argc, char *argv[])
             const bsl::ios_base::seekdir  CUR  = bsl::ios_base::cur;
             const bsl::ios_base::openmode OUT1 = bsl::ios_base::out;
 
+            const std::streamoff DATA_LENGTH_STREAMOFF = k_DATA_LENGTH;
+
             {
                 bdlbb::OutBlobStreamBuf mX(mCa);
                 const bdlbb::OutBlobStreamBuf& X = mX;
@@ -506,7 +510,7 @@ int main(int argc, char *argv[])
 
                 out << HASHMARKS << flush;
 
-                ASSERT(k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(DATA_LENGTH_STREAMOFF == mX.pubseekoff(0, CUR, OUT1));
                 ASSERT(k_DATA_LENGTH == mCa->length());
                 ASSERT(4 == mCa->numBuffers());
                 ASSERT(0 == mCb->length());
@@ -515,7 +519,7 @@ int main(int argc, char *argv[])
                 mX.reset();
                 ASSERT(X.data() == mCa);
                 ASSERT(X.data() != mCb);
-                ASSERT(k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(DATA_LENGTH_STREAMOFF == mX.pubseekoff(0, CUR, OUT1));
                 ASSERT(k_DATA_LENGTH == mCa->length());
                 ASSERT(4 == mCa->numBuffers());
                 ASSERT(0 == mCb->length());
@@ -523,7 +527,8 @@ int main(int argc, char *argv[])
 
                 out << HASHMARKS << flush;
 
-                ASSERT(2 * k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(2 * DATA_LENGTH_STREAMOFF ==
+                       mX.pubseekoff(0, CUR, OUT1));
                 ASSERT(8 == mCa->numBuffers());
                 ASSERT(0 == mCb->length());
                 ASSERT(0 == mCb->numBuffers());
@@ -539,7 +544,7 @@ int main(int argc, char *argv[])
 
                 out << HASHMARKS << flush;
 
-                ASSERT(k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(DATA_LENGTH_STREAMOFF == mX.pubseekoff(0, CUR, OUT1));
                 ASSERT(2 * k_DATA_LENGTH == mCa->length());
                 ASSERT(8 == mCa->numBuffers());;
                 ASSERT(k_DATA_LENGTH == mCb->length());
@@ -581,6 +586,8 @@ int main(int argc, char *argv[])
             const bsl::ios_base::seekdir  CUR = bsl::ios_base::cur;
             const bsl::ios_base::openmode IN1 = bsl::ios_base::in;
 
+            const std::streamoff SEEK_OFFSET_STREAMOFF = k_SEEK_OFFSET;
+
             {
                 mCa->setLength(10); bsl::memset(mCa->buffer(0).data(), 1, 10);
                 mCb->setLength(10); bsl::memset(mCb->buffer(0).data(), 2, 10);
@@ -593,7 +600,8 @@ int main(int argc, char *argv[])
 
                 bsl::istream      in(&mX);
 
-                ASSERT(k_SEEK_OFFSET == mX.pubseekpos(k_SEEK_OFFSET, IN1));
+                ASSERT(SEEK_OFFSET_STREAMOFF ==
+                       mX.pubseekpos(k_SEEK_OFFSET, IN1));
                 char read;
                 in >> read;
                 ASSERT(1 == read);
@@ -614,8 +622,9 @@ int main(int argc, char *argv[])
                 in >> read;
                 ASSERT(2 == read);
 
-                ASSERT(k_SEEK_OFFSET == mX.pubseekpos(k_SEEK_OFFSET, IN1));
-                ASSERT(k_SEEK_OFFSET == mX.pubseekoff(0, CUR, IN1));
+                ASSERT(SEEK_OFFSET_STREAMOFF ==
+                       mX.pubseekpos(k_SEEK_OFFSET, IN1));
+                ASSERT(SEEK_OFFSET_STREAMOFF == mX.pubseekoff(0, CUR, IN1));
             }
         }
         ASSERT(0 <  ta.numAllocations());

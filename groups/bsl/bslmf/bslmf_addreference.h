@@ -23,18 +23,18 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - -
 // First, let us write a simple class that can wrap any other type:
 //..
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  class Wrapper {
 //    private:
 //      // DATA
-//      TYPE d_data;
+//      t_TYPE d_data;
 //
 //    public:
 //      // TYPES
-//      typedef typename bslmf::AddReference<TYPE>::Type WrappedType;
+//      typedef typename bslmf::AddReference<t_TYPE>::Type WrappedType;
 //
 //      // CREATORS
-//      Wrapper(TYPE value) : d_data(value) {}                      // IMPLICIT
+//      Wrapper(t_TYPE value) : d_data(value) {}                    // IMPLICIT
 //          // Create a 'Wrapper' object having the specified 'value'.
 //
 //      //! ~Wrapper() = default;
@@ -42,24 +42,24 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we would like to expose access to the wrapped element through a method
 // that returns a reference to the data member 'd_data'.  However, there would
-// be a problem if the user supplied a parameterized type 'TYPE' that is a
+// be a problem if the user supplied a parameterized type 't_TYPE' that is a
 // reference type, as references-to-references were not permitted by the
 // language (prior the C++11 standard).  We can resolve such problems using the
 // meta-function 'bslmf::AddReference'.
 //..
 //  // MANIPULATORS
-//  typename bslmf::AddReference<TYPE>::Type value()
+//  typename bslmf::AddReference<t_TYPE>::Type value()
 //  {
 //      return d_data;
 //  }
 //..
 // Next, we supply an accessor function, 'value', that similarly wraps the
-// parameterized type 'TYPE' with the 'bslmf::AddReference' meta-function.  In
-// this case we must remember to const-quality 'TYPE' before passing it on to
-// the meta-function.
+// parameterized type 't_TYPE' with the 'bslmf::AddReference' meta-function.
+// In this case we must remember to const-quality 't_TYPE' before passing it on
+// to the meta-function.
 //..
 //      // ACCESSORS
-//      typename bslmf::AddReference<const TYPE>::Type value() const
+//      typename bslmf::AddReference<const t_TYPE>::Type value() const
 //      {
 //          return d_data;
 //      }
@@ -133,18 +133,17 @@ namespace bslmf {
                         // struct AddReference
                         // ===================
 
-
-template <class TYPE>
+template <class t_TYPE>
 struct AddReference {
     // This meta-function class defines a typedef, 'Type', that is an alias for
-    // a reference to the parameterized 'TYPE'.  References to cv-qualified
+    // a reference to the parameterized 't_TYPE'.  References to cv-qualified
     // 'void' will produce the original 'void' type and not a reference (see
     // specializations below).  References-to-references "collapse" to produce
     // an alias to the original reference type, which is the revised rule
     // according to the C++11 standard.  Note that there is no requirement that
-    // the parameterized 'TYPE' be a complete type.
+    // the parameterized 't_TYPE' be a complete type.
 
-    typedef typename bsl::add_lvalue_reference<TYPE>::type Type;
+    typedef typename bsl::add_lvalue_reference<t_TYPE>::type Type;
 };
 
 }  // close package namespace

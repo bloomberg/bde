@@ -10,7 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::add_volatile: meta-function for adding top-level 'volatile'-qualifier
 //  bsl::add_volatile_t: alias to the return type of the 'bsl::add_volatile'
-
 //
 //@SEE_ALSO: bslmf_removevolatile
 //
@@ -73,34 +72,34 @@ namespace bslmf {
                          // struct AddVolatile_Imp
                          // ======================
 
-template <class TYPE, bool ADD_VOLATILE_FLAG>
+template <class t_TYPE, bool t_ADD_VOLATILE_FLAG>
 struct AddVolatile_Imp {
     // This 'struct' template provides an alias, 'Type', that adds a
-    // 'volatile'-qualifier to the (template parameter) 'TYPE' if the (template
-    // parameter) 'ADD_VOLATILE_FLAG' is 'true'.  This generic default template
-    // adds the 'volatile'-qualifier to 'TYPE'.  A template specialization
-    // (below) leaves 'TYPE' as-is in its 'Type' alias.
+    // 'volatile'-qualifier to the (template parameter) 't_TYPE' if the
+    // (template parameter) 't_ADD_VOLATILE_FLAG' is 'true'.  This generic
+    // default template adds the 'volatile'-qualifier to 't_TYPE'.  A template
+    // specialization (below) leaves 't_TYPE' as-is in its 'Type' alias.
 
     // PUBLIC TYPES
-    typedef TYPE volatile Type;
+    typedef t_TYPE volatile Type;
         // This 'typedef' is an alias to a type that is the same as the
-        // (template parameter) 'TYPE' except that a top-level
+        // (template parameter) 't_TYPE' except that a top-level
         // 'volatile'-qualifier has been added.
 };
 
-                         // ===================================
-                         // struct AddVolatile_Imp<TYPE, false>
-                         // ===================================
+                   // =====================================
+                   // struct AddVolatile_Imp<t_TYPE, false>
+                   // =====================================
 
-template <class TYPE>
-struct AddVolatile_Imp<TYPE, false> {
+template <class t_TYPE>
+struct AddVolatile_Imp<t_TYPE, false> {
     // This partial specialization of 'AddVolatile_Imp', for when the (template
-    // parameter) 'ADD_VOLATILE_FLAG' is 'false', provides an alias 'Type' that
-    // has the same type as the (template parameter) 'TYPE'.
+    // parameter) 't_ADD_VOLATILE_FLAG' is 'false', provides an alias 'Type'
+    // that has the same type as the (template parameter) 't_TYPE'.
 
     // PUBLIC TYPES
-    typedef TYPE Type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+    typedef t_TYPE Type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
 }  // close package namespace
@@ -112,32 +111,32 @@ namespace bsl {
                          // struct add_volatile
                          // ===================
 
-template <class TYPE>
+template <class t_TYPE>
 struct add_volatile {
     // This 'struct' template implements the 'add_volatile' meta-function
     // defined in the C++11 standard [meta.trans.cv], providing an alias,
-    // 'type', that returns the result.  If the (template parameter) 'TYPE' is
-    // not a reference type, nor a function type, nor already
-    // 'volatile'-qualified at the top-level, then 'type' is an alias to 'TYPE'
-    // with a top-level 'volatile'-qualifier added; otherwise, 'type' is an
-    // alias to 'TYPE'.
+    // 'type', that returns the result.  If the (template parameter) 't_TYPE'
+    // is not a reference type, nor a function type, nor already
+    // 'volatile'-qualified at the top-level, then 'type' is an alias to
+    // 't_TYPE' with a top-level 'volatile'-qualifier added; otherwise, 'type'
+    // is an alias to 't_TYPE'.
 
     typedef typename BloombergLP::bslmf::AddVolatile_Imp<
-                            TYPE,
-                            !is_reference<TYPE>::value
-                            && !is_function<TYPE>::value
-                            && !is_volatile<TYPE>::value>::Type type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE' with a
-        // top-level 'volatile'-qualifier added if 'TYPE' is not a reference
-        // type, nor a function type, nor already 'volatile'-qualified at the
-        // top-level; otherwise, 'type' is an alias to 'TYPE'.
+        t_TYPE,
+        !is_reference<t_TYPE>::value && !is_function<t_TYPE>::value &&
+            !is_volatile<t_TYPE>::value>::Type type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE' with
+        // a top-level 'volatile'-qualifier added if 't_TYPE' is not a
+        // reference type, nor a function type, nor already
+        // 'volatile'-qualified at the top-level; otherwise, 'type' is an alias
+        // to 't_TYPE'.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using add_volatile_t = typename add_volatile<TYPE>::type;
+template <class t_TYPE>
+using add_volatile_t = typename add_volatile<t_TYPE>::type;
     // 'add_volatile_t' is an alias to the return type of the
     // 'bsl::add_volatile' meta-function.  Note, that the 'bsl::add_volatile_t'
     // avoids the '::type' suffix and 'typename' prefix when we want to use the

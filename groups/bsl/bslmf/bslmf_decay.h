@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 //  #include <bslmf_decay.h>
 //  #endif
 //
-//  template <class TYPE>
+//  template <class t_TYPE>
 //  class Thing {
 //    public:
 //
@@ -56,9 +56,9 @@ BSLS_IDENT("$Id: $")
 // meta-function, that avoids the '::type' suffix and 'typename' prefix in the
 // declaration of the function return type:
 //..
-//      using CacheType = bsl::decay_t<TYPE>;
+//      using CacheType = bsl::decay_t<t_TYPE>;
 //#else
-//      typedef typename bsl::decay<TYPE>::type CacheType;
+//      typedef typename bsl::decay<t_TYPE>::type CacheType;
 //#endif
 //
 //  private:
@@ -102,20 +102,19 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
 // Forward declaration
-template <class TYPE, bool IS_ARRAY, bool IS_FUNC> struct decay_imp;
+template <class t_TYPE, bool t_IS_ARRAY, bool t_IS_FUNC> struct decay_imp;
 
                         // ====================
                         // class template decay
                         // ====================
 
-template <class TYPE>
-class decay
-{
-    // Metafunction to return the variant of the specified parameter 'TYPE'
+template <class t_TYPE>
+class decay {
+    // Metafunction to return the variant of the specified parameter 't_TYPE'
     // used for pass-by-reference, e.g., by applying array-to-pointer and
     // function-to-pointer conversion.
 
-    typedef typename bsl::remove_reference<TYPE>::type U;
+    typedef typename bsl::remove_reference<t_TYPE>::type U;
     enum {
         k_ISARRAY = is_array<U>::value,
         k_ISFUNC  = is_function<U>::value
@@ -128,8 +127,8 @@ class decay
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using decay_t = typename decay<TYPE>::type;
+template <class t_TYPE>
+using decay_t = typename decay<t_TYPE>::type;
     // 'decay_t' is an alias to the return type of the 'bsl::decay'
     // meta-function.  Note, that the 'enable_if_t' avoids the '::type' suffix
     // and 'typename' prefix when we want to use the result of the
@@ -141,22 +140,19 @@ using decay_t = typename decay<TYPE>::type;
 //                      CLASS TEMPLATE IMPLEMENTATION
 // ============================================================================
 
-template <class TYPE, bool IS_ARRAY, bool IS_FUNC>
-struct decay_imp : remove_cv<TYPE>
-{
-    BSLMF_ASSERT( ! (IS_ARRAY || IS_FUNC));
+template <class t_TYPE, bool t_IS_ARRAY, bool t_IS_FUNC>
+struct decay_imp : remove_cv<t_TYPE> {
+    BSLMF_ASSERT(!(t_IS_ARRAY || t_IS_FUNC));
 };
 
-template <class TYPE>
-struct decay_imp<TYPE, true /* IS_ARRAY */, false /* IS_FUNC */>
-{
-    typedef typename remove_extent<TYPE>::type *type;
+template <class t_TYPE>
+struct decay_imp<t_TYPE, true /* t_IS_ARRAY */, false /* t_IS_FUNC */> {
+    typedef typename remove_extent<t_TYPE>::type *type;
 };
 
-template <class TYPE>
-struct decay_imp<TYPE, false /* IS_ARRAY */, true /* IS_FUNC */>
-{
-    typedef TYPE *type;
+template <class t_TYPE>
+struct decay_imp<t_TYPE, false /* t_IS_ARRAY */, true /* t_IS_FUNC */> {
+    typedef t_TYPE *type;
 };
 
 }  // close namespace bsl

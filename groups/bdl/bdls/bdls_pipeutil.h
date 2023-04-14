@@ -22,6 +22,31 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component, 'bdls::PipeUtil', provides portable utility
 // methods for named pipes.
+//
+///Pipe Atomicity
+/// - - - - - - -
+// Applications that expect multiple writers to a single pipe must should be
+// aware that message content might be corrupted (interleaved) unless:
+//
+//: 1 Each message is written to the pipe in a single 'write' system call.
+//: 2 The length of each message is less than 'PIPE_BUF' (the limit for
+//:   guaranteed atomicity).
+//
+// The value 'PIPE_BUF' depends on the platform:
+//..
+//   +------------------------------+------------------+
+//   | Platform                     | PIPE_BUF (bytes) |
+//   +------------------------------+------------------+
+//   | POSIX (minimum requirement)) |    512           |
+//   | IBM                          | 32,768           |
+//   | SUN                          | 32,768           |
+//   | Linux                        | 65,536           |
+//   | Windows                      | 65,536           |
+//   +------------------------------+------------------+
+//..
+//
+// Also note that Linux allows the 'PIPE_BUF' size to be changed via the
+// 'fcntl' system call.
 
 #include <bdlscm_version.h>
 
@@ -57,19 +82,29 @@ struct PipeUtil {
         // Load into the specified 'pipeName' the system-dependent canonical
         // pipe name corresponding to the specified 'baseName'.  Return 0 on
         // success, and a nonzero value if 'baseName' cannot be part of a pipe
-        // name on this system.  On Unix systems, if 'baseName' is not a full
-        // path name, the canonical name will be prefixed with the directory
-        // specified by the 'SOCKDIR' environment variable if it is set,
-        // otherwise with the directory specified by the 'TMPDIR' environment
-        // variable if it is set, and otherwise by the current directory.  On
-        // Windows systems, if 'baseName' is not a full path name, the
-        // canonical name will be prefixed with "\\.\pipe\".
+        // name on this system.
+        //
+        // On Unix systems, the canonical name is defined by prefixing
+        // 'baseName' with the directory specified by the 'SOCKDIR' environment
+        // variable if it is set, otherwise with the directory specified by the
+        // 'TMPDIR' environment variable if it is set, and otherwise by the
+        // current directory.
+        //
+        // On Windows systems, the canonical name is defined by prefixing
+        // 'baseName' with "\\.\pipe\".
+        //
+        // Finally, any uppercase characters in 'baseName' are converted to
+        // lower case in the canonical name.
 
     static int send(const bsl::string_view& pipeName,
                     const bsl::string_view& message);
         // Send the specified 'message' to the pipe with the specified UTF-8
         // 'pipeName'.  Return 0 on success, and a nonzero value otherwise.
-        // The behavior is undefined unless 'pipeName' is a valid UTF-8 string.
+        // 'message is output in a single 'write' operation; consequently,
+        // messages that do not exceed the 'PIPE_BUF' value (see {Pipe
+        // Atomicity}) will not be interleaved even when multiple concurrent
+        // processes are writing to 'pipeName'.  The behavior is undefined
+        // unless 'pipeName' is a valid UTF-8 string.
 
     static bool isOpenForReading(const bsl::string_view& pipeName);
         // Return 'true' if the pipe with the specified UTF-8 'pipeName' exists

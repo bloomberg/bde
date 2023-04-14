@@ -1394,7 +1394,8 @@ class TestDriver {
         // Test iterators.
 
     static void testCase13();
-        // Test 'find', 'count', 'upper_bound', 'lower_bound', 'equal_range'.
+        // Test 'find', 'contains', 'count', 'upper_bound', 'lower_bound',
+        // 'equal_range'.
 
     static void testCase12();
         // Test range constructors.
@@ -4234,13 +4235,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
     // Concerns:
     //: 1 If the key being searched exists in the container, 'find' and
     //:   'lower_bound' return an iterator referring to the existing element,
-    //:   and 'upper_bound' returns an iterator referring to the element after
-    //:   the searched element.
+    //:   'contains' returns 'true', and 'upper_bound' returns an iterator
+    //:   referring to the element after the searched element.
     //:
     //: 2 If the key being searched does not exist in the container, 'find'
-    //:   returns the 'end' iterator, and 'lower_bound' and 'upper_bound'
-    //:   return an iterator referring to the smallest element greater than the
-    //:   searched element.
+    //:   returns the 'end' iterator, 'contains' returns 'false', and
+    //:   'lower_bound' and 'upper_bound' :   return an iterator referring to
+    //:   the smallest element greater than the searched element.
     //:
     //: 3 'equal_range(key)' returns
     //:   'std::make_pair(lower_bound(key), upper_bound(key))'.
@@ -4271,6 +4272,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
     //:   4 Verify no memory is allocated from any allocator.  (C-7)
     //
     // Testing:
+    //   bool contains(const key_type& key);
+    //   bool contains(const LOOKUP_KEY& key);
     //   iterator find(const key_type& key);
     //   const_iterator find(const key_type& key) const;
     //   size_type count(const key_type& key) const;
@@ -4327,6 +4330,25 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
                     const int idx = tj / 2;
                     ASSERTV(ti, tj, CITER[idx] == X.find(VALUES[tj].first));
                     ASSERTV(ti, tj, ITER[idx]  == mX.find(VALUES[tj].first));
+
+                    bool cShouldBeFound = CITER[idx] != X.end();
+                    ASSERTV(
+                           ti,
+                           tj,
+                           cShouldBeFound,
+                           cShouldBeFound == X.contains(VALUES[tj].first));
+
+                    bool shouldBeFound  = ITER[idx] != X.end();
+                    ASSERTV(cShouldBeFound,
+                            shouldBeFound,
+                            cShouldBeFound == shouldBeFound);
+
+                    ASSERTV(
+                           ti,
+                           tj,
+                           shouldBeFound,
+                           shouldBeFound == mX.contains(VALUES[tj].first));
+
                     ASSERTV(ti, tj,
                             CITER[idx] == X.lower_bound(VALUES[tj].first));
                     ASSERTV(ti, tj,
@@ -5594,7 +5616,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING SEARCH FUNCTIONS ('find', 'count', etc.)
+        // TESTING SEARCH FUNCTIONS ('find', 'count', 'contains', etc.)
         // --------------------------------------------------------------------
 
         RUN_EACH_TYPE(TestDriver,

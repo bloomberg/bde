@@ -103,123 +103,124 @@ namespace bsl {
                          // struct remove_const
                          // ===================
 
-template <class TYPE>
+template <class t_TYPE>
 struct remove_const {
     // This 'struct' template implements the 'remove_const' meta-function
     // defined in the C++11 standard [meta.trans.cv], providing an alias,
     // 'type', that returns the result.  'type' has the same type as the
-    // (template parameter) 'TYPE' except that any top-level 'const'-qualifier
-    // has been removed.  Note that this generic default template provides a
-    // 'type' that is an alias to 'TYPE' for when 'TYPE' is not
-    // 'const'-qualified.  A template specialization is provided (below) that
-    // removes the 'const'-qualifier for when 'TYPE' is 'const'-qualified.
+    // (template parameter) 't_TYPE' except that any top-level
+    // 'const'-qualifier has been removed.  Note that this generic default
+    // template provides a 'type' that is an alias to 't_TYPE' for when
+    // 't_TYPE' is not 'const'-qualified.  A template specialization is
+    // provided (below) that removes the 'const'-qualifier for when 't_TYPE' is
+    // 'const'-qualified.
 
     // PUBLIC TYPES
-    typedef TYPE type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+    typedef t_TYPE type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
-                         // ===============================
-                         // struct remove_const<TYPE const>
-                         // ===============================
+                     // =================================
+                     // struct remove_const<t_TYPE const>
+                     // =================================
 
-template <class TYPE>
-struct remove_const<TYPE const> {
-     // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is 'const'-qualified, provides a 'typedef',
-     // 'type', that has the 'const'-qualifier removed.
+template <class t_TYPE>
+struct remove_const<t_TYPE const> {
+    // This partial specialization of 'bsl::remove_const', for when the
+    // (template parameter) 't_TYPE' is 'const'-qualified, provides a
+    // 'typedef', 'type', that has the 'const'-qualifier removed.
 
     // PUBLIC TYPES
-    typedef TYPE type;
+    typedef t_TYPE type;
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE' except with the 'const'-qualifier removed.
+        // parameter) 't_TYPE' except with the 'const'-qualifier removed.
 };
 
 #if defined(BSLS_REMOVECONST_WORKAROUND_CONST_MULTIDIMENSIONAL_ARRAY)
-template <class TYPE, size_t N>
-struct remove_const<TYPE[N]> {
-     // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_const' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE, size_t N>
+struct remove_const<t_TYPE[N]> {
+    // This partial specialization of 'bsl::remove_const', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_const' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_const<TYPE>::type type[N];
+    typedef typename remove_const<t_TYPE>::type type[N];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[N]' except with the 'const'-qualifier removed.
+        // parameter) 't_TYPE[N]' except with the 'const'-qualifier removed.
 };
 
-template <class TYPE, size_t N>
-struct remove_const<const TYPE[N]> {
-     // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_const' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE, size_t N>
+struct remove_const<const t_TYPE[N]> {
+    // This partial specialization of 'bsl::remove_const', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_const' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_const<const TYPE>::type type[N];
+    typedef typename remove_const<const t_TYPE>::type type[N];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[N]' except with the 'const'-qualifier removed.
+        // parameter) 't_TYPE[N]' except with the 'const'-qualifier removed.
 };
 
-template <class TYPE>
-struct remove_const<TYPE[]> {
-     // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_const' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE>
+struct remove_const<t_TYPE[]> {
+    // This partial specialization of 'bsl::remove_const', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_const' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_const<TYPE>::type type[];
+    typedef typename remove_const<t_TYPE>::type type[];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[]' except with the 'const'-qualifier removed.
+        // parameter) 't_TYPE[]' except with the 'const'-qualifier removed.
 };
 
-template <class TYPE>
-struct remove_const<const TYPE[]> {
-     // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_const' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE>
+struct remove_const<const t_TYPE[]> {
+    // This partial specialization of 'bsl::remove_const', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_const' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_const<const TYPE>::type type[];
+    typedef typename remove_const<const t_TYPE>::type type[];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[]' except with the 'const'-qualifier removed.
+        // parameter) 't_TYPE[]' except with the 'const'-qualifier removed.
 };
 #elif defined(BSLS_REMOVECONST_WORKAROUND_CONST_ARRAY)
-template <class TYPE>
-struct remove_const<TYPE[]> {
-     // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
-     // it is necessary to separately 'remove_const' on the element type, and
-     // then reconstruct the array dimensions.
+template <class t_TYPE>
+struct remove_const<t_TYPE[]> {
+    // This partial specialization of 'bsl::remove_const', for when the
+    // (template parameter) 't_TYPE' is an array type.  On Microsoft compilers,
+    // it is necessary to separately 'remove_const' on the element type, and
+    // then reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_const<TYPE>::type type[];
+    typedef typename remove_const<t_TYPE>::type type[];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[]' except with the 'const'-qualifier removed.
+        // parameter) 't_TYPE[]' except with the 'const'-qualifier removed.
 };
 
-template <class TYPE, size_t LENGTH>
-struct remove_const<TYPE[LENGTH]> {
-     // This partial specialization of 'bsl::remove_const', for when the
-     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
-     // it is necessary to separately 'remove_const' on the element type, and
-     // then reconstruct the array dimensions.
+template <class t_TYPE, size_t LENGTH>
+struct remove_const<t_TYPE[LENGTH]> {
+    // This partial specialization of 'bsl::remove_const', for when the
+    // (template parameter) 't_TYPE' is an array type.  On Microsoft compilers,
+    // it is necessary to separately 'remove_const' on the element type, and
+    // then reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_const<TYPE>::type type[LENGTH];
+    typedef typename remove_const<t_TYPE>::type type[LENGTH];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[N]' except with the 'const'-qualifier removed.
+        // parameter) 't_TYPE[N]' except with the 'const'-qualifier removed.
 };
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using remove_const_t = typename remove_const<TYPE>::type;
+template <class t_TYPE>
+using remove_const_t = typename remove_const<t_TYPE>::type;
     // 'remove_const_t' is an alias to the return type of the
     // 'bsl::remove_const' meta-function.  Note, that the 'remove_const_t'
     // avoids the '::type' suffix and 'typename' prefix when we want to use the

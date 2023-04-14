@@ -39,6 +39,7 @@ using namespace bsl;
 // [ 5] Bitwise-movable trait
 // [ 5] IsPod trait
 // [ 6] QoI: Is an empty type
+// [ 7] equal_to<void>::operator()
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -208,8 +209,8 @@ class ListSet {
 ///Example 2: Using Our List Set For a Custom Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to have a list set containing objects of a custom type.  We
-// can specialize the 'equal_to' comparator to also work on our custom type
-// as well.  We will re-use the 'ListSet' template class from example 1, and
+// can declare an 'operator==' for our custom type, and 'equal_to' will use
+// that.  We will re-use the 'ListSet' template class from example 1, and
 // create a new custom type.
 //
 // First, we define a type 'StringThing', which will contain a 'const char *'
@@ -243,20 +244,21 @@ class StringThing {
     }
 };
 
-// Then, we specialize 'equal_to' to be able to compare two 'StringThing's.
-
-namespace bsl {
-
-template <>
-struct equal_to<StringThing> {
-    bool operator()(const StringThing& lhs,
-                    const StringThing& rhs) const
+// Then, we create an 'operator==' for StringThings
+bool operator==(const StringThing& lhs, const StringThing& rhs)
+    // Return 'true' if the specified 'rhs' contains a string that compares
+    // equal to the string contained by the specified 'lhs', and 'false'
+    // otherwise.
     {
         return !strcmp(lhs, rhs);
     }
-};
 
-}  // close namespace bsl
+bool operator==(int lhs, const StringThing& rhs)
+    // Return 'true' if the specified 'rhs', when converted to an int, is equal
+    // to the specified 'lhs', and 'false' otherwise.
+{
+    return lhs == atoi(rhs);
+}
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -278,7 +280,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //   Extracted from component header file.
@@ -332,7 +334,7 @@ int main(int argc, char *argv[])
         strcpy(buffer, "bite");
         ASSERT(0 == lsst.count(buffer));
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //   Extracted from component header file.
@@ -380,6 +382,39 @@ int main(int argc, char *argv[])
         ASSERT(1 == lsi.count(11));
         ASSERT(0 == lsi.count(33));
         ASSERT(1 == lsi.count(32));
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // EQUAL_TO<VOID>
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 class equal_to<void> provides a templated operator() that returns
+        //:   'true' when the two operands compare equal and 'false' otherwise.
+        //
+        // Plan:
+        //: 1 Call the 'operator()' with a variety of types and values. (C-1)
+        //
+        // Testing:
+        //   equal_to<void>::operator()
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("EQUAL_TO<VOID>\n"
+                            "==============\n");
+
+        bsl::equal_to<void> eq0;
+        ASSERT( eq0(1, 1));  // same type
+        ASSERT(!eq0(1, 2));  // same type
+        ASSERT( eq0(1, 1L)); // different type, convertible
+        ASSERT(!eq0(1, 2L)); // different type, convertible
+
+        ASSERT( (eq0(1, StringThing("1")))); // different type, not convertible
+        ASSERT(!(eq0(1, StringThing("2")))); // different type, not convertible
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        ASSERT( noexcept(eq0(1, 1)));
+        ASSERT(!noexcept(eq0(1, StringThing("2"))));
+#endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -467,6 +502,10 @@ int main(int argc, char *argv[])
         ASSERT(bsl::is_trivially_default_constructible<equal_to<TYPE>
                                                                      >::value);
 
+        ASSERT(bslmf::IsBitwiseMoveable<equal_to<void> >::value);
+        ASSERT(bsl::is_trivially_copyable<equal_to<void> >::value);
+        ASSERT(bsl::is_trivially_default_constructible<equal_to<void>
+                                                                     >::value);
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -558,7 +597,8 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const equal_to<TYPE> compare = equal_to<TYPE>();
+        const equal_to<TYPE> compare1 = equal_to<TYPE>();
+        const equal_to<void> compare2 = equal_to<void>();
 
         for (int i = 0; i != NUM_DATA; ++i) {
             const int   LINE     = DATA[i].d_line;
@@ -567,11 +607,19 @@ int main(int argc, char *argv[])
                 const char *RHS      = DATA[j].d_value;
                 const bool  EXPECTED = i == j;
 
-                LOOP_ASSERT(LINE, compare(LHS, RHS) == EXPECTED);
+                LOOP_ASSERT(LINE, compare1(LHS, RHS) == EXPECTED);
+                LOOP_ASSERT(LINE, compare2(LHS, RHS) == EXPECTED);
             }
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        static_assert(!equal_to<int>() (1,  2),  "");
+        static_assert( equal_to<int>() (1,  1),  "");
+        static_assert(!equal_to<void>()(1,  2L), "");
+        static_assert( equal_to<void>()(1L, 1),  "");
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -636,14 +684,17 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Value initialization\n");
         const equal_to<TYPE> obj1 = equal_to<TYPE>();
-
+        const equal_to<void> obj3 = equal_to<void>();
 
         if (verbose) printf("Copy initialization\n");
         equal_to<TYPE> obj2 = obj1;
+        equal_to<void> obj4 = obj3;
 
         if (verbose) printf("Copy assignment\n");
         obj2 = obj1;
         obj2 = obj2 = obj1;
+        obj4 = obj3;
+        obj4 = obj4 = obj3;
 
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());

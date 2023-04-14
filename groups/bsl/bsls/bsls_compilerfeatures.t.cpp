@@ -1,17 +1,23 @@
 // bsls_compilerfeatures.t.cpp                                        -*-C++-*-
-
 #include <bsls_compilerfeatures.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
+#include <bsls_platform.h>
 
 #include <exception>    // testing exception specifications
+#include <limits>       // testing hexfloat literals
 
-#include <stdio.h>      // 'printf'
+#include <stdio.h>      // 'printf', 'puts', 'fwrite'
 #include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'memcmp'
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    #include <compare>
+#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#include <initializer_list>
+    #include <initializer_list>
 #endif
 
 //=============================================================================
@@ -32,18 +38,19 @@
 // that feature that ensures that the Bloomberg use of the feature is supported
 // on any platform that defines that macro.
 //-----------------------------------------------------------------------------
-// [31] BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
-// [23] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
-// [32] BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+// [32] BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+// [24] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
+// [33] BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 // [19] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-// [24] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-// [25] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
-// [26] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
-// [27] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+// [25] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// [26] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
+// [27] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+// [28] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 // [ 3] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 // [ 4] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+// [34] BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // [ 5] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 // [ 6] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
@@ -52,29 +59,32 @@
 // [ 8] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 // [ 9] BSLS_COMPILERFEATURES_SUPPORT_FINAL
 // [10] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-// [22] BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+// [23] BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+// [35] BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
 // [11] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 // [12] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-// [30] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+// [31] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
+// [31] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES -- deprecated
 // [13] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 // [14] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 // [15] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-// [29] BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+// [30] BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 // [20] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 // [16] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // [17] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [28] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+// [36] BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+// [29] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 // [21] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+// [22] BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 // [18] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-// [33] BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [33] USAGE EXAMPLE
+// [37] USAGE EXAMPLE
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -137,12 +147,119 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 //=============================================================================
+//                'u_HAS_CPP_ATTRIBUTE(attribute_token)'
+//-----------------------------------------------------------------------------
+
+// We define 'u_HAS_CPP_ATTRIBUTE(attribute_token)' to either retrieve the
+// value of '__has_cpp_attribute(attribute_token)' on platforms that support
+// it, or zero on platforms that don't.  This simplifies otherwise very long
+// preprocessor conditions that would need to check for the presence of
+// '__has_cpp_attribute'.
+
+#if (__cplusplus >= 201103L) && defined(__has_cpp_attribute)
+    #define u_HAS_CPP_ATTRIBUTE(attribute_token)                              \
+                                           __has_cpp_attribute(attribute_token)
+#else
+    #define u_HAS_CPP_ATTRIBUTE(attribute_token) 0
+        // We cannot check for specific attribute support on this platform.
+#endif
+
+//=============================================================================
+//                  NON-STANDARD MACROS FOR READABILITY
+//-----------------------------------------------------------------------------
+
+// Due to long macro names printing test case titles can easily run out of the
+// 79 characters line limit.  Wrapper renders the code irregular and harder to
+// read.  The 'VERBOSE_PUTS(str)' macro makes the very frequently repeated
+// 'if (verbose) puts("string-literal")' less "busy" looking, and shorter.  The
+// 'MACRO_TEST_TITLE(suffix, line)' macro makes long titles readable by
+// eliminating the need to specify the "BSLS_COMPILERFEATURES" prefix.
+
+#ifdef VERBOSE_PUTS
+  #undef VERBOSE_PUTS
+#endif
+#define VERBOSE_PUTS(str) do { if (verbose) puts(str); } while (false)
+    // Print the specified 'str' string literal or C-string using the 'stdio.h'
+    // 'puts' function unless 'false == verbose'.
+
+#ifdef VERYVERBOSE_PUTS
+  #undef VERYVERBOSE_PUTS
+#endif
+#define VERYVERBOSE_PUTS(str) do { if (veryVerbose) puts(str); } while (false)
+    // Print the specified 'str' string literal or C-string using the 'stdio.h'
+    // 'puts' function unless 'false == veryVerbose'.
+
+#ifdef VERBOSE_P
+  #undef VERBOSE_P
+#endif
+#define VERBOSE_P(expr) do { if (verbose) { P(expr); } } while (false)
+    // Print the specified 'expr' using 'P' unless 'false == verbose'.
+
+#ifdef VERYVERBOSE_P
+  #undef VERYVERBOSE_P
+#endif
+#define VERYVERBOSE_P(expr) do { if (veryVerbose) { P(expr); } } while (false)
+    // Print the specified 'expr' using 'P' unless 'false == veryVerbose'.
+
+#ifdef MACRO_TEST_TITLE
+  #undef MACRO_TEST_TITLE
+#endif
+#define MACRO_TEST_TITLE(suffix, line)                                        \
+    VERBOSE_PUTS("\nBSLS_COMPILERFEATURES" suffix                             \
+                 "\n=====================" line)
+    // Print the standard test case title for the specified macro 'suffix'
+    // string literal for a macro that starts with "BSLS_COMPILERFEATURES".
+    // Use the specified 'line' string literal as underline for the suffix
+    // portion.  The behavior is ugly unless 'line' consists of '=' characters
+    // only, and has the same length as 'suffix'.
+
+//=============================================================================
 //              SUPPORTING FUNCTIONS AND TYPES USED FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
+namespace externTemplateTesting {
+// Note that 'extern template' declarations cannot have internal linkage, so
+// are not allowed in unnamed namespaces, even for testing the feature.
+
+// define class template
+template <class TYPE>
+class ExternTemplateClass {};
+
+// don't instantiate in this translation unit
+extern template class ExternTemplateClass<char>;
+
+// instantiate in this translation unit
+template class ExternTemplateClass<char>;
+
+}  // close namespace externTemplateTesting
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 
 namespace {
+
+// "Runtime" is-same-type.
+template <class TYPE>
+bool isSameType(const TYPE&, const TYPE&) {
+    return true;
+}
+
+template <class LHSTYPE, class RHSTYPE>
+bool isSameType(const LHSTYPE&, const RHSTYPE&) {
+    return false;
+}
+
+// "Compile time" is-same-type.
+template <class U, class V>
+struct is_same {
+    static const bool value = false;
+};
+
+template <class T>
+struct is_same<T,T> {
+    static const bool value = true;
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
 template <class TYPE, class OTHER>
 struct alias_base {};
@@ -151,8 +268,6 @@ using my_own_int = int;
 using alias_nontemplate = alias_base<int, char>;
 template <class TYPE> using alias_template1 = alias_base<TYPE, int>;
 template <class TYPE> using alias_template2 = alias_base<char, TYPE>;
-
-}  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
@@ -174,16 +289,12 @@ class OracleMiscompile {
     constexpr OracleMiscompile();
 
     // ACCESSOR
-    const unsigned *data()
-    {
+    const unsigned *data() {
         return d_data;
     }
 };
 
-constexpr OracleMiscompile::OracleMiscompile()
-: d_data()
-{
-}
+constexpr OracleMiscompile::OracleMiscompile() : d_data() {}
 
 template <class TYPE>
 struct aggregate_base {};
@@ -191,11 +302,20 @@ struct aggregate_base {};
 template <class TYPE>
 struct aggregate_derived : aggregate_base<TYPE> {};
 
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunneeded-internal-declaration"
+#endif
 void test_dependent_constexpr_aggregate() {
     // The following line is a regression that will not compile with Oracle CC
     // 12.5/6, and is a significant problem for type traits.
-    constexpr aggregate_derived<bool> X{};    (void) X;
+    constexpr aggregate_derived<bool> X{};    (void)X;
+
+    (void)&test_dependent_constexpr_aggregate;
 }
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
+    #pragma GCC diagnostic pop
+#endif
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
@@ -203,71 +323,49 @@ void test_dependent_constexpr_aggregate() {
 
 // libc++ defines 'decltype' as a function-like macro when it is not provided
 // by the compiler.  Our test should not be fooled by this macro.
-#if defined(decltype)
-# undef decltype
+#ifdef decltype
+    #undef decltype
 #endif
 
-namespace {
-namespace u {
-
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wunused-function"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 char testFuncForDecltype(int);
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-# pragma GCC diagnostic pop
+    #pragma GCC diagnostic pop
 #endif
 
 template <class T, class U>
-auto my_max(const T& t, const U& u) -> decltype(t > u ? t : u)
-{
+auto my_max(const T& t, const U& u) -> decltype(t > u ? t : u) {
     return t > u ? t : u;
 }
 
-template <class TYPE>
-bool isSameType(TYPE&, TYPE&)
-{
-    return true;
-}
-
-template <class LHSTYPE, class RHSTYPE>
-bool isSameType(LHSTYPE&, RHSTYPE&)
-{
-    return false;
-}
-
-}  // close namespace u
-}  // close unnamed namespace
-
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
 struct ClassWithDefaultOps {
     explicit ClassWithDefaultOps(int value) : d_value(value) {}
-    ClassWithDefaultOps() = default;
-    ClassWithDefaultOps(const ClassWithDefaultOps &) = default;
+
+    ClassWithDefaultOps()                                       = default;
+    ClassWithDefaultOps(const ClassWithDefaultOps &)            = default;
     ClassWithDefaultOps& operator=(const ClassWithDefaultOps &) = default;
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-    // MSVC 1800 does not support default move constructors/assignments
-    ClassWithDefaultOps(ClassWithDefaultOps &&) = default;
-    ClassWithDefaultOps & operator=(ClassWithDefaultOps &&) = default;
-#endif
-    ~ClassWithDefaultOps() = default;
+
+    ClassWithDefaultOps(ClassWithDefaultOps &&)                 = default;
+    ClassWithDefaultOps & operator=(ClassWithDefaultOps &&)     = default;
+
+    ~ClassWithDefaultOps()                                      = default;
+
     int d_value;
 };
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
+// This test is distilled from 'shared_ptr' use of the feature that has been
+// shown to crash on at least one buggy compiler.
 
-// This test case is distilled from 'shared_ptr' use of the feature that has
-// been shown to crash on at least one buggy compiler.
-
-namespace {
 typedef decltype(nullptr) nullptr_t;  // avoids dependencies
 
 template <class ELEMENT>
@@ -289,49 +387,24 @@ void test_default_template_args() {
     (void)x;
     (void)&test_default_template_args;  // Portably silence unused warnings.
 }
-
-}  // close unnamed namespace
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
 struct ClassWithDeletedOps {
-    ClassWithDeletedOps() = delete;
-    ClassWithDeletedOps(const ClassWithDeletedOps &) = delete;
-    ClassWithDeletedOps& operator=(ClassWithDeletedOps &) = delete;
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-    // MSVC 1800 does not support deleted move constructors/assignments
-    ClassWithDeletedOps(ClassWithDeletedOps &&) = delete;
+    ClassWithDeletedOps()                                   = delete;
+
+    ClassWithDeletedOps(const ClassWithDeletedOps &)        = delete;
+    ClassWithDeletedOps& operator=(ClassWithDeletedOps &)   = delete;
+
+    ClassWithDeletedOps(ClassWithDeletedOps &&)             = delete;
     ClassWithDeletedOps & operator=(ClassWithDeletedOps &&) = delete;
-#endif
-    ~ClassWithDeletedOps() = delete;
+
+    ~ClassWithDeletedOps()                                  = delete;
 };
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
-
-namespace TESTING_EXTERN_TEMPLATE {
-// Note that extern template declarations cannot have internal linkage, so are
-// not allowed in unnamed namespaces, even for testing the feature.
-
-// define class template
-template <class TYPE>
-class ExternTemplateClass {};
-
-// don't instantiate in this translation unit
-extern template class ExternTemplateClass<char>;
-
-// instantiate in this translation unit
-template class ExternTemplateClass<char>;
-
-}  // close namespace TESTING_EXTERN_TEMPLATE
-
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
-namespace initializer_feature_test {
+namespace initializerFeatureTest {
 // The following code demonstrates a bug with Oracle CC 12.4, where the
 // 'initializer_list' method dominates another single-argument method in
 // overload resolution, despite not having a suitable conversion to the
@@ -355,49 +428,27 @@ struct coupling {
     void use(std::initializer_list<value_type>) {}
 };
 
-}  // close namespace initializer_feature_test
+}  // close namespace initializerFeatureTest
 #endif
 
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-
-void noexceptTest1() noexcept {
-}
-
-void noexceptTest2() noexcept(true) {
-}
-
-void noexceptTest3() noexcept(noexcept(noexceptTest1())) {
-}
-
-void notNoexceptTest1() noexcept(false) {
-}
-
-void notNoexceptTest2() noexcept(noexcept(notNoexceptTest1())) {
-}
-
+void noexceptTest1()    noexcept                               {}
+void noexceptTest2()    noexcept(true)                         {}
+void noexceptTest3()    noexcept(noexcept(noexceptTest1()))    {}
+void notNoexceptTest1() noexcept(false)                        {}
+void notNoexceptTest2() noexcept(noexcept(notNoexceptTest1())) {}
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
-
-namespace {
-
-void OverloadForNullptr(int)
-{
-    (void)&OverloadForNullptr;  // Portably silence unused function warnings.
+void OverloadForNullptr(int) {
+    (void)static_cast<void(*)(int)>(&OverloadForNullptr);
+    // Portably silence unused function warnings.
 }
 void OverloadForNullptr(void *) {}
-
-}  // close unnamed namespace
-
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
-namespace {
-
 // Check support for the perfect forwarding idiom
-//
 template <class TYPE>
 struct my_remove_reference {
     typedef TYPE type;
@@ -414,26 +465,22 @@ struct my_remove_reference<TYPE&&> {
 };
 
 template <class TYPE>
-TYPE&& my_forward(typename my_remove_reference<TYPE>::type& t)
-{
+TYPE&& my_forward(typename my_remove_reference<TYPE>::type& t) {
     return static_cast<TYPE&&>(t);
 }
 
 template <class TYPE>
-TYPE&& my_forward(typename my_remove_reference<TYPE>::type&& t)
-{
+TYPE&& my_forward(typename my_remove_reference<TYPE>::type&& t) {
     return static_cast<TYPE&&>(t);
 }
 
 template <class TYPE>
-typename my_remove_reference<TYPE>::type&& my_move(TYPE&& t)
-{
+typename my_remove_reference<TYPE>::type&& my_move(TYPE&& t) {
     return static_cast<typename my_remove_reference<TYPE>::type&&>(t);
 }
 
 template <class TYPE, class ARG>
-TYPE my_factory(ARG&& arg)
-{
+TYPE my_factory(ARG&& arg) {
     return my_move(TYPE(my_forward<ARG>(arg)));
 }
 
@@ -442,7 +489,6 @@ struct RvalueArg {};
 struct RvalueTest {
     RvalueTest(RvalueArg const &) {}                                // IMPLICIT
 };
-
 
 // Check for support for move-constructors declared with a 'typedef'.  This is
 // known to expose a bug on some compilers that causes issues for our
@@ -462,7 +508,6 @@ template <class TYPE>
 using my_movable_ref = typename my_movable_ref_helper<TYPE>::type;
     // The alias template 'MovableRef<TYPE>' yields an r-value reference of
     // type 'TYPE&&'.
-
 
 template <class TYPE>
 struct TemplateType {
@@ -500,37 +545,34 @@ TemplateType<TYPE>::TemplateType(my_movable_ref<OTHER>) {}
 
 template <class TYPE>
 TemplateType<TYPE>&
-TemplateType<TYPE>::operator=(const TemplateType&)
-{
+TemplateType<TYPE>::operator=(const TemplateType&) {
     return *this;
 }
 
 template <class TYPE>
 template <class OTHER>
 TemplateType<TYPE>&
-TemplateType<TYPE>::operator=(my_movable_ref<TemplateType<OTHER> >)
-{
+TemplateType<TYPE>::operator=(my_movable_ref<TemplateType<OTHER> >) {
     return *this;
 }
 
 template <class TYPE>
 template <class OTHER>
 TemplateType<TYPE>&
-TemplateType<TYPE>::operator=(my_movable_ref<OTHER>)
-{
+TemplateType<TYPE>::operator=(my_movable_ref<OTHER>) {
     return *this;
 }
 
 template <class TYPE>
-TYPE make_rvalue() { return TYPE(); }
-
+TYPE make_rvalue() {
+    return TYPE();
+}
 
 // Further test for deduction in the presence of a movable-ref alias template
 struct Utility {
     template <class TYPE>
     static void sink(TYPE *, my_movable_ref<TYPE>) {}
 };
-
 
 template <class TYPE>
 struct Wrapper {
@@ -540,13 +582,13 @@ struct Wrapper {
     }
 };
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-// The next test exposes a bug specific to the CC 12.6 beta compiler, when
-// reference-collapsing lvalue-references with rvalue-references provided in a
-// non-deducing context.  This test also relies on alias templates to set up
-// the error condition, but it prevents us migrating code from C++03 -> C++11
-// with our move-emulation library.
+// The following test exposes a bug specific to the Oracle Developer Studio
+// 12.6 beta compiler CC when reference-collapsing lvalue-references with
+// rvalue-references provided in a non-deducing context.  This test also relies
+// on alias templates to set up the error condition, but it prevents us
+// migrating code from C++03 -> C++11 with our move-emulation library.
 
 template <class TYPE>
 struct RValueType { using type = TYPE &&; };
@@ -557,23 +599,15 @@ using RValueeRef = typename RValueType<TYPE>::type;
 template <class>
 struct AClassTemplate {};
 
-void showRefCollapsingBug()
-{
+void showRefCollapsingBug() {
     AClassTemplate< RValueeRef<int>& > X;
-    (void) X;                        // silence 'unused'
-    (void) &showRefCollapsingBug;    // silence 'never called'
+    (void)X;                        // silence 'unused'
+    (void)&showRefCollapsingBug;    // silence 'never called'
 }
-
-#endif
-
-}  // close unnamed namespace
-
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-
-namespace {
-
 template <class... TYPES>
 struct PackSize;
 
@@ -587,9 +621,6 @@ struct PackSize<TYPE> {
     enum { VALUE = 1 };
 };
 
-}  // close unnamed namespace
-
-namespace {
 // This is a second test to highlight why variadic templates do not work
 // sufficiently well to be supported on the Sun CC 12.4 compiler (and any
 // others that suffer similar bugs).
@@ -611,16 +642,12 @@ void test_func() {
     func(&x, 0);       // This line will be ambiguous on buggy compilers
     (void)&test_func;  // Portably silence unused function warnings.
 }
-
-}  // close unnamed namespace
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-    // Note that the tests below also rely on the use of rvalue-references and
-    // the 'decltype' operator.  This has not been a problem on any tested
-    // platform that also supports at least the C++11 level of 'constexpr'.
-namespace {
+// Note that the tests below also rely on the use of rvalue-references and the
+// 'decltype' operator.  This has not been a problem on any tested platform
+// that also supports at least the C++11 level of 'constexpr'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
 constexpr int relaxedConstExprFunc(bool b)
@@ -734,12 +761,9 @@ struct Feature11 {
         // Return an integer usable in constant expressions.
 };
 
-constexpr Feature11::Feature11()
-{
-}
+constexpr Feature11::Feature11() {}
 
-constexpr int Feature11::call(bool) const
-{
+constexpr int Feature11::call(bool) const {
     return 42;
 }
 
@@ -760,13 +784,9 @@ struct Feature14 {
         // in C++11, only in C++14 and onwards.
 };
 
-constexpr Feature14::Feature14()
-: d_value(-1)
-{
-}
+constexpr Feature14::Feature14() : d_value(-1) {}
 
-constexpr int Feature14::call(bool b)
-{
+constexpr int Feature14::call(bool b) {
     if (b) {
         d_value = 42;
         return d_value;                                               // RETURN
@@ -795,13 +815,9 @@ struct Feature17 {
         // in C++11, only in C++17 and onwards.
 };
 
-constexpr Feature17::Feature17()
-: d_value(-1)
-{
-}
+constexpr Feature17::Feature17() : d_value(-1) {}
 
-constexpr int Feature17::call(bool b)
-{
+constexpr int Feature17::call(bool b) {
     if (b) {
         d_value = []{
                       return 42;                                      // RETURN
@@ -816,23 +832,12 @@ constexpr int Feature17::call(bool b)
     }
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
 }  // close unnamed namespace
-#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-
-                    // case 23
-
-static const bool
-    u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined =
-#if defined(BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
-                                                                          true;
-#else
-                                                                         false;
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
-namespace test_case_23 {
+namespace test_case_24 {
 
 class MyType {
   public:
@@ -868,7 +873,8 @@ int MyType::s_liveCount = 0;
 void runTest() {
     ASSERT(0 == MyType::s_liveCount);
 
-# if defined(BDE_BUILD_TARGET_EXC)
+    #if defined(BDE_BUILD_TARGET_EXC)
+
     try {
         const MyWrapper X = { 1, 2 };
         (void)X;
@@ -883,83 +889,57 @@ void runTest() {
         (void)X;
     }
     catch(int) {
-        if (
-          u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
+#ifdef BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
             ASSERT(0 != MyType::s_liveCount);
-        else
+#else
             ASSERT(0 == MyType::s_liveCount);
+#endif
     }
-# endif
+    #endif  // BDE_BUILD_TARGET_EXC
 }
 
-}  // close namespace test_case_23
-#endif
+}  // close namespace test_case_24
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
-                    // case 24
+namespace test_case_25 {
 
-namespace test_case_24 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 
 [[noreturn]] void runTest() {
     while (true) {}
 }
+#elif u_HAS_CPP_ATTRIBUTE(noreturn)
+    // If specific compiler versions do have '__has_cpp_attribute' but do not
+    // support '[[noreturn]]' properly then those should be excluded from the
+    // check here.
+    #error '[[noreturn]]' is available but                                    \
+            'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN' is not defined.
+#endif  // supported attribute not indicated
+}  // close namespace test_case_25
 
-#else
-
-#if (__cplusplus >= 201103L) && defined(__has_cpp_attribute)
-
-// if specific compiler versions do have '__has_cpp_attribute' but do not
-// support '[[noreturn]]' properly then those should be excluded from that
-// check here.
-    #if __has_cpp_attribute(noreturn)
-
-    #error [[noreturn]] is available but feature macro is not defined.
-
-    #endif
-
-#endif
-
-#endif
-}  // close namespace test_case_24
-
-                    // case 25
-
-namespace test_case_25 {
+namespace test_case_26 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 
 [[nodiscard]] int runTest() {
     return 1;
 }
+#elif u_HAS_CPP_ATTRIBUTE(nodiscard)
+    // If specific compiler versions do have '__has_cpp_attribute' but do not
+    // support '[[nodiscard]]' properly then those should be excluded from the
+    // check here.
+    #error '[[nodiscard]]' is available but                                   \
+           'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD' is not defined.
+#endif  // supported attribute not indicated
+}  // close namespace test_case_26
 
-#else
-
-#if (__cplusplus >= 201103L) && defined(__has_cpp_attribute)
-
-// if specific compiler versions do have '__has_cpp_attribute' but do not
-// support '[[nodiscard]]' properly then those should be excluded from that
-// check here.
-    #if __has_cpp_attribute(nodiscard)
-
-    #error [[nodiscard]] is available but feature macro is not defined.
-
-    #endif
-
-#endif
-
-#endif
-}  // close namespace test_case_25
-
-                    // case 26
-
-namespace test_case_26 {
+namespace test_case_27 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 
 void runTest() {
 
     int i = 5;
 
-    switch (i)
-    {
+    switch (i) {
       case 4: [[fallthrough]];
       case 7:
         return;                                                       // RETURN
@@ -967,86 +947,40 @@ void runTest() {
         return;                                                       // RETURN
     }
 }
-
-#else
-
-#if (__cplusplus >= 201103L) && defined(__has_cpp_attribute)
-
-// if specific compiler versions do have '__has_cpp_attribute' but do not
-// support '[[fallthrough]]' properly then those should be excluded from that
-// check here.
-    #if __has_cpp_attribute(fallthrough)
-
-    #error [[fallthrough]] is available but feature macro is not defined.
-
-    #endif
-
-#endif
-
-#endif
-}  // close namespace test_case_26
-
-                    // case 27
-
-namespace test_case_27 {
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
-
-void runTest([[maybe_unused]] int i) {
-}
-
-#else
-
-#if (__cplusplus >= 201103L) && defined(__has_cpp_attribute)
-
-// if specific compiler versions do have '__has_cpp_attribute' but do not
-// support '[[maybe_unused]]' properly then those should be excluded from that
-// check here.
-    #if __has_cpp_attribute(maybe_unused)
-
-    #if defined(BSLS_PLATFORM_CMP_CLANG)
-    // clang does not allow maybe_unused where other compilers do.
-    #else
-    #error [[maybe_unused]] is available but feature macro is not defined.
-    #endif
-
-    #endif
-
-#endif
-
-#endif
+#elif u_HAS_CPP_ATTRIBUTE(fallthrough)
+    // if specific compiler versions do have '__has_cpp_attribute' but do not
+    // support '[[fallthrough]]' properly then those should be excluded from
+    // the check here.
+    #error '[[fallthrough]]' is available but                                 \
+         'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH' is not defined.
+#endif  // supported attribute not indicated
 }  // close namespace test_case_27
 
-                    // case 30
+namespace test_case_28 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 
-namespace test_case_30 {
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+void runTest([[maybe_unused]] int i) {}
 
-void foo()
-{
-}
-
-void bar() noexcept
-{
-}
-
-template <class U, class V>
-struct is_same
-{
-    static const bool value = false;
-};
-
-template <class T>
-struct is_same<T,T>
-{
-    static const bool value = true;
-};
-
-#endif
-}  // close namespace test_case_30
-
-                    // case 31
+#elif u_HAS_CPP_ATTRIBUTE(maybe_unused) && !defined(BSLS_PLATFORM_CMP_CLANG)
+    // clang does not allow maybe_unused where other compilers do, so we
+    // exclude it to keep portability.  If any other specific compiler version
+    // does have '__has_cpp_attribute' but do not support '[[maybe_unused]]'
+    // properly those should also be excluded from the check here.
+        #error '[[maybe_unused]]' is available but                            \
+        'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED' is not defined.
+#endif  // supported attribute not indicated
+}  // close namespace test_case_28
 
 namespace test_case_31 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+
+void foo()          {}
+void bar() noexcept {}
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+}  // close namespace test_case_31
+
+namespace test_case_32 {
 #ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 
 class NeverCopied {
@@ -1141,9 +1075,7 @@ class NCWrapper {
 #endif
 }  // close namespace test_case_31
 
-                    // case 33
-
-namespace test_case_33 {
+namespace test_case_34 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
 struct Empty {};
@@ -1151,19 +1083,24 @@ struct Empty {};
 
 template <class T>
 struct Holder {
-        // A class to hold a single value. Used to test template argument
-        // deduction.
-    Holder(const T &v) : val(v) {}
-        // Create a 'Holder'  by initializing its data member from 'v'
-    T val;
-    };
+    // A class to hold a single value.  Used to test template argument
+    // deduction.
 
+    // CREATORS
+    explicit Holder(const T &value) : d_value(value) {}
+        // Create a 'Holder' by initializing its data member from the specified
+        // 'value'.
+
+    // PUBLIC DATA
+    T d_value;
+};
+
+// CLASS TEMPLATE ARGUMENT DEDUCTION GUIDE
 template<class T>
-    Holder(const T &)
-    -> Holder<T>;
+Holder(const T &) -> Holder<T>;
 
 #endif
-}  // close namespace test_case_33
+}  // close namespace test_case_34
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -1175,576 +1112,592 @@ static void printFlags()
     // An "Enter" and "Leave" message is printed unconditionally so there is
     // some report even if all of the flags are undefined.
 {
-    printf("printFlags: Enter\n");
+    puts("printFlags: Enter");
 
-    printf("\n  printFlags: bsls_compilerfeatures Macros\n");
+    puts("\n==printFlags: bsls_compilerfeatures Macros==");
 
-    printf("\n  BSLS_COMPILERFEATURES_FILLT(n): ");
+    fputs("\n  BSLS_COMPILERFEATURES_FILLT(n): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_FILLT
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_FILLT(n)) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FILLT(n)));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_FILLV(n): ");
+    fputs("\n  BSLS_COMPILERFEATURES_FILLV(n): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_FILLV
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_FILLV(n)) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FILLV(n)));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_FORWARD(T,V): ");
+    fputs("\n  BSLS_COMPILERFEATURES_FORWARD(T,V): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_FORWARD
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_FORWARD(T,V)) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FORWARD(T,V)));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_FORWARD_REF(T): ");
+    fputs("\n  BSLS_COMPILERFEATURES_FORWARD_REF(T): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_FORWARD_REF
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_FORWARD_REF(T)) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FORWARD_REF(T)));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: ",
+          stdout);
 #ifdef BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
-    printf("%s\n",
-       STRINGIFY(BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS) );
+    puts(STRINGIFY(
+                  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_NILT: ");
+    fputs("\n  BSLS_COMPILERFEATURES_NILT: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_NILT
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_NILT) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_NILTR(n): ");
+    fputs("\n  BSLS_COMPILERFEATURES_NILTR(n): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_NILTR
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_NILTR(n)) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILTR(n)));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_NILV: ");
+    fputs("\n  BSLS_COMPILERFEATURES_NILV: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_NILV
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_NILV) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILV));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_NILVR(n): ");
+    fputs("\n  BSLS_COMPILERFEATURES_NILVR(n): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_NILVR
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_NILVR(n)) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILVR(n)));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
-    printf("%s\n",
-                STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-    printf("%s\n",
-                STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
-    printf("%s\n",
-              STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: ",
+          stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
-    printf("%s\n",
-             STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
-    printf("%s\n",
-                STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-    printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    printf("%s\n",
-                STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-    printf("%s\n",
-              STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_FINAL: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_FINAL: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_FINAL) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_FINAL));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: ",
+          stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-    printf("%s\n",
-           STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-    printf("%s\n",
-                   STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-    printf("%s\n",
-                   STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  **deprecated** alias:", stdout);
+    fputs("\n    BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
-    printf("%s\n",
-               STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-    printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CTAD: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CTAD: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-    printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CTAD) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CTAD));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n\n  printFlags: bsls_compilerfeatures Referenced Macros\n");
+    puts("\n\n==printFlags: bsls_compilerfeatures Referenced Macros==");
 
-    printf("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
-    printf("%s\n",
-                STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: ");
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) );
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
+    fputs("\n  BSLS_PLATFORM_CMP_CLANG: ", stdout);
 #ifdef BSLS_PLATFORM_CMP_CLANG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_CLANG));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_GNU: ");
+    fputs("\n  BSLS_PLATFORM_CMP_GNU: ", stdout);
 #ifdef BSLS_PLATFORM_CMP_GNU
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_GNU));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_IBM: ");
+    fputs("\n  BSLS_PLATFORM_CMP_IBM: ", stdout);
 #ifdef BSLS_PLATFORM_CMP_IBM
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_IBM) );
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_IBM));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_MSVC: ");
+    fputs("\n  BSLS_PLATFORM_CMP_MSVC: ", stdout);
 #ifdef BSLS_PLATFORM_CMP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC) );
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_MSVC));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_SUN: ");
+    fputs("\n  BSLS_PLATFORM_CMP_SUN: ", stdout);
 #ifdef BSLS_PLATFORM_CMP_SUN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_SUN) );
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_SUN));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_VERSION: ");
+    fputs("\n  BSLS_PLATFORM_CMP_VERSION: ", stdout);
 #ifdef BSLS_PLATFORM_CMP_VERSION
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __APPLE_CC__: ");
+    fputs("\n  __APPLE_CC__: ", stdout);
 #ifdef __APPLE_CC__
-    printf("%s\n", STRINGIFY(__APPLE_CC__) );
+    puts(STRINGIFY(__APPLE_CC__));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __GXX_EXPERIMENTAL_CXX0X__: ");
+    fputs("\n  __GXX_EXPERIMENTAL_CXX0X__: ", stdout);
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
-    printf("%s\n", STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__) );
+    puts(STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_CONSTEXPR: ");
+    fputs("\n  __IBMCPP_CONSTEXPR: ", stdout);
 #ifdef __IBMCPP_CONSTEXPR
-    printf("%s\n", STRINGIFY(__IBMCPP_CONSTEXPR) );
+    puts(STRINGIFY(__IBMCPP_CONSTEXPR));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_DECLTYPE: ");
+    fputs("\n  __IBMCPP_DECLTYPE: ", stdout);
 #ifdef __IBMCPP_DECLTYPE
-    printf("%s\n", STRINGIFY(__IBMCPP_DECLTYPE) );
+    puts(STRINGIFY(__IBMCPP_DECLTYPE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS: ");
+    fputs("\n  __IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS: ", stdout);
 #ifdef __IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS
-    printf("%s\n", STRINGIFY(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS) );
+    puts(STRINGIFY(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_EXPLICIT: ");
+    fputs("\n  __IBMCPP_EXPLICIT: ", stdout);
 #ifdef __IBMCPP_EXPLICIT
-    printf("%s\n", STRINGIFY(__IBMCPP_EXPLICIT) );
+    puts(STRINGIFY(__IBMCPP_EXPLICIT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_EXTERN_TEMPLATE: ");
+    fputs("\n  __IBMCPP_EXTERN_TEMPLATE: ", stdout);
 #ifdef __IBMCPP_EXTERN_TEMPLATE
-    printf("%s\n", STRINGIFY(__IBMCPP_EXTERN_TEMPLATE) );
+    puts(STRINGIFY(__IBMCPP_EXTERN_TEMPLATE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_INLINE_NAMESPACE: ");
+    fputs("\n  __IBMCPP_INLINE_NAMESPACE: ", stdout);
 #ifdef __IBMCPP_INLINE_NAMESPACE
-    printf("%s\n", STRINGIFY(__IBMCPP_INLINE_NAMESPACE) );
+    puts(STRINGIFY(__IBMCPP_INLINE_NAMESPACE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_NULLPTR: ");
+    fputs("\n  __IBMCPP_NULLPTR: ", stdout);
 #ifdef __IBMCPP_NULLPTR
-    printf("%s\n", STRINGIFY(__IBMCPP_NULLPTR) );
+    puts(STRINGIFY(__IBMCPP_NULLPTR));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_OVERRIDE: ");
+    fputs("\n  __IBMCPP_OVERRIDE: ", stdout);
 #ifdef __IBMCPP_OVERRIDE
-    printf("%s\n", STRINGIFY(__IBMCPP_OVERRIDE) );
+    puts(STRINGIFY(__IBMCPP_OVERRIDE));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_RVALUE_REFERENCES: ");
+    fputs("\n  __IBMCPP_RVALUE_REFERENCES: ", stdout);
 #ifdef __IBMCPP_RVALUE_REFERENCES
-    printf("%s\n", STRINGIFY(__IBMCPP_RVALUE_REFERENCES) );
+    puts(STRINGIFY(__IBMCPP_RVALUE_REFERENCES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_STATIC_ASSERT: ");
+    fputs("\n  __IBMCPP_STATIC_ASSERT: ", stdout);
 #ifdef __IBMCPP_STATIC_ASSERT
-    printf("%s\n", STRINGIFY(__IBMCPP_STATIC_ASSERT) );
+    puts(STRINGIFY(__IBMCPP_STATIC_ASSERT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMCPP_VARIADIC_TEMPLATES: ");
+    fputs("\n  __IBMCPP_VARIADIC_TEMPLATES: ", stdout);
 #ifdef __IBMCPP_VARIADIC_TEMPLATES
-    printf("%s\n", STRINGIFY(__IBMCPP_VARIADIC_TEMPLATES) );
+    puts(STRINGIFY(__IBMCPP_VARIADIC_TEMPLATES));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBMC_NORETURN: ");
+    fputs("\n  __IBMC_NORETURN: ", stdout);
 #ifdef __IBMC_NORETURN
-    printf("%s\n", STRINGIFY(__IBMC_NORETURN) );
+    puts(STRINGIFY(__IBMC_NORETURN));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __IBM_INCLUDE_NEXT: ");
+    fputs("\n  __IBM_INCLUDE_NEXT: ", stdout);
 #ifdef __IBM_INCLUDE_NEXT
-    printf("%s\n", STRINGIFY(__IBM_INCLUDE_NEXT) );
+    puts(STRINGIFY(__IBM_INCLUDE_NEXT));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __cplusplus: ");
+    fputs("\n  __C99_HEX_FLOAT_CONST: ", stdout);
+#ifdef __C99_HEX_FLOAT_CONST
+    puts(STRINGIFY(__C99_HEX_FLOAT_CONST));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  __STRICT_ANSI__: ", stdout);
+#ifdef __STRICT_ANSI__
+    puts(STRINGIFY(__STRICT_ANSI__));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  __cplusplus: ", stdout);
 #ifdef __cplusplus
-    printf("%s\n", STRINGIFY(__cplusplus) );
+    puts(STRINGIFY(__cplusplus));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __cpp_unicode_characters: ");
+    fputs("\n  __cpp_hex_float: ", stdout);
+#ifdef __cpp_hex_float
+    puts(STRINGIFY(__cpp_hex_float));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  __cpp_unicode_characters: ", stdout);
 #ifdef __cpp_unicode_characters
-    printf("%s\n", STRINGIFY(__cpp_unicode_characters) );
+    puts(STRINGIFY(__cpp_unicode_characters));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __cpp_unicode_literals: ");
+    fputs("\n  __cpp_unicode_literals: ", stdout);
 #ifdef __cpp_unicode_literals
-    printf("%s\n", STRINGIFY(__cpp_unicode_literals) );
+    puts(STRINGIFY(__cpp_unicode_literals));
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n  __has_cpp_attribute: ");
+    fputs("\n  __has_cpp_attribute: ", stdout);
 #ifdef __has_cpp_attribute
-    printf("DEFINED\n");
+    puts("DEFINED");
 #else
-    printf("UNDEFINED\n");
+    puts("UNDEFINED");
 #endif
 
-    printf("\n\nprintFlags: Leave\n");
+    puts("\n\nprintFlags: Leave\n");
 }
 
 //=============================================================================
@@ -1759,8 +1712,8 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    (void)        veryVerbose;  // unused variable warning
-    (void)    veryVeryVerbose;  // unused variable warning
+    (void)       veryVerbose;  // unused variable warning
+    (void)   veryVeryVerbose;  // unused variable warning
     (void)veryVeryVeryVerbose;  // unused variable warning
 
     setbuf(stdout, NULL);    // Use unbuffered output
@@ -1772,7 +1725,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 34: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1788,8 +1741,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
 
 ///Example 2: '__LINE__' macro multi-line value differences demonstration
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1854,9 +1807,123 @@ int main(int argc, char *argv[])
 // may arise.
 #undef THATS_MY_LINE
       } break;
-      case 33: {
+      case 36: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CTAD'
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON'
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' is defined
+        //:   when '<=>' operator is fully supported, including the library
+        //:   support.
+        //:
+        //: 2 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' is defined
+        //:   when '__cpp_impl_three_way_comparison' and
+        //:   '__cpp_lib_three_way_comparison' are both defined and have values
+        //:   as defined by the ISO C++20 or greater.
+        //
+        // Plan:
+        //: 1 Verify that both '__cpp_*' macros are defined and have a value at
+        //:   least '201907L' when the macro is defined.
+        //:
+        //: 2 Verify that '<=>' operator can be used when the macro is defined.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        // --------------------------------------------------------------------
+        MACRO_TEST_TITLE("_SUPPORT_THREE_WAY_COMPARISON",
+                         "=============================");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+            ASSERTV(__cpp_impl_three_way_comparison,
+                    __cpp_impl_three_way_comparison >= 201907L);
+            // TODO: Add tests to ensure compliance of the compiler support for
+            // the three way operator, per DRQS 171563596
+
+            // Sanity tests
+            ASSERT(0 <=> 1 <  0);
+            ASSERT(1 <=> 1 == 0);
+            ASSERT(1 <=> 0 >  0);
+
+            // Compile time sanity tests
+            static_assert(0 <=> 1 <  0);
+            static_assert(1 <=> 1 == 0);
+            static_assert(1 <=> 0 >  0);
+#else
+        if (verbose) printf("'<=>' is not supported in this configuration\n");
+#endif
+      } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
+        //
+        // Concerns:
+        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS' is defined
+        //:   hexadecimal floating point constants are supported.
+        //
+        // Plan:
+        //: 1 When the feature macro is defined verify hexfloat literal support
+        //:   by comparing 'float', 'double', and 'long double' hexfloat
+        //:   literals to their decimal value, and verifying their type, too.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
+        // --------------------------------------------------------------------
+
+        MACRO_TEST_TITLE("_SUPPORT_HEXFLOAT_LITERALS",
+                         "==========================");
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        // 'float'
+        ASSERTV(0x1.5p5f, 42.0f, 0x1.5p5f == 42.0f);
+        ASSERT(isSameType(0x1.5p5f, 42.0f));
+
+        // 'double'
+        typedef std::numeric_limits<double> DblLims;
+        ASSERTV(0x0.0000000000001p-1022,   DblLims::denorm_min(),
+                0x0.0000000000001p-1022 == DblLims::denorm_min());
+        ASSERT(isSameType(0x0.0000000000001p-1022, DblLims::denorm_min()));
+        // 'double' has exacts tests as much of BDE code depends on it being
+        // IEEE 754 binary64.
+
+#ifdef BSLS_PLATFORM_CMP_AIX
+        // AIX xlC 16.1.0 (BSLS_PLATFORM_CMP_VER == 0x1001) mistakenly compiles
+        // literals less than '0x0.8000000000000p-1022' into zero.  These
+        // additional tests to kick in when the compiler version is raised, and
+        // roughly verify if the same issue exists (or some new one).
+
+        // We avoid using decimal floating point literals that may also be
+        // interpreted differently by manipulating the smallest denormal value
+        // '0x0.0000000000001p-1022'.  The 'k_M51' multiplier below moves the
+        // one set bit of the significant up to the top position by moving it
+        // 51 positions.  That will result in '0x0.8000000000000p-1022', the
+        // smallest hexfloat xlC 16.1.0 compiles properly.  Subtracting
+        // 'denorm_min()' from that value gives us the largest subnormal that
+        // won't compile properly (the smallest was just tested above).
+
+        static const double k_M51        = 0x8000000000000ull;
+        static const double k_DENORM_MIN = DblLims::denorm_min();
+
+        ASSERTV(
+               BSLS_PLATFORM_CMP_VERSION,
+               0x0.7ffffffffffffp-1022,   k_DENORM_MIN * k_M51 - k_DENORM_MIN,
+               0x0.7ffffffffffffp-1022 == k_DENORM_MIN * k_M51 - k_DENORM_MIN);
+
+        ASSERTV(BSLS_PLATFORM_CMP_VERSION,
+                0x0.8000000000000p-1022,   k_DENORM_MIN * k_M51,
+                0x0.8000000000000p-1022 == k_DENORM_MIN * k_M51);
+#endif
+
+        // 'long double'
+        ASSERTV(0x1.5p5l, 42.0l, 0x1.5p5l == 42.0l);
+        ASSERT(isSameType(0x1.5p5l, 42.0l));
+        // As 'long double' may be 64 or 128 bits we don't try anything fancy.
+#endif
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // BSLS_COMPILERFEATURES_SUPPORT_CTAD
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CTAD' is defined when template
@@ -1870,28 +1937,26 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CTAD'"
-            "\n===========================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_CTAD",
+                         "=============");
 
-        using namespace test_case_33;
+        using namespace test_case_34;
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-        if (verbose)
-            printf("CTAD not supported in this configuration\n");
+        VERBOSE_PUTS("CTAD not supported in this configuration");
 #else  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
         Holder h1(1);
         Holder h2(2.0);
         Holder h3(Empty{});
 
-        ASSERT((std::is_same<decltype(h1), Holder<int>>::value));
-        ASSERT((std::is_same<decltype(h2), Holder<double>>::value));
-        ASSERT((std::is_same<decltype(h3), Holder<Empty>>::value));
-#endif // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        ASSERT((is_same<decltype(h1), Holder<int>>::value));
+        ASSERT((is_same<decltype(h2), Holder<double>>::value));
+        ASSERT((is_same<decltype(h3), Holder<Empty>>::value));
+#endif
       } break;
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'
+        // BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
         //
         // Note that in this test case we test "unspecified behavior", hence
         // the assertions here serve as an early warning system to detect when
@@ -1928,11 +1993,10 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'"
-            "\n===================================================\n");
+        MACRO_TEST_TITLE("_PP_LINE_IS_ON_FIRST",
+                         "====================");
 
-        if (veryVerbose) printf("'__LINE__' in substitution\n");
+        VERYVERBOSE_PUTS("'__LINE__' in substitution");
         {
 #define BALL_LOG_LINENR_TESTER(dummy) __LINE__
     // The dummy argument is required for C++03 compatibility
@@ -1969,7 +2033,7 @@ int main(int argc, char *argv[])
         // macro invocation with the '__LINE__' argument into another macro,
         // thereby changing the rules that apply.
         //..
-        //    if (veryVerbose) printf("'__LINE__' as macro argument\n");
+        //    if (veryVerbose) puts("'__LINE__' as macro argument");
         //    {
         //        #define BALL_LOG_LINENR_TESTER2(passthrough) (passthrough)
         //
@@ -1992,9 +2056,9 @@ int main(int argc, char *argv[])
         // compilers (clang and gcc) report the number of the line '__LINE__'
         // is on, as I believe WG14 N2322 recommends (hence the value 4).
       } break;
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION'
+        // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
         //
         // Concerns:
         //: 1 If 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined,
@@ -2052,36 +2116,33 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION'"
-            "\n=======================================================\n");
+        MACRO_TEST_TITLE("_GUARANTEED_COPY_ELISION",
+                         "========================");
 
-#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
-
-        using namespace test_case_31;
+#ifndef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+        VERBOSE_PUTS("The feature is not supported in this configuration");
+#else
+        using namespace test_case_32;
 
         // Step 1:
-        (void) NeverCopied::factory1(8);
-        (void) NeverCopied::factory2(9);
-        (void) NeverCopied::factory3(10);
+        (void)NeverCopied::factory1(8);
+        (void)NeverCopied::factory2(9);
+        (void)NeverCopied::factory3(10);
 
-        // Step 2:
-
-        // Direct initialization
+        // Step 2: Direct initialization
         NeverCopied z(NeverCopied::factory1(1));
         ASSERT(1 == z.value());
         NeverCopied a(NeverCopied::factory2(10));
         ASSERT(10 == a.value());
 
-        // Copy initialization (should have same semantics as direct in this
-        // case).
+        // Step 2: Copy initialization (should have same semantics as direct
+        // initialization in this case).
         NeverCopied w = NeverCopied::factory1(19);
         ASSERT(19 == w.value());
         NeverCopied b = NeverCopied::factory2(11);
         ASSERT(11 == b.value());
 
-        // Step 3:
-        // 'NCWrapper' member initialization
+        // Step 3: 'NCWrapper' member initialization
         NCWrapper c(12);
         ASSERT(12 == c.value());
         NCWrapper h(17, 0);
@@ -2098,46 +2159,63 @@ int main(int argc, char *argv[])
         ASSERT(16 == g.value());
         NCWrapper j(18, 0, 0);
         ASSERT(18 == j.value());
-
 #endif
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'
+        // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES' is defined
-        //:   whenever 'noexcept' is part of the type system.
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE' is defined
+        //:   whenever 'noexcept' is part of the type system on function types.
+        //:
+        //: 2 The 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES' deprecated
+        //:   alias is IFF 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE'
+        //:   is defined.
         //
         // Plan:
         //: 1 Verify that the types of functions with a 'noexcept' qualifier
         //:   are different if the macro is defined, and are the same if not.
         //
         // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+        //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
+        //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES -- deprecated
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'"
-            "\n======================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_NOEXCEPT_TYPES",
+                         "=======================");
 
-        using namespace test_case_30;
-
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-        if (verbose) printf("noexcept not supported in this configuration\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        VERBOSE_PUTS("The feature is not supported in this configuration");
 #else  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-        ASSERT(( !is_same< decltype(foo), decltype(bar) >::value ));
-#else
+        using namespace test_case_31;
+  #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
+        ASSERT((!is_same< decltype(foo), decltype(bar) >::value ));
+  #else
         ASSERT(( is_same< decltype(foo), decltype(bar) >::value ));
-#endif
+  #endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
+        const bool IsSupportNoexceptInFncType_defined = true;
+#else
+        const bool IsSupportNoexceptInFncType_defined = false;
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+        const bool isDeprecatedAlias_defined = true;
+#else
+        const bool isDeprecatedAlias_defined = false;
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+
+        ASSERTV(
+              IsSupportNoexceptInFncType_defined,   isDeprecatedAlias_defined,
+              IsSupportNoexceptInFncType_defined == isDeprecatedAlias_defined);
       } break;
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'
+        // BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS' is defined
@@ -2152,24 +2230,32 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'"
-            "\n===================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_RAW_STRINGS",
+                         "====================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        if (verbose) printf("Feature is supported in this configuration.\n");
-        const char raw_string[] = R"RAW(
+        const char rawStringLiteral[] = R"RAW(
 This is a raw string.  It is not, however, an "uncooked" string - baking it
 will not improve the flavor.
 )RAW";
-        (void)raw_string;
+        const char stringLiteral[] = "\nThis is a raw string.  "
+                     "It is not, however, an \"uncooked\" string - baking it\n"
+                     "will not improve the flavor.\n";
+        ASSERTV(rawStringLiteral, stringLiteral,
+                sizeof rawStringLiteral,   sizeof stringLiteral,
+                sizeof rawStringLiteral == sizeof stringLiteral &&
+                0 == memcmp(rawStringLiteral,          // Note the '&&'.
+                            stringLiteral,            // 'memcmp' isn't called
+                            sizeof stringLiteral));  // if size isn't the same.
+
+        VERBOSE_P(rawStringLiteral);
 #endif
       } break;
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'
+        // BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is defined
@@ -2192,26 +2278,25 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-           "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'"
-           "\n============================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_THROW_SPECIFICATIONS",
+                         "=============================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #elif !defined(BDE_BUILD_TARGET_EXC)
-        if (verbose) printf("Test disabled as exceptions are NOT enabled.\n");
+        VERBOSE_PUTS("Exceptions are disabled: test skipped.");
 #else
         struct LocalClass {
-# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#   pragma GCC diagnostic push
-#   pragma GCC diagnostic ignored "-Wdeprecated"
-# endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated"
+#endif
             static void test() throw (std::bad_exception, double) {
 
-# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#   pragma GCC diagnostic pop
-# endif
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic pop
+#endif
                 throw 13;
             }
 
@@ -2220,17 +2305,15 @@ will not improve the flavor.
             }
         };
 
-# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#   pragma GCC diagnostic push
-#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-# endif
-
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
         std::set_unexpected(&LocalClass::throwBadException);
 
-# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#   pragma GCC diagnostic pop
-# endif
-
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic pop
+#endif
         bool caughtBadException = false;
         try {
             LocalClass::test();
@@ -2239,18 +2322,18 @@ will not improve the flavor.
             caughtBadException = true;
         }
         catch(int) {
-            ASSERTV(!"Exception specifications are ignored");
+            ASSERTV(!"Exception specification was ignored.");
         }
         catch(...) {
-            ASSERTV(!"Exception translated to unknown type");
+            ASSERTV(!"Unexpected exception type was caught.");
         }
 
-        ASSERTV(caughtBadException, caughtBadException);
+        ASSERT(true == caughtBadException);
 #endif
       } break;
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED'
+        // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
         //
         // Concerns:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED' is
@@ -2268,19 +2351,20 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-             "TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED'\n"
-             "==============================================================\n"
-            );
+        MACRO_TEST_TITLE("_SUPPORT_ATTRIBUTE_MAYBE_UNUSED",
+                         "===============================");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED)
-        test_case_27::runTest(5);
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        test_case_28::runTest(5);
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
-
       } break;
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH'
+        // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
         //
         // Concerns:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH' is
@@ -2298,19 +2382,20 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-              "TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH'\n"
-              "=============================================================\n"
-            );
+        MACRO_TEST_TITLE("_SUPPORT_ATTRIBUTE_FALLTHROUGH",
+                         "==============================");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH)
-        test_case_26::runTest();
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        test_case_27::runTest();
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
-
       } break;
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD'
+        // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
         //
         // Concerns:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD' is defined
@@ -2328,20 +2413,21 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                "TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD'\n"
-                "===========================================================\n"
-            );
+        MACRO_TEST_TITLE("_SUPPORT_ATTRIBUTE_NODISCARD",
+                         "============================");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD)
-        int i = test_case_25::runTest();
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        const int i = test_case_26::runTest();
         (void)i;
-#endif
 
+        VERBOSE_PUTS("Compile-time-only test passed.");
+#endif
       } break;
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
+        // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
         //
         // Concerns:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN' is defined
@@ -2359,19 +2445,20 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                 "TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'\n"
-                 "==========================================================\n"
-            );
+        MACRO_TEST_TITLE("_SUPPORT_ATTRIBUTE_NORETURN",
+                         "===========================");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-        if (false) { test_case_24::runTest(); }
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        if (false) { test_case_25::runTest(); }
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
-
       } break;
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
+        // BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
         //
         // Concerns:
         //: 1 The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
@@ -2400,31 +2487,21 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-   "\nTESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'"
-   "\n====================================================================\n");
+        MACRO_TEST_TITLE("_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS",
+                         "=====================================");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#    if defined(BDE_BUILD_TARGET_EXC)
-        test_case_23::runTest();
-#    else
-        if (verbose) printf("Test disabled as exceptions are NOT enabled.\n");
-#    endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+    #ifndef BDE_BUILD_TARGET_EXC
+        VERBOSE_PUTS("Exceptions disabled: test skipped.");
+    #else
+        test_case_24::runTest();
+    #endif
 #endif
-
-        if (verbose) {
-            P(
-          u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
-        }
-
-        if (veryVeryVerbose) {
-            P(BSLS_PLATFORM_CMP_VERSION);
-        }
-
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE'
+        // BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
         //
         // Concerns:
         //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is defined
@@ -2448,65 +2525,208 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                    "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE'"
-                    "\n===================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_HAS_INCLUDE",
+                         "====================");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
-# if !__has_include(<stddef.h>)
-#   error '__has_include' appears not to be working.
-# endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+    #if !__has_include(<stddef.h>)
+        #error '__has_include(<stddef.h>)' does NOT work.
+        BSLS_PLATFORM_COMPILER_ERROR;
+    #endif
+        VERBOSE_PUTS("Compile-time-only test passed.");
+#else  // BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+    #if defined(__has_include)
+        #if __has_include(<stddef.h>)
+            // The above two conditions must not be in the same '#if' condition
+            // as those compilers that does not have '__has_include' defined
+            // may not be able to parse the expression with '<' in it.
+
+            #error '__has_include' appears to be present and working but      \
+                   'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is not defined.
+        #endif  // '__has_include' appears to work
+    #else   // __has_include is defined
+
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+    #endif  // Feature is not supported and doesn't appear to be present
+#endif  // !BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined
+        //:   only when the compiler supports the 8-bit 'char8_t' type as
+        //:   defined by C++20.
+        //:
+        //: 2 'u8' prefixed (UTF-8) string literals defined using universal
+        //:   character names result in the expected in-memory sequence of
+        //:   'unsigned char' bytes.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined
+        //:   then define 'char8_t[]' and 'char8_t *' variables initialized to
+        //:   string constants with the 'u8' prefix.  Note that 'u8' character
+        //:   constants do not make much sense to test as any "interesting"
+        //:   Unicode code point (that isn't an original 7-bit ASCII character)
+        //:   will require more than one byte of memory, and 'char8_t' is
+        //:   defined to be equivalent in representation to 'unsigned char',
+        //:   which has no more than 8 bits on most architectures.  (C-1)
+        //:
+        //: 2 Also define the expected 'unsigned char' sequence (array) of the
+        //:   equivalent encoding of the universal characters used in the
+        //:   'char8_t' initializer u8-string literals.  Compare the bytes of
+        //:   those arrays to the array and pointer 'char8_t' constants.  (C-2)
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+        // --------------------------------------------------------------------
+
+        MACRO_TEST_TITLE("_SUPPORT_UTF8_CHAR_TYPE",
+                         "=======================");
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-# if defined(__has_include)
-#   if __has_include(<stddef.h>)
-#     error '__has_include' appears to be present but \
-            'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is not defined.
-#   endif
-# endif
+        // Verify ISO C++ size guarantee
+        ASSERTV(sizeof(char8_t), 1 == sizeof(char8_t));
+            // 'sizeof(unsigned char)' is defined to be 1 by the standard.
+
+        // UTF-8 arrays
+        const char8_t pound[]     = u8"\u00A3";
+        const char8_t euro[]      = u8"\U000020AC";
+        const char8_t poundEuro[] = u8"\u00A3\u20AC";
+
+        ASSERTV(sizeof pound,     sizeof pound     == 3);
+        ASSERTV(sizeof euro,      sizeof euro      == 4);
+        ASSERTV(sizeof poundEuro, sizeof poundEuro == 6);
+
+        // Verify content with direct array element access
+        ASSERTV(pound[0], 0xc2 == pound[0]);
+        ASSERTV(pound[1], 0xa3 == pound[1]);
+        ASSERTV(pound[2], 0    == pound[2]);
+
+        ASSERTV(euro[0], 0xe2 == euro[0]);
+        ASSERTV(euro[1], 0x82 == euro[1]);
+        ASSERTV(euro[2], 0xac == euro[2]);
+        ASSERTV(euro[3], 0    == euro[3]);
+
+        ASSERTV(poundEuro[0], 0xc2 == poundEuro[0]);
+        ASSERTV(poundEuro[1], 0xa3 == poundEuro[1]);
+        ASSERTV(poundEuro[2], 0xe2 == poundEuro[2]);
+        ASSERTV(poundEuro[3], 0x82 == poundEuro[3]);
+        ASSERTV(poundEuro[4], 0xac == poundEuro[4]);
+        ASSERTV(poundEuro[5], 0    == poundEuro[5]);
+
+        const size_t poundArrSize     = 3;
+        const size_t euroArrSize      = 4;
+        const size_t poundEuroArrSize = 6;
+
+        const size_t poundStrLen     = poundArrSize     - 1;  // Cut the
+        const size_t euroStrLen      = euroArrSize      - 1;  // closing
+        const size_t poundEuroStrLen = poundEuroArrSize - 1;  // null.
+
+        // There are no equivalents yet of 'strcmp' or 'strncmp' for dealing
+        // with 'const char8_t *' strings therefore 'memcmp' is used with the
+        // sizes established above.  We compare to 'unsigned char' arrays as
+        // per ISO standard specification.
+
+        const unsigned char ucPound[] = { 0xc2u, 0xa3u, 0};
+        const unsigned char ucEuro[]  = { 0xe2u, 0x82u, 0xacu, 0 };
+
+        // Sanity check
+        ASSERTV(sizeof ucPound, sizeof ucPound == sizeof pound);
+        ASSERTV(sizeof ucEuro,  sizeof ucEuro  == sizeof euro );
+
+        // Verify content with 'memcmp'
+        ASSERT(0 == memcmp(ucPound,                 pound, poundArrSize));
+        ASSERT(0 == memcmp(ucEuro,                  euro,  euroArrSize));
+
+        ASSERT(0 == memcmp(poundEuro,               pound, poundStrLen));
+        ASSERT(0 == memcmp(poundEuro + poundStrLen, euro,  euroStrLen));
+
+        ASSERT(0 == poundEuro[poundStrLen + euroStrLen]);
+
+        // UTF-8 pointers initialized same as the arrays
+        const char8_t *pound_p       = u8"\U000000A3";
+        const char8_t *euro_p        = u8"\u20AC";
+        const char8_t *poundEuro_p   = u8"\u00A3\u20AC";
+
+        // Verify content with direct array element access
+        ASSERTV(pound_p[0], 0xc2 == pound_p[0]);
+        ASSERTV(pound_p[1], 0xa3 == pound_p[1]);
+        ASSERTV(pound_p[2], 0    == pound_p[2]);
+
+        ASSERTV(euro_p[0], 0xe2 == euro_p[0]);
+        ASSERTV(euro_p[1], 0x82 == euro_p[1]);
+        ASSERTV(euro_p[2], 0xac == euro_p[2]);
+        ASSERTV(euro_p[3], 0    == euro_p[3]);
+
+        ASSERTV(poundEuro_p[0], 0xc2 == poundEuro_p[0]);
+        ASSERTV(poundEuro_p[1], 0xa3 == poundEuro_p[1]);
+        ASSERTV(poundEuro_p[2], 0xe2 == poundEuro_p[2]);
+        ASSERTV(poundEuro_p[3], 0x82 == poundEuro_p[3]);
+        ASSERTV(poundEuro_p[4], 0xac == poundEuro_p[4]);
+        ASSERTV(poundEuro_p[5], 0    == poundEuro_p[5]);
+
+        // Verify content with 'memcmp'
+        ASSERT(0 == memcmp(ucPound,                   pound_p, poundArrSize));
+        ASSERT(0 == memcmp(ucEuro,                    euro_p,  euroArrSize));
+
+        ASSERT(0 == memcmp(poundEuro_p,               pound_p, poundStrLen));
+        ASSERT(0 == memcmp(poundEuro_p + poundStrLen, euro_p,  euroStrLen));
+
+        if (veryVerbose) {
+            // 'printf("...%s...")' expects a 'const char *', so for printing
+            // 'stdio.h' 'fwrite' is used with the length that we had verified
+            // earlier (minus the closing null character).
+
+            fputs("Pound: ", stdout);
+            fwrite(pound_p, 1, poundStrLen, stdout);
+
+            fputs(", euro: ", stdout);
+            fwrite(euro_p, 1, euroStrLen, stdout);
+
+            fputs(", poundEuro: ", stdout);
+            fwrite(poundEuro_p, 1, poundEuroStrLen, stdout);
+
+            puts(""); // new line
+        }
 #endif
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
+        // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
-        //:   only when the compiler supports unicode character types unicode
-        //:   character literals, and unicode string literals.
+        //:   only when the compiler supports Unicode character types Unicode
+        //:   character literals, and Unicode string literals.
         //:
-        //: 2 Both 16-bit and 32-bit unicode are supported.
-        //:
-        //: 3 8-bit unicode is a C++17 feature and is not tested.
+        //: 2 Both 16-bit and 32-bit Unicode are supported.
         //
         // Plan:
-        //: 1 For concern 1, if
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
         //:   then define 'char16_t' and 'char16_t[]' variables initialized to
-        //:   character and string constants with the 'u' prefix.
+        //:   character and string constants with the 'u' prefix.  (C-1)
         //:
-        //: 2 For concern 2, also define 'char32_t' and 'char32_t[]' variables
-        //:   initialized to character and string constants with the 'U'
-        //:   prefix.
-        //:
-        //: 3 For concern 3, eventually define 'char8_t' and 'char8_t[]'
-        //:   variables initialized to character and string constants with the
-        //:   'u8' prefix.  It is likely that a different macro will be tested
-        //:   for the u8 types.
+        //: 2 Also define 'char32_t' and 'char32_t[]' variables initialized to
+        //:   character and string constants with the 'U' prefix.  (C-2)
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'"
-            "\n==========================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_UNICODE_CHAR_TYPES",
+                         "===========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         const char16_t leftArrow   = u'\u2190';
         const char16_t rightArrow  = u'\u2192';
         const char16_t leftRight[] = u"\u2190\u2192";
+
         ASSERT(0x2190     == leftArrow);
         ASSERT(0x2192     == rightArrow);
         ASSERT(leftArrow  == leftRight[0]);
@@ -2516,17 +2736,17 @@ will not improve the flavor.
         const char32_t sadEmoticon    = U'\U0001F641';
         const char32_t smileyEmoticon = U'\U0001F642';
         const char32_t happySad[]     = U"\U0001F642\U0001F641";
+
         ASSERT(0x1F641        == sadEmoticon);
         ASSERT(0x1F642        == smileyEmoticon);
         ASSERT(smileyEmoticon == happySad[0]);
         ASSERT(sadEmoticon    == happySad[1]);
         ASSERT(0              == happySad[2]);
 #endif
-
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
+        // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS' is defined only
@@ -2554,38 +2774,38 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                 "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'"
-                 "\n======================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_REF_QUALIFIERS",
+                         "=======================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         struct TestClass {
-            // This class defines reference-qualified member functions
+            // This class defines reference-qualified member functions.
 
             void foo(int)                &  { }
             void foo(int) const          &  { }
             void foo(int)       volatile &  { }
             void foo(int) const volatile &  { }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             void foo(int)                && { }
             void foo(int) const          && { }
             void foo(int)       volatile && { }
             void foo(int) const volatile && { }
-#endif
+    #endif
         };
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
+        // BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined
         //:    only when the compiler is able to compile code with the
-        //:    alignas specifier.
+        //:    'alignas' specifier.
         //
         // Plan:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined then
@@ -2595,19 +2815,19 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                        "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'"
-                        "\n===============================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_ALIGNAS",
+                         "================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        alignas(8) int foo; (void) foo;
+        alignas(8) int foo; (void)foo;
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
+        // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
@@ -2623,19 +2843,18 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
-            "\n==========================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_VARIADIC_TEMPLATES",
+                         "===========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
+        // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined only
@@ -2649,20 +2868,21 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                  "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'"
-                  "\n=====================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_STATIC_ASSERT",
+                         "======================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         static_assert(true, "static_assert with bool");
         static_assert(1,    "static_assert with int");
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
+        // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined only
@@ -2677,25 +2897,26 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'"
-            "\n=========================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_RVALUE_REFERENCES",
+                         "==========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));    (void) obj;
+        RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));    (void)obj;
 
         TemplateType<int> x = make_rvalue<TemplateType<int> >();
         x = make_rvalue<TemplateType<int> >();
 
         Wrapper<int> z{};
         z.test();
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
+        // BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE' is defined only when the
@@ -2713,20 +2934,21 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'"
-                       "\n================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_OVERRIDE",
+                         "=================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        struct OverrideBase { virtual void f() const {} };
-        struct Override: OverrideBase { void f() const override {} };
+        struct PolymorphBase           { virtual void f() const {}          };
+        struct Override: PolymorphBase {         void f() const override {} };
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
+        // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT' is defined only
@@ -2742,12 +2964,11 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'"
-            "\n=========================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_OPERATOR_EXPLICIT",
+                         "==========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         struct Explicit {
             static bool match(int)  { return false; }
@@ -2758,13 +2979,14 @@ will not improve the flavor.
         };
 
         Explicit ex;
-        bool result = Explicit::match(ex);
-        ASSERT(result);
+        const bool result = Explicit::match(ex);
+
+        ASSERT(true == result);
 #endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
+        // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined only when the
@@ -2778,21 +3000,22 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                        "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'"
-                        "\n===============================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_NULLPTR",
+                         "================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         void *p = nullptr;
         if (p == nullptr) {}
         OverloadForNullptr(nullptr);
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 12:{
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
+        // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined only when
@@ -2806,17 +3029,18 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'"
-                       "\n================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_NOEXCEPT",
+                         "=================");
 
-#if !defined (BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         noexceptTest1();
         noexceptTest2();
+        noexceptTest3();
         notNoexceptTest1();
         notNoexceptTest2();
+
         ASSERT(noexcept(noexceptTest1()));
         ASSERT(noexcept(noexceptTest2()));
         ASSERT(noexcept(noexceptTest3()));
@@ -2826,7 +3050,7 @@ will not improve the flavor.
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
+        // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT' is defined only when
@@ -2841,19 +3065,19 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                   "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'"
-                   "\n====================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_INCLUDE_NEXT",
+                         "=====================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        if (verbose) printf("#include_next is tested at global scope.\n");
+        VERBOSE_PUTS("Compile-time-only test passed.");
+        // '#include_next' is tested at global scope.
 #endif
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
+        // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
@@ -2869,23 +3093,24 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'"
-       "\n================================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_GENERALIZED_INITIALIZERS",
+                         "=================================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        std::initializer_list<int> il = {10,20,30,40,50}; (void) il;
+        std::initializer_list<int> il = {10,20,30,40,50}; (void)il;
 
-        using namespace initializer_feature_test;
+        using namespace initializerFeatureTest;
         coupling<object, couple<object, object> > mX;
         mX.use( {object{}, { object{}, object{} } });
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
+        // BSLS_COMPILERFEATURES_SUPPORT_FINAL
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_FINAL' is defined only when the
@@ -2903,21 +3128,22 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_FINAL
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                          "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'"
-                          "\n=============================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_FINAL",
+                         "==============");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_FINAL
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        struct Final final {};
-        struct FinalMember { virtual void f() final {} };
-#endif
+        struct FinalClass final {};
 
+        struct FinalMember { virtual void f() final {} };
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
+#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
+        // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined only
@@ -2933,20 +3159,20 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'"
-                "\n=======================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_EXTERN_TEMPLATE",
+                         "========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        TESTING_EXTERN_TEMPLATE::ExternTemplateClass<char> obj; (void) obj;
-#endif
+        externTemplateTesting::ExternTemplateClass<char> obj; (void)obj;
 
+        VERBOSE_PUTS("Compile-time-only test passed.");
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
+        // BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined only
@@ -2962,19 +3188,20 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'"
-            "\n=========================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_DELETED_FUNCTIONS",
+                         "==========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        ClassWithDeletedOps* p; (void)p;
+        ClassWithDeletedOps *p; (void)p;
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
+        // BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS' is defined
@@ -2990,12 +3217,11 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'"
-            "\n===========================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_DEFAULTED_FUNCTIONS",
+                         "============================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         const ClassWithDefaultOps original(42);
 
@@ -3022,7 +3248,7 @@ will not improve the flavor.
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
+        // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined only when the
@@ -3037,29 +3263,27 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'"
-                       "\n================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_DECLTYPE",
+                         "=================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        int                                  obj1; (void) obj1;
-        decltype(obj1)                       obj2; (void) obj2;
-        decltype(u::testFuncForDecltype(10)) obj3; (void) obj3;
+        int                                  obj1; (void)obj1;
+        decltype(obj1)                       obj2; (void)obj2;
+        decltype(testFuncForDecltype(10)) obj3; (void)obj3;
 
         const short  s      = 1000;
         const double d      = 3.2;
-        const auto   maxVal = u::my_max(s, d);
+        const auto   maxVal = my_max(s, d);
 
-        ASSERT(u::isSameType(maxVal, d));
+        ASSERT(isSameType(maxVal, d));
         ASSERT(maxVal == s);
 #endif
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17'
+        // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17' is defined only
@@ -3076,12 +3300,11 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                 "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17'"
-                 "\n======================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_CONSTEXPR_CPP17",
+                         "========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         static_assert(moreRelaxedConstExprFunc(true) == 42,
                       "Relaxed (C++17) 'constexpr' is not supported");
@@ -3098,11 +3321,10 @@ will not improve the flavor.
             ASSERT(!"C++17 did not detect original constexpr");
         }
 #endif
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14'
+        // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined only
@@ -3129,12 +3351,11 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                 "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14'"
-                 "\n======================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_CONSTEXPR_CPP14",
+                         "========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         static_assert(relaxedConstExprFunc(true) == 42,
                       "Relaxed (C++14) 'constexpr' is not supported");
@@ -3151,11 +3372,10 @@ will not improve the flavor.
             ASSERT(!"C++14 constexpr erroneously makes member function const");
         }
 #endif
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
+        // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined only when
@@ -3170,28 +3390,26 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                      "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'"
-                      "\n=================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_CONSTEXPR",
+                         "==================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         constexpr OracleMiscompile d; // Just declaring 'd' crashes CC 12.4.
-        (void) d;
+        (void)d;
 
         constexpr int v = A(true).d_m;
         ASSERT(v == 42);
 
         if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++11 did not detect original constexpr");
+            ASSERT(!"C++11 did not detect original 'constexpr'");
         }
 #endif
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'
+        // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined only
@@ -3207,17 +3425,18 @@ will not improve the flavor.
         //   BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'"
-                "\n=======================================================\n");
+        MACRO_TEST_TITLE("_SUPPORT_ALIAS_TEMPLATES",
+                         "========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-        if (verbose) printf("Feature not supported in this configuration.\n");
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        my_own_int            intObj;         (void) intObj;
-        alias_nontemplate     nontemplateObj; (void) nontemplateObj;
-        alias_template1<char> templateObj1;   (void) templateObj1;
-        alias_template2<char> templateObj2;   (void) templateObj2;
+        my_own_int            intObj;         (void)intObj;
+        alias_nontemplate     nontemplateObj; (void)nontemplateObj;
+        alias_template1<char> templateObj1;   (void)templateObj1;
+        alias_template2<char> templateObj2;   (void)templateObj2;
+
+        VERBOSE_PUTS("Compile-time-only test passed.");
 #endif
       } break;
       default: {
@@ -3227,18 +3446,21 @@ will not improve the flavor.
     }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
-    (void) &test_default_template_args;
+    (void)&test_default_template_args;
 #endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
     typedef void (*OverloadForNullPtrFuncTYpe)(int);
-    OverloadForNullPtrFuncTYpe ofnp = &OverloadForNullptr;    (void) ofnp;
+    OverloadForNullPtrFuncTYpe ofnp = &OverloadForNullptr;    (void)ofnp;
 #endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
     defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-    (void) &showRefCollapsingBug;
+    (void)&showRefCollapsingBug;
 #endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-    (void) &test_func;
+    (void)&test_func;
 #endif
 
     if (testStatus > 0) {

@@ -35,17 +35,17 @@ BSLS_IDENT("$Id: $")
 // 'bdlma::ConcurrentMultipoolAllocator' release all memory currently allocated
 // via the object.
 //..
-//   ,------------------------.
-//  ( bcema::MultiPoolAllocator )
-//   `------------------------'
+//   ,-----------------------------------.
+//  ( bdlma::ConcurrentMultipoolAllocator )
+//   `-----------------------------------'
 //               |         ctor/dtor
 //               |         maxPooledBlockSize
 //               |         numPools
 //               |         reserveCapacity
 //               V
-//    ,----------------------.
+//    ,-----------------------.
 //   ( bdlma::ManagedAllocator )
-//    `----------------------'
+//    `-----------------------'
 //               |         release
 //               V
 //       ,-----------------.

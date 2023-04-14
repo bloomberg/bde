@@ -59,6 +59,8 @@
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CLASS TEMPLATE DEDUCTION GUIDES
+// [ 9] USAGE EXAMPLE 1
+// [10] USAGE EXAMPLE 2
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -118,13 +120,42 @@ void aSsErT(bool condition, const char *message, int line)
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+// First, we create a template function that takes a generic container.  This
+// function inspects each of the (numeric) values in the container, and if the
+// low bit is set, flips it.  This has the effect of turning odd values into
+// even values.
+//..
+template <class CONTAINER>
+void MakeEven(CONTAINER &c)
+    // Make every value in the specified container 'c' even.
+{
+    for (typename CONTAINER::iterator it = c.begin(); it != c.end(); ++it) {
+        if (*it & 1) {
+            *it ^= 1;
+        }
+    }
+}
+//..
+
+
+// First, we create the vector.  Then we define our function that returns a
+// 'slice' from the vector.
+bsl::span<const int> slice(const bsl::vector<int>& vec,
+                           size_t                  first,
+                           size_t                  last)
+    // Return a span into the specified 'vec', starting at the specified
+    // 'first' index, and continuing up to (but not including) the specified
+    // 'last' index.
+{
+    return bsl::span<const int>(vec.data() + first, last-first);
+}
+
 void TestBasicConstructors()
     // Test the basic constructors and assignment operators for bsl::span
 {
     int arr [10];
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         arr[i]  = i;
     }
 
@@ -227,8 +258,7 @@ void TestContainerConstructors()
     bsl::array<int, 10>        arr;
     const bsl::array<int, 10>& cArr = arr;
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         arr[i] = 10 - i;
     }
 
@@ -257,8 +287,7 @@ void TestContainerConstructors()
     std::array<int, 10>        sArr;
     const std::array<int, 10>& cSArr = sArr;
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         sArr[i] = 10 - i;
     }
 
@@ -306,8 +335,7 @@ void TestAccessors()
 {
     int arr [10];
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         arr[i]  = i;
     }
 
@@ -382,8 +410,7 @@ void TestSubspan()
     int          arr [10];
     const size_t DYN = bsl::dynamic_extent;
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         arr[i]  = i;
     }
 
@@ -537,8 +564,7 @@ void TestIterators()
     int arr [10];
     int idx;
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         arr[i]  = i;
     }
 
@@ -551,8 +577,7 @@ void TestIterators()
     idx = 0;
     for (bsl::span<int, 10>::iterator iter = sSpan.begin();
                                       iter != sSpan.end();
-                                      ++iter, ++idx)
-    {
+                                      ++iter, ++idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -560,8 +585,7 @@ void TestIterators()
     idx = 5;
     for (bsl::span<const int, 4>::iterator iter = csSpan.begin();
                                            iter != csSpan.end();
-                                           ++iter, ++idx)
-    {
+                                           ++iter, ++idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -569,8 +593,7 @@ void TestIterators()
     idx = 0;
     for (bsl::span<int>::iterator iter = dSpan.begin();
                                   iter != dSpan.end();
-                                  ++iter, ++idx)
-    {
+                                  ++iter, ++idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -578,8 +601,7 @@ void TestIterators()
     idx = 5;
     for (bsl::span<const int>::iterator iter = cdSpan.begin();
                                         iter != cdSpan.end();
-                                        ++iter, ++idx)
-    {
+                                        ++iter, ++idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -588,8 +610,7 @@ void TestIterators()
     idx = 9;
     for (bsl::span<int, 10>::reverse_iterator iter = sSpan.rbegin();
                                               iter != sSpan.rend();
-                                              ++iter, --idx)
-    {
+                                              ++iter, --idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -597,8 +618,7 @@ void TestIterators()
     idx = 8;
     for (bsl::span<const int, 4>::reverse_iterator iter = csSpan.rbegin();
                                                    iter != csSpan.rend();
-                                                   ++iter, --idx)
-    {
+                                                   ++iter, --idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -606,8 +626,7 @@ void TestIterators()
     idx = 9;
     for (bsl::span<int>::reverse_iterator iter = dSpan.rbegin();
                                           iter != dSpan.rend();
-                                          ++iter, --idx)
-    {
+                                          ++iter, --idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -615,8 +634,7 @@ void TestIterators()
     idx = 8;
     for (bsl::span<const int>::reverse_iterator iter = cdSpan.rbegin();
                                                 iter != cdSpan.rend();
-                                                ++iter, --idx)
-    {
+                                                ++iter, --idx) {
         ASSERT(idx == *iter);
         ASSERT(&arr[idx] == &*iter);
     }
@@ -625,8 +643,7 @@ void TestIterators()
     idx = 0;
     for (bsl::span<int, 10>::iterator iter = sSpan.begin();
                                       iter != sSpan.end();
-                                      ++iter, ++idx)
-    {
+                                      ++iter, ++idx) {
         int newValue = 123 + idx;
         *iter = newValue;
         ASSERT(newValue == *iter);
@@ -636,8 +653,7 @@ void TestIterators()
     idx = 0;
     for (bsl::span<int>::iterator iter = dSpan.begin();
                                   iter != dSpan.end();
-                                  ++iter, ++idx)
-    {
+                                  ++iter, ++idx) {
         int newValue = 456 + idx;
         *iter = newValue;
         ASSERT(newValue == *iter);
@@ -649,8 +665,7 @@ void TestIterators()
     idx = 9;
     for (bsl::span<int, 10>::reverse_iterator iter = sSpan.rbegin();
                                               iter != sSpan.rend();
-                                              ++iter, --idx)
-    {
+                                              ++iter, --idx) {
         int newValue = 789 + idx;
         *iter = newValue;
         ASSERT(newValue == *iter);
@@ -660,8 +675,7 @@ void TestIterators()
     idx = 9;
     for (bsl::span<int>::reverse_iterator iter = dSpan.rbegin();
                                           iter != dSpan.rend();
-                                          ++iter, --idx)
-    {
+                                          ++iter, --idx) {
         int newValue = 246 + idx;
         *iter = newValue;
         ASSERT(newValue == *iter);
@@ -675,8 +689,7 @@ void TestFreeFunctions ()
 {
     int arr [10];
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         arr[i]  = i;
     }
 
@@ -754,10 +767,12 @@ struct TestDeductionGuides {
         //..
         // span(const span&  s)        -> decltype(s)
         // span(TYPE (&)[SIZE])        -> span<TYPE, SIZE>
-        // span(      bsl::array<TYPE, SIZE>)-> span<TYPE, SIZE>
-        // span(const bsl::array<TYPE, SIZE>) -> span<const TYPE, SIZE>
-        // span(      std::array<TYPE, SIZE>)-> span<TYPE, SIZE>
-        // span(const std::array<TYPE, SIZE>) -> span<const TYPE, SIZE>
+        // span(      bsl::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
+        // span(const bsl::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
+        // span(      std::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
+        // span(const std::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
+        // span(      bsl::vector<TYPE, SIZE>) -> span<TYPE>
+        // span(const bsl::vector<TYPE, SIZE>) -> span<const TYPE>
         // span(            CONTAINER &) -> span<CONTAINER::value_type>
         // span(const const CONTAINER &) -> span<const CONTAINER::value_type>
         //..
@@ -796,6 +811,15 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(span4a), bsl::span<T4, 2>);
         ASSERT_SAME_TYPE(decltype(span4b), bsl::span<const T4, 2>);
 
+        typedef long T5;
+        bsl::vector<T5>        vec5;
+        const bsl::vector<T5>& cVec5 = vec5;
+        bsl::span              span5a(vec5);
+        bsl::span              span5b(cVec5);
+        ASSERT_SAME_TYPE(decltype(span5a), bsl::span<T5, bsl::dynamic_extent>);
+        ASSERT_SAME_TYPE(decltype(span5b), bsl::span<const T5,
+                                                         bsl::dynamic_extent>);
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests
     }
@@ -824,6 +848,96 @@ int main(int argc, char *argv[])
     BloombergLP::bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 10: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 2
+        //   Return a span from a function, and use it in a range-based for
+        //   loop.
+        //
+        // Concerns:
+        //: 1 The usage example compiles, links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example into test driver and verify
+        //:   functionality with some sample values. (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE 2\n"
+                            "===============\n");
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        bsl::vector<int> v = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+        // We can now iterate over the elements in the slice using the span:
+        bsl::span<const int> sp = slice(v, 4, 7);
+        int                  val = 4;
+        for (int x: sp) {
+            ASSERT(x == val++);
+        }
+
+        // Note that we can use the return value directly and avoid declaring
+        // the variable 'sp':
+        val = 2;
+        for (int x: slice(v, 2, 8)) {
+            ASSERT(x == val++);
+        }
+#endif
+
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 1
+        //   Create a span from a local array, and demonstrate that it can
+        //   be accessed using the span, and the span can be passed to another
+        //   function.
+        //
+        // Concerns:
+        //: 1 The usage example compiles, links, and runs as shown.
+        //:
+        //
+        // Plan:
+        //: 1 Incorporate usage example into test driver and verify
+        //:   functionality with some sample values. (C-1,2)
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE 1\n"
+                            "===============\n");
+
+        int            arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        bsl::span<int> sp(arr + 3, 4);   // 4 elements, starting at 3.
+        for (int i = 0; i < 10; ++i) {
+            ASSERT(arr[i] == i);
+        }
+
+        ASSERT(sp[0] == 3);
+        ASSERT(sp[1] == 4);
+        ASSERT(sp[2] == 5);
+        ASSERT(sp[3] == 6);
+
+        MakeEven(sp);
+
+        ASSERT(sp[0] == 2); // Has been changed
+        ASSERT(sp[1] == 4);
+        ASSERT(sp[2] == 4); // Has been changed
+        ASSERT(sp[3] == 6);
+
+        ASSERT(arr[0] == 0); // Not part of the span
+        ASSERT(arr[1] == 1); // Not part of the span
+        ASSERT(arr[2] == 2); // Not part of the span
+        ASSERT(arr[3] == 2); // Has been changed
+        ASSERT(arr[4] == 4);
+        ASSERT(arr[5] == 4); // Has been changed
+        ASSERT(arr[6] == 6);
+        ASSERT(arr[7] == 7); // Not part of the span
+        ASSERT(arr[8] == 8); // Not part of the span
+        ASSERT(arr[9] == 9); // Not part of the span
+      } break;
       case 8: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

@@ -2474,7 +2474,7 @@ void SkipList<KEY, DATA>::checkInvariants() const
             }
         }
 
-        BSLS_ASSERT(numNodes <= d_length);
+        BSLS_ASSERT(numNodes <= d_length);  (void)numNodes;
         BSLS_ASSERT(0 != ii || numNodes == d_length);
 
         BSLS_ASSERT(0 == d_head_p->d_ptrs[ii].d_prev_p);

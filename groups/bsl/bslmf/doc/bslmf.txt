@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 88 components having 21 levels of physical
+ The 'bslmf' package currently has 89 components having 21 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -159,6 +159,7 @@
 
    2. bslmf_allocatorargt
       bslmf_assert
+      bslmf_booleantestable
       bslmf_integralconstant
       bslmf_voidtype
 
@@ -198,6 +199,9 @@
 :
 : 'bslmf_assert':
 :      Provide a compile-time assertion facility.
+:
+: 'bslmf_booleantestable':
+:      Provide an exposition-only concept 'boolean-testable'.
 :
 : 'bslmf_conditional':
 :      Provide a compile-time conditional type selector.

@@ -55,7 +55,7 @@ using namespace bsl;
 // CLASS METHODS
 // [ 2] convertUtcToLocalTime(Datetime *, char *, Datetime&, Cache *)
 // [ 3] resolveLocalTime(...)
-// [ 4] 'initLocalTime(DatetimeTz *, , Datetime& , char *, Dst, Cache *)
+// [ 4] 'initLocalTime(DatetimeTz *, Datetime& , char *, Dst, Cache *)
 // [ 5] 'createLocalTimePeriod(Period *, TransitionConstIter, Zoneinfo)'
 // [ 6] 'loadLocalTimePeriodForUtc(DatetimeTz *, Datetime& , char *, Cache *)
 //-----------------------------------------------------------------------------
@@ -1486,25 +1486,20 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The parameters are correctly forwarded to 'resolveLocalTime'.
         //:
-        //: 2 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 3 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 3 Return 'Err::k_OUT_OF_RANGE' when 'DateTimeTz' would be out of
-        //:   range.
-        //:
-        //: 4 Does not return if another error occurs.
+        //: 4 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
+        //:   occurs.
         //
         // Plan:
-        //: 1 Invoke 'initLocalTime' passing an invalid time zone id and check
-        //:   the result.  (C-2)
+        //: 1 Invoke 'initLocalTime' passing an invalid time zone id
+        //:   and check the result.  (C-6)
         //:
-        //: 2 Invoke 'initLocalTime' passing a 'Datetime' and a timezone Id
-        //:   that would result in an invalid 'DatetimeTz'.  (C-3)
+        //: 2 Invoke 'initLocalTime' passing an invalid time zone
+        //:   cache and check the result.  (C-7)
         //:
-        //: 3 Invoke 'initLocalTime' passing an invalid time zone cache and
-        //:   check the result.  (C-4)
-        //:
-        //: 4 Using the table-driven technique:
+        //: 3 Using the table-driven technique:
         //:
         //:   1 Specify a set values (one per row), including (a) time zone id,
         //:     (b) local time values to be passed in as input, (c) DST policy
@@ -1513,7 +1508,7 @@ int main(int argc, char *argv[])
         //:     result (C-1).
         //
         // Testing:
-        //   'initLocalTime(DatetimeTz *, , Datetime& , char *, Dst, Cache *)
+        //   'initLocalTime(DatetimeTz *, Datetime& , char *, Dst, Cache *)
         // --------------------------------------------------------------------
         if (verbose) cout << "Testing 'initLocalTime'" << endl
                           << "=======================" << endl;
@@ -1533,28 +1528,6 @@ int main(int argc, char *argv[])
                                               "bogusId",
                                               DU,
                                               &testCache));
-        }
-
-        if (verbose) cout << "\nTesting an invalid 'DatetimeTz'." << endl;
-        {
-            // Test with a 'Datetime' and a timezone Id that would result in
-            // an invalid 'DatetimeTz'
-
-            LogVerbosityGuard guard;
-
-            bdlt::DatetimeTz resultTz;
-            Validity::Enum  resultValidity;
-
-            const bdlt::Datetime defaultDT;
-
-            int rc = Obj::initLocalTime(&resultTz,
-                                        &resultValidity,
-                                        defaultDT,
-                                        SA,
-                                        DU,
-                                        &testCache);
-
-            ASSERT(Err::k_OUT_OF_RANGE == rc);
         }
 
         if (verbose) cout << "\nTesting an invalid loader." << endl;
@@ -1747,13 +1720,12 @@ int main(int argc, char *argv[])
 
             ASSERT(currentTimeZone);
 
-            int rc = Obj::resolveLocalTime(&resultResolveTz,
-                                           &resultResolveValidity,
-                                           &resultIterator,
-                                           inputTime,
-                                           DST_POLICY,
-                                           *currentTimeZone);
-            ASSERT(0 == rc);
+            Obj::resolveLocalTime(&resultResolveTz,
+                                  &resultResolveValidity,
+                                  &resultIterator,
+                                  inputTime,
+                                  DST_POLICY,
+                                  *currentTimeZone);
 
             LOOP2_ASSERT(LINE, resultValidity,
                          resultResolveValidity == resultValidity);
@@ -1825,29 +1797,30 @@ int main(int argc, char *argv[])
         //: 4 The (output) iterator refers to the specified input
         //:   'baltzo::Zoneinfo'.
         //:
-        //: 5 Return 'Err::k_OUT_OF_RANGE' when 'DateTimeTz' would be out of
-        //:   range.
+        //: 5 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
+        //:   passed.
         //:
-        //: 6 Does not return if another error occurs.
+        //: 6 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
+        //:   occurs.
         //:
-        //: 7 The correct transition and descriptor is applied for time zones
-        //:   for which the local time always with DST *on*, passing in
-        //:   different policies.
+        //:7 The correct transition and descriptor is applied for time zones
+        //:  for which the local time always with DST *on*, passing in
+        //:  different policies.
         //:
-        //: 8 The correct transition and descriptor is applied for time zones
-        //:   for which the local time always with DST *off*, passing in
-        //:   different policies.
+        //:8 The correct transition and descriptor is applied for time zones
+        //:  for which the local time always with DST *off*, passing in
+        //:  different policies.
         //:
-        //: 9 The correct transition and descriptor is applied for time zones
-        //:   that have only one transition to DST in the past, passing in
-        //:   different policies.
+        //:9 The correct transition and descriptor is applied for time zones
+        //:  that have only one transition to DST in the past, passing in
+        //:  different policies.
         //
         // Plan:
-        //: 1 Invoke 'resolveLocalTime' passing a 'Datetime' and a timezone Id
-        //:   that would result in an invalid 'DatetimeTz'.  (C-5)
+        //: 1 Invoke 'resolveLocalTime' passing an invalid time zone id
+        //:   and check the result.  (C-5)
         //:
-        //: 2 Invoke 'resolveLocalTime' passing an empty timezone info and
-        //:   check the result.  (C-6)
+        //: 2 Invoke 'resolveLocalTime' passing an invalid time zone
+        //:   cache and check the result.  (C-6)
         //:
         //: 3 Using the table-driven technique:
         //:
@@ -2348,13 +2321,12 @@ int main(int argc, char *argv[])
 
             ASSERT(currentTimeZone);
 
-            int rc = Obj::resolveLocalTime(&resultTz,
-                                           &resultValidity,
-                                           &resultIterator,
-                                           inputTime,
-                                           DST_POLICY,
-                                           *currentTimeZone);
-            ASSERT(0 == rc);
+            Obj::resolveLocalTime(&resultTz,
+                                  &resultValidity,
+                                  &resultIterator,
+                                  inputTime,
+                                  DST_POLICY,
+                                  *currentTimeZone);
 
             LOOP2_ASSERT(LINE, resultTz, expResultTime == resultTz);
             LOOP2_ASSERT(LINE, resultValidity,
@@ -2374,26 +2346,6 @@ int main(int argc, char *argv[])
                          EXP_DESCRIPTOR  == resultDescriptor);
         }
 
-        if (verbose) cout << "\nOut of Range Testing." << endl;
-        {
-            bdlt::DatetimeTz resultResolveTz;
-            Validity::Enum   resultResolveValidity;
-            Iterator         resultIterator;
-
-            const baltzo::Zoneinfo *SAZI = testCache.lookupZoneinfo(SA);
-
-            const bdlt::Datetime defaultDT;
-
-            int rc = Obj::resolveLocalTime(&resultResolveTz,
-                                           &resultResolveValidity,
-                                           &resultIterator,
-                                           defaultDT,
-                                           DU,
-                                           *SAZI);
-
-            ASSERT(Err::k_OUT_OF_RANGE == rc);
-        }
-
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
@@ -2401,13 +2353,15 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                              "\t'resolveLocalTime' class method " << endl;
             {
-                const bdlt::Datetime   VALID_INPUT(2011, 04, 10);
-                const baltzo::Zoneinfo BAD;
+                const bdlt::Datetime    VALID_INPUT(2011, 04, 10);
+                const bdlt::Datetime    VALID_INPUT2(1, 1, 1);
+                const baltzo::Zoneinfo  BAD;
                 const baltzo::Zoneinfo *NYZI = testCache.lookupZoneinfo(NY);
+                const baltzo::Zoneinfo *SAZI = testCache.lookupZoneinfo(SA);
 
                 bdlt::DatetimeTz result;
-                Iterator        resultIterator;
-                Validity::Enum  resultValidity;
+                Iterator         resultIterator;
+                Validity::Enum   resultValidity;
 
                 ASSERT_PASS(Obj::resolveLocalTime(&result,
                                                   &resultValidity,
@@ -2443,6 +2397,13 @@ int main(int argc, char *argv[])
                                                   VALID_INPUT,
                                                   DU,
                                                   BAD));
+
+                ASSERT_FAIL(Obj::resolveLocalTime(&result,
+                                                  &resultValidity,
+                                                  &resultIterator,
+                                                  VALID_INPUT2,
+                                                  DU,
+                                                  *SAZI));
             }
         }
       } break;

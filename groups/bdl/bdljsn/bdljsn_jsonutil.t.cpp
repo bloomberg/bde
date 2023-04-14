@@ -16,6 +16,8 @@
 #include <bdlt_datetime.h>
 #include <bdlt_time.h>
 
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -27,6 +29,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_fuzztest.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
@@ -506,6 +509,81 @@ void checkResult(int                     line,
     }
 }
 
+// ============================================================================
+//                              FUZZ TESTING
+// ----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+// ----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    const int test = 3;
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        static bsl::string randomChars(bslma::Default::globalAllocator());
+
+        bslim::FuzzDataView fdv(data, size);
+
+        // 'INT_MAX' saw stack overflow at 245 recursions of '[' on a Linux
+        // machine.  Now set to a saner, but still generous, value.
+
+        const int FUZZ_MAX_NESTED_DEPTH = 200;
+
+        bool allowTrailingTextFlag = bslim::FuzzUtil::consumeBool(&fdv);
+        int  maxNestedDepth        =
+                           bslim::FuzzUtil::consumeNumberInRange<int>(
+                                                        &fdv,
+                                                        1,
+                                                        FUZZ_MAX_NESTED_DEPTH);
+
+        bdljsn::ReadOptions readOptions;
+        readOptions.setAllowTrailingText(allowTrailingTextFlag);
+        readOptions.setMaxNestedDepth(maxNestedDepth);
+
+        bslim::FuzzUtil::consumeRandomLengthString(&randomChars,
+                                                   &fdv,
+                                                   fdv.length());
+
+        bdlsb::FixedMemInStreamBuf input(randomChars.data(),
+                                         randomChars.size());
+
+        bdljsn::Json  result;
+        bdljsn::Error errorDescription;
+
+        int rc = bdljsn::JsonUtil::read(&result,
+                                        &errorDescription,
+                                        &input,
+                                        readOptions);
+        if (0 == rc) {
+            ASSERTV(errorDescription, bdljsn::Error() == errorDescription);
+        } else {
+            ASSERTV(errorDescription, bdljsn::Error() != errorDescription);
+        }
+
+        randomChars.clear();  // retain capacity
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
+}
 
 // ============================================================================
 //                                 MAIN PROGRAM
@@ -533,7 +611,6 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
-
 
     switch (test) {
       case 0:
@@ -889,7 +966,8 @@ R"JSON(    {
             int rc = Util::read(&result, &error, JSON);
             ASSERTV(rc, 0 != rc);
 
-            const char *EXPECTED = "Error (line 4, col 12): Invalid JSON Number";
+            const char *EXPECTED =
+                                 "Error (line 4, col 12): Invalid JSON Number";
 
             bsl::stringbuf input(JSON);
             bsl::ostringstream output;
@@ -3054,7 +3132,8 @@ R"JSON(    {
                ASSERTV(jsonResult,
                        theArray->back(),
                        theArray->back().theNumber(),
-                       JsonNumber("123.45e+1") == theArray->back().theNumber());
+                       JsonNumber("123.45e+1") ==
+                                                 theArray->back().theNumber());
 
                checkResult(L_, "[null, [true, 123.45e+1]]", jsonResult, true);
 
@@ -3226,7 +3305,8 @@ R"JSON(    {
                       jsonResult,
                       (*theObject)["c"],
                       (*theObject)["c"].theNumber(),
-                      JsonNumber("123.45e+1") == (*theObject)["c"].theNumber());
+                      JsonNumber("123.45e+1") ==
+                                                (*theObject)["c"].theNumber());
 
                checkResult(
                           L_,
@@ -4005,7 +4085,6 @@ R"JSON(    {
                     result,
                     location == result.location().offset());
         }
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -4035,4 +4114,3 @@ R"JSON(    {
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

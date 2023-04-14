@@ -16,11 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component describes a simple class template,
 // 'bsl::integral_constant', that is used to map an integer constant to a C++
-// type.  'integral_constant<TYPE, VAL>' generates a unique type for each
-// distinct compile-time integral 'TYPE' and constant integer 'VAL' parameter.
-// That is, instantiations with different integer types and values form
-// distinct types, so that 'integral_constant<int, 0>' is a different type from
-// 'integral_constant<int, 1>', which is also distinct from
+// type.  'integral_constant<t_TYPE, t_VAL>' generates a unique type for each
+// distinct compile-time integral 't_TYPE' and constant integer 't_VAL'
+// parameter.  That is, instantiations with different integer types and values
+// form distinct types, so that 'integral_constant<int, 0>' is a different type
+// from 'integral_constant<int, 1>', which is also distinct from
 // 'integral_constant<unsigned, 1>', and so on.  This mapping of integer values
 // to types allows for "overloading by value", i.e., multiple functions with
 // the same name can be overloaded on the "value" of an 'integral_constant'
@@ -47,8 +47,8 @@ BSLS_IDENT("$Id: $")
 //..
 //    #include <bslmf_integralconstant.h>
 //
-//    template <class T>
-//    int doSomethingImp(T *t, bsl::true_type)
+//    template <class t_T>
+//    int doSomethingImp(t_T *t, bsl::true_type)
 //    {
 //        // slow, generic implementation
 //        // ...
@@ -56,17 +56,17 @@ BSLS_IDENT("$Id: $")
 //        return 11;
 //    }
 //
-//    template <class T>
-//    int doSomethingImp(T *t, bsl::false_type)
+//    template <class t_T>
+//    int doSomethingImp(t_T *t, bsl::false_type)
 //    {
-//        // fast implementation that works only for some types of T
+//        // fast implementation that works only for some types of 't_T'
 //        // ...
 //        (void) t;
 //        return 55;
 //    }
 //
-//    template <bool IsSlow, class T>
-//    int doSomething(T *t)
+//    template <bool IsSlow, class t_T>
+//    int doSomething(t_T *t)
 //    {
 //        // Dispatch to an implementation depending on the (compile-time)
 //        // value of 'IsSlow'.
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 // than with values.  For example, the following metafunction can be used at
 // compile time to determine whether a type is a floating point type:
 //..
-//    template <class TYPE> struct IsFloatingPoint    : bsl::false_type { };
+//    template <class t_TYPE> struct IsFloatingPoint  : bsl::false_type { };
 //    template <> struct IsFloatingPoint<float>       : bsl::true_type { };
 //    template <> struct IsFloatingPoint<double>      : bsl::true_type { };
 //    template <> struct IsFloatingPoint<long double> : bsl::true_type { };
@@ -119,11 +119,11 @@ BSLS_IDENT("$Id: $")
 // so that it does not require the user to specify the 'IsSlow' template
 // argument:
 //..
-//    template <class T>
-//    int doSomething2(T *t)
+//    template <class t_T>
+//    int doSomething2(t_T *t)
 //    {
 //        // Automatically detect whether to use slow or fast imp.
-//        const bool isSlow = IsFloatingPoint<T>::value;
+//        const bool isSlow = IsFloatingPoint<t_T>::value;
 //        return doSomethingImp(t, bsl::integral_constant<bool, isSlow>());
 //    }
 //
@@ -170,8 +170,8 @@ namespace bsl {
                         // ================================
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-template <class TYPE, TYPE VAL>
-struct integral_constant : ::std::integral_constant<TYPE, VAL> {
+template <class t_TYPE, t_TYPE t_VAL>
+struct integral_constant : ::std::integral_constant<t_TYPE, t_VAL> {
     typedef integral_constant type;
 };
 
@@ -182,7 +182,7 @@ struct integral_constant<bool, false> : ::std::false_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<false> Type;
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = false;
+    static const bool VALUE = false;
 };
 
 template <>
@@ -192,15 +192,15 @@ struct integral_constant<bool, true> : ::std::true_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<true> Type;
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = true;
+    static const bool VALUE = true;
 };
 
 #else
-template <class TYPE, TYPE VAL>
+template <class t_TYPE, t_TYPE t_VAL>
 struct integral_constant {
-    // Generate a unique type for the given 'TYPE' and 'VAL'.  This 'struct'
-    // is used for compile-time dispatch of overloaded functions and as the
-    // base class for many metafunctions.
+    // Generate a unique type for the given 't_TYPE' and 't_VAL'.  This
+    // 'struct' is used for compile-time dispatch of overloaded functions and
+    // as the base class for many metafunctions.
 
   public:
     // CREATORS
@@ -210,19 +210,19 @@ struct integral_constant {
     //! ~integral_constant() = default;
 
     // PUBLIC TYPES
-    typedef TYPE              value_type;
+    typedef t_TYPE            value_type;
     typedef integral_constant type;
 
     // PUBLIC CLASS DATA
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER TYPE value = VAL;
+    static const t_TYPE value = t_VAL;
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'VAL'.
+        // Return 't_VAL'.
 };
 
-template <bool VAL>
-struct integral_constant<bool, VAL> {
+template <bool t_VAL>
+struct integral_constant<bool, t_VAL> {
   public:
     // CREATORS
     //! integral_constant() = default;
@@ -235,15 +235,15 @@ struct integral_constant<bool, VAL> {
     typedef integral_constant type;
 
     // PUBLIC CLASS DATA
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool value = VAL;
+    static const bool value = t_VAL;
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'VAL'.
+        // Return 't_VAL'.
 
     // COMPATIBILITY MEMBERS
-    typedef BloombergLP::bslmf::MetaInt<VAL> Type;
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = VAL;
+    typedef BloombergLP::bslmf::MetaInt<t_VAL> Type;
+    static const bool  VALUE = t_VAL;
 };
 #endif //   defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
@@ -264,8 +264,8 @@ typedef integral_constant<bool, true> true_type;
                         // ======================
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-template <bool VALUE>
-using bool_constant = integral_constant<bool, VALUE>;
+template <bool t_VALUE>
+using bool_constant = integral_constant<bool, t_VALUE>;
 
 # if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 #   define BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT          1
@@ -282,27 +282,29 @@ using bool_constant = integral_constant<bool, VALUE>;
 // data members are implicitly 'inline'.
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 // This variable will be supplied by the platform header, when available.
-template <class TYPE, TYPE VAL>
-BSLS_KEYWORD_CONSTEXPR_MEMBER TYPE bsl::integral_constant<TYPE, VAL>::value;
+template <class t_TYPE, t_TYPE t_VAL>
+const t_TYPE bsl::integral_constant<t_TYPE, t_VAL>::value;
 
-template <bool VAL>
-BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, VAL>::value;
-template <bool VAL>
-BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, VAL>::VALUE;
+template <bool t_VAL>
+const bool bsl::integral_constant<bool, t_VAL>::value;
+template <bool t_VAL>
+const bool bsl::integral_constant<bool, t_VAL>::VALUE;
 
 // ACCESSORS
-template <class TYPE, TYPE VAL>
-inline BSLS_KEYWORD_CONSTEXPR
-bsl::integral_constant<TYPE, VAL>::operator TYPE() const BSLS_KEYWORD_NOEXCEPT
+template <class t_TYPE, t_TYPE t_VAL>
+inline
+BSLS_KEYWORD_CONSTEXPR bsl::integral_constant<t_TYPE, t_VAL>::operator t_TYPE()
+    const BSLS_KEYWORD_NOEXCEPT
 {
-    return VAL;
+    return t_VAL;
 }
 
-template <bool VAL>
-inline BSLS_KEYWORD_CONSTEXPR
-bsl::integral_constant<bool, VAL>::operator bool() const BSLS_KEYWORD_NOEXCEPT
+template <bool t_VAL>
+inline
+BSLS_KEYWORD_CONSTEXPR bsl::integral_constant<bool, t_VAL>::operator bool()
+    const BSLS_KEYWORD_NOEXCEPT
 {
-    return VAL;
+    return t_VAL;
 }
 #endif // ! defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 

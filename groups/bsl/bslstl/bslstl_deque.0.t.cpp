@@ -213,6 +213,7 @@
 // [21] bool operator> (const deque& lhs, const deque& rhs);
 // [21] bool operator<=(const deque& lhs, const deque& rhs);
 // [21] bool operator>=(const deque& lhs, const deque& rhs);
+// [21] auto operator<=>(const deque& lhs, const deque& rhs);
 //
 // FREE FUNCTIONS
 // [20] void swap(deque& a, deque& b);
@@ -830,6 +831,15 @@ bool operator==(const TestTypeAlloc& lhs, const TestTypeAlloc& rhs)
     return lhs.value() == rhs.value();
 }
 
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+auto operator<=>(const TestTypeAlloc& lhs, const TestTypeAlloc& rhs)
+{
+    ASSERT(isalpha(lhs.value()));
+    ASSERT(isalpha(rhs.value()));
+
+    return lhs.value() <=> rhs.value();
+}
+#else
 bool operator<(const TestTypeAlloc& lhs, const TestTypeAlloc& rhs)
 {
     ASSERT(isalpha(lhs.value()));
@@ -837,6 +847,7 @@ bool operator<(const TestTypeAlloc& lhs, const TestTypeAlloc& rhs)
 
     return lhs.value() < rhs.value();
 }
+#endif
 
 // TestTypeAlloc-specific print function.
 void debugprint(const TestTypeAlloc& rhs)
@@ -1421,12 +1432,14 @@ class NonCopyableType {
         return v1.value == v2.value;
     }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
     friend bool operator!=(const NonCopyableType &v1,
                            const NonCopyableType &v2)
         // Inequality comparison.
     {
         return !(v1 == v2);
     }
+#endif
 };
 
                         // ==========================
@@ -2365,10 +2378,12 @@ struct StatelessAllocator {
     {
         return true;
     }
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
     friend bool operator!=(StatelessAllocator, StatelessAllocator)
     {
         return false;
     }
+#endif
 };
 
                  // =======================================

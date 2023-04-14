@@ -5178,6 +5178,7 @@ void TestDriver<VALUE>::testCase17()
                         nodes[j].value()  = V.create(VALUES[j]);
                         Obj::insert(&x, C, &nodes[j]);
                     }
+                    node = nodeAtOffset(&x, nodeIdx);
                 }
                 if ((nodeValue <= value) && (value <= nextValue) &&
                     (!node->rightChild())) {
@@ -5202,6 +5203,7 @@ void TestDriver<VALUE>::testCase17()
                         nodes[j].value()  = V.create(VALUES[j]);
                         Obj::insert(&x, C, &nodes[j]);
                     }
+                    node = nodeAtOffset(&x, nodeIdx);
                 }
 
             }

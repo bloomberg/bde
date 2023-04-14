@@ -162,15 +162,16 @@ struct LogFileCleanerUtil {
 
   public:
     // CLASS METHODS
-    template <class OBSERVER>
+    template <class t_OBSERVER>
     static
-    void enableLogFileCleanup(OBSERVER                              *observer,
-                              const balb::FileCleanerConfiguration&  config);
+    void enableLogFileCleanup(
+                               t_OBSERVER                            *observer,
+                               const balb::FileCleanerConfiguration&  config);
         // Immediately call 'balb::FileCleanerUtil::removeFiles' with the
         // specified 'config' and then install an
-        // 'OBSERVER::OnFileRotationCallback' function into the specified
+        // 't_OBSERVER::OnFileRotationCallback' function into the specified
         // 'observer' that invokes 'removeFiles' synchronously on every log
-        // file rotation.  The (template parameter) 'OBSERVER' type must
+        // file rotation.  The (template parameter) 't_OBSERVER' type must
         // provide concrete implementation of the 'ball::Observer' protocol,
         // have a 'setOnFileRotationCallback' method (see 'ball_fileobserver',
         // 'ball_fileobserver2', and 'ball_asyncfileobserver'), and define an
@@ -200,15 +201,15 @@ struct LogFileCleanerUtil {
                            // -------------------------
 
 // CLASS METHOD
-template <class OBSERVER>
+template <class t_OBSERVER>
 inline
 void LogFileCleanerUtil::enableLogFileCleanup(
-                               OBSERVER                              *observer,
+                               t_OBSERVER                            *observer,
                                const balb::FileCleanerConfiguration&  config)
 {
     balb::FileCleanerUtil::removeFiles(config);
 
-    typename OBSERVER::OnFileRotationCallback  rotationCallback =
+    typename t_OBSERVER::OnFileRotationCallback  rotationCallback =
         bdlf::BindUtil::bind(&logFileCleanupOnRotationDefault,
                              bdlf::PlaceHolders::_1,
                              bdlf::PlaceHolders::_2,

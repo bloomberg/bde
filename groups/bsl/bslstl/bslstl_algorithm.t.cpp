@@ -12,6 +12,10 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#include <bslstl_compare.h>
+#endif
+
 #include <bsltf_testvaluesarray.h>
 
 #include <functional>
@@ -33,6 +37,7 @@
 // [ 1] bool none_of(InputIter first, InputIter last, PREDICATE pred);
 // [ 2] BREATHING TEST
 // [ 3] bsl::clamp();
+// [ 4] bsl::lexicographical_compare_three_way()
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -325,6 +330,13 @@ void runTestNoneOf()
 
 #endif
 
+template <class Type, size_t Size>
+inline Type *array_end(Type (&arr)[Size])
+    // Return past-the-end poiner for the specified 'arr' array.
+{
+    return arr + Size;
+}
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -341,6 +353,51 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'lexicographical_compare_three_way'
+        //
+        // Concerns:
+        //: 1 'bsl::lexicographical_compare_three_way' function is available
+        //:   when 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' macro
+        //:   is defined.
+        //
+        // Plan:
+        //: 1 Create two 'int' arrays: 'a' and 'b'.  'a' is lexicographically
+        //:   less than 'b'.
+        //:
+        //: 2 Verify the 4-argument version of the function.
+        //:
+        //: 3 Verify that 5-argument version of the function returns the same
+        //:   value if the last argument is 'bsl::compare_three_way()'.
+        //
+        // Testing:
+        //   bsl::lexicographical_compare_three_way()
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                      "\nTESTING C++20 'lexicographical_compare_three_way'"
+                      "\n=================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        const int a[] = { 1, 2 },
+                  b[] = { 1, 3 };
+
+        ASSERT(bsl::lexicographical_compare_three_way(a, array_end(a),
+                                                      b, array_end(b)) < 0);
+        ASSERT(bsl::lexicographical_compare_three_way(b, array_end(b),
+                                                      a, array_end(a)) > 0);
+
+        ASSERT(bsl::lexicographical_compare_three_way(
+                                                a, array_end(a),
+                                                b, array_end(b),
+                                                bsl::compare_three_way()) < 0);
+        ASSERT(bsl::lexicographical_compare_three_way(
+                                                b, array_end(b),
+                                                a, array_end(a),
+                                                bsl::compare_three_way()) > 0);
+#endif
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_ALGORITHM.H> ADDITIONS

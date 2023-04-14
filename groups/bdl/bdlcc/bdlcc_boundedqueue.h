@@ -362,6 +362,7 @@ class BoundedQueue {
 
     static const bsls::Types::Uint64 k_STARTED_MASK   = 0x00000000ffffffffLL;
     static const bsls::Types::Uint64 k_STARTED_INC    = 0x0000000000000001LL;
+    static const bsls::Types::Uint64 k_STARTED_DEC    = 0xffffffffffffffffLL;
     static const bsls::Types::Uint64 k_FINISHED_INC   = 0x0000000100000000LL;
     static const unsigned int        k_FINISHED_SHIFT = 32;
 
@@ -853,7 +854,7 @@ inline
 bsls::Types::Uint64 BoundedQueue<TYPE>::unmarkStartedOperation(
                                                            AtomicUint64 *count)
 {
-    return AtomicOp::addUint64NvAcqRel(count, -k_STARTED_INC);
+    return AtomicOp::addUint64NvAcqRel(count, k_STARTED_DEC);
 }
 
 // PRIVATE MANIPULATORS

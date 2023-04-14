@@ -21,7 +21,6 @@ bsl_slist.h
 # Non-container headers
 bsl_algorithm.h
 bsl_bitset.h
-bsl_charconv.h
 bsl_complex.h
 bsl_exception.h
 bsl_fstream.h
@@ -35,7 +34,6 @@ bsl_limits.h
 bsl_locale.h
 bsl_new.h
 bsl_numeric.h
-bsl_optional.h
 bsl_ostream.h
 bsl_stdexcept.h
 bsl_streambuf.h
@@ -86,6 +84,15 @@ bsl_c_time.h
 bsl_c_wchar.h
 bsl_c_wctype.h
 
+#C99 headers
+bsl_cfenv.h
+bsl_cinttypes.h
+bsl_ciso646.h
+bsl_cstdbool.h
+bsl_cstdint.h
+bsl_ctgmath.h
+bsl_cuchar.h
+
 # C++11 headers
 bsl_atomic.h
 bsl_chrono.h
@@ -99,19 +106,25 @@ bsl_regex.h
 bsl_scoped_allocator.h
 bsl_system_error.h
 
-#C99 headers
-bsl_cfenv.h
-bsl_cinttypes.h
-bsl_ciso646.h
-bsl_cstdbool.h
-bsl_cstdint.h
-bsl_ctgmath.h
-bsl_cuchar.h
-
 # C++14 headers
 bsl_shared_mutex.h
 
 # C++17 headers
+bsl_charconv.h
 bsl_execution.h
 bsl_filesystem.h
+bsl_optional.h
 bsl_string_view.h
+
+# C++20 headers
+bsl_barrier.h
+bsl_bit.h
+bsl_compare.h
+bsl_latch.h
+bsl_numbers.h
+bsl_ranges.h
+bsl_semaphore.h
+bsl_source_location.h
+bsl_span.h
+bsl_stop_token.h
+bsl_version.h

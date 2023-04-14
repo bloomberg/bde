@@ -25,10 +25,6 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_iosfwd.h>' instead.
 
-#if defined(std)
-#define BSLSTL_IOSFWD_STD_DEFINED
-#undef std
-#endif
 #include <bslscm_version.h>
 
 #include <iosfwd>
@@ -74,11 +70,6 @@ typedef basic_stringstream <wchar_t, char_traits<wchar_t>,
                                            allocator<wchar_t> >  wstringstream;
 
 }  // close namespace bsl
-
-#if defined(BSLSTL_IOSFWD_STD_DEFINED)
-#define std bsl
-#undef BSLSTL_IOSFWD_STD_DEFINED
-#endif
 
 #endif
 

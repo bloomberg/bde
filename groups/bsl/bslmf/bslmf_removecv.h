@@ -69,27 +69,27 @@ namespace bsl {
                          // struct remove_cv
                          // ================
 
-template <class TYPE>
+template <class t_TYPE>
 struct remove_cv {
     // This 'struct' template implements the 'remove_cv' meta-function defined
     // in the C++11 standard [meta.trans.cv], providing an alias, 'type', that
     // returns the result.  'type' has the same type as the (template
-    // parameter) 'TYPE' except that any top-level cv-qualifiers have been
+    // parameter) 't_TYPE' except that any top-level cv-qualifiers have been
     // removed.
 
     // PUBLIC TYPES
-    typedef typename remove_const<typename remove_volatile<TYPE>::type>::type
-                                                                          type;
+    typedef typename remove_const<typename remove_volatile<t_TYPE>::type>::type
+        type;
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE' except that any top-level cv-qualifier has been
+        // parameter) 't_TYPE' except that any top-level cv-qualifier has been
         // removed.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using remove_cv_t = typename remove_cv<TYPE>::type;
+template <class t_TYPE>
+using remove_cv_t = typename remove_cv<t_TYPE>::type;
     // 'remove_cv_t' is an alias to the return type of the 'bsl::remove_cv'
     // meta-function.  Note, that the 'remove_cv_t' avoids the '::type' suffix
     // and 'typename' prefix when we want to use the result of the

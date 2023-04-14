@@ -42,12 +42,12 @@ target_compile_definitions(
         $<$<C_COMPILER_ID:GNU>:USE_REAL_MALLOC>
 )
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT CMAKE_SYSTEM_NAME STREQUAL "SunOS")
     # 64 bits
     target_compile_definitions(
         ${target}
         PRIVATE
-            $<$<NOT:$<C_COMPILER_ID:SunPro>>:SUPPORT_JIT>
+            SUPPORT_JIT
     )
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     # 32 bits
@@ -74,5 +74,10 @@ set(${target}_INCLUDE_FILES
 # This variable controls the set of headers to install
 set(${target}_INCLUDE_FILES ${${target}_INCLUDE_FILES} PARENT_SCOPE)
 
+bbs_add_target_thread_flags(${target} PRIVATE)
+
 bbs_install_target(${target})
 bbs_emit_pkg_config(${target})
+
+set_target_properties(${target} PROPERTIES BB_UOR_PARTITION thirdparty)
+bbs_emit_bde_metadata(${target})

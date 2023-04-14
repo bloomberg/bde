@@ -247,7 +247,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
 
     int rcDestroy = pthread_attr_destroy(&pthreadAttr);
     BSLS_ASSERT_SAFE(0 == rcDestroy);
-    ++rcDestroy;                           // suppress unused variable warnings
+    (void) rcDestroy;                      // suppress unused variable warnings
 
     return rc;
 }

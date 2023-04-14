@@ -67,44 +67,44 @@ namespace bslmf {
 struct AddPointer_Compute {
     // This utility 'struct' is a private implementation detail that hosts an
     // overloaded pair of functions that, through SFINAE, can determine whether
-    // it is legal to form a pointer to a specified 'TYPE'.
+    // it is legal to form a pointer to a specified 't_TYPE'.
 
     struct LargeResult {
         char d_dummy[99];
     };
 
-    template <class TYPE>
-    static LargeResult canFormPointer(TYPE *);
+    template <class t_TYPE>
+    static LargeResult canFormPointer(t_TYPE *);
 
-    template <class TYPE>
+    template <class t_TYPE>
     static char canFormPointer(...);
 };
 
-template <class TYPE,
-          size_t = sizeof(AddPointer_Compute::canFormPointer<TYPE>(0))>
+template <class t_TYPE,
+          size_t = sizeof(AddPointer_Compute::canFormPointer<t_TYPE>(0))>
 struct AddPointer_Impl {
     // For the majority of types, it is perfectly reasonable to form the type
-    // 'TYPE *'.
+    // 't_TYPE *'.
 
-    typedef TYPE * type;        // A pointer to the original 'TYPE'.
+    typedef t_TYPE *type;  // A pointer to the original 't_TYPE'.
 };
 
-template <class TYPE>
-struct AddPointer_Impl<TYPE, 1u> {
+template <class t_TYPE>
+struct AddPointer_Impl<t_TYPE, 1u> {
     // For special cases, such as references and "abominable" functions, it is
     // not legal to form a pointer, and this parital specialization will be
     // chosen by the computed default template parameter.
 
-    typedef TYPE type;  // Do not modify the type if a pointer is not valid.
+    typedef t_TYPE type;  // Do not modify the type if a pointer is not valid.
 };
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-template <class TYPE>
-struct AddPointer_Impl<TYPE[], 1u> {
+template <class t_TYPE>
+struct AddPointer_Impl<t_TYPE[], 1u> {
     // IBM miscomputes the SFINAE condition for arrays of unknown bound, so we
     // provide an additional partial specialization for this platform.
 
-    typedef TYPE (*type)[];     // A pointer to the original 'TYPE[]'.
+    typedef t_TYPE (*type)[];     // A pointer to the original 't_TYPE[]'.
 };
 #endif
 
@@ -117,53 +117,53 @@ namespace bsl {
                          // struct add_pointer
                          // ==================
 
-template <class TYPE>
+template <class t_TYPE>
 struct add_pointer {
     // This 'struct' template implements the 'add_pointer' meta-function
     // defined in the C++11 standard [meta.trans.ptr], providing an alias,
-    // 'type', that returns the result.  If the (template parameter) 'TYPE' is
-    // not a reference type, then 'type' is an alias to a pointer type that
-    // points to 'TYPE'; otherwise, 'type' is an alias to a pointer type that
-    // points to the type referred to by the reference 'TYPE', unless it is not
-    // legal to form such a pointer type, in which case 'type' is an alias for
-    // 'TYPE'.
+    // 'type', that returns the result.  If the (template parameter) 't_TYPE'
+    // is not a reference type, then 'type' is an alias to a pointer type that
+    // points to 't_TYPE'; otherwise, 'type' is an alias to a pointer type that
+    // points to the type referred to by the reference 't_TYPE', unless it is
+    // not legal to form such a pointer type, in which case 'type' is an alias
+    // for 't_TYPE'.
 
-    typedef typename BloombergLP::bslmf::AddPointer_Impl<TYPE>::type type;
+    typedef typename BloombergLP::bslmf::AddPointer_Impl<t_TYPE>::type type;
         // This 'typedef' is an alias to a pointer type that points to the
-        // (template parameter) 'TYPE' if it is not a reference type;
+        // (template parameter) 't_TYPE' if it is not a reference type;
         // otherwise, this 'typedef' is an alias to a pointer type that points
-        // to the type referred to by the reference 'TYPE'.
+        // to the type referred to by the reference 't_TYPE'.
 };
 
-template <class TYPE>
-struct add_pointer<TYPE &> {
-    // If we can form a reference to 'TYPE', then we can also form a pointer to
-    // it.  In particular, we know that it is not 'void' (which should still
+template <class t_TYPE>
+struct add_pointer<t_TYPE&> {
+    // If we can form a reference to 't_TYPE', then we can also form a pointer
+    // to it.  In particular, we know that it is not 'void' (which should still
     // work) or an "abominable" function type with a trailing cv-qualifier.
     // Note that this partial specialization is necessary to avoid falling into
     // degenerate (non-compiling) cases in the implementation meta-program.
 
-    typedef TYPE * type;
+    typedef t_TYPE * type;
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class TYPE>
-struct add_pointer<TYPE &&> {
-    // If we can form a reference to 'TYPE', then we can also form a pointer to
-    // it.  In particular, we know that it is not 'void' (which should still
+template <class t_TYPE>
+struct add_pointer<t_TYPE&&> {
+    // If we can form a reference to 't_TYPE', then we can also form a pointer
+    // to it.  In particular, we know that it is not 'void' (which should still
     // work) or an "abominable" function type with a trailing cv-qualifier.
     // Note that this partial specialization is necessary to avoid falling into
     // degenerate (non-compiling) cases in the implementation meta-program.
 
-    typedef TYPE * type;
+    typedef t_TYPE * type;
 };
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 //ALIASES
-template <class TYPE>
-using add_pointer_t = typename add_pointer<TYPE>::type;
+template <class t_TYPE>
+using add_pointer_t = typename add_pointer<t_TYPE>::type;
     // 'add_pointer_t' is an alias to the return type of the 'bsl::add_pointer'
     // meta-function.  Note, that the 'remove_pointer_t' avoids the '::type'
     // suffix and 'typename' prefix when we want to use the result of the

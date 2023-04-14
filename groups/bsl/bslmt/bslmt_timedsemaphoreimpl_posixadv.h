@@ -62,6 +62,7 @@ BSLS_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
+#include <bsls_assert.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
 
@@ -107,7 +108,9 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
         // against which the 'bsls::TimeInterval' 'absTime' timeouts passed to
         // the 'timedWait' method are to be interpreted (see {Supported
         // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.
+        // specified then the realtime system clock is used.  This method does
+        // not return normally unless there are sufficient system resources to
+        // construct the object.
 
     explicit
     TimedSemaphoreImpl(int                         count,
@@ -119,6 +122,8 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
         // passed to the 'timedWait' method are to be interpreted (see
         // {Supported Clock-Types} in the component documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
+        // This method does not return normally unless there are sufficient
+        // system resources to construct the object.
 
     ~TimedSemaphoreImpl();
         // Destroy this semaphore object.
@@ -171,7 +176,8 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
-    ::sem_init(&d_sem, 0, 0);
+    int result = ::sem_init(&d_sem, 0, 0);  (void)result;
+    BSLS_ASSERT_OPT(-1 != result);
 }
 
 inline
@@ -179,7 +185,8 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
-    ::sem_init(&d_sem, 0, count);
+    int result = ::sem_init(&d_sem, 0, count);  (void)result;
+    BSLS_ASSERT_OPT(-1 != result);
 }
 
 inline
@@ -219,7 +226,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

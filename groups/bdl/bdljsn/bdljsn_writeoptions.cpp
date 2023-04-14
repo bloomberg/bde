@@ -4,18 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdljsn_writeoptions_cpp,"$Id$ $CSID$")
 
-#include <bdljsn_writestyle.h>
-
-#include <bsl_cstring.h>
-#include <bsl_iomanip.h>
-#include <bsl_limits.h>
-#include <bsl_ostream.h>
-
 #include <bslim_printer.h>
-
-#include <bsls_assert.h>
-#include <bsls_review.h>
-
 
 namespace BloombergLP {
 namespace bdljsn {
@@ -28,45 +17,20 @@ namespace bdljsn {
 const int  WriteOptions::s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL = 0;
 const bool WriteOptions::s_DEFAULT_INITIALIZER_SORT_MEMBERS         = false;
 const int  WriteOptions::s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL     = 4;
-const bdljsn::WriteStyle::Enum WriteOptions::s_DEFAULT_INITIALIZER_STYLE =
+const bdljsn::WriteStyle::Enum
+           WriteOptions::s_DEFAULT_INITIALIZER_STYLE =
                                                  bdljsn::WriteStyle::e_COMPACT;
 
 // CREATORS
 WriteOptions::WriteOptions()
 : d_initialIndentLevel(s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL)
-, d_sortMembers(s_DEFAULT_INITIALIZER_SORT_MEMBERS)
-, d_spacesPerLevel(s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL)
-, d_style(s_DEFAULT_INITIALIZER_STYLE)
+, d_sortMembers       (s_DEFAULT_INITIALIZER_SORT_MEMBERS)
+, d_spacesPerLevel    (s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL)
+, d_style             (s_DEFAULT_INITIALIZER_STYLE)
 {
-}
-
-WriteOptions::WriteOptions(const WriteOptions& original)
-: d_initialIndentLevel(original.d_initialIndentLevel)
-, d_sortMembers(original.d_sortMembers)
-, d_spacesPerLevel(original.d_spacesPerLevel)
-, d_style(original.d_style)
-{
-}
-
-WriteOptions::~WriteOptions()
-{
-    BSLS_ASSERT(0 <= d_initialIndentLevel);
-    BSLS_ASSERT(0 <= d_spacesPerLevel);
 }
 
 // MANIPULATORS
-WriteOptions& WriteOptions::operator=(const WriteOptions& rhs)
-{
-    if (this != &rhs) {
-        d_initialIndentLevel = rhs.d_initialIndentLevel;
-        d_sortMembers        = rhs.d_sortMembers;
-        d_spacesPerLevel     = rhs.d_spacesPerLevel;
-        d_style              = rhs.d_style;
-    }
-
-    return *this;
-}
-
 WriteOptions& WriteOptions::reset()
 {
     d_initialIndentLevel = s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;

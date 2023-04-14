@@ -7,8 +7,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bos+stdhdrs in the bos package group
-//
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
@@ -37,6 +35,11 @@ namespace bsl {
         using std::execution::parallel_unsequenced_policy;
         using std::execution::seq;
         using std::execution::sequenced_policy;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        using std::execution::unsequenced_policy;
+        using std::execution::unseq;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     }  // close execution namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES

@@ -341,7 +341,6 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_WIN7                                         1
     #elif _WIN32_WINNT >= 0x0600
         #define BSLS_PLATFORM_OS_WINVISTA                                     1
-        #define BSLS_PLATFORM_OS_WINS08                                       1
     #elif _WIN32_WINNT >= 0x0502
         #define BSLS_PLATFORM_OS_WINS03                                       1
     #elif _WIN32_WINNT >= 0x0501
@@ -357,6 +356,16 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_WIN9X                                        1
     #else  // default when detection fails
         #define BSLS_PLATFORM_OS_WINVISTA                                     1
+    #endif
+
+    // set API Version synonyms
+    #if defined(BSLS_PLATFORM_OS_WINVISTA) && !defined(BSLS_PLATFORM_OS_WINS08)
+        #define BSLS_PLATFORM_OS_WINS08                                       1
+            // Windows Server 2008 is the same API as Windows Vista
+    #endif
+    #if !defined(BSLS_PLATFORM_OS_WINVISTA) && defined(BSLS_PLATFORM_OS_WINS08)
+        #define BSLS_PLATFORM_OS_WINVISTA                                     1
+            // Windows Server 2008 is the same API as Windows Vista
     #endif
 
     // set Version flags

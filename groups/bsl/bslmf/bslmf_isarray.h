@@ -87,40 +87,40 @@ namespace bsl {
                          // struct is_array
                          // ===============
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_array : false_type {
     // This 'struct' template implements the 'is_array' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 'TYPE' is an array type.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is an array type, and 'bsl::false_type'
+    // parameter) 't_TYPE' is an array type.  This 'struct' derives from
+    // 'bsl::true_type' if the 't_TYPE' is an array type, and 'bsl::false_type'
     // otherwise.
 };
 
-                         // ====================================
-                         // struct is_array<TYPE [NUM_ELEMENTS]>
-                         // ====================================
+                  // ========================================
+                  // struct is_array<t_TYPE [t_NUM_ELEMENTS]>
+                  // ========================================
 
-template <class TYPE, std::size_t NUM_ELEMENTS>
-struct is_array<TYPE [NUM_ELEMENTS]> : true_type {
-     // This specialization of 'is_array', for when the (template parameter)
-     // 'TYPE' is an array type of known bound, derives from 'bsl::true_type'.
+template <class t_TYPE, std::size_t t_NUM_ELEMENTS>
+struct is_array<t_TYPE[t_NUM_ELEMENTS]> : true_type {
+    // This specialization of 'is_array', for when the (template parameter)
+    // 't_TYPE' is an array type of known bound, derives from 'bsl::true_type'.
 };
 
-                         // ========================
-                         // struct is_array<TYPE []>
-                         // ========================
+                         // ==========================
+                         // struct is_array<t_TYPE []>
+                         // ==========================
 
-template <class TYPE>
-struct is_array<TYPE []> : true_type {
-     // This specialization of 'is_array', for when the (template parameter)
-     // 'TYPE' is an array type of unknown bound, derives from
-     // 'bsl::true_type'.
+template <class t_TYPE>
+struct is_array<t_TYPE[]> : true_type {
+    // This specialization of 'is_array', for when the (template parameter)
+    // 't_TYPE' is an array type of unknown bound, derives from
+    // 'bsl::true_type'.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_array_v = is_array<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_array_v =
+                                                       is_array<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_array' meta-function.
 #endif
@@ -134,11 +134,11 @@ namespace bslmf {
                          // struct IsArray
                          // ==============
 
-template <class TYPE>
-struct IsArray  : bsl::is_array<TYPE>::type {
+template <class t_TYPE>
+struct IsArray : bsl::is_array<t_TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is an array type.  This 'struct' derives
-    // from 'bsl::true_type' if the 'TYPE' is an array type, and
+    // (template parameter) 't_TYPE' is an array type.  This 'struct' derives
+    // from 'bsl::true_type' if the 't_TYPE' is an array type, and
     // 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to

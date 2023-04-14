@@ -20,6 +20,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 
@@ -136,7 +137,7 @@ using namespace bsl;
 // [ 4] Primary Accessors
 //
 // FREE FUNCTIONS
-// [12] inequality comparisons: '<', '>', '<=', '>='
+// [12] inequality comparisons: '<', '>', '<=', '>=', '<=>'
 // [ 6] equality comparisons: '==', '!='
 // [ 5] operator<< (N/A)
 // ----------------------------------------------------------------------------
@@ -3663,6 +3664,18 @@ void TestDriver<CONTAINER>::testCase12()
                 ASSERTV(cont, SPECX, SPECY, GT == (Y <  X));
                 ASSERTV(cont, SPECX, SPECY, GE == (Y <= X));
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+                if constexpr (bsl::three_way_comparable<CONTAINER>) {
+                    ASSERTV(cont, SPECX, SPECY, EQ == (Y <=> X == 0));
+                    ASSERTV(cont, SPECX, SPECY, NE == (Y <=> X != 0));
+                    ASSERTV(cont, SPECX, SPECY, LT == (Y <=> X >  0));
+                    ASSERTV(cont, SPECX, SPECY, LE == (Y <=> X >= 0));
+                    ASSERTV(cont, SPECX, SPECY, GT == (Y <=> X <  0));
+                    ASSERTV(cont, SPECX, SPECY, GE == (Y <=> X <= 0));
+                }
+#endif
+
                 ASSERTV(cont, SPECX, SPECY, LT == !GE);
                 ASSERTV(cont, SPECX, SPECY, GT == !LE);
 
@@ -6984,6 +6997,8 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT((bsl::is_same<IStack, IDStack>::value));
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
         // Verify that if a container is specified, the first template
         // argument is ignored.
 
@@ -7000,6 +7015,7 @@ int main(int argc, char *argv[])
         ASSERT(2 == VIVS.size());
         ASSERT(!VIVS.empty());
         vivs.pop();             ASSERT(4 == VIVS.top());
+#endif
       }  break;
       case 12: {
         // --------------------------------------------------------------------

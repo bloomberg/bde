@@ -79,7 +79,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::SemaphoreImpl(
                              count);
     } while (d_sem_p == SEM_FAILED && (errno == EEXIST || errno == EINTR));
 
-    BSLS_ASSERT(d_sem_p != SEM_FAILED);
+    BSLS_ASSERT_OPT(d_sem_p != SEM_FAILED);
 
     // At this point the current thread is the sole owner of the semaphore with
     // this name.  No other thread can create a semaphore with the same name
@@ -120,7 +120,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::wait()
 #endif  // BSLS_PLATFORM_OS_DARWIN
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

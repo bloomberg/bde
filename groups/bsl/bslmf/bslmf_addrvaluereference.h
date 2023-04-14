@@ -62,8 +62,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that rvalue reference was introduced in C++11 and may not be supported
 // by all compilers.  Note also that according to 'reference collapsing'
-// semantics [8.3.2], 'add_rvalue_reference' does not transform 'TYPE' to
-// rvalue reference type if 'TYPE' is an lvalue reference type.
+// semantics [8.3.2], 'add_rvalue_reference' does not transform 't_TYPE' to
+// rvalue reference type if 't_TYPE' is an lvalue reference type.
 //
 // Also note that the 'bsl::add_rvalue_reference_t' avoids the '::type' suffix
 // and 'typename' prefix when we want to use the result of
@@ -77,13 +77,13 @@ namespace bsl {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template <class TYPE>
+template <class t_TYPE>
 struct add_rvalue_reference {
     // This 'struct' template implements a meta-function to transform the
-    // (template parameter) 'TYPE' to its rvalue reference type.
+    // (template parameter) 't_TYPE' to its rvalue reference type.
 
     // PUBLIC TYPES
-    typedef TYPE&& type;
+    typedef t_TYPE&& type;
         // This 'typedef' is an alias to the return type of this meta-function.
 };
 
@@ -130,8 +130,8 @@ struct add_rvalue_reference<void const volatile> {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using add_rvalue_reference_t = typename add_rvalue_reference<TYPE>::type;
+template <class t_TYPE>
+using add_rvalue_reference_t = typename add_rvalue_reference<t_TYPE>::type;
     // 'add_rvalue_reference_t' is an alias to the return type of
     // 'add_rvalue_reference' meta-function.  Note, that the 'add_const_t'
     // avoids the '::type' suffix and 'typename' prefix when we want to use the

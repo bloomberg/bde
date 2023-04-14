@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:simpleType name='MyEnumerationWithFallback'
+                 bdem:preserveEnumOrder='true'>
+    <xs:restriction base='xs:string'>
+      <xs:enumeration value='VALUE1'/>
+      <xs:enumeration value='VALUE2'/>
+      <xs:enumeration value='UNKNOWN' bdem:isFallbackEnumerator='true'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

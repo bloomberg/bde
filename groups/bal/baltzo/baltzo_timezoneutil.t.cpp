@@ -1330,7 +1330,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a datatime object at the beginning of the valid time
-        //:   range do a time zone shift on it from UTC to NY time, which will
+        //:   range do a time zone shit on it from UTC to NY time, which will
         //:   put it out of range, and observe that the status returned is
         //:   non-zero.
         //
@@ -1593,37 +1593,30 @@ int main(int argc, char *argv[])
         //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   supplied.
         //:
-        //: 2 'k_OUT_OF_RANGE' is returned when the result would be out of
-        //:   range.
-        //:
-        //: 3 Resulting 'baltzo::LocalDatetime' has the same time zone as the
+        //: 2 Resulting 'baltzo::LocalDatetime' has the same time zone as the
         //:   supplied 'targetTimeZoneId'.
         //:
-        //: 4 'baltzo::TimeZoneUtilImp::convertLocalToLocalTime' is invoked to
+        //: 3 'baltzo::TimeZoneUtilImp::convertLocalToLocalTime' is invoked to
         //:   return the correct result.
         //:
-        //: 5 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
+        //: 4 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
         //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Test that 'k_UNSUPPORTED_ID' is returned when given a time zone
         //:   identifier that does not exist.  (C-1)
         //:
-        //: 2 Test that the method returns 'k_OUT_OF_RANGE' when supplied with
-        //:   with a datetime and a timezone id that would result in an invalid
-        //:   datetime.  (C-2)
+        //: 2 Use a table-based approach with widely varying input values and
+        //:   verify that the method returns the expected result.  (C-2..3)
         //:
-        //: 3 Use a table-based approach with widely varying input values and
-        //:   verify that the method returns the expected result.  (C-3..4)
-        //:
-        //: 4 Use a table-based approach with time values that are DST,
+        //: 3 Use a table-based approach with time values that are DST,
         //:   standard time, ambiguous and invalid, and test that the expected
-        //:   result is returned.  (C-5)
+        //:   result is returned.  (C-4)
         //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
+        //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-6)
+        //:   macros). (C-5)
         //
         // Testing:
         //   convertLocalToLocalTime(LclDatetm *, const ch *, const LclDatetm&)
@@ -1640,14 +1633,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest invalid time zone id." << endl;
         {
-            LogVerbosityGuard           guard;
-            const char                  GMT[] = "Etc/GMT";
-            const bdlt::Datetime        TIME(2010, 1, 1, 12, 0);
-            const bdlt::DatetimeTz      TIME_TZ(TIME, 0);
+            LogVerbosityGuard guard;
+            const char GMT[] = "Etc/GMT";
+            const bdlt::Datetime      TIME(2010, 1, 1, 12, 0);
+            const bdlt::DatetimeTz    TIME_TZ(TIME, 0);
             const baltzo::LocalDatetime LCL_TIME(TIME_TZ, GMT);
 
-            bdlt::Datetime        result;
-            bdlt::DatetimeTz      resultTz;
+            bdlt::Datetime      result;
+            bdlt::DatetimeTz    resultTz;
             baltzo::LocalDatetime resultLclTime(Z);
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultLclTime,
@@ -1699,53 +1692,6 @@ int main(int argc, char *argv[])
                                                         TIME,
                                                         "bogusId",
                                                         UNSP));
-        }
-
-        if (verbose) cout << "\tTest out of range datetime." << endl;
-        {
-            LogVerbosityGuard           guard;
-            const bdlt::Datetime        TIME(1, 1, 1, 1, 0, 0);
-            const bdlt::DatetimeTz      TIME_TZ(TIME, 420);
-            const baltzo::LocalDatetime LCL_TIME(TIME_TZ, SA);
-
-            bdlt::Datetime        result;
-            bdlt::DatetimeTz      resultTz;
-            baltzo::LocalDatetime resultLclTime(Z);
-
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::convertLocalToLocalTime(&resultLclTime,
-                                                GMT,
-                                                LCL_TIME));
-
-            // ----------------------------------------------------------------
-
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::convertLocalToLocalTime(&resultLclTime, NY, TIME_TZ));
-
-            // ----------------------------------------------------------------
-
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::convertLocalToLocalTime(&resultTz, NY, LCL_TIME));
-
-            // ----------------------------------------------------------------
-
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::convertLocalToLocalTime(&resultTz, NY, TIME_TZ));
-
-            // ----------------------------------------------------------------
-
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::convertLocalToLocalTime(&resultLclTime,
-                                                NY,
-                                                TIME,
-                                                SA,
-                                                UNSP));
-
-            // ----------------------------------------------------------------
-
-            ASSERT(
-                  Err::k_OUT_OF_RANGE ==
-                  Obj::convertLocalToLocalTime(&resultTz, NY, TIME, SA, UNSP));
         }
 
         if (verbose) cout <<
@@ -2338,34 +2284,27 @@ int main(int argc, char *argv[])
         //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
-        //: 2 'k_OUT_OF_RANGE' is returned when the result would be out of
-        //:   range.
-        //:
-        //: 3 'baltzo::TimeZoneUtilImp::convertLocalToUtc' is invoked to return
+        //: 2 'baltzo::TimeZoneUtilImp::convertLocalToUtc' is invoked return
         //:   the correct result.
         //:
-        //: 4 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Test that the method returns 'k_UNSUPPORTED_ID' when supplied
         //:   with a time zone identifier that does not exist.  (C-1)
         //:
-        //: 2 Test that the method returns 'k_OUT_OF_RANGE' when supplied with
-        //:   with a datetime and a timezone id that would result in an invalid
-        //:   datetime.  (C-2)
+        //: 2 Use a table-based approach with widely varying input values and
+        //:   verify that the method returns the expected result.  (C-2)
         //:
-        //: 3 Use a table-based approach with widely varying input values and
-        //:   verify that the method returns the expected result.  (C-3)
-        //:
-        //: 4 Use a table-based approach with time values that are DST,
+        //: 3 Use a table-based approach with time values that are DST,
         //:   standard time, ambiguous and invalid with without supplying DST
-        //:   policy, and test that the expected result is returned.  (C-4)
+        //:   policy, and test that the expected result is returned.  (C-3)
         //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
+        //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-5)
+        //:   macros). (C-4)
         //
         // Testing:
         //   convertLocalToUtc(Datetm *, const Datetm&, const ch *, Dst);
@@ -2393,20 +2332,6 @@ int main(int argc, char *argv[])
                                                   TIME,
                                                   "bogusId",
                                                   UNSP));
-        }
-
-        if (verbose) cout << "\tTest out of range datetime." << endl;
-        {
-            LogVerbosityGuard    guard;
-            const bdlt::Datetime TIME;
-
-            bdlt::Datetime        result;
-            baltzo::LocalDatetime resultLclTime(Z);
-
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::convertLocalToUtc(&result, TIME, SA, UNSP));
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::convertLocalToUtc(&resultLclTime, TIME, SA, UNSP));
         }
 
         if (verbose) cout <<
@@ -2586,34 +2511,27 @@ int main(int argc, char *argv[])
         //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
-        //: 2 'k_OUT_OF_RANGE' is returned when the result would be out of
-        //:   range.
-        //:
-        //: 3 'baltzo::TimeZoneUtilImp::initLocalTime' is invoked to return the
+        //: 2 'baltzo::TimeZoneUtilImp::initLocalTime' is invoked return the
         //:   correct result.
         //:
-        //: 4 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Test that the method returns 'k_UNSUPPORTED_ID' when supplied
         //:   with a time zone identifier that does not exist.  (C-1)
         //:
-        //: 2 Test that the method returns 'k_OUT_OF_RANGE' when supplied with
-        //:   with a datetime and a timezone id that would result in an invalid
-        //:   datetime.  (C-2)
+        //: 2 Use a table-based approach with widely varying input values and
+        //:   verify that the method returns the expected result. (C-2)
         //:
-        //: 3 Use a table-based approach with widely varying input values and
-        //:   verify that the method returns the expected result. (C-3)
-        //:
-        //: 4 Use a table-based approach with time values that are DST,
+        //: 3 Use a table-based approach with time values that are DST,
         //:   standard time, ambiguous and invalid with without supplying DST
-        //:   policy, and test that the expected result is returned.  (C-4)
+        //:   policy, and test that the expected result is returned.  (C-3)
         //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
+        //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-5)
+        //:   macros). (C-4)
         //
         // Testing:
         //   initLocalTime(DatetmTz *, const Datetm&, const ch *, Dst);
@@ -2642,20 +2560,6 @@ int main(int argc, char *argv[])
                                               TIME,
                                               "bogusId",
                                               UNSP));
-        }
-
-        if (verbose) cout << "\nTest out of range datetime." << endl;
-        {
-            LogVerbosityGuard guard;
-            bdlt::Datetime    TIME;
-
-            bdlt::DatetimeTz      resultTz;
-            baltzo::LocalDatetime resultLclTime(Z);
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::initLocalTime(&resultTz, TIME, SA, UNSP));
-
-            ASSERT(Err::k_OUT_OF_RANGE ==
-                   Obj::initLocalTime(&resultLclTime, TIME, SA, UNSP));
         }
 
         if (verbose) cout <<

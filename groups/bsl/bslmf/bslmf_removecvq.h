@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 // First, we create a template that will determine whether two objects are
 // EXACTLY the same type:
 //..
-//  template <class TYPE>
-//  bool isSame(TYPE& a, TYPE& b) { return true; }
+//  template <class t_TYPE>
+//  bool isSame(t_TYPE& a, t_TYPE& b) { return true; }
 //  template <class TYPEA, class TYPEB>
 //  bool isSame(TYPEA& a, TYPEB& b) { return false; }
 //..
@@ -100,13 +100,13 @@ namespace bslmf {
                            // struct RemoveCvq
                            // ================
 
-template <class TYPE>
+template <class t_TYPE>
 struct RemoveCvq
 {
     // This class implements a meta-function for stripping top-level
     // const/volatile qualifiers from it's parameter type.
 
-    typedef typename bsl::remove_cv<TYPE>::type Type;
+    typedef typename bsl::remove_cv<t_TYPE>::type Type;
 };
 
 }  // close package namespace

@@ -124,7 +124,7 @@ struct WithType {
 ///Usage Example 1
 ///- - - - - - - -
 // In this example, we write a C++03-compatible function template,
-// 'wrapInvoke<FUNC>(A1 a1, A2 a2)', that constructs an instance of functor
+// 'wrapInvoke<FUNC>(t_A1 a1, t_A2 a2)', that constructs an instance of functor
 // 'FUNC', invokes it with arguments 'a1' and 'a2', and translates any thrown
 // exception to a generic exception type.
 //
@@ -140,9 +140,9 @@ struct WithType {
 // (the idiom used in BDE library functors).  We use 'bslmf::ResultType' to
 // automatically select the correct idiom:
 //..
-    template <class FUNC, class A1, class A2>
+    template <class FUNC, class t_A1, class t_A2>
     typename bslmf::ResultType<FUNC>::type
-    wrapInvoke(A1 a1, A2 a2)
+    wrapInvoke(t_A1 a1, t_A2 a2)
     {
         FUNC f;
         BSLS_TRY {
@@ -234,9 +234,9 @@ struct WithType {
 // 'wrapInvoke2', that will fall back to a 'void' return type if neither
 // 'FUNC::result_type' nor 'FUNC::ResultType' is defined:
 //..
-    template <class FUNC, class A1, class A2>
+    template <class FUNC, class t_A1, class t_A2>
     typename bslmf::ResultType<FUNC, void>::type
-    wrapInvoke2(A1 a1, A2 a2)
+    wrapInvoke2(t_A1 a1, t_A2 a2)
     {
         typedef typename bslmf::ResultType<FUNC, void>::type RetType;
         FUNC f;

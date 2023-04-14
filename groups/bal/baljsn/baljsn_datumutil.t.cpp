@@ -2325,10 +2325,10 @@ int main(int argc, char *argv[])
           , { L_, "n_number_2.e+3.json", "TBD" }
           , { L_, "n_number_2.e-3.json", "TBD" }
           , { L_, "n_number_2.e3.json", "TBD" }
-          // Skip these tests on Sun or MSVC pre-2015, where they unexpectedly
-          // succeed.  Since these are negative tests, being overly permissive
-          // in what we accept is not a problem.
-#if !(defined(BSLS_PLATFORM_OS_SOLARIS) || \
+          // Skip these tests everywhere except Sun CC or MSVC pre-2015, where
+          // they unexpectedly succeed.  Since these are negative tests, being
+          // overly permissive in what we accept is not a problem.
+#if !((defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_SUN)) || \
      (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900))
           , { L_, "n_number_hex_1_digit.json", "TBD" }
           , { L_, "n_number_hex_2_digits.json", "TBD" }

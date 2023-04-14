@@ -200,7 +200,9 @@ class TimedSemaphore {
         // against which the 'absTime' timeouts passed to the 'timedWait'
         // methods are to be interpreted (see {Supported Clock-Types} in the
         // component-level documentation).  If 'clockType' is not specified
-        // then the realtime system clock is used.
+        // then the realtime system clock is used.  This method does
+        // not return normally unless there are sufficient system resources to
+        // construct the object.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     explicit
@@ -209,6 +211,8 @@ class TimedSemaphore {
         // realtime system clock as the clock against which the 'absTime'
         // timeouts passed to the 'timedWait' methods are interpreted (see
         // {Supported Clock-Types} in the component-level documentation).
+        // This method does not return normally unless there are sufficient
+        // system resources to construct the object.
 
     explicit
     TimedSemaphore(const bsl::chrono::steady_clock&);
@@ -216,6 +220,8 @@ class TimedSemaphore {
         // monotonic system clock as the clock against which the 'absTime'
         // timeouts passed to the 'timedWait' methods are interpreted (see
         // {Supported Clock-Types} in the component-level documentation).
+        // This method does not return normally unless there are sufficient
+        // system resources to construct the object.
 #endif
 
     explicit
@@ -227,8 +233,9 @@ class TimedSemaphore {
         // clock against which the 'absTime' timeouts passed to the 'timedWait'
         // methods are to be interpreted (see {Supported Clock-Types} in the
         // component-level documentation).  If 'clockType' is not specified
-        // then the realtime system clock is used.  The behavior is undefined
-        // unless '0 <= count'.
+        // then the realtime system clock is used.  This method does not return
+        // normally unless there are sufficient system resources to construct
+        // the object.  The behavior is undefined unless '0 <= count'.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     TimedSemaphore(int count, const bsl::chrono::system_clock&);
@@ -236,14 +243,18 @@ class TimedSemaphore {
         // Use the realtime system clock as the clock against which the
         // 'absTime' timeouts passed to the 'timedWait' methods are interpreted
         // (see {Supported Clock-Types} in the component-level documentation).
-        // The behavior is undefined unless '0 <= count'.
+        // This method does not return normally unless there are sufficient
+        // system resources to construct the object.  The behavior is undefined
+        // unless '0 <= count'.
 
     TimedSemaphore(int count, const bsl::chrono::steady_clock&);
         // Create a timed semaphore initially having the specified 'count'.
         // Use the monotonic system clock as the clock against which the
         // 'absTime' timeouts passed to the 'timedWait' methods are interpreted
         // (see {Supported Clock-Types} in the component-level documentation).
-        // The behavior is undefined unless '0 <= count'.
+        // This method does not return normally unless there are sufficient
+        // system resources to construct the object.  The behavior is undefined
+        // unless '0 <= count'.
 #endif
 
     ~TimedSemaphore();
@@ -416,7 +427,7 @@ bslmt::TimedSemaphore::clockType() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

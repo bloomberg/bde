@@ -105,124 +105,127 @@ namespace bsl {
                         // struct remove_volatile
                         // ======================
 
-template <class TYPE>
+template <class t_TYPE>
 struct remove_volatile {
     // This 'struct' template implements the 'remove_volatile' meta-function
     // defined in the C++11 standard [meta.trans.cv], providing an alias,
     // 'type', that returns the result.  'type' has the same type as the
-    // (template parameter) 'TYPE' except that any top-level
+    // (template parameter) 't_TYPE' except that any top-level
     // 'volatile'-qualifier has been removed.  Note that this generic default
-    // template provides a 'type' that is an alias to 'TYPE' for when 'TYPE' is
-    // not 'volatile'-qualified.  A template specialization is provided (below)
-    // that removes the 'volatile'-qualifier for when 'TYPE' is
-    // 'volatile'-qualified.
+    // template provides a 'type' that is an alias to 't_TYPE' for when
+    // 't_TYPE' is not 'volatile'-qualified.  A template specialization is
+    // provided (below) that removes the 'volatile'-qualifier for when 't_TYPE'
+    // is 'volatile'-qualified.
 
     // PUBLIC TYPES
-    typedef TYPE type;
-        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+    typedef t_TYPE type;
+        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
-                        // =====================================
-                        // struct remove_volatile<TYPE volatile>
-                        // =====================================
+                  // =======================================
+                  // struct remove_volatile<t_TYPE volatile>
+                  // =======================================
 
-template <class TYPE>
-struct remove_volatile<TYPE volatile> {
-     // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is 'volatile'-qualified, provides a
-     // 'typedef', 'type', that has the 'volatile'-qualifier removed.
+template <class t_TYPE>
+struct remove_volatile<t_TYPE volatile> {
+    // This partial specialization of 'bsl::remove_volatile', for when the
+    // (template parameter) 't_TYPE' is 'volatile'-qualified, provides a
+    // 'typedef', 'type', that has the 'volatile'-qualifier removed.
 
     // PUBLIC TYPES
-    typedef TYPE type;
+    typedef t_TYPE type;
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE' except with the 'volatile'-qualifier removed.
+        // parameter) 't_TYPE' except with the 'volatile'-qualifier removed.
 };
 
 #if defined(BSLS_REMOVEVOLATILE_WORKAROUND_VOLATILE_MULTIDIMENSIONAL_ARRAY)
-template <class TYPE, size_t N>
-struct remove_volatile<TYPE[N]> {
-     // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_volatile' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE, size_t t_N>
+struct remove_volatile<t_TYPE[t_N]> {
+    // This partial specialization of 'bsl::remove_volatile', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_volatile' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_volatile<TYPE>::type type[N];
+    typedef typename remove_volatile<t_TYPE>::type type[t_N];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
+        // parameter) 't_TYPE[t_N]' except with the 'volatile'-qualifier
+        // removed.
 };
 
-template <class TYPE, size_t N>
-struct remove_volatile<volatile TYPE[N]> {
-     // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_volatile' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE, size_t t_N>
+struct remove_volatile<volatile t_TYPE[t_N]> {
+    // This partial specialization of 'bsl::remove_volatile', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_volatile' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_volatile<volatile TYPE>::type type[N];
+    typedef typename remove_volatile<volatile t_TYPE>::type type[t_N];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
+        // parameter) 't_TYPE[t_N]' except with the 'volatile'-qualifier
+        // removed.
 };
 
-template <class TYPE>
-struct remove_volatile<TYPE[]> {
-     // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_volatile' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE>
+struct remove_volatile<t_TYPE[]> {
+    // This partial specialization of 'bsl::remove_volatile', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_volatile' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_volatile<TYPE>::type type[];
+    typedef typename remove_volatile<t_TYPE>::type type[];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
+        // parameter) 't_TYPE[]' except with the 'volatile'-qualifier removed.
 };
 
-template <class TYPE>
-struct remove_volatile<volatile TYPE[]> {
-     // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
-     // necessary to separately 'remove_volatile' on the element type, and then
-     // reconstruct the array dimensions.
+template <class t_TYPE>
+struct remove_volatile<volatile t_TYPE[]> {
+    // This partial specialization of 'bsl::remove_volatile', for when the
+    // (template parameter) 't_TYPE' is an array type.  On IBM compilers, it is
+    // necessary to separately 'remove_volatile' on the element type, and then
+    // reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_volatile<volatile TYPE>::type type[];
+    typedef typename remove_volatile<volatile t_TYPE>::type type[];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
+        // parameter) 't_TYPE[]' except with the 'volatile'-qualifier removed.
 };
 #elif defined(BSLS_REMOVEVOLATILE_WORKAROUND_VOLATILE_ARRAY)
-template <class TYPE>
-struct remove_volatile<TYPE[]> {
-     // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
-     // it is necessary to separately 'remove_volatile' on the element type,
-     // and then reconstruct the array dimensions.
+template <class t_TYPE>
+struct remove_volatile<t_TYPE[]> {
+    // This partial specialization of 'bsl::remove_volatile', for when the
+    // (template parameter) 't_TYPE' is an array type.  On Microsoft compilers,
+    // it is necessary to separately 'remove_volatile' on the element type, and
+    // then reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_volatile<TYPE>::type type[];
+    typedef typename remove_volatile<t_TYPE>::type type[];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
+        // parameter) 't_TYPE[]' except with the 'volatile'-qualifier removed.
 };
 
-template <class TYPE, size_t LENGTH>
-struct remove_volatile<TYPE[LENGTH]> {
-     // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
-     // it is necessary to separately 'remove_volatile' on the element type,
-     // and then reconstruct the array dimensions.
+template <class t_TYPE, size_t t_LENGTH>
+struct remove_volatile<t_TYPE[t_LENGTH]> {
+    // This partial specialization of 'bsl::remove_volatile', for when the
+    // (template parameter) 't_TYPE' is an array type.  On Microsoft compilers,
+    // it is necessary to separately 'remove_volatile' on the element type, and
+    // then reconstruct the array dimensions.
 
     // PUBLIC TYPES
-    typedef typename remove_volatile<TYPE>::type type[LENGTH];
+    typedef typename remove_volatile<t_TYPE>::type type[t_LENGTH];
         // This 'typedef' is an alias to the same type as the (template
-        // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
+        // parameter) 't_TYPE[t_N]' except with the 'volatile'-qualifier
+        // removed.
 };
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using remove_volatile_t = typename remove_volatile<TYPE>::type;
+template <class t_TYPE>
+using remove_volatile_t = typename remove_volatile<t_TYPE>::type;
     // 'remove_volatile_t' is an alias to the return type of the
     // 'bsl::remove_volatile' meta-function.  Note, that the
     // 'remove_volatile_t' avoids the '::type' suffix and 'typename' prefix

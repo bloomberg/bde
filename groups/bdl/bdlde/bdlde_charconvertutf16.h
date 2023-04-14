@@ -335,14 +335,14 @@ struct CharConvertUtf16 {
         // 'utf8ToUtf16' is non-zero.
 
     static int utf8ToUtf16(
-                          bsl::wstring            *dstWstring,
+                          bsl::wstring            *dstString,
                           const bsl::string_view&  srcString,
                           bsl::size_t             *numCodePointsWritten = 0,
                           wchar_t                  errorWord            = '?',
                           ByteOrder::Enum          byteOrder            =
                                                             ByteOrder::e_HOST);
     static int utf8ToUtf16(
-                          std::wstring            *dstWstring,
+                          std::wstring            *dstString,
                           const bsl::string_view&  srcString,
                           bsl::size_t             *numCodePointsWritten = 0,
                           wchar_t                  errorWord            = '?',
@@ -350,52 +350,100 @@ struct CharConvertUtf16 {
                                                             ByteOrder::e_HOST);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     static int utf8ToUtf16(
-                       std::pmr::wstring       *dstWstring,
+                       std::pmr::wstring       *dstString,
                        const bsl::string_view&  srcString,
                        bsl::size_t             *numCodePointsWritten = 0,
                        wchar_t                  errorWord            = '?',
                        ByteOrder::Enum          byteOrder = ByteOrder::e_HOST);
 #endif
     static int utf8ToUtf16(
-                          bsl::wstring             *dstWstring,
+                          bsl::wstring             *dstString,
                           const char               *srcString,
                           bsl::size_t              *numCodePointsWritten = 0,
                           wchar_t                   errorWord            = '?',
                           ByteOrder::Enum           byteOrder            =
                                                             ByteOrder::e_HOST);
     static int utf8ToUtf16(
-                          std::wstring             *dstWstring,
+                          std::wstring             *dstString,
                           const char               *srcString,
                           bsl::size_t              *numCodePointsWritten = 0,
                           wchar_t                   errorWord            = '?',
                           ByteOrder::Enum           byteOrder            =
                                                             ByteOrder::e_HOST);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    static int utf8ToUtf16(std::pmr::wstring *dstWstring,
+    static int utf8ToUtf16(std::pmr::wstring *dstString,
                            const char        *srcString,
                            bsl::size_t       *numCodePointsWritten = 0,
                            wchar_t            errorWord            = '?',
                            ByteOrder::Enum    byteOrder = ByteOrder::e_HOST);
 #endif
-        // Load into the specified 'dstWstring' the result of converting the
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+    static int utf8ToUtf16(
+                          bsl::u16string          *dstString,
+                          const bsl::string_view&  srcString,
+                          bsl::size_t             *numCodePointsWritten = 0,
+                          char16_t                 errorChar            = '?',
+                          ByteOrder::Enum          byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf8ToUtf16(
+                          std::u16string          *dstString,
+                          const bsl::string_view&  srcString,
+                          bsl::size_t             *numCodePointsWritten = 0,
+                          char16_t                 errorChar            = '?',
+                          ByteOrder::Enum          byteOrder            =
+                                                            ByteOrder::e_HOST);
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf8ToUtf16(
+                          std::pmr::u16string      *dstString,
+                          const bsl::string_view&   srcString,
+                          bsl::size_t              *numCodePointsWritten = 0,
+                          char16_t                  errorChar            = '?',
+                          ByteOrder::Enum           byteOrder            =
+                                                            ByteOrder::e_HOST);
+# endif
+    static int utf8ToUtf16(
+                          bsl::u16string           *dstString,
+                          const char               *srcString,
+                          bsl::size_t              *numCodePointsWritten = 0,
+                          char16_t                  errorChar            = '?',
+                          ByteOrder::Enum           byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf8ToUtf16(
+                          std::u16string           *dstString,
+                          const char               *srcString,
+                          bsl::size_t              *numCodePointsWritten = 0,
+                          char16_t                  errorChar            = '?',
+                          ByteOrder::Enum           byteOrder            =
+                                                            ByteOrder::e_HOST);
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf8ToUtf16(
+                          std::pmr::u16string      *dstString,
+                          const char               *srcString,
+                          bsl::size_t              *numCodePointsWritten = 0,
+                          char16_t                  errorChar            = '?',
+                          ByteOrder::Enum           byteOrder            =
+                                                            ByteOrder::e_HOST);
+# endif
+#endif
+        // Load into the specified 'dstString' the result of converting the
         // specified UTF-8 'srcString' to its UTF-16 equivalent.  Optionally
         // specify 'numCodePointsWritten', which, if not 0, indicates the
         // location of the modifiable variable into which the number of Unicode
-        // code points written, including the terminating null word, is to be
-        // loaded.  Optionally specify an 'errorWord' to be substituted, if not
-        // 0, for invalid encodings in the input string.  Optionally specify
-        // 'byteOrder' to indicate the byte order of the UTF-16 output; if
-        // 'byteOrder' is not specified, the output is assumed to be in host
+        // code points written, including the terminating null character, is to
+        // be loaded.  Optionally specify an 'errorChar' to be substituted, if
+        // not 0, for invalid encodings in the input string.  Optionally
+        // specify 'byteOrder' to indicate the byte order of the UTF-16 output;
+        // if 'byteOrder' is not specified, the output is assumed to be in host
         // byte order.  Return 0 on success and
         // 'CharConvertStatus::k_INVALID_INPUT_BIT' otherwise.  Invalid
         // encodings are multi-byte encoding parts out of sequence, non-minimal
         // UTF-8 encodings of code points, or code points outside the ranges
         // that UTF-16 can validly encode (in the range '[ 1 .. 0xd7ff ]' or
-        // '[ 0xe000 .. 0x10ffff ]').  If 'errorWord' is 0, invalid input code
+        // '[ 0xe000 .. 0x10ffff ]').  If 'errorChar' is 0, invalid input code
         // points are ignored (i.e., produce no corresponding output).  The
         // behavior is undefined unless 'srcString' is null-terminated when
         // specified as a 'const char *'.  Note that one code point can occupy
-        // multiple 16-bit words, and that if 'srcString' is a
+        // multiple UTF-16 words, and that if 'srcString' is a
         // 'bslstl::StringRef', it may contain embedded null bytes that will be
         // translated to null words embedded in the output.
 
@@ -549,6 +597,26 @@ struct CharConvertUtf16 {
                           wchar_t                   errorWord            = '?',
                           ByteOrder::Enum           byteOrder            =
                                                             ByteOrder::e_HOST);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+    static int utf8ToUtf16(
+                          char16_t                *dstBuffer,
+                          bsl::size_t              dstCapacity,
+                          const bsl::string_view&  srcString,
+                          bsl::size_t             *numCodePointsWritten = 0,
+                          bsl::size_t             *numWordsWritten      = 0,
+                          char16_t                 errorChar            = '?',
+                          ByteOrder::Enum          byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf8ToUtf16(
+                          char16_t                 *dstBuffer,
+                          bsl::size_t               dstCapacity,
+                          const char               *srcString,
+                          bsl::size_t              *numCodePointsWritten = 0,
+                          bsl::size_t              *numWordsWritten      = 0,
+                          char16_t                  errorChar            = '?',
+                          ByteOrder::Enum           byteOrder            =
+                                                            ByteOrder::e_HOST);
+#endif
         // Load into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified UTF-8 'srcString' to its
         // UTF-16 equivalent.  Optionally specify 'numCodePointsWritten', which
@@ -600,6 +668,13 @@ struct CharConvertUtf16 {
                                               const wchar_t        *endPtr = 0,
                                               ByteOrder::Enum       byteOrder =
                                                             ByteOrder::e_HOST);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+    static bsl::size_t computeRequiredUtf8Bytes(
+                                              const char16_t       *srcBuffer,
+                                              const char16_t       *endPtr = 0,
+                                              ByteOrder::Enum       byteOrder =
+                                                            ByteOrder::e_HOST);
+#endif
     static bsl::size_t computeRequiredUtf8Bytes(
                                               const unsigned short *srcBuffer,
                                               const unsigned short *endPtr = 0,
@@ -659,31 +734,6 @@ struct CharConvertUtf16 {
                           char                  errorByte            = '?',
                           ByteOrder::Enum       byteOrder = ByteOrder::e_HOST);
 #endif
-        // Load into the specified 'dstString' the result of converting the
-        // specified UTF-16 '*srcString' to its UTF-8 equivalent.  Optionally
-        // specify 'srcLengthInWords', the number of 'unsigned short's of
-        // input.  If 'srcLengthInWords' is not specified, the input must be
-        // terminated by a null word.  Optionally specify
-        // 'numCodePointsWritten', which (if not 0) indicates the location of
-        // the modifiable variable into which the number of Unicode code points
-        // written, including the null terminator, is to be loaded, where one
-        // code point may occupy multiple bytes.  Optionally specify an
-        // 'errorByte' to be substituted (if not 0) for invalid encodings in
-        // the input string.  Invalid encodings are incomplete multi-word
-        // encodings or parts of a two-word encoding out of their proper
-        // sequence.  If 'errorByte' is 0, invalid input sequences are ignored
-        // (i.e., produce no corresponding output).  Optionally specify
-        // 'byteOrder' to indicate the byte order of the UTF-16 input; if
-        // 'byteOrder' is not specified, the input is assumed to be in host
-        // byte order.  Any previous contents of the destination are discarded.
-        // Return 0 on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' if
-        // one or more invalid sequences were encountered in the input.  The
-        // behavior is undefined unless either 'srcLengthInWords' is passed or
-        // 'srcString' is null-terminated, and 'errorByte' is either 0 or a
-        // valid single-byte Unicode code point ('0 < errorByte < 0x80').  Note
-        // that the string length will be sized to the length of the output,
-        // such that 'strlen(dstString->c_str()) == dstString->length()'.
-
     static int utf16ToUtf8(
                       bsl::string              *dstString,
                       const bsl::wstring_view&  srcString,
@@ -726,6 +776,51 @@ struct CharConvertUtf16 {
                            char              errorByte            = '?',
                            ByteOrder::Enum   byteOrder            =
                                                             ByteOrder::e_HOST);
+#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+    static int utf16ToUtf8(
+                      bsl::string                *dstString,
+                      const bsl::u16string_view&  srcString,
+                      bsl::size_t                *numCodePointsWritten = 0,
+                      char                        errorByte            = '?',
+                      ByteOrder::Enum             byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf16ToUtf8(
+                      std::string                *dstString,
+                      const bsl::u16string_view&  srcString,
+                      bsl::size_t                *numCodePointsWritten = 0,
+                      char                        errorByte            = '?',
+                      ByteOrder::Enum             byteOrder            =
+                                                            ByteOrder::e_HOST);
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf16ToUtf8(
+                      std::pmr::string           *dstString,
+                      const bsl::u16string_view&  srcString,
+                      bsl::size_t                *numCodePointsWritten = 0,
+                      char                        errorByte            = '?',
+                      ByteOrder::Enum             byteOrder            =
+                                                            ByteOrder::e_HOST);
+# endif
+    static int utf16ToUtf8(bsl::string     *dstString,
+                           const char16_t  *srcString,
+                           bsl::size_t     *numCodePointsWritten = 0,
+                           char             errorByte            = '?',
+                           ByteOrder::Enum  byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf16ToUtf8(std::string     *dstString,
+                           const char16_t  *srcString,
+                           bsl::size_t     *numCodePointsWritten = 0,
+                           char             errorByte            = '?',
+                           ByteOrder::Enum  byteOrder            =
+                                                            ByteOrder::e_HOST);
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf16ToUtf8(std::pmr::string *dstString,
+                           const char16_t   *srcString,
+                           bsl::size_t      *numCodePointsWritten = 0,
+                           char              errorByte            = '?',
+                           ByteOrder::Enum   byteOrder            =
+                                                            ByteOrder::e_HOST);
+# endif
 #endif
         // Load into the specified 'dstString' the result of converting the
         // specified UTF-16 'srcString' to its UTF-8 equivalent.  Optionally
@@ -861,6 +956,54 @@ struct CharConvertUtf16 {
                       ByteOrder::Enum               byteOrder            =
                                                             ByteOrder::e_HOST);
 #endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+    static int utf16ToUtf8(
+                      bsl::vector<char>          *dstVector,
+                      const bsl::u16string_view&  srcString,
+                      bsl::size_t                *numCodePointsWritten = 0,
+                      char                        errorByte            = '?',
+                      ByteOrder::Enum             byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf16ToUtf8(
+                      std::vector<char>          *dstVector,
+                      const bsl::u16string_view&  srcString,
+                      bsl::size_t                *numCodePointsWritten = 0,
+                      char                        errorByte            = '?',
+                      ByteOrder::Enum             byteOrder            =
+                                                            ByteOrder::e_HOST);
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf16ToUtf8(
+                      std::pmr::vector<char>     *dstVector,
+                      const bsl::u16string_view&  srcString,
+                      bsl::size_t                *numCodePointsWritten = 0,
+                      char                        errorByte            = '?',
+                      ByteOrder::Enum             byteOrder            =
+                                                            ByteOrder::e_HOST);
+# endif
+    static int utf16ToUtf8(
+                      bsl::vector<char>            *dstVector,
+                      const char16_t               *srcString,
+                      bsl::size_t                  *numCodePointsWritten = 0,
+                      char                          errorByte            = '?',
+                      ByteOrder::Enum               byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf16ToUtf8(
+                      std::vector<char>            *dstVector,
+                      const char16_t               *srcString,
+                      bsl::size_t                  *numCodePointsWritten = 0,
+                      char                          errorByte            = '?',
+                      ByteOrder::Enum               byteOrder            =
+                                                            ByteOrder::e_HOST);
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf16ToUtf8(
+                      std::pmr::vector<char>       *dstVector,
+                      const char16_t               *srcString,
+                      bsl::size_t                  *numCodePointsWritten = 0,
+                      char                          errorByte            = '?',
+                      ByteOrder::Enum               byteOrder            =
+                                                            ByteOrder::e_HOST);
+# endif
+#endif
         // Load into the specified 'dstVector' the null-terminated result of
         // converting the specified UTF-16 'srcString' to its UTF-8 equivalent.
         // Optionally specify 'numCodePointsWritten', which (if not 0)
@@ -901,52 +1044,6 @@ struct CharConvertUtf16 {
                            char                  errorByte            = '?',
                            ByteOrder::Enum       byteOrder            =
                                                             ByteOrder::e_HOST);
-        // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
-        // the result of converting the specified UTF-16 '*srcString' to its
-        // null-terminated UTF-8 equivalent.  Optionally specify
-        // 'srcLengthInWords', the number of 'unsigned short's of input.  If
-        // 'srcLengthInWords' is not specified, the input must be terminated by
-        // a null word.  Optionally specify 'numCodePointsWritten', which (if
-        // not 0) indicates the location of the modifiable variable into which
-        // the number of Unicode code points (including the terminating 0, if
-        // any) written is to be loaded, where one code point can occupy
-        // multiple bytes.  Optionally specify 'numBytesWritten', which (if not
-        // 0) indicates the location of the modifiable variable into which the
-        // number of bytes written (including the null terminator, if any) is
-        // to be loaded.  Optionally specify an 'errorByte' to be substituted
-        // (if not 0) for invalid encodings in the input string.  Invalid
-        // encodings are incomplete multi-word encodings or parts of a two-word
-        // encoding out of their proper sequence.  If 'errorByte' is 0, invalid
-        // input sequences are ignored (i.e., produce no corresponding output).
-        // Optionally specify 'byteOrder' to indicate the byte order of the
-        // UTF-16 input; if 'byteOrder' is not specified, the input is assumed
-        // to be in host byte order.  Return 0 on success and a bitwise-or of
-        // the masks defined by 'CharConvertStatus::Enum' otherwise, where
-        // 'CharConvertStatus::k_INVALID_INPUT_BIT' will be set if one or more
-        // invalid sequences were encountered in the input, and
-        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the output
-        // space was exhausted before conversion was complete.  The behavior is
-        // undefined unless 'dstBuffer' refers to an array of at least
-        // 'dstCapacity' elements, either 'srcLengthInWords' is passed or
-        // 'srcString' is null-terminated, and 'errorByte' is either 0 or a
-        // valid single-byte Unicode code point ('0 < errorByte < 0x80').  Note
-        // that if 'dstCapacity' is 0, this function returns
-        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0 is written into
-        // '*numCodePointsWritten' and '*numBytesWritten' (if those pointers
-        // are non-null), since there is insufficient space for even a null
-        // terminator alone.  Also note that since UTF-8 is a variable-length
-        // encoding, 'numBytesWritten' may be up to four times
-        // 'numCodePointsWritten', and therefore that an input 'srcString' of
-        // 'dstCapacity' words (including the terminating 0) may not fit into
-        // 'dstBuffer'.  A one-word (two-byte) UTF-16 code point will require
-        // one to three UTF-8 octets (bytes); a two-word (four-byte) UTF-16
-        // code point will always require four UTF-8 octets.  Also note that
-        // the amount of room needed will vary with the contents of the data
-        // and the language being translated, but never will the number of
-        // bytes output exceed three times the number of short words input.
-        // Also note that, if 'dstCapacity > 0', then, after completion,
-        // 'strlen(dstBuffer) + 1 == *numBytesWritten'.
-
     static int utf16ToUtf8(
                       char                     *dstBuffer,
                       bsl::size_t               dstCapacity,
@@ -965,6 +1062,26 @@ struct CharConvertUtf16 {
                       char                          errorByte            = '?',
                       ByteOrder::Enum               byteOrder            =
                                                             ByteOrder::e_HOST);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+    static int utf16ToUtf8(
+                      char                       *dstBuffer,
+                      bsl::size_t                 dstCapacity,
+                      const bsl::u16string_view&  srcString,
+                      bsl::size_t                *numCodePointsWritten = 0,
+                      bsl::size_t                *numBytesWritten      = 0,
+                      char                        errorByte            = '?',
+                      ByteOrder::Enum             byteOrder            =
+                                                            ByteOrder::e_HOST);
+    static int utf16ToUtf8(
+                      char                         *dstBuffer,
+                      bsl::size_t                   dstCapacity,
+                      const char16_t               *srcString,
+                      bsl::size_t                  *numCodePointsWritten = 0,
+                      bsl::size_t                  *numBytesWritten      = 0,
+                      char                          errorByte            = '?',
+                      ByteOrder::Enum               byteOrder            =
+                                                            ByteOrder::e_HOST);
+#endif
         // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified UTF-16 'srcString' to its
         // UTF-8 equivalent.  Optionally specify 'numCodePointsWritten', which
@@ -990,8 +1107,8 @@ struct CharConvertUtf16 {
         // undefined unless 'dstBuffer' refers to an array of at least
         // 'dstCapacity' elements, 'errorByte' is either 0 or a valid
         // single-byte Unicode code point ('0 < errorByte < 0x80'), and
-        // 'srcString' is null-terminated if supplied as a 'const wchar_t *'.
-        // Note that if 'dstCapacity' is 0, this function returns
+        // 'srcString' is null-terminated if supplied as a pointer.  Note that
+        // if 'dstCapacity' is 0, this function returns
         // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0 is written into
         // '*numCodePointsWritten' and '*numBytesWritten' (if those pointers
         // are non-null), since there is insufficient space for even a null

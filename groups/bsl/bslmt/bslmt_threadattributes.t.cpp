@@ -24,6 +24,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
 #include <pthread.h>
@@ -82,6 +83,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 int verbose;
 int veryVerbose;
+int veryVeryVerbose;
 
 typedef bsls::Types::Int64      Int64;
 typedef bslmt::ThreadAttributes Obj;
@@ -233,11 +235,12 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
@@ -285,6 +288,412 @@ int main(int argc, char *argv[])
     ASSERT(attributes == copy);
 //..
 
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
+        //
+        // Concerns:
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
+        //:   but with each "attributeName = " elided.
+        //:
+        //: 4 The 'print' method signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values.
+        //:
+        //: 7 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        //
+        // Plan:
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4, 7)
+        //:
+        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //:
+        //:   1 Define sixteen carefully selected combinations of (two) object
+        //:     values ('A' and 'B'), having distinct values for each
+        //:     corresponding salient attribute, and various values for the
+        //:     two formatting parameters, along with the expected output.
+        //:
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
+        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //:
+        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //:
+        //:     1 Using a 'const' 'Obj', supply each object value and pair of
+        //:       formatting parameters to 'print', omitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
+        //:       invoke the 'operator<<' instead.
+        //:
+        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:
+        //:     3 Verify the address of what is returned is that of the
+        //:       supplied stream.  (C-5, 8)
+        //:
+        //:     4 Compare the contents captured in P-2.2.2 with what is
+        //:       expected.  (C-1..3, 6)
+        //
+        // Testing:
+        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+        //   ostream& operator<<(ostream& s, const ThreadAttributes& obj);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nPRINT AND OUTPUT OPERATOR\n"
+                          <<   "=========================\n";
+
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables.\n";
+        {
+            using namespace bslmt;
+            using bsl::ostream;
+
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOp  = operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOp;
+        }
+
+        if (verbose) cout <<
+             "\nCreate a table of distinct value/format combinations.\n";
+
+        static const struct {
+            int                    d_line;  // source line number
+            int                    d_level;
+            int                    d_spacesPerLevel;
+
+            Obj::DetachedState     d_detachedState;
+            int                    d_guardSize;
+            bool                   d_inheritSchedule;
+            Obj::SchedulingPolicy  d_schedulingPolicy;
+            int                    d_schedulingPriority;
+            int                    d_stackSize;
+            const char            *d_threadName;
+
+            const char            *d_expected_p;
+        } DATA[] = {
+
+        // ------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1, -8 } -->  4 expected o/ps
+        // ------------------------------------------------------------------
+
+        { L_,  0,  0,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         "detachedState = 0\n"
+         "guardSize = 64\n"
+         "inheritSchedule = true\n"
+         "schedulingPolicy = 2\n"
+         "schedulingPriority = 1\n"
+         "stackSize = 1024\n"
+         "threadName = \"t\"\n"
+         "]\n" },
+
+        { L_,  0,  1,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         " detachedState = 0\n"
+         " guardSize = 64\n"
+         " inheritSchedule = true\n"
+         " schedulingPolicy = 2\n"
+         " schedulingPriority = 1\n"
+         " stackSize = 1024\n"
+         " threadName = \"t\"\n"
+         "]\n" },
+
+        { L_,  0, -1,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[ "
+         "detachedState = 0 "
+         "guardSize = 64 "
+         "inheritSchedule = true "
+         "schedulingPolicy = 2 "
+         "schedulingPriority = 1 "
+         "stackSize = 1024 "
+         "threadName = \"t\" "
+         "]" },
+
+        { L_,  0, -8,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         "    detachedState = 0\n"
+         "    guardSize = 64\n"
+         "    inheritSchedule = true\n"
+         "    schedulingPolicy = 2\n"
+         "    schedulingPriority = 1\n"
+         "    stackSize = 1024\n"
+         "    threadName = \"t\"\n"
+         "]\n" },
+
+        // ------------------------------------------------------------------
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } -->  8 expected o/ps
+        // ------------------------------------------------------------------
+
+        { L_,  3,  0,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         "detachedState = 0\n"
+         "guardSize = 64\n"
+         "inheritSchedule = true\n"
+         "schedulingPolicy = 2\n"
+         "schedulingPriority = 1\n"
+         "stackSize = 1024\n"
+         "threadName = \"t\"\n"
+         "]\n" },
+
+        { L_,  3,  2,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "      [\n"
+         "        detachedState = 0\n"
+         "        guardSize = 64\n"
+         "        inheritSchedule = true\n"
+         "        schedulingPolicy = 2\n"
+         "        schedulingPriority = 1\n"
+         "        stackSize = 1024\n"
+         "        threadName = \"t\"\n"
+         "      ]\n" },
+
+        { L_,  3, -2,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "      [ "
+         "detachedState = 0 "
+         "guardSize = 64 "
+         "inheritSchedule = true "
+         "schedulingPolicy = 2 "
+         "schedulingPriority = 1 "
+         "stackSize = 1024 "
+         "threadName = \"t\" "
+         "]" },
+
+        { L_,  3, -8,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "            [\n"
+         "                detachedState = 0\n"
+         "                guardSize = 64\n"
+         "                inheritSchedule = true\n"
+         "                schedulingPolicy = 2\n"
+         "                schedulingPriority = 1\n"
+         "                stackSize = 1024\n"
+         "                threadName = \"t\"\n"
+         "            ]\n" },
+
+        { L_, -3,  0,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         "detachedState = 0\n"
+         "guardSize = 64\n"
+         "inheritSchedule = true\n"
+         "schedulingPolicy = 2\n"
+         "schedulingPriority = 1\n"
+         "stackSize = 1024\n"
+         "threadName = \"t\"\n"
+         "]\n" },
+
+        { L_, -3,  2,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         "        detachedState = 0\n"
+         "        guardSize = 64\n"
+         "        inheritSchedule = true\n"
+         "        schedulingPolicy = 2\n"
+         "        schedulingPriority = 1\n"
+         "        stackSize = 1024\n"
+         "        threadName = \"t\"\n"
+         "      ]\n" },
+
+        { L_, -3, -2,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[ "
+         "detachedState = 0 "
+         "guardSize = 64 "
+         "inheritSchedule = true "
+         "schedulingPolicy = 2 "
+         "schedulingPriority = 1 "
+         "stackSize = 1024 "
+         "threadName = \"t\" "
+         "]" },
+
+        { L_, -3, -8,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         "                detachedState = 0\n"
+         "                guardSize = 64\n"
+         "                inheritSchedule = true\n"
+         "                schedulingPolicy = 2\n"
+         "                schedulingPriority = 1\n"
+         "                stackSize = 1024\n"
+         "                threadName = \"t\"\n"
+         "            ]\n" },
+
+        // -----------------------------------------------------------------
+        // P-2.1.3: { B } x { 2 }     x { 3 }            -->  1 expected o/p
+        // -----------------------------------------------------------------
+
+        { L_,  2,  3,
+          Obj::e_CREATE_DETACHED, 16, false, Obj::e_SCHED_FIFO, 3, 512, "nm",
+         "      [\n"
+         "         detachedState = 1\n"
+         "         guardSize = 16\n"
+         "         inheritSchedule = false\n"
+         "         schedulingPolicy = 1\n"
+         "         schedulingPriority = 3\n"
+         "         stackSize = 512\n"
+         "         threadName = \"nm\"\n"
+         "      ]\n" },
+
+        // -----------------------------------------------------------------
+        // P-2.1.4: { A B } x { -8 }   x { -8 }         -->  2 expected o/ps
+        // -----------------------------------------------------------------
+
+        { L_, -8, -8,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[\n"
+         "    detachedState = 0\n"
+         "    guardSize = 64\n"
+         "    inheritSchedule = true\n"
+         "    schedulingPolicy = 2\n"
+         "    schedulingPriority = 1\n"
+         "    stackSize = 1024\n"
+         "    threadName = \"t\"\n"
+         "]\n" },
+
+        { L_, -8, -8,
+          Obj::e_CREATE_DETACHED, 16, false, Obj::e_SCHED_FIFO, 3, 512, "nm",
+         "[\n"
+         "    detachedState = 1\n"
+         "    guardSize = 16\n"
+         "    inheritSchedule = false\n"
+         "    schedulingPolicy = 1\n"
+         "    schedulingPriority = 3\n"
+         "    stackSize = 512\n"
+         "    threadName = \"nm\"\n"
+         "]\n" },
+
+        // -----------------------------------------------------------------
+        // P-2.1.5: { A B } x { -9 }   x { -9 }         -->  2 expected o/ps
+        // -----------------------------------------------------------------
+
+        { L_, -9, -9,
+          Obj::e_CREATE_JOINABLE, 64, true, Obj::e_SCHED_RR, 1, 1024, "t",
+         "[ "
+         "detachedState = 0 "
+         "guardSize = 64 "
+         "inheritSchedule = true "
+         "schedulingPolicy = 2 "
+         "schedulingPriority = 1 "
+         "stackSize = 1024 "
+         "threadName = \"t\" "
+         "]" },
+
+        { L_, -9, -9,
+          Obj::e_CREATE_DETACHED, 16, false, Obj::e_SCHED_FIFO, 3, 512, "nm",
+         "[ "
+         "detachedState = 1 "
+         "guardSize = 16 "
+         "inheritSchedule = false "
+         "schedulingPolicy = 1 "
+         "schedulingPriority = 3 "
+         "stackSize = 512 "
+         "threadName = \"nm\" "
+         "]" }
+
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) cout << "\nTesting with various print specifications.\n";
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE = DATA[ti].d_line;
+                const int L    = DATA[ti].d_level;
+                const int SPL  = DATA[ti].d_spacesPerLevel;
+
+                const Obj::DetachedState    DETACHED_STATE =
+                                                      DATA[ti].d_detachedState;
+                const int                   GUARD_SIZE =  DATA[ti].d_guardSize;
+                const bool                  INHERIT_SCHEDULE =
+                                                    DATA[ti].d_inheritSchedule;
+                const Obj::SchedulingPolicy SCHEDULING_POLICY =
+                                                   DATA[ti].d_schedulingPolicy;
+                const int                   SCHEDULING_PRIORITY =
+                                                 DATA[ti].d_schedulingPriority;
+                const int                   STACK_SIZE =  DATA[ti].d_stackSize;
+                const char *const           THREAD_NAME =
+                                                         DATA[ti].d_threadName;
+
+                const char *const EXP = DATA[ti].d_expected_p;
+
+                if (veryVerbose) {
+                    T_ P_(L) P_(SPL) P_(DETACHED_STATE) P_(GUARD_SIZE)
+                    P_(INHERIT_SCHEDULE) P_(SCHEDULING_POLICY)
+                    P_(SCHEDULING_PRIORITY) P_(STACK_SIZE) P(THREAD_NAME)
+                }
+
+                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+
+                const Obj X = Obj()
+                    .setDetachedState(DETACHED_STATE)
+                    .setGuardSize(GUARD_SIZE)
+                    .setInheritSchedule(INHERIT_SCHEDULE)
+                    .setSchedulingPolicy(SCHEDULING_POLICY)
+                    .setSchedulingPriority(SCHEDULING_PRIORITY)
+                    .setStackSize(STACK_SIZE)
+                    .setThreadName(THREAD_NAME)
+                ;
+
+                bsl::ostringstream os;
+
+                // Verify supplied stream is returned by reference.
+
+                if (-9 == L && -9 == SPL) {
+                    ASSERTV(LINE, &os == &(os << X));
+
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
+                    ASSERTV(LINE, -8 == SPL || -8 != L);
+
+                    if (-8 != SPL) {
+                        ASSERTV(LINE, &os == &X.print(os, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        ASSERTV(LINE, &os == &X.print(os, L));
+                    }
+                    else {
+                        ASSERTV(LINE, &os == &X.print(os));
+                    }
+
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
+
+                // Verify output is formatted as expected.
+
+                if (veryVeryVerbose) { P(os.str()) }
+
+                ASSERTV(LINE, EXP, os.str(), EXP == os.str());
+            }
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -393,6 +802,10 @@ int main(int argc, char *argv[])
             {
                 Obj &rv = mX.setThreadName(PARAM[i].d_threadName);
                 ASSERTV(&rv, &mX, &rv == &mX);
+            }
+
+            if (veryVerbose) {
+                X.print(cout);
             }
 
             ASSERT(da.numAllocations() == numDaPreAlloc);

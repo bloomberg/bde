@@ -7,8 +7,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bos+stdhdrs in the bos package group
-//
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
@@ -117,6 +115,33 @@ namespace bsl {
     using std::atomic_intptr_t;
     using std::atomic_uintptr_t;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    using std::atomic_ref;
+    using std::atomic_char8_t;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
+    using std::atomic_signed_lock_free;
+    using std::atomic_unsigned_lock_free;
+#endif
+
+    using std::atomic_wait;
+    using std::atomic_wait_explicit;
+    using std::atomic_notify_one;
+    using std::atomic_notify_all;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+    using std::atomic_flag_wait;
+    using std::atomic_flag_wait_explicit;
+    using std::atomic_flag_notify_one;
+    using std::atomic_flag_notify_all;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
+    using std::atomic_flag_test;
+    using std::atomic_flag_test_explicit;
+#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 }  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to

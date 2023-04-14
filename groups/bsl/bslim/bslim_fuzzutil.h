@@ -94,11 +94,13 @@ BSLS_IDENT("$Id: $")
 #include <bsl_limits.h>           // 'bsl::numeric_limits'
 #include <bsl_string.h>
 #include <bsl_type_traits.h>      // 'bsl::is_same'
+#include <bsl_vector.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 #include <memory_resource>
 #endif
 #include <string>
+#include <vector>
 
 namespace BloombergLP {
 namespace bslim {
@@ -147,9 +149,7 @@ struct FuzzUtil {
     template <class TYPE>
     static typename
     bsl::enable_if<bsl::is_floating_point<TYPE>::value, TYPE>::type
-    consumeNumberInRange(FuzzDataView                *fuzzDataView,
-                         TYPE                         min,
-                         TYPE                         max);
+    consumeNumberInRange(FuzzDataView *fuzzDataView, TYPE min, TYPE max);
         // Return a value of (template parameter) 'TYPE' in the specified range
         // [min .. max] based on at most the next 'sizeof(TYPE) + 1' bytes from
         // the specified 'fuzzDataView', and update 'fuzzDataView' to reflect
@@ -160,6 +160,30 @@ struct FuzzUtil {
         // undefined if 'min > max', 'min' or 'max' is not finite, or either
         // 'bsl::is_same<TYPE, bool>::value' or
         // 'bsl::is_same<TYPE, long double>' is 'true'.
+
+    static void consumeRandomLengthChars(bsl::vector<char> *output,
+                                         FuzzDataView      *fuzzDataView,
+                                         bsl::size_t        maxLength);
+    static void consumeRandomLengthChars(std::vector<char> *output,
+                                         FuzzDataView      *fuzzDataView,
+                                         bsl::size_t        maxLength);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void consumeRandomLengthChars(std::pmr::vector<char> *output,
+                                         FuzzDataView           *fuzzDataView,
+                                         bsl::size_t             maxLength);
+#endif
+    // Load into the specified 'output' a sequence of characters of length from
+    // 0 to the specified 'maxLength'.  If the specified 'fuzzDataView' has
+    // fewer bytes than 'maxLength', load at most 'fuzzDataView->length()'
+    // bytes into 'output'.  If the buffer in 'fuzzDataView' contains two
+    // successive backslash characters, then in 'output' they will be converted
+    // to a single backslash ('\\') character; if a single backslash character
+    // is encountered, the consumption of bytes is terminated.  Note that
+    // because double backslashes are mapped to single backslashes, more than
+    // 'maxLength' bytes may be consumed from the buffer to produce the
+    // 'output'.  Also note that the purpose of this function is to enable the
+    // creation of a non-zero-terminated 'string_view', which is not possible
+    // with the 'string' counterpart.
 
     static void consumeRandomLengthString(bsl::string      *output,
                                           FuzzDataView     *fuzzDataView,

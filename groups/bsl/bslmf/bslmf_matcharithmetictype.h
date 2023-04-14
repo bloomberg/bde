@@ -412,13 +412,12 @@ class MatchArithmeticType {
 
   public:
     // CREATORS
-    template <class TYPE>
+    template <class t_TYPE>
     MatchArithmeticType(
-         TYPE,
-         typename bsl::enable_if<bsl::is_arithmetic<TYPE>::value
-                              || bsl::is_enum<TYPE>::value>::type* = 0);
-                                                                    // IMPLICIT
-        // Conversion constructor.  Does nothing.
+             t_TYPE,
+             typename bsl::enable_if<bsl::is_arithmetic<t_TYPE>::value ||
+                                     bsl::is_enum<t_TYPE>::value>::type * = 0);
+        // IMPLICIT Conversion constructor.  Does nothing.
 
     //! MatchArithmeticType(const MatchArithmeticType&) = default;
         // Create a 'MatchArithmeticType' object.  Note that as
@@ -433,12 +432,12 @@ class MatchArithmeticType {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-template <class TYPE>
+template <class t_TYPE>
 inline
 MatchArithmeticType::MatchArithmeticType(
-                     TYPE,
-                     typename bsl::enable_if<bsl::is_arithmetic<TYPE>::value
-                                          || bsl::is_enum<TYPE>::value>::type*)
+                  t_TYPE,
+                  typename bsl::enable_if<bsl::is_arithmetic<t_TYPE>::value ||
+                                          bsl::is_enum<t_TYPE>::value>::type *)
 {
 }
 

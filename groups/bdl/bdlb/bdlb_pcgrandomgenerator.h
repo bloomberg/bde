@@ -278,8 +278,7 @@ PcgRandomGenerator::PcgRandomGenerator(bsl::uint64_t initState,
 inline
 bsl::uint32_t PcgRandomGenerator::generate()
 {
-    static BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::uint64_t k_MULTIPLIER =
-                                                6364136223846793005ULL;
+    static const bsl::uint64_t k_MULTIPLIER = 6364136223846793005ULL;
 
     bsl::uint64_t oldstate = d_state;
 

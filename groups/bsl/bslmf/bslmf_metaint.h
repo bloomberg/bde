@@ -111,28 +111,28 @@ namespace bslmf {
                            // struct MetaInt
                            // ==============
 
-template <int INT_VALUE>
-struct MetaInt : public bsl::integral_constant<int, INT_VALUE> {
+template <int t_INT_VALUE>
+struct MetaInt : public bsl::integral_constant<int, t_INT_VALUE> {
     // Instantiating this template produces a distinct type for each
     // non-negative integer value.  This template has been deprecated in favor
     // of the standard 'integral_constant' template.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-    static_assert(INT_VALUE >= 0, "INT_VALUE must be non-negative");
+    static_assert(t_INT_VALUE >= 0, "t_INT_VALUE must be non-negative");
 #endif
 
     // TYPES
-    typedef MetaInt<INT_VALUE>    Type;
-    typedef bslmf::Tag<INT_VALUE> Tag;
+    typedef MetaInt<t_INT_VALUE>    Type;
+    typedef bslmf::Tag<t_INT_VALUE> Tag;
 
-    enum { VALUE = INT_VALUE };
+    enum { VALUE = t_INT_VALUE };
 
     // CREATORS
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::integral_constant<int, INT_VALUE>);                // IMPLICIT
-        // Convert from a 'bsl::integral_constant<int, INT_VALUE>'.
+    MetaInt(bsl::integral_constant<int, t_INT_VALUE>);              // IMPLICIT
+        // Convert from a 'bsl::integral_constant<int, t_INT_VALUE>'.
 
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
@@ -254,15 +254,15 @@ struct MetaInt<1> : public bsl::true_type {
 // ============================================================================
 
 // CREATORS
-template <int INT_VALUE>
+template <int t_INT_VALUE>
 inline
-MetaInt<INT_VALUE>::MetaInt()
+MetaInt<t_INT_VALUE>::MetaInt()
 {
 }
 
-template <int INT_VALUE>
+template <int t_INT_VALUE>
 inline
-MetaInt<INT_VALUE>::MetaInt(bsl::integral_constant<int, INT_VALUE>)
+MetaInt<t_INT_VALUE>::MetaInt(bsl::integral_constant<int, t_INT_VALUE>)
 {
 }
 

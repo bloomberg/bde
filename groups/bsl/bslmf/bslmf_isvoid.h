@@ -89,46 +89,42 @@ namespace bsl {
                          // struct is_void
                          // ==============
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_void : false_type {
     // This 'struct' template implements the 'is_void' meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 'TYPE' is the (possibly cv-qualified) 'void' type.  This
-    // 'struct' derives from 'bsl::true_type' if 'TYPE' is the 'void' type, and
-    // 'bsl::false_type' otherwise.
+    // parameter) 't_TYPE' is the (possibly cv-qualified) 'void' type.  This
+    // 'struct' derives from 'bsl::true_type' if 't_TYPE' is the 'void' type,
+    // and 'bsl::false_type' otherwise.
 };
 
 template <>
 struct is_void<void> : true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is 'void'.
+    // This partial specialization of 'is_void' derives from 'bsl::true_type'
+    // for when the (template parameter) 't_TYPE' is 'void'.
 };
 
 template <>
 struct is_void<const void> : true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is
-     // 'const void'.
+    // This partial specialization of 'is_void' derives from 'bsl::true_type'
+    // for when the (template parameter) 't_TYPE' is 'const void'.
 };
 
 template <>
 struct is_void<volatile void> : true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is
-     // 'volatile void'.
+    // This partial specialization of 'is_void' derives from 'bsl::true_type'
+    // for when the (template parameter) 't_TYPE' is 'volatile void'.
 };
 
 template <>
 struct is_void<const volatile void> : bsl::true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is
-     // 'const volatile void'.
+    // This partial specialization of 'is_void' derives from 'bsl::true_type'
+    // for when the (template parameter) 't_TYPE' is 'const volatile void'.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_void_v = is_void<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_void_v = is_void<t_TYPE>::value;
     // This template variable represents the result value of the 'bsl::is_void'
     // meta-function.
 #endif
@@ -142,12 +138,12 @@ namespace bslmf {
                         // struct bslmf_IsVoid
                         // ===================
 
-template<class TYPE>
-struct IsVoid : bsl::is_void<TYPE>::type {
+template <class t_TYPE>
+struct IsVoid : bsl::is_void<t_TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is the (possibly cv-qualified) 'void' type.
-    // This 'struct' derives from 'bslmf::MetaInt<1>' if 'TYPE' is the 'void'
-    // type, and 'bslmf::MetaInt<0>' otherwise.
+    // (template parameter) 't_TYPE' is the (possibly cv-qualified) 'void'
+    // type.  This 'struct' derives from 'bslmf::MetaInt<1>' if 't_TYPE' is the
+    // 'void' type, and 'bslmf::MetaInt<0>' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_void', and the use of 'bsl::is_void' should be preferred.

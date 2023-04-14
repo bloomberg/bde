@@ -59,6 +59,7 @@
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
 #include <bsls_types.h>
 #include <bsls_assert.h>
 
@@ -137,13 +138,14 @@ class ScopedAttribute_Container : public AttributeContainer {
         // Destroy this object;
 
     // ACCESSORS
-    virtual bool hasValue(const Attribute& attribute) const;
+    bool hasValue(const Attribute& attribute) const BSLS_KEYWORD_OVERRIDE;
         // Return 'true' if the specified 'attribute' is the same as the value
         // held in this container, and 'false' otherwise.
 
-    virtual bsl::ostream& print(bsl::ostream& stream,
-                                int           level = 0,
-                                int           spacesPerLevel = 4) const;
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4)
+                                                   const BSLS_KEYWORD_OVERRIDE;
         // Format this object to the specified output 'stream' at the (absolute
         // value of) the optionally specified indentation 'level' and return a
         // reference to 'stream'.  If 'level' is specified, optionally specify
@@ -154,8 +156,8 @@ class ScopedAttribute_Container : public AttributeContainer {
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
 
-    virtual void visitAttributes(
-                   const bsl::function<void(const Attribute&)>& visitor) const;
+    void visitAttributes(const bsl::function<void(const Attribute&)>& visitor)
+                                                   const BSLS_KEYWORD_OVERRIDE;
         // Invoke the specified 'visitor' function for all attributes in this
         // container.
 

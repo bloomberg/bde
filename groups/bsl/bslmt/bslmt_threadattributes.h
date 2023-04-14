@@ -124,9 +124,10 @@ BSLS_IDENT("$Id: $")
 // Thread names have unlimited lengths in a thread attributes object, but the
 // thread names actually supported by specific platforms may have limited
 // length, depending upon the platform, so thread names may be truncated when
-// assigned to the actual thread.  At this time, only Linux and Darwin support
-// thread names, and there is a maximum thread name length of 15 on both of
-// those platforms.
+// assigned to the actual thread.  At this time, only Linux, Solaris, Darwin,
+// and Windows support thread names.  Unix platforms have a maximum thread name
+// length of 15, while on Windows, the limit is 32767, or '(1 << 15) - 1'
+// characters.
 //
 ///Fluent Interface
 ///------------------
@@ -277,6 +278,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #include <bsl_c_limits.h>
+#include <bsl_iosfwd.h>
 #include <bsl_string.h>
 
 namespace BloombergLP {
@@ -505,6 +507,19 @@ class ThreadAttributes {
         // respective values in this object.  See 'bslmt_threadutil' for
         // information about support for this attribute.
 
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.
+
     SchedulingPolicy schedulingPolicy() const;
         // Return the value of the 'schedulingPolicy' attribute of this object.
         // This attribute is ignored unless 'inheritSchedule' is 'false'.  See
@@ -549,6 +564,18 @@ bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
     // objects do not have the same value if the corresponding values of their
     // 'detachedState', 'guardSize', 'inheritSchedule', 'schedulingPolicy',
     // 'schedulingPriority', and 'stackSize' attributes are not the same.
+
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream&           stream,
+                         const ThreadAttributes& object);
+    // Write the value of the specified 'object' object to the specified output
+    // 'stream' in a single-line format, and return a reference to 'stream'.
+    // If 'stream' is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified, can change
+    // without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -681,6 +708,14 @@ inline
 bslma::Allocator *ThreadAttributes::allocator() const
 {
     return d_threadName.get_allocator().mechanism();
+}
+
+// FREE OPERATORS
+inline
+bsl::ostream& operator<<(bsl::ostream&           stream,
+                         const ThreadAttributes& object)
+{
+    return object.print(stream, 0, -1);
 }
 
 }  // close package namespace

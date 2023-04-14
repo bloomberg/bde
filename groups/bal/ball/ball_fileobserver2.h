@@ -508,8 +508,8 @@ class FileObserver2 : public Observer {
         // undefined unless the caller acquired the lock for this object.
 
     // PRIVATE ACCESSORS
-    template <class STRING>
-    bool isFileLoggingEnabledImpl(STRING *result) const;
+    template <class t_STRING>
+    bool isFileLoggingEnabledImpl(t_STRING *result) const;
         // Return 'true' if file logging is enabled for this file observer, and
         // 'false' otherwise.  Load the specified 'result' with the name of the
         // current log file if file logging is enabled, and leave 'result'

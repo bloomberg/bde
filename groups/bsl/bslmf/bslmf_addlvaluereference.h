@@ -80,23 +80,23 @@ namespace bsl {
                          // struct add_lvalue_reference
                          // ===========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct add_lvalue_reference {
-    // This 'struct' template implements a meta-function to transform the
-    // the (template parameter) 'TYPE' to its lvalue reference type.
+    // This 'struct' template implements a meta-function to transform the the
+    // (template parameter) 't_TYPE' to its lvalue reference type.
 
-    typedef TYPE& type;
+    typedef t_TYPE& type;
         // This 'typedef' defines the return type of this meta function.
 };
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template <class TYPE>
-struct add_lvalue_reference<TYPE&> {
+template <class t_TYPE>
+struct add_lvalue_reference<t_TYPE&> {
     // This partial specialization of 'add_lvalue_reference' defines a return
     // type when it is instantiated with an lvalue reference type.
 
-    typedef TYPE& type;
+    typedef t_TYPE& type;
         // This 'typedef' defines the return type of this meta function.
 };
 
@@ -141,8 +141,8 @@ struct add_lvalue_reference<void const volatile> {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using add_lvalue_reference_t = typename add_lvalue_reference<TYPE>::type;
+template <class t_TYPE>
+using add_lvalue_reference_t = typename add_lvalue_reference<t_TYPE>::type;
     // 'add_lvalue_reference_t' is an alias to the return type of
     // 'add_lvalue_reference' meta-function.  Note, that the 'add_const_t'
     // avoids the '::type' suffix and 'typename' prefix when we want to use the

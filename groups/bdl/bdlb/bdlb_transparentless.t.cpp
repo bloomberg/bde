@@ -128,7 +128,13 @@ void testCompareInt()
             const RHS  RIGHT    = j;
             const bool EXPECTED = (i < j);
 
-            const Obj compare;
+            // XLC version 16.1 (on AIX) complains about creating a const
+            // object that does not have an "initializer or user-defined
+            // default constructor".  To work around that, we create a
+            // non-const object, and a const reference to that object, and use
+            // the reference.
+            Obj comp;
+            const Obj& compare = comp;
 
             ASSERTV(i, j, EXPECTED == compare(LEFT, RIGHT));
         }
@@ -186,7 +192,13 @@ void testCompareString()
                                                                   LEFT_SPEC,
                                                                   RIGHT_SPEC));
 
-            const Obj compare;
+            // XLC version 16.1 (on AIX) complains about creating a const
+            // object that does not have an "initializer or user-defined
+            // default constructor".  To work around that, we create a
+            // non-const object, and a const reference to that object, and use
+            // the reference.
+            Obj comp;
+            const Obj& compare = comp;
 
             ASSERTV(i, j, EXPECTED == compare(LEFT, RIGHT));
         }

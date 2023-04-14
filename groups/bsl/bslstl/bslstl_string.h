@@ -715,8 +715,17 @@ template <class CHAR_TYPE,
 class basic_string;
 
 // TYPEDEFS
-typedef basic_string<char>    string;
-typedef basic_string<wchar_t> wstring;
+typedef basic_string<char>     string;
+typedef basic_string<wchar_t>  wstring;
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+typedef basic_string<char8_t>  u8string;
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+typedef basic_string<char16_t> u16string;
+typedef basic_string<char32_t> u32string;
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 template <class ORIGINAL_TRAITS>
@@ -2809,6 +2818,52 @@ class basic_string
         // can be found in this string (on or *before* the optionally specified
         // 'position' if such a 'position' is specified), and return 'npos'
         // otherwise.
+
+    bool starts_with(basic_string_view<CHAR_TYPE, CHAR_TRAITS> characterString)
+                                                   const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if the length of this string is equal to or greater
+        // than the length of the specified 'characterString' and the first
+        // 'characterString.length()' characters of this string are equal to
+        // the characters of the 'characterString', and 'false' otherwise.
+        // 'CHAR_TRAITS::compare' is used to compare characters.  See
+        // {Lexicographical Comparisons}.
+
+    bool starts_with(CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if this string contains at least one symbol and the
+        // last symbol of this string is equal to the specified 'character',
+        // and 'false' otherwise.  'CHAR_TRAITS::eq' is used to compare
+        // characters.  See {Lexicographical Comparisons}.
+
+    bool starts_with(const CHAR_TYPE *characterString) const;
+        // Return 'true' if the length of this string is equal to or greater
+        // than the length of the specified 'characterString' and the first
+        // 'CHAR_TRAITS::length(characterString)' characters of this string are
+        // equal to the characters of the 'characterString', and 'false'
+        // otherwise.  'CHAR_TRAITS::compare' is used to compare characters.
+        // See {Lexicographical Comparisons}.
+
+    bool ends_with(basic_string_view<CHAR_TYPE, CHAR_TRAITS> characterString)
+                                                   const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if the length of this string is equal to or greater
+        // than the length of the specified 'characterString' and the last
+        // 'characterString.length()' characters of this string are equal to
+        // the characters of the 'characterString', and 'false' otherwise.
+        // 'CHAR_TRAITS::compare' is used to compare characters.  See
+        // {Lexicographical Comparisons}.
+
+    bool ends_with(CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if this string contains at least one symbol and the
+        // last symbol of this string is equal to the specified 'character',
+        // and 'false' otherwise.  'CHAR_TRAITS::eq' is used to compare
+        // characters.  See {Lexicographical Comparisons}.
+
+    bool ends_with(const CHAR_TYPE *characterString) const;
+        // Return 'true' if the length of this string is equal to or greater
+        // than the length of the specified 'characterString' and the last
+        // 'CHAR_TRAITS::length(characterString)' characters of this string are
+        // equal to the characters of the 'characterString', and 'false'
+        // otherwise.  'CHAR_TRAITS::compare' is used to compare characters.
+        // See {Lexicographical Comparisons}.
 
     basic_string substr(size_type position = 0,
                         size_type numChars = npos) const;
@@ -6885,6 +6940,76 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE bool
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::starts_with(
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS> characterString)
+                                                    const BSLS_KEYWORD_NOEXCEPT
+{
+    return (length() >= characterString.length() &&
+            0 == CHAR_TRAITS::compare(data(),
+                                      characterString.data(),
+                                      characterString.size()));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::starts_with(
+                               CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT
+{
+    return (0 < length() &&  CHAR_TRAITS::eq(*data(), character));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::starts_with(
+                                        const CHAR_TYPE *characterString) const
+{
+    BSLS_ASSERT_SAFE(characterString);
+
+    std::size_t strLength = CHAR_TRAITS::length(characterString);
+    return (length() >= strLength &&
+            0 == CHAR_TRAITS::compare(data(),
+                                      characterString,
+                                      strLength));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE bool
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::ends_with(
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS> characterString)
+                                                    const BSLS_KEYWORD_NOEXCEPT
+{
+    return (length() >= characterString.length() &&
+            0 == CHAR_TRAITS::compare(
+                                  data() + length() - characterString.length(),
+                                  characterString.data(),
+                                  characterString.size()));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::ends_with(
+                               CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT
+{
+    return (0 < length() &&
+            CHAR_TRAITS::eq(*(data()+ length() - 1), character));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::ends_with(
+                                        const CHAR_TYPE *characterString) const
+{
+    BSLS_ASSERT_SAFE(characterString);
+
+    std::size_t strLength = CHAR_TRAITS::length(characterString);
+    return (length() >= strLength &&
+            0 == CHAR_TRAITS::compare(data() + length() - strLength,
+                                      characterString,
+                                      strLength));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
@@ -7961,6 +8086,19 @@ extern template class bsl::String_Imp<char, bsl::string::size_type>;
 extern template class bsl::String_Imp<wchar_t, bsl::wstring::size_type>;
 extern template class bsl::basic_string<char>;
 extern template class bsl::basic_string<wchar_t>;
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+extern template class bsl::String_Imp<char8_t, bsl::u8string::size_type>;
+extern template class bsl::basic_string<char8_t>;
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+extern template class bsl::String_Imp<char16_t, bsl::u16string::size_type>;
+extern template class bsl::String_Imp<char32_t, bsl::u32string::size_type>;
+extern template class bsl::basic_string<char16_t>;
+extern template class bsl::basic_string<char32_t>;
+# endif
+
 #endif
 
 #undef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS

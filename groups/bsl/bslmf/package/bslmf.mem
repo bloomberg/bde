@@ -8,6 +8,7 @@ bslmf_addvolatile
 bslmf_allocatorargt
 bslmf_arraytopointer
 bslmf_assert
+bslmf_booleantestable
 bslmf_conditional
 bslmf_decay
 bslmf_detectnestedtrait

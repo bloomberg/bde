@@ -73,7 +73,8 @@ using namespace BloombergLP;
 // [ 3] void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
+// [ 9] TESTING ALIEN NAMESPACE CUSTOM INTEGRAL HASH CASE
 // [ 6] IsBitwiseMovable trait
 // [ 6] is_trivially_copyable trait
 // [ 6] is_trivially_default_constructible trait
@@ -600,6 +601,136 @@ void hashAppend(DefaultHashAlgorithm&                  hashAlg,
 }  // close namespace bslh
 }  // close enterprise namespace
 
+
+                            // ---------------------
+                            // 'Alien Namespace Test
+                            // ---------------------
+
+// A hash algorithm may customize the hashing of non-boolean integral, pointer,
+// and floating point types by providing overloads of operator() that take
+// pointers to those scalar types.  This PortableHash exercises this
+// functionality.
+
+namespace AlienNamespace {
+
+enum WoofEnum { k_ZERO,
+                k_ONE } woofEnum = k_ONE;
+
+struct PortableHash {
+
+    // DATA
+    uint64_t d_value;
+
+  public:
+    // PUBLIC TYPES
+    enum Expected { k_VOID_EXPECTED = 987654321,
+                    k_INT_EXPECTED  = 123456789,
+                    k_ENUM_EXPECTED = 123000789,
+                    k_BOOL_EXPECTED = 123000000,
+                    k_UC_EXPECTED   =    456789 };
+
+    typedef uint32_t result_type;
+
+    // CREATORS
+    PortableHash() : d_value(0) {}
+        // Create a 'PortableHash' object.
+
+    // MANIPULATORS
+    void operator()(const void *data, size_t numBytes);
+        // Hash the specified 'numBytes' bytes beginning at the specified
+        // 'data'.
+
+    template <class TYPE>
+    typename bsl::enable_if<bsl::is_integral<TYPE>::value
+                            && !bsl::is_same<TYPE, bool>::value
+                            && !bsl::is_same<TYPE, char>::value
+                            && !bsl::is_same<TYPE, signed char>::value
+                            && !bsl::is_same<TYPE, unsigned char>::value
+                            && !bsl::is_same<TYPE, int8_t>::value
+                            && !bsl::is_same<TYPE, uint8_t>::value>::type
+    operator()(const TYPE *value, size_t numBytes);
+        // Hash the specified 'value' which is an integral, of length
+        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
+        // are ignored and 'd_value' is just set to 'k_INT_EXPECTED'.
+
+    template <class TYPE>
+    typename bsl::enable_if<bsl::is_enum<TYPE>::value>::type
+    operator()(const TYPE *value, size_t numBytes);
+        // Hash the specified 'value' which is an enum type, of length
+        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
+        // are ignored and 'd_value' is just set to 'k_ENUM_EXPECTED'.
+
+    void operator()(const bool *value, size_t numBytes);
+        // Hash the specified 'value' which is a bool type, of length
+        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
+        // are ignored and 'd_value' is just set to 'k_BOOL_EXPECTED'.
+
+    void operator()(const unsigned char *value, size_t numBytes);
+        // Hash the specified 'value' which is a unsigned char type, of length
+        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
+        // are ignored and 'd_value' is just set to 'k_UC_EXPECTED'.
+
+    result_type computeHash();
+        // Return 'd_value'.
+};
+
+void PortableHash::operator()(const void *data, size_t numBytes)
+{
+    (void) data;
+    (void) numBytes;
+
+    d_value = k_VOID_EXPECTED;
+}
+
+template <class TYPE>
+typename bsl::enable_if<bsl::is_integral<TYPE>::value
+                        && !bsl::is_same<TYPE, bool>::value
+                        && !bsl::is_same<TYPE, char>::value
+                        && !bsl::is_same<TYPE, signed char>::value
+                        && !bsl::is_same<TYPE, unsigned char>::value
+                        && !bsl::is_same<TYPE, int8_t>::value
+                        && !bsl::is_same<TYPE, uint8_t>::value>::type
+PortableHash::operator()(const TYPE *value, size_t numBytes)
+{
+    (void) value;
+    (void) numBytes;
+
+    d_value = k_INT_EXPECTED;
+}
+
+template <class TYPE>
+typename bsl::enable_if<bsl::is_enum<TYPE>::value>::type
+PortableHash::operator()(const TYPE *value, size_t numBytes)
+{
+    (void) value;
+    (void) numBytes;
+
+    d_value = k_ENUM_EXPECTED;
+}
+
+void PortableHash::operator()(const bool *value, size_t numBytes)
+{
+    (void) value;
+    (void) numBytes;
+
+    d_value = k_BOOL_EXPECTED;
+}
+
+void PortableHash::operator()(const unsigned char *value, size_t numBytes)
+{
+    (void) value;
+    (void) numBytes;
+
+    d_value = k_UC_EXPECTED;
+}
+
+PortableHash::result_type PortableHash::computeHash()
+{
+    return static_cast<result_type>(d_value);
+}
+
+}  // close namespace AlienNamespace
+
 namespace BloombergLP {
 namespace bslh {
 
@@ -928,7 +1059,7 @@ namespace XX {
         // We have to use 'isCorrectTypeRef' and not 'isCorrectType' because
         // the default hash algorithm has no copy c'tor.
 
-        ASSERT(TypeChecker<BloombergLP::bslh::DefaultHashAlgorithm>::
+        ASSERT(TypeChecker<bslh::DefaultHashAlgorithm>::
                                                     isCorrectTypeRef(hashAlg));
         (void) &a;
     }
@@ -962,7 +1093,7 @@ namespace Z {
         // 'Hash_AdlWrapper<DefaultHashAlgorithm>'.
     {
         XX::A a;
-        (void) BloombergLP::bslh::Hash<>()(a);
+        (void) bslh::Hash<>()(a);
     }
 }  // close namespace Z
 
@@ -984,7 +1115,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be applied to user defined types which
@@ -1038,6 +1169,103 @@ int main(int argc, char *argv[])
         ASSERT(!hashTable.contains(Box(Point(0, 0), 0, 0)));
         ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
 
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING ALIEN NAMESPACE CUSTOM INTEGRAL HASH CASE
+        //
+        // Concern:
+        //: 1 When the change to add the AdlWrapper was released, it failed to
+        //:   properly hash integral types with the
+        //:   'AlienNamespace::PortableHash' hash object with several overloads
+        //:   of 'operator()' for hashing different types, so we re-create that
+        //:   scenario here to test it.
+        //
+        // Plan:
+        //: 1 Define 'AlienNamespace::PortableHash' with the following
+        //:   overloads:
+        //:   o 'void operator()(const void *, size_t)' which will set
+        //:     'd_value' to 'k_VOID_EXPECTED', ignoring the inputs.
+        //:
+        //:   o 'void operator()(const integral type *, size_t)' which will set
+        //:     'd_value' to 'k_INT_EXPECTED', ignoring the inputs.
+        //:
+        //:   o 'void operator()(const enum type *, size_t)' which will set
+        //:     'd_value' to 'k_ENUM_EXPECTED', ignoring the inputs.
+        //:
+        //:   o 'void operator()(const unsigned char *, size_t)' which will set
+        //:     'd_value' to 'k_UC_EXPECTED', ignoring the inputs.
+        //:
+        //:   o 'void operator()(const bool *, size_t)' which will set
+        //:     'd_value' to 'k_BOOL_EXPECTED', ignoring the inputs.
+        //:
+        //: 2 Call 'bsl::Hash<AlienNamespace::PortableHash>::operator()' on
+        //:   variables of integral type, enum type, unsigned char, and observe
+        //:   that the results are their respective 'k_...._EXPECTED' values.
+        //:
+        //: 3 Call 'bsl::Hash<AlienNamespace::PortableHash>::operator()' on a
+        //:   'bool' variable and observe that the result is NOT
+        //:   'k_BOOL_EXPECTED'. but rather 'k_VOID_EXPECTED'.
+        //:
+        //: 4 Call 'AlienNamespace::PortableHash::operator()' directly on a
+        //:   'bool' variable and observe that the result is 'k_BOOL_EXPECTED'.
+        //
+        // Testing:
+        //   ALIEN NAMESPACE CUSTOM INTEGRAL HASH CASE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("ALIEN NAMESPACE CUSTOM INTEGRAL HASH CASE\n"
+                            "=========================================\n");
+
+        typedef AlienNamespace::PortableHash PH;
+
+        BloombergLP::bslh::Hash<PH> hash;
+        PH                          alg;
+
+        {
+            const int x = 20;
+            const size_t hashed = hash(x);
+
+            ASSERTV(PH::k_INT_EXPECTED, hashed, PH::k_INT_EXPECTED == hashed);
+        }
+
+        {
+            const size_t hashed = hash(AlienNamespace::k_ONE);
+
+            ASSERTV(PH::k_ENUM_EXPECTED, hashed,
+                                                PH::k_ENUM_EXPECTED == hashed);
+        }
+
+        {
+            const unsigned char uc = static_cast<char>('x');
+
+            const size_t hashed = hash(uc);
+
+            ASSERTV(PH::k_UC_EXPECTED, hashed, PH::k_UC_EXPECTED == hashed);
+        }
+
+        {
+            const bool b = true;
+
+            const size_t hashed = hash(b);
+
+            ASSERTV(PH::k_BOOL_EXPECTED, hashed,
+                                                PH::k_BOOL_EXPECTED != hashed);
+            ASSERTV(PH::k_UC_EXPECTED, hashed, PH::k_UC_EXPECTED != hashed);
+
+            ASSERTV(PH::k_VOID_EXPECTED, hashed,
+                                                PH::k_VOID_EXPECTED == hashed);
+        }
+
+        {
+            const bool b = true;
+
+            alg(&b, sizeof(b));
+            const size_t hashed = alg.computeHash();
+
+            ASSERTV(PH::k_BOOL_EXPECTED, hashed,
+                                                PH::k_BOOL_EXPECTED == hashed);
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1740,6 +1968,11 @@ int main(int argc, char *argv[])
 
             TestDriver<signed char> signedCharDriver;
             signedCharDriver.testHashAppendPassThrough(L_);
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+            TestDriver<char8_t> char8_tDriver;
+            char8_tDriver.testHashAppendPassThrough(L_);
+#endif
 
             TestDriver<wchar_t> wchar_tDriver;
             wchar_tDriver.testHashAppendPassThrough(L_);

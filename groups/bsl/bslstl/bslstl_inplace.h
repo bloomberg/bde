@@ -60,8 +60,8 @@ BSLS_KEYWORD_CONSTEXPR in_place_t::in_place_t() BSLS_KEYWORD_NOEXCEPT
     // 'constexpr' value, 'in_place', below.
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-BSLS_KEYWORD_INLINE_CONSTEXPR in_place_t in_place = in_place_t();
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
+inline constexpr in_place_t in_place = in_place_t();
 #else
 extern const in_place_t in_place;
 #endif

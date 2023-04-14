@@ -49,6 +49,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 # include <windows.h>
+# include <winioctl.h>
 # include <io.h>
 # include <direct.h>
 # include <bdlde_charconvertutf16.h>
@@ -58,6 +59,47 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 # endif
 # ifndef snprintf
 #   define snprintf _snprintf
+# endif
+
+// This definitions are extracted from ntifs.h file that is a part of Windows
+// Driver Kit (WDK).  Can be replaced with '#include <ntifs.h>' if we add WDK
+// as a required dependency for BDE on Windows.
+# ifndef REPARSE_DATA_BUFFER_HEADER_SIZE
+typedef struct _REPARSE_DATA_BUFFER
+{
+    ULONG ReparseTag;
+    USHORT ReparseDataLength;
+    USHORT Reserved;
+    union
+    {
+        struct
+        {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            ULONG Flags;
+            WCHAR PathBuffer[1];
+        }
+        SymbolicLinkReparseBuffer;
+        struct
+        {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            WCHAR PathBuffer[1];
+        }
+        MountPointReparseBuffer;
+        struct
+        {
+            UCHAR  DataBuffer[1];
+        }
+        GenericReparseBuffer;
+    };
+} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+# define REPARSE_DATA_BUFFER_HEADER_SIZE \
+    FIELD_OFFSET(REPARSE_DATA_BUFFER, GenericReparseBuffer)
 # endif
 
 #else // !BSLS_PLATFORM_OS_WINDOWS
@@ -1588,6 +1630,21 @@ bool FilesystemUtil::isDirectory(const char *path, bool)
             0 != (stats & FILE_ATTRIBUTE_DIRECTORY));
 }
 
+bool FilesystemUtil::isSymbolicLink(const char *path)
+{
+    BSLS_ASSERT(path);
+
+    bsl::wstring wide;
+    if (!narrowToWide(&wide, path)) {
+        return false;                                                 // RETURN
+    }
+
+    DWORD stats = GetFileAttributesW(wide.c_str());
+
+    return (INVALID_FILE_ATTRIBUTES != stats &&
+            0 != (stats & FILE_ATTRIBUTE_REPARSE_POINT));
+}
+
 FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
@@ -1689,6 +1746,81 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
 
     return k_OFFSET_MAX;
 }
+
+namespace {
+template <class STRING_TYPE>
+int u_getSymbolicLinkTarget(STRING_TYPE *result,
+                            const char  *path)
+{
+    BSLS_ASSERT(path);
+    BSLS_ASSERT(result);
+
+    bsl::wstring wide;
+    if (!narrowToWide(&wide, path)) {
+        return -1;                                                    // RETURN
+    }
+
+    //char memory[MAXIMUM_REPARSE_DATA_BUFFER_SIZE]; //can be large so use heap
+    bsl::string memory(MAXIMUM_REPARSE_DATA_BUFFER_SIZE, '\x0');
+    REPARSE_DATA_BUFFER *rdb =
+                         reinterpret_cast<REPARSE_DATA_BUFFER*>(memory.data());
+
+    HANDLE hFile = CreateFileW(
+        wide.c_str(),
+        FILE_READ_ATTRIBUTES,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        NULL,
+        OPEN_EXISTING,
+        FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS,
+        NULL
+    );
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return -1;                                                    // RETURN
+    }
+
+    DWORD bytesReturned;
+    bool ok = DeviceIoControl(
+        hFile,
+        FSCTL_GET_REPARSE_POINT,
+        0,
+        0,
+        rdb,
+        MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+        &bytesReturned,
+        0
+    );
+    CloseHandle(hFile);
+    if (!ok) {
+        return -1;                                                    // RETURN
+    }
+
+    const wchar_t *name;
+    size_t         nameLen;
+    switch (rdb->ReparseTag) {
+      case IO_REPARSE_TAG_SYMLINK: {  // symlink
+        name =
+              rdb->SymbolicLinkReparseBuffer.PathBuffer +
+              rdb->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t);
+        nameLen =
+              rdb->SymbolicLinkReparseBuffer.PrintNameLength / sizeof(wchar_t);
+      } break;
+      case IO_REPARSE_TAG_MOUNT_POINT: {  // directory junction
+        name =  rdb->MountPointReparseBuffer.PathBuffer +
+                rdb->MountPointReparseBuffer.PrintNameOffset / sizeof(wchar_t);
+        nameLen =
+                rdb->MountPointReparseBuffer.PrintNameLength / sizeof(wchar_t);
+      } break;
+      default: {
+        return -1;                                                    // RETURN
+      }
+    }
+
+    if(wideToNarrow(result, bsl::wstring_view(name, nameLen))) {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+}  // close unnamed namespace
 
 namespace {
 template <class STRING_TYPE>
@@ -2117,6 +2249,19 @@ bool FilesystemUtil::isDirectory(const char *path, bool followLinksFlag)
     return S_ISDIR(fileStats.st_mode);
 }
 
+bool FilesystemUtil::isSymbolicLink(const char *path)
+{
+    BSLS_ASSERT(path);
+
+    StatResult fileStats;
+
+    if (0 != ::performStat(path, &fileStats, false)) {
+        return false;                                                 // RETURN
+    }
+
+    return S_ISLNK(fileStats.st_mode);
+}
+
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
                                             const char     *path)
 {
@@ -2505,6 +2650,26 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
 
 namespace {
 template <class STRING_TYPE>
+int u_getSymbolicLinkTarget(STRING_TYPE *result,
+                            const char  *path)
+{
+    BSLS_ASSERT(path);
+    BSLS_ASSERT(result);
+
+    char buffer[4096];
+
+    ssize_t nBytes = ::readlink(path, buffer, sizeof buffer);
+    if (nBytes >= 0) {
+        result->assign(buffer, nBytes);
+        return 0;                                                     // RETURN
+    }
+    // 'errno' contains the error code
+    return -1;
+}
+}  // close unnamed namespace
+
+namespace {
+template <class STRING_TYPE>
 int u_getWorkingDirectory(STRING_TYPE *path)
 {
     BSLS_ASSERT(path);
@@ -2538,6 +2703,26 @@ namespace bdls {
 /////////////////////////////////////
 // NON-PLATFORM-SPECIFIC FUNCTIONS //
 /////////////////////////////////////
+
+int FilesystemUtil::getSymbolicLinkTarget(bsl::string *result,
+                                          const char  *path)
+{
+    return u_getSymbolicLinkTarget(result, path);
+}
+
+int FilesystemUtil::getSymbolicLinkTarget(std::string *result,
+                                          const char  *path)
+{
+    return u_getSymbolicLinkTarget(result, path);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int FilesystemUtil::getSymbolicLinkTarget(std::pmr::string *result,
+                                          const char       *path)
+{
+    return u_getSymbolicLinkTarget(result, path);
+}
+#endif
 
 int FilesystemUtil::getWorkingDirectory(bsl::string *path)
 {

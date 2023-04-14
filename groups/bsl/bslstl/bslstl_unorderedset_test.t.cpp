@@ -298,7 +298,7 @@ void aSsErT(bool b, const char *s, int i)
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::bool_constant<EXPRESSION> NAME{}
+    const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature
     // test macro is (currently) for documentation purposes only, and never
     // defined.  This is the ideal (simplest) form for such declarations:
@@ -1568,6 +1568,20 @@ void testTransparentComparator(Container& container,
 
     const Iterator NON_EXISTING_F = container.find(nonExistingKey);
     ASSERT(container.end()                  == NON_EXISTING_F);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
+    // Testing 'contains'.
+
+    const bool EXISTING_CONTAINS = container.contains(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(true == EXISTING_CONTAINS);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+    ASSERT(false == NON_EXISTING_CONTAINS);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
     // Testing 'count'.
@@ -7743,17 +7757,18 @@ template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING FIND, EQUAL_RANGE, COUNT
+    // TESTING FIND, CONTAINS, EQUAL_RANGE, COUNT
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' and
     //:   'lower_bound' returns the iterator referring the existing element,
-    //:   'upper_bound' returns the iterator to the element after the searched
-    //:   element.
+    //:   'contains' returns 'true', and 'upper_bound' returns the iterator to
+    //:   the element after the searched element.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
-    //:   returns the 'end' iterator, 'lower_bound' and 'upper_bound' returns
-    //:   the iterator to the smallest element greater than searched element.
+    //:   returns the 'end' iterator, 'contains' returns 'false', 'lower_bound'
+    //:   and 'upper_bound' returns the iterator to the smallest element
+    //:   greater than searched element.
     //:
     //: 3 'equal_range(key)' returns
     //:   'std::make_pair(lower_bound(key), upper_bound(key))'.
@@ -7800,6 +7815,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             ASSERT(it == X.find(k));
             ASSERT(1 == numPasses);
+
+            const bool expectContains = (mX.end() != it);
+            ASSERT(expectContains == mX.contains(k));
 
             if (std::strchr(SPEC, c)) {
                 ASSERT(isConstValue(*it));
@@ -8975,11 +8993,12 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'find', 'equal_range', 'count'
+        // TESTING 'find', 'contains', 'equal_range', 'count'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'find', 'equal_range', 'count'\n"
-                            "======================================\n");
+        if (verbose)
+            printf("TESTING 'find', 'contains', 'equal_range', 'count'\n"
+                   "==================================================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase13,

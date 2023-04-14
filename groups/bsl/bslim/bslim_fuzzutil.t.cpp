@@ -50,11 +50,15 @@ using bsl::flush;
 // [ 8] void consumeRandomLengthString(bsl::string*,FDV*,maxLen);
 // [ 8] void consumeRandomLengthString(std::string*,FDV*,maxLen);
 // [ 8] void consumeRandomLengthString(std::pmr::string*,FDV*,maxLen);
+// [ 9] void consumeRandomLengthChars(bsl::vector<char>*,FDV*,maxLen);
+// [ 9] void consumeRandomLengthChars(std::vector<char>*,FDV*,maxLen);
+// [ 9] void consumeRandomLengthChars(pmr::vector<char>*,FDV*,maxLen);
 // ----------------------------------------------------------------------------
-// [ 9] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 // [ 2] void gg(vector<uint8_t> *buf, string_view& spec);
 // [ 2] int ggg(vector<uint8_t> *buf, string_view& spec, bool vF = true);
+// [-1] NEGATIVE ASAN TEST 'consumeRandomLengthChars'
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -358,7 +362,7 @@ int main(int argc, char *argv[])
 
     switch (test) {
       case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -437,6 +441,157 @@ int main(int argc, char *argv[])
         TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
     (void) numEarnings;
 //..
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // METHOD 'consumeRandomLengthChars'
+        //
+        // Concerns:
+        //: 1 That if the 'fuzzDataView' has fewer bytes than 'maxLength', we
+        //:   load at most 'fuzzDataView->length()' bytes into the 'output'.
+        //:
+        //: 2 That if the 'fuzzDataView' contains two successive backslash
+        //:   characters, they are converted to a single backslash character
+        //:   in the 'output'.
+        //:
+        //: 3 That if a single backslash character is encountered, the
+        //:   following byte, if there is one, is consumed, and further
+        //:   consumption is terminated.
+        //:
+        //: 4 That if 'consumeRandomLengthChars' is passed a 'maxLength'
+        //:   argument that is less than the length of the 'fuzzDataView', only
+        //:   a maximum of 'maxLength' bytes are returned.
+        //:
+        //: 5 That the function under test works properly for each of its
+        //:   overloaded types (i.e., 'bsl::vector<char>', 'std::vector<char>',
+        //:   and 'std::pmr::vector<char>').
+        //
+        // Plan:
+        //: 1 Using a Generator Function with the table-driven technique:
+        //:
+        //:   1 Bring a 'fuzzDataView' into a state with a single byte
+        //:     remaining, request more than a single byte, and verify that
+        //:     a single byte was loaded into the 'output'.  (C-1)
+        //:
+        //:   2 Bring a 'fuzzDataView' into a state with two successive
+        //:     backslash characters as its beginning, and verify that they are
+        //:     converted into a single backslash in 'output'.  (C-2)
+        //:
+        //:   3 Bring a 'fuzzDataView' into a state with a single backslash
+        //:     character at or near its beginning, and verify that when the
+        //:     backslash is encountered, any following byte is consumed,
+        //:     and further consumption of bytes terminates.  Also, test the
+        //:     with a single backslash at the end.  (C-3)
+        //:
+        //:   4 Verify that invoking 'consumeRandomLengthChars' with a
+        //:     'maxLength' less than the length of the fuzz buffer produces
+        //:     a 'vector<char>' of no greater than 'maxLength'.  (C-4)
+        //:
+        //:   5 Construct three 'fuzzDataView' objects -- one each for
+        //:     'bsl::vector<char>', 'std::vector<char>', and
+        //:     'std::pmr::vector<char>' -- with the same underlying byte
+        //:     array, and verify that the above concerns are addressed in each
+        //:     case.  (C-5)
+        //
+        // Testing:
+        //   void consumeRandomLengthChars(bsl::vector<char>*,FDV*,maxLen);
+        //   void consumeRandomLengthChars(std::vector<char>*,FDV*,maxLen);
+        //   void consumeRandomLengthChars(pmr::vector<char>*,FDV*,maxLen);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << endl
+                 << "METHOD 'consumeRandomLengthChars'" << endl
+                 << "=================================" << endl;
+
+        static const struct {
+            int               d_line;       // source line number
+            bsl::string_view  d_spec;       // spec. for value
+            int               d_maxLength;  // parameter to function call
+            bsl::string_view  d_expSpec;    // the expected spec output
+            bsl::size_t       d_consumed;   // bytes consumed from buffer
+
+        } DATA[] = {
+#define makeSV makeStringView
+            //LINE       SPEC        MAXLENGTH     EXP_SPEC          CONSUMED
+            //---- ---------------    --------     --------           ----
+            {L_,   makeSV("6x"),         6,    makeSV("6x"),           6 },
+            {L_,   makeSV("6x"),         4,    makeSV("4x"),           4 },
+            {L_,   makeSV("6x"),         9,    makeSV("6x"),           6 },
+            {L_,   makeSV("1|1x"),       6,    makeSV(""),             2 },
+            {L_,   makeSV("1x1|1y"),     3,    makeSV("1x"),           3 },
+            {L_,   makeSV("4x1|"),       5,    makeSV("4x"),           5 },
+            {L_,   makeSV("2|4x2|"),     6,    makeSV("1|4x1|"),       8 },
+            {L_,   makeSV("2|4x2|4y2|"), 20,   makeSV("1|4x1|4y1|"),  14 },
+            {L_,   makeSV("99"),         10,   makeSV("99"),           9 },
+            {L_,   makeSV("4&"),         4,    makeSV("4&"),           4 },
+            {L_,   makeSV("1\0"),        5,    makeSV("1\0"),          1 },
+            {L_,   makeSV("1a2\0" "3t"), 6,    makeSV("1a2\0" "3t"),   6 }
+#undef makeSV
+        };
+
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE      = DATA[ti].d_line;
+            bsl::string_view  SPEC      = DATA[ti].d_spec;
+            const int         MAXLENGTH = DATA[ti].d_maxLength;
+            bsl::string_view  EXP_SPEC  = DATA[ti].d_expSpec;
+            const bsl::size_t CONSUMED  = DATA[ti].d_consumed;
+
+            bsl::vector<bsl::uint8_t> fuzzData;
+            bsl::vector<bsl::uint8_t> expected;
+
+            gg(&fuzzData, SPEC);
+            gg(&expected, EXP_SPEC);
+
+            // 3 blocks to test the 3 overloads (C-5)
+            {
+                bslim::FuzzDataView fdvBSL(fuzzData.data(), fuzzData.size());
+                bsl::vector<char>   result;
+                Util::consumeRandomLengthChars(&result, &fdvBSL, MAXLENGTH);
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(SPEC) P(result.size());
+                }
+
+                ASSERT(expected.size() == result.size());
+
+                ASSERT(
+                   bsl::equal(result.begin(), result.end(), expected.begin()));
+                ASSERT(CONSUMED == fuzzData.size() - fdvBSL.length());
+            }
+            {
+                bslim::FuzzDataView fdvSTD(fuzzData.data(), fuzzData.size());
+                std::vector<char>   result;
+                Util::consumeRandomLengthChars(&result, &fdvSTD, MAXLENGTH);
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(SPEC) P(result.size());
+                }
+
+                ASSERT(expected.size() == result.size());
+                ASSERT(
+                   bsl::equal(result.begin(), result.end(), expected.begin()));
+                ASSERT(CONSUMED == fuzzData.size() - fdvSTD.length());
+            }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            {
+                bslim::FuzzDataView fdvPMR(fuzzData.data(), fuzzData.size());
+
+                std::pmr::vector<char> result;
+                Util::consumeRandomLengthChars(&result, &fdvPMR, MAXLENGTH);
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(SPEC) P(result.size());
+                }
+
+                ASSERT(expected.size() == result.size());
+                ASSERT(bsl::equal(
+                    result.begin(), result.end(), expected.begin()));
+                ASSERT(CONSUMED == fuzzData.size() - fdvPMR.length());
+            }
+#endif
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1564,7 +1719,65 @@ int main(int argc, char *argv[])
                 cout << "\tstring s = " << s << endl;
             }
         }
+        {
+            if (veryVerbose) {
+                cout << "Testing 'consumeRandomLengthChars': " << endl;
+            }
+            bslim::FuzzDataView fdv(KB_DATA, sizeof(KB_DATA));
+            bsl::vector<char> v;
+            Util::consumeRandomLengthChars(&v, &fdv, 100);
+            bsl::string_view sv(v.data(), v.size());
+            ASSERT(100 >= v.size());
+            if (veryVerbose) {
+                cout << "\tstring_view sv = " << sv << endl;
+            }
+        }
       } break;
+#if defined(BDE_BUILD_TARGET_ASAN)
+      case -1: {
+        // --------------------------------------------------------------------
+        // NEGATIVE ASAN TEST 'consumeRandomLengthChars'
+        //
+        // Concerns:
+        //: 1 That ASan will detect overruns when a 'string_view' generated
+        //:   from a 'vector' returned by 'consumeRandomLengthChars' is
+        //:   accessed.
+        //
+        // Plan:
+        //: 1 Implement a rudimentary version of 'strlen' and pass it a
+        //:   'string_view' obtained from a 'vector' returned by
+        //:   'consumeRandomLengthChars'.
+        //:
+        //:   1 Create a buffer and use it to construct a 'FuzzDataView'.
+        //:
+        //:   2 Fill a 'vector' using 'consumeRandomLengthChars'.
+        //:
+        //:   3 Create a 'string_view' from this 'vector'.
+        //:
+        //:   4 Verify that ASan catches the attempt to access beyond the end
+        //:     of 'vector'.
+        //
+        // Testing:
+        //   void consumeRandomLengthChars(bsl::vector<char>*,FDV*,maxLen);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "NEGATIVE ASAN TEST 'consumeRandomLengthChars'" << endl
+                 << "=============================================" << endl;
+        uint8_t ASAN_DATA[] = {0x41, 0x53, 0x41, 0x4E};
+
+        bslim::FuzzDataView fdv(ASAN_DATA, sizeof(ASAN_DATA));
+        bsl::vector<char>   v;
+        Util::consumeRandomLengthChars(&v, &fdv, sizeof(ASAN_DATA));
+        bsl::string_view sv(v.data(), v.size());
+
+        // rudimentary 'strlen'
+        const char *c = sv.data();
+        while (*c) {
+            c++;
+        }
+        BSLS_ASSERT_INVOKE_NORETURN("Should not reach here");
+      } break;
+#endif // BDE_BUILD_TARGET_ASAN
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";
         testStatus = -1;

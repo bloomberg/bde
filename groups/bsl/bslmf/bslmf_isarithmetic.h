@@ -72,22 +72,22 @@ namespace bsl {
                          // struct is_arithmetic
                          // ====================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_arithmetic
-    : integral_constant<bool,
-                        is_integral<TYPE>::value
-                        || is_floating_point<TYPE>::value> {
+: integral_constant<bool,
+                    is_integral<t_TYPE>::value ||
+                        is_floating_point<t_TYPE>::value> {
     // This 'struct' template implements the 'is_arithmetic' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
-    // (template parameter) 'TYPE' is an arithmetic type.  This 'struct'
-    // derives from 'bsl::true_type' if the 'TYPE' is an arithmetic type,
-    // and from 'bsl::false_type' otherwise.
+    // (template parameter) 't_TYPE' is an arithmetic type.  This 'struct'
+    // derives from 'bsl::true_type' if the 't_TYPE' is an arithmetic type, and
+    // from 'bsl::false_type' otherwise.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_arithmetic_v = is_arithmetic<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_arithmetic_v =
+                                                  is_arithmetic<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_arithmetic' meta-function.
 #endif

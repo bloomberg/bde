@@ -241,6 +241,7 @@ using namespace BloombergLP;
 // [20] bool operator>(const list&, const list&);
 // [20] bool operator<=(const list&, const list&);
 // [20] bool operator>=(const list&, const list&);
+// [20] auto operator<=>(const list&, const list&);
 // [19] void bsl::swap(Obj& lhs, Obj& rhs);
 // [36] size_t erase(list<T,A>&, const U&);
 // [36] size_t erase_if(list<T,A>&, PREDICATE);

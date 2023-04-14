@@ -379,12 +379,9 @@ class DatetimeTz {
 
     Datetime utcDatetime() const;
         // Return a 'Datetime' object having the value of the UTC datetime
-        // represented by this object.  The behavior is undefined unless the
-        // resulting 'Datetime' is valid (i.e.,
-        // 'localDatetime().addMinutesIfValid(-offset())' returns 0).  Note
-        // that if '0 != offset()', the returned value is equal to
-        // 'localDatetime()' minus 'offset()' minutes, and 'localDatetime()'
-        // otherwise.
+        // represented by this object.  Note that if '0 != offset()', the
+        // returned value is equal to 'localDatetime()' minus 'offset()'
+        // minutes, and 'localDatetime()' otherwise.
 
                                   // Aspects
 

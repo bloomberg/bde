@@ -307,7 +307,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  class my_Allocator : public bslma::Allocator { /* ... */ };
 //..
 // Note that 'deleteObject' is provided by all 'bslma' allocators and by any
-// object that implements the 'bcema_Deleter' protocol.  Thus, any of these
+// object that implements the 'bdlma::Deleter' protocol.  Thus, any of these
 // objects can be used as a factory deleter.  The purpose of this design is to
 // allow 'bslma' allocators and factories to be used seamlessly as deleters.
 //
@@ -1457,6 +1457,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_enableif.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_isarray.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isfunction.h>
@@ -1489,7 +1490,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Wed Oct 26 08:50:25 2022
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 # define COMPILING_BSLSTL_SHAREDPTR_H
 # include <bslstl_sharedptr_cpp03.h>
@@ -1539,19 +1540,19 @@ BSLS_IDENT("$Id$ $CSID$")
 // on Microsoft in addition to the feature testing.
 #endif
 
-# if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_IBM)
+# if defined(BSLS_PLATFORM_CMP_GNU)
 # define BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER 1
 // If the macro 'BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER' is
 // defined, we recognize that some compilers need an extra hint to disambiguate
 // overload resolution when passed a 'bslma::Allocator *' pointer, that might
-// also deduce (incorrectly) as a C++11-style allocator.  Compilers known to
-// have this problem are gcc and IBM xlC, which were tested as recently as gcc
-// 4.9.2, and xlC 12.2.  Both of these compilers have a problem partially
-// ordering function templates that differ only by the first argument deducing
-// as any object type ('T'), or deducting to the a pointer to something ('T*'),
-// The rules for partial ordering should make the second overload a stronger
-// match when passed a pointer; however, both of these compilers complain about
-// ambiguities when additional parameters are involved.
+// also deduce (incorrectly) as a C++11-style allocator.  Gcc is known to have
+// this problem, and was tested as recently as gcc 9. This compiler has a
+// problem partially ordering function templates that differ only by the first
+// argument deducing as any object type ('T'), or deducing as the a pointer to
+// something ('T*').  The rules for partial ordering should make the second
+// overload a stronger match when passed a pointer; however, this compiler
+// complains about ambiguities when additional parameters are involved.  This
+// appears to be fixed in gcc 10.
 #endif
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
@@ -1560,15 +1561,32 @@ BSLS_IDENT("$Id$ $CSID$")
 // alternate definition is empty.  This avoids the problem of introducing new
 // template parameters along with the macros in the non-SFINAE-supporting case
 // below.
+# define BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE ,                            \
+    typename enable_if<                                                       \
+        BloombergLP::bslstl::SharedPtr_IsPointerConvertible<                  \
+                            CONVERTIBLE_TYPE,                                 \
+                            ELEMENT_TYPE>::value>::type *                     \
+                                                                = nullptr
+
+# define BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE ,                             \
+    typename enable_if<                                                       \
+        BloombergLP::bslstl::SharedPtr_IsPointerConvertible<                  \
+                            CONVERTIBLE_TYPE,                                 \
+                            ELEMENT_TYPE>::value>::type *
+
+
 # define BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE ,                             \
     typename enable_if<                                                       \
-        bsl::is_convertible<COMPATIBLE_TYPE *,                                \
-                            ELEMENT_TYPE    *>::value>::type * = nullptr
+        BloombergLP::bslstl::SharedPtr_IsPointerCompatible<                   \
+                            COMPATIBLE_TYPE,                                  \
+                            ELEMENT_TYPE>::value>::type *                     \
+                                                                = nullptr
 
 # define BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE ,                              \
     typename enable_if<                                                       \
-        bsl::is_convertible<COMPATIBLE_TYPE *,                                \
-                            ELEMENT_TYPE    *>::value>::type *
+        BloombergLP::bslstl::SharedPtr_IsPointerCompatible<                   \
+                            COMPATIBLE_TYPE,                                  \
+                            ELEMENT_TYPE>::value>::type *
 
 
 # define BSLSTL_SHAREDPTR_DECLARE_IF_DELETER(FUNCTOR, ARGUMENT) ,             \
@@ -1602,6 +1620,9 @@ BSLS_IDENT("$Id$ $CSID$")
                                                      FUNCTOR>::k_VALUE>::type *
 #else
 // Do not attempt to support SFINAE in constructors in a C++03 compiler
+# define BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE
+# define BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE
+
 # define BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE
 # define BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE
 
@@ -1666,6 +1687,24 @@ struct SharedPtr_IsNullableFactory;
     // Forward declaration of component-private type trait to indicate whether
     // a pointer to a 'FACTORY' has a 'deleteObject' member that can be called
     // as 'factory->deleteObject((ARG *)p)'.
+
+template <class SOURCE_TYPE, class DEST_TYPE>
+struct SharedPtr_IsPointerConvertible;
+    // Forward declaration of component-private type trait to indicate whether
+    // a pointer to a 'SOURCE_TYPE' can be converted to a pointer to a
+    // 'DEST_TYPE'.  [util.smartptr.shared.const]/8 says "either DEST_TYPE is
+    // U[N] and SOURCE_TYPE(*)[N] is convertible to DEST_TYPE*, or DEST_TYPE is
+    // U[] and SOURCE_TYPE(*)[] is convertible to DEST_TYPE*".
+
+template <class SOURCE_TYPE, class DEST_TYPE>
+struct SharedPtr_IsPointerCompatible;
+    // Forward declaration of component-private type trait to indicate whether
+    // a pointer to a 'SOURCE_TYPE' is compatible with a pointer to
+    // 'DEST_TYPE'.  [util.smartptr.shared]/5 says: "for the purposes of ...,
+    // a pointer type SOURCE_TYPE* is said to be compatible with a pointer type
+    // DEST_TYPE* when either SOURCE_TYPE* is convertible to DEST_TYPE* or
+    // SOURCE_TYPE is U[N] and DEST_TYPE is cv U[]."
+
 #endif
 
 }  // close package namespace
@@ -1708,8 +1747,24 @@ class shared_ptr {
     // More generally, this class supports a complete set of *in*-*core*
     // pointer semantic operations.
 
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(shared_ptr<ELEMENT_TYPE>,
+                                   bsl::is_nothrow_move_constructible);
+
+    // TYPES
+    typedef typename bsl::remove_extent<ELEMENT_TYPE>::type element_type;
+        // For shared pointers to non-array types, 'element_type' is an alias
+        // to the 'ELEMENT_TYPE' template parameter.  Otherwise, it is an alias
+        // to the type contained in the array.
+
+    typedef weak_ptr<ELEMENT_TYPE> weak_type;
+        // 'weak_type' is an alias to a weak pointer with the same element type
+        // as this 'shared_ptr'.
+
+  private:
     // DATA
-    ELEMENT_TYPE                     *d_ptr_p; // pointer to the shared object
+    element_type                     *d_ptr_p; // pointer to the shared object
 
     BloombergLP::bslma::SharedPtrRep *d_rep_p; // pointer to the representation
                                                // object that manages the
@@ -1759,22 +1814,6 @@ class shared_ptr {
         // currently installed default allocator to supply memory.
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(shared_ptr<ELEMENT_TYPE>,
-                                   bsl::is_nothrow_move_constructible);
-
-    // TYPES
-    typedef ELEMENT_TYPE element_type;
-        // 'element_type' is an alias to the 'ELEMENT_TYPE' template parameter.
-        // Note that 'element_type' refers to the same type as 'ElementType'.
-
-    typedef ELEMENT_TYPE ElementType;
-        // 'ElementType' is an alias to the 'ELEMENT_TYPE' template parameter.
-
-    typedef weak_ptr<ELEMENT_TYPE> weak_type;
-        // 'weak_type' is an alias to a weak pointer with the same element type
-        // as this 'shared_ptr'.
-
     // CREATORS
     BSLS_KEYWORD_CONSTEXPR
     shared_ptr() BSLS_KEYWORD_NOEXCEPT;
@@ -1788,16 +1827,16 @@ class shared_ptr {
         // representation that does not refer to any object and has no
         // deleter.
 
-    template <class COMPATIBLE_TYPE
-              BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    explicit shared_ptr(COMPATIBLE_TYPE *ptr);
+    template <class CONVERTIBLE_TYPE
+              BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE>
+    explicit shared_ptr(CONVERTIBLE_TYPE *ptr);
         // Create a shared pointer that manages a modifiable object of
-        // (template parameter) type 'COMPATIBLE_TYPE' and refers to the
+        // (template parameter) type 'CONVERTIBLE_TYPE' and refers to the
         // specified '(ELEMENT_TYPE *)ptr'.  The currently installed default
         // allocator is used to allocate and deallocate the internal
         // representation of the shared pointer.  When all references have been
         // released, the object pointed to by the managed pointer will be
-        // destroyed by a call to 'delete ptr'.  If 'COMPATIBLE_TYPE *' is not
+        // destroyed by a call to 'delete ptr'.  If 'CONVERTIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *', then a compiler
         // diagnostic will be emitted indicating the error.  If 'ptr' is 0,
         // then this shared pointer will still allocate an internal
@@ -1808,19 +1847,19 @@ class shared_ptr {
         // compiler will actually select the 'shared_ptr(bsl::nullptr_t)'
         // constructor, resulting in an empty shared pointer.
 
-    template <class COMPATIBLE_TYPE
-              BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    shared_ptr(COMPATIBLE_TYPE               *ptr,
+    template <class CONVERTIBLE_TYPE
+              BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE>
+    shared_ptr(CONVERTIBLE_TYPE              *ptr,
                BloombergLP::bslma::Allocator *basicAllocator);
         // Create a shared pointer that manages a modifiable object of
-        // (template parameter) type 'COMPATIBLE_TYPE' and refers to the
+        // (template parameter) type 'CONVERTIBLE_TYPE' and refers to the
         // specified 'ptr' cast to a pointer to the (template parameter) type
         // 'ELEMENT_TYPE'.  If the specified 'basicAllocator' is not 0, then
         // 'basicAllocator' is used to allocate and deallocate the internal
         // representation of the shared pointer and to destroy the shared
         // object when all references have been released; otherwise, the
         // currently installed default allocator is used.  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
+        // 'CONVERTIBLE_TYPE *' is not implicitly convertible to
         // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
         // indicating the error.  If 'ptr' is 0, then this shared pointer will
         // still allocate an internal representation to share ownership of that
@@ -1833,8 +1872,8 @@ class shared_ptr {
         // 'bslma::Allocator', the compiler will actually select the following
         // (more general) constructor that has the same behavior:
         //..
-        //  template <class COMPATIBLE_TYPE, class DELETER>
-        //  shared_ptr(COMPATIBLE_TYPE *ptr, DELETER * deleter);
+        //  template <class CONVERTIBLE_TYPE, class DELETER>
+        //  shared_ptr(CONVERTIBLE_TYPE *ptr, DELETER * deleter);
         //..
 
     shared_ptr(ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
@@ -1867,13 +1906,14 @@ class shared_ptr {
         // maintain a consistent reference count when this 'shared_ptr' object
         // releases the shared object from its management.
 
-    template <class COMPATIBLE_TYPE, class DELETER
-              BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE
-              BSLSTL_SHAREDPTR_DECLARE_IF_DELETER(DELETER *, COMPATIBLE_TYPE)>
-    shared_ptr(COMPATIBLE_TYPE *ptr, DELETER *deleter);
+    template <class CONVERTIBLE_TYPE,
+              class DELETER
+              BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE
+              BSLSTL_SHAREDPTR_DECLARE_IF_DELETER(DELETER *, CONVERTIBLE_TYPE)>
+    shared_ptr(CONVERTIBLE_TYPE *ptr, DELETER *deleter);
         // Create a shared pointer that manages a modifiable object of
-        // (template parameter) type 'COMPATIBLE_TYPE', refers to the specified
-        // 'ptr' cast to a pointer to the (template parameter) type
+        // (template parameter) type 'CONVERTIBLE_TYPE', refers to the
+        // specified 'ptr' cast to a pointer to the (template parameter) type
         // 'ELEMENT_TYPE', and uses the specified 'deleter' to delete the
         // shared object when all references have been released.  Use the
         // currently installed default allocator to allocate and deallocate the
@@ -1883,8 +1923,8 @@ class shared_ptr {
         // 'bslma::allocator', create a shared pointer as if calling the
         // constructor:
         //..
-        //  template <class COMPATIBLE_TYPE>
-        //  shared_ptr(COMPATIBLE_TYPE               *ptr,
+        //  template <class CONVERTIBLE_TYPE>
+        //  shared_ptr(CONVERTIBLE_TYPE               *ptr,
         //             BloombergLP::bslma::Allocator *basicAllocator);
         //..
         // If 'DELETER' is a class derived from 'bslma::SharedPtrRep', create a
@@ -1899,7 +1939,7 @@ class shared_ptr {
         // be invoked as 'deleteObject(ptr)' that will be called to destroy the
         // object at the 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will
         // be called to delete the shared object).  (See the "Deleters" section
-        // in the component-level documentation.)  If 'COMPATIBLE_TYPE *' is
+        // in the component-level documentation.)  If 'CONVERTIBLE_TYPE *' is
         // not implicitly convertible to 'ELEMENT_TYPE *', then a compiler
         // diagnostic will be emitted indicating the error.  If 'ptr' is 0,
         // then the null pointer will be reference counted, and the deleter
@@ -1909,25 +1949,26 @@ class shared_ptr {
         // method is a BDE extension and not part of the C++ standard
         // interface.
 
-    template <class COMPATIBLE_TYPE, class DELETER
-              BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE
-              BSLSTL_SHAREDPTR_DECLARE_IF_DELETER(DELETER, COMPATIBLE_TYPE)>
-    shared_ptr(COMPATIBLE_TYPE               *ptr,
+    template <class CONVERTIBLE_TYPE,
+              class DELETER
+              BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE
+              BSLSTL_SHAREDPTR_DECLARE_IF_DELETER(DELETER, CONVERTIBLE_TYPE)>
+    shared_ptr(CONVERTIBLE_TYPE              *ptr,
                DELETER                        deleter,
                BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create a shared pointer that manages a modifiable object of
-        // (template parameter) type 'COMPATIBLE_TYPE', refers to the specified
-        // '(ELEMENT_TYPE *)ptr', and uses the specified 'deleter' to delete
-        // the shared object when all references have been released.
+        // (template parameter) type 'CONVERTIBLE_TYPE', refers to the
+        // specified '(ELEMENT_TYPE *)ptr', and uses the specified 'deleter' to
+        // delete the shared object when all references have been released.
         // Optionally specify a 'basicAllocator' to allocate and deallocate the
         // internal representation of the shared pointer (including a copy of
         // 'deleter').  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  'DELETER' shall be either a function
         // pointer or a "factory" deleter that may be invoked to destroy the
-        // object referred to by a single argument of type 'COMPATIBLE_TYPE *'
+        // object referred to by a single argument of type 'CONVERTIBLE_TYPE *'
         // (i.e., 'deleter(ptr)' or 'deleter->deleteObject(ptr)' will be called
         // to destroy the shared object).  (See the "Deleters" section in the
-        // component-level documentation.)  If 'COMPATIBLE_TYPE *' is not
+        // component-level documentation.)  If 'CONVERTIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *', then this constructor
         // will not be selected by overload resolution.  If 'ptr' is 0, then
         // the null pointer will be reference counted, and 'deleter(ptr)' will
@@ -1936,16 +1977,18 @@ class shared_ptr {
         // 'deleter(ptr)' will be called.  The behavior is undefined unless the
         // constructor making a copy of 'deleter' does not throw an exception.
 
-    template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR
-              BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE
-              BSLSTL_SHAREDPTR_DECLARE_IF_DELETER(DELETER, COMPATIBLE_TYPE)>
-    shared_ptr(COMPATIBLE_TYPE                *ptr,
+    template <class CONVERTIBLE_TYPE,
+              class DELETER,
+              class ALLOCATOR
+              BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE
+              BSLSTL_SHAREDPTR_DECLARE_IF_DELETER(DELETER, CONVERTIBLE_TYPE)>
+    shared_ptr(CONVERTIBLE_TYPE               *ptr,
                DELETER                         deleter,
                ALLOCATOR                       basicAllocator,
                typename ALLOCATOR::value_type * = 0);
         // Create a shared pointer that manages a modifiable object of
-        // (template parameter) type 'COMPATIBLE_TYPE', refers to the specified
-        // 'ptr' cast to a pointer to the (template parameter) type
+        // (template parameter) type 'CONVERTIBLE_TYPE', refers to the
+        // specified 'ptr' cast to a pointer to the (template parameter) type
         // 'ELEMENT_TYPE', and uses the specified 'deleter' to delete the
         // shared object when all references have been released.  Use the
         // specified 'basicAllocator' to allocate and deallocate the internal
@@ -1953,11 +1996,11 @@ class shared_ptr {
         // 'deleter').  The (template parameter) type 'DELETER' shall be either
         // a function pointer or a function-like deleter that may be invoked to
         // destroy the object referred to by a single argument of type
-        // 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)' will be called to destroy
+        // 'CONVERTIBLE_TYPE *' (i.e., 'deleter(ptr)' will be called to destroy
         // the shared object).  (See the "Deleters" section in the component-
         // level documentation.)  The (template parameter) type 'ALLOCATOR'
         // shall satisfy the Allocator requirements of the C++ standard (C++11
-        // 17.6.3.5, [allocator.requirements]).  If 'COMPATIBLE_TYPE *' is not
+        // 17.6.3.5, [allocator.requirements]).  If 'CONVERTIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *', then a compiler
         // diagnostic will be emitted indicating the error.  If 'ptr' is 0,
         // then the null pointer will be reference counted, and 'deleter(ptr)'
@@ -2026,22 +2069,22 @@ class shared_ptr {
         // dispatch to the constructor above this, and not be greedily matched
         // to a generic type parameter.
 
-    template <class COMPATIBLE_TYPE
-              BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
+    template <class CONVERTIBLE_TYPE
+              BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE>
     shared_ptr(
-          BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
-          BloombergLP::bslma::Allocator                   *basicAllocator = 0);
+         BloombergLP::bslma::ManagedPtr<CONVERTIBLE_TYPE>  managedPtr,
+         BloombergLP::bslma::Allocator                    *basicAllocator = 0);
                                                                     // IMPLICIT
         // Create a shared pointer that takes over the management of the
         // modifiable object (if any) previously managed by the specified
-        // 'managedPtr' to the (template parameter) type 'COMPATIBLE_TYPE', and
-        // that refers to '(ELEMENT_TYPE *)managedPtr.ptr()'.  The deleter used
-        // in the 'managedPtr' will be used to destroy the shared object when
-        // all references have been released.  Optionally specify a
+        // 'managedPtr' to the (template parameter) type 'CONVERTIBLE_TYPE',
+        // and that refers to '(ELEMENT_TYPE *)managedPtr.ptr()'.  The deleter
+        // used in the 'managedPtr' will be used to destroy the shared object
+        // when all references have been released.  Optionally specify a
         // 'basicAllocator' used to allocate and deallocate the internal
         // representation of the shared pointer.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
+        // 'CONVERTIBLE_TYPE *' is not implicitly convertible to
         // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
         // indicating the error.  Note that if 'managedPtr' is empty, then an
         // empty shared pointer is created and 'basicAllocator' is ignored.
@@ -2051,19 +2094,19 @@ class shared_ptr {
         // 'ManagedPtr's ownership of that shared object.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
-    template <class COMPATIBLE_TYPE
-              BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    explicit shared_ptr(std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
-                        BloombergLP::bslma::Allocator   *basicAllocator = 0);
+    template <class CONVERTIBLE_TYPE
+              BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE>
+    explicit shared_ptr(std::auto_ptr<CONVERTIBLE_TYPE>&  autoPtr,
+                        BloombergLP::bslma::Allocator    *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' to
-        // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to
+        // the (template parameter) type 'CONVERTIBLE_TYPE', and that refers to
         // '(ELEMENT_TYPE *)autoPtr.get()'.  'delete(autoPtr.release())' will
         // be called to destroy the shared object when all references have been
         // released.  Optionally specify a 'basicAllocator' used to allocate
         // and deallocate the internal representation of the shared pointer.
         // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.  If 'COMPATIBLE_TYPE *' is not implicitly convertible to
+        // is used.  If 'CONVERTIBLE_TYPE *' is not implicitly convertible to
         // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
         // indicating the error.
 
@@ -2225,7 +2268,7 @@ class shared_ptr {
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     shared_ptr(
-            BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > other)
+           BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > other)
                                                          BSLS_KEYWORD_NOEXCEPT;
         // Create a shared pointer that refers to and assumes management of the
         // same object (if any) as the specified 'other' shared pointer to the
@@ -2252,7 +2295,7 @@ class shared_ptr {
     template<class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     explicit shared_ptr(
-               BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > ptr);
+              BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > ptr);
         // Create a shared pointer that refers to and manages the same object
         // as the specified 'ptr' if  'ptr.expired()' is 'false'; otherwise,
         // create a shared pointer in the empty state.  Note that the
@@ -2792,15 +2835,31 @@ class shared_ptr {
         // conventionally (e.g., to invoke a method) to an shared pointer that
         // does not refer to an object will result in undefined behavior.
 
-    ELEMENT_TYPE *get() const BSLS_KEYWORD_NOEXCEPT;
+    element_type *get() const BSLS_KEYWORD_NOEXCEPT;
         // Return the address providing modifiable access to the object
         // referred to by this shared pointer, or 0 if this shared pointer does
         // not refer to an object.
 
+    typename add_lvalue_reference<element_type>::type
+    operator[](ptrdiff_t index) const;
+        // Return a reference providing modifiable access to the object at the
+        // specified 'index' offset in the object referred to by this shared
+        // pointer.  The behavior is undefined unless this shared pointer is
+        // not empty, 'ELEMENT_TYPE' is not 'void' (a compiler error will be
+        // generated if this operator is instantiated within the
+        // 'shared_ptr<void>' class), and this shared pointer refers to an
+        // array of 'ELEMENT_TYPE' objects.  Instead of 'element_type &', we
+        // use 'add_lvalue_reference<element_type>::type' for the return type
+        // because that allows people to instantiate 'shared_ptr<cv_void>', as
+        // long as they don't use this method.  Note that this method is
+        // logically equivalent to '*(get() + index)'.
+
     template<class ANY_TYPE>
-    bool owner_before(const shared_ptr<ANY_TYPE>& other) const;
+    bool owner_before(const shared_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     template<class ANY_TYPE>
-    bool owner_before(const weak_ptr<ANY_TYPE>& other) const;
+    bool owner_before(const weak_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
         // pointer is ordered before the address of the
@@ -2836,17 +2895,6 @@ class shared_ptr {
         // indicate unique ownership).
 
     // ADDITIONAL BSL ACCESSORS
-    typename add_lvalue_reference<ELEMENT_TYPE>::type
-    operator[](ptrdiff_t index) const;
-        // Return a reference providing modifiable access to the object at the
-        // specified 'index' offset in the object referred to by this shared
-        // pointer.  The behavior is undefined unless this shared pointer is
-        // not empty, 'ELEMENT_TYPE' is not 'void' (a compiler error will be
-        // generated if this operator is instantiated within the
-        // 'shared_ptr<void>' class), and this shared pointer refers to an
-        // array of 'ELEMENT_TYPE' objects.  Note that this method is logically
-        // equivalent to '*(get() + index)'.
-
     BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> managedPtr() const;
         // Return a managed pointer that refers to the same object as this
         // shared pointer.  If this shared pointer is not empty, and is not
@@ -3164,11 +3212,13 @@ shared_ptr<TO_TYPE> reinterpret_pointer_cast(
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
 # if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-    // work-around for gcc variadic template bug - confirm not fixed by 4.9?
-typename enable_if<!is_pointer<ALLOC>::value,
+    // work-around for gcc variadic template bug - confirm not fixed by gcc 9
+typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
 # else
-shared_ptr<ELEMENT_TYPE>
+typename enable_if<!is_array<ELEMENT_TYPE>::value,
+                   shared_ptr<ELEMENT_TYPE> >::type
+// shared_ptr<ELEMENT_TYPE>
 # endif
 allocate_shared(ALLOC basicAllocator, ARGS&&... args);
     // Return a 'shared_ptr' object referring to and managing a new
@@ -3181,7 +3231,8 @@ allocate_shared(ALLOC basicAllocator, ARGS&&... args);
     // 'std::forward<ARGS>(args)...'.
 
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-shared_ptr<ELEMENT_TYPE>
+typename enable_if<!is_array<ELEMENT_TYPE>::value,
+                   shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator, ARGS&&... args);
     // Return a 'shared_ptr' object referring to and managing a new
     // 'ELEMENT_TYPE' object.  The specified 'basicAllocator' will be used to
@@ -3195,7 +3246,9 @@ allocate_shared(ALLOC *basicAllocator, ARGS&&... args);
     // when appropriate, to the 'ELEMENT_TYPE' constructor.
 
 template<class ELEMENT_TYPE, class... ARGS>
-shared_ptr<ELEMENT_TYPE> make_shared(ARGS&&... args);
+typename enable_if<!is_array<ELEMENT_TYPE>::value,
+                   shared_ptr<ELEMENT_TYPE> >::type
+make_shared(ARGS&&... args);
     // Return a 'shared_ptr' object referring to and managing a new
     // 'ELEMENT_TYPE' object.  The default allocator will be used to supply a
     // single contiguous region of memory holding the returned shared pointer's
@@ -3249,15 +3302,10 @@ class weak_ptr {
                                    bsl::is_nothrow_move_constructible);
 
     // TYPES
-    typedef ELEMENT_TYPE element_type;
-        // 'element_type' is an alias for the 'ELEMENT_TYPE' parameter of this
-        // class template.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef ELEMENT_TYPE ElementType;
-        // 'ElementType' is an alias for the 'ELEMENT_TYPE' parameter of this
-        // class template, and is equivalent to 'element_type'.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+    typedef typename bsl::remove_extent<ELEMENT_TYPE>::type element_type;
+        // For weak pointers to non-array types, 'element_type' is an alias to
+        // the 'ELEMENT_TYPE' template parameter.  Otherwise, it is an alias to
+        // the type contained in the array.
 
     // CREATORS
     BSLS_KEYWORD_CONSTEXPR
@@ -3398,9 +3446,11 @@ class weak_ptr {
         // state otherwise.
 
     template <class ANY_TYPE>
-    bool owner_before(const shared_ptr<ANY_TYPE>& other) const;
+    bool owner_before(const shared_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     template <class ANY_TYPE>
-    bool owner_before(const weak_ptr<ANY_TYPE>& other) const;
+    bool owner_before(const weak_ptr<ANY_TYPE>& other) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by this weak pointer
         // is ordered before the address of the
@@ -3682,9 +3732,12 @@ struct SharedPtrNilDeleter {
                         // struct SharedPtr_DefaultDeleter
                         // ===============================
 
+template <bool>
 struct SharedPtr_DefaultDeleter {
     // This 'struct' provides a function-like shared pointer deleter that
-    // invokes 'delete' with the passed pointer.
+    // invokes 'delete' with the passed pointer.  If the template parameter is
+    // 'true', then the pointer is deleted using 'operator delete []'.
+    // Otherwise, it is deleted using 'operator delete'.
 
     // ACCESSORS
     template <class ANY_TYPE>
@@ -4001,6 +4054,51 @@ struct SharedPtr_IsNullableFactory {
     };
 };
 
+
+template <class SOURCE_TYPE, class DEST_TYPE>
+struct SharedPtr_IsPointerConvertible_Impl
+: bsl::is_convertible<SOURCE_TYPE *, DEST_TYPE *>::type {};
+
+template <class SOURCE_TYPE, class DEST_TYPE>
+struct SharedPtr_IsPointerConvertible_Impl<SOURCE_TYPE, DEST_TYPE[]>
+: bsl::is_convertible<SOURCE_TYPE (*)[], DEST_TYPE (*)[]>::type {};
+
+template <class SOURCE_TYPE, class DEST_TYPE, size_t DEST_SIZE>
+struct SharedPtr_IsPointerConvertible_Impl<SOURCE_TYPE, DEST_TYPE[DEST_SIZE]>
+: bsl::is_convertible<SOURCE_TYPE (*)[DEST_SIZE],
+                      DEST_TYPE (*)[DEST_SIZE]>::type {};
+
+
+template <class SOURCE_TYPE, class DEST_TYPE>
+struct SharedPtr_IsPointerConvertible
+: SharedPtr_IsPointerConvertible_Impl<SOURCE_TYPE, DEST_TYPE>::type {};
+
+
+template <class SOURCE_TYPE, class DEST_TYPE>
+struct SharedPtr_IsPointerCompatible_Impl
+    : bsl::is_convertible<SOURCE_TYPE *, DEST_TYPE *>::type {};
+
+template <class TYPE, size_t SIZE>
+struct SharedPtr_IsPointerCompatible_Impl<TYPE[SIZE], TYPE[]>
+     : bsl::true_type {};
+
+template <class TYPE, size_t SIZE>
+struct SharedPtr_IsPointerCompatible_Impl<TYPE[SIZE], const TYPE[]>
+     : bsl::true_type {};
+
+template <class TYPE, size_t SIZE>
+struct SharedPtr_IsPointerCompatible_Impl<TYPE[SIZE], volatile TYPE[]>
+     : bsl::true_type {};
+
+template <class TYPE, size_t SIZE>
+struct SharedPtr_IsPointerCompatible_Impl<TYPE[SIZE], const volatile TYPE[]>
+     : bsl::true_type {};
+
+
+template <class SOURCE_TYPE, class DEST_TYPE>
+struct SharedPtr_IsPointerCompatible
+: SharedPtr_IsPointerCompatible_Impl<SOURCE_TYPE, DEST_TYPE>::type {};
+
 }  // close package namespace
 }  // close enterprise namespace
 #endif  // BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
@@ -4146,38 +4244,43 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
+template <class CONVERTIBLE_TYPE
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE>
 inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
+shared_ptr<ELEMENT_TYPE>::shared_ptr(CONVERTIBLE_TYPE *ptr)
 : d_ptr_p(ptr)
 {
-    typedef BloombergLP::bslstl::SharedPtr_DefaultDeleter Deleter;
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
+    typedef BloombergLP::bslstl::SharedPtr_DefaultDeleter<
+                                   bsl::is_array<ELEMENT_TYPE>::value> Deleter;
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<CONVERTIBLE_TYPE,
                                                        Deleter>       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
-    BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
-                                                                     this);
+    if (!bsl::is_array<ELEMENT_TYPE>::value) {
+        BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
+                                                                         this);
+    }
 }
 
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
+template <class CONVERTIBLE_TYPE
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                                 COMPATIBLE_TYPE               *ptr,
+                                 CONVERTIBLE_TYPE              *ptr,
                                  BloombergLP::bslma::Allocator *basicAllocator)
 : d_ptr_p(ptr)
 {
     typedef BloombergLP::bslma::SharedPtrOutofplaceRep<
-                                               COMPATIBLE_TYPE,
+                                               CONVERTIBLE_TYPE,
                                                BloombergLP::bslma::Allocator *>
                                                                       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
-    BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
-                                                                     this);
+    if (!bsl::is_array<ELEMENT_TYPE>::value) {
+        BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
+                                                                         this);
+    }
 }
 
 template <class ELEMENT_TYPE>
@@ -4203,46 +4306,54 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 }
 
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE, class DISPATCH
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE
-          BSLSTL_SHAREDPTR_DEFINE_IF_DELETER(DISPATCH *, COMPATIBLE_TYPE)>
+template <class CONVERTIBLE_TYPE,
+          class DISPATCH
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE
+          BSLSTL_SHAREDPTR_DEFINE_IF_DELETER(DISPATCH *, CONVERTIBLE_TYPE)>
 inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr,
-                                     DISPATCH        *dispatch)
+shared_ptr<ELEMENT_TYPE>::shared_ptr(CONVERTIBLE_TYPE *ptr,
+                                     DISPATCH         *dispatch)
 : d_ptr_p(ptr)
 , d_rep_p(makeInternalRep(ptr, dispatch, dispatch))
 {
-    BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
-                                                                     this);
+    if (!bsl::is_array<ELEMENT_TYPE>::value) {
+        BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
+                                                                         this);
+    }
 }
 
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE, class DELETER
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE
-          BSLSTL_SHAREDPTR_DEFINE_IF_DELETER(DELETER, COMPATIBLE_TYPE)>
+template <class CONVERTIBLE_TYPE,
+          class DELETER
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE
+          BSLSTL_SHAREDPTR_DEFINE_IF_DELETER(DELETER, CONVERTIBLE_TYPE)>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                                 COMPATIBLE_TYPE               *ptr,
+                                 CONVERTIBLE_TYPE              *ptr,
                                  DELETER                        deleter,
                                  BloombergLP::bslma::Allocator *basicAllocator)
 : d_ptr_p(ptr)
 {
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<CONVERTIBLE_TYPE,
                                                        DELETER> RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
-    BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
-                                                                     this);
+    if (!bsl::is_array<ELEMENT_TYPE>::value) {
+        BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
+                                                                         this);
+    }
 }
 
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE
-          BSLSTL_SHAREDPTR_DEFINE_IF_DELETER(DELETER, COMPATIBLE_TYPE)>
+template <class CONVERTIBLE_TYPE,
+          class DELETER,
+          class ALLOCATOR
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE
+          BSLSTL_SHAREDPTR_DEFINE_IF_DELETER(DELETER, CONVERTIBLE_TYPE)>
 inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr,
-                                     DELETER          deleter,
-                                     ALLOCATOR        basicAllocator,
+shared_ptr<ELEMENT_TYPE>::shared_ptr(CONVERTIBLE_TYPE *ptr,
+                                     DELETER           deleter,
+                                     ALLOCATOR         basicAllocator,
                                      typename ALLOCATOR::value_type *)
 : d_ptr_p(ptr)
 {
@@ -4260,13 +4371,15 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr,
 #endif
 
     typedef
-    BloombergLP::bslstl::SharedPtrAllocateOutofplaceRep<COMPATIBLE_TYPE,
+    BloombergLP::bslstl::SharedPtrAllocateOutofplaceRep<CONVERTIBLE_TYPE,
                                                         DeleterType,
                                                         ALLOCATOR> RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
-    BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
-                                                                     this);
+    if (!bsl::is_array<ELEMENT_TYPE>::value) {
+        BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
+                                                                         this);
+    }
 }
 
 template <class ELEMENT_TYPE>
@@ -4337,11 +4450,11 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 }
 
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
+template <class CONVERTIBLE_TYPE
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-               BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
-               BloombergLP::bslma::Allocator                   *basicAllocator)
+              BloombergLP::bslma::ManagedPtr<CONVERTIBLE_TYPE>  managedPtr,
+              BloombergLP::bslma::Allocator                    *basicAllocator)
 : d_ptr_p(managedPtr.ptr())
 , d_rep_p(0)
 {
@@ -4378,16 +4491,16 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
+template <class CONVERTIBLE_TYPE
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                               std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
-                               BloombergLP::bslma::Allocator   *basicAllocator)
+                              std::auto_ptr<CONVERTIBLE_TYPE>&  autoPtr,
+                              BloombergLP::bslma::Allocator    *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<
-                                          std::auto_ptr<COMPATIBLE_TYPE> > Rep;
+                                         std::auto_ptr<CONVERTIBLE_TYPE> > Rep;
 
     if (d_ptr_p) {
         basicAllocator =
@@ -4931,16 +5044,27 @@ ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::operator->() const
 
 template <class ELEMENT_TYPE>
 inline
-ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::get() const BSLS_KEYWORD_NOEXCEPT
+typename shared_ptr<ELEMENT_TYPE>::element_type *
+shared_ptr<ELEMENT_TYPE>::get() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_ptr_p;
 }
 
 template <class ELEMENT_TYPE>
+inline typename
+add_lvalue_reference<typename shared_ptr<ELEMENT_TYPE>::element_type>::type
+shared_ptr<ELEMENT_TYPE>::operator[](ptrdiff_t index) const
+{
+    BSLS_ASSERT_SAFE(d_ptr_p);
+
+    return *(d_ptr_p + index);
+}
+
+template <class ELEMENT_TYPE>
 template<class ANY_TYPE>
 inline
-bool shared_ptr<ELEMENT_TYPE>::owner_before(
-                                       const shared_ptr<ANY_TYPE>& other) const
+bool shared_ptr<ELEMENT_TYPE>::owner_before(const shared_ptr<ANY_TYPE>& other)
+                                                    const BSLS_KEYWORD_NOEXCEPT
 {
     return std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(), other.rep());
 }
@@ -4950,6 +5074,7 @@ template<class ANY_TYPE>
 inline
 bool
 shared_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(), other.rep());
 }
@@ -4969,16 +5094,6 @@ long shared_ptr<ELEMENT_TYPE>::use_count() const BSLS_KEYWORD_NOEXCEPT
 }
 
 // ADDITIONAL BSL ACCESSORS
-template <class ELEMENT_TYPE>
-inline
-typename add_lvalue_reference<ELEMENT_TYPE>::type
-shared_ptr<ELEMENT_TYPE>::operator[](ptrdiff_t index) const
-{
-    BSLS_ASSERT_SAFE(d_ptr_p);
-
-    return *(d_ptr_p + index);
-}
-
 template <class ELEMENT_TYPE>
 BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::managedPtr() const
@@ -5061,10 +5176,10 @@ weak_ptr<ELEMENT_TYPE>::weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& original)
 }
 #else
 template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE
-          BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
+template <class CONVERTIBLE_TYPE
+          BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(
-           BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > original)
+          BloombergLP::bslmf::MovableRef<weak_ptr<CONVERTIBLE_TYPE> > original)
                                                           BSLS_KEYWORD_NOEXCEPT
 : d_ptr_p(original.d_ptr_p)
 , d_rep_p(original.d_rep_p)
@@ -5286,6 +5401,7 @@ template <class ANY_TYPE>
 inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const shared_ptr<ANY_TYPE>& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
                                                            other.rep());
@@ -5296,6 +5412,7 @@ template <class ANY_TYPE>
 inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
                                                            other.d_rep_p);
@@ -5471,9 +5588,19 @@ void SharedPtrNilDeleter::operator()(const volatile void *) const
                         // -------------------------------
 
 // ACCESSORS
+template <>
 template <class ANY_TYPE>
 inline
-void SharedPtr_DefaultDeleter::operator()(ANY_TYPE *ptr) const
+void SharedPtr_DefaultDeleter<true>::operator()(ANY_TYPE *ptr) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    delete [] ptr;
+}
+
+template <>
+template <class ANY_TYPE>
+inline
+void SharedPtr_DefaultDeleter<false>::operator()(ANY_TYPE *ptr) const
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     delete ptr;
@@ -5746,10 +5873,12 @@ bsl::reinterpret_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
 # if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
+                                           !bsl::is_array<ELEMENT_TYPE>::value,
                          bsl::shared_ptr<ELEMENT_TYPE> >::type
 # else
-bsl::shared_ptr<ELEMENT_TYPE>
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
 # endif
 bsl::allocate_shared(ALLOC basicAllocator, ARGS&&... args)
 {
@@ -5770,8 +5899,9 @@ bsl::allocate_shared(ALLOC basicAllocator, ARGS&&... args)
 
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
 inline
-bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC     *basicAllocator,
-                                                   ARGS&&...  args)
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC *basicAllocator, ARGS&&...  args)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -5795,7 +5925,9 @@ bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC     *basicAllocator,
 
 template<class ELEMENT_TYPE, class... ARGS>
 inline
-bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(ARGS&&... args)
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::make_shared(ARGS&&... args)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -5868,6 +6000,9 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 # pragma GCC diagnostic pop
 #endif
 
+#undef BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE
+#undef BSLSTL_SHAREDPTR_DEFINE_IF_CONVERTIBLE
+
 #undef BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE
 #undef BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE
 
@@ -5884,7 +6019,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -102,12 +102,12 @@ namespace bsl {
                                 // struct is_enum
                                 // ==============
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_enum;
     // This 'struct' template implements the 'is_enum' meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is an enumerated type, and from
+    // parameter) 't_TYPE' is an enumerated type.  This 'struct' derives from
+    // 'bsl::true_type' if the 't_TYPE' is an enumerated type, and from
     // 'bsl::false_type' otherwise.
 
 }  // close namespace bsl
@@ -119,12 +119,12 @@ namespace bslmf {
                                 // struct IsEnum
                                 // =============
 
-template <class TYPE>
-struct IsEnum : bsl::is_enum<TYPE>::type {
+template <class t_TYPE>
+struct IsEnum : bsl::is_enum<t_TYPE>::type {
     // This 'struct' provides a meta-function that computes, at compile time,
-    // whether the (template parameter) 'TYPE' is an enumerated type.  It
-    // derives from 'bsl::true_type' if 'TYPE' is an enumerated type, and from
-    // 'bsl::false_type' otherwise.
+    // whether the (template parameter) 't_TYPE' is an enumerated type.  It
+    // derives from 'bsl::true_type' if 't_TYPE' is an enumerated type, and
+    // from 'bsl::false_type' otherwise.
     //
     // Enumerated types are the only user-defined types that have the
     // characteristics of a native arithmetic type (i.e., they can be converted
@@ -148,18 +148,15 @@ namespace bsl {
                         // struct is_enum (C++11)
                         // ======================
 
-template <class TYPE>
-struct is_enum
-    : bsl::integral_constant<bool, ::std::is_enum<TYPE>::value>
-{
+template <class t_TYPE>
+struct is_enum : bsl::integral_constant<bool, ::std::is_enum<t_TYPE>::value> {
     // This specialisation defers entirely to the native trait on supported
     // C++11 compilers.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_enum_v = is_enum<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_enum_v = is_enum<t_TYPE>::value;
     // This template variable represents the result value of the 'bsl::is_enum'
     // meta-function.
 #endif
@@ -221,24 +218,22 @@ namespace bsl {
                         // struct is_enum (C++03)
                         // ======================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_enum
-    : conditional<
-        !is_fundamental<TYPE>::value
-        && !is_reference<TYPE>::value
-        && !is_class<TYPE>::value,
-        BloombergLP::bslmf::IsEnum_TestConversions<TYPE>,
-        false_type>::type {
+: conditional<!is_fundamental<t_TYPE>::value && !is_reference<t_TYPE>::value &&
+                  !is_class<t_TYPE>::value,
+              BloombergLP::bslmf::IsEnum_TestConversions<t_TYPE>,
+              false_type>::type {
     // This formula determines whether or not most (complete) types are, or are
     // not, enumerations using only facilities available to a C++03 compiler;
     // additional specializations will handle the remaining corner cases.
 };
 
-template <class TYPE>
-struct is_enum<TYPE *> : false_type {
+template <class t_TYPE>
+struct is_enum<t_TYPE *> : false_type {
     // Pointers are not enumerated types.  This is captured above without this
     // partial specialization, but the convertability tests can trigger ADL
-    // such that the compiler will want TYPE to be complete, breaking some
+    // such that the compiler will want t_TYPE to be complete, breaking some
     // desirable usages involving forward-declarations.
 };
 
@@ -253,19 +248,19 @@ struct is_enum<void>
 // the 'remove_cv' trait to obtain the correct result (without infinite
 // recursion) for arrays of more than one dimension.
 
-template <class TYPE>
-struct is_enum<const TYPE>
-    : is_enum<typename bsl::remove_cv<TYPE>::type>::type {
+template <class t_TYPE>
+struct is_enum<const t_TYPE>
+: is_enum<typename bsl::remove_cv<t_TYPE>::type>::type {
 };
 
-template <class TYPE>
-struct is_enum<volatile TYPE>
-    : is_enum<typename bsl::remove_cv<TYPE>::type>::type {
+template <class t_TYPE>
+struct is_enum<volatile t_TYPE>
+: is_enum<typename bsl::remove_cv<t_TYPE>::type>::type {
 };
 
-template <class TYPE>
-struct is_enum<const volatile TYPE>
-    : is_enum<typename bsl::remove_cv<TYPE>::type>::type {
+template <class t_TYPE>
+struct is_enum<const volatile t_TYPE>
+: is_enum<typename bsl::remove_cv<t_TYPE>::type>::type {
 };
 
 }  // close namespace bsl

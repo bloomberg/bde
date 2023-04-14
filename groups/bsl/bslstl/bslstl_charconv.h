@@ -163,8 +163,6 @@ to_chars(char *first, char *last, INTEGRAL_TYPE value, int base)
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif
-
 namespace bsl {
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
@@ -186,6 +184,8 @@ using BloombergLP::bslstl::to_chars;
 #endif
 
 }  // close namespace bsl
+
+#endif  // INCLUDED_BSLSTL_CHARCONV
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.

@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a 'struct' template,
 // 'bslmf::IsReferenceWrapper', that is a boolean metafunction with a single
-// class template parameter 'TYPE'.  'bslmf::IsReferenceWrapper' derives from
+// class template parameter 't_TYPE'.  'bslmf::IsReferenceWrapper' derives from
 // 'bsl::false_type' by default.  The only intended specialization of
 // 'bslmf::IsReferenceWrapper' is for 'bsl::reference_wrapper'.  Clients are
 // not allowed to specialized 'bslmf::IsReferenceWrapper' for any other type.
@@ -50,14 +50,14 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct MyLvalueReferenceUtil {
 //      // CLASS METHODS
-//      template <class TYPE>
-//      static TYPE& access(TYPE& reference)
+//      template <class t_TYPE>
+//      static t_TYPE& access(t_TYPE& reference)
 //      {
 //          return reference;
 //      }
 //
-//      template <class TYPE>
-//      static const TYPE& access(const TYPE& reference)
+//      template <class t_TYPE>
+//      static const t_TYPE& access(const t_TYPE& reference)
 //      {
 //          return reference;
 //      }
@@ -66,12 +66,12 @@ BSLS_IDENT("$Id: $")
 // wrappers, taking care to define it such that it does not participate in
 // overload resolution unless it is passed a reference wrapper:
 //..
-//      template <class TYPE>
+//      template <class t_TYPE>
 //      static typename bsl::enable_if<
-//          bslmf::IsReferenceWrapper<TYPE>::value,
-//          typename bsl::add_lvalue_reference<typename TYPE::type>::type
+//          bslmf::IsReferenceWrapper<t_TYPE>::value,
+//          typename bsl::add_lvalue_reference<typename t_TYPE::type>::type
 //      >::type
-//      access(TYPE referenceWrapper)
+//      access(t_TYPE referenceWrapper)
 //      {
 //          return referenceWrapper.get();
 //      }
@@ -115,14 +115,14 @@ namespace bslmf {
                          // struct IsReferenceWrapper
                          // =========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsReferenceWrapper : bsl::false_type {
     // This 'struct' template implements a boolean metafunction used to detect
-    // if the specified 'TYPE' is a reference wrapper.  Clients may specialize
-    // this 'struct' template to inherit from 'bsl::true_type' for 'TYPE' types
-    // that are specializations of 'bsl::reference_wrapper'.  The behavior is
-    // undefined if any other specialization of this 'struct' template is
-    // defined.  Note that this 'struct' template
+    // if the specified 't_TYPE' is a reference wrapper.  Clients may
+    // specialize this 'struct' template to inherit from 'bsl::true_type' for
+    // 't_TYPE' types that are specializations of 'bsl::reference_wrapper'.
+    // The behavior is undefined if any other specialization of this 'struct'
+    // template is defined.  Note that this 'struct' template
 };
 
 }  // close enterprise namespace

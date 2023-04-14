@@ -120,6 +120,15 @@ int veryVeryVerbose;
 
 bool isPost_5_10;    // On Solaris, is OS post-Solaris 5.0
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
+// On Windows, the thread name will only be set if we're running on Windows 10,
+// version 1607 or later, otherwise it will be empty. AIX does not support
+// thread naming.
+static const bool k_threadNameCanBeEmpty = true;
+#else
+static const bool k_threadNameCanBeEmpty = false;
+#endif
+
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -764,6 +773,59 @@ void printNumberOfLogicalProcessorsFromCommandLine()
 #endif
 }
 
+namespace u {
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+
+// 16-byte length limit (include '\0') on Unix platforms.
+
+const char *nonDefaultThreadName = "Homer Bart Lisa";
+
+#elif  BSLS_PLATFORM_OS_WINDOWS
+
+// Very long length limit on Windows.
+
+const char *nonDefaultThreadName =
+            "To be, or not to be, that is the question:\n"
+            "Whether 'tis nobler in the mind to suffer\n"
+            "The slings and arrows of outrageous fortune,\n"
+            "Or to take Arms against a Sea of troubles,\n"
+            "And by opposing end them: to die, to sleep\n"
+            "No more; and by a sleep, to say we end\n"
+            "The heart-ache, and the thousand natural shocks\n"
+            "That Flesh is heir to? 'Tis a consummation\n"
+            "Devoutly to be wished. To die, to sleep,\n"
+            "To sleep, perchance to Dream; aye, there's the rub,\n"
+            "For in that sleep of death, what dreams may come,\n"
+            "When we have shuffled off this mortal coil,\n"
+            "Must give us pause. There's the respect\n"
+            "That makes Calamity of so long life:\n"
+            "For who would bear the Whips and Scorns of time,\n"
+            "The Oppressor's wrong, the proud man's Contumely, [F: poore]\n"
+            "The pangs of dispised Love, the Law's delay, [F: dispriz'd]\n"
+            "The insolence of Office, and the spurns\n"
+            "That patient merit of th'unworthy takes,\n"
+            "When he himself might his Quietus make\n"
+            "With a bare Bodkin? Who would Fardels bear, [F: these Fardels]\n"
+            "To grunt and sweat under a weary life,\n"
+            "But that the dread of something after death,\n"
+            "The undiscovered country, from whose bourn\n"
+            "No traveller returns, puzzles the will,\n"
+            "And makes us rather bear those ills we have,\n"
+            "Than fly to others that we know not of?\n"
+            "Thus conscience does make cowards of us all,\n"
+            "And thus the native hue of Resolution\n"
+            "Is sicklied o'er, with the pale cast of Thought,\n"
+            "And enterprises of great pitch and moment, [F: pith]\n"
+            "With this regard their Currents turn awry, [F: away]\n"
+            "And lose the name of Action. Soft you now,\n"
+            "The fair Ophelia? Nymph, in thy Orisons\n"
+            "Be all my sins remember'd.\n";
+#else
+# error Unrecognized platform
+#endif
+
+}  // close namespace u
 }  // close unnamed namespace
 
 //-----------------------------------------------------------------------------
@@ -772,25 +834,53 @@ void printNumberOfLogicalProcessorsFromCommandLine()
 
 namespace NAMED_DETACHED_THREAD_TEST_CASE {
 
-enum { k_NUM_THREADS = 10 };
+enum {  k_NUM_THREADS = 10,
+
+#if   defined(BSLS_PLATFORM_OS_WINDOWS)
+        // There is one allocation for the thread name in 'attr' variable in
+        // this function, then for each thread there is:
+        //: o One allocation for the 'u::NamedFuncPtrRecord' in the imp file.
+        //:
+        //: o One allocation for the string object in the
+        //:   'u::NamedFuncPtrRecord' in the imp file.
+        //:
+        //: o One allocation for the string in 'TC::subThread' in this file.
+
+        k_EXP_TA_ALLOCS = 1 + 3 * k_NUM_THREADS,
+
+        // We expect each thread to do one allocation in the default allocator
+        // in bslmt_threadutilimpl_windows.cpp when translating UTF-8 to
+        // UTF-16.
+
+        k_EXP_DEFAULT_ALLOCS = k_NUM_THREADS,
+
+#elif   defined(BSLS_PLATFORM_OS_UNIX)
+        // The max thread name is short enough to fit in a short string, but we
+        // still have to allocate 'u::NamedFuncPtrRecord' for each thread.
+
+        k_EXP_TA_ALLOCS = k_NUM_THREADS,
+
+        // No unicode translation on Unix.
+
+        k_EXP_DEFAULT_ALLOCS = 0,
+#else
+# error unrecognized platform
+#endif
+};
 
 bsls::AtomicInt started(0);
 bsls::AtomicInt stopped(-1);
 
-const char *nonDefaultThreadName = "Homer";
-
-extern "C" void *subThread(void *)
+extern "C" void *subThread(void *allocArg)
 {
+    bslma::Allocator *alloc = static_cast<bslma::Allocator *>(allocArg);
+
     ++started;
 
-    bsl::string s;
-    Obj::getThreadName(&s);
-#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
-    defined(BSLS_PLATFORM_OS_SOLARIS)
-    ASSERT(nonDefaultThreadName == s);
-#else
-    ASSERT(s.empty());
-#endif
+    bsl::string threadName(alloc);
+    Obj::getThreadName(&threadName);
+    ASSERT((k_threadNameCanBeEmpty && threadName.empty()) ||
+           u::nonDefaultThreadName == threadName);
 
     while (stopped < 0) {
         Obj::yield();
@@ -1543,37 +1633,64 @@ int main(int argc, char *argv[])
         //:   place, and that the allocator no longer has any allocated memory.
         //:
         //: 3 Signal all threads to stop with the 'stopped' atomic variable.
+        //:
+        //: 4 Verify that no memory has been leaked and that all allocations
+        //:   were performed using the test allocator.
         // --------------------------------------------------------------------
 
         namespace TC = NAMED_DETACHED_THREAD_TEST_CASE;
 
         bslma::TestAllocator ta;
 
-        Attr attr(&ta);
-        attr.setThreadName(TC::nonDefaultThreadName);
-        attr.setDetachedState(Attr::e_CREATE_DETACHED);
+        bslma::TestAllocator         taDefaultLocal;
+        bslma::DefaultAllocatorGuard guard(&taDefaultLocal);
 
-        Obj::Handle handles[TC::k_NUM_THREADS];
-        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
-            int rc = Obj::createWithAllocator(&handles[ii],
-                                              attr,
-                                              &TC::subThread,
-                                              0,
-                                              &ta);
-            ASSERT(0 == rc);
+        {
+            Attr attr(&ta);
+            attr.setThreadName(u::nonDefaultThreadName);
+            attr.setDetachedState(Attr::e_CREATE_DETACHED);
+
+            Obj::Handle handles[TC::k_NUM_THREADS];
+            for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+                int rc = Obj::createWithAllocator(&handles[ii],
+                                                  attr,
+                                                  &TC::subThread,
+                                                  &ta,
+                                                  &ta);
+                ASSERT(0 == rc);
+            }
         }
 
         while (TC::started < TC::k_NUM_THREADS) {
             Obj::yield();
         }
 
-        ASSERT(TC::k_NUM_THREADS == ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
+        // 'stopped' is statically initialized to -1, the threads don't start
+        // incrementing it until it's non-negative.
 
         TC::stopped = 0;
         while (TC::stopped < TC::k_NUM_THREADS) {
             Obj::yield();
         }
+
+        // Wait 2 seconds to be sure detacheds threads have finished and
+        // released memory.
+
+        bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+        do {
+            Obj::yield();
+        } while ((bsls::SystemTime::nowMonotonicClock() - start).
+                                                 totalSecondsAsDouble() < 2.0);
+
+        ASSERTV(TC::k_EXP_DEFAULT_ALLOCS, taDefaultLocal.numAllocations(),
+                  TC::k_EXP_DEFAULT_ALLOCS == taDefaultLocal.numAllocations());
+        ASSERTV(taDefaultLocal.numBytesInUse(),
+                0 == taDefaultLocal.numBytesInUse());
+
+        ASSERTV(TC::k_EXP_TA_ALLOCS, ta.numAllocations(),
+                                   TC::k_EXP_TA_ALLOCS == ta.numAllocations());
+        ASSERTV(ta.numBytesInUse(), 0 == ta.numBytesInUse());
+        ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -1709,7 +1826,8 @@ int main(int argc, char *argv[])
 
         typedef bsls::Types::Int64 Int64;
 
-        bslma::TestAllocator oa;
+        bslma::TestAllocator oai; // thread name inputs
+        bslma::TestAllocator oao; // thread name outputs
         bslma::TestAllocator da;
         bslma::TestAllocator ga;
         bslma::TestAllocator ta;
@@ -1723,24 +1841,16 @@ int main(int argc, char *argv[])
         // string.  On platforms that don't support thread names, the thread
         // name will always have a value of the empty string.
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-        // 'woof' followed by UTF-8 emoticon winking face
-
-        const bsl::string tn("woof \xf0\x9f\x98\x89", &oa);
-#else
-        const bsl::string tn("woof", &oa);
-#endif
-
 #if defined(BSLS_PLATFORM_OS_LINUX)
-        bsl::string defaultThreadName("bslmt_threadutil.t", 15, &oa);
+        bsl::string defaultThreadName("bslmt_threadutil.t", 15, &oai);
                                                          // basename of process
 #else
-        const bsl::string defaultThreadName(&oa);    // empty string
+        const bsl::string defaultThreadName(&oai);    // empty string
 #endif
 
         u::Mutex mutex;
         bsls::AtomicInt numToInc;
-        bsl::string threadName(&oa);
+        bsl::string threadName(&oao);
 
         for (int ii = e_CREATE_MODE_START; ii < e_NUM_CREATE_MODES; ++ii) {
             CreateMode cm = static_cast<CreateMode>(ii);
@@ -1752,7 +1862,7 @@ int main(int argc, char *argv[])
               case e_NO_ALLOC_ATTR_NAME:
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
-                attr.setThreadName(tn);
+                attr.setThreadName(u::nonDefaultThreadName);
               } break;
               default: {
                 ; // do nothing
@@ -1771,10 +1881,13 @@ int main(int argc, char *argv[])
             numToInc = 0;
             threadName = "";
 
-            const Int64 daNumAllocations = da.numAllocations();
-            const Int64 oaNumAllocations = oa.numAllocations();
-            const Int64 gaNumAllocations = ga.numAllocations();
-            const Int64 taNumAllocations = ta.numAllocations();
+            bsl::size_t threadNameEmptyCapacity = threadName.capacity();
+
+            const Int64 daNumAllocations  = da.numAllocations();
+            const Int64 oaiNumAllocations = oai.numAllocations();
+            const Int64 oaoNumAllocations = oao.numAllocations();
+            const Int64 gaNumAllocations  = ga.numAllocations();
+            const Int64 taNumAllocations  = ta.numAllocations();
 
             switch (cm) {
               case e_NO_ALLOC_FUNCTOR_NO_ATTR: {
@@ -1863,27 +1976,42 @@ int main(int argc, char *argv[])
               case e_NO_ALLOC_ATTR_NAME:
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
-#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||  \
-      defined(BSLS_PLATFORM_OS_SOLARIS)
-                LOOP2_ASSERT(cm, threadName, tn == threadName);
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
-                // The threadname will only be visible if we're running on
-                // Windows 10, version 1607 or later, otherwise it will be
-                // empty.
-
-                LOOP2_ASSERT(cm, threadName, tn == threadName ||
-                                                           threadName.empty());
-#else
-                LOOP2_ASSERT(cm, threadName, threadName.empty());
-#endif
+                LOOP2_ASSERT(cm,
+                             threadName,
+                             (k_threadNameCanBeEmpty && threadName.empty()) ||
+                                 u::nonDefaultThreadName == threadName);
               } break;
               default: {
-                LOOP2_ASSERT(cm, threadName, defaultThreadName == threadName);
+                LOOP2_ASSERT(cm,
+                             threadName,
+                             (k_threadNameCanBeEmpty && threadName.empty()) ||
+                                 defaultThreadName == threadName);
               }
             }
 
-            LOOP_ASSERT(cm, 0 == da.numAllocations() - daNumAllocations);
-            LOOP_ASSERT(cm, 0 == oa.numAllocations() - oaNumAllocations);
+            int expAllocs = 0;
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+            // Windows allocates a string using the default allocator when
+            // performing the thread name unicode conversion.
+            switch (cm) {
+              case e_NO_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_NO_ALLOC_ATTR_NAME:
+              case e_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_ALLOC_ATTR_NAME: {
+                expAllocs = 1;
+              } break;
+              default: {
+              }
+            }
+#endif
+
+            LOOP2_ASSERT(cm,
+                         da.numAllocations() - daNumAllocations,
+                         expAllocs == da.numAllocations() - daNumAllocations);
+            LOOP2_ASSERT(cm,
+                         oai.numAllocations() - oaiNumAllocations,
+                         0 == oai.numAllocations() - oaiNumAllocations);
             switch (cm) {
               case e_ALLOC_FUNCTOR_NO_ATTR:
               case e_ALLOC_FUNCTOR_ATTR:
@@ -1915,6 +2043,31 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(cm, 0 == ga.numAllocations() - gaNumAllocations);
 #endif
                 LOOP_ASSERT(cm, 0 == ta.numAllocations() - taNumAllocations);
+              } break;
+              default: {
+                ASSERT(0);
+              }
+            }
+
+            switch (cm) {
+              case e_NO_ALLOC_FUNCTOR_ATTR_NAME:{
+                int expectedAllocations =
+                   (threadName.capacity() > threadNameEmptyCapacity) ? 1 : 0;
+                LOOP_ASSERT(cm, expectedAllocations ==
+                                oao.numAllocations() - oaoNumAllocations);
+              } break;
+              case e_ALLOC_FUNCTOR_NO_ATTR:
+              case e_ALLOC_FUNCTOR_ATTR:
+              case e_ALLOC_ATTR_NAME:
+              case e_NO_ALLOC_FUNCTOR_NO_ATTR:
+              case e_NO_ALLOC_FUNCTOR_ATTR:
+              case e_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_NO_ALLOC_ATTR_NAME:
+              case e_ALLOC_NO_ATTR:
+              case e_ALLOC_ATTR:
+              case e_NO_ALLOC_NO_ATTR:
+              case e_NO_ALLOC_ATTR: {
+                LOOP_ASSERT(cm, 0 == oao.numAllocations() - oaoNumAllocations);
               } break;
               default: {
                 ASSERT(0);
@@ -2772,7 +2925,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         enum { k_SLEEP_MICROSECONDS = 300 * 1000 };
-        const double SLEEP_SECONDS = k_SLEEP_MICROSECONDS * 1e-6;
+        const double SLEEP_SECONDS =
+                              static_cast<double>(k_SLEEP_MICROSECONDS) * 1e-6;
         const double OVERSHOOT_MIN = -1e-5;
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
             const double TOLERANCE = 2;   // microSleep is obscenely imprecise

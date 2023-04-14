@@ -287,7 +287,7 @@ void aSsErT(bool b, const char *s, int i)
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::bool_constant<EXPRESSION> NAME{}
+    const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature
     // test macro is (currently) for documentation purposes only, and never
     // defined.  This is the ideal (simplest) form for such declarations:
@@ -933,6 +933,20 @@ void testTransparentComparator(Container& container,
 
     const Iterator NON_EXISTING_F = container.find(nonExistingKey);
     ASSERT(container.end()                  == NON_EXISTING_F);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
+    // Testing 'contains'.
+
+    const bool EXISTING_CONTAINS = container.contains(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(true == EXISTING_CONTAINS);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+    ASSERT(false == NON_EXISTING_CONTAINS);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
     // Testing 'count'.
@@ -7366,13 +7380,14 @@ void TestDriver<KEY, COMP, ALLOC>::testCase13()
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' and
-    //:   'lower_bound' returns the first iterator referring to the existing
-    //:   element, 'upper_bound' returns the iterator to the element after the
-    //:   searched element.
+    //:   'lower_bound' returns the iterator referring to the existing element,
+    //:   'contains' returns 'true', and 'upper_bound' returns the iterator to
+    //:   the element after the searched element.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
-    //:   returns the 'end' iterator, 'lower_bound' and 'upper_bound' returns
-    //:   the iterator to the smallest element greater than searched element.
+    //:   returns the 'end' iterator, 'contains' returns 'false', 'lower_bound'
+    //:   and 'upper_bound' return the iterator to the smallest element
+    //:   greater than searched element.
     //:
     //: 3 'equal_range(key)' returns
     //:   'std::make_pair(lower_bound(key), upper_bound(key))'.
@@ -7399,6 +7414,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase13()
     //:   4 Verify no memory is allocated from any allocators.  (C-4)
     //
     // Testing:
+    //   bool contains(const key_type& key);
+    //   bool contains(const LOOKUP_KEY& key);
     //   iterator find(const key_type& key);
     //   const_iterator find(const key_type& key) const;
     //   size_type count(const key_type& key) const;
@@ -7450,6 +7467,23 @@ void TestDriver<KEY, COMP, ALLOC>::testCase13()
                         const int idx = tj / 2;
                         ASSERTV(ti, tj, CITER[idx] == X.find(VALUES[tj]));
                         ASSERTV(ti, tj, ITER[idx] == mX.find(VALUES[tj]));
+
+                        bool cShouldBeFound = CITER[idx] != X.end();
+                        ASSERTV(ti,
+                                tj,
+                                cShouldBeFound,
+                                cShouldBeFound == X.contains(VALUES[tj]));
+
+                        bool shouldBeFound = ITER[idx] != mX.end();
+                        ASSERTV(cShouldBeFound,
+                                shouldBeFound,
+                                cShouldBeFound == shouldBeFound);
+
+                        ASSERTV(ti,
+                                tj,
+                                shouldBeFound,
+                                shouldBeFound == mX.contains(VALUES[tj]));
+
                         ASSERTV(ti, tj,
                                 CITER[idx] == X.lower_bound(VALUES[tj]));
                         ASSERTV(ti, tj,
@@ -8654,7 +8688,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'find'
+        // TESTING 'find', 'contains'
         // --------------------------------------------------------------------
 
         RUN_EACH_TYPE(TestDriver,

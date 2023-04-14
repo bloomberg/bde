@@ -457,12 +457,6 @@ bool operator!=(const hash_multimap<_Key,_Tp,_HashFcn,_EqlKey,_Alloc>& __hm1,
 
 }  // close namespace bsl
 
-// This needs to be updated whenever bos_stdhdrs_epilogue.h changes.
-#ifdef BOS_STDHDRS_DEFINED_STD_MACRO
-#undef std
-#define BSLSTP_DEFINE_STD
-#endif
-
 namespace std {
 
 // Specialization of insert_iterator so that it will work for hash_map
@@ -581,12 +575,6 @@ struct UsesBslmaAllocator<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Al
 }  // close namespace bslma
 
 }  // close enterprise namespace
-
-
-#ifdef BSLSTP_DEFINE_STD
-#undef BSLSTP_DEFINE_STD
-#define std bsl
-#endif
 
 #endif /* INCLUDED_BSLSTP_HASHMAP */
 

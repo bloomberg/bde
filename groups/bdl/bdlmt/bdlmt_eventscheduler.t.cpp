@@ -104,7 +104,8 @@ using namespace bsl;  // automatically added by script
 // [ 1] ~bdlmt::EventScheduler();
 //
 // MANIPULATORS
-// [ 4] void cancelAllEvents(bool wait=false);
+// [ 4] void cancelAllEvents();
+// [ 4] void cancelAllEventsAndWait();
 //
 // [ 3] int cancelEvent(Handle handle, bool wait=false);
 //
@@ -362,6 +363,14 @@ void noop()
 {
 }
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
+// On Windows, the thread name will only be set if we're running on Windows 10,
+// version 1607 or later, otherwise it will be empty. AIX does not support
+// thread naming.
+static const bool k_threadNameCanBeEmpty = true;
+#else
+static const bool k_threadNameCanBeEmpty = false;
+#endif
                          // ==========================
                          // function executeInParallel
                          // ==========================
@@ -608,13 +617,11 @@ struct TestClass1 {
     {
         bsl::string threadName;
         bslmt::ThreadUtil::getThreadName(&threadName);
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
-                                       defined(BSLS_PLATFORM_OS_DARWIN)
-        ASSERTV(threadName, threadName == "bdl.EventSched" ||
-                                                    threadName == "OtherName");
-#else
-        ASSERTV(threadName, threadName.empty());
-#endif
+
+        ASSERTV(threadName,
+                (k_threadNameCanBeEmpty && threadName.empty()) ||
+                    threadName == "bdl.EventSched" ||
+                    threadName == "OtherName");
 
         if (veryVerbose) {
             ET_("TestClass1::callback"); PT_(threadName); PT_(this);
@@ -629,6 +636,64 @@ struct TestClass1 {
 
     // ACCESSORS
     int numExecuted()
+    {
+        return d_numExecuted;
+    }
+};
+
+                              // ================
+                              // class TestClass2
+                              // ================
+
+struct TestClass2 {
+    // This class defines a function 'callback' that is used as a callback for
+    // a clock or an event.  The class keeps track of number of times the
+    // callback has been executed.
+
+    // DATA
+    bsls::AtomicInt d_numExecuted;
+    bslmt::Barrier *d_startBarrier_p;
+    bslmt::Barrier *d_finishBarrier_p;
+
+    // CREATORS
+    TestClass2(bslmt::Barrier *startBarrier, bslmt::Barrier *finishBarrier) :
+        d_numExecuted(0),
+        d_startBarrier_p(startBarrier),
+        d_finishBarrier_p(finishBarrier)
+        // Create a 'TestClass2' object that, each time the 'callback' method
+        // is called, will arrive and wait at the specified 'startBarrier' if
+        // non-null, increment 'd_numExecuted', and finally arrive and wait at
+        // the specified 'finishBarrier' if non-null.
+    {
+    }
+
+    // MANIPULATORS
+    void callback()
+    {
+        bsl::string threadName;
+        bslmt::ThreadUtil::getThreadName(&threadName);
+
+        ASSERTV(threadName,
+                (k_threadNameCanBeEmpty && threadName.empty()) ||
+                    threadName == "bdl.EventSched" ||
+                    threadName == "OtherName");
+
+        if (veryVerbose) {
+            ET_("TestClass2::callback"); PT_(threadName); PT_(this);
+            PT(u::now());
+        }
+
+        if (d_startBarrier_p) {
+            d_startBarrier_p->wait();
+        }
+        ++d_numExecuted;
+        if (d_finishBarrier_p) {
+            d_finishBarrier_p->wait();
+        }
+    }
+
+    // ACCESSORS
+    int numExecuted() const
     {
         return d_numExecuted;
     }
@@ -767,16 +832,23 @@ struct ChronoRecurringTest {
     using Tp = typename CLOCK::time_point;
     using Dur = bsl::chrono::duration<REP, PERIOD>;
 
-    Tp              d_startTime;
-    Tp              d_stopTime;
-    Dur             d_interval;
-    bsl::vector<Tp> d_callTimes;
+    Tp                     d_startTime;
+    Tp                     d_stopTime;
+    Dur                    d_interval;
+    bsl::vector<Tp>        d_callTimes;
+    bdlmt::EventScheduler *d_eventScheduler_p;
 
-    ChronoRecurringTest(Tp startTime, Dur interval)
-        // Constructs a 'ChronoRecurringTest'.  Remember the specified
-        // 'startTime' and specified 'interval' for checking later.  Reserve
-        // space in 'd_callTimes' so that we don't need to reallocate later.
-    : d_startTime(startTime), d_stopTime(startTime), d_interval(interval)
+    ChronoRecurringTest(Tp                     startTime,
+                        Dur                    interval,
+                        bdlmt::EventScheduler *eventScheduler)
+        // Create a 'ChronoRecurringTest' object.  Remember the specified
+        // 'eventScheduler' for scheduling later, and the specified 'startTime'
+        // and 'interval' for checking later.  Reserve space in 'd_callTimes'
+        // so that we don't need to reallocate later.
+    : d_startTime(startTime)
+    , d_stopTime(startTime)
+    , d_interval(interval)
+    , d_eventScheduler_p(eventScheduler)
     {
         d_callTimes.reserve(1000);
     }
@@ -798,6 +870,42 @@ struct ChronoRecurringTest {
         // printing results, use the specified 'clockName' to identify the
         // clock that we're testing.
     {
+        // {DRQS 170729958}: The callback was sometimes being called earlier
+        // than expected.  This was bug not in 'bdlmt_eventscheduler', but this
+        // test driver; the contract of each relevant 'schedule' method
+        // advertises that the start time will be truncated to microsecond
+        // precision.
+        //
+        // To ensure that we are testing against the contract, we must truncate
+        // 'd_startTime' to microsecond precision, as will be done by
+        // 'bdlmt_eventscheduler'.  Call the result of this 'truncatedTime'.
+        // If the first callback occurs at or after 'truncatedTime', then the
+        // time we will record in 'd_callTimes' will be greater than or equal
+        // to the result of converting 'truncatedTime' back to our time point
+        // type, 'Tp' (again with truncation).  We therefore adjust
+        // 'd_startTime' to that value prior to the checking described below.
+        if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(
+                                            d_eventScheduler_p->clockType())) {
+            typedef typename CLOCK::duration ClockDur;
+            ClockDur timeSinceEpoch = d_startTime.time_since_epoch();
+
+            typedef chrono::duration<REP, micro> MicroDur;
+            MicroDur truncatedTime =
+                               chrono::duration_cast<MicroDur>(timeSinceEpoch);
+
+            if (truncatedTime > timeSinceEpoch) {
+                // occurs when the durations are negative, since
+                // 'duration_cast' truncates (rounds toward zero)
+                truncatedTime -= static_cast<MicroDur>(1);
+            }
+            timeSinceEpoch = chrono::duration_cast<ClockDur>(truncatedTime);
+            if (timeSinceEpoch > truncatedTime) {
+                // ditto
+                timeSinceEpoch -= static_cast<ClockDur>(1);
+            }
+            d_startTime = static_cast<Tp>(timeSinceEpoch);
+        }
+
         // Check that:
         // * None of the callbacks happened before the start time
         // * None of the callbacks happened after the stop time
@@ -835,23 +943,21 @@ struct ChronoRecurringTest {
         }
     }
 
-    void schedule(BloombergLP::bdlmt::EventScheduler &x)
-        // Schedule the recurring event that we will be timing on the specified
-        // EventScheduler 'x'.
+    void schedule()
+        // Schedule the recurring event that we will be timing.
     {
-        x.scheduleRecurringEvent(
+        d_eventScheduler_p->scheduleRecurringEvent(
                  d_interval,
                  bdlf::MemFnUtil::memFn(&ChronoRecurringTest::callback, this),
                  d_startTime);
     }
 
-    RecurringEvent * scheduleRaw(BloombergLP::bdlmt::EventScheduler &x)
-        // Schedule the recurring event that we will be timing on the specified
-        // 'EventScheduler' 'x'.  Return a handle that can be used to cancel
-        // the recurring event.
+    RecurringEvent *scheduleRaw()
+        // Schedule the recurring event that we will be timing.  Return a
+        // handle that can be used to cancel the recurring event.
     {
         RecurringEvent *event;
-        x.scheduleRecurringEventRaw(
+        d_eventScheduler_p->scheduleRecurringEventRaw(
                  &event,
                  d_interval,
                  bdlf::MemFnUtil::memFn(&ChronoRecurringTest::callback, this),
@@ -863,13 +969,16 @@ struct ChronoRecurringTest {
 template <class CLOCK, class REP1, class PER1, class REP2, class PER2>
 ChronoRecurringTest<CLOCK, REP2, PER2>
 MakeChronoTest(bsl::chrono::duration<REP1, PER1> start_time,
-               bsl::chrono::duration<REP2, PER2> interval)
-    // Create and return a ChronoRecurringTest object from the specified
-    // 'start_time' and 'interval'.  This helper function exist to avoid
-    // specifying all the type necessary.
+               bsl::chrono::duration<REP2, PER2> interval,
+               bdlmt::EventScheduler            *scheduler)
+    // Create and return a 'ChronoRecurringTest' object that will use the
+    // specified 'scheduler' to schedule a recurring event beginning at the
+    // specified 'start_time' with interval equal to the specified 'interval'.
+    // This helper function exists to avoid specifying all the necessary types.
 {
     return ChronoRecurringTest<CLOCK, REP2, PER2> (CLOCK::now() + start_time,
-                                                   interval);
+                                                   interval,
+                                                   scheduler);
 }
 #endif
 
@@ -2226,31 +2335,26 @@ struct Test4_1 {
     Test4_1() {}
 
     void operator()()
+        // Execute step 2 of the plan for test case 4.
     {
-        // Schedule events e1, e2 and e3 at T, T2 and T8 respectively.  Let the
-        // scheduler to start executing e1 (this is done by sleeping enough
-        // time before starting the scheduler).  Invoke 'cancelAllEvents' and
-        // ensure that it cancels e2 and e3 and does not wait for e1 to
-        // complete its execution.
-
-        const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-        bsls::TimeInterval  T(1 * DECI_SEC);
-        const bsls::TimeInterval T2(2 * DECI_SEC);
-        const bsls::TimeInterval T8(8 * DECI_SEC);
-            // This will not be put onto the pending list.
-
-        const int TM3  =  3 * DECI_SEC_IN_MICRO_SEC;
-        const int TM20 = 20 * DECI_SEC_IN_MICRO_SEC;
+        const bsls::TimeInterval T(0.01);  // 10ms
+        const bsls::TimeInterval T8(0.08);
+        const bsls::TimeInterval T9(0.09);
 
         Obj x(pta);
 
-        TestClass1 testObj1(TM20);
-        TestClass1 testObj2;
-        TestClass1 testObj3;
+        bslmt::Barrier startBarrier1(2);
+        bslmt::Barrier startBarrier2(2);
+        bslmt::Barrier finishBarrier(2);
+        TestClass2     testObj1(&startBarrier1, &finishBarrier);
+        TestClass1     testObj2;
+        TestClass1     testObj3;
+        TestClass2     testObj4(&startBarrier2, 0);
+
         bsls::TimeInterval now = u::now();
         x.scheduleEvent(
                      now - T,
-                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj1));
 
         x.scheduleEvent(
                      now,
@@ -2261,53 +2365,66 @@ struct Test4_1 {
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3));
 
         x.start();
-        microSleep(TM3, 0);     // give enough time to put on pending list
-        x.cancelAllEvents();    // testObj1 is pending, 2 & 3 get killed
-        if ((u::now() - now).totalSecondsAsDouble() < 2.0) {
-            LOOP_ASSERT(testObj1.numExecuted(), 0 == testObj1.numExecuted());
-            LOOP_ASSERT(testObj2.numExecuted(), 0 == testObj2.numExecuted());
-            LOOP_ASSERT(testObj3.numExecuted(), 0 == testObj3.numExecuted());
-        }
-        else if (verbose) {
-            ET("Test4_1: timed out");
-        }
+        startBarrier1.wait();  // ensure 'testObj1' has started executing
+        x.cancelAllEvents();   // 2 & 3 get killed
+        x.scheduleEvent(
+                     now + T9,
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj4));
+        finishBarrier.wait();
+        startBarrier2.wait();  // ensure 'testObj4' has started executing
+        x.stop();
 
-        makeSureTestObjectIsExecuted(testObj1, mT, 400);
         LOOP_ASSERT(testObj1.numExecuted(), 1 == testObj1.numExecuted());
         LOOP_ASSERT(testObj2.numExecuted(), 0 == testObj2.numExecuted());
         LOOP_ASSERT(testObj3.numExecuted(), 0 == testObj3.numExecuted());
-        x.stop();
+        LOOP_ASSERT(testObj4.numExecuted(), 1 == testObj4.numExecuted());
     }
 };
 
 struct Test4_2 {
     Test4_2() {}
 
+    struct Unblock {
+        Obj            *d_scheduler_p;
+        bslmt::Barrier *d_finishBarrier_p;
+
+        Unblock(Obj *scheduler, bslmt::Barrier *finishBarrier)
+            : d_scheduler_p(scheduler), d_finishBarrier_p(finishBarrier) {}
+
+        void operator()()
+            // Wait for '*d_obj_p' to finish cancelling all its events, then
+            // arrive at '*d_finishBarrier_p' (in order to unblock the thread
+            // that has called 'cancelAllEventsAndWait').
+        {
+            while (d_scheduler_p->numEvents()) {
+                bslmt::ThreadUtil::yield();
+            }
+            d_finishBarrier_p->arrive();
+        }
+    };
+
     void operator()()
+        // Execute step 3 of the plan for test case 4.
     {
-        // Schedule events e1, e2 and e3 at T, T2 and T8 respectively.  Let the
-        // scheduler to start executing e1 (this is done by sleeping enough
-        // time before starting the scheduler).  Invoke 'cancelAllEvents' with
-        // wait argument and ensure that it cancels e3 and e2 wait for e1 to
-        // complete its execution.
-
-        bsls::TimeInterval  T(1 * DECI_SEC);
-        const bsls::TimeInterval T2(2 * DECI_SEC);
-        const bsls::TimeInterval T5(5 * DECI_SEC);
-        const bsls::TimeInterval T8(8 * DECI_SEC);
-
-        const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
-        const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
+        const bsls::TimeInterval T(0.01);  // 10ms
+        const bsls::TimeInterval T2(0.02);
+        const bsls::TimeInterval T5(0.05);
+        const bsls::TimeInterval T6(0.06);
 
         Obj x(pta);
 
-        TestClass1 testObj1(T10);
-        TestClass1 testObj2;
-        TestClass1 testObj3;
+        bslmt::Barrier startBarrier1(2);
+        bslmt::Barrier startBarrier2(2);
+        bslmt::Barrier finishBarrier(2);
+        TestClass2     testObj1(&startBarrier1, &finishBarrier);
+        TestClass1     testObj2;
+        TestClass1     testObj3;
+        TestClass2     testObj4(&startBarrier2, 0);
+
         bsls::TimeInterval now = u::now();
         x.scheduleEvent(
                      now - T2,
-                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj1));
 
         x.scheduleEvent(
                      now - T,
@@ -2318,22 +2435,28 @@ struct Test4_2 {
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3));
 
         x.start();
-        microSleep(T3, 0); // give enough time to put on pending list
-        bsls::TimeInterval elapsed = u::now() - now;
-        x.cancelAllEventsAndWait();
-        ASSERT( 1 == testObj1.numExecuted() );
-        if (elapsed < T8) {
-            ASSERT( 0 == testObj2.numExecuted() );
-            ASSERT( 0 == testObj3.numExecuted() );
-            x.stop();
-            ASSERT( 1 == testObj1.numExecuted() );
-            ASSERT( 0 == testObj2.numExecuted() );
-            ASSERT( 0 == testObj3.numExecuted() );
-        }
-        else if (verbose) {
-            ET("Test4_2: timed out");
-        }
+        startBarrier1.wait();  // ensure that e1 has started
+        bslmt::ThreadUtil::Handle arriveThreadHandle;
+        // Launch a new thread that will wait for this thread to cancel e2 and
+        // e3 and then unblock e1 so that 'cancelAllEventsAndWait' can return.
+        ASSERT(0 == bslmt::ThreadUtil::create(&arriveThreadHandle,
+                                              Unblock(&x, &finishBarrier)));
+        x.cancelAllEventsAndWait();  // cancel e2 and e3
+        // Check that e1 has completed.  We can't directly check that control
+        // has actually returned from the callback to the dispatcher thread, so
+        // instead just check that the second barrier has been passed.
+        ASSERT(2 == finishBarrier.numArrivals());
+        x.scheduleEvent(
+                     now + T6,
+                     bdlf::MemFnUtil::memFn(&TestClass2::callback, &testObj4));
+        startBarrier2.wait();
         x.stop();
+        bslmt::ThreadUtil::join(arriveThreadHandle);
+
+        ASSERT(1 == testObj1.numExecuted());
+        ASSERT(0 == testObj2.numExecuted());
+        ASSERT(0 == testObj3.numExecuted());
+        ASSERT(1 == testObj4.numExecuted());
     }
 };
 
@@ -2756,23 +2879,31 @@ int main(int argc, char *argv[])
         {
             using namespace bsl::chrono;
 
-            auto systemClockTest  =
-                   MakeChronoTest<system_clock>(seconds(1), milliseconds(500));
-            auto steadyClockTest  =
-                MakeChronoTest<steady_clock>(seconds(1), microseconds(600000));
-            auto anotherClockTest =
-                   MakeChronoTest<AnotherClock>(seconds(1), milliseconds(300));
-            auto halfClockTest    =
-                MakeChronoTest<HalfClock>   (seconds(1), microseconds(250000));
-
             bslma::TestAllocator ta(veryVeryVerbose);
             Obj                  x(bsls::SystemClockType::e_REALTIME, &ta);
 
+            auto systemClockTest = MakeChronoTest<system_clock>(
+                                                             seconds(1),
+                                                             milliseconds(500),
+                                                             &x);
+            auto steadyClockTest = MakeChronoTest<steady_clock>(
+                                                          seconds(1),
+                                                          microseconds(600000),
+                                                          &x);
+            auto anotherClockTest = MakeChronoTest<AnotherClock>(
+                                                             seconds(1),
+                                                             milliseconds(300),
+                                                             &x);
+            auto halfClockTest = MakeChronoTest<HalfClock>(
+                                                          seconds(1),
+                                                          microseconds(250000),
+                                                          &x);
+
             // schedule the calls
-            RecurringEvent *system_handle  = systemClockTest.scheduleRaw(x);
-            RecurringEvent *steady_handle  = steadyClockTest.scheduleRaw(x);
-            RecurringEvent *another_handle = anotherClockTest.scheduleRaw(x);
-            RecurringEvent *half_handle    = halfClockTest.scheduleRaw(x);
+            RecurringEvent *system_handle  = systemClockTest.scheduleRaw();
+            RecurringEvent *steady_handle  = steadyClockTest.scheduleRaw();
+            RecurringEvent *another_handle = anotherClockTest.scheduleRaw();
+            RecurringEvent *half_handle    = halfClockTest.scheduleRaw();
 
             x.start();
             microSleep(0, 10);
@@ -5534,51 +5665,63 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'cancelAllEvents':
-        //   Verifying 'cancelAllEvents'.
+        // TESTING 'cancelAllEvents' AND 'cancelAllEventsAndWait'
+        //   Ensure that 'cancelAllEvents' cancels all events, including
+        //   pending events, that have not already been executed and are not
+        //   currently being executed.  Ensure that 'cancelAllEventsAndWait'
+        //   behaves similarly but also does not return until any currently
+        //   executing event has completed.
         //
         // Concerns:
-        //   That if no event has yet been put onto the pending list, then
-        //   invoking 'cancelAllEvents' should be able to cancel all
-        //   events.
-        //
-        //   That 'cancelAllEvents' without wait argument should
-        //   immediately cancel the events not yet put onto the pending
-        //   list and should not wait for events on the pending list to be
-        //   executed.
-        //
-        //   That 'cancelAllEvents' with wait argument should cancel the
-        //   events not yet put onto the pending list and should wait for
-        //   events on the pending list to be executed.
+        //: 1 If no event has yet been put onto the pending list, then
+        //:   invoking 'cancelAllEvents' cancels all events.
+        //:
+        //: 2 'cancelAllEvents' immediately cancels all events other than the
+        //:   currently executing event, including events whose scheduled times
+        //:   are earlier than the time of the call, and does not wait for
+        //:   the currently executing event to complete.
+        //:
+        //: 3 'cancelAllEventsAndWait' immediately cancels all events other
+        //:   than the currently executing event, including events whose
+        //:   scheduled times are earlier than the time of the call, and waits
+        //:   for the currently executing event to complete.
         //
         // Plan:
-        //   Define T, T2, T3, T4 .. as time intervals such that T2 = T * 2,
-        //   T3 = T * 3,  T4 = T * 4,  and so on.
-        //
-        //   Schedule events at T, T2 and T3, invoke 'cancelAllEvents' and
-        //   verify the result.
-        //
-        //   Schedule events e1, e2 and e3 at T, T2 and T8 respectively.
-        //   Let both e1 and e2 be simultaneously put onto the pending
-        //   list (this is done by sleeping enough time before starting
-        //   the scheduler).  Invoke 'cancelAllEvents' and ensure that it
-        //   cancels e3 and does not wait for e1 and e2 to complete their
-        //   execution.
-        //
-        //   Schedule events e1, e2 and e3 at T, T2 and T8 respectively.
-        //   Let both e1 and e2 be simultaneously put onto the pending
-        //   list (this is done by sleeping enough time before starting
-        //   the scheduler).  Invoke 'cancelAllEvents' with wait argument
-        //   and ensure that it cancels e3 and wait for e1 and e2 to
-        //   complete their execution.
+        //: 1 Schedule events at T, 2T, and 3T, where T is an interval of time
+        //:   (measured from just before the first 'scheduleEvent' call).
+        //:   Invoke 'cancelAllEvents', then invoke 'cancelEvent' on each
+        //:   event individually to check that it was already cancelled.  (C-1)
+        //:
+        //: 2 Schedule events e1, e2 and e3 at -T, 0, and 8T, respectively
+        //:   (measured from just before the first 'scheduleEvent' call).
+        //:   Wait for the scheduler to start executing e1, then invoke
+        //:   'cancelAllEvents' and schedule a fourth event, e4, at 9T, then
+        //:   allow e1 to complete.  Finally, wait for e4 to start executing,
+        //:   and verify that e2 and e3 are still unexecuted.  Note that if
+        //:   'cancelAllEvents' were to wait for e1 to complete, a deadlock
+        //:   would occur.  (C-2)
+        //:
+        //: 3 Schedule events e1, e2 and e3 at -2T, -T, and 5T, respectively
+        //:   (measured from just before the first 'scheduleEvent' call).
+        //:   Wait for the scheduler to start executing e1, then spawn an
+        //:   auxiliary thread that will allow e1 to complete once it sees that
+        //:   the scheduler has no remaining events.  From the main thread,
+        //:   invoke 'cancelAllEventsAndWait'.  Ensure that e1 has completed,
+        //:   and schedule a fourth event, e4, at 6T, and finally wait for e4
+        //:   to start executing, and verify that e2 and e3 are still
+        //:   unexecuted.  (C-3)
         //
         // Testing:
-        //   void cancelAllEvents(bool wait=false);
+        //   void cancelAllEvents();
+        //   void cancelAllEventsAndWait();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'cancelAllEvents' (1)" << endl
-                          << "=============================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING 'cancelAllEvents' AND 'cancelAllEventsAndWait'"
+                 << endl
+                 << "======================================================"
+                 << endl;
 
         using namespace EVENTSCHEDULER_TEST_CASE_4;
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -6354,23 +6497,31 @@ int main(int argc, char *argv[])
         {
             using namespace bsl::chrono;
 
-            auto systemClockTest  =
-                   MakeChronoTest<system_clock>(seconds(1), milliseconds(500));
-            auto steadyClockTest  =
-                MakeChronoTest<steady_clock>(seconds(1), microseconds(600000));
-            auto anotherClockTest =
-                   MakeChronoTest<AnotherClock>(seconds(1), milliseconds(300));
-            auto halfClockTest    =
-                MakeChronoTest<HalfClock>   (seconds(1), microseconds(250000));
-
             bslma::TestAllocator ta(veryVeryVerbose);
             Obj                  x(bsls::SystemClockType::e_REALTIME, &ta);
 
+            auto systemClockTest = MakeChronoTest<system_clock>(
+                                                             seconds(1),
+                                                             milliseconds(500),
+                                                             &x);
+            auto steadyClockTest = MakeChronoTest<steady_clock>(
+                                                          seconds(1),
+                                                          microseconds(600000),
+                                                          &x);
+            auto anotherClockTest = MakeChronoTest<AnotherClock>(
+                                                             seconds(1),
+                                                             milliseconds(300),
+                                                             &x);
+            auto halfClockTest = MakeChronoTest<HalfClock>(
+                                                          seconds(1),
+                                                          microseconds(250000),
+                                                          &x);
+
             // schedule the calls
-            systemClockTest.schedule(x);
-            steadyClockTest.schedule(x);
-            anotherClockTest.schedule(x);
-            halfClockTest.schedule(x);
+            systemClockTest.schedule();
+            steadyClockTest.schedule();
+            anotherClockTest.schedule();
+            halfClockTest.schedule();
 
             x.start();
             microSleep(0, 10);

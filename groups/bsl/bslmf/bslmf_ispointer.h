@@ -89,78 +89,78 @@ namespace bsl {
                          // struct is_pointer
                          // =================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_pointer : bsl::false_type {
     // This 'struct' template implements the 'is_pointer' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 'TYPE' is a pointer.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is a pointer type (but not a
+    // parameter) 't_TYPE' is a pointer.  This 'struct' derives from
+    // 'bsl::true_type' if the 't_TYPE' is a pointer type (but not a
     // pointer-to-non-static-member type), and 'bsl::false_type' otherwise.
 };
 
-template <class TYPE>
-struct is_pointer<TYPE *> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // (cv-unqalified) pointer type.
+template <class t_TYPE>
+struct is_pointer<t_TYPE *> : bsl::true_type {
+    // This partial specialization of 'is_pointer' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a
+    // (cv-unqalified) pointer type.
 };
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
 // Older Microsoft compilers do not recognize cv-qualifiers on function pointer
-// types as matching a 'TYPE *const' partial specialization, but can correctly
-// strip the cv-qualifier if we take a second template instantiation on a more
-// general 'TYPE const' parameter.
+// types as matching a 't_TYPE *const' partial specialization, but can
+// correctly strip the cv-qualifier if we take a second template instantiation
+// on a more general 't_TYPE const' parameter.
 
-template <class TYPE>
-struct is_pointer<TYPE const> : is_pointer<TYPE>::type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const'
-     // qualified pointer type.
+template <class t_TYPE>
+struct is_pointer<t_TYPE const> : is_pointer<t_TYPE>::type {
+    // This partial specialization of 'is_pointer' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a 'const'
+    // qualified pointer type.
 };
 
-template <class TYPE>
-struct is_pointer<TYPE volatile> : is_pointer<TYPE>::type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // 'volatile' qualified pointer type.
+template <class t_TYPE>
+struct is_pointer<t_TYPE volatile> : is_pointer<t_TYPE>::type {
+    // This partial specialization of 'is_pointer' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a
+    // 'volatile' qualified pointer type.
 };
 
-template <class TYPE>
-struct is_pointer<TYPE const volatile> : is_pointer<TYPE>::type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const
-     // volatile' qualified pointer type.
+template <class t_TYPE>
+struct is_pointer<t_TYPE const volatile> : is_pointer<t_TYPE>::type {
+    // This partial specialization of 'is_pointer' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a 'const
+    // volatile' qualified pointer type.
 };
 #else
 // Preferred implementation avoids a second dispatch for arbitrary cv-qualified
 // types.
 
-template <class TYPE>
-struct is_pointer<TYPE *const> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const'
-     // qualified pointer type.
+template <class t_TYPE>
+struct is_pointer<t_TYPE *const> : bsl::true_type {
+    // This partial specialization of 'is_pointer' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a 'const'
+    // qualified pointer type.
 };
 
-template <class TYPE>
-struct is_pointer<TYPE *volatile> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // 'volatile' qualified pointer type.
+template <class t_TYPE>
+struct is_pointer<t_TYPE *volatile> : bsl::true_type {
+    // This partial specialization of 'is_pointer' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a
+    // 'volatile' qualified pointer type.
 };
 
-template <class TYPE>
-struct is_pointer<TYPE *const volatile> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const
-     // volatile' qualified pointer type.
+template <class t_TYPE>
+struct is_pointer<t_TYPE *const volatile> : bsl::true_type {
+    // This partial specialization of 'is_pointer' derives from
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is a 'const
+    // volatile' qualified pointer type.
 };
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_pointer_v = is_pointer<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_pointer_v =
+                                                     is_pointer<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_pointer' meta-function.
 #endif
@@ -174,11 +174,11 @@ namespace bslmf {
                          // struct IsPointer
                          // ================
 
-template <class TYPE>
-struct IsPointer : bsl::is_pointer<TYPE>::type {
+template <class t_TYPE>
+struct IsPointer : bsl::is_pointer<t_TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is a pointer type.  This 'struct' derives
-    // from 'bsl::true_type' if the 'TYPE' is a pointer type (but not a
+    // (template parameter) 't_TYPE' is a pointer type.  This 'struct' derives
+    // from 'bsl::true_type' if the 't_TYPE' is a pointer type (but not a
     // pointer to non-static member), and 'bsl::false_type' otherwise.
     //
     // Note that this 'struct' is functionally equivalent to 'bsl::is_pointer',

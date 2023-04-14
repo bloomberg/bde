@@ -155,6 +155,9 @@ using bsls::NameOf;
 // [ 4] allocator_type get_allocator() const;
 //
 // unordered_multimap operations:
+// [13] bool contains(const key_type& key);
+// [13] bool contains(const LOOKUP_KEY& key);
+// [13] size_type count(const KEY& key) const;
 // [13] iterator find(const key_type& key);
 // [13] const_iterator find(const key_type& key) const;
 // [13] size_type count(const key_type& key) const;
@@ -5768,9 +5771,11 @@ int main(int argc, char *argv[])
       case 14: // falls through
       case 13: // falls through
       case 12: {
-        if (verbose) printf(
-                   "\nTEST CASE %d IS DELEGATED TO 'bslstl_list_test.t.cpp'"
-                   "\n=====================================================\n",
+        if (verbose)
+            printf("\nTEST CASE %d IS DELEGATED TO "
+                   "'bslstl_unorderedmultimap_test.t.cpp'"
+                   "\n========================================================"
+                   "==========\n",
                    test);
       } break;
       case 11: {

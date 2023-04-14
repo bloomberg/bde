@@ -98,6 +98,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_choicefunctions.h>
 #include <bdlat_customizedtypefunctions.h>
 #include <bdlat_enumfunctions.h>
+#include <bdlat_enumutil.h>
 #include <bdlat_formattingmode.h>
 #include <bdlat_nullablevaluefunctions.h>
 #include <bdlat_sequencefunctions.h>
@@ -1001,7 +1002,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Enumeration)
         return rc;  // error message is already logged
     }
 
-    if (0 != bdlat_EnumFunctions::fromInt(variable, value)) {
+    if (0 != bdlat::EnumUtil::fromIntOrFallbackIfEnabled(variable, value)) {
         return logError("Error converting enumeration value");
     }
 

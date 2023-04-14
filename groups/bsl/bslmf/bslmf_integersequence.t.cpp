@@ -186,17 +186,17 @@ constexpr T getValue(IntegerSequence<T, IS...>)
 //
 // First, define a class template 'DataReader',
 //..
-template <std::size_t N>
+template <std::size_t t_N>
 class DataReader {
   public:
 //..
 // Then, implement a method that loads the specified parameter pack 'args' with
 // data read from a data source.
 //..
-    template <class ...T>
-    void read(T*... args) const
+    template <class ...t_T>
+    void read(t_T*... args) const
     {
-        static_assert(sizeof...(args) == N, "");
+        static_assert(sizeof...(args) == t_N, "");
         read_impl(args...);
     }
 //..
@@ -205,11 +205,11 @@ class DataReader {
 // element to 'stdout'.
 //..
 private:
-    template <class U, class ...T>
-    void read_impl(U*, T*... args) const
+    template <class t_U, class ...t_T>
+    void read_impl(t_U*, t_T*... args) const
     {
         printf("read element #%i\n",
-               static_cast<int>(N - 1 - sizeof...(args)));
+               static_cast<int>(t_N - 1 - sizeof...(args)));
         read_impl(args...);
     }
 //..
@@ -221,22 +221,22 @@ private:
 };
 //..
 // Next, define a helper function template 'readData' that expands the
-// parameter pack of indices 'I' and invokes the variadic template 'read'
+// parameter pack of indices 't_I' and invokes the variadic template 'read'
 // method of the specified 'reader' object.
 //..
 namespace {
-template<class R, class T, std::size_t... I>
-void readData(const R&  reader,
-              T        *data,
-              bslmf::IntegerSequence<std::size_t, I...>)
+template<class t_R, class t_T, std::size_t... t_I>
+void readData(const t_R&  reader,
+              t_T        *data,
+              bslmf::IntegerSequence<std::size_t, t_I...>)
 {
-    reader.read(&data[I]...);
+    reader.read(&data[t_I]...);
         // In pseudocode, this is equivalent to:
         // reader.read(&data[0],
         //             &data[1],
         //             &data[2],
         //             ...
-        //             &data[N-1]);
+        //             &data[t_N-1]);
 }
 }
 //..
@@ -363,6 +363,9 @@ int main(int argc, char *argv[])
             TEST_EMPTY_INTEGER_SEQUENCE(         char     );
             TEST_EMPTY_INTEGER_SEQUENCE(  signed char     );
             TEST_EMPTY_INTEGER_SEQUENCE(unsigned char     );
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+            TEST_EMPTY_INTEGER_SEQUENCE(         char8_t  );
+#endif
             TEST_EMPTY_INTEGER_SEQUENCE(         wchar_t  );
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
             TEST_EMPTY_INTEGER_SEQUENCE(         char16_t );

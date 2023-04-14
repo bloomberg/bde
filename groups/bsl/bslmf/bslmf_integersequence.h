@@ -28,24 +28,24 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Pass C-array as a parameter to a function with variadic template
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to initialize a C-Array of known size 'N' with data read
+// Suppose we want to initialize a C-Array of known size 't_N' with data read
 // from a data source using a library class that provides a variadic template
 // interface that loads a data of variable length into the supplied parameter
 // pack.
 //
 // First, define a class template 'DataReader',
 //..
-// template <std::size_t N>
+// template <std::size_t t_N>
 // class DataReader {
 //   public:
 //..
 // Then, implement a method that loads the specified parameter pack 'args' with
 // data read from a data source.
 //..
-//     template <class ...T>
-//     void read(T*... args) const
+//     template <class ...t_T>
+//     void read(t_T*... args) const
 //     {
-//         static_assert(sizeof...(args) == N, "");
+//         static_assert(sizeof...(args) == t_N, "");
 //         read_impl(args...);
 //     }
 //..
@@ -54,11 +54,11 @@ BSLS_IDENT("$Id: $")
 // element to 'stdout'.
 //..
 // private:
-//     template <class U, class ...T>
-//     void read_impl(U*, T*... args) const
+//     template <class t_U, class ...t_T>
+//     void read_impl(t_U*, t_T*... args) const
 //     {
 //         printf("read element #%i\n",
-//                static_cast<int>(N - 1 - sizeof...(args)));
+//                static_cast<int>(t_N - 1 - sizeof...(args)));
 //         read_impl(args...);
 //     }
 //..
@@ -70,22 +70,22 @@ BSLS_IDENT("$Id: $")
 // };
 //..
 // Next, define a helper function template 'readData' that expands the
-// parameter pack of indices 'I' and invokes the variadic template 'read'
+// parameter pack of indices 't_I' and invokes the variadic template 'read'
 // method of the specified 'reader' object.
 //..
 // namespace {
-// template<class R, class T, std::size_t... I>
-// void readData(const R&  reader,
-//               T        *data,
-//               bslmf::IntegerSequence<std::size_t, I...>)
+// template<class t_R, class t_T, std::size_t... t_I>
+// void readData(const t_R&  reader,
+//               t_T      *data,
+//               bslmf::IntegerSequence<std::size_t, t_I...>)
 // {
-//     reader.read(&data[I]...);
+//     reader.read(&data[t_I]...);
 //         // In pseudocode, this is equivalent to:
 //         // reader.read(&data[0],
 //         //             &data[1],
 //         //             &data[2],
 //         //             ...
-//         //             &data[N-1]);
+//         //             &data[t_N-1]);
 // }
 // }
 //..
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 // Note that using a direct call to the 'bslmf::IntegerSequence' constructor
 // looks a bit clumsy here.  The better approach is to use alias template
 // 'bslmf::MakeIntegerSequence', that creates a collection of increasing
-// integer values, having the specified N-value length.  The usage example in
+// integer values, having the specified t_N-value length.  The usage example in
 // that component shows this method more clearly.  But we can not afford its
 // presence here to avoid a cycle/levelization violation.
 //
@@ -132,20 +132,20 @@ namespace bslmf {
                             // struct IntegerSequence
                             // ======================
 
-template <class T, T ...INTS>
+template <class t_T, t_T ...t_INTS>
 struct IntegerSequence {
     // This class template represents a compile-time sequence of integers.
     // When passed as an argument to a function template, the specified
-    // parameter pack 'INTS' can be deduced and used a in pack expansion.
+    // parameter pack 't_INTS' can be deduced and used a in pack expansion.
 
     // TYPES
-    typedef T value_type;
-        // 'value_type' is an alias to the template parameter 'T' that
+    typedef t_T value_type;
+        // 'value_type' is an alias to the template parameter 't_T' that
         // represents an integer type to use for the elements of the sequence.
 
     // CLASS METHODS
     static constexpr std::size_t size() noexcept;
-       // Return the number of elements in 'INTS'.
+        // Return the number of elements in 't_INTS'.
 };
 
 }  // close package namespace
@@ -158,11 +158,11 @@ struct IntegerSequence {
                             // struct IntegerSequence
                             // ----------------------
 
-template <class T, T ...INTS>
+template <class t_T, t_T... t_INTS>
 inline
-constexpr std::size_t bslmf::IntegerSequence<T, INTS...>::size() noexcept
+constexpr std::size_t bslmf::IntegerSequence<t_T, t_INTS...>::size() noexcept
 {
-    return sizeof...(INTS);
+    return sizeof...(t_INTS);
 }
 
 }  // close enterprise namespace

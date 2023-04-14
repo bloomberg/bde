@@ -298,7 +298,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::bool_constant<EXPRESSION> NAME{}
+    const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature
     // test macro is (currently) for documentation purposes only, and never
     // defined.  This is the ideal (simplest) form for such declarations:
@@ -1564,6 +1564,20 @@ void testTransparentComparator(Container& container,
 
     const Iterator NON_EXISTING_F = container.find(nonExistingKey);
     ASSERT(container.end()                  == NON_EXISTING_F);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
+    // Testing 'contains'.
+
+    const bool EXISTING_CONTAINS = container.contains(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(true == EXISTING_CONTAINS);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+    ASSERT(false == NON_EXISTING_CONTAINS);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
     // Testing 'count'.
@@ -7503,29 +7517,32 @@ template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING FIND, EQUAL_RANGE, COUNT
+    // TESTING FIND, CONTAINS, EQUAL_RANGE, COUNT
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' returns the
-    //:   iterator referring the existing element.
+    //:   iterator referring the existing element and 'contains' returns
+    //:   'true'.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
-    //:   returns the 'end' iterator.
+    //:   returns the 'end' iterator and 'contains' returns 'false'.
     //:
     //: 3 'equal_range(key)' returns all elements equivalent to 'key'.
     //:
-    //: 2 'count' returns the number of elements with the same value as defined
+    //: 4 'count' returns the number of elements with the same value as defined
     //:   by the comparator.
     //:
-    //: 3 Both the 'const' and non-'const' versions returns the same value.
+    //: 5 Both the 'const' and non-'const' versions returns the same value.
     //:
-    //: 4 No memory is allocated, from either the object allocator nor from
+    //: 6 No memory is allocated, from either the object allocator nor from
     //:   the default allocator.
     //
     // Plan:
     //:  TDB
     //
     // Testing:
+    //   bool contains(const key_type& key);
+    //   bool contains(const LOOKUP_KEY& key);
     //   size_type count(const key_type& key) const;
     //   bsl::pair<iterator, iterator> equal_range(const key_type& key);
     //   bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
@@ -7548,6 +7565,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     {
         typedef Iter (Obj::*MP)(const KEY&) const;
         MP mp = &Obj::find;
+        (void) mp;
+    }
+    {
+        typedef bool (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::contains;
         (void) mp;
     }
     {
@@ -7598,6 +7620,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             ASSERT(it == X.find(key));
             ASSERT(1 == numPasses);
+
+            const bool expectContains = (mX.end() != it);
+            ASSERT(expectContains == mX.contains(key));
 
             const size_t expectedCount = numCharInstances(SPEC, c);
 
@@ -8855,11 +8880,12 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'find', 'equal_range' AND 'count'
+        // TESTING 'find', 'contains', 'equal_range' AND 'count'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'find', 'equal_range' AND 'count'\n"
-                            "=========================================\n");
+        if (verbose)
+            printf("TESTING 'find', 'contains', 'equal_range' AND 'count'\n"
+                   "=====================================================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase13,

@@ -199,6 +199,15 @@ static bslmt::Mutex coutMutex;
     static const double jumpTheGun = 0.0;
 #endif
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
+// On Windows, the thread name will only be set if we're running on Windows
+// 10, version 1607 or later, otherwise it will be empty. AIX does not
+// support thread naming.
+static const bool k_threadNameCanBeEmpty = true;
+#else
+static const bool k_threadNameCanBeEmpty = false;
+#endif
+
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -243,13 +252,9 @@ void checkThreadName()
 {
     bsl::string threadName;
     bslmt::ThreadUtil::getThreadName(&threadName);
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
-                                       defined(BSLS_PLATFORM_OS_DARWIN)
-    ASSERTV(threadName, threadName == "bdl.MultiQuePl" ||
-                                                    threadName == "OtherName");
-#else
-    ASSERTV(threadName, threadName.empty());
-#endif
+    ASSERTV(threadName,
+            (k_threadNameCanBeEmpty && threadName.empty()) ||
+                threadName == "bdl.MultiQuePl" || threadName == "OtherName");
 }
 
 static

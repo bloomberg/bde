@@ -38,7 +38,8 @@ BSLS_IDENT("$Id: $")
 // Now, we create an object of type 'bdlb::CaselessStringViewEqualTo' to do the
 // comparisons:
 //..
-//  const bdlb::CaselessStringViewEqualTo equals;
+//  bdlb::CaselessStringViewEqualTo        eq;
+//  const bdlb::CaselessStringViewEqualTo& equals = eq;
 //..
 // Finally, we observe that 'a' matches 'b', but neither matches 'c':
 //..

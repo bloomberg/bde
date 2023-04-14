@@ -1931,17 +1931,11 @@ int Datetime::addHoursIfValid(bsls::Types::Int64 hours)
 inline
 Datetime& Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) || defined(BSLS_REVIEW_IS_ACTIVE)
-    const bool overflowSafe =
-        minutes <= static_cast<bsls::Types::Int64>(
-                       (k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()) /
-                       TimeUnitRatio::k_US_PER_M) &&
-        -minutes <= static_cast<bsls::Types::Int64>(microsecondsFromEpoch() /
-                                                    TimeUnitRatio::k_US_PER_M);
-
-    BSLS_REVIEW(overflowSafe);
-    BSLS_ASSERT_SAFE(overflowSafe);
-#endif
+    BSLS_ASSERT_SAFE( minutes <= static_cast<bsls::Types::Int64>
+                               ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
+                                                 / TimeUnitRatio::k_US_PER_M));
+    BSLS_ASSERT_SAFE(-minutes <= static_cast<bsls::Types::Int64>
+                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_M));
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 

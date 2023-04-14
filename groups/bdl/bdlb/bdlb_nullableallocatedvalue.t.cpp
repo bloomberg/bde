@@ -24,6 +24,7 @@
 #include <bslx_testoutstream.h>
 
 #include <bsl_algorithm.h>  // 'swap'
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>    // 'atoi', 'abs'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -54,6 +55,24 @@ using namespace bsl;
 // ACCESSORS
 //
 // FREE OPERATORS
+// [ 05] bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator==(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator==(const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator!=(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator!=(const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator<( const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator<( const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator<=(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator<=(const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator>( const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator>( const b_NV<TYPE>&, const TYPE&);
+// [ 05] bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 05] bool operator>=(const TYPE&,       const b_NV<TYPE>&);
+// [ 05] bool operator>=(const b_NV<TYPE>&, const TYPE&);
 //
 // TRAITS
 //-----------------------------------------------------------------------------
@@ -1226,55 +1245,218 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATORS
+        // TESTING COMPARISON OPERATORS
         //
         // Concerns:
-        //   The '==' operator must return 'false' for objects that are very
-        //   similar but still different, but must return 'true' for objects
-        //   that are exactly the same.  Likewise, 'operator!=' must return
-        //   'true' for objects that are very similar but still different, but
-        //   must return 'false' for objects that are exactly the same.
+        //: 1 That all 6 comparison operators work properly.  A null values is
+        //:   always not equal to, and less than, any non-null value.  Two null
+        //:   values are equal.
         //
         // Plan:
-        //   Use 'int' for 'TYPE'.  Construct a set of objects containing
-        //   similar but different values.  Loop through the cross product of
-        //   the test data.  For each tuple, use the '==' and '!=' operators
-        //   to check their return value for correctness.
+        //: 1 Use 'int' for 'TYPE'.
+        //:
+        //: 2 Create an array 'values' of 7 non-null nullable objects, none
+        //:   equal to each other, sorted in value from lowest to highest.
+        //:
+        //: 3 Try comparisons of two non-null nullable objects.
+        //:   o Iterate 'ii' through the indexes of 'values', and in that loop
+        //:     create 'const int UR = values[ii]' and non-null
+        //:     'const Obj U(UV)'.
+        //:
+        //:   o Within that loop, iterate 'jj' through the indexes of 'values',
+        //:     and in that loop create 'const int VR = values[jj]' and
+        //:     non-null 'const Obj V(VR)'.
+        //:
+        //:   o Try every possible comparison of 'UR' and 'V', with 'UR' on the
+        //:     lhs and 'V' on the rhs, whose results should match the boolean
+        //:     results of comparing 'ii' and 'jj'.
+        //:
+        //:   o Try every possible comparison of 'U' and 'VR', with 'U' on the
+        //:     lhs and 'VR' on the rhs, whose results should match the boolean
+        //:     results of comparing 'ii' and 'jj'.
+        //:
+        //:   o Try every possible comparison of 'U' and 'V', whose results
+        //:     should match the boolean results of comparing 'ii' and 'jj'.
+        //:
+        //: 4 Try comparisons between a null nullable value and non-nullable
+        //:   'int'.
+        //:   o Create a null nullable value 'N'.
+        //:
+        //:   o Iterate 'ii' through the indexes of 'values', and in that loop
+        //:     create 'const int RV(values[ii])'.
+        //:
+        //:   o In the loop, do all possible comparisons of 'N' and 'RV', and
+        //:     'N' should always be less than 'RV', regardless of the value of
+        //:     'RV'.
+        //:
+        //: 5 Try comparisons of one null object and one non-null object.
+        //:   o Create a null nullable value 'N'.
+        //:
+        //:   o Iterate 'ii' through the indexes of 'values', and in that loop
+        //:     create non-null 'const Obj NV(values[ii])'.
+        //:
+        //:   o In the loop, do all possible comparisons of 'N' and 'NV', and
+        //:     'N' should always be less than 'NV', regardless of the value of
+        //:     'NV'.
+        //:
+        //: 6 Try comparisons of two null nullable objects.
+        //:   o Create two null nullable objects 'LN' and 'RN'
+        //:
+        //:   o Try every possible comparison between them, they are always
+        //:     equal, not greater, not less.
         //
-        // Testing:
+        // TESTING:
         //   bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator==(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator==(const b_NV<TYPE>&, const TYPE&);
         //   bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator!=(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator!=(const b_NV<TYPE>&, const TYPE&);
+        //   bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator<( const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator<( const b_NV<TYPE>&, const TYPE&);
+        //   bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator<=(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator<=(const b_NV<TYPE>&, const TYPE&);
+        //   bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator>( const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator>( const b_NV<TYPE>&, const TYPE&);
+        //   bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+        //   bool operator>=(const TYPE&,       const b_NV<TYPE>&);
+        //   bool operator>=(const b_NV<TYPE>&, const TYPE&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Equality Operators"
-                          << "\n==========================" << endl;
+        if (verbose) cout << "TESTING COMPARISON OPERATORS\n"
+                             "============================\n";
 
-        typedef int                                     ValueType;
-        typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+        typedef bdlb::NullableAllocatedValue<int> Obj;
 
-        const int NUM_VALUES = 3;
+        const int values[] = { INT_MIN, -1000, -123, 0, +123, +1000, INT_MAX };
+        enum { k_NUM_VALUES = sizeof values / sizeof *values };
 
-        Obj objArray[NUM_VALUES];
+        // Comparison between two non-null values.
 
-        objArray[1].makeValue(123);
-        objArray[2].makeValue(234);
+        for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+            const int RU = values[ii];
+            const Obj U(RU);
+            ASSERT(!U.isNull());
 
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            const Obj& U = objArray[i];
+            if (veryVerbose) { T_ P_(ii) P(U) }
 
-            if (veryVerbose) { T_ P_(i) P(U) }
+            for (int jj = 0; jj < k_NUM_VALUES; ++jj) {
+                const int RV = values[jj];
+                const Obj V(RV);
+                ASSERT(!V.isNull());
 
-            for (int j = 0; j < NUM_VALUES; ++j) {
-                const Obj& V = objArray[j];
+                if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
 
-                if (veryVeryVerbose) { T_ T_ P_(j) P(V) }
+                // lhs is nullable, but non-null, rhs is raw value
 
-                const bool isSame = (i == j);
-                ASSERTV(U, V,  isSame == (U == V));
-                ASSERTV(U, V, !isSame == (U != V));
+                ASSERTV(U, RV, (ii == jj) == (U == RV));
+                ASSERTV(U, RV, (ii != jj) == (U != RV));
+
+                ASSERTV(U, RV, (ii <  jj) == (U <  RV));
+                ASSERTV(U, RV, (ii <= jj) == (U <= RV));
+                ASSERTV(U, RV, (ii >  jj) == (U >  RV));
+                ASSERTV(U, RV, (ii >= jj) == (U >= RV));
+
+                // lhs is raw value, rhs is nullable, but non-null
+
+                ASSERTV(RU, V, (ii == jj) == (RU == V));
+                ASSERTV(RU, V, (ii != jj) == (RU != V));
+
+                ASSERTV(RU, V, (ii <  jj) == (RU <  V));
+                ASSERTV(RU, V, (ii <= jj) == (RU <= V));
+                ASSERTV(RU, V, (ii >  jj) == (RU >  V));
+                ASSERTV(RU, V, (ii >= jj) == (RU >= V));
+
+                // both sides are nullable, but non-null
+
+                ASSERTV(U, V, (ii == jj) == (U == V));
+                ASSERTV(U, V, (ii != jj) == (U != V));
+
+                ASSERTV(U, V, (ii <  jj) == (U <  V));
+                ASSERTV(U, V, (ii <= jj) == (U <= V));
+                ASSERTV(U, V, (ii >  jj) == (U >  V));
+                ASSERTV(U, V, (ii >= jj) == (U >= V));
             }
         }
 
+        // Comparison between null nullable values and non-nullable raw value.
+
+        {
+            const Obj N;
+            ASSERT(N.isNull());
+
+            for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+                const int RV = values[ii];    // Raw Value
+
+                ASSERT(!(N  == RV));
+                ASSERT(!(RV == N ));
+
+                ASSERT(  N  != RV );
+                ASSERT(  RV != N  );
+
+                ASSERT(  N  <  RV );
+                ASSERT(!(RV <  N ));
+
+                ASSERT(  N  <= RV );
+                ASSERT(!(RV <= N ));
+
+                ASSERT(!(N  >  RV));
+                ASSERT(  RV >  N  );
+
+                ASSERT(!(N  >= RV));
+                ASSERT(  RV >= N  );
+            }
+        }
+
+        // Comparison between null nullable values and non-null nullable value.
+
+        {
+            const Obj N;
+            ASSERT(N.isNull());
+
+            for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+                const Obj NV(values[ii]);
+                ASSERT(!NV.isNull());
+
+                ASSERT(!(N  == NV));
+                ASSERT(!(NV == N ));
+
+                ASSERT(  N  != NV );
+                ASSERT(  NV != N  );
+
+                ASSERT(  N  <  NV );
+                ASSERT(!(NV <  N ));
+
+                ASSERT(  N  <= NV );
+                ASSERT(!(NV <= N ));
+
+                ASSERT(!(N  >  NV));
+                ASSERT(  NV >  N  );
+
+                ASSERT(!(N  >= NV));
+                ASSERT(  NV >= N  );
+            }
+        }
+
+        // Comparison between two null values.
+
+        {
+            const Obj LN, RN;
+            ASSERT(LN.isNull());
+            ASSERT(RN.isNull());
+
+            ASSERT(  LN == RN );
+            ASSERT(!(LN != RN));
+
+            ASSERT(!(LN <  RN));
+            ASSERT(  LN <= RN );
+
+            ASSERT(!(LN >  RN));
+            ASSERT(  LN >= RN);
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------

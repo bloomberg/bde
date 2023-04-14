@@ -12,6 +12,7 @@ bslstl_bitset
 bslstl_boyermoorehorspoolsearcher
 bslstl_charconv
 bslstl_chrono
+bslstl_compare
 bslstl_complex
 bslstl_defaultsearcher
 bslstl_deque
@@ -36,6 +37,7 @@ bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
 bslstl_inplace
 bslstl_iomanip
+bslstl_ios
 bslstl_iosfwd
 bslstl_iserrorcodeenum
 bslstl_iserrorconditionenum

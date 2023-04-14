@@ -13,14 +13,14 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a simple template structure used to
-// evaluate whether it's parameter is a 'bsl::pair' type.  A 'TYPE' that has
+// evaluate whether it's parameter is a 'bsl::pair' type.  A 't_TYPE' that has
 // this trait fulfills the following requirements, where 'mX' is a modifiable
-// object and 'X' a non-modifiable object of 'TYPE':
+// object and 'X' a non-modifiable object of 't_TYPE':
 //..
 //  Valid expression     Type
 //  ----------------     ----
-//  TYPE::first_type
-//  TYPE::second_type
+//  t_TYPE::first_type
+//  t_TYPE::second_type
 //
 //  mX.first             first_type
 //  mX.second            second_type
@@ -46,7 +46,7 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsPair : bsl::false_type {};
 
 }  // close package namespace

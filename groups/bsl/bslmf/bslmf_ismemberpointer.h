@@ -93,45 +93,46 @@ namespace bsl {
                          // struct is_member_pointer
                          // ========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_member_pointer : false_type {
     // This 'struct' template implements the 'is_member_pointer' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
-    // (template parameter) 'TYPE' is a member pointer type.  This 'struct'
-    // derives from 'bsl::true_type' if the 'TYPE' is a member pointer type,
+    // (template parameter) 't_TYPE' is a member pointer type.  This 'struct'
+    // derives from 'bsl::true_type' if the 't_TYPE' is a member pointer type,
     // and from 'bsl::false_type' otherwise.  Additional specializations are
     // provided below to give the correct answer in all cases.
 };
 
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::*> : true_type {
+template <class t_TARGET_TYPE, class t_HOST_TYPE>
+struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*> : true_type {
     // This partial specialization provides the 'true_type' result for a
     // (cv-unqualified) pointer-to-member type.  Note that additional partial
     // specializations are required to handle the cv-qualified cases.
 };
 
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::* const> : true_type {
+template <class t_TARGET_TYPE, class t_HOST_TYPE>
+struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*const> : true_type {
     // This partial specialization provides the 'true_type' result for a
     // 'const'-qualified pointer-to-member type.
 };
 
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::* volatile> : true_type {
+template <class t_TARGET_TYPE, class t_HOST_TYPE>
+struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*volatile> : true_type {
     // This partial specialization provides the 'true_type' result for a
     // 'volatile'-qualified pointer-to-member type.
 };
 
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::* const volatile> : true_type {
+template <class t_TARGET_TYPE, class t_HOST_TYPE>
+struct is_member_pointer<t_TARGET_TYPE t_HOST_TYPE::*const volatile>
+: true_type {
     // This partial specialization provides the 'true_type' result for a
     // 'const volatile'-qualified pointer-to-member type.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_member_pointer_v = is_member_pointer<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_member_pointer_v =
+                                              is_member_pointer<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_member_pointer' meta-function.
 #endif
@@ -148,22 +149,23 @@ constexpr bool is_member_pointer_v = is_member_pointer<TYPE>::value;
 // which apparently does work.  Note that this bug also appears to affect the
 // MSVC 2015 compiler, but only for 32-bit builds.
 
-template <class TYPE>
-struct is_member_pointer<const TYPE> : is_member_pointer<TYPE>::type {
-    // The 'const'-qualified (template parameter) 'TYPE' is a member pointer if
-    // the corresponding unqualified 'TYPE' is a member pointer.
+template <class t_TYPE>
+struct is_member_pointer<const t_TYPE> : is_member_pointer<t_TYPE>::type {
+    // The 'const'-qualified (template parameter) 't_TYPE' is a member pointer
+    // if the corresponding unqualified 't_TYPE' is a member pointer.
 };
 
-template <class TYPE>
-struct is_member_pointer<volatile TYPE> : is_member_pointer<TYPE>::type {
-    // The 'volatile'-qualified (template parameter) 'TYPE' is a member pointer
-    // if the corresponding unqualified 'TYPE' is a member pointer.
+template <class t_TYPE>
+struct is_member_pointer<volatile t_TYPE> : is_member_pointer<t_TYPE>::type {
+    // The 'volatile'-qualified (template parameter) 't_TYPE' is a member
+    // pointer if the corresponding unqualified 't_TYPE' is a member pointer.
 };
 
-template <class TYPE>
-struct is_member_pointer<const volatile TYPE> : is_member_pointer<TYPE>::type {
-    // The 'const volatile'-qualified (template parameter) 'TYPE' is a member
-    // pointer if the corresponding unqualified 'TYPE' is a member pointer.
+template <class t_TYPE>
+struct is_member_pointer<const volatile t_TYPE>
+: is_member_pointer<t_TYPE>::type {
+    // The 'const volatile'-qualified (template parameter) 't_TYPE' is a member
+    // pointer if the corresponding unqualified 't_TYPE' is a member pointer.
 };
 
 template <class RESULT, class HOST, class... ARGS>

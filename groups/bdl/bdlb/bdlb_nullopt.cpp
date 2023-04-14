@@ -8,7 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlb {
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 const NullOptType NullOptType::s_nullOpt;
 const NullOptType nullOpt = NullOptType::s_nullOpt;
 #endif

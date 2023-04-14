@@ -51,16 +51,26 @@ BSLS_IDENT("$Id: $")
 //
 ///'hashAppend'
 ///------------
-// 'hashAppend' is the function that is used to pass attributes that are
-// salient to hashing into a hashing algorithm.  A type must define a
-// 'hashAppend' overload that can be discovered through ADL in order to be
-// hashed using this facility.  A simple implementation of an overload for
-// 'hashAppend' might call 'hashAppend' on each of the type's attributes that
-// are salient to hashing.  Note that when writing a 'hashAppend' function,
-// 'using bslh::hashAppend;' must be included as the first line of code in the
-// function.  The using statement ensures that ADL will always be able to find
-// the fundamental type 'hashAppend' functions, even when the (template
-// parameter) type 'HASH_ALGORITHM' is not implemented in 'bslh'.
+// 'hashAppend' is the free function that is used to pass attributes that are
+// salient to hashing into a hashing algorithm.  A custom type defined in
+// another component must define it's own 'hashAppend' free function overload
+// that can be discovered through ADL in order to be hashed using this
+// facility.  A simple implementation of an overload for 'hashAppend' might
+// call 'hashAppend' on each of the type's fields that are salient to hashing.
+// Note that when writing a 'hashAppend' function that itself calls
+// 'hashAppend, 'using bslh::hashAppend;' must be included as the first line of
+// code in the function.  The using statement ensures that ADL will always be
+// able to find the 'hashAppend' functions defined in this component for
+// handling fundamental types even when the (template parameter) type
+// 'HASH_ALGORITHM' is not implemented in 'bslh'.
+//
+// A client will thus customize their hashing of any custom 'struct', 'class',
+// or 'union' by providing an appropriate 'hashAppend'.  In some very rare
+// cases, a client will want to provide special behavior when hashing
+// fundamental types such as integral types, pointers, or enums, and this can
+// be done by providing an appropriate typed 'operator()' overload of your own
+// hash function.  Support for doing this is not provided for ther types, or
+// for 'bool'.
 //
 // Some types may require more subtle implementations for 'hashAppend', such as
 // types containing C-strings which are salient to hashing.  These C-strings
@@ -70,12 +80,12 @@ BSLS_IDENT("$Id: $")
 // the pointer rather than the data that is pointed to.
 //
 // Within this component, 'hashAppend' has been implemented for all of the
-// fundamental types.  When 'hashAppend' is reached on a fundamental type, the
-// hashing algorithm is no longer propagated, and instead a pointer to the
-// beginning of the type in memory is passed to the algorithm, along with the
-// length of the type.  There are special cases with floating point numbers and
-// boolean values where the data is tweaked before hashing to ensure that
-// values that compare equal will be hashed with the same bit-wise
+// fundamental types, and for arrays.  When 'hashAppend' is reached on a
+// fundamental type, the hashing algorithm is no longer propagated, and instead
+// a pointer to the beginning of the type in memory is passed to the algorithm,
+// along with the length of the type.  There are special cases with floating
+// point numbers and boolean values where the data is tweaked before hashing to
+// ensure that values that compare equal will be hashed with the same bit-wise
 // representation.  The algorithm will then incorporate the type into its
 // internal state and return a finalized hash when requested.
 //
@@ -120,11 +130,13 @@ BSLS_IDENT("$Id: $")
 // algorithm.  A default constructor (either implicit or explicit) must be
 // supplied that creates an algorithm functor that is in a usable state.  An
 // 'operator()' must be supplied that takes a 'const void *' to the data to be
-// hashed and a 'size_t' length of bytes to be hashed.  'computeHash()' will
-// return the final result of the hashing algorithm, as type 'result_type'.
-// 'computeHash()' is allowed to modify the internal state of the algorithm,
-// meaning calling 'computeHash()' more than once may not return the correct
-// value.
+// hashed and a 'size_t' length of bytes to be hashed.  This operator must
+// operate on all data uniformly, meaning that regardless of whether data is
+// passed in all at once, or one byte at a time, the result returned by
+// 'computeHash()' will be the same.  'computeHash()' will return the final
+// result of the hashing algorithm, as type 'result_type'.  'computeHash()' is
+// allowed to modify the internal state of the algorithm, meaning calling
+// 'computeHash()' more than once may not return the correct value.
 //
 ///Subdivision-Invariance
 /// - - - - - - - - - - -
@@ -491,7 +503,13 @@ class Hash_AdlWrapper {
 
     // MANIPULATORS
     void operator()(const void *input, size_t numBytes);
-        // Forward the call to the identical manipulator of 'HASH_ALGORITHM'.
+        // Forward the call to the identical manipulator of 'HASH_ALGORITHM',
+        // passing on the specified 'input' and 'numBytes'.
+
+    template <class ELEMENT_TYPE>
+    void operator()(const ELEMENT_TYPE *input, size_t numBytes);
+        // Forward the call to the identical manipulator of 'HASH_ALGORITHM',
+        // passing on the specified 'input' and 'numBytes'.
 
     result_type computeHash();
         // Forward the call to the identical manipulator of 'HASH_ALGORITHM'
@@ -669,6 +687,15 @@ void bslh::Hash_AdlWrapper<HASH_ALGORITHM>::operator()(const void *input,
     d_hashAlgorithm(input, numBytes);
 }
 
+template <class HASH_ALGORITHM>
+template <class ELEMENT_TYPE>
+inline
+void bslh::Hash_AdlWrapper<HASH_ALGORITHM>::operator()(
+                                                  const ELEMENT_TYPE *input,
+                                                  size_t              numBytes)
+{
+    d_hashAlgorithm(input, numBytes);
+}
 
 template <class HASH_ALGORITHM>
 inline
@@ -721,9 +748,10 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // hash.  Any non-zero binary representation of 'input' can be 'true', so
     // we need to normalize 'input' to ensure that we do not pass two different
     // binary representations of 'true' true into our hashing algorithm.
-    unsigned char normalizedData = input;
 
-    hashAlg(&normalizedData, sizeof(normalizedData));
+    unsigned char normalizedData = !!input;
+
+    hashAlg(static_cast<void *>(&normalizedData), sizeof(normalizedData));
 }
 
 template <class HASH_ALGORITHM, class TYPE>

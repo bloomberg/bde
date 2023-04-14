@@ -2,6 +2,7 @@
 #include <bslstl_chrono.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_assert.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -43,7 +44,7 @@ using namespace BloombergLP;
 // [1] bsl::chrono::nanoseconds  operator "" _ns (unsigned long long);
 // [1] bsl::chrono::duration     operator "" _ns (long double);
 // ----------------------------------------------------------------------------
-// [4] USAGE EXAMPLE
+// [5] USAGE EXAMPLE
 // [2] CONCERN: clocks match those in 'bsls::SystemTime'
 // [3] bsl::chrono::abs(std::chrono::duration)
 // [3] bsl::chrono::ceil(std::chrono::duration)
@@ -52,6 +53,7 @@ using namespace BloombergLP;
 // [3] bsl::chrono::ceil(std::chrono::time_point)
 // [3] bsl::chrono::floor(std::chrono::time_point)
 // [3] bsl::chrono::round(std::chrono::time_point)
+// [4] C++20 HEADER ADDITIONS
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -148,7 +150,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -199,7 +201,165 @@ int main(int argc, char *argv[])
                                   "does not support inline namespaces.\n"); }
 #endif
 
-    } break;
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 HEADER ADDITIONS
+        //
+        // Concerns:
+        //: 1 The definitions from '<chrono>' defined by the C++20 Standard are
+        //:   available in C++20 mode in the 'bsl::chrono' namespace to users
+        //:   who include 'bslstl_chrono.h'.
+        //
+        // Plan:
+        //: 1 For every identifier aliased from the 'std::chrono' namespace,
+        //:   verify that the identifier exists and is usable with the
+        //:   'bsl::chrono' namespace prefix.
+        //
+        // Testing:
+        //   C++20 HEADER ADDITIONS
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING C++20 HEADER ADDITIONS"
+                            "\n==============================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+        (void) bsl::chrono::days{1};
+        (void) bsl::chrono::weeks{1};
+        (void) bsl::chrono::months{1};
+        (void) bsl::chrono::years{1};
+
+        BSLMF_ASSERT((bsl::chrono::is_clock<
+                                           bsl::chrono::system_clock>::value));
+        BSLMF_ASSERT((bsl::chrono::is_clock_v<bsl::chrono::system_clock>));
+
+        (void) bsl::chrono::sys_time<bsl::chrono::hours>{
+                                                        bsl::chrono::hours{1}};
+        (void) bsl::chrono::sys_seconds{bsl::chrono::seconds{1}};
+        (void) bsl::chrono::sys_days{bsl::chrono::days{1}};
+
+        (void) bsl::chrono::file_clock::now();
+        (void) bsl::chrono::file_time<bsl::chrono::hours>{
+                                                        bsl::chrono::hours{1}};
+
+        (void) static_cast<bsl::chrono::local_t*>(0);
+        (void) bsl::chrono::local_time<bsl::chrono::hours>{
+                                                        bsl::chrono::hours{1}};
+        (void) bsl::chrono::local_seconds{bsl::chrono::seconds{1}};
+        (void) bsl::chrono::local_days{bsl::chrono::days{1}};
+
+        (void) bsl::chrono::last_spec{};
+        (void) bsl::chrono::last;
+        (void) bsl::chrono::day{1};
+        (void) bsl::chrono::month{1};
+        (void) bsl::chrono::January;
+        (void) bsl::chrono::February;
+        (void) bsl::chrono::March;
+        (void) bsl::chrono::April;
+        (void) bsl::chrono::May;
+        (void) bsl::chrono::June;
+        (void) bsl::chrono::July;
+        (void) bsl::chrono::August;
+        (void) bsl::chrono::September;
+        (void) bsl::chrono::October;
+        (void) bsl::chrono::November;
+        (void) bsl::chrono::December;
+
+        (void) bsl::chrono::year{2000};
+        (void) bsl::chrono::weekday{1};
+        (void) std::chrono::Sunday;
+        (void) bsl::chrono::Monday;
+        (void) bsl::chrono::Tuesday;
+        (void) bsl::chrono::Wednesday;
+        (void) bsl::chrono::Thursday;
+        (void) bsl::chrono::Friday;
+        (void) bsl::chrono::Saturday;
+
+        using namespace bsl::chrono_literals;
+        using bsl::chrono::May;
+        using bsl::chrono::Monday;
+        using bsl::chrono::last;
+        (void) (1d/May/2000y);
+
+        (void) bsl::chrono::weekday_indexed{Monday, 1};
+        (void) bsl::chrono::weekday_last{Monday};
+        (void) bsl::chrono::month_day{May, 1d};
+        (void) bsl::chrono::month_day_last{May};
+        (void) bsl::chrono::month_weekday{May, Monday[1]};
+        (void) bsl::chrono::month_weekday_last{May, Monday[last]};
+        (void) bsl::chrono::year_month{2000y, May};
+        (void) bsl::chrono::year_month_day{2000y, May, 1d};
+        (void) bsl::chrono::year_month_day_last{2000y, May/last};
+        (void) bsl::chrono::year_month_weekday{2000y, May, Monday[1]};
+        (void) bsl::chrono::year_month_weekday_last{2000y, May, Monday[last]};
+
+        (void) bsl::chrono::hh_mm_ss<std::chrono::seconds>{1s};
+
+        (void) bsl::chrono::is_am(1h);
+        (void) bsl::chrono::is_pm(1h);
+        (void) bsl::chrono::make12(1h);
+        (void) bsl::chrono::make24(1h, true);
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+        (void) bsl::chrono::utc_clock::now();
+        (void) bsl::chrono::utc_time<bsl::chrono::hours>{
+                                                        bsl::chrono::hours{1}};
+        (void) bsl::chrono::utc_seconds{bsl::chrono::seconds{1}};
+
+        (void) bsl::chrono::tai_clock::now();
+        (void) bsl::chrono::tai_time<bsl::chrono::hours>{
+                                                        bsl::chrono::hours{1}};
+        (void) bsl::chrono::tai_seconds{bsl::chrono::seconds{1}};
+
+        (void) bsl::chrono::gps_clock::now();
+        (void) bsl::chrono::gps_time<bsl::chrono::hours>{
+                                                        bsl::chrono::hours{1}};
+        (void) bsl::chrono::gps_seconds{bsl::chrono::seconds{1}};
+
+        (void) bsl::chrono::clock_time_conversion<
+            bsl::chrono::utc_clock,
+            bsl::chrono::system_clock
+        >{}(bsl::chrono::system_clock::now());
+        (void) bsl::chrono::clock_cast<bsl::chrono::utc_clock>(
+                                             bsl::chrono::system_clock::now());
+
+        (void) static_cast<bsl::chrono::tzdb_list*>(0);
+        (void) static_cast<bsl::chrono::tzdb*>(0);
+        (void) static_cast<bsl::chrono::sys_info*>(0);
+        (void) static_cast<bsl::chrono::local_info*>(0);
+
+        (void) bsl::chrono::get_tzdb_list();
+        (void) bsl::chrono::get_tzdb();
+        (void) bsl::chrono::remote_version();
+        (void) bsl::chrono::reload_tzdb();
+
+        const bsl::chrono::time_zone *tz = bsl::chrono::zoned_traits<
+                               const bsl::chrono::time_zone *>::default_zone();
+        (void) bsl::chrono::zoned_time<bsl::chrono::seconds>(tz);
+        (void) bsl::chrono::zoned_seconds(tz);
+
+        (void) bsl::chrono::choose::latest;
+        (void) static_cast<bsl::chrono::time_zone_link*>(0);
+
+        (void) static_cast<bsl::chrono::nonexistent_local_time*>(0);
+        (void) static_cast<bsl::chrono::ambiguous_local_time*>(0);
+
+        (void) static_cast<bsl::chrono::leap_second*>(0);
+        (void) static_cast<bsl::chrono::leap_second_info*>(0);
+        (void) bsl::chrono::get_leap_second_info<bsl::chrono::seconds>(
+                            bsl::chrono::utc_seconds{bsl::chrono::seconds{1}});
+#endif
+
+        using std::istream; // 'bsl::istream' is unavailable in this package
+        (void) [](istream &is) {
+            bsl::chrono::sys_seconds result;
+            bsl::chrono::from_stream(is, "", result);
+        };
+        (void) [](istream &is) {
+            bsl::chrono::sys_seconds result;
+            is >> bsl::chrono::parse("", result);
+        };
+#endif
+      } break;
     case 3: {
       // ----------------------------------------------------------------------
       // TESTING C++17 MATH ADDITIONS TO <CHRONO>

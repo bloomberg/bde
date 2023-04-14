@@ -51,6 +51,11 @@ BSLS_IDENT_RCSID(bdljsn_tokenizer_cpp, "$Id$ $CSID$")
 //   END_OBJECT                   '}'         ']'              END_ARRAY
 //   END_ARRAY                    ']'         ']'              END_ARRAY
 //..
+//
+// Note that the implementation must allow changes to tokenizer options after
+// tokenization has begun.  And in no case should a situation arise in which
+// the same state of tokenizer is legal with one combination of options and
+// illegal with others.
 
 namespace BloombergLP {
 namespace {

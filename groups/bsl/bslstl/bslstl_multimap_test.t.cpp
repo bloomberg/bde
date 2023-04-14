@@ -937,6 +937,20 @@ void testTransparentComparator(Container& container,
     ASSERT(container.end()                  == NON_EXISTING_F);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
+    // Testing 'contains'.
+
+    const bool EXISTING_CONTAINS = container.contains(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(true == EXISTING_CONTAINS);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+    ASSERT(false == NON_EXISTING_CONTAINS);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
     // Testing 'count'.
 
     const Count EXPECTED_C = initKeyValue ? initKeyValue : 1;
@@ -7615,11 +7629,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
     //: 1 If the key being searched exists in the container, 'find' and
     //:   'lower_bound' returns the first iterator referring to the existing
     //:   element, 'upper_bound' returns the iterator to the element after the
-    //:   searched element.
+    //:   searched element, and 'contains' return 'true'.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
     //:   returns the 'end' iterator, 'lower_bound' and 'upper_bound' returns
-    //:   the iterator to the smallest element greater than searched element.
+    //:   the iterator to the smallest element greater than searched element,
+    //:   and 'contains' returns 'false'.
     //:
     //: 3 'equal_range(key)' returns
     //:   'std::make_pair(lower_bound(key), upper_bound(key))'.
@@ -7646,6 +7661,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
     //:   4 Verify no memory is allocated from any allocators.  (C-4)
     //
     // Testing:
+    //   bool contains(const key_type& key);
+    //   bool contains(const LOOKUP_KEY& key);
     //   iterator find(const key_type& key);
     //   const_iterator find(const key_type& key) const;
     //   size_type count(const key_type& key) const;
@@ -7699,6 +7716,18 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
                                 CITER[idx] == X.find(VALUES[tj].first));
                         ASSERTV(ti, tj,
                                 ITER[idx] == mX.find(VALUES[tj].first));
+                        bool shouldBeFound  = ITER[idx] != X.end();
+                        bool cShouldBeFound = CITER[idx] != X.end();
+                        ASSERTV(
+                               ti,
+                               tj,
+                               cShouldBeFound,
+                               cShouldBeFound == X.contains(VALUES[tj].first));
+                        ASSERTV(
+                               ti,
+                               tj,
+                               shouldBeFound,
+                               shouldBeFound == mX.contains(VALUES[tj].first));
                         ASSERTV(ti, tj,
                                 CITER[idx] == X.lower_bound(VALUES[tj].first));
                         ASSERTV(ti, tj,
@@ -8943,7 +8972,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'find'
+        // TESTING 'find', 'contains'
         // --------------------------------------------------------------------
 
         RUN_EACH_TYPE(TestDriver,

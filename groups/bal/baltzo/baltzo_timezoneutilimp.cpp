@@ -22,6 +22,7 @@ BSLS_IDENT_RCSID(baltzo_timezoneutilimp_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_log.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_ostream.h>
@@ -250,16 +251,12 @@ int TimeZoneUtilImp::initLocalTime(bdlt::DatetimeTz        *result,
     }
 
     Zoneinfo::TransitionConstIterator iter;
-
-    const int rc2 = resolveLocalTime(result,
-                                     resultValidity,
-                                     &iter,
-                                     localTime,
-                                     dstPolicy,
-                                     *timeZone);
-    if (0 != rc2) {
-        return rc2;                                                   // RETURN
-    }
+    resolveLocalTime(result,
+                     resultValidity,
+                     &iter,
+                     localTime,
+                     dstPolicy,
+                     *timeZone);
     return 0;
 }
 
@@ -288,7 +285,7 @@ int TimeZoneUtilImp::loadLocalTimePeriodForUtc(
     return 0;
 }
 
-int TimeZoneUtilImp::resolveLocalTime(
+void TimeZoneUtilImp::resolveLocalTime(
                              bdlt::DatetimeTz                  *result,
                              LocalTimeValidity::Enum           *resultValidity,
                              Zoneinfo::TransitionConstIterator *transitionIter,
@@ -345,11 +342,27 @@ int TimeZoneUtilImp::resolveLocalTime(
     // Use the resolved UTC offset to create the resolved UTC value for
     // 'localTime'
 
-    const int utcOffsetInMinutes = utcOffsetInSeconds / 60;
-    bdlt::Datetime resolvedUtcTime = localTime;
-    int rc = resolvedUtcTime.addMinutesIfValid(-utcOffsetInMinutes);
+    const int      utcOffsetInMinutes = utcOffsetInSeconds / 60;
+    bdlt::Datetime resolvedUtcTime    = localTime;
+
+    const int rc = resolvedUtcTime.addMinutesIfValid(-utcOffsetInMinutes);
+    BSLS_REVIEW_OPT(0 == rc &&
+                    "'addMinutes' would return an invalid Datetime.");
+
+    // The following block should be removed once the above 'BSLS_REVIEW_OPT'
+    // is replaced by 'BSLS_ASSERT'.
     if (0 != rc) {
-        return ErrorCode::k_OUT_OF_RANGE;                             // RETURN
+        const int buffSize = 32;
+        char      resolvedBuffer[buffSize];
+        resolvedUtcTime.printToBuffer(resolvedBuffer, buffSize);
+        BSLS_LOG_ERROR(
+            "DRQS 171227423: Converting 'resolvedUtcTime'=\"%s\" using "
+            "'resolvedUtcTime.addMinutes(-utcOffsetInMinutes)' where "
+            "'utcOffsetInMinutes=%d' would result in an invalid 'Datetime'.",
+            resolvedBuffer,
+            utcOffsetInMinutes);
+
+        resolvedUtcTime.addMinutes(-utcOffsetInMinutes);
     }
 
     // Assign 'transitionIter' to the transition, from the two relevant
@@ -372,7 +385,6 @@ int TimeZoneUtilImp::resolveLocalTime(
     bdlt::Datetime resultTime = resolvedUtcTime;
     resultTime.addMinutes(resultOffsetInMinutes);
     result->setDatetimeTz(resultTime, resultOffsetInMinutes);
-    return 0;
 }
 
 void TimeZoneUtilImp::createLocalTimePeriod(

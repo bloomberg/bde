@@ -72,8 +72,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
 #include <__config>
-#ifndef _LIBCPP_CONFIG
-#error <__config> does not seem to #define _LIBCPP_CONFIG.
+#ifndef _LIBCPP_VERSION
+#error <__config> does not seem to #define _LIBCPP_VERSION.
 #endif
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)

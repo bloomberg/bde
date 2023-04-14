@@ -8,32 +8,27 @@ BSLS_IDENT_RCSID(bslim_fuzzutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslim {
 namespace {
-
-                        // ---------------
-                        // struct FuzzUtil
-                        // ---------------
-
 // LOCAL METHODS
-template <class STRING>
-void consumeRandomLengthStringImp(STRING       *output,
-                                  FuzzDataView *fuzzDataView,
-                                  bsl::size_t   maxLength)
-    // Load into the specified 'output' a (template parameter) string of length
-    // from 0 to the specified 'maxLength'.  If the specified 'fuzzDataView'
-    // has fewer bytes than 'maxLength', load at most 'fuzzDataView->length()'
+template <class CONTAINER>
+void consumeRandomLengthCharSequence(CONTAINER    *output,
+                                     FuzzDataView *fuzzDataView,
+                                     bsl::size_t   maxLength)
+    // Load into the specified 'output' a sequence of characters of length from
+    // 0 to the specified 'maxLength'.  If the specified 'fuzzDataView' has
+    // fewer bytes than 'maxLength', load at most 'fuzzDataView->length()'
     // bytes into 'output'.  If the buffer in 'fuzzDataView' contains two
     // successive backslash characters, then in 'output' they will be converted
     // to a single backslash ('\\') character; if the buffer contains a single
-    // backslash character, the string construction is terminated, and the
-    // following byte, if one is present, will be consumed.  Note that more
-    // than 'maxLength' bytes may be consumed from the buffer to produce the
+    // backslash character, the construction is terminated, and the following
+    // byte, if one is present, will be consumed.  Note that more than
+    // 'maxLength' bytes may be consumed from the buffer to produce the
     // 'output'.
 {
     bsl::size_t length = bsl::min(maxLength, fuzzDataView->length());
 
     output->resize(length);
 
-    typename STRING::iterator outIt = output->begin();
+    typename CONTAINER::iterator outIt = output->begin();
 
     const bsl::uint8_t *end = fuzzDataView->begin() + length;
     const bsl::uint8_t *it  = fuzzDataView->begin();
@@ -60,18 +55,45 @@ void consumeRandomLengthStringImp(STRING       *output,
 }
 }  // close unnamed namespace
 
-void FuzzUtil::consumeRandomLengthString(bsl::string      *output,
-                                          FuzzDataView    *fuzzDataView,
-                                          bsl::size_t      maxLength)
+
+                        // ---------------
+                        // struct FuzzUtil
+                        // ---------------
+
+void FuzzUtil::consumeRandomLengthChars(bsl::vector<char> *output,
+                                        FuzzDataView      *fuzzDataView,
+                                        bsl::size_t        maxLength)
 {
-    consumeRandomLengthStringImp(output, fuzzDataView, maxLength);
+    consumeRandomLengthCharSequence(output, fuzzDataView, maxLength);
 }
 
-void FuzzUtil::consumeRandomLengthString(std::string      *output,
-                                         FuzzDataView     *fuzzDataView,
-                                         bsl::size_t       maxLength)
+void FuzzUtil::consumeRandomLengthChars(std::vector<char> *output,
+                                        FuzzDataView      *fuzzDataView,
+                                        bsl::size_t        maxLength)
 {
-    consumeRandomLengthStringImp(output, fuzzDataView, maxLength);
+    consumeRandomLengthCharSequence(output, fuzzDataView, maxLength);
+}
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void FuzzUtil::consumeRandomLengthChars(std::pmr::vector<char> *output,
+                                        FuzzDataView           *fuzzDataView,
+                                        bsl::size_t             maxLength)
+{
+    consumeRandomLengthCharSequence(output, fuzzDataView, maxLength);
+}
+#endif
+
+void FuzzUtil::consumeRandomLengthString(bsl::string  *output,
+                                         FuzzDataView *fuzzDataView,
+                                         bsl::size_t   maxLength)
+{
+    consumeRandomLengthCharSequence(output, fuzzDataView, maxLength);
+}
+
+void FuzzUtil::consumeRandomLengthString(std::string  *output,
+                                         FuzzDataView *fuzzDataView,
+                                         bsl::size_t   maxLength)
+{
+    consumeRandomLengthCharSequence(output, fuzzDataView, maxLength);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -79,7 +101,7 @@ void FuzzUtil::consumeRandomLengthString(std::pmr::string *output,
                                          FuzzDataView     *fuzzDataView,
                                          bsl::size_t       maxLength)
 {
-    consumeRandomLengthStringImp(output, fuzzDataView, maxLength);
+    consumeRandomLengthCharSequence(output, fuzzDataView, maxLength);
 }
 #endif
 

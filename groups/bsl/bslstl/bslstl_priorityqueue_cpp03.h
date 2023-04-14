@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Oct 30 12:15:45 2022
+// Generated on Wed Dec  7 18:22:06 2022
 // Command line: sim_cpp11_features.pl bslstl_priorityqueue.h
 
 #ifdef COMPILING_BSLSTL_PRIORITYQUEUE_H
@@ -43,6 +43,11 @@ class priority_queue {
     // compared by a comparator of the template parameter type, 'COMPARATOR'.
     // The container object held by a 'priority_queue' class object is
     // referenced as 'c' in the following documentation.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // STATIC CHECK: Type mismatch is UB per C++17
+    BSLMF_ASSERT((is_same<VALUE, typename CONTAINER::value_type>::value));
+#endif
 
   private:
     // PRIVATE TYPES

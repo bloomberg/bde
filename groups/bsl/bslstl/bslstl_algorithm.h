@@ -26,6 +26,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
@@ -172,6 +173,166 @@ namespace bsl {
     using std::for_each_n;
     using std::sample;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    using std::lexicographical_compare_three_way;
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+namespace ranges {
+
+    // Non-modifying sequence operations
+
+    using std::ranges::all_of;
+    using std::ranges::any_of;
+    using std::ranges::none_of;
+    using std::ranges::for_each;
+    using std::ranges::for_each_result;
+    using std::ranges::for_each_n;
+    using std::ranges::for_each_n_result;
+    using std::ranges::count;
+    using std::ranges::count_if;
+    using std::ranges::mismatch;
+    using std::ranges::mismatch_result;
+    using std::ranges::equal;
+    using std::ranges::lexicographical_compare;
+    using std::ranges::find;
+    using std::ranges::find_if;
+    using std::ranges::find_if_not;
+    using std::ranges::find_end;
+    using std::ranges::find_first_of;
+    using std::ranges::adjacent_find;
+    using std::ranges::search;
+    using std::ranges::search_n;
+
+    // Modifying sequence operations
+
+    using std::ranges::copy;
+    using std::ranges::copy_result;
+    using std::ranges::copy_if;
+    using std::ranges::copy_if_result;
+    using std::ranges::copy_n;
+    using std::ranges::copy_n_result;
+    using std::ranges::copy_backward;
+    using std::ranges::copy_backward_result;
+    using std::ranges::move;
+    using std::ranges::move_result;
+    using std::ranges::move_backward;
+    using std::ranges::move_backward_result;
+    using std::ranges::fill;
+    using std::ranges::fill_n;
+    using std::ranges::transform;
+    using std::ranges::unary_transform_result;
+    using std::ranges::binary_transform_result;
+    using std::ranges::generate;
+    using std::ranges::generate_n;
+    using std::ranges::remove;
+    using std::ranges::remove_if;
+    using std::ranges::remove_copy;
+    using std::ranges::remove_copy_result;
+    using std::ranges::remove_copy_if;
+    using std::ranges::remove_copy_if_result;
+    using std::ranges::replace;
+    using std::ranges::replace_if;
+    using std::ranges::replace_copy;
+    using std::ranges::replace_copy_result;
+    using std::ranges::replace_copy_if;
+    using std::ranges::replace_copy_if_result;
+    using std::ranges::swap_ranges;
+    using std::ranges::swap_ranges_result;
+    using std::ranges::reverse;
+    using std::ranges::reverse_copy;
+    using std::ranges::reverse_copy_result;
+    using std::ranges::rotate;
+    using std::ranges::rotate_copy;
+    using std::ranges::rotate_copy_result;
+    using std::ranges::shuffle;
+    using std::ranges::sample;
+    using std::ranges::unique;
+    using std::ranges::unique_copy;
+    using std::ranges::unique_copy_result;
+
+    // Partitioning operations
+
+    using std::ranges::is_partitioned;
+    using std::ranges::partition;
+    using std::ranges::partition_copy;
+    using std::ranges::partition_copy_result;
+    using std::ranges::stable_partition;
+    using std::ranges::partition_point;
+
+    // Sorting operations
+
+    using std::ranges::is_sorted;
+    using std::ranges::is_sorted_until;
+    using std::ranges::sort;
+    using std::ranges::partial_sort;
+    using std::ranges::partial_sort_copy;
+    using std::ranges::stable_sort;
+    using std::ranges::nth_element;
+
+    // Binary search operations (on sorted ranges)
+
+    using std::ranges::lower_bound;
+    using std::ranges::upper_bound;
+    using std::ranges::binary_search;
+    using std::ranges::equal_range;
+
+    // Other operations (on sorted ranges)
+
+    using std::ranges::merge;
+    using std::ranges::merge_result;
+    using std::ranges::inplace_merge;
+
+    // Set operations (on sorted ranges)
+
+    using std::ranges::includes;
+    using std::ranges::set_difference;
+    using std::ranges::set_difference_result;
+    using std::ranges::set_intersection;
+    using std::ranges::set_intersection_result;
+    using std::ranges::set_symmetric_difference;
+    using std::ranges::set_symmetric_difference_result;
+    using std::ranges::set_union;
+    using std::ranges::set_union_result;
+
+    // Heap operations
+
+    using std::ranges::is_heap;
+    using std::ranges::is_heap_until;
+    using std::ranges::make_heap;
+    using std::ranges::push_heap;
+    using std::ranges::pop_heap;
+    using std::ranges::sort_heap;
+
+    // Minimum/maximum operations
+
+    using std::ranges::max;
+    using std::ranges::max_element;
+    using std::ranges::min;
+    using std::ranges::min_element;
+    using std::ranges::minmax;
+    using std::ranges::minmax_result;
+    using std::ranges::minmax_element;
+    using std::ranges::minmax_element_result;
+    using std::ranges::clamp;
+    using std::ranges::is_permutation;
+    using std::ranges::next_permutation;
+    using std::ranges::next_permutation_result;
+    using std::ranges::prev_permutation;
+    using std::ranges::prev_permutation_result;
+
+    // Return types
+
+    using std::ranges::in_fun_result;
+    using std::ranges::in_in_result;
+    using std::ranges::in_out_result;
+    using std::ranges::in_in_out_result;
+    using std::ranges::in_out_out_result;
+    using std::ranges::min_max_result;
+    using std::ranges::in_found_result;
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by

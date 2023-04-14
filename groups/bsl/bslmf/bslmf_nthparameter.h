@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Metafunction to return the Nth type parameter in a parameter pack
 //
-//@CLASSES: bslmf::NthParameter<N, PARAM_0, PARAMS...>
+//@CLASSES: bslmf::NthParameter<t_N, PARAM_0, t_PARAMS...>
 //
 //@SEE_ALSO:
 //
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Fri Dec 16 11:47:20 2022
 // Command line: sim_cpp11_features.pl bslmf_nthparameter.h
 # define COMPILING_BSLMF_NTHPARAMETER_H
 # include <bslmf_nthparameter_cpp03.h>
@@ -88,28 +88,29 @@ struct NthParameter_Sentinel;  // Declared but not defined
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
 
-template <std::size_t N, class FIRST_PARAM = NthParameter_Sentinel,
-          class... PARAMS>
+template <std::size_t t_N,
+          class t_FIRST_PARAM = NthParameter_Sentinel,
+          class... t_PARAMS>
 struct NthParameter {
-    // Metafunction to compute the specified 'N'th element of the specified
-    // 'PARAMS' template parameter pack.  The 'Type' nested typedef will match
-    // the 'N'th element of 'PARAMS', where 'N' is zero-based (so that an 'N'
-    // of zero corresponds to the first parameter.
+    // Metafunction to compute the specified 't_N'th element of the specified
+    // 't_PARAMS' template parameter pack.  The 'Type' nested typedef will
+    // match the 't_N'th element of 't_PARAMS', where 't_N' is zero-based (so
+    // that an 't_N' of zero corresponds to the first parameter.
 
-    typedef typename NthParameter<N - 1, PARAMS...>::Type Type;
-        // The type of the Nth parameter, computed by recursively stripping
-        // off the first parameter until N == 0.
+    typedef typename NthParameter<t_N - 1, t_PARAMS...>::Type Type;
+        // The type of the Nth parameter, computed by recursively stripping off
+        // the first parameter until t_N == 0.
 };
 
 // ============================================================================
 //                              IMPLEMENTATION
 // ============================================================================
 
-template <class FIRST_PARAM, class... PARAMS>
-struct NthParameter<0, FIRST_PARAM, PARAMS...> {
-    // Specialization of 'NthParameter' for when 'N' is zero.
+template <class t_FIRST_PARAM, class... t_PARAMS>
+struct NthParameter<0, t_FIRST_PARAM, t_PARAMS...> {
+    // Specialization of 'NthParameter' for when 't_N' is zero.
 
-    typedef FIRST_PARAM Type;
+    typedef t_FIRST_PARAM Type;
         // The type of the 0th parameter.
 };
 
@@ -117,8 +118,8 @@ struct NthParameter<0, FIRST_PARAM, PARAMS...> {
 
 template <>
 struct NthParameter<0, NthParameter_Sentinel> {
-    // Specialization of 'NthParameter' for when 'N' exceeds the actual number
-    // of parameters.
+    // Specialization of 'NthParameter' for when 't_N' exceeds the actual
+    // number of parameters.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // No 'Type' member is defined.

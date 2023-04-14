@@ -8,8 +8,6 @@ BSLS_IDENT("$Id: $")
 /*
 //@PURPOSE: Provide functionality of the corresponding C Standard header.
 //
-//@SEE_ALSO: package bos+stdhdrs in the bos package group
-//
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's

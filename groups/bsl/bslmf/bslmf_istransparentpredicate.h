@@ -166,11 +166,11 @@ BSLS_IDENT("$Id: $")
 // and only if the comparison function object is considered transparent, using
 // a technique known as "SFINAE".
 //..
-//  template <class COMPARATOR>
+//  template <class t_COMPARATOR>
 //  class FlatStringSet {
 //
 //      // DATA
-//      COMPARATOR     d_comparator;  // comparison object
+//      t_COMPARATOR   d_comparator;  // comparison object
 //      Vector<String> d_data;        // stores the data
 //
 //    public:
@@ -181,7 +181,7 @@ BSLS_IDENT("$Id: $")
 //      template <class INPUT_ITERATOR>
 //      FlatStringSet(INPUT_ITERATOR    first,
 //                    INPUT_ITERATOR    last,
-//                    const COMPARATOR& comparator = COMPARATOR());
+//                    const t_COMPARATOR& comparator = t_COMPARATOR());
 //          // Create a set, and insert each 'String' object in the sequence
 //          // starting at the specified 'first' element, and ending
 //          // immediately before the specified 'last' element, ignoring those
@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 //          // the sequence.  Optionally specify a 'comparator' used to order
 //          // keys contained in this object.  If 'comparator' is not supplied,
 //          // a default-constructed object of the (template parameter) type
-//          // 'COMPARATOR' is used.  This operation has 'O[N]' complexity,
+//          // 't_COMPARATOR' is used.  This operation has 'O[N]' complexity,
 //          // where 'N' is the number of elements between 'first' and 'last'.
 //          // The (template parameter) type 'INPUT_ITERATOR' shall meet the
 //          // requirements of an input iterator defined in the C++11 standard
@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 //          // range '[first .. last)'.  The behavior is undefined unless
 //          // 'first' and 'last' refer to a sequence of valid values where
 //          // 'first' is at a position at or before 'last', the range is
-//          // ordered according to 'COMPARATOR', and there are no duplicates
+//          // ordered according to 't_COMPARATOR', and there are no duplicates
 //          // in the range.
 //
 //      // ACCESSORS
@@ -232,10 +232,11 @@ BSLS_IDENT("$Id: $")
 //          return end();
 //      }
 //
-//      template <class KEY>
-//      typename bsl::enable_if<IsTransparentPredicate<COMPARATOR, KEY>::value,
+//      template <class t_KEY>
+//      typename bsl::enable_if<IsTransparentPredicate<t_COMPARATOR,
+//                                                     t_KEY>::value,
 //                              const_iterator>::type
-//      find(const KEY& key) const
+//      find(const t_KEY& key) const
 //          // Return an iterator to the element that compares equal to the
 //          // specified 'key' if such an element exists, and an end iterator
 //          // otherwise.
@@ -258,33 +259,33 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  // CREATORS
-//  template <class COMPARATOR>
+//  template <class t_COMPARATOR>
 //  template <class INPUT_ITERATOR>
-//  FlatStringSet<COMPARATOR>::FlatStringSet(INPUT_ITERATOR    first,
+//  FlatStringSet<t_COMPARATOR>::FlatStringSet(INPUT_ITERATOR    first,
 //                                           INPUT_ITERATOR    last,
-//                                           const COMPARATOR& comparator)
+//                                           const t_COMPARATOR& comparator)
 //  : d_comparator(comparator),
 //    d_data(first, last)
 //  {
 //  }
 //
 //  // ACCESSORS
-//  template <class COMPARATOR>
-//  typename FlatStringSet<COMPARATOR>::const_iterator
-//  FlatStringSet<COMPARATOR>::begin() const
+//  template <class t_COMPARATOR>
+//  typename FlatStringSet<t_COMPARATOR>::const_iterator
+//  FlatStringSet<t_COMPARATOR>::begin() const
 //  {
 //      return d_data.begin();
 //  }
 //
-//  template <class COMPARATOR>
-//  typename FlatStringSet<COMPARATOR>::const_iterator
-//  FlatStringSet<COMPARATOR>::end() const
+//  template <class t_COMPARATOR>
+//  typename FlatStringSet<t_COMPARATOR>::const_iterator
+//  FlatStringSet<t_COMPARATOR>::end() const
 //  {
 //      return d_data.end();
 //  }
 //
-//  template <class COMPARATOR>
-//  int FlatStringSet<COMPARATOR>::size() const
+//  template <class t_COMPARATOR>
+//  int FlatStringSet<t_COMPARATOR>::size() const
 //  {
 //      return static_cast<int>(end() - begin());
 //  }
@@ -405,23 +406,22 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <class COMPARATOR, class KEY, class = void>
+template <class t_COMPARATOR, class t_KEY, class = void>
 struct IsTransparentPredicate : bsl::false_type {
     // This 'struct' template implements a meta-function to determine whether
-    // the (template parameter) 'COMPARATOR' is transparent (has a publicly
+    // the (template parameter) 't_COMPARATOR' is transparent (has a publicly
     // accessible member that is a type named 'is_transparent').  This generic
     // default template derives from 'bsl::false_type'.  Template
     // specializations are provided (below) that derive from 'bsl::true_type'.
 };
 
-template <class COMPARATOR, class KEY>
+template <class t_COMPARATOR, class t_KEY>
 struct IsTransparentPredicate<
-                           COMPARATOR,
-                           KEY,
-                           BSLMF_VOIDTYPE(typename COMPARATOR::is_transparent)>
-    : bsl::true_type {
+    t_COMPARATOR,
+    t_KEY,
+    BSLMF_VOIDTYPE(typename t_COMPARATOR::is_transparent)> : bsl::true_type {
     // This specialization of 'IsTransparentPredicate', for when the (template
-    // parameter) 'COMPARATOR' is transparent, derives from 'bsl::true_type'.
+    // parameter) 't_COMPARATOR' is transparent, derives from 'bsl::true_type'.
 };
 
 }  // close package namespace

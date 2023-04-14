@@ -67,39 +67,40 @@ namespace bsl {
                            // struct conditional
                            // ==================
 
-template <bool COND, class TRUE_TYPE, class FALSE_TYPE>
+template <bool t_COND, class t_TRUE_TYPE, class t_FALSE_TYPE>
 struct conditional {
     // This 'struct' template implements the 'conditional' meta-function
     // defined in the C++ standard [meta.trans.other], providing an alias,
     // 'type', that returns the result.  If the (template parameter) value
-    // 'COND' is 'true', then 'type' has the same type as the (template
-    // parameter) type 'TRUE_TYPE'; otherwise, 'type' has the same type as the
-    // (template parameter) type 'FALSE_TYPE'.  Note that this generic default
-    // template defines 'type' to be an alias to 'TRUE_TYPE' for when 'COND' is
-    // 'true'.  A template specialization is provided (below) handles the case
-    // for when 'COND' is 'false'.
+    // 't_COND' is 'true', then 'type' has the same type as the (template
+    // parameter) type 't_TRUE_TYPE'; otherwise, 'type' has the same type as
+    // the (template parameter) type 't_FALSE_TYPE'.  Note that this generic
+    // default template defines 'type' to be an alias to 't_TRUE_TYPE' for when
+    // 't_COND' is 'true'.  A template specialization is provided (below)
+    // handles the case for when 't_COND' is 'false'.
 
-    typedef TRUE_TYPE type;
+    typedef t_TRUE_TYPE type;
         // This 'typedef' is an alias to the (template parameter) type
-        // 'TRUE_TYPE'.
+        // 't_TRUE_TYPE'.
 };
 
-template <class TRUE_TYPE, class FALSE_TYPE>
-struct conditional<false, TRUE_TYPE, FALSE_TYPE> {
+template <class t_TRUE_TYPE, class t_FALSE_TYPE>
+struct conditional<false, t_TRUE_TYPE, t_FALSE_TYPE> {
     // This partial specialization of 'bsl::conditional', for when the
-    // (template parameter) value 'COND' is 'false', provides a 'typedef'
-    // 'type' that is an alias to the (template parameter) type 'FALSE_TYPE'.
+    // (template parameter) value 't_COND' is 'false', provides a 'typedef'
+    // 'type' that is an alias to the (template parameter) type 't_FALSE_TYPE'.
 
-    typedef FALSE_TYPE type;
+    typedef t_FALSE_TYPE type;
         // This 'typedef' is an alias to the (template parameter) type
-        // 'FALSE_TYPE'.
+        // 't_FALSE_TYPE'.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <bool COND, class TRUE_TYPE, class FALSE_TYPE>
-using conditional_t = typename conditional<COND, TRUE_TYPE, FALSE_TYPE>::type;
+template <bool t_COND, class t_TRUE_TYPE, class t_FALSE_TYPE>
+using conditional_t =
+                 typename conditional<t_COND, t_TRUE_TYPE, t_FALSE_TYPE>::type;
     // 'conditional_t' is an alias to the return type of the 'bsl::conditional'
     // meta-function.  Note, that the 'conditional_t' avoids the '::type'
     // suffix and 'typename' prefix when we want to use the result of the

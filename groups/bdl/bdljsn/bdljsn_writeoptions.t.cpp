@@ -12,22 +12,18 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_climits.h>
-#include <bsl_cstdlib.h>
+#include <bsl_climits.h>  // 'INT_MAX'
+#include <bsl_cstdlib.h>  // 'bsl::atoi'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
-#include <bsl_sstream.h>
+#include <bsl_sstream.h>  // 'bsl::ostringstream'
 
 using namespace BloombergLP;
 using namespace bsl;
 
-// Suppress some bde_verify warnings for test driver.
-// BDE_VERIFY pragma: -IND01
-// BDE_VERIFY pragma: -SP01
-
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The component under test implements a single, simply constrained
@@ -333,8 +329,8 @@ int main(int argc, char *argv[])
         //:
         //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
         //:
-        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       having the value 'W'.
+        //:     1 Use the default constructor and primary manipulators to
+        //:       create a modifiable 'Obj', 'mX', having the value 'W'.
         //:
         //:     2 Assign 'mX' from 'Z'.
         //:
@@ -354,8 +350,9 @@ int main(int argc, char *argv[])
         //:   value 'V'.  For each row (representing a distinct object value,
         //:   'V') in the table described in P-2:  (C-5)
         //:
-        //:   1 Use the value constructor to create a modifiable 'Obj' 'mX';
-        //:     also use the value constructor to create a 'const' 'Obj' 'ZZ'.
+        //:   1 Use the default constructor and primary manipulators to create
+        //:     a modifiable 'Obj' 'mX'; also use the default constructor and
+        //:     primary manipulators to create a 'const' 'Obj' 'ZZ'.
         //:
         //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
         //:
@@ -518,8 +515,8 @@ int main(int argc, char *argv[])
         //: 2 For each row (representing a distinct object value, 'V') in the
         //:   table described in P-1:  (C-1..3)
         //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V'.
+        //:   1 Use the default constructor and primary manipulators to create
+        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
         //:
         //:   2 Use the copy constructor to create an object 'X',
         //:     supplying it the 'const' object 'Z'.  (C-2)
@@ -918,137 +915,129 @@ int main(int argc, char *argv[])
 #define NL "\n"
 #define SP " "
 
-   // ------------------------------------------------------------------
-   // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
-   // ------------------------------------------------------------------
+    // ------------------------------------------------------------------
+    // P-2.1.1: { A }   x { 0 }     x { 0, 1, -1 } --> 3 expected outputs
+    // ----------------------------------------------------------------
 
-//LINE  L  SPL   SORT    IND  SPL S  EXP
-//----  -  ---   ----    ---  --- -  ---
+    //LINE  L  SPL   SORT    IND  SPL  S  EXP
+    //----  -  ---   ----    ---  ---  -  ---
 
-{ L_,  0,  0,   false,   89,  10, C, "["                              NL
-
-                          "initialIndentLevel = 89"                   NL
-                          "sortMembers = false"                       NL
-                          "spacesPerLevel = 10"                       NL
-                          "style = COMPACT"                           NL
-                                 "]"                                  NL
-                                                                      },
-
-{ L_,  0,  1,   false,  89,  10, P, "["                               NL
-
-                          " initialIndentLevel = 89"                  NL
-                          " sortMembers = false"                      NL
-                          " spacesPerLevel = 10"                      NL
-                          " style = PRETTY"                           NL
-                                "]"                                   NL
-                                                                      },
-
-{ L_,  0,  -1,  false,  89,  10, C, "["                               SP
-
-                          "initialIndentLevel = 89"                   SP
-                          "sortMembers = false"                       SP
-                          "spacesPerLevel = 10"                       SP
-                          "style = COMPACT"                           SP
-                                "]"
-                                                                      },
-
-   // ------------------------------------------------------------------
-   // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
-   // ------------------------------------------------------------------
-
-//LINE  L  SPL   SORT   IND  SPL S  EXP
-//----  -  ---    ---   ---  --- -  ---
-
-{ L_,  3,   0, false,   89,  10, C, "["                              NL
-
-                                 "initialIndentLevel = 89"                   NL
-                                 "sortMembers = false"                       NL
-                                 "spacesPerLevel = 10"                       NL
-                                 "style = COMPACT"                           NL
-                                       "]"                                   NL
+    { L_,   0,   0,  false,   89,  10, C, "["                                NL
+                                          "initialIndentLevel = 89"          NL
+                                          "sortMembers = false"              NL
+                                          "spacesPerLevel = 10"              NL
+                                          "style = COMPACT"                  NL
+                                          "]"                                NL
                                                                              },
 
-{ L_,  3,   2, false,  89,  10, P,
-                               "      ["                                     NL
-                         "        initialIndentLevel = 89"                   NL
-                         "        sortMembers = false"                       NL
-                         "        spacesPerLevel = 10"                       NL
-                         "        style = PRETTY"                            NL
-                               "      ]"                                     NL
+    { L_,   0,   1,  false,   89,  10, P, "["                                NL
+                                          " initialIndentLevel = 89"         NL
+                                          " sortMembers = false"             NL
+                                          " spacesPerLevel = 10"             NL
+                                          " style = PRETTY"                  NL
+                                          "]"                                NL
                                                                              },
 
-{ L_,  3,  -2, false,  89,  10, C, "      ["                         SP
-
-                                 "initialIndentLevel = 89"                   SP
-                                 "sortMembers = false"                       SP
-                                 "spacesPerLevel = 10"                       SP
-                                 "style = COMPACT"                           SP
-                                       "]"
+    { L_,   0,  -1,  false,   89,  10, C, "["                                SP
+                                          "initialIndentLevel = 89"          SP
+                                          "sortMembers = false"              SP
+                                          "spacesPerLevel = 10"              SP
+                                          "style = COMPACT"                  SP
+                                          "]"
                                                                              },
 
-{ L_, -3,   0,  true,  89,  10, P, "["                               NL
-                                 "initialIndentLevel = 89"                   NL
-                                 "sortMembers = true"                        NL
-                                 "spacesPerLevel = 10"                       NL
-                                 "style = PRETTY"                            NL
-                                       "]"                                   NL
+    // ------------------------------------------------------------------
+    // P-2.1.2: { A }   x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
+    // ------------------------------------------------------------------
+
+    //LINE  L  SPL   SORT    IND  SPL  S  EXP
+    //----  -  ---   ----    ---  ---  -  ---
+
+    { L_,   3,   0,  false,   89,  10, C, "["                                NL
+                                          "initialIndentLevel = 89"          NL
+                                          "sortMembers = false"              NL
+                                          "spacesPerLevel = 10"              NL
+                                          "style = COMPACT"                  NL
+                                          "]"                                NL
                                                                              },
 
-{ L_, -3,   2,  true,  89,  10, P, "["                               NL
-
-                         "        initialIndentLevel = 89"                   NL
-                         "        sortMembers = true"                        NL
-                         "        spacesPerLevel = 10"                       NL
-                         "        style = PRETTY"                            NL
-                               "      ]"                                     NL
+    { L_,   3,   2,  false,   89,  10, P, "      ["                          NL
+                                          "        initialIndentLevel = 89"  NL
+                                          "        sortMembers = false"      NL
+                                          "        spacesPerLevel = 10"      NL
+                                          "        style = PRETTY"           NL
+                                          "      ]"                          NL
                                                                              },
 
-{ L_, -3,  -2, false,  89,  10, C, "["                               SP
-                                 "initialIndentLevel = 89"                   SP
-                                 "sortMembers = false"                       SP
-                                 "spacesPerLevel = 10"                       SP
-                                 "style = COMPACT"                           SP
-                                       "]"
+    { L_,   3,  -2,  false,   89,  10, C, "      ["                          SP
+                                          "initialIndentLevel = 89"          SP
+                                          "sortMembers = false"              SP
+                                          "spacesPerLevel = 10"              SP
+                                          "style = COMPACT"                  SP
+                                          "]"
                                                                              },
 
-   // -----------------------------------------------------------------
-   // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
-   // -----------------------------------------------------------------
-
-//LINE  L  SPL    STR   IND  SPL S  EXP
-//----  -  ---    ---   ---  --- -  ---
-
-{ L_,  2,   3,  false,   89,  10, P,
-                         "      ["                                           NL
-                         "         initialIndentLevel = 89"                  NL
-                         "         sortMembers = false"                      NL
-                         "         spacesPerLevel = 10"                      NL
-                         "         style = PRETTY"                           NL
-                               "      ]"                                     NL
+    { L_,  -3,   0,   true,   89,  10, P, "["                                NL
+                                          "initialIndentLevel = 89"          NL
+                                          "sortMembers = true"               NL
+                                          "spacesPerLevel = 10"              NL
+                                          "style = PRETTY"                   NL
+                                          "]"                                NL
                                                                              },
 
-        // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
-        // -----------------------------------------------------------------
+    { L_,  -3,   2,   true,   89,  10, P, "["                                NL
+                                          "        initialIndentLevel = 89"  NL
+                                          "        sortMembers = true"       NL
+                                          "        spacesPerLevel = 10"      NL
+                                          "        style = PRETTY"           NL
+                                          "      ]"                          NL
+                                                                             },
 
-//LINE  L  SPL    STR   IND  SPL S  EXP
-//----  -  ---    ---   ---  --- -  ---
+    { L_,  -3,  -2,  false,   89,  10, C, "["                                SP
+                                          "initialIndentLevel = 89"          SP
+                                          "sortMembers = false"              SP
+                                          "spacesPerLevel = 10"              SP
+                                          "style = COMPACT"                  SP
+                                          "]"
+                                                                             },
 
-{ L_, -9,  -9, false,   89,  10,    C,
-                                 "["                                         SP
-                                 "initialIndentLevel = 89"                   SP
-                                 "sortMembers = false"                       SP
-                                 "spacesPerLevel = 10"                       SP
-                                 "style = COMPACT"                           SP
-                                 "]" },
+    // -----------------------------------------------------------------
+    // P-2.1.3: { B }   x { 2 }     x { 3 }        --> 1 expected output
+    // -----------------------------------------------------------------
 
-{ L_, -9,  -9,  true,    7,   5,    P,
-                                 "["                                         SP
-                                 "initialIndentLevel = 7"                    SP
-                                 "sortMembers = true"                        SP
-                                 "spacesPerLevel = 5"                        SP
-                                 "style = PRETTY"                            SP
-                                 "]" },
+    //LINE  L  SPL   SORT    IND  SPL  S  EXP
+    //----  -  ---   ----    ---  ---  -  ---
+
+    { L_,   2,   3,  false,   89,  10, P, "      ["                          NL
+                                          "         initialIndentLevel = 89" NL
+                                          "         sortMembers = false"     NL
+                                          "         spacesPerLevel = 10"     NL
+                                          "         style = PRETTY"          NL
+                                          "      ]"                          NL
+                                                                             },
+
+    // ------------------------------------------------------------------
+    // P-2.1.4: { A B } x { -9 }    x { -9 }       --> 2 expected outputs
+    // ------------------------------------------------------------------
+
+    //LINE  L  SPL   SORT    IND  SPL  S  EXP
+    //----  -  ---   ----    ---  ---  -  ---
+
+    { L_,  -9,  -9,  false,   89,  10, C, "["                                SP
+                                          "initialIndentLevel = 89"          SP
+                                          "sortMembers = false"              SP
+                                          "spacesPerLevel = 10"              SP
+                                          "style = COMPACT"                  SP
+                                          "]"
+                                                                             },
+
+    { L_,  -9,  -9,   true,    7,   5, P, "["                                SP
+                                          "initialIndentLevel = 7"           SP
+                                          "sortMembers = true"               SP
+                                          "spacesPerLevel = 5"               SP
+                                          "style = PRETTY"                   SP
+                                          "]"
+                                                                             }
 
 #undef NL
 #undef SP
@@ -1238,7 +1227,7 @@ int main(int argc, char *argv[])
         //: 3 Each attribute can be set to represent any value that does not
         //:   violate that attribute's documented constraints.
         //:
-        //: 4 Each manipulator returns a modifiable reference to the object.
+        //: 4 Each manipulator returns a 'const' reference to the object.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //:
@@ -1512,7 +1501,6 @@ int main(int argc, char *argv[])
             ASSERT(A3  == X.spacesPerLevel());
             ASSERT(A4  == X.style());
         }
-
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {

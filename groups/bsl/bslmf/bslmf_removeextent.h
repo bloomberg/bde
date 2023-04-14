@@ -80,7 +80,7 @@ namespace bsl {
                         // class template remove_extent
                         // ============================
 
-template <class TYPE>
+template <class t_TYPE>
 struct remove_extent {
     // From the C++14 standard: If 'T' names a type "array of 'U'", the member
     // typedef 'type' shall be 'U', otherwise 'T'.  [ *Note:* For
@@ -88,28 +88,28 @@ struct remove_extent {
     // a type "array of 'const U'", the resulting type is 'const U'.  -- *end
     // note* ]
 
-    typedef TYPE type;
+    typedef t_TYPE type;
 };
 
-template <class TYPE>
-struct remove_extent<TYPE[]> {
+template <class t_TYPE>
+struct remove_extent<t_TYPE[]> {
     // Specialization of 'remove_extent' for array of unknown bound
 
-    typedef TYPE type;
+    typedef t_TYPE type;
 };
 
-template <class TYPE, std::size_t SZ>
-struct remove_extent<TYPE[SZ]> {
+template <class t_TYPE, std::size_t t_SZ>
+struct remove_extent<t_TYPE[t_SZ]> {
     // Specialization of 'remove_extent' for array of known bound
 
-    typedef TYPE type;
+    typedef t_TYPE type;
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ALIASES
-template <class TYPE>
-using remove_extent_t = typename remove_extent<TYPE>::type;
+template <class t_TYPE>
+using remove_extent_t = typename remove_extent<t_TYPE>::type;
     // 'remove_extent_t' is an alias to the return type of the
     // 'bsl::remove_extent' meta-function.  Note, that the 'enable_if_t' avoids
     // the '::type' suffix and 'typename' prefix when we want to use the result

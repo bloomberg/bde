@@ -25,7 +25,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslalg' package currently has 43 components having 9 levels of physical
+ The 'bslalg' package currently has 44 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -77,6 +77,7 @@
      bslalg_rbtreenode
      bslalg_scalardestructionprimitives                  !DEPRECATED!
      bslalg_swaputil
+     bslalg_synththreewayutil
      bslalg_typetraitnil                                 !DEPRECATED!
 
   1. bslalg_arrayprimitives_cpp03                                     !PRIVATE!
@@ -183,6 +184,9 @@
 :
 : 'bslalg_swaputil':
 :      Provide a simple to use 'swap' algorithm.
+:
+: 'bslalg_synththreewayutil':
+:      Provide implementation utilities for 'operator<=>'.
 :
 : 'bslalg_typetraitbitwisecopyable':                     !DEPRECATED!
 :      Provide a trait to mark classes as bit-wise copyable.

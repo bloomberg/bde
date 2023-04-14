@@ -109,6 +109,8 @@ using namespace bsl;
 // [25] int visitTree(const char * , const string&, const Func&, bool);
 // [25] int visitPaths(const char * , const Func&);
 // [26] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
+// [27] bool isSymbolicLink(STRING_TYPE);
+// [27] int getSymbolicLinkTarget(STRING_TYPE *, STRING_TYPE);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -121,8 +123,8 @@ using namespace bsl;
 // [23] CONCERN: directory permissions
 // [24] CONCERN: error codes for 'createDirectories'
 // [24] CONCERN: error codes for 'createPrivateDirectory'
-// [27] USAGE EXAMPLE 1
-// [28] USAGE EXAMPLE 2
+// [28] USAGE EXAMPLE 1
+// [29] USAGE EXAMPLE 2
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -366,6 +368,30 @@ void makeArbitraryFile(const char *path)
     ASSERT(Obj::k_INVALID_FD != fd);
     ASSERT(5 == Obj::write(fd, "hello", 5));
     ASSERT(0 == Obj::close(fd));
+}
+
+static bool createSymlink(const bsl::string& oldPath,
+                          const bsl::string& newPath)
+    // Create a symbolic link, referring to the specified 'oldPath', at the
+    // specified 'newPath' path.
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    bsl::wstring wideOld, wideNew;
+    int rc = bdlde::CharConvertUtf16::utf8ToUtf16(&wideOld, oldPath);
+    ASSERT(rc == 0);
+    rc = bdlde::CharConvertUtf16::utf8ToUtf16(&wideNew, newPath);
+    ASSERT(rc == 0);
+
+    DWORD dwFlags = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+        // Developer mode must be enabled for this flag to take effect
+    if (Obj::isDirectory(oldPath)) {
+        dwFlags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
+    }
+    // Available since Windows Vista / Server 2008
+    return CreateSymbolicLinkW(wideNew.c_str(), wideOld.c_str(), dwFlags);
+#else // POSIX
+    return ::symlink(oldPath.c_str(), newPath.c_str()) == 0;
+#endif
 }
 
 struct VisitTreeTestVisitor {
@@ -3052,7 +3078,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -3134,7 +3160,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -3249,6 +3275,83 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING SYMLINKS
+        //
+        // Concerns:
+        //: 1 'isSymbolicLink' returns 'true' for file and directory symlinks
+        //:   and 'false' for other FS objects.
+        //:
+        //: 2 'getSymbolicLinkTarget' correctly returns the symlink target.
+        //:
+        //: 3 Windows directory junctions are treated as directory symlinks.
+        //
+        // Plan:
+        //: 1 Create a file and a directory.
+        //:
+        //: 2 Create a symlink for the file and for the directory.
+        //:
+        //: 3 Verify that 'isSymbolicLink' returns 'true' for the both symlinks
+        //:   and 'false' for the file and the directory. (C1)
+        //:
+        //: 4 Verify that 'getSymbolicLinkTarget' returns the directory name
+        //:   for the directory symlink and the file name for the file symlink.
+        //:   (C2)
+        //:
+        //: 6 If running on Windows, create a directory junction for the
+        //:   directory and verify the functions work correctly with it. (C3)
+        //
+        // TESTING
+        //   bool isSymbolicLink(STRING_TYPE);
+        //   int getSymbolicLinkTarget(STRING_TYPE *, STRING_TYPE);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING SYMLINKS\n"
+                             "================\n";
+
+        const bsl::string dir("dir");
+        const bsl::string file("file");
+        const bsl::string dir_symlink("dir_symlink");
+        const bsl::string file_symlink("file_symlink");
+        bsl::string st;
+
+        ASSERT(Obj::createDirectories(dir, true) == 0);
+        ASSERT(Obj::isDirectory(dir));
+
+        localTouch(file);
+        ASSERT(Obj::isRegularFile(file));
+
+        ASSERT(createSymlink(dir, dir_symlink));
+        ASSERT( Obj::isSymbolicLink(dir_symlink));
+        ASSERT(!Obj::isSymbolicLink(dir));
+        ASSERT(Obj::getSymbolicLinkTarget(&st, dir_symlink) == 0);
+        ASSERT(st == dir);
+        ASSERT(Obj::getSymbolicLinkTarget(&st, dir        ) != 0);
+
+        ASSERT(createSymlink(file, file_symlink));
+        ASSERT( Obj::isSymbolicLink(file_symlink));
+        ASSERT(!Obj::isSymbolicLink(file));
+        ASSERT(Obj::getSymbolicLinkTarget(&st, file_symlink) == 0);
+        ASSERT(st == file);
+        ASSERT(Obj::getSymbolicLinkTarget(&st, file        ) != 0);
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // TEST directory junctions
+        const bsl::string dir_junction("dir_junction");
+
+        bsl::string cmd("mklink /J ");
+        cmd += dir_junction;
+        cmd += ' ';
+        cmd += dir;
+        ASSERT(system(cmd.c_str()) == 0);
+
+        ASSERT(Obj::isSymbolicLink(dir_junction));
+        st.clear();
+        ASSERT(Obj::getSymbolicLinkTarget(&st, dir_junction) == 0);
+        ASSERT(st == dir);
+#endif
       } break;
       case 26: {
         // --------------------------------------------------------------------

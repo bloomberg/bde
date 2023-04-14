@@ -11,14 +11,14 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_KEYWORD_CONSTEXPR: C++11 'constexpr' keyword
-//  BSLS_KEYWORD_CONSTEXPR_MEMBER: for 'static constexpr' data members
+//  BSLS_KEYWORD_CONSTEXPR_MEMBER: for 'constexpr' data members (Deprecated)
 //  BSLS_KEYWORD_CONSTEXPR_RELAXED: C++14 'constexpr' keyword (Deprecated)
 //  BSLS_KEYWORD_CONSTEXPR_CPP14: C++14 'constexpr' keyword
 //  BSLS_KEYWORD_CONSTEXPR_CPP17: C++17 'constexpr' keyword
 //  BSLS_KEYWORD_DELETED: C++11 '= delete' function definition
 //  BSLS_KEYWORD_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_KEYWORD_FINAL: C++11 'final' keyword
-//  BSLS_KEYWORD_INLINE_CONSTEXPR: Combination macro for 'inline constexpr'
+//  BSLS_KEYWORD_INLINE_CONSTEXPR: Do not use (Deprecated)
 //  BSLS_KEYWORD_INLINE_VARIABLE: C++17 'inline' keyword for variables
 //  BSLS_KEYWORD_NOEXCEPT: C++11 'noexcept' keyword
 //  BSLS_KEYWORD_NOEXCEPT_AVAILABLE: 'C++11' 'noexcept' flag
@@ -45,9 +45,10 @@ BSLS_IDENT("$Id: $")
 //:     or later mode and inserts nothing when compiling with C++03 mode.
 //:
 //: 'BSLS_KEYWORD_CONSTEXPR_MEMBER':
-//:     This macro inserts the keyword 'constexpr' when compiling with C++11
-//:     or later mode and inserts the keyword 'const' when compiling with C++03
-//:     mode.  This macro is intended to support declaring static data members.
+//:     !DEPRECATED! See "Using CONSTEXPR Macros Portably" below.  This macro
+//:     inserts the keyword 'constexpr' when compiling with C++11 or later mode
+//:     and inserts the keyword 'const' when compiling with C++03 mode.  This
+//:     macro was intended to support declaring static data members.
 //:
 //: 'BSLS_KEYWORD_CONSTEXPR_RELAXED':
 //:     !DEPRECATED! Use 'BSLS_KEYWORD_CONSTEXPR_CPP14' instead.  This macro
@@ -79,9 +80,11 @@ BSLS_IDENT("$Id: $")
 //:     later mode and inserts nothing when compiling with C++03 mode.
 //:
 //: 'BSLS_KEYWORD_INLINE_CONSTEXPR'
-//:     This macro inserts the keywords 'inline constexpr' when compiling with
-//:     C++17 or later mode and inserts the best approximation in earlier
-//:     dialects, ultimately degrading down to 'static const' in C++03.
+//:     !DEPRECATED! THIS MACRO CANNOT BE USED SAFELY ACROSS MULTIPLE LANGUAGE
+//:     VERSIONS.  This macro inserted the keywords 'inline constexpr' when
+//:     compiled with C++17 or later mode and inserted the best approximation
+//:     in earlier dialects, ultimately degrading down to 'static const' in
+//:     C++03.
 //:
 //: 'BSLS_KEYWORD_INLINE_VARIABLE'
 //:     This macro inserts the keyword 'inline' when compiling with C++17 or
@@ -112,6 +115,152 @@ BSLS_IDENT("$Id: $")
 //:     This macro inserts the keyword 'override' when compiling with C++11
 //:     or later mode and inserts nothing when compiling with C++03 mode.
 //
+///Using 'CONSTEXPR' Macros Portably
+///---------------------------------
+// The 'constexpr' keyword has changed more across different versions of the
+// C++ standard than most keywords, and its usage in portable code is
+// complicated.  The following rules apply when the 'constexpr' keyword
+// provides potential optimizations where supported, but backwards
+// compatibility to C++03 is required.
+//
+///'constexpr' Objects
+///- - - - - - - - - -
+// Namespace scope objects in source files, and block scope objects, should be
+// declared with the 'const' keyword and the 'BSLS_KEYWORD_CONSTEXPR' macro.
+// The 'const' keyword is redundant but not problematic where the macro expands
+// to 'constexpr'.
+//..
+//  // abc_mycomponent.cpp
+//  const BSLS_KEYWORD_CONSTEXPR double pi = 3.14;
+//
+//  void f()
+//  {
+//      const BSLS_KEYWORD_CONSTEXPR double euler = 2.718;
+//  }
+//..
+// Namespace scope objects in header files that are 'constexpr' and not
+// 'inline' are dangerous, as there's no way to prevent undiagnosed ODR
+// violations in inline functions that ODR-use the variable.  If you require a
+// constant object with external linkage (appearing in a header file and used
+// by multiple translation units) it is suggested that you use 'constexpr' only
+// where 'inline' variables are permitted.
+//..
+//  // abc_somecomponent.h
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+//  inline constexpr double pi = 3.14;
+//  #else
+//  extern const double pi;
+//  #endif
+//..
+// And:
+//..
+//  // abc_somecomponent.cpp
+//  #ifndef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+//  extern const double pi = 3.14;
+//  #endif
+//..
+// Integral or enumeration type static data members of non-template classes
+// should be declared with the 'const' keyword.  There is no benefit to them
+// being 'constexpr', as 'const' variables of integral type can be used in
+// constant expressions.  An out-of-line definition is required in exactly one
+// source file.
+//..
+//  // abc_mycomponent.h
+//  class MyComponent {
+//      // ...
+//    public:
+//      static const int s_feetInMile = 5280;
+//  };
+//..
+// And:
+//..
+//  // abc_mycomponent.cpp
+//  const int MyComponent::s_feetInMile;
+//..
+// Integral or enumeration type static data members of class templates should
+// be declared with the 'const' keyword, and should provide an out-of-line
+// definition in the same file.
+//..
+//  // abc_mytemplatedcomponent.h
+//  template <class TYPE>
+//  class MyTemplatedComponent {
+//      // ...
+//    public:
+//      static const int s_ouncesInPound = 16;
+//  };
+//
+//  template <class TYPE>
+//  const int MyTemplatedComponent<TYPE>::s_ouncesInPound;
+//..
+// Static data members of non-integral type cannot make use of 'constexpr'
+// keyword macros, as the initialization of the variable must take place in
+// line for 'constexpr' and out of line for 'const'.
+//..
+//  // abc_myothercomponent.h
+//  class MyOtherComponent {
+//      // ...
+//    public:
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+//      static constexpr double s_pi = 3.14;
+//  #else
+//      static const double s_pi;
+//  #endif
+//  };
+//..
+// And:
+//..
+//  // abc_myothercomponent.cpp
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+//  static constexpr double MyOtherComponent::s_pi;
+//  #else
+//  static const double MyOtherComponent::s_pi = 3.14;
+//  #endif
+//..
+//
+///'constexpr' Functions
+///- - - - - - - - - - -
+// All functions declared with any 'BSLS_KEYWORD_CONSTEXPR' macro must be
+// defined with the 'inline' keyword to work correctly in C++03 or any other
+// build mode where the macro expands to nothing, unless the function has
+// internal linkage, is defined inside a class definition, or is a template.
+//..
+//  // abc_mycomponentutil.h
+//  inline BSLS_KEYWORD_CONSTEXPR int doubleTheInt(int i)
+//  {
+//      return 2 * i;
+//  }
+//..
+// As standards progressed, more and more things were allowed to take place
+// within 'constexpr' functions.  Depending on what a given function needs to
+// do, it may be eligible to be marked 'constexpr' in only a certain standard
+// or later, and this is exactly what the macros appended with _CPPxx are for.
+//..
+//  inline BSLS_KEYWORD_CONSTEXPR_CPP14 int doubleTheInt(int i)
+//  {
+//      int x = i * 2;  // Can't declare variables in C++11 constexpr functions
+//      return x;
+//  }
+//..
+// All 'constexpr' non-static member functions in C++11 are implicitly const,
+// so a member function using the 'BSLS_KEYWORD_CONSTEXPR' macro should also be
+// marked 'const' so that non-const usage of '*this' will be identified in
+// other build modes.  If the method is required to be non-'const', then it
+// cannot be 'constexpr' in C++11, and 'BSLS_KEYWORD_CONSTEXPR_CPP14' should be
+// used.
+//..
+//  class ComponentWithCpp11ConstexprMethod {
+//      // ...
+//    public:
+//      BSLS_KEYWORD_CONSTEXPR int cpp11ConstexprMethod() const;
+//  }
+//
+//  inline BSLS_KEYWORD_CONSTEXPR
+//  int ComponentWithCpp11ConstexprMethod::cpp11ConstexprMethod() const
+//  {
+//      // ...
+//  }
+//..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -131,10 +280,9 @@ BSLS_IDENT("$Id: $")
 // are considered for implicit conversion.  C++11 allows the use of the
 // 'explicit' keyword with conversion operators to avoid its use for implicit
 // conversions.  The macro 'BSLS_KEYWORD_EXPLICIT' can be used to mark
-// conversions as explicit conversions which will be checked when compiling
-// with C++11 mode.  For example, an 'Optional' type may have an explicit
-// conversion to 'bool' to indicate that the value is set (note the conversion
-// operator):
+// conversions as explicit conversions that will be checked when compiling with
+// C++11 mode.  For example, an 'Optional' type may have an explicit conversion
+// to 'bool' to indicate that the value is set (note the conversion operator):
 //..
 //  template <class TYPE>
 //  class Optional
@@ -171,7 +319,7 @@ BSLS_IDENT("$Id: $")
 //     error: cannot convert 'Optional<int>' to 'bool' in initialization
 //..
 //
-// When defining conversion operators to 'bool' for code which needs to compile
+// When defining conversion operators to 'bool' for code that needs to compile
 // with C++03 mode the conversion operator should convert to a member pointer
 // type instead: doing so has a similar effect to making the conversion
 // operator 'explicit'.
@@ -179,10 +327,10 @@ BSLS_IDENT("$Id: $")
 // Some classes are not intended for use as a base class.  To clearly label
 // these classes and enforce that they can't be derived from C++11 allows using
 // the 'final' keyword after the class name in the class definition to label
-// classes which are not intended to be derived from.  The macro
+// classes that are not intended to be derived from.  The macro
 // 'BSLS_KEYWORD_FINAL' is replaced by 'final' when compiling with C++11
 // causing the compiler to enforce that a class can't be further derived.  The
-// code below defines a class which can't be derived from:
+// code below defines a class that can't be derived from:
 //..
 //  class FinalClass BSLS_KEYWORD_FINAL
 //  {

@@ -72,26 +72,26 @@ namespace bsl {
                           // struct is_lvalue_reference
                           // ==========================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_lvalue_reference : false_type {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a (possibly cv-qualified) lvalue
+    // (template parameter) 't_TYPE' is a (possibly cv-qualified) lvalue
     // reference type.  This generic default template derives from
     // 'bsl::false_type'.  A template specialization is provided (below) that
     // derives from 'bsl::true_type'.
 };
 
-template <class TYPE>
-struct is_lvalue_reference<TYPE&> : true_type {
+template <class t_TYPE>
+struct is_lvalue_reference<t_TYPE&> : true_type {
     // This partial specialization of 'is_lvalue_reference' derives from
-    // 'bsl::true_type' for when the (template parameter) 'TYPE' is an lvalue
+    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is an lvalue
     // reference type.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_lvalue_reference_v = is_lvalue_reference<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_lvalue_reference_v =
+                                            is_lvalue_reference<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_lvalue_reference' meta-function.
 #endif

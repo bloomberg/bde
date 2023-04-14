@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov  8 07:02:48 2022
+// Generated on Tue Mar  7 11:25:50 2023
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -1878,6 +1878,25 @@ class unordered_map {
         // unordered map maintains unique keys, the returned value will be
         // either 0 or 1.
 
+    bool contains(const key_type &key) const;
+        // Return 'true' if this unordered map contains an element whose key is
+        // equivalent to the specified 'key'.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
+            BloombergLP::bslmf::IsTransparentPredicate<EQUAL,
+                                                       LOOKUP_KEY>::value,
+        bool>::type
+    contains(const LOOKUP_KEY& key) const
+        // Return 'true' if this unordered map contains an element whose key is
+        // equivalent to the specified 'key'.
+        //
+        // Note: implemented inline due to Sun CC compilation error
+    {
+        return find(key) != end();
+    }
+
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this unordered map contains no elements, and
         // 'false' otherwise.
@@ -3556,6 +3575,14 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
     }
 
     return iterator(first.node()); // convert from const_iterator
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bool unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::contains(
+                                                     const key_type& key) const
+{
+    return find(key) != end();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -5695,7 +5722,7 @@ struct IsBitwiseMoveable<
 #endif // ! defined(INCLUDED_BSLSTL_UNORDEREDMAP_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

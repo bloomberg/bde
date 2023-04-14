@@ -115,9 +115,6 @@ int PipeControlChannel::sendEmptyMessage()
         return 2;                                                     // RETURN
     }
 
-    DWORD mode = PIPE_READMODE_MESSAGE;
-    SetNamedPipeHandleState(pipe, &mode, NULL, NULL);
-
     OVERLAPPED overlapped;
     bsl::memset(&overlapped, 0, sizeof(overlapped));
     DWORD dummy;
@@ -152,6 +149,10 @@ int PipeControlChannel::readNamedPipe()
 {
     BSLS_ASSERT(INVALID_HANDLE_VALUE != d_impl.d_windows.d_handle);
 
+    if (dispatchLeftoverMessage()) {
+        return 0;                                                     // RETURN
+    }
+
     BSLS_LOG_TRACE("Accepting next pipe client connection");
 
     if (!ConnectNamedPipe(d_impl.d_windows.d_handle, NULL)) {
@@ -167,6 +168,8 @@ int PipeControlChannel::readNamedPipe()
         }
     }
 
+    int retval = -1;
+
     while (true) {
         char buffer[MAX_PIPE_BUFFER_LEN];
         DWORD bytesRead = 0;
@@ -175,34 +178,58 @@ int PipeControlChannel::readNamedPipe()
                      buffer,
                      MAX_PIPE_BUFFER_LEN,
                      &bytesRead,
-                     NULL))
-        {
-            if (bytesRead > 0) {
-                if (buffer[bytesRead - 1] == '\n') {
-                    bytesRead--;
-                }
-                bslstl::StringRef stringRef(buffer, bytesRead);
-                if (!stringRef.isEmpty()) {
-                    d_callback(stringRef);
+                     NULL)) {
+            // Note that if 'bytesRead' is zero, it does not indicate EOF; it
+            // indicates that 'WriteFile' was called to write zero bytes to the
+            // pipe.  We treat such a read no differently from any other
+            // successful read, since a message is only considered complete if
+            // a newline has been written.
+            d_buffer.insert(d_buffer.end(), buffer, buffer + bytesRead);
+            if (dispatchLeftoverMessage()) {
+                // If the callback called 'shutdown' on us, that should be
+                // sufficient for us to terminate, even if the client forgot
+                // to close the connection; we should not wait forever for the
+                // client to either close the connection or terminate (see
+                // {DRQS 170252895}).  But if the callback didn't call
+                // 'shutdown', then the client might have more messages to send
+                // us and we should not return prematurely (as that would cause
+                // the client to get a broken pipe error upon sending the next
+                // message).
+                if (d_backgroundState != e_RUNNING) {
+                    retval = 0;
+                    break;
                 }
             }
-            else {
-                // reached EOF on a named pipe.
-
-                break;
+            // If no newline was found, then it could mean the client sent more
+            // data than we could read at once (in which case we need to keep
+            // reading on the same connection in order to avoid a broken pipe
+            // error on the client) or the client has already closed their end
+            // without writing a newline, in which case the subsequent
+            // 'ReadFile' call on *this* connection will tell *us* that the
+            // pipe is broken.
+        } else {
+            const DWORD err = GetLastError();
+            if (ERROR_BROKEN_PIPE != err) {
+                BSLS_LOG_TRACE("Failed read from named pipe '%s': %s",
+                               d_pipeName.c_str(),
+                               describeWin32Error(err).c_str());
+            } else {
+                // The 'ERROR_BROKEN_PIPE' case simply means that the client
+                // closed the connection but did not tell us to shut down; we
+                // should therefore disconnect as well and wait for a new
+                // connection to be established.  In contrast, any other error
+                // indicates an abnormal condition and the negative return
+                // value will result in the termination of this background
+                // thread.
+                retval = 0;
             }
-        }
-        else {
-            BSLS_LOG_TRACE("Failed read from named pipe '%s': %s",
-                           d_pipeName.c_str(),
-                           describeWin32Error(GetLastError()).c_str());
             break;
         }
     }
 
     DisconnectNamedPipe(d_impl.d_windows.d_handle);
 
-    return 0;
+    return retval;
 }
 
 int
@@ -226,7 +253,7 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
     d_impl.d_windows.d_handle =
         CreateNamedPipeW(wPipeName.c_str(),
                          PIPE_ACCESS_INBOUND,
-                         PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
+                         PIPE_READMODE_BYTE | PIPE_WAIT,
                          PIPE_UNLIMITED_INSTANCES,
                          MAX_PIPE_BUFFER_LEN,
                          MAX_PIPE_BUFFER_LEN,
@@ -265,8 +292,8 @@ void PipeControlChannel::destroyNamedPipe()
     close(d_impl.d_unix.d_writeFd);
     close(d_impl.d_unix.d_readFd);
 
-    d_impl.d_unix.d_writeFd = 0;
-    d_impl.d_unix.d_readFd = 0;
+    d_impl.d_unix.d_writeFd = -1;
+    d_impl.d_unix.d_readFd  = -1;
 
     unlink(d_pipeName.c_str());
 
@@ -275,30 +302,11 @@ void PipeControlChannel::destroyNamedPipe()
 
 int PipeControlChannel::readNamedPipe()
 {
-    // Ideally, we would like to simply set the ioctl option I_SRDOPT to RMSGN
-    // when we open the named pipe.  This changes the read mode of the pipe
-    // from byte stream mode to message mode.  However, some versions of glibc
-    // on Linux have defined I_SRDOPT such that it conflicts with other device
-    // driver ioctl flags, namely CDROMREADTOCENTRY.  This results in a failed
-    // call to ioctl with errno set to EINVAL.
-    //
-    // Since we cannot reliably set the named pipe to message mode on all *nix
-    // platforms, we leave the pipe in byte stream mode and emulate RMSGN in
-    // the implementation.
-
-    // A non-discarded message, or portion of a message, is left from the
-    // previous invocation of this function.
-    if (d_buffer.size() != 0) {
-        bsl::vector<char>::iterator it = bsl::find(d_buffer.begin(),
-                                                   d_buffer.end(),
-                                                   '\n');
-        if (it != d_buffer.end()) {
-            dispatchMessageUpTo(it);
-            return 0;                                                 // RETURN
-        }
+    if (dispatchLeftoverMessage()) {
+        return 0;                                                     // RETURN
     }
 
-    if (d_impl.d_unix.d_readFd == 0) {
+    if (d_impl.d_unix.d_readFd == -1) {
         // Pipe was closed before read was issued.
         return 0;                                                     // RETURN
     }
@@ -386,13 +394,9 @@ int PipeControlChannel::readNamedPipe()
                                    readBytes.c_str());
                 }
                 d_buffer.insert(d_buffer.end(), buffer, buffer + bytesRead);
-                bsl::vector<char>::iterator it =
-                    bsl::find(d_buffer.begin(), d_buffer.end(), '\n');
-
-                if (it != d_buffer.end()) {
-                    dispatchMessageUpTo(it);
+                if (dispatchLeftoverMessage()) {
                     return 0;                                         // RETURN
-               }
+                }
             }
         }
     }
@@ -448,7 +452,7 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
 {
 //  BSLS_ASSERT(0 == d_impl.d_unix.d_readFd);
 
-    if (0 != d_impl.d_unix.d_readFd) {
+    if (-1 != d_impl.d_unix.d_readFd) {
         return -7;                                                    // RETURN
     }
 
@@ -558,8 +562,8 @@ PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     d_impl.d_windows.d_handle = INVALID_HANDLE_VALUE;
 #else
-    d_impl.d_unix.d_readFd    = 0;
-    d_impl.d_unix.d_writeFd   = 0;
+    d_impl.d_unix.d_readFd    = -1;
+    d_impl.d_unix.d_writeFd   = -1;
 #endif
 }
 
@@ -574,8 +578,9 @@ void PipeControlChannel::backgroundProcessor()
 {
     while (d_backgroundState == e_RUNNING) {
         if (0 != readNamedPipe()) {
-            BSLS_LOG_ERROR("Error processing M-trap: unable to read from named"
-                           " pipe '%s'", d_pipeName.c_str());
+            BSLS_LOG_ERROR(
+               "Error processing message: unable to read from named pipe '%s'",
+               d_pipeName.c_str());
 
             break;
         }
@@ -693,6 +698,20 @@ void PipeControlChannel::dispatchMessageUpTo(
         d_callback(stringRef);
     }
     d_buffer.erase(d_buffer.begin(), iter+1);
+}
+
+bool PipeControlChannel::dispatchLeftoverMessage()
+{
+    if (d_buffer.size() != 0) {
+        const bsl::vector<char>::iterator it = bsl::find(d_buffer.begin(),
+                                                         d_buffer.end(),
+                                                         '\n');
+        if (it != d_buffer.end()) {
+            dispatchMessageUpTo(it);
+            return true;                                              // RETURN
+        }
+    }
+    return false;
 }
 
 void PipeControlChannel::stop()

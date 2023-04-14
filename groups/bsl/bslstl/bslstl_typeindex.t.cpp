@@ -113,6 +113,7 @@ using namespace BloombergLP;
 // [10] bool operator<=(const type_index& other) const noexcept;
 // [10] bool operator>(const type_index& other) const noexcept;
 // [10] bool operator>=(const type_index& other) const noexcept;
+// [10] auto operator<=>(const type_index& other) const noexcept;
 // [11] size_t hash_code() const noexcept;
 // [11] const char* name() const noexcept;
 //
@@ -1129,7 +1130,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING RELATIONAL-COMPARISON OPERATORS (<, <=, >, >=)
+        // TESTING RELATIONAL-COMPARISON OPERATORS (<, <=, >, >=, <=>)
         //   Ensure that each operator defines the correct relationship between
         //   any two 'type_index' values.
         //
@@ -1154,14 +1155,17 @@ int main(int argc, char *argv[])
         //:
         //:  9 'X >= Y' if and only if 'X > Y' exclusive-or 'X == Y'.
         //:
-        //: 10 Non-modifiable objects can be compared (i.e., objects or
+        //: 10 'operator<=>' is consistent with '<', '>', '<=', '>='.
+        //:
+        //: 11 Non-modifiable objects can be compared (i.e., objects or
         //:    references providing only non-modifiable access).
         //:
-        //: 11 Non-modifiable and modifiable objects produce the same result
+        //: 12 Non-modifiable and modifiable objects produce the same result
         //:    when compared.
         //:
-        //: 12 All comparisons have non-throwing exception specifications on
+        //: 13 All comparisons have non-throwing exception specifications on
         //:    implementations that support the 'noexcept' operator.
+        //:
         //
         // Plan:
         //: 1 For each combination of values obtained by a nested iteration of
@@ -1188,25 +1192,26 @@ int main(int argc, char *argv[])
         //:     have the correct value according to the oracle, 'XbeforeY'.
         //:     Note that both orderings are covered by performing a full
         //:     iteration in both loops, rather than using a reduced set on
-        //:     each subsequent iteration. (C-6..10).
+        //:     each subsequent iteration. (C-6..11).
         //:
         //: 2 Using the 'sink' function, verify there are no additional member
         //:   overloads for each relational operator, ensuring that 'const' and
-        //:   non-'const' lvalues call the same function. (C-11)
+        //:   non-'const' lvalues call the same function. (C-12)
         //:
         //: 3 Using the 'ASSERT_NOEXCEPT' macro, verify each relational
-        //:   operator has a non-throwing exception specification. (C-12)
+        //:   operator has a non-throwing exception specification. (C-13)
         //
         // Testing:
         //   bool operator<(const type_index& other) const noexcept;
         //   bool operator<=(const type_index& other) const noexcept;
         //   bool operator>(const type_index& other) const noexcept;
         //   bool operator>=(const type_index& other) const noexcept;
+        //   auto operator<=>(const type_index& other) const noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                 "\nTESTING RELATIONAL-COMPARISON OPERATORS (<, <=, >, >=)"
-                 "\n======================================================\n");
+            "\nTESTING RELATIONAL-COMPARISON OPERATORS (<, <=, >, >=, <=>)"
+            "\n===========================================================\n");
 
         if (verbose) printf("\nTesting results of comparison operators\n");
         {
@@ -1231,6 +1236,13 @@ int main(int argc, char *argv[])
                     ASSERTV( i, j, X, Y, (X <= Y) == ( XbeforeY || (i == j)) );
                     ASSERTV( i, j, X, Y, (X >  Y) == (!XbeforeY && (i != j)) );
                     ASSERTV( i, j, X, Y, (X >= Y) ==  !XbeforeY              );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+                    const bsl::strong_ordering C = X <=> Y;
+                    ASSERTV( i, j, X, Y, (C <  0) ==   XbeforeY              );
+                    ASSERTV( i, j, X, Y, (C <= 0) == ( XbeforeY || (i == j)) );
+                    ASSERTV( i, j, X, Y, (C >  0) == (!XbeforeY && (i != j)) );
+                    ASSERTV( i, j, X, Y, (C >= 0) ==  !XbeforeY              );
+#endif
                 }
             }
         }
@@ -1251,6 +1263,9 @@ int main(int argc, char *argv[])
             ASSERT_NOEXCEPT(X <= X);
             ASSERT_NOEXCEPT(X > X);
             ASSERT_NOEXCEPT(X >= X);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+            ASSERT_NOEXCEPT(X <=> X);
+#endif
         }
       } break;
       case 9: {
@@ -1760,7 +1775,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nVerify there are no non-'const' overloads\n");
         {
             sink(&bsl::type_index::operator==);
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
             sink(&bsl::type_index::operator!=);
+#endif
         }
 
         if (verbose) printf("\nTesting exception specifications\n");

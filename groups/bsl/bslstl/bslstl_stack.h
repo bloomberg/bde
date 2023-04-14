@@ -57,16 +57,27 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'VALUE'
 ///-----------------------
-// If a type is specified for the 'CONTAINER' template parameter, a type
-// equivalent to 'CONTAINER::value_type' must be specified for 'VALUE' or else
-// compilation failure will result.
-//
 // The following term is used to more precisely specify the requirements on
 // template parameter types in function-level documentation:
 //
 //: *equality-comparable*:
 //:   The type provides an equality-comparison operator that defines an
 //:   equivalence relationship and is both reflexive and transitive.
+//
+///'VALUE' and 'CONTAINER::value_type'
+///- - - - - - - - - - - - - - - - - -
+// When the 'CONTAINER' template parameter is omitted the 'VALUE' template
+// parameter specifies the 'value_type' of 'bsl::vector', the default container
+// type.  The 'VALUE' template has no other role.
+//
+// For C++17 and later, the behavior is undefined unless:
+//..
+//  true == bsl::is_same<VALUE, typename CONTAINER::value_type>::value
+//..
+// Prior to C++17, 'CONTAINER::value_type' determines the contained value type
+// and 'VALUE' is simply ignored.  The resulting code may work with instances
+// of 'VALUE' (e.g., 'VALUE' is convertible to 'CONTAINER::value_type') or not
+// (compiler errors).
 //
 ///Memory Allocation
 ///-----------------
@@ -271,6 +282,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_compare.h>
 #include <bslstl_deque.h>
 
 #include <bslalg_swaputil.h>
@@ -278,8 +290,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #include <bslma_isstdallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocator.h>
@@ -287,6 +301,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
@@ -318,6 +333,11 @@ class stack {
     // everything, which means that if 'CONTAINER' is specified, then 'VALUE'
     // is ignored.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // STATIC CHECK: Type mismatch is UB per C++17
+    BSLMF_ASSERT((is_same<VALUE, typename CONTAINER::value_type>::value));
+#endif
+
   private:
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
@@ -331,6 +351,7 @@ class stack {
     typedef typename CONTAINER::const_reference const_reference;
     typedef typename CONTAINER::size_type       size_type;
     typedef          CONTAINER                  container_type;
+
 
   protected:
     // PROTECTED DATA
@@ -351,6 +372,12 @@ class stack {
     friend bool operator<=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
     template <class VAL, class CONT>
     friend bool operator>=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    template <class VAL, three_way_comparable CONT>
+    friend compare_three_way_result_t<CONT>
+    operator<=>(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+#endif
 
   public:
     // TRAITS
@@ -860,6 +887,17 @@ bool operator>=(const stack<VALUE, CONTAINER>& lhs,
 {
     return lhs.c >= rhs.c;
 }
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class VALUE, three_way_comparable CONTAINER>
+inline compare_three_way_result_t<CONTAINER>
+operator<=>(const stack<VALUE, CONTAINER>& lhs,
+            const stack<VALUE, CONTAINER>& rhs)
+{
+    return lhs.c <=> rhs.c;
+}
+#endif
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>

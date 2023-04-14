@@ -48,7 +48,7 @@
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::bool_constant<EXPRESSION> NAME{}
+    const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature
     // test macro is (currently) for documentation purposes only, and never
     // defined.  This is the ideal (simplest) form for such declarations:
@@ -137,9 +137,11 @@ template <class TYPE>
 bool operator==(const FixedArrayIterator<TYPE>& lhs,
                 const FixedArrayIterator<TYPE>& rhs);
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class TYPE>
 bool operator!=(const FixedArrayIterator<TYPE>& lhs,
                 const FixedArrayIterator<TYPE>& rhs);
+#endif
 
 // CREATORS
 template <class TYPE>
@@ -188,12 +190,14 @@ bool operator==(const FixedArrayIterator<TYPE>& lhs,
     return lhs.isEqual(rhs);
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class TYPE>
 bool operator!=(const FixedArrayIterator<TYPE>& lhs,
                 const FixedArrayIterator<TYPE>& rhs)
 {
     return !lhs.isEqual(rhs);
 }
+#endif
 
                               // ================
                               // class FixedArray
@@ -1021,11 +1025,13 @@ class UniqueInt {
         return v1.d_value == v2.d_value;
     }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
     friend bool operator!=(const UniqueInt &v1, const UniqueInt &v2)
         // Inequality comparison.
     {
         return !(v1 == v2);
     }
+#endif
 };
 int UniqueInt::s_counter = 0;
 
@@ -1127,6 +1133,25 @@ struct HI
         // Conversion operator to confuse badly written traits code.
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template <class TYPE, size_t BITS>
+inline
+auto operator<=>(const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
+{
+    auto result = lhs.p <=> rhs.p;
+    return result == 0 ? lhs.d <=> rhs.d : result;
+}
+
+template <class TYPE, size_t BITS>
+inline
+bool operator==(const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
+{
+    return lhs <=> rhs == 0;
+}
+
+#else
+
 template <class TYPE, size_t BITS>
 inline
 bool operator< (const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
@@ -1168,6 +1193,8 @@ bool operator!=(const HI<TYPE, BITS>& lhs, const HI<TYPE, BITS>& rhs)
 {
     return !(lhs == rhs);
 }
+
+#endif
 
                     // TEST DRIVER PART 3 TRAITS HELPERS
 

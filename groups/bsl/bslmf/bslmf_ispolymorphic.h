@@ -154,39 +154,40 @@ namespace bslmf {
 
 // Use type traits intrinsic, where available, to give the correct answer for
 // the tricky cases where existing ABIs prevent programmatic detection.
-template <class TYPE>
+template <class t_TYPE>
 struct IsPolymorphic_Imp {
-    enum { Value = __is_polymorphic(TYPE) };
+    enum { Value = __is_polymorphic(t_TYPE) };
 };
 
 #else
 
-template <class TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
+template <class t_TYPE, bool t_IS_CLASS = bsl::is_class<t_TYPE>::value>
 struct IsPolymorphic_Imp {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type.
+    // (template parameter) 't_TYPE' is a (non-cv-qualified) polymorphic type.
     // This generic default template defines a static data member, 'Value',
     // that is set to 'false'.  A template specialization is provided (below)
-    // to handle the case where 'TYPE' is a class type that may be polymorphic.
+    // to handle the case where 't_TYPE' is a class type that may be
+    // polymorphic.
 
     enum { Value = false };
 };
 
-template <class TYPE>
-struct IsPolymorphic_Imp<TYPE, true> {
-     // This partial specialization of 'IsPolymorphic_Imp', for when the
-     // (template parameter) 'TYPE' is a (non-cv-qualified) class type,
-     // provides a static data member, 'Value', that is set to 'true' if 'TYPE'
-     // is polymorphic and 'false' otherwise.
+template <class t_TYPE>
+struct IsPolymorphic_Imp<t_TYPE, true> {
+    // This partial specialization of 'IsPolymorphic_Imp', for when the
+    // (template parameter) 't_TYPE' is a (non-cv-qualified) class type,
+    // provides a static data member, 'Value', that is set to 'true' if
+    // 't_TYPE' is polymorphic and 'false' otherwise.
 
-    struct IsPoly : public TYPE {
+    struct IsPoly : public t_TYPE {
         IsPoly();
         virtual ~IsPoly() BSLS_NOTHROW_SPEC;
 
         char dummy[256];
     };
 
-    struct MaybePoly : public TYPE {
+    struct MaybePoly : public t_TYPE {
         MaybePoly();
         ~MaybePoly() BSLS_NOTHROW_SPEC;
         char dummy[256];
@@ -202,23 +203,22 @@ struct IsPolymorphic_Imp<TYPE, true> {
 
 namespace bsl {
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_polymorphic
-    : integral_constant<bool,
-                        BloombergLP::bslmf::IsPolymorphic_Imp<
-                             typename remove_cv<TYPE>::type>
-                        ::Value> {
+: integral_constant<bool,
+                    BloombergLP::bslmf::IsPolymorphic_Imp<
+                        typename remove_cv<t_TYPE>::type>::Value> {
     // This 'struct' template implements the 'is_polymorphic' meta-function
     // defined in the C++11 standard [meta.unary.prop] to determine if the
-    // (template parameter) 'TYPE' is a (possibly cv-qualified) polymorphic
-    // type.  This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a
+    // (template parameter) 't_TYPE' is a (possibly cv-qualified) polymorphic
+    // type.  This 'struct' derives from 'bsl::true_type' if the 't_TYPE' is a
     // polymorphic type, and 'bsl::false_type' otherwise.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_polymorphic_v = is_polymorphic<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_polymorphic_v =
+                                                 is_polymorphic<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_polymorphic' meta-function.
 #endif
@@ -233,11 +233,11 @@ namespace bslmf {
                          // struct IsPolymorphic
                          // ====================
 
-template <class TYPE>
-struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
+template <class t_TYPE>
+struct IsPolymorphic : bsl::is_polymorphic<t_TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is a (possibly cv-qualified) polymorphic
-    // type.  This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a
+    // (template parameter) 't_TYPE' is a (possibly cv-qualified) polymorphic
+    // type.  This 'struct' derives from 'bsl::true_type' if the 't_TYPE' is a
     // polymorphic type, and 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to

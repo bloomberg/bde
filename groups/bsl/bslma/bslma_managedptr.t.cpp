@@ -8336,7 +8336,7 @@ bslma::Allocator *AllocOnlyTestType::alloc3() const
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::bool_constant<EXPRESSION> NAME{}
+    const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature
     // test macro is (currently) for documentation purposes only, and never
     // defined.  This is the ideal (simplest) form for such declarations:

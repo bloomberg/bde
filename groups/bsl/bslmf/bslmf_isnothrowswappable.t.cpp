@@ -978,6 +978,9 @@ int main(int argc, char *argv[])
         // C-1
         ASSERT_IS_NOTHROW_SWAPPABLE_OBJECT_TYPE(bool, true, true);
         ASSERT_IS_NOTHROW_SWAPPABLE_OBJECT_TYPE(char, true, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        ASSERT_IS_NOTHROW_SWAPPABLE_OBJECT_TYPE(char8_t, true, true);
+#endif
         ASSERT_IS_NOTHROW_SWAPPABLE_OBJECT_TYPE(int,  true, true);
         ASSERT_IS_NOTHROW_SWAPPABLE_OBJECT_TYPE(long double,    true, true);
         ASSERT_IS_NOTHROW_SWAPPABLE_OBJECT_TYPE(bsl::nullptr_t, true, true);

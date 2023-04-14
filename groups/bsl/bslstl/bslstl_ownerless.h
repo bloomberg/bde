@@ -71,6 +71,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_sharedptr.h>
 
+#include <bsls_keyword.h> // 'BSLS_KEYWORD_NOEXCEPT'
+
 namespace bsl {
 
 template <class POINTER_TYPE = void>
@@ -115,11 +117,14 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
 
     // ACCESSORS
     bool operator()(const shared_ptr<ELEMENT_TYPE>& a,
-                    const shared_ptr<ELEMENT_TYPE>& b) const;
+                    const shared_ptr<ELEMENT_TYPE>& b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     bool operator()(const shared_ptr<ELEMENT_TYPE>& a,
-                    const weak_ptr<ELEMENT_TYPE>&   b) const;
+                    const weak_ptr<ELEMENT_TYPE>&   b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,
-                    const shared_ptr<ELEMENT_TYPE>& b) const;
+                    const shared_ptr<ELEMENT_TYPE>& b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
         // is ordered before the address of the
@@ -157,11 +162,14 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
 
     // ACCESSORS
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,
-                    const weak_ptr<ELEMENT_TYPE>&   b) const;
+                    const weak_ptr<ELEMENT_TYPE>&   b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     bool operator()(const shared_ptr<ELEMENT_TYPE>& a,
-                    const weak_ptr<ELEMENT_TYPE>&   b) const;
+                    const weak_ptr<ELEMENT_TYPE>&   b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,
-                    const shared_ptr<ELEMENT_TYPE>& b) const;
+                    const shared_ptr<ELEMENT_TYPE>& b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
         // is ordered before the address of the
@@ -199,16 +207,20 @@ struct owner_less<void> {
     // ACCESSORS
     template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
     bool operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
-                    const shared_ptr<ELEMENT_TYPE_B> &b) const;
+                    const shared_ptr<ELEMENT_TYPE_B> &b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
     bool operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
-                    const weak_ptr<  ELEMENT_TYPE_B> &b) const;
+                    const weak_ptr<  ELEMENT_TYPE_B> &b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
     bool operator()(const weak_ptr<  ELEMENT_TYPE_A> &a,
-                    const shared_ptr<ELEMENT_TYPE_B> &b) const;
+                    const shared_ptr<ELEMENT_TYPE_B> &b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
     template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
     bool operator()(const weak_ptr<ELEMENT_TYPE_A> &a,
-                    const weak_ptr<ELEMENT_TYPE_B> &b) const;
+                    const weak_ptr<ELEMENT_TYPE_B> &b) const
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
         // is ordered before the address of the
@@ -229,8 +241,8 @@ struct owner_less<void> {
 template <class ELEMENT_TYPE>
 inline
 bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
-                                       const shared_ptr<ELEMENT_TYPE>& a,
-                                       const shared_ptr<ELEMENT_TYPE>& b) const
+                 const shared_ptr<ELEMENT_TYPE>& a,
+                 const shared_ptr<ELEMENT_TYPE>& b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
@@ -238,8 +250,8 @@ bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
 template <class ELEMENT_TYPE>
 inline
 bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
-                                       const shared_ptr<ELEMENT_TYPE>& a,
-                                       const weak_ptr<ELEMENT_TYPE>&   b) const
+                 const shared_ptr<ELEMENT_TYPE>& a,
+                 const weak_ptr<ELEMENT_TYPE>&   b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
@@ -247,8 +259,8 @@ bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
 template <class ELEMENT_TYPE>
 inline
 bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
-                                       const weak_ptr<ELEMENT_TYPE>&   a,
-                                       const shared_ptr<ELEMENT_TYPE>& b) const
+                 const weak_ptr<ELEMENT_TYPE>&   a,
+                 const shared_ptr<ELEMENT_TYPE>& b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
@@ -260,8 +272,8 @@ bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
 template <class ELEMENT_TYPE>
 inline
 bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
-                                        const weak_ptr<ELEMENT_TYPE>& a,
-                                        const weak_ptr<ELEMENT_TYPE>& b) const
+                   const weak_ptr<ELEMENT_TYPE>& a,
+                   const weak_ptr<ELEMENT_TYPE>& b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
@@ -269,8 +281,8 @@ bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
 template <class ELEMENT_TYPE>
 inline
 bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
-                                       const shared_ptr<ELEMENT_TYPE>& a,
-                                       const weak_ptr<ELEMENT_TYPE>&   b) const
+                 const shared_ptr<ELEMENT_TYPE>& a,
+                 const weak_ptr<ELEMENT_TYPE>&   b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
@@ -278,8 +290,8 @@ bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
 template <class ELEMENT_TYPE>
 inline
 bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
-                                       const weak_ptr<ELEMENT_TYPE>&   a,
-                                       const shared_ptr<ELEMENT_TYPE>& b) const
+                 const weak_ptr<ELEMENT_TYPE>&   a,
+                 const shared_ptr<ELEMENT_TYPE>& b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
@@ -290,32 +302,36 @@ bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
 
 template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
 inline
-bool owner_less<void>::operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
-                                  const shared_ptr<ELEMENT_TYPE_B> &b) const
+bool owner_less<void>::operator()(
+               const shared_ptr<ELEMENT_TYPE_A> &a,
+               const shared_ptr<ELEMENT_TYPE_B> &b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
 
 template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
 inline
-bool owner_less<void>::operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
-                                  const weak_ptr<  ELEMENT_TYPE_B> &b) const
+bool owner_less<void>::operator()(
+               const shared_ptr<ELEMENT_TYPE_A> &a,
+               const weak_ptr<  ELEMENT_TYPE_B> &b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
 
 template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
 inline
-bool owner_less<void>::operator()(const weak_ptr<  ELEMENT_TYPE_A> &a,
-                                  const shared_ptr<ELEMENT_TYPE_B> &b) const
+bool owner_less<void>::operator()(
+               const weak_ptr<  ELEMENT_TYPE_A> &a,
+               const shared_ptr<ELEMENT_TYPE_B> &b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }
 
 template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
 inline
-bool owner_less<void>::operator()(const weak_ptr<ELEMENT_TYPE_A> &a,
-                                  const weak_ptr<ELEMENT_TYPE_B> &b) const
+bool owner_less<void>::operator()(
+                 const weak_ptr<ELEMENT_TYPE_A> &a,
+                 const weak_ptr<ELEMENT_TYPE_B> &b) const BSLS_KEYWORD_NOEXCEPT
 {
     return a.owner_before(b);
 }

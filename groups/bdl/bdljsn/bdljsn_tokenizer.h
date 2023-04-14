@@ -42,7 +42,8 @@ BSLS_IDENT("$Id: $")
 //  const char *INPUT = "    {\n"
 //                      "        \"street\" : \"Lexington Ave\",\n"
 //                      "        \"state\" : \"New York\",\n"
-//                      "        \"zipcode\" : 10022\n"
+//                      "        \"zipcode\" : \"10022-1331\",\n"
+//                      "        \"floorCount\" : 55\n"
 //                      "    }";
 //..
 // Next, we will construct populate a 'streambuf' with this data:
@@ -60,8 +61,9 @@ BSLS_IDENT("$Id: $")
 //  struct Address {
 //      bsl::string d_street;
 //      bsl::string d_state;
-//      int         d_zipcode;
-//  } address = { "", "", 0 };
+//      bsl::string d_zipcode;
+//      int         d_floorCount;
+//  } address = { "", "", "", 0 };
 //..
 // Then, we will traverse the JSON data one node at a time:
 //..
@@ -112,7 +114,11 @@ BSLS_IDENT("$Id: $")
 //          assert(!rc);
 //      }
 //      else if (elementName == "zipcode") {
-//          rc = bdljsn::NumberUtil::asInt(&address.d_zipcode, nodeValue);
+//          rc = bdljsn::StringUtil::readString(&address.d_zipcode, nodeValue);
+//          assert(!rc);
+//      }
+//      else if (elementName == "floorCount") {
+//          rc = bdljsn::NumberUtil::asInt(&address.d_floorCount, nodeValue);
 //          assert(!rc);
 //      }
 //
@@ -125,7 +131,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert("Lexington Ave" == address.d_street);
 //  assert("New York"      == address.d_state);
-//  assert(10022           == address.d_zipcode);
+//  assert("10022-1331"    == address.d_zipcode);
+//  assert(55              == address.d_floorCount);
 //..
 
 #include <bdlscm_version.h>
@@ -232,8 +239,9 @@ class Tokenizer {
     bsl::size_t         d_valueIter;        // cursor for iterating value
 
     Uint64              d_readOffset;       // the offset to the end of the
-                                            // current 'd_stringBuffer' relative
-                                            // to the start of the streambuf
+                                            // current 'd_stringBuffer'
+                                            // relative to the start of the
+                                            // streambuf
 
     TokenType           d_tokenType;        // token type
 

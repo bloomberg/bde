@@ -186,7 +186,7 @@ bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::RWMutexImpl()
 
     // pthread_rwlock_init should not return a failure code.
 
-    BSLS_ASSERT_SAFE(0 == rc);
+    BSLS_ASSERT_OPT(0 == rc);
     (void) rc;    // suppress 'unused variable' warnings
 }
 
@@ -300,7 +300,7 @@ void bslmt::RWMutex::unlock()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -154,7 +154,7 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_trivially_default_constructible;
 
 }  // close namespace bsl
@@ -166,19 +166,18 @@ namespace bslmf {
                          // struct IsTriviallyDefaultConstructible_Imp
                          // ==========================================
 
-template <class TYPE>
+template <class t_TYPE>
 struct IsTriviallyDefaultConstructible_Imp
 : bsl::integral_constant<
-                     bool,
-                     !bsl::is_reference<TYPE>::value
-                     && (  bsl::is_fundamental<TYPE>::value
-                        || bsl::is_enum<TYPE>::value
-                        || bsl::is_pointer<TYPE>::value
-                        || bsl::is_member_pointer<TYPE>::value
-                        || DetectNestedTrait<TYPE,
-                            bsl::is_trivially_default_constructible>::value)> {
+      bool,
+      !bsl::is_reference<t_TYPE>::value &&
+          (bsl::is_fundamental<t_TYPE>::value || bsl::is_enum<t_TYPE>::value ||
+           bsl::is_pointer<t_TYPE>::value ||
+           bsl::is_member_pointer<t_TYPE>::value ||
+           DetectNestedTrait<t_TYPE, bsl::is_trivially_default_constructible>::
+               value)> {
     // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
+    // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
     // default-constructible.
 };
 
@@ -198,13 +197,13 @@ namespace bsl {
                          // struct is_trivially_default_constructible
                          // =========================================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_trivially_default_constructible
-    : BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<
-                                              typename remove_cv<TYPE>::type> {
+: BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<
+      typename remove_cv<t_TYPE>::type> {
     // This 'struct' template implements a meta-function to determine whether
-    // the (template parameter) 'TYPE' is trivially default-constructible.
-    // This 'struct' derives from 'bsl::true_type' if the 'TYPE' is trivially
+    // the (template parameter) 't_TYPE' is trivially default-constructible.
+    // This 'struct' derives from 'bsl::true_type' if the 't_TYPE' is trivially
     // default-constructible, and from 'bsl::false_type' otherwise.  This
     // meta-function has the same syntax as the
     // 'is_trivially_default_constructible' meta-function defined in the C++11
@@ -218,51 +217,51 @@ struct is_trivially_default_constructible
     // inherit from 'bsl::true_type' for them.
 };
 
-template <class TYPE>
-struct is_trivially_default_constructible<const TYPE>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE>
+struct is_trivially_default_constructible<const t_TYPE>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that const-qualified types have the
     // same result as their element type.
 };
 
-template <class TYPE>
-struct is_trivially_default_constructible<volatile TYPE>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE>
+struct is_trivially_default_constructible<volatile t_TYPE>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that volatile-qualified types have
     // the same result as their element type.
 };
 
-template <class TYPE>
-struct is_trivially_default_constructible<const volatile TYPE>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE>
+struct is_trivially_default_constructible<const volatile t_TYPE>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that const-volatile-qualified types
     // have the same result as their element type.
 };
 
-template <class TYPE, size_t LEN>
-struct is_trivially_default_constructible<TYPE[LEN]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct is_trivially_default_constructible<t_TYPE[t_LEN]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that array types have the same
     // result as their element type.
 };
 
-template <class TYPE, size_t LEN>
-struct is_trivially_default_constructible<const TYPE[LEN]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct is_trivially_default_constructible<const t_TYPE[t_LEN]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that const-qualified array types
     // have the same result as their element type.
 };
 
-template <class TYPE, size_t LEN>
-struct is_trivially_default_constructible<volatile TYPE[LEN]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct is_trivially_default_constructible<volatile t_TYPE[t_LEN]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that volatile-qualified array types
     // have the same result as their element type.
 };
 
-template <class TYPE, size_t LEN>
-struct is_trivially_default_constructible<const volatile TYPE[LEN]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE, size_t t_LEN>
+struct is_trivially_default_constructible<const volatile t_TYPE[t_LEN]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that const-volatile-qualified array
     // types have the same result as their element type.
 };
@@ -271,40 +270,40 @@ struct is_trivially_default_constructible<const volatile TYPE[LEN]>
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
 // correctly handling arrays of unknown bound as template parameters.
 
-template <class TYPE>
-struct is_trivially_default_constructible<TYPE[]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE>
+struct is_trivially_default_constructible<t_TYPE[]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that array-of-unknown-bound types
     // have the same result as their element type.
 };
 
-template <class TYPE>
-struct is_trivially_default_constructible<const TYPE[]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE>
+struct is_trivially_default_constructible<const t_TYPE[]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that const-qualified
     // array-of-unknown-bound types have the same result as their element type.
 };
 
-template <class TYPE>
-struct is_trivially_default_constructible<volatile TYPE[]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE>
+struct is_trivially_default_constructible<volatile t_TYPE[]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that volatile-qualified
     // array-of-unknown-bound types have the same result as their element type.
 };
 
-template <class TYPE>
-struct is_trivially_default_constructible<const volatile TYPE[]>
-    :  is_trivially_default_constructible<TYPE>::type {
+template <class t_TYPE>
+struct is_trivially_default_constructible<const volatile t_TYPE[]>
+: is_trivially_default_constructible<t_TYPE>::type {
     // This partial specialization ensures that const-volatile-qualified
     // array-of-unknown-bound types have the same result as their element type.
 };
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_trivially_default_constructible_v
-                             = is_trivially_default_constructible<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool
+    is_trivially_default_constructible_v =
+                             is_trivially_default_constructible<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_trivially_default_constructible' meta-function.
 #endif

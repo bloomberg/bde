@@ -15,9 +15,10 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a concrete allocation mechanism,
 // 'bdlma::GuardingAllocator', that implements the 'bslma::Allocator' protocol
 // and adjoins a read/write protected guard page to each block of memory
-// returned by the 'allocate' method.  The guard page is located immediately
-// following or immediately preceding the block returned from 'allocate'
-// according to an optionally-supplied constructor argument:
+// returned by the 'allocate' method.  Each returned block is maximally aligned
+// for the platform.  The guard page is located immediately following (subject
+// to alignment requirements) or immediately preceding the block returned from
+// 'allocate' according to an optionally-supplied constructor argument:
 //..
 //   ,------------------------.
 //  ( bdlma::GuardingAllocator )
@@ -57,7 +58,7 @@ BSLS_IDENT("$Id: $")
 // assumed to be less than or equal to the size of a memory page.  Note that
 // two pages of memory are consumed for each such allocation request:
 //..
-//  N` - N rounded up to the least multiple of the maximum alignment
+//  M  - N rounded up to the least multiple of the maximum alignment
 //  A  - address of (2-page) block of memory returned by system allocator
 //  U  - address returned from 'allocate' to user
 //  G  - address of the guard page
@@ -68,21 +69,24 @@ BSLS_IDENT("$Id: $")
 //
 //      [ - - - one memory page  - - - | - - - one memory page  - - - ]
 //      ---------------------------------------------------------------
-//      |                 |  N` bytes  | ******* R/W protected ****** |
+//      |                 |  M  bytes  | ******* R/W protected ****** |
 //      ---------------------------------------------------------------
 //      ^                 ^            ^
-//      A                 U == G - N`  G == A + PS
+//      A                 U == G - M   G == A + PS
 //
 //
 //                          e_BEFORE_USER_BLOCK
 //                          -------------------
 //
 //      ---------------------------------------------------------------
-//      | ******* R/W protected ****** |  N` bytes  |                 |
+//      | ******* R/W protected ****** |  M  bytes  |                 |
 //      ---------------------------------------------------------------
 //      ^                              ^
 //      A == G                         U == A + PS
 //..
+// Notice that 'M', the distance from the returned address to the start of the
+// guard page, may be larger than the user requested 'N' bytes.  See {Example
+// 2: Allowing for Maximal Alignment}.
 //
 ///Thread Safety
 ///-------------
@@ -288,6 +292,186 @@ BSLS_IDENT("$Id: $")
 // program will dump core in a context that is more proximate to the buggy
 // code, resulting in a core file that will be more amenable to revealing the
 // issue when analyzed in a debugger.
+//
+///Example 2: Allowing for Maximal Alignment
+///- - - - - - - - - - - - - - - - - - - - -
+// The requirement that this allocator always return maximally aligned memory
+// can lead to situations when using 'e_AFTER_USER_BLOCK' where there is unused
+// memory between the end of allocated memory and the first address of the
+// guard page.  If so, small memory overruns (e.g., a single byte) will not
+// land on the guard page and go undetected.  Fortunately, users can often
+// compensate for this behavior and position their data adjacent to the guard
+// page.
+//
+// Suppose one must test a function, 'myIntSort', having the signature and
+// contract:
+//..
+//  void myIntSort(int *begin, int *end);
+//      // Efficiently sort in place the values in the specified range
+//      // '[start .. end - 1]' into ascending order.
+//..
+// If the 'myIntSort' function uses some manner of partitioning algorithm the
+// implementation will involve considerable pointer arithmetic, recursion,
+// etc., then a reasonable test concern would be:
+//..
+//      // Concerns:
+//      //: 1 The implementation never modifies or even reads data outside of
+//      //:   the given input range.
+//      //:
+//      //: 2 Some other concern.
+//      //:
+//      //: 3 Yet another concern.
+//      //:
+//      //: 4 ...
+//..
+// Addressing that test concern is ordinarily challenging.  One approach is to
+// bracket the data for each test with data having a distinctive value (e.g.,
+// '0x0BADCAFE') and then check that the test does not corrupt that pattern
+// (any overwrite being *very* unlikely to preserve the special value).  Tests
+// of reads past the given range are harder to prove.  One could argue that
+// incorporating that data into the sort would corrupt the result but one
+// cannot prove that it was never accessed.  Alternatively, using
+// 'bdlma::GuardingAllocator' provides a stronger proof from a simpler test
+// case.  Thus, our test plan would include:
+//..
+//      // Plan:
+//      //: 1 Test for range overflow and underflow by positioning test data in
+//      //:   memory obtained from 'bdlma::GuardingAllocator' objects.  Each
+//      //:   test is run twice, once with the guard page below the test data,
+//      //:   and again with the guard page above the test data.
+//..
+// First, create a set of test data for thoroughly testing all concerns of
+// 'myIntSort', and a framework for running through those tests:
+//..
+//  void testMyIntSort()
+//      // Thoroughly test the 'myIntSort' function using a table-driven
+//      // framework.  Note that the testing concerns were listed above.
+//  {
+//      const bsl::size_t MAX_NUM_INPUTS = 5;
+//      struct {
+//          int         d_line;
+//          bsl::size_t d_numInputs;
+//          int         d_input[MAX_NUM_INPUTS];
+//      } DATA [] = {
+//          { __LINE__, 1, { 0       } }
+//        , { __LINE__, 2, { 2, 1    } }
+//
+//        // ...
+//
+//        , { __LINE__, 3, { 2, 1, 3 } }
+//
+//        // ...
+//
+//      };
+//      const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+//
+//      const int pageSize = myGetPageSize();
+//      assert(myIsPowerOfTwo(pageSize));
+//
+//      for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+//          const int         LINE       = DATA[ti].d_line;  (void) LINE;
+//          const bsl::size_t NUM_INPUTS = DATA[ti].d_numInputs;
+//          const int *const  INPUT      = DATA[ti].d_input;
+//..
+// Then, create a 'bdlma::GuardingAllocator to that will be used to test for
+// under-runs of the given range and, for each data point, run the test on data
+// that will segfault if there is any reference to an address in the page below
+// 'begin', even by a single byte:
+//..
+//          bdlma::GuardingAllocator underRun(
+//                              bdlma::GuardingAllocator::e_BEFORE_USER_BLOCK);
+//
+//          const bsl::size_t  numBytes = NUM_INPUTS * sizeof(int);
+//          void              *block    = underRun.allocate(numBytes);
+//
+//          assert(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+//                                                                  block,
+//                                                                  pageSize));
+//
+//          bsl::memcpy(block, INPUT, numBytes);
+//
+//          int *begin = static_cast<int *>(block);
+//          int *end   = begin + NUM_INPUTS;
+//
+//          myIntSort(begin, end);                                      // TEST
+//
+//          assert(myIsIntSorted(begin, end));  // oracle
+//
+//          underRun.deallocate(block);
+//..
+// Notice that, for expository purposes, we confirmed that the 'block' is page
+// aligned.
+//
+// Next, we will *rerun* the test using data positioned in memory to catch
+// over-runs of the input range.
+//..
+//          bdlma::GuardingAllocator overRun(
+//                               bdlma::GuardingAllocator::e_AFTER_USER_BLOCK);
+//..
+// The step would be to allocate memory and initialize memory as we did
+// before.  The problem is that memory returned from the
+// 'bdlma::GuardingAllocator' may not abut the following guard page.
+//
+// Consider a platform where:
+//: o Maximal alignment is 8 bytes.
+//: o 'sizeof(int)' is 4 bytes.
+//
+// For the data point above consisting of 3 values, the required space is 12
+// bytes (3 * 4) but the maximally aligned address closest to the top of the
+// returned page is 16 bytes (2 * 8) below the page boundary -- a gap of 4
+// bytes.
+//
+// We handle this situation by padding our allocation size to the nearest
+// multiple of maximal alignment -- 16 bytes in this case.  That gives us
+// allocated memory that abuts the page boundary.  This allows us to position
+// our test data into the allocated memory so that last element fits in the
+// upper bytes of the returned bytes (i.e., the first 4 bytes of the returned
+// block are not used by this test).
+//
+// Now, we calculate the padded allocation size and allocate a block that abuts
+// the page boundary:
+//..
+//          const bsl::size_t paddedSize =
+//                    bsls::AlignmentUtil::roundUpToMaximalAlignment(numBytes);
+//
+//          block = overRun.allocate(paddedSize);
+//
+//          int *firstProtectedAddress = static_cast<int *>(
+//               static_cast<void *>(static_cast<char *>(block) + paddedSize));
+//
+//          begin = firstProtectedAddress - NUM_INPUTS;
+//          end   = firstProtectedAddress;
+//
+//          assert(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+//                                   block,
+//                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
+//
+//          assert(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+//                                                               begin,
+//                                                               sizeof(int)));
+//
+//          assert(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+//                                                                  end,
+//                                                                  pageSize));
+//..
+// Notice that again, for purposes of exposition, we have checked the returned
+// addresses and confirmed:
+//: o The returned address, 'block', is maximally aligned.
+//: o The calculated 'begin' is correctly aligned to hold the data value.
+//: o The upper end of the returned block, 'end', is page aligned.
+//
+// Finally, we load the test data into the carefully positioned memory and
+// rerun the test:
+//..
+//          bsl::memcpy(begin, INPUT, numBytes);
+//
+//          myIntSort(begin, end);                                      // TEST
+//          assert(myIsIntSorted(begin, end));  // oracle
+//
+//          overRun.deallocate(block);
+//      }
+//  }
+//..
 
 #include <bdlscm_version.h>
 

@@ -93,38 +93,38 @@ namespace bsl {
                          // struct is_volatile
                          // ==================
 
-template <class TYPE>
+template <class t_TYPE>
 struct is_volatile : false_type {
     // This 'struct' template implements the 'is_volatile' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 'TYPE' is 'volatile'-qualified.  This 'struct'
-    // derives from 'bsl::true_type' if the 'TYPE' is 'volatile'-qualified, and
-    // 'bsl::false_type' otherwise.  Note that this generic default template
-    // derives from 'bsl::false_type'.  A template specialization is provided
-    // (below) that derives from 'bsl::true_type'.
+    // (template parameter) 't_TYPE' is 'volatile'-qualified.  This 'struct'
+    // derives from 'bsl::true_type' if the 't_TYPE' is 'volatile'-qualified,
+    // and 'bsl::false_type' otherwise.  Note that this generic default
+    // template derives from 'bsl::false_type'.  A template specialization is
+    // provided (below) that derives from 'bsl::true_type'.
 };
 
-                         // =================================
-                         // struct is_volatile<TYPE volatile>
-                         // =================================
+                    // ===================================
+                    // struct is_volatile<t_TYPE volatile>
+                    // ===================================
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-template <class TYPE>
-struct is_volatile<volatile TYPE>
-    : integral_constant<bool, !is_same<TYPE, volatile TYPE>::value> {
-     // This partial specialization of 'is_volatile', for when the (template
-     // parameter) 'TYPE' is 'volatile'-qualified, derives from
-     // 'bsl::true_type'.  Note that the Solaris CC compiler misdiagnoses
-     // cv-qualified "abominable" function types as being cv-qualified
-     // themselves.  The correct result is obtained by delegating the result to
-     // a call through 'is_same'.
+template <class t_TYPE>
+struct is_volatile<volatile t_TYPE>
+: integral_constant<bool, !is_same<t_TYPE, volatile t_TYPE>::value> {
+    // This partial specialization of 'is_volatile', for when the (template
+    // parameter) 't_TYPE' is 'volatile'-qualified, derives from
+    // 'bsl::true_type'.  Note that the Solaris CC compiler misdiagnoses
+    // cv-qualified "abominable" function types as being cv-qualified
+    // themselves.  The correct result is obtained by delegating the result to
+    // a call through 'is_same'.
 };
 #else
-template <class TYPE>
-struct is_volatile<volatile TYPE> : true_type {
-     // This partial specialization of 'is_volatile', for when the (template
-     // parameter) 'TYPE' is 'volatile'-qualified, derives from
-     // 'bsl::true_type'.
+template <class t_TYPE>
+struct is_volatile<volatile t_TYPE> : true_type {
+    // This partial specialization of 'is_volatile', for when the (template
+    // parameter) 't_TYPE' is 'volatile'-qualified, derives from
+    // 'bsl::true_type'.
 };
 #endif
 
@@ -139,27 +139,27 @@ struct is_volatile<volatile TYPE> : true_type {
 // itself is inconsistent depeoning on how the trait might be used.  This also
 // corresponds to how Microsft itself implements the trait in VC2010 and later.
 
-template <class TYPE>
-struct is_volatile<volatile TYPE[]> : true_type {
-     // This partial specialization of 'is_volatile', for when the (template
-     // parameter) 'TYPE' is 'volatile'-qualified, derives from
-     // 'bsl::true_type'.  Note that this single specialization is sufficient
-     // to work around the MSVC issue, even for multidimensional arrays.
+template <class t_TYPE>
+struct is_volatile<volatile t_TYPE[]> : true_type {
+    // This partial specialization of 'is_volatile', for when the (template
+    // parameter) 't_TYPE' is 'volatile'-qualified, derives from
+    // 'bsl::true_type'.  Note that this single specialization is sufficient to
+    // work around the MSVC issue, even for multidimensional arrays.
 };
 
-template <class TYPE, size_t LENGTH>
-struct is_volatile<volatile TYPE[LENGTH]> : true_type {
-     // This partial specialization of 'is_volatile', for when the (template
-     // parameter) 'TYPE' is 'volatile'-qualified, derives from
-     // 'bsl::true_type'.  Note that this single specialization is sufficient
-     // to work around the MSVC issue, even for multidimensional arrays.
+template <class t_TYPE, size_t t_LENGTH>
+struct is_volatile<volatile t_TYPE[t_LENGTH]> : true_type {
+    // This partial specialization of 'is_volatile', for when the (template
+    // parameter) 't_TYPE' is 'volatile'-qualified, derives from
+    // 'bsl::true_type'.  Note that this single specialization is sufficient to
+    // work around the MSVC issue, even for multidimensional arrays.
 };
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_volatile_v = is_volatile<TYPE>::value;
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_volatile_v =
+                                                    is_volatile<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_volatile' meta-function.
 #endif
@@ -183,4 +183,3 @@ constexpr bool is_volatile_v = is_volatile<TYPE>::value;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

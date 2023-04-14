@@ -68,9 +68,9 @@ BSLS_IDENT("$Id: $")
 // First, we create three traits metafunctions to replace the three legacy
 // traits used above:
 //..
-//  template <class TYPE> struct UsesBslmaAllocator : bsl::false_type { };
-//  template <class TYPE> struct IsBitwiseCopyable : bsl::false_type { };
-//  template <class TYPE> struct IsPair : bsl::false_type { };
+//  template <class t_TYPE> struct UsesBslmaAllocator : bsl::false_type { };
+//  template <class t_TYPE> struct IsBitwiseCopyable : bsl::false_type { };
+//  template <class t_TYPE> struct IsPair : bsl::false_type { };
 //..
 // Note that these definitions are simplified to avoid excess dependencies; A
 // proper traits definition would inherit from 'bslmf::DetectNestedTrait'
@@ -381,28 +381,29 @@ struct SelectTrait_False : bsl::false_type
                            // struct SelectTraitCase
                            // ======================
 
-template <template <class> class TRAIT = SelectTrait_False>
+template <template <class> class t_TRAIT = SelectTrait_False>
 struct SelectTraitCase
 {
     // This template expresses a class that is unique for the specified
-    // (template parameter) 'TRAIT' metafunction.  An instantiation of this
+    // (template parameter) 't_TRAIT' metafunction.  An instantiation of this
     // template is the "compile-time return value" of 'SelectTrait' (see
     // below).  'SelectTraitCase' acts as a sort of compile-time
     // pointer-to-metafunction that holds the identity of a metafunction
     // similar to the way a pointer-to-function holds (at run-time) the
     // identity of a function.  As in the pointer-to-function case, a
-    // 'SelectTraitCase' can also be used indirectly to evaluate 'TRAIT' (at
+    // 'SelectTraitCase' can also be used indirectly to evaluate 't_TRAIT' (at
     // compile time).  Also note that, when 'SelectTraitCase' is specialized
-    // with the default 'TRAIT' type parameter, 'SelectTrait_False', it
+    // with the default 't_TRAIT' type parameter, 'SelectTrait_False', it
     // essentially means that none of the traits specified to 'SelectTrait'
     // match.
 
-    template <class TYPE> struct Eval : public TRAIT<TYPE>::type {
-        // Evaluates 'TRAIT' for the specified (template parameter) 'T' type.
-        // The resulting 'Eval<T>' instantiation is derived from 'true_type'
-        // if 'TRAIT<T>' is derived from 'true_type' and 'false_type' if
-        // 'TRAIT<T>' is derived from 'false_type'.  (More generally,
-        // 'Eval<T>' is derived from 'TRAIT<T>::type'.)
+    template <class t_TYPE>
+    struct Eval : public t_TRAIT<t_TYPE>::type {
+        // Evaluates 't_TRAIT' for the specified (template parameter) 'T' type.
+        // The resulting 'Eval<T>' instantiation is derived from 'true_type' if
+        // 't_TRAIT<T>' is derived from 'true_type' and 'false_type' if
+        // 't_TRAIT<T>' is derived from 'false_type'.  (More generally,
+        // 'Eval<T>' is derived from 't_TRAIT<T>::type'.)
     };
 
     typedef SelectTraitCase Type;
@@ -412,71 +413,86 @@ struct SelectTraitCase
                         // struct SelectTrait_Imp
                         // ======================
 
+template <class t_TYPE,
+          template <class> class t_TRAIT1,
+          template <class> class t_TRAIT2,
+          template <class> class t_TRAIT3,
+          template <class> class t_TRAIT4,
+          template <class> class t_TRAIT5,
+          template <class> class t_TRAIT6,
+          template <class> class t_TRAIT7,
+          template <class> class t_TRAIT8,
+          template <class> class t_TRAIT9>
+struct SelectTrait_Imp {
+    enum {
+        ORDINAL = (t_TRAIT1<t_TYPE>::value   ? 1
+                   : t_TRAIT2<t_TYPE>::value ? 2
+                   : t_TRAIT3<t_TYPE>::value ? 3
+                   : t_TRAIT4<t_TYPE>::value ? 4
+                   : t_TRAIT5<t_TYPE>::value ? 5
+                   : t_TRAIT6<t_TYPE>::value ? 6
+                   : t_TRAIT7<t_TYPE>::value ? 7
+                   : t_TRAIT8<t_TYPE>::value ? 8
+                   : t_TRAIT9<t_TYPE>::value ? 9
+                                             : 0)
+    };
 
-template <class TYPE,
-          template <class> class TRAIT1,
-          template <class> class TRAIT2,
-          template <class> class TRAIT3,
-          template <class> class TRAIT4,
-          template <class> class TRAIT5,
-          template <class> class TRAIT6,
-          template <class> class TRAIT7,
-          template <class> class TRAIT8,
-          template <class> class TRAIT9>
-struct SelectTrait_Imp
-{
-    enum { ORDINAL = (TRAIT1<TYPE>::value ? 1 :
-                      TRAIT2<TYPE>::value ? 2 :
-                      TRAIT3<TYPE>::value ? 3 :
-                      TRAIT4<TYPE>::value ? 4 :
-                      TRAIT5<TYPE>::value ? 5 :
-                      TRAIT6<TYPE>::value ? 6 :
-                      TRAIT7<TYPE>::value ? 7 :
-                      TRAIT8<TYPE>::value ? 8 :
-                      TRAIT9<TYPE>::value ? 9 : 0) };
-
-    typedef typename Switch<ORDINAL, SelectTraitCase<>,
-                            SelectTraitCase<TRAIT1>,
-                            SelectTraitCase<TRAIT2>,
-                            SelectTraitCase<TRAIT3>,
-                            SelectTraitCase<TRAIT4>,
-                            SelectTraitCase<TRAIT5>,
-                            SelectTraitCase<TRAIT6>,
-                            SelectTraitCase<TRAIT7>,
-                            SelectTraitCase<TRAIT8>,
-                            SelectTraitCase<TRAIT9> >::Type Type;
+    typedef typename Switch<ORDINAL,
+                            SelectTraitCase<>,
+                            SelectTraitCase<t_TRAIT1>,
+                            SelectTraitCase<t_TRAIT2>,
+                            SelectTraitCase<t_TRAIT3>,
+                            SelectTraitCase<t_TRAIT4>,
+                            SelectTraitCase<t_TRAIT5>,
+                            SelectTraitCase<t_TRAIT6>,
+                            SelectTraitCase<t_TRAIT7>,
+                            SelectTraitCase<t_TRAIT8>,
+                            SelectTraitCase<t_TRAIT9> >::Type Type;
 };
 
-                        // ==================
-                        // struct SelectTrait
-                        // ==================
+                             // ==================
+                             // struct SelectTrait
+                             // ==================
 
-template <class TYPE,
-          template <class> class TRAIT1,
-          template <class> class TRAIT2 = SelectTrait_False,
-          template <class> class TRAIT3 = SelectTrait_False,
-          template <class> class TRAIT4 = SelectTrait_False,
-          template <class> class TRAIT5 = SelectTrait_False,
-          template <class> class TRAIT6 = SelectTrait_False,
-          template <class> class TRAIT7 = SelectTrait_False,
-          template <class> class TRAIT8 = SelectTrait_False,
-          template <class> class TRAIT9 = SelectTrait_False>
-struct SelectTrait : SelectTrait_Imp<TYPE,   TRAIT1, TRAIT2, TRAIT3, TRAIT4,
-                                     TRAIT5, TRAIT6, TRAIT7, TRAIT8, TRAIT9
-                                    >::Type
-{
-    // Instantiate each specified (template parameter) 'TRAIT1' to 'TRAIT9'
-    // metafunction using the specified (template parameter) 'TYPE'.  Inherit
+template <class t_TYPE,
+          template <class> class t_TRAIT1,
+          template <class> class t_TRAIT2 = SelectTrait_False,
+          template <class> class t_TRAIT3 = SelectTrait_False,
+          template <class> class t_TRAIT4 = SelectTrait_False,
+          template <class> class t_TRAIT5 = SelectTrait_False,
+          template <class> class t_TRAIT6 = SelectTrait_False,
+          template <class> class t_TRAIT7 = SelectTrait_False,
+          template <class> class t_TRAIT8 = SelectTrait_False,
+          template <class> class t_TRAIT9 = SelectTrait_False>
+struct SelectTrait : SelectTrait_Imp<t_TYPE,
+                                     t_TRAIT1,
+                                     t_TRAIT2,
+                                     t_TRAIT3,
+                                     t_TRAIT4,
+                                     t_TRAIT5,
+                                     t_TRAIT6,
+                                     t_TRAIT7,
+                                     t_TRAIT8,
+                                     t_TRAIT9>::Type {
+    // Instantiate each specified (template parameter) 't_TRAIT1' to 't_TRAIT9'
+    // metafunction using the specified (template parameter) 't_TYPE'.  Inherit
     // from 'SelectTraitCase<TRAITx>', where *x* is '1' if
-    // 'TRAIT1<TYPE>::value' is true, '2' if 'TRAIT2<TYPE>::value' is true,
-    // etc..  If none of the traits evaluates to true, then inherit from
+    // 't_TRAIT1<t_TYPE>::value' is true, '2' if 't_TRAIT2<t_TYPE>::value' is
+    // true, etc..  If none of the traits evaluates to true, then inherit from
     // 'SelectTraitCase<>', which means that none of the traits match.
 
-public:
+  public:
     enum {
-        ORDINAL = SelectTrait_Imp<TYPE,   TRAIT1, TRAIT2, TRAIT3, TRAIT4,
-                                  TRAIT5, TRAIT6, TRAIT7, TRAIT8, TRAIT9
-                                 >::ORDINAL
+        ORDINAL = SelectTrait_Imp<t_TYPE,
+                                  t_TRAIT1,
+                                  t_TRAIT2,
+                                  t_TRAIT3,
+                                  t_TRAIT4,
+                                  t_TRAIT5,
+                                  t_TRAIT6,
+                                  t_TRAIT7,
+                                  t_TRAIT8,
+                                  t_TRAIT9>::ORDINAL
     };
 
     typedef bsl::integral_constant<int, ORDINAL> OrdinalType;

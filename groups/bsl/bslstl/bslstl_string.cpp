@@ -42,6 +42,18 @@ template class bsl::String_Imp<char, bsl::string::size_type>;
 template class bsl::String_Imp<wchar_t, bsl::wstring::size_type>;
 template class bsl::basic_string<char>;
 template class bsl::basic_string<wchar_t>;
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+template class bsl::String_Imp<char8_t, bsl::u8string::size_type>;
+template class bsl::basic_string<char8_t>;
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+template class bsl::String_Imp<char16_t, bsl::u16string::size_type>;
+template class bsl::String_Imp<char32_t, bsl::u32string::size_type>;
+template class bsl::basic_string<char16_t>;
+template class bsl::basic_string<char32_t>;
+# endif
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_CLANG)
