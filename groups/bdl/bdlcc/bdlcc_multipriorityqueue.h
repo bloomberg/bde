@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //
 // Finally, note that although the parameterized 'TYPE' is expected to at least
 // support copy construction and assignment, the
-// 'bdec::MultipriorityQueue<TYPE>' type currently does not support any
+// 'bdlcc::MultipriorityQueue<TYPE>' type currently does not support any
 // value-semantic operations, since different queues could have different
 // numbers of priorities, making comparison, assignment and copy construction
 // awkward.

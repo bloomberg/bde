@@ -304,7 +304,7 @@ struct CharConvertUtf32 {
         // 'CharConvertStatus::Enum' otherwise, where
         // 'CharConvertStatus::k_INVALID_INPUT_BIT' will be set if one or more
         // invalid sequences were encountered in the input, and
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be set if the
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the
         // output space was exhausted before conversion was complete.  If
         // 'dstCapacity > 0' yet 'dstCapacity' specifies a buffer too small to
         // hold the output, the maximal null-terminated prefix of the properly
@@ -315,7 +315,7 @@ struct CharConvertUtf32 {
         // valid UTF-32 code point (in the range '[ 1 .. 0xd7ff ]' or
         // '[ 0xe000 .. 0x10ffff ]').  Note that if 'dstCapacity' is 0,
         // '*dstBuffer' is not modified and this function returns a value with
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is written
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0 is written
         // into '*numCodePointsWritten' (if that pointer is not 0), since there
         // is insufficient space for even a null terminator alone.  Also note
         // that one Unicode code point always occupies one 32-bit *word* in
@@ -476,7 +476,7 @@ struct CharConvertUtf32 {
         // return 0 on success or a bit-wise OR of
         // 'CharConvertStatus::k_INVALID_INPUT_BIT' if invalid 'UTF-32' values
         // (in the range '[0xD800 .. 0xDFFF]' or above 0x10FFFF) are seen and
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' if there is insufficient
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' if there is insufficient
         // room for the entire result to be written.  If 'dstCapacity == 0'
         // return 'CharConvertStatus::k_INVALID_OUT_OF_SPACE_BIT' without
         // modifying 'dstBuffer'.  Optionally specify 'srcStringlength' as the

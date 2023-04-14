@@ -109,7 +109,7 @@
 :      Provide a win32 implementation of 'bslmt::Condition'.
 :
 : 'bslmt_configuration':
-:      Provide utilities to allow configuration of values for BCE.
+:      Provide utilities to allow configuration of values for BSLMT.
 :
 : 'bslmt_entrypointfunctoradapter':
 :      Provide types and utilities to simplify thread creation.

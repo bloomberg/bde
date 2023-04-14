@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // difficult for any intermediate interpreting software in the path of the
 // transfer to disruptively change its content (e.g., because of trailing
 // whitespace and line breaks).  For binary data, Base64 encoding may be a more
-// appropriate scheme (see 'bdede_base64').
+// appropriate scheme (see 'bdlde_base64').
 //
 // The data stream is processed one byte at a time from left to right as
 // follows:
@@ -103,9 +103,9 @@ BSLS_IDENT("$Id: $")
 //   bdlde::QuotedPrintableEncoder(
 //      const char *extraCharsToEncode,
 //      bdlde::QuotedPrintableEncoder::LineBreakMode lineBreakMode
-//                        = bdlde::QuotedPrintableEncoder::BDEDE_CRLF_MODE,
+//                        = bdlde::QuotedPrintableEncoder::e_CRLF_MODE,
 //      int maxLineLength =
-//                         bdlde::QuotedPrintableEncoder::DEFAULT_MAX_LINELEN);
+//                       bdlde::QuotedPrintableEncoder::k_DEFAULT_MAX_LINELEN);
 //..
 //
 // The following examples demonstrate the above rules per the design choices

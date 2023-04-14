@@ -1416,7 +1416,7 @@ void TestDriver<VALUE>::testCase11()
     //: 6 The 'deallocate' method ignores 'numElements' parameter.
     //
     // Plan:
-    //: 1 Create a 'bslma_Allocator' object and install it as the delegate
+    //: 1 Create a 'bslma::Allocator' object and install it as the delegate
     //:   allocator for 'StdStatefulAllocator'.
     //:
     //: 2 Create a new 'StdStatefulAllocator' object and invoke the 'allocate'
@@ -1850,7 +1850,7 @@ void TestDriver<VALUE>::testCase2()
     //: 3 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create three 'bslma_TestAllocator' objects, and install one as the
+    //: 1 Create three 'bslma::TestAllocator' objects, and install one as the
     //:   current default allocator (note that a ubiquitous test allocator is
     //:   already installed as the global allocator).
     //:

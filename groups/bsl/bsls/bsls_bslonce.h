@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // [!WARNING!] Clients outside of 'bsl' should *not* use this component.
 // Because of its location in the hierarchy, this component guards critical
 // sections using a spin-lock.  Equivalent components that are more robust and
-// efficient will be provided at a higher level (see 'bcemt_once').
+// efficient will be provided at a higher level (see 'bslmt_once').
 //
 // A 'bsls::BslOnce' object can be statically initialized using the
 // 'BSLS_BSLONCE_INITIALIZER' macro.

@@ -393,7 +393,7 @@ class TestObject {
 
     // DATA
     bsls::ObjectBuffer<TYPE>  d_ob;
-    bslma_Allocator          *d_allocator_p;
+    bslma::Allocator         *d_allocator_p;
 
   public:
     // CREATORS

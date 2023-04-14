@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // want to avoid causing crashes in production applications, since we expect
 // that frequently the overflow in "working" legacy code is only overwriting
 // the null terminating byte and is otherwise harmless.  We can use the
-// 'bdesu::AssertionLogger::failTrace' assertion-failure callback to replace
+// 'balst::AssertionLogger::failTrace' assertion-failure callback to replace
 // the default callback, which aborts the task, with one that will log the
 // failure and the call-stack at which it occurred.
 //

@@ -8788,7 +8788,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
-        if (verbose) cout << "Exercising bdec_Deque with highWaterMark\n";
+        if (verbose) cout << "Exercising bdlcc::Deque with highWaterMark\n";
         {
             bsl::deque<Element>        q1(&ta);
             const bsl::deque<Element>& Q1 = q1;

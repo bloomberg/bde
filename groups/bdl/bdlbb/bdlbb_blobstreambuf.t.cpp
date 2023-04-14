@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
         }
 
         bslma::TestAllocator ta(veryVeryVerbose);
-        if (verbose) cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
+        if (verbose) cout << "\nTesting bdlbb::OutBlobStreamBuf." << endl;
         {
             enum {
                 k_BUFFER_SIZE_A = 16,    // buffer size for factory "A"
@@ -563,12 +563,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
+        if (verbose) cout << "\nTesting bdlbb::InBlobStreamBuf." << endl;
         {
             enum {
-                k_BUFFER_SIZE_A = 16,    // buffer size for factory "A"
-                k_BUFFER_SIZE_B = 32,    // buffer size for factory "B"
-                k_SEEK_OFFSET   = 5     // arbitrary offset
+                k_BUFFER_SIZE_A = 16,  // buffer size for factory "A"
+                k_BUFFER_SIZE_B = 32,  // buffer size for factory "B"
+                k_SEEK_OFFSET   = 5    // arbitrary offset
             };
 
             testBlobBufferFactory factoryA(&ta, k_BUFFER_SIZE_A);
@@ -752,7 +752,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        if (verbose) cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
+        if (verbose) cout << "\nTesting bdlbb::InBlobStreamBuf." << endl;
         {
             typedef bdlbb::InBlobStreamBuf Obj;
 
@@ -855,7 +855,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        if (verbose) cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
+        if (verbose) cout << "\nTesting bdlbb::OutBlobStreamBuf." << endl;
         {
             enum { k_MAX_k_BUFFER_SIZE = 20 };
             for(int i = 0; i < k_MAX_k_BUFFER_SIZE; ++i) {

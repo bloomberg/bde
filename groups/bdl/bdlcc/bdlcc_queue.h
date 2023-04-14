@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlcc::Queue' to manage concurrent access to the queue.  Clients may use
 // these member variables together if needed.
 //
-// Whenever accessing the 'bdec' queue directly, clients must be sure to lock
+// Whenever accessing the 'bdlcc' queue directly, clients must be sure to lock
 // and unlock the mutex or to signal or broadcast on the condition variable as
 // appropriate.  For example, a client might use the underlying queue and mutex
 // as follows:

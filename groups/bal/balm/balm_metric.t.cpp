@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
             const Id A_ID = A_COL->metricId();
             const Id B_ID = B_COL->metricId();
 
-            if (veryVerbose) cout << "\tTesting 'bcemt::Metric'" << endl;
+            if (veryVerbose) cout << "\tTesting 'balm::Metric'" << endl;
 
             Obj a1("A", "A", &manager);                 const Obj& A1 = a1;
             Obj a2(registry.getId("A", "A"), &manager); const Obj& A2 = a2;

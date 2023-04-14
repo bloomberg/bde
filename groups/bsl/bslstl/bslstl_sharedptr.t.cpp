@@ -883,14 +883,14 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
     class my_MutexUnlockAndBroadcastDeleter {
 
         // DATA
-        bcemt_Mutex     *d_mutex_p;  // mutex to lock (held, not owned)
-        bcemt_Condition *d_cond_p;   // condition variable used to broadcast
-                                     // (held, not owned)
+        bslmt::Mutex     *d_mutex_p;  // mutex to lock (held, not owned)
+        bslmt::Condition *d_cond_p;   // condition variable used to broadcast
+                                      // (held, not owned)
 
       public:
         // CREATORS
-        my_MutexUnlockAndBroadcastDeleter(bcemt_Mutex     *mutex,
-                                          bcemt_Condition *cond)
+        my_MutexUnlockAndBroadcastDeleter(bslmt::Mutex     *mutex,
+                                          bslmt::Condition *cond)
             // Create this 'my_MutexUnlockAndBroadcastDeleter' object.  Use the
             // specified 'cond' to broadcast a signal and the specified 'mutex'
             // to serialize access to 'cond'.  The behavior is undefined unless
@@ -936,8 +936,8 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
     class my_SafeQueue {
 
         // DATA
-        bcemt_Mutex      d_mutex;
-        bcemt_Condition  d_cond;
+        bslmt::Mutex             d_mutex;
+        bslmt::Condition         d_cond;
         bsl::deque<ELEMENT_TYPE> d_queue;
 
         // . . .
@@ -954,7 +954,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
     template <class ELEMENT_TYPE>
     void my_SafeQueue<ELEMENT_TYPE>::push(const ELEMENT_TYPE& obj)
     {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         d_queue.push_back(obj);
         d_cond.signal();
     }
@@ -962,7 +962,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
     template <class ELEMENT_TYPE>
     ELEMENT_TYPE my_SafeQueue<ELEMENT_TYPE>::pop()
     {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         while (!d_queue.size()) {
            d_cond.wait(&d_mutex);
         }
@@ -1017,7 +1017,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
         typedef bsl::map<int, bsl::shared_ptr<my_Session> > HandleMap;
 
         // DATA
-        bcemt_Mutex       d_mutex;
+        bslmt::Mutex      d_mutex;
         HandleMap         d_handles;
         int               d_nextSessionId;
         bslma::Allocator *d_allocator_p;
@@ -1105,7 +1105,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
     my_SessionManager::my_Handle
     my_SessionManager::openSession(const bsl::string& sessionName)
     {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         my_Handle session(new(*d_allocator_p) my_Session(sessionName,
                                                          d_nextSessionId++,
                                                          d_allocator_p));
@@ -1116,7 +1116,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
     inline
     void my_SessionManager::closeSession(my_Handle handle)
     {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         HandleMap::iterator it = d_handles.find(handle->handleId());
         if (it != d_handles.end()) {
             d_handles.erase(it);
@@ -1153,7 +1153,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
         typedef bsl::map<int, bsl::shared_ptr<void> > HandleMap;
 
         // DATA
-        bcemt_Mutex       d_mutex;
+        bslmt::Mutex      d_mutex;
         HandleMap         d_handles;
         int               d_nextSessionId;
         bslma::Allocator *d_allocator_p;
@@ -1190,7 +1190,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
     my_SessionManager::my_Handle
     my_SessionManager::openSession(const bsl::string& sessionName)
     {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 //..
 // Notice that 'my_Handle', which is a shared pointer to 'void', can be
 // transparently assigned to a shared pointer to a 'my_Session' object.  This
@@ -1209,7 +1209,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
     inline
     void my_SessionManager::closeSession(my_Handle handle)
     {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 //..
 // Perform a static cast from 'bsl::shared_ptr<void>' to
 // 'bsl::shared_ptr<my_Session>'.

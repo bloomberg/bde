@@ -30,7 +30,7 @@ using namespace BloombergLP::bsltf;
 // The component under test implements a value-semantic type,
 // 'StdTestAllocator', a utility, 'StdTestAllocatorConfiguration', and a
 // mechanism, 'StdTestAllocatorConfigurationGuard'.  'StdTestAllocator' holds
-// no internal state and delegate its operations to a static 'bslma_Allocator'
+// no internal state and delegate its operations to a static 'bslma::Allocator'
 // object referred by 'StdTestAllocatorConfiguration', which provides static
 // methods to access and manipulate the static pointer to that delegate
 // allocator.  'StdTestAllocatorConfigurationGuard' provides a scoped guard
@@ -50,13 +50,13 @@ using namespace BloombergLP::bsltf;
 // struct StdTestAllocatorConfiguration
 //
 // CLASS METHODS
-// [ 2] void setDelegateAllocatorRaw(bslma_Allocator *basicAllocator);
-// [ 2] bslma_Allocator* delegateAllocator();
+// [ 2] void setDelegateAllocatorRaw(bslma::Allocator *basicAllocator);
+// [ 2] bslma::Allocator* delegateAllocator();
 //-----------------------------------------------------------------------------
 // class StdTestAllocatorConfigurationGuard
 //
 // CREATORS
-// [ 3] StdTestAllocatorConfigurationGuard(bslma_Allocator *temporary);
+// [ 3] StdTestAllocatorConfigurationGuard(bslma::Allocator *temporary);
 // [ 3] ~StdTestAllocatorConfigurationGuard();
 //-----------------------------------------------------------------------------
 // class StdTestAllocator
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The result of the 'max_size' method fits and represents the
         //:   maximum possible number of bytes in a
-        //:   'bslma_Allocator::size_type'.
+        //:   'bslma::Allocator::size_type'.
         //
         // Plan:
         //: 1 Use 'std::numeric_limits' to verify that the value return by
@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
         //:   appropriate delegate allocator.
         //
         // Plan:
-        //: 1 Create a 'bslma_Allocator' object and install it as the delegate
+        //: 1 Create a 'bslma::Allocator' object and install it as the delegate
         //:   allocator for 'StdTestAllocator'.
         //:
         //: 2 Create a new 'StdTestAllocator' object and invoke the 'allocate'
@@ -783,7 +783,7 @@ int main(int argc, char *argv[])
         //:   original delegate allocator.
         //
         // Plan:
-        //: 1 In a code block, create a 'bslma_TestAllocator' object, and
+        //: 1 In a code block, create a 'bslma::TestAllocator' object, and
         //:   create a 'StdTestAllocatorConfigurationGuard' object passing in a
         //:   pointer to the just created allocator.  Verify that
         //:   'StdTestAllocatorConfiguration::delegateAllocator' returns the
@@ -794,7 +794,7 @@ int main(int argc, char *argv[])
         //:   original delegate allocator.  (C-2)
         //
         // Testing:
-        //   StdTestAllocatorConfigurationGuard(bslma_Allocator *temporary);
+        //   StdTestAllocatorConfigurationGuard(bslma::Allocator *temporary);
         //   ~StdTestAllocatorConfigurationGuard();
         // --------------------------------------------------------------------
 
@@ -825,9 +825,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Verify that, by default, 'delegateAllocator' returns a pointer
-        //:   to the 'bslma_NewDeleteAllocator' singleton.  (C-2)
+        //:   to the 'bslma::NewDeleteAllocator' singleton.  (C-2)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object and invoke
+        //: 2 Create a 'bslma::TestAllocator' object and invoke
         //:   'setDelegateAllocatorRaw' passing in a pointer to the just
         //:   created allocator.  Verify that 'delegateAllocator' returns the
         //:   pointer passed in the previous call.  (C-1)
@@ -837,8 +837,8 @@ int main(int argc, char *argv[])
         //:   by P-3.  (C-1)
         //
         // Testing:
-        //   void setDelegateAllocatorRaw(bslma_Allocator *basicAllocator);
-        //   bslma_Allocator* delegateAllocator();
+        //   void setDelegateAllocatorRaw(bslma::Allocator *basicAllocator);
+        //   bslma::Allocator* delegateAllocator();
         //   StdTestAllocator();
         //   ~StdTestAllocator();
         // --------------------------------------------------------------------

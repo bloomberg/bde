@@ -1,12 +1,4 @@
 // balm_publicationscheduler.t.cpp                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balm_publicationscheduler.h>
 
 #include <balm_publisher.h>
@@ -1549,9 +1541,9 @@ int main(int argc, char *argv[])
         if (verbose) cout
             << endl
             << "TESTING ALTERNATIVE METHODS: " << endl
-            << "scheduleCategory(const bdeut::StringReg&, ...)', \n"
-            << "'findCategorySchedule(..., const bslstl::StringRef&)', and\n"
-            << "'cancelCategorySchedule(constbdeut_StringRef&)\n"
+            << "scheduleCategory(const char*, ...)', \n"
+            << "'findCategorySchedule(..., const char*)', and\n"
+            << "'cancelCategorySchedule(const char*)\n"
             << "========================================================\n";
 
         const char *CATEGORIES[] = { "A", "B", "C", "dummy1", "testcategory" };
