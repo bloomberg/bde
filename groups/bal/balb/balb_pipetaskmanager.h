@@ -158,7 +158,7 @@ BSLS_IDENT("$Id: $")
 //      EXIT no arguments
 //          Terminate the application.
 //      HELP
-//          Dipslay this message
+//          Display this message
 //      LOG <GET|SET <level> >
 //          Get/set verbosity level.
 //      RESTART no arguments
