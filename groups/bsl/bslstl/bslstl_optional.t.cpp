@@ -16,6 +16,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
 #include <bsls_buildtarget.h>
@@ -194,6 +195,10 @@ using namespace bsl;
 // [ 6] bool operator<=(const optional<LHS>&, const std::optional<RHS>&);
 // [ 6] bool operator>=(const optional<LHS>&, const std::optional<RHS>&);
 // [ 6] bool operator> (const optional<LHS>&, const std::optional<RHS>&);
+// [ 6] auto operator<=>(const optional<LHS>&, const optional<RHS>&);
+// [ 6] auto operator<=>(const optional<LHS>&, const RHS&);
+// [ 6] auto operator<=>(const optional<LHS>&, nullopt_t);
+// [ 6] auto operator<=>(const optional<LHS>&, const std::optional<RHS>&);
 // [17] optional make_optional(alloc_arg, const alloc&, TYPE&&);
 // [17] optional make_optional(alloc_arg, const alloc&, ARGS&&...);
 // [17] optional make_optional(alloc_arg, const alloc&, init_list, ARGS&&...);
@@ -209,6 +214,7 @@ using namespace bsl;
 // [23] TESTING DERIVED -- 'TYPE' ALLOCATES
 // [24] TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
 // [25] IMPLICIT/EXPLICIT C'TORS TEST
+// [27] CONCEPTS
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -787,14 +793,26 @@ bool operator==(const MyClass2& lhs, const MyClass2& rhs)
 {
     return (lhs.value() == rhs.value());
 }
-
-bool operator==(const int& lhs, const MyClass2& rhs)
-{
-    return (lhs == rhs.value());
-}
 bool operator==(const MyClass2& lhs, const int& rhs)
 {
     return (lhs.value() == rhs);
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+auto operator<=>(const MyClass2& lhs, const MyClass2& rhs)
+{
+    return lhs.value() <=> rhs.value();
+}
+auto operator<=>(const MyClass2& lhs, const int& rhs)
+{
+    return lhs.value() <=> rhs;
+}
+
+#else
+bool operator==(const int& lhs, const MyClass2& rhs)
+{
+    return (lhs == rhs.value());
 }
 bool operator!=(const MyClass2& lhs, const MyClass2& rhs)
 {
@@ -861,6 +879,7 @@ bool operator>=(const MyClass2& lhs, const int& rhs)
 {
     return (lhs.value() >= rhs);
 }
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 
                                  // =========
@@ -10221,6 +10240,12 @@ void testCase6_imp_a()
 {
     OPT_TYPE1 X;
     OPT_TYPE2 Y;
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    constexpr bool threeWayComparable = bsl::three_way_comparable_with<
+                                               typename OPT_TYPE1::value_type,
+                                               typename OPT_TYPE2::value_type>;
+#endif
 
     //comparing two disengaged optionals
     ASSERT(X == Y);     // If bool(x) != bool(y), false;
@@ -10231,6 +10256,18 @@ void testCase6_imp_a()
     ASSERT(X <= Y);     // If !x, true;
     ASSERT(X >= Y);     // If !y, true;
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (threeWayComparable) {
+        ASSERT(  X <=> Y == 0 );
+        ASSERT(!(X <=> Y != 0));
+        ASSERT(!(X <=> Y <  0));
+        ASSERT(!(X <=> Y >  0));
+        ASSERT(  X <=> Y <= 0 );
+        ASSERT(  X <=> Y >= 0 );
+    }
+#endif
+
     //'rhs' disengaged, 'lhs' engaged
     Y.emplace(3);
     ASSERT(!(X == Y));  // If bool(x) != bool(y), false;
@@ -10240,6 +10277,18 @@ void testCase6_imp_a()
     ASSERT(!(X > Y));   // If !x, false;
     ASSERT(X <= Y);     // If !x, true;
     ASSERT(!(X >= Y));  // If !y, true; otherwise, if !x, false;
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (threeWayComparable) {
+        ASSERT(!(X <=> Y == 0));
+        ASSERT(  X <=> Y != 0 );
+        ASSERT(  X <=> Y <  0 );
+        ASSERT(!(X <=> Y >  0));
+        ASSERT(  X <=> Y <= 0 );
+        ASSERT(!(X <=> Y >= 0));
+    }
+#endif
 
     //'rhs' engaged, 'lhs' disengaged
     X.emplace(5);
@@ -10252,6 +10301,18 @@ void testCase6_imp_a()
     ASSERT(!(X <= Y));  // If !x, true; otherwise, if !y, false;
     ASSERT((X >= Y));   // If !y, true; otherwise, if !x, false;
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (threeWayComparable) {
+        ASSERT(!(X <=> Y == 0));
+        ASSERT(  X <=> Y != 0 );
+        ASSERT(!(X <=> Y <  0));
+        ASSERT(  X <=> Y >  0 );
+        ASSERT(!(X <=> Y <= 0));
+        ASSERT(  X <=> Y >= 0 );
+    }
+#endif
+
     //both engaged, compare the values
     X.emplace(1);
     Y.emplace(3);
@@ -10262,6 +10323,18 @@ void testCase6_imp_a()
     ASSERT(!(X > Y));   // If !x, false; otherwise, if !y, true;
     ASSERT((X <= Y));   // If !x, true; otherwise, if !y, false;
     ASSERT(!(X >= Y));  // If !y, true; otherwise, if !x, false;
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (threeWayComparable) {
+        ASSERT(!(X <=> Y == 0));
+        ASSERT(  X <=> Y != 0 );
+        ASSERT(  X <=> Y <  0 );
+        ASSERT(!(X <=> Y >  0));
+        ASSERT(  X <=> Y <= 0 );
+        ASSERT(!(X <=> Y >= 0));
+    }
+#endif
 }
 
 template <class OPT_TYPE, class VAL_TYPE>
@@ -10269,6 +10342,12 @@ void testCase6_imp_b()
 {
     OPT_TYPE X;
     VAL_TYPE Y = 3;
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    constexpr bool threeWayComparable = bsl::three_way_comparable_with<
+                                                 typename OPT_TYPE::value_type,
+                                                 VAL_TYPE>;
+#endif
 
     //comparison with a disengaged optional on 'rhs'
     ASSERT(!(X == Y));  // return bool(x) ? *x == v : false;
@@ -10285,6 +10364,25 @@ void testCase6_imp_b()
     ASSERT((Y > X));    // return bool(x) ? v > *x : true;
     ASSERT(!(Y <= X));  // return bool(x) ? v <= *x : false;
     ASSERT((Y >= X));   // return bool(x) ? v >= *x : true;
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (threeWayComparable) {
+        ASSERT(!(X <=> Y == 0));
+        ASSERT(  X <=> Y != 0 );
+        ASSERT(  X <=> Y <  0 );
+        ASSERT(!(X <=> Y >  0));
+        ASSERT(  X <=> Y <= 0 );
+        ASSERT(!(X <=> Y >= 0));
+
+        ASSERT(!(Y <=> X == 0));
+        ASSERT(  Y <=> X != 0 );
+        ASSERT(!(Y <=> X <  0));
+        ASSERT(  Y <=> X >  0 );
+        ASSERT(!(Y <=> X <= 0));
+        ASSERT(  Y <=> X >= 0 );
+    }
+#endif
 
     //comparison with an engaged optional on 'rhs'
     X.emplace(7);
@@ -10304,6 +10402,25 @@ void testCase6_imp_b()
     ASSERT(!(Y > X));   // If !x, false;
     ASSERT((Y <= X));   // If !x, true;
     ASSERT(!(Y >= X));  // If !y, true; otherwise, if !x, false;
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (threeWayComparable) {
+        ASSERT(!(X <=> Y == 0));
+        ASSERT(  X <=> Y != 0 );
+        ASSERT(!(X <=> Y <  0));
+        ASSERT(  X <=> Y >  0 );
+        ASSERT(!(X <=> Y <= 0));
+        ASSERT(  X <=> Y >= 0 );
+
+        ASSERT(!(Y <=> X == 0));
+        ASSERT(  Y <=> X != 0 );
+        ASSERT(  Y <=> X <  0 );
+        ASSERT(!(Y <=> X >  0));
+        ASSERT(  Y <=> X <= 0 );
+        ASSERT(!(Y <=> X >= 0));
+    }
+#endif
 }
 
 template <class TYPE>
@@ -10327,6 +10444,23 @@ void testCase6_imp_c()
     ASSERT((bsl::nullopt <= X));   // true
     ASSERT((bsl::nullopt >= X));   // !x
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    ASSERT(  X <=> bsl::nullopt == 0 );
+    ASSERT(!(X <=> bsl::nullopt != 0));
+    ASSERT(!(X <=> bsl::nullopt <  0));
+    ASSERT(!(X <=> bsl::nullopt >  0));
+    ASSERT(  X <=> bsl::nullopt <= 0 );
+    ASSERT(  X <=> bsl::nullopt >= 0 );
+
+    ASSERT(  bsl::nullopt <=> X == 0);
+    ASSERT(!(bsl::nullopt <=> X != 0));
+    ASSERT(!(bsl::nullopt <=> X <  0));
+    ASSERT(!(bsl::nullopt <=> X >  0));
+    ASSERT(  bsl::nullopt <=> X <= 0);
+    ASSERT(  bsl::nullopt <=> X >= 0);
+#endif
+
     //comparison with an engaged optional on 'rhs'
     X.emplace(7);
     ASSERT(!(X == bsl::nullopt));  // !x
@@ -10343,6 +10477,23 @@ void testCase6_imp_c()
     ASSERT(!(bsl::nullopt > X));   // false
     ASSERT((bsl::nullopt <= X));   // true
     ASSERT(!(bsl::nullopt >= X));  // !x
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    ASSERT(!(X <=> bsl::nullopt == 0));
+    ASSERT(  X <=> bsl::nullopt != 0 );
+    ASSERT(!(X <=> bsl::nullopt <  0));
+    ASSERT(  X <=> bsl::nullopt >  0 );
+    ASSERT(!(X <=> bsl::nullopt <= 0));
+    ASSERT(  X <=> bsl::nullopt >= 0 );
+
+    ASSERT(!(bsl::nullopt <=> X == 0));
+    ASSERT(  bsl::nullopt <=> X != 0 );
+    ASSERT(  bsl::nullopt <=> X <  0 );
+    ASSERT(!(bsl::nullopt <=> X >  0));
+    ASSERT(  bsl::nullopt <=> X <= 0 );
+    ASSERT(!(bsl::nullopt <=> X >= 0));
+#endif
 }
 void testCase6()
 {
@@ -10360,6 +10511,8 @@ void testCase6()
     //:
     //: 3 We can compare any 'optional' object with 'nulllopt_t'.  The result
     //:   depends on whether the 'optional' object is engaged or not.
+    //:
+    //: 4 'operator<=>' is consistent with '<', '>', '<=', '>='.
     //
     // Plan:
     //: 1 For each relation operator, compare two 'optional' objects of
@@ -10417,6 +10570,10 @@ void testCase6()
     //    bool operator<=(const optional<LHS>&, const std::optional<RHS>&);
     //    bool operator>=(const optional<LHS>&, const std::optional<RHS>&);
     //    bool operator> (const optional<LHS>&, const std::optional<RHS>&);
+    //    auto operator<=>(const optional<LHS>&, const optional<RHS>&);
+    //    auto operator<=>(const optional<LHS>&, const RHS&);
+    //    auto operator<=>(const optional<LHS>&, nullopt_t);
+    //    auto operator<=>(const optional<LHS>&, const std::optional<RHS>&);
 
     if (veryVerbose)
         printf("\tComparison with an 'optional'.\n");
@@ -13082,6 +13239,42 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 27: {
+        //---------------------------------------------------------------------
+        // TESTING CONCEPTS
+        //
+        // Concern:
+        //: 1 'Optional_ConvertibleToBool' is 'true' only for types convertible
+        //:   to 'bool'.
+        //:
+        //: 2 'Optional_DerivedFromOptional' is 'true' only for types that are
+        //:   either 'bsl::optional' or 'std::optional'  or derived from one of
+        //:   them.
+        //
+        // Plan:
+        //: 1 Apply the concepts to different types and verify the result.
+        //
+        // Testing:
+        //   CONCEPTS
+        //---------------------------------------------------------------------
+        if (verbose) printf("\nTESTING CONCEPTS"
+                            "\n================\n");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+        BSLMF_ASSERT(( Optional_ConvertibleToBool<bool>));
+        BSLMF_ASSERT(( Optional_ConvertibleToBool<int>));
+        BSLMF_ASSERT((!Optional_ConvertibleToBool<bsl::weak_ordering>));
+        BSLMF_ASSERT((!Optional_ConvertibleToBool<bsl::nullopt_t>));
+
+        class Derived : public bsl::optional<int> {};
+        class C {};
+
+        BSLMF_ASSERT(( Optional_DerivedFromOptional<bsl::optional<int>>));
+        BSLMF_ASSERT(( Optional_DerivedFromOptional<std::optional<int>>));
+        BSLMF_ASSERT(( Optional_DerivedFromOptional<Derived>));
+        BSLMF_ASSERT((!Optional_DerivedFromOptional<int>));
+        BSLMF_ASSERT((!Optional_DerivedFromOptional<C>));
+#endif
+      } break;
       case 26: {
         //---------------------------------------------------------------------
         // bsl::optional<bslma::ManagedPtr<void>>

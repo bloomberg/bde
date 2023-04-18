@@ -89,11 +89,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_badoptionalaccess.h>
+#include <bslstl_compare.h>
 #include <bslstl_hash.h>
 #include <bslstl_inplace.h>
 
 #include <bslalg_swaputil.h>
-#include <bslstl_badoptionalaccess.h>
 
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
@@ -699,6 +700,27 @@ struct Optional_Data<TYPE, true> : public Optional_DataImp<TYPE> {
 }  // close enterprise namespace
 
 namespace bsl {
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+template <class t_TYPE>
+concept Optional_ConvertibleToBool =
+    is_convertible_v<t_TYPE, bool>;
+
+template <class t_TYPE>
+concept Optional_DerivedFromBslOptional =
+    requires(const t_TYPE &t) {
+        []<class U>(const bsl::optional<U>&){}(t);
+    };
+template <class t_TYPE>
+concept Optional_DerivedFromStdOptional =
+    requires(const t_TYPE &t) {
+        []<class U>(const std::optional<U>&){}(t);
+    };
+template <class t_TYPE>
+concept Optional_DerivedFromOptional =
+    Optional_DerivedFromBslOptional<t_TYPE> ||
+    Optional_DerivedFromStdOptional<t_TYPE>;
+#endif
 
 // ============================================================================
 //                 Section: Allocator-Aware 'optional' Declaration
@@ -2346,7 +2368,13 @@ void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input);
 // comparison with optional
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const bsl::optional<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' and 'rhs' optional objects have the
     // same value, and 'false' otherwise.  Two optional objects have the same
     // value if both are disengaged, or if both are engaged and the values of
@@ -2355,7 +2383,13 @@ bool operator==(const bsl::optional<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const bsl::optional<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' and 'rhs' optional objects do not
     // have the same value, and 'false' otherwise.  Two optional objects do not
     // have the same value if one is disengaged and the other is engaged, or if
@@ -2365,7 +2399,13 @@ bool operator!=(const bsl::optional<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const bsl::optional<LHS_TYPE>& lhs,
-               const bsl::optional<RHS_TYPE>& rhs);
+               const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered before
     // the specified 'rhs' optional object, and 'false' otherwise.  'lhs' is
     // ordered before 'rhs' if 'lhs' is disengaged and 'rhs' is engaged or if
@@ -2375,7 +2415,13 @@ bool operator<(const bsl::optional<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const bsl::optional<LHS_TYPE>& lhs,
-               const bsl::optional<RHS_TYPE>& rhs);
+               const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered after
     // the specified 'rhs' optional object, and 'false' otherwise.  'lhs' is
     // ordered after 'rhs' if 'lhs' is engaged and 'rhs' is disengaged or if
@@ -2385,7 +2431,13 @@ bool operator>(const bsl::optional<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const bsl::optional<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered before
     // the specified 'rhs' optional object or 'lhs' and 'rhs' have the same
     // value, and 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note
@@ -2394,7 +2446,13 @@ bool operator<=(const bsl::optional<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const bsl::optional<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered after
     // the specified 'rhs' optional object or 'lhs' and 'rhs' have the same
     // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
@@ -2406,6 +2464,9 @@ template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR bool operator==(
                             const bsl::optional<TYPE>& value,
                             const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT;
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR bool operator==(
                        const bsl::nullopt_t&,
@@ -2421,6 +2482,8 @@ BSLS_KEYWORD_CONSTEXPR bool operator!=(
                        const bsl::nullopt_t&,
                        const bsl::optional<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if specified 'value' is engaged, and 'false' otherwise.
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR bool operator<(
@@ -2475,11 +2538,26 @@ BSLS_KEYWORD_CONSTEXPR bool operator>=(
                        const bsl::optional<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if specified 'value' is disengaged, and 'false' otherwise.
 
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 // comparison with T
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator!=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
+bool operator!=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs != rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator!=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
+bool operator!=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs != *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  An 'optional' object and a value of
     // some type do not have the same value if either the optional object is
@@ -2488,9 +2566,21 @@ bool operator!=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
     // 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator==(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
+bool operator==(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs == rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator==(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
+bool operator==(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs == *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  An 'optional' object and a value of some
     // type have the same value if the optional object is non-null and its
@@ -2499,37 +2589,73 @@ bool operator==(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
     // compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator<(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
+bool operator<(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs < rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered before
     // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered before
     // 'rhs' if 'lhs' is disengaged or 'lhs.value()' is ordered before 'rhs'.
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator<(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
+bool operator<(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs < *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered before the specified
     // 'rhs' optional object, and 'false' otherwise.  'lhs' is ordered before
     // 'rhs' if 'rhs' is engaged and 'lhs' is ordered before 'rhs.value()'.
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator>(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
+bool operator>(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs > rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered after
     // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered after
     // 'rhs' if 'lhs' is engaged and 'lhs.value()' is ordered after 'rhs'.
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator>(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
+bool operator>(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs > *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered after the specified
     // 'rhs' optional object, and 'false' otherwise.  'lhs' is ordered after
     // 'rhs' if 'rhs' is disengaged or 'lhs' is ordered after 'rhs.value()'.
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator<=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
+bool operator<=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs <= rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered before
     // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
     // otherwise.  (See 'operator<' and 'operator=='.)
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator<=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
+bool operator<=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs <= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered before the specified
     // 'rhs' optional object or 'lhs' and 'rhs' have the same value, and
     // 'false' otherwise.  (See 'operator<' and 'operator=='.)
@@ -2544,16 +2670,66 @@ bool operator>=(const bsl::optional<LHS_TYPE>& lhs,
     // not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator>=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
+bool operator>=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs >= rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' optional object is ordered after
     // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
     // otherwise.  (See 'operator>' and 'operator=='.)
 
 template <class LHS_TYPE, class RHS_TYPE>
-bool operator>=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs);
+bool operator>=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs >= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered after the specified
     // 'rhs' optional object or 'lhs' and 'rhs' have the same value, and
     // 'false' otherwise.  (See 'operator>' and 'operator=='.)
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+template <class t_LHS, three_way_comparable_with<t_LHS> t_RHS>
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                              const bsl::optional<t_LHS>& lhs,
+                                              const bsl::optional<t_RHS>& rhs);
+    // Perform a three-way comparison of the specified 'lhs' and the specified
+    // 'rhs' objects by using the comparison operators of 't_LHS' and 't_RHS';
+    // return the result of that comparison.
+
+template <class t_LHS, class t_RHS>
+requires (!Optional_DerivedFromOptional<t_RHS>) &&
+         three_way_comparable_with<t_LHS, t_RHS>
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                              const bsl::optional<t_LHS>& lhs,
+                                              const t_RHS&                rhs);
+    // Perform a three-way comparison of the specified 'lhs' and the specified
+    // 'rhs' objects by using the comparison operators of 't_LHS' and 't_RHS';
+    // return the result of that comparison.
+
+template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR strong_ordering operator<=>(
+                                  const bsl::optional<TYPE>& value,
+                                  bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;
+    // Perform a three-way comparison of the specified 'value' and 'nullopt';
+    // return the result of that comparison.
+
+template <class t_LHS, three_way_comparable_with<t_LHS> t_RHS>
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                              const bsl::optional<t_LHS>& lhs,
+                                              const std::optional<t_RHS>& rhs);
+    // Perform a three-way comparison of the specified 'lhs' and the specified
+    // 'rhs' objects by using the comparison operators of 't_LHS' and 't_RHS';
+    // return the result of that comparison.
+
+#endif
 
 # ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class TYPE>
@@ -4980,6 +5156,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator==(const bsl::optional<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     if (lhs.has_value() && rhs.has_value()) {
         return *lhs == *rhs;                                          // RETURN
@@ -4991,6 +5172,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator!=(const bsl::optional<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     if (lhs.has_value() && rhs.has_value()) {
         return *lhs != *rhs;                                          // RETURN
@@ -5002,6 +5188,11 @@ bool operator!=(const bsl::optional<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator==(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs == rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return lhs.has_value() && *lhs == rhs;
 }
@@ -5009,13 +5200,23 @@ bool operator==(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator==(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs == *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
-    return rhs.has_value() && *rhs == lhs;
+    return rhs.has_value() && lhs == *rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator!=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs != rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return !lhs.has_value() || *lhs != rhs;
 }
@@ -5023,14 +5224,24 @@ bool operator!=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator!=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs != *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
-    return !rhs.has_value() || *rhs != lhs;
+    return !rhs.has_value() || lhs != *rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator<(const bsl::optional<LHS_TYPE>& lhs,
                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     if (!rhs.has_value()) {
         return false;                                                 // RETURN
@@ -5042,6 +5253,11 @@ bool operator<(const bsl::optional<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator<(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs < rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return !lhs.has_value() || *lhs < rhs;
 }
@@ -5049,6 +5265,11 @@ bool operator<(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator<(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs < *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return rhs.has_value() && lhs < *rhs;
 }
@@ -5057,6 +5278,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator>(const bsl::optional<LHS_TYPE>& lhs,
                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     if (!lhs.has_value()) {
         return false;                                                 // RETURN
@@ -5068,6 +5294,11 @@ bool operator>(const bsl::optional<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator>(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs > rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return lhs.has_value() && *lhs > rhs;
 }
@@ -5075,6 +5306,11 @@ bool operator>(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator>(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs > *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return !rhs.has_value() || lhs > *rhs;
 }
@@ -5083,6 +5319,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator<=(const bsl::optional<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     if (!lhs.has_value()) {
         return true;                                                  // RETURN
@@ -5094,6 +5335,11 @@ bool operator<=(const bsl::optional<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator<=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs <= rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return !lhs.has_value() || *lhs <= rhs;
 }
@@ -5101,6 +5347,11 @@ bool operator<=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator<=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs <= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return rhs.has_value() && lhs <= *rhs;
 }
@@ -5109,6 +5360,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator>=(const bsl::optional<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     if (!rhs.has_value()) {
         return true;                                                  // RETURN
@@ -5119,6 +5375,11 @@ bool operator>=(const bsl::optional<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator>=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<RHS_TYPE>) && requires {
+        { *lhs >= rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return lhs.has_value() && *lhs >= rhs;
 }
@@ -5126,9 +5387,70 @@ bool operator>=(const bsl::optional<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool operator>=(const LHS_TYPE& lhs, const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!Optional_DerivedFromOptional<LHS_TYPE>) && requires {
+        { lhs >= *rhs } -> Optional_ConvertibleToBool;
+    }
+#endif
 {
     return !rhs.has_value() || lhs >= *rhs;
 }
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+template <class t_LHS, three_way_comparable_with<t_LHS> t_RHS>
+inline
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                               const bsl::optional<t_LHS>& lhs,
+                                               const bsl::optional<t_RHS>& rhs)
+{
+    const bool lhs_has_value = lhs.has_value(),
+               rhs_has_value = rhs.has_value();
+    if (lhs_has_value && rhs_has_value) {
+        return *lhs <=> *rhs;
+    }
+    return lhs_has_value <=> rhs_has_value;
+}
+
+template <class t_LHS, class t_RHS>
+requires (!Optional_DerivedFromOptional<t_RHS>) &&
+         three_way_comparable_with<t_LHS, t_RHS>
+inline
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                               const bsl::optional<t_LHS>& lhs,
+                                               const t_RHS&                rhs)
+{
+    if (lhs) {
+        return *lhs <=> rhs;
+    }
+    return strong_ordering::less;
+}
+
+template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR strong_ordering operator<=>(
+                                   const bsl::optional<TYPE>& value,
+                                   bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT
+{
+    return value.has_value() <=> false;
+}
+
+template <class t_LHS, three_way_comparable_with<t_LHS> t_RHS>
+inline
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                               const bsl::optional<t_LHS>& lhs,
+                                               const std::optional<t_RHS>& rhs)
+{
+    const bool lhs_has_value = lhs.has_value(),
+               rhs_has_value = rhs.has_value();
+    if (lhs_has_value && rhs_has_value) {
+        return *lhs <=> *rhs;
+    }
+    return lhs_has_value <=> rhs_has_value;
+}
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&
+        // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 inline
@@ -5560,4 +5882,3 @@ inline constexpr bool _Is_specialization_v<bsl::optional<_Tp>, std::optional> =
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-
