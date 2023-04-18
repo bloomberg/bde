@@ -2394,6 +2394,7 @@ bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // 'VALUE' both be 'equality-comparable' (see {Requirements on
     // 'value_type'}).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs);
@@ -2405,6 +2406,7 @@ bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // that this method requires that the (template parameter) types 'KEY' and
     // 'VALUE' both be 'equality-comparable' (see {Requirements on
     // 'value_type'}).
+#endif
 
 // FREE FUNCTIONS
 
@@ -3459,6 +3461,7 @@ bool bsl::operator==(
     return lhs.d_impl == rhs.d_impl;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
@@ -3467,6 +3470,7 @@ bool bsl::operator!=(
 {
     return !(lhs == rhs);
 }
+#endif
 
 // FREE FUNCTIONS
 template <class KEY,

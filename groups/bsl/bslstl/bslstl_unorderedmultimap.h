@@ -1865,6 +1865,7 @@ bool operator==(
     // types 'KEY' and 'VALUE' both be 'equality-comparable' (see {Requirements
     // on 'KEY' and 'VALUE'}).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(
             const unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
@@ -1876,6 +1877,7 @@ bool operator!=(
     // not also contained in the other object.  This method requires that the
     // (template parameter) types 'KEY' and 'VALUE' both be
     // 'equality-comparable' (see {Requirements on 'KEY' and 'VALUE'}).
+#endif
 
 // FREE FUNCTIONS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2687,6 +2689,7 @@ bool bsl::operator==(
     return lhs.d_impl == rhs.d_impl;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
@@ -2695,6 +2698,7 @@ bool bsl::operator!=(
 {
     return !(lhs == rhs);
 }
+#endif
 
 // FREE FUNCTIONS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

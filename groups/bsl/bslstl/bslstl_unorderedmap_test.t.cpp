@@ -7044,8 +7044,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase26()
         bool (*operatorEq)(const Obj&, const Obj&) = &operator==;
         (void)operatorEq;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+            return lhs != rhs;
+        };
+#else
         bool (*operatorNe)(const Obj&, const Obj&) = &operator!=;
         (void)operatorNe;
+#endif
 
         void (*functionSwap)(Obj&, Obj&) = &swap;
         (void)functionSwap;

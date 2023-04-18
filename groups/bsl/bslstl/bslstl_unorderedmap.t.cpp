@@ -8318,8 +8318,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
         // Verify that the signatures and return types are standard.
 
         OP op = bsl::operator==;
-        (void) op;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+            return lhs != rhs;
+        };
+#else
         op    = bsl::operator!=;
+#endif
         (void) op;
     }
 

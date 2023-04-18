@@ -1825,6 +1825,7 @@ bool operator==(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // this method requires that the (template parameter) type 'KEY' be
     // 'equality-comparable' (see {Requirements on 'KEY'}).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs);
@@ -1835,6 +1836,7 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // is not a value-element in 'rhs' having the same value, and vice-versa.
     // Note that this method requires that the (template parameter) type 'KEY'
     // and be 'equality-comparable' (see {Requirements on 'KEY'}).
+#endif
 
 // FREE FUNCTIONS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR, class PREDICATE>
@@ -2645,6 +2647,7 @@ bool bsl::operator==(
     return lhs.d_impl == rhs.d_impl;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
@@ -2653,6 +2656,7 @@ bool bsl::operator!=(
 {
     return !(lhs == rhs);
 }
+#endif
 
 // FREE FUNCTIONS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR, class PREDICATE>

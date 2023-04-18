@@ -6453,8 +6453,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase24()
         {
             typedef bool (*FuncPtr)(const Obj&, const Obj&);
             FuncPtr fp = &operator==;
-            (void) fp;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+            (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+                return lhs != rhs;
+            };
+#else
             fp = &operator!=;
+#endif
             (void) fp;
         }
     }

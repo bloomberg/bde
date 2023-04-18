@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Mar  7 11:25:50 2023
+// Generated on Mon Apr 10 03:55:22 2023
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -2339,6 +2339,7 @@ bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // 'VALUE' both be 'equality-comparable' (see {Requirements on
     // 'value_type'}).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs);
@@ -2350,6 +2351,7 @@ bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // that this method requires that the (template parameter) types 'KEY' and
     // 'VALUE' both be 'equality-comparable' (see {Requirements on
     // 'value_type'}).
+#endif
 
 // FREE FUNCTIONS
 
@@ -5630,6 +5632,7 @@ bool bsl::operator==(
     return lhs.d_impl == rhs.d_impl;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
@@ -5638,6 +5641,7 @@ bool bsl::operator!=(
 {
     return !(lhs == rhs);
 }
+#endif
 
 // FREE FUNCTIONS
 template <class KEY,
