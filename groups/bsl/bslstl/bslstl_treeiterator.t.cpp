@@ -1301,11 +1301,17 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorEq = bslstl::operator==;
                                         // See {DRQS 131792157} for 'bslstl::'.
+            (void) operatorEq;  // quash potential compiler warnings
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+            (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+                return lhs != rhs;
+            };
+#else
             operatorPtr operatorNe = bslstl::operator!=;
                                         // See {DRQS 131792157} for 'bslstl::'.
-
-            (void) operatorEq;  // quash potential compiler warnings
             (void) operatorNe;
+#endif
         }
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");

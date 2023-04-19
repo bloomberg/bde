@@ -193,9 +193,11 @@ class TreeIterator
     template <class VALUE1, class VALUE2, class NODEPTR, class DIFF>
     friend bool operator==(const TreeIterator<VALUE1, NODEPTR, DIFF>&,
                            const TreeIterator<VALUE2, NODEPTR, DIFF>&);
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
     template <class VALUE1, class VALUE2, class NODEPTR, class DIFF>
     friend bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>&,
                            const TreeIterator<VALUE2, NODEPTR, DIFF>&);
+#endif
 
     template <class OTHER_VALUE, class OTHER_NODE, class OTHER_DIFFERENCE_TYPE>
     friend class TreeIterator;
@@ -304,6 +306,7 @@ bool operator==(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
     // iterators are at an invalid position in the tree (i.e., the 'end' of the
     // tree, or the default constructed value).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class VALUE1, class VALUE2, class NODEPTR, class DIFF>
 bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
                 const TreeIterator<VALUE2, NODEPTR, DIFF>& rhs);
@@ -311,7 +314,7 @@ bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
     // do not have the same value and 'false' otherwise.  Two iterators do not
     // have the same value if they differ in either the tree to which they
     // refer or the position in that tree.
-
+#endif
 
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>
@@ -409,6 +412,7 @@ bool operator==(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
     return lhs.d_node_p == rhs.d_node_p;
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class VALUE1, class VALUE2, class NODEPTR, class DIFF>
 inline
 bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
@@ -416,6 +420,7 @@ bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
 {
     return lhs.d_node_p != rhs.d_node_p;
 }
+#endif
 
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline

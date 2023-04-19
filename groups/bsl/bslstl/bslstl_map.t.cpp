@@ -230,6 +230,7 @@
 // [19] bool operator> (const map& lhs, const map& rhs);
 // [19] bool operator>=(const map& lhs, const map& rhs);
 // [19] bool operator<=(const map& lhs, const map& rhs);
+// [19] bool operator<=>(const map& lhs, const map& rhs);
 //
 //// specialized algorithms:
 // [ 8] void swap(map& a, map& b);
@@ -2396,10 +2397,16 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
         // Verify that the signatures and return types are standard.
 
         operatorPtr operatorEq = operator==;
-        operatorPtr operatorNe = operator!=;
-
         (void)operatorEq;  // quash potential compiler warnings
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+            return lhs != rhs;
+        };
+#else
+        operatorPtr operatorNe = operator!=;
         (void)operatorNe;
+#endif
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
