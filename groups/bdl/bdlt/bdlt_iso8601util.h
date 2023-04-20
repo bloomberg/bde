@@ -619,9 +619,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
-#include <bsla_deprecated.h>
-
 #include <bsls_assert.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_types.h>
 
@@ -641,6 +640,26 @@ namespace bsls {
 class TimeInterval;
 
 }  // close namespace bsls
+
+#define BDLT_ISO8601UTIL_DEPRECATE_GENERATE                                   \
+    BSLS_DEPRECATE_FEATURE("bdl",                                             \
+                           "generate",                                        \
+                           "use overload with GenerateConfiguration")
+
+#define BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER                             \
+    BSLS_DEPRECATE_FEATURE("bdl",                                             \
+                           "generate",                                        \
+                           "use overload with length before object")
+
+#define BDLT_ISO8601UTIL_DEPRECATE_GENERATERAW                                \
+    BSLS_DEPRECATE_FEATURE("bdl",                                             \
+                           "generateRaw",                                     \
+                           "use overload with GenerateConfiguration")
+
+#define BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED                               \
+    BSLS_DEPRECATE_FEATURE("bdl",                                             \
+                           "parseRelaxed",                                    \
+                           "use parse with ParseConfiguration")
 
 namespace bdlt {
 
@@ -963,7 +982,6 @@ struct Iso8601Util {
     static int generate(std::pmr::string                *string,
                         const DatetimeOrDatetimeTz&      object,
                         const GenerateConfiguration&     configuration);
-#endif
         // Load the ISO 8601 representation of the specified 'object' into the
         // specified 'string'.  Optionally specify a 'configuration' to affect
         // the format of the generated string.  If 'configuration' is not
@@ -971,6 +989,7 @@ struct Iso8601Util {
         // 'Iso8601UtilConfiguration::defaultConfiguration()' is used.  Return
         // the number of characters in the formatted string.  The previous
         // contents of 'string' (if any) are discarded.
+#endif
 
     static bsl::ostream& generate(
                                 bsl::ostream&                   stream,
@@ -1596,7 +1615,7 @@ struct Iso8601Util {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED METHODS
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(Datetime   *result,
                             const char *string,
                             ptrdiff_t   length);
@@ -1629,7 +1648,7 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless '0 <= length'.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeTz *result,
                             const char *string,
                             ptrdiff_t   length);
@@ -1660,7 +1679,7 @@ struct Iso8601Util {
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeOrDatetimeTz *result,
                             const char           *string,
                             ptrdiff_t             length);
@@ -1693,7 +1712,7 @@ struct Iso8601Util {
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(Datetime *result, const bsl::string_view& string);
         // !DEPRECATED!: Use 'parse' with 'configuration.relaxed() == true'
         // instead.
@@ -1724,7 +1743,7 @@ struct Iso8601Util {
         // or indicate UTC.  The behavior is undefined unless 'string.data()'
         // is non-null.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeTz              *result,
                             const bsl::string_view&  string);
         // !DEPRECATED!: Use 'parse' with 'configuration.relaxed() == true'
@@ -1754,7 +1773,7 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeOrDatetimeTz    *result,
                             const bsl::string_view&  string);
         // !DEPRECATED!: Use 'parse' with 'configuration.relaxed() == true'
@@ -1786,44 +1805,44 @@ struct Iso8601Util {
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const Date&        object,
                         ptrdiff_t          bufferLength);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const Time&        object,
                         ptrdiff_t          bufferLength);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const Datetime&    object,
                         ptrdiff_t          bufferLength);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const DateTz&      object,
                         ptrdiff_t          bufferLength);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const TimeTz&      object,
                         ptrdiff_t          bufferLength);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
                         ptrdiff_t          bufferLength);
         // !DEPRECATED!: Use the overloads taking the 'bufferLength' argument
         // *before* the 'object' argument instead.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static int generate(char              *buffer,
                         const DateTz&      object,
                         ptrdiff_t          bufferLength,
                         bool               useZAbbreviationForUtc);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static int generate(char              *buffer,
                         const TimeTz&      object,
                         ptrdiff_t          bufferLength,
                         bool               useZAbbreviationForUtc);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
                         ptrdiff_t          bufferLength,
@@ -1831,30 +1850,30 @@ struct Iso8601Util {
         // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
         // object instead.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DateTz&     object,
                                   bool              useZAbbreviationForUtc);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const TimeTz&     object,
                                   bool              useZAbbreviationForUtc);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DatetimeTz& object,
                                   bool              useZAbbreviationForUtc);
         // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
         // object instead.
 
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATERAW
     static int generateRaw(char              *buffer,
                            const DateTz&      object,
                            bool               useZAbbreviationForUtc);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATERAW
     static int generateRaw(char              *buffer,
                            const TimeTz&      object,
                            bool               useZAbbreviationForUtc);
-    BSLA_DEPRECATED
+    BDLT_ISO8601UTIL_DEPRECATE_GENERATERAW
     static int generateRaw(char              *buffer,
                            const DatetimeTz&  object,
                            bool               useZAbbreviationForUtc);
