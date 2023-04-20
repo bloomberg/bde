@@ -245,14 +245,14 @@ void AsyncSystem<t_CALLBACK>::run()
     d_callback(1);
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 constexpr void constexprFunction()
     // Tests that operator() is 'constexpr'
 {
     Obj X;
     X();
 }
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -539,7 +539,9 @@ int main(int argc, char *argv[])
         Y(3);
         Y(static_cast<NeverDefined*>(0));
         Y(cout, 0, 3.14);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexprFunction();
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
