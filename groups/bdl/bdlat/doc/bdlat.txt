@@ -15,7 +15,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlat' package currently has 19 components having 6 levels of physical
+ The 'bdlat' package currently has 20 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -27,7 +27,8 @@
      bdlat_nullablevalueutil
      bdlat_valuetypefunctions
 
-  4. bdlat_typecategory
+  4. bdlat_enumutil
+     bdlat_typecategory
 
   3. bdlat_arrayfunctions
      bdlat_choicefunctions
@@ -74,6 +75,9 @@
 :
 : 'bdlat_enumfunctions':
 :      Provide a namespace defining enumeration functions.
+:
+: 'bdlat_enumutil':
+:      Provide functions for decoding enumerations with fallback values.
 :
 : 'bdlat_formattingmode':
 :      Provide formatting mode constants.

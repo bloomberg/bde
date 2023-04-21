@@ -37,15 +37,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlf' package currently has 3 components having 2 levels of physical
+ The 'bdlf' package currently has 5 components having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  2. bdlf_bind
+  3. bdlf_bind
 
-  1. bdlf_memfn
+  2. bdlf_memfn
+     bdlf_noop
      bdlf_placeholder
+
+  1. bdlf_noop_cpp03                                                  !PRIVATE!
 ..
 
 /Component Synopsis
@@ -55,6 +58,12 @@
 :
 : 'bdlf_memfn':
 :      Provide member function pointer wrapper classes and utility.
+:
+: 'bdlf_noop':
+:      Provide a functor class that does nothing.
+:
+: 'bdlf_noop_cpp03':                                                  !PRIVATE!
+:      Provide C++03 implementation for bdlf_noop.h
 :
 : 'bdlf_placeholder':
 :      Provide a parameterized placeholder and specialized placeholders.
