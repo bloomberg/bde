@@ -16,12 +16,16 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 45 components having 11 levels of physical
+ The 'bslma' package currently has 48 components having 12 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  11. bslma_isstdallocator
+  12. bslma_aatypeutil
+
+  11. bslma_aamodel
+      bslma_allocatorutil
+      bslma_isstdallocator
 
   10. bslma_stdallocator
 
@@ -80,6 +84,12 @@
 
 /Component Synopsis
 /------------------
+: 'bslma_aamodel':
+:      Provide metafunctions to detect a type's allocator-awareness model.
+:
+: 'bslma_aatypeutil':
+:      Provide a namespace for utility functions on allocator-aware types.
+:
 : 'bslma_allocator':
 :      Provide a pure abstract interface for memory-allocation mechanisms.
 :
@@ -91,6 +101,9 @@
 :
 : 'bslma_allocatortraits_cpp03':                                      !PRIVATE!
 :      Provide C++03 implementation for bslma_allocatortraits.h
+:
+: 'bslma_allocatorutil':
+:      Provide a namespace for utility functions on allocators
 :
 : 'bslma_autodeallocator':
 :      Provide a range proctor to managed a block of memory.
