@@ -1,5 +1,42 @@
-bsl-internal (3.116.0.0) unstable; urgency=low
+bsl-internal (3.117.0.0) unstable; urgency=low
 
+  * 454e43ddb Bumped version to 3.117.0.0
+  * b41722b11 Remove convertible allocator - drqs170078536 (#3856)
+  * edfde46f2 Revert `bslma::UsesBslmaAllocator` - DRQS 169232400 (#3701)
+  * 4969e163d `bslma_aatypeutil` component - drqs168344451 (#3633)
+  * 6b52716c2 Component bslma_convertibleallocator, drqs168273432 (#3548)
+  * 624c404d0 Implicitly set UsesBslmaAllocator for bsl-AA types - drqs168606408 (#3580)
+  * 836052174 Disable equality comparisons for non-`const` `bslma::Allocator*` drqs168516470 (#3574)
+  * 3bcf47636 bslma_aamodel component (#3539)
+  * 083895c0f bdlf_noop fix the c++11 incompatible constexpr function test drqs 171873355 (#4241)
+  * 1556e3cbc <=> added (#4219)
+  * 4615d75f7 != removed (#4213)
+  * 6f6e798e4 C++20 work: Add the ‘operator<=>’ to the 'bslstl::optional' (DRQS 171421915) (#4225)
+  * e5dca7443 bdlf_noop initial component design (#4222)
+  * 63aa0aadf Fix typo in comment (#4238)
+  * 081d0794e Remove references to the deprecated entities (#4237)
+  * b3ecc9be2 Make JsonArray and Object Containers. (#4231)
+  * a5abd77d5 Drqs 171794604/bdl clang nb 20230413 (#4235)
+  * 1ffdd3c56 fix compile warnings (#4232)
+  * d7e5c70f1 bdljsn_json fix JsonObject::insert SFINAE (#4217)
+  * 198eef350 Merge fallback enumerators (DRQS 171751879) (#4193)
+  * 26ceac635 Accessing an array out of bounds in 'bslim_gtestutil.t.cpp' has been fixed (#4200)
+  * 61bd740f4 C++20 work: Add the ‘operator<=>’ to the 'bslstl::queue' (DRQS 171421922) (#4211)
+  * 338211b17 C++20 work: Add the ‘operator<=>’ to the 'bslstl::stack' (DRQS 171421928) (#4212)
+  * 09a58d839 Use _LIBCPP_VERSION to check for LLVM libc++ (#4215)
+  * 2c2cd8d42 Constexpr keyword update drqs 171461718 (#4201)
+  * 877a7bd64 fix bdlmt_eventscheduler.t threadName (#4220)
+  * ab96a6fe4 C++20 integer comparison function aliases have been added. DRQS 171318762 (#4152)
+  * 44deb4158 C++20 work: Add the ‘operator<=>’ to the 'bslstl::pair' (DRQS 171421917) (#4210)
+  * ff935aae3 Merge pull request #4218 from afeher/drqs-171797058-bsls-cleanup-consistency-typos
+  * d1536d898 Mark failing baljsn_datumutil tests on Sun (#4216)
+  * 7f6496fca Fix use-after-free bug in rbtreeutil.t. Found by ASAN (#4205)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Apr 2023 11:35:37 -0400
+
+bsl-internal (3.116.0.0) git; urgency=low
+
+  * 7356e4972 Changelog for version 3.116.0.0
   * 3b872f6a8 Bumped version to 3.116.0.0
   * 134064a30 <=> added (#4208)
   * 555130835 C++20 work: Add the ‘operator<=>’ to the 'bslstl::vector' (DRQS 171318811) (#4207)
@@ -41,7 +78,7 @@ bsl-internal (3.116.0.0) unstable; urgency=low
   * 33d52eeed Merge pull request #4159 from bchapman/bdlb_nullableallocatedvalue-comparisons-drqs-171542817
   * 14d137199 Merge pull request #4166 from bchapman/bslmt_threadattributes-doc-sun-thread-name-drqs-171501611
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 6 Apr 2023 15:56:47 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 6 Apr 2023 16:14:01 -0400
 
 bsl-internal (3.115.1.0) git; urgency=low
 
