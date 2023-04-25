@@ -165,6 +165,7 @@
 // [19] bool operator> (const multiset& lhs, const multiset& rhs);
 // [19] bool operator>=(const multiset& lhs, const multiset& rhs);
 // [19] bool operator<=(const multiset& lhs, const multiset& rhs);
+// [19] auto operator<=>(const multiset& lhs, const multiset& rhs);
 //
 //// specialized algorithms:
 // [ 8] void swap(multiset& a, multiset& b);
@@ -2191,10 +2192,16 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
         // Verify that the signatures and return types are standard.
 
         operatorPtr operatorEq = operator==;
-        operatorPtr operatorNe = operator!=;
-
         (void) operatorEq;  // quash potential compiler warnings
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+            return lhs != rhs;
+        };
+#else
+        operatorPtr operatorNe = operator!=;
         (void) operatorNe;
+#endif
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
