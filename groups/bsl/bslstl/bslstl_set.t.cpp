@@ -166,11 +166,12 @@
 // [13] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
 //
 // [ 6] bool operator==(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator< (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
+// [19] bool operator< (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
 // [ 6] bool operator!=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator> (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator>=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator<=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
+// [19] bool operator> (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
+// [19] bool operator>=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
+// [19] bool operator<=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
+// [19] auto operator<=>(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
 //
 //// specialized algorithms:
 // [ 8] void swap(set<K, C, A>& a, set<K, C, A>& b);
@@ -2610,10 +2611,16 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
         using namespace bsl;
 
         operatorPtr operatorEq = operator==;
-        operatorPtr operatorNe = operator!=;
-
         (void) operatorEq;  // quash potential compiler warnings
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+            return lhs != rhs;
+        };
+#else
+        operatorPtr operatorNe = operator!=;
         (void) operatorNe;
+#endif
     }
 
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;

@@ -530,6 +530,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_rbtreenode.h>
 #include <bslalg_rbtreeutil.h>
 #include <bslalg_swaputil.h>
+#include <bslalg_synththreewayutil.h>
 #include <bslalg_typetraithasstliterators.h>
 
 #include <bslma_isstdallocator.h>
@@ -1708,6 +1709,7 @@ bool operator==(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // method requires that the (template parameter) type 'KEY' be
     // 'equality-comparable' (see {Requirements on 'KEY'}).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator!=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
@@ -1718,6 +1720,19 @@ bool operator!=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // same value as the corresponding element in the ordered sequence of keys
     // of 'rhs'.  This method requires that the (template parameter) type 'KEY'
     // be 'equality-comparable' (see {Requirements on 'KEY'}).
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+BloombergLP::bslalg::SynthThreeWayUtil::Result<KEY>
+operator<=>(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
+            const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
+    // Perform a lexicographic three-way comparison of the specified 'lhs' and
+    // the specified 'rhs' sets by using the comparison operators of 'KEY' on
+    // each element; return the result of that comparison.
+
+#else
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator< (const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -1766,6 +1781,8 @@ bool operator>=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // lexicographically less than 'rhs' (see 'operator<').  This method
     // requires that 'operator<', inducing a total order, be defined for
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class KEY, class COMPARATOR, class ALLOCATOR, class PREDICATE>
@@ -2677,6 +2694,7 @@ bool bsl::operator==(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                                                     rhs.size());
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 bool bsl::operator!=(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -2684,6 +2702,25 @@ bool bsl::operator!=(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
 {
     return !(lhs == rhs);
 }
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+BloombergLP::bslalg::SynthThreeWayUtil::Result<KEY>
+bsl::operator<=>(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs)
+{
+    return bsl::lexicographical_compare_three_way(
+                              lhs.begin(),
+                              lhs.end(),
+                              rhs.begin(),
+                              rhs.end(),
+                              BloombergLP::bslalg::SynthThreeWayUtil::compare);
+}
+
+#else
 
 template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
@@ -2722,6 +2759,8 @@ bool bsl::operator>=(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
 {
     return !(lhs < rhs);
 }
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class KEY,  class COMPARATOR,  class ALLOCATOR, class PREDICATE>

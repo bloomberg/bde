@@ -5456,12 +5456,35 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
     bool (*operatorEq)(const Obj&, const Obj&) = operator==;
     (void) operatorEq;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+        return lhs != rhs;
+    };
+#else
     // template <class Key, class Compare, class Allocator>
     // bool operator!=(const set<Key,Compare,Allocator>& x,
     // const set<Key,Compare,Allocator>& y);
     bool (*operatorNe)(const Obj&, const Obj&) = operator!=;
     (void) operatorNe;
+#endif
 
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+    (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+        return lhs < rhs;
+    };
+    (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+        return lhs > rhs;
+    };
+    (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+        return lhs <= rhs;
+    };
+    (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+        return lhs >= rhs;
+    };
+    (void) [](const Obj& lhs, const Obj& rhs) {
+        return lhs <=> rhs;
+    };
+#else
     // template <class Key, class Compare, class Allocator>
     // bool operator< (const set<Key,Compare,Allocator>& x,
     // const set<Key,Compare,Allocator>& y);
@@ -5485,6 +5508,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
     // const set<Key,Compare,Allocator>& y);
     bool (*operatorLe)(const Obj&, const Obj&) = operator<=;
     (void) operatorLe;
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
     // specialized algorithms:
     // template <class Key, class Compare, class Allocator>
@@ -6051,16 +6075,19 @@ void TestDriver<KEY, COMP, ALLOC>::testCase19()
     //:   2 '(a <= b) == !(b < a)'
     //:
     //:   3 '(a >= b) == !(a < b)'
+    //:
+    //: 4 'operator<=>' is consistent with '<', '>', '<=', '>='.
     //
     // Plan:
     //: 1 For a variety of objects of different sizes and different values,
-    //:   test that the comparison returns as expected.  (C-1..3)
+    //:   test that the comparison returns as expected.  (C-1..4)
     //
     // Testing:
     //   bool operator< (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
     //   bool operator> (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
     //   bool operator>=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
     //   bool operator<=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
+    //   auto operator<=>(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nTesting '%s'.\n", NameOf<KEY>().name());
@@ -6124,6 +6151,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase19()
                 ASSERTV(LINE1, LINE2, !isLessEq == (X > Y));
                 ASSERTV(LINE1, LINE2,  isLessEq == (X <= Y));
                 ASSERTV(LINE1, LINE2, !isLess   == (X >= Y));
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+                ASSERTV(LINE1, LINE2,  isLess   == (X <=> Y < 0));
+                ASSERTV(LINE1, LINE2, !isLessEq == (X <=> Y > 0));
+                ASSERTV(LINE1, LINE2,  isLessEq == (X <=> Y <= 0));
+                ASSERTV(LINE1, LINE2, !isLess   == (X <=> Y >= 0));
+#endif
 
                 TestComparator<KEY>::enableFunctor();
 
