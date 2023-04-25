@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 // representation of the JSON number (see {JSON Textual Specification}) or from
 // one of several C++ arithmetic types (see {Supported Conversions}).
 //
-// Arithmetic operations are *not* defined for for 'bdljsn::JsonNumber'
-// objects.  For such operations, the value of a 'bdljsn::JsonNumber' object
-// can be converted to any of those supported types, though the conversion may
-// not be exact.
+// Arithmetic operations are *not* defined for 'bdljsn::JsonNumber' objects.
+// For such operations, the value of a 'bdljsn::JsonNumber' object can be
+// converted to any of those supported types, though the conversion may not be
+// exact.
 //
 // The 'bdlsn::JsonNumber' equality operation returns 'true' if the string
 // representation of the number (returned by the 'value' accessor method) is

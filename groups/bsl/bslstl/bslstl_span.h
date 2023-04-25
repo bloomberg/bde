@@ -840,25 +840,25 @@ span(const bsl::vector<TYPE, ALLOCATOR> &) -> span<const TYPE>;
 template <class TYPE, size_t EXTENT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 span<const std::byte, EXTENT * sizeof(TYPE)>
 as_bytes(span<TYPE, EXTENT> s) BSLS_KEYWORD_NOEXCEPT;
-    // Return a span referring to to same data as the specified 's', but
+    // Return a span referring to same data as the specified 's', but
     // referring to the data as a span of non-modifiable bytes.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 span<const std::byte, dynamic_extent>
 as_bytes(span<TYPE, dynamic_extent> s) BSLS_KEYWORD_NOEXCEPT;
-    // Return a span referring to to same data as the specified 's', but
+    // Return a span referring to same data as the specified 's', but
     // referring to the data as a span of non-modifiable bytes.
 
 template <class TYPE, size_t EXTENT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 span<std::byte, EXTENT * sizeof(TYPE)>
 as_writable_bytes(span<TYPE, EXTENT> s) BSLS_KEYWORD_NOEXCEPT;
-    // Return a span referring to to same data as the specified 's', but
+    // Return a span referring to same data as the specified 's', but
     // referring to the data as a span of modifiable bytes.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 span<std::byte, dynamic_extent>
 as_writable_bytes(span<TYPE, dynamic_extent> s) BSLS_KEYWORD_NOEXCEPT;
-    // Return a span referring to to same data as the specified 's', but
+    // Return a span referring to same data as the specified 's', but
     // referring to the data as a span of modifiable bytes.
 
 #endif
