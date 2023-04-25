@@ -152,7 +152,7 @@ class NoOp {
     // ACCESSORS
     template <class... t_ARGS>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS&... ignored) const BSLS_KEYWORD_NOEXCEPT;
         // Do nothing and ignore all specified 'ignored' arguments.
 #endif
@@ -179,7 +179,7 @@ extern const NoOp noOp;
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class... t_ARGS>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS&...ignored) const BSLS_KEYWORD_NOEXCEPT
 {
 }

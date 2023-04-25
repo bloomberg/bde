@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Apr 17 13:27:35 2023
+// Generated on Mon Apr 24 13:40:08 2023
 // Command line: sim_cpp11_features.pl bdlf_noop.h
 
 #ifdef COMPILING_BDLF_NOOP_H
@@ -58,14 +58,14 @@ class NoOp {
 #endif
 #if BDLF_NOOP_VARIADIC_LIMIT_A >= 0
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          ) const BSLS_KEYWORD_NOEXCEPT;
 #endif  // BDLF_NOOP_VARIADIC_LIMIT_A >= 0
 
 #if BDLF_NOOP_VARIADIC_LIMIT_A >= 1
     template <class t_ARGS_01>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01
                          ) const BSLS_KEYWORD_NOEXCEPT;
 #endif  // BDLF_NOOP_VARIADIC_LIMIT_A >= 1
@@ -74,7 +74,7 @@ class NoOp {
     template <class t_ARGS_01,
               class t_ARGS_02>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02
                          ) const BSLS_KEYWORD_NOEXCEPT;
@@ -85,7 +85,7 @@ class NoOp {
               class t_ARGS_02,
               class t_ARGS_03>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03
@@ -98,7 +98,7 @@ class NoOp {
               class t_ARGS_03,
               class t_ARGS_04>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03,
@@ -113,7 +113,7 @@ class NoOp {
               class t_ARGS_04,
               class t_ARGS_05>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03,
@@ -130,7 +130,7 @@ class NoOp {
               class t_ARGS_05,
               class t_ARGS_06>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03,
@@ -149,7 +149,7 @@ class NoOp {
               class t_ARGS_06,
               class t_ARGS_07>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03,
@@ -170,7 +170,7 @@ class NoOp {
               class t_ARGS_07,
               class t_ARGS_08>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03,
@@ -193,7 +193,7 @@ class NoOp {
               class t_ARGS_08,
               class t_ARGS_09>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03,
@@ -218,7 +218,7 @@ class NoOp {
               class t_ARGS_09,
               class t_ARGS_10>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS_01& ignored_01,
                          const t_ARGS_02& ignored_02,
                          const t_ARGS_03& ignored_03,
@@ -237,7 +237,7 @@ class NoOp {
 // forwarding in some compilers.
     template <class... t_ARGS>
     inline
-    BSLS_KEYWORD_CONSTEXPR void operator()(
+    BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
                          const t_ARGS&... ignored) const BSLS_KEYWORD_NOEXCEPT;
 // }}} END GENERATED CODE
 #endif
@@ -272,7 +272,7 @@ extern const NoOp noOp;
 #define BDLF_NOOP_VARIADIC_LIMIT_B BDLF_NOOP_VARIADIC_LIMIT
 #endif
 #if BDLF_NOOP_VARIADIC_LIMIT_B >= 0
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          ) const BSLS_KEYWORD_NOEXCEPT
 {
 }
@@ -280,7 +280,7 @@ BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
 
 #if BDLF_NOOP_VARIADIC_LIMIT_B >= 1
 template <class t_ARGS_01>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01
          ) const BSLS_KEYWORD_NOEXCEPT
 {
@@ -290,7 +290,7 @@ BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
 #if BDLF_NOOP_VARIADIC_LIMIT_B >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02
          ) const BSLS_KEYWORD_NOEXCEPT
@@ -302,7 +302,7 @@ BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03
@@ -316,7 +316,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03,
@@ -332,7 +332,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03,
@@ -350,7 +350,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03,
@@ -370,7 +370,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03,
@@ -392,7 +392,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03,
@@ -416,7 +416,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03,
@@ -442,7 +442,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS_01& ignored_01,
          BSLA_MAYBE_UNUSED const t_ARGS_02& ignored_02,
          BSLA_MAYBE_UNUSED const t_ARGS_03& ignored_03,
@@ -462,7 +462,7 @@ BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class... t_ARGS>
-BSLS_KEYWORD_CONSTEXPR void NoOp::operator()(
+BSLS_KEYWORD_CONSTEXPR_CPP14 void NoOp::operator()(
          BSLA_MAYBE_UNUSED const t_ARGS&...ignored) const BSLS_KEYWORD_NOEXCEPT
 {
 }

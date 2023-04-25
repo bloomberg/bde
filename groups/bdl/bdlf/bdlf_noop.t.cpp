@@ -533,16 +533,14 @@ int main(int argc, char *argv[])
         X(static_cast<NeverDefined*>(0));
         X(cout, 0, 3.14);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexpr Obj Y;
         Y();
         Y(3);
         Y(static_cast<NeverDefined*>(0));
         Y(cout, 0, 3.14);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexprFunction();
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
       } break;
