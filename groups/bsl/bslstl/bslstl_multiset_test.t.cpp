@@ -5658,6 +5658,18 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
     bool (*operatorEq)(const Obj&, const Obj&) = operator==;
     (void) operatorEq;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+        return lhs != rhs;
+    };
+#else
+    // template <class Key, class Compare, class Allocator>
+    // bool operator!=(const multiset<Key,Compare,Allocator>& x,
+    // const multiset<Key,Compare,Allocator>& y);
+    bool (*operatorNe)(const Obj&, const Obj&) = operator!=;
+    (void) operatorNe;
+#endif
+
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
     (void) [](const Obj& lhs, const Obj& rhs) -> bool {
         return lhs < rhs;
@@ -5675,12 +5687,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
         return lhs <=> rhs;
     };
 #else
-    // template <class Key, class Compare, class Allocator>
-    // bool operator!=(const multiset<Key,Compare,Allocator>& x,
-    // const multiset<Key,Compare,Allocator>& y);
-    bool (*operatorNe)(const Obj&, const Obj&) = operator!=;
-    (void) operatorNe;
-
     // template <class Key, class Compare, class Allocator>
     // bool operator< (const multiset<Key,Compare,Allocator>& x,
     // const multiset<Key,Compare,Allocator>& y);
