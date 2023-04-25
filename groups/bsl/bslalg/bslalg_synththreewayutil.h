@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Implementing '<=>' For a Sequence Container
+///Example 1: Implementing '<=>' For a Sequence Container
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use 'bslalg::SynthThreeWayUtil' to implement the
 // three-way comparison operator ('<=>') for a list container (whose details

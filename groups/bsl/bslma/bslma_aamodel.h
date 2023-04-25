@@ -99,8 +99,8 @@ BSLS_IDENT("$Id: $")
 // understanding the use of this component, so readers are welcome to skip
 // forward to the usage examples, below.
 //
-// With the exception of *legacy-AA*, AA types generally adhere to the the
-// basic interface pattern shown here:
+// With the exception of *legacy-AA*, AA types generally adhere to the basic
+// interface pattern shown here:
 //..
 //  class AAType {
 //      // ... (private members)

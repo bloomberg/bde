@@ -5821,7 +5821,7 @@ void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
                            PREDICTED_UTF8_LEN, len, PREDICTED_UTF8_LEN == len);
 
         // Translate 'wstring' back to UTF-8, observe that the length of the
-        // result matches the calculations, and the the value of the UTF-8
+        // result matches the calculations, and the value of the UTF-8
         // matches the value from translating the 'vector'.
 
         utf8CodePointsC = -1;

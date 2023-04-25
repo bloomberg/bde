@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
         // TEST 'reset'
         //
         // Concerns:
-        //: 1 The 'reset' method set an object to the the default state
+        //: 1 The 'reset' method set an object to the default state
         //:   irrespective of the state of the object.
         //
         // Plan:

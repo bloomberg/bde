@@ -82,7 +82,7 @@ namespace bsl {
 
 template <class t_TYPE>
 struct add_lvalue_reference {
-    // This 'struct' template implements a meta-function to transform the the
+    // This 'struct' template implements a meta-function to transform the
     // (template parameter) 't_TYPE' to its lvalue reference type.
 
     typedef t_TYPE& type;

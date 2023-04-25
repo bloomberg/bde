@@ -267,12 +267,11 @@ namespace Usage {
 //..
 // Then, we define helper functions 'myLoggingManagerGet' and
 // 'myLoggingManagerSet' so that the handler for "LOG" messages can delegate
-// processing the the "GET" and "SET" subcommands.  The other defined messages
-// have minimal syntax so use of a delegation pattern is overkill in those
-// cases.
+// processing the "GET" and "SET" subcommands.  The other defined messages have
+// minimal syntax so use of a delegation pattern is overkill in those cases.
 //..
     void myLoggingManagerGet()
-        // Print the the current log level to the console.
+        // Print the current log level to the console.
     {
         bsl::cout << "LOG LEVEL IS NOW"    << ": "
                   << myLoggingManagerLevel << bsl::endl;

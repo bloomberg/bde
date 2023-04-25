@@ -4372,7 +4372,7 @@ int main(int argc, char *argv[])
         //: 3 Confirm that the 'allocator' and 'value' accessors show the
         //:   values expected from the value constructor.  Demonstrate that
         //:   they are 'const'-qualified by invoking them on 'const'-references
-        //:   to the the test objects.
+        //:   to the test objects.
         //:
         //: 4 Confirm (by test allocator) that all allocated memory is
         //:   recovered on destruction.

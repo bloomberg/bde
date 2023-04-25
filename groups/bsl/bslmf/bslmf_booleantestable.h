@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Implementing a Concept for a Predicate (Boolean) Expression
+///Example 1: Implementing a Concept for a Predicate (Boolean) Expression
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use 'bslmf::BooleanTestable' to implement a
 // concept to determine whether applying the '<' operator to a given type

@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
         //: 1 Using 'alloc' arguments of type 'bslma::Allocator *' and
         //:   'bsl::allocator<short>', call 'adapt(alloc)' and use the return
         //:   value to copy-initialize an object of type 'bslma::Allocator *'
-        //:   and an object of type 'bsl:allocator<int>'.  Verify that the the
+        //:   and an object of type 'bsl:allocator<int>'.  Verify that the
         //:   constructed object represents the same allocator as 'alloc'.
         //:   (C-1)
         //: 2 With the same arguments as step 1, use the return value of

@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 The 'print' method writes the string "null" to the specified
         //:   'ostream' at the intended indentation and followed by '\n'
-        //:   unless the the third argument ('spacesPerLevel') is negative.
+        //:   unless the third argument ('spacesPerLevel') is negative.
         //:
         //: 4 The optional 'level' and 'spacesPerLevel' parameters have the
         //:   correct default values.
