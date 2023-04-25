@@ -101,6 +101,7 @@
 #include <bsl_clocale.h>
 #include <bsl_cmath.h>
 #include <bsl_complex.h>
+#include <bsl_concepts.h>         // C++20 header
 #include <bsl_csetjmp.h>
 #include <bsl_csignal.h>
 #include <bsl_cstdarg.h>
@@ -237,6 +238,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [33] C++20 'bsl_concepts.h' HEADER
 // [32] bsl::cmp_equal();
 // [32] bsl::cmp_not_equal();
 // [32] bsl::cmp_less();
@@ -244,7 +246,7 @@ using namespace bslim;
 // [32] bsl::cmp_less_equal();
 // [32] bsl::cmp_greater_equal();
 // [32] bsl::in_range();
-// [32] MISC C++20 ADDITIONS TO HEADERS
+// [31] MISC C++20 ADDITIONS TO HEADERS
 // [30] C++20 'bsl_atomic.h' HEADER ADDITIONS
 // [29] C++20 'bsl_memory.h' HEADER ADDITIONS
 // [28] CONCERN: Entities from 'std::ranges' are available and usable.
@@ -882,6 +884,106 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_concepts.h' HEADER
+        //
+        // Concerns:
+        //: 1 The definitions from '<concepts>' defined by the C++20 Standard
+        //:   are available in C++20 mode in the 'bsl' namespace to users who
+        //:   include 'bsl_concepts.h'.
+        //
+        // Plan:
+        //: 1 Form some valid expressions with every name with 'bsl' prefix.
+        //
+        // Testing
+        //   C++20 'bsl_concepts.h' HEADER
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING C++20 'bsl_concepts.h' HEADER"
+                            "\n=====================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+        BSLMF_ASSERT(( bsl::same_as<int, int>));
+        BSLMF_ASSERT((!bsl::same_as<int, char>));
+
+        {
+            class B {};
+            class D : public B {};
+            BSLMF_ASSERT(( bsl::derived_from<D, B>));
+            BSLMF_ASSERT((!bsl::derived_from<B, D>));
+        }
+        {
+            class C {};
+            BSLMF_ASSERT(( bsl::convertible_to<char, int>));
+            BSLMF_ASSERT(( bsl::convertible_to<int, char>));
+            BSLMF_ASSERT(( bsl::convertible_to<int, int>));
+            BSLMF_ASSERT((!bsl::convertible_to<C, int>));
+        }
+        {
+            class C {};
+            BSLMF_ASSERT(( bsl::common_reference_with<int, char>));
+            BSLMF_ASSERT(( bsl::common_reference_with<int, const int>));
+            BSLMF_ASSERT((!bsl::common_reference_with<C, int>));
+            BSLMF_ASSERT((!bsl::common_reference_with<int*, unsigned*>));
+        }
+
+        BSLMF_ASSERT(( bsl::common_with<int, char>));
+        BSLMF_ASSERT(( bsl::common_with<int*, void*>));
+        BSLMF_ASSERT((!bsl::common_with<int*, char*>));
+
+        BSLMF_ASSERT(( bsl::integral<int>));
+        BSLMF_ASSERT(( bsl::integral<char>));
+        BSLMF_ASSERT((!bsl::integral<double>));
+
+        BSLMF_ASSERT(( bsl::signed_integral<int>));
+        BSLMF_ASSERT((!bsl::signed_integral<unsigned>));
+
+        BSLMF_ASSERT(( bsl::unsigned_integral<unsigned>));
+        BSLMF_ASSERT((!bsl::unsigned_integral<int>));
+
+        BSLMF_ASSERT(( bsl::floating_point<double>));
+        BSLMF_ASSERT((!bsl::floating_point<int>));
+
+        BSLMF_ASSERT(( bsl::assignable_from<int&, int>));
+        BSLMF_ASSERT((!bsl::assignable_from<int, int>));
+
+        {
+            struct C {
+                C(const C&) = delete;
+                C &operator=(const C&) = delete;
+            };
+            BSLMF_ASSERT(( bsl::swappable<int>));
+            BSLMF_ASSERT((!bsl::swappable<C>));
+        }
+
+        BSLMF_ASSERT(( bsl::swappable_with<int&, int&>));
+        BSLMF_ASSERT((!bsl::swappable_with<int, int>));
+
+        {
+            class C { ~C() = delete; };
+            BSLMF_ASSERT(( bsl::destructible<int>));
+            BSLMF_ASSERT((!bsl::destructible<C>));
+        }
+
+        BSLMF_ASSERT(( bsl::constructible_from<int, int>));
+        BSLMF_ASSERT((!bsl::constructible_from<int, int*>));
+
+        BSLMF_ASSERT(( bsl::default_initializable<int>));
+        BSLMF_ASSERT((!bsl::default_initializable<int&>));
+
+        {
+            struct C { C(C&&) = delete; };
+            BSLMF_ASSERT(( bsl::move_constructible<int>));
+            BSLMF_ASSERT((!bsl::move_constructible<C>));
+        }
+
+        {
+            struct C { C(const C&) = delete; };
+            BSLMF_ASSERT(( bsl::copy_constructible<int>));
+            BSLMF_ASSERT((!bsl::copy_constructible<C>));
+        }
+#endif
+      } break;
       case 32: {
         // --------------------------------------------------------------------
         // TESTING C++20 <BSL_UTILITY.H> ADDITIONS
