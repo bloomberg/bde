@@ -578,9 +578,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockWrite();
                 ASSERT(0 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nFailure on 'tryLock'." << endl;
@@ -601,9 +601,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockWrite();
                 ASSERT(1 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nFailure due to readers." << endl;
@@ -627,9 +627,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockWrite();
                 ASSERT(1 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
       } break;
       case 8: {
@@ -694,9 +694,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockRead();
                 ASSERT(0 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nAttempt CAS, CAS fails, mutex succeeds."
@@ -726,9 +726,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockRead();
                 ASSERT(0 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nAttempt CAS, CAS fails, mutex fails."
@@ -755,9 +755,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockRead();
                 ASSERT(1 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nDo not attempt CAS, mutex succeeds." << endl;
@@ -783,9 +783,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockRead();
                 ASSERT(0 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nDo not attempt CAS, mutex fails." << endl;
@@ -808,9 +808,9 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockRead();
                 ASSERT(1 == rv);
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
       } break;
       case 7: {
@@ -886,9 +886,9 @@ int main(int argc, char *argv[])
             {
                 Obj obj;
                 obj.unlock();
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nUnlock read, semaphore manipulation." << endl;
@@ -918,9 +918,9 @@ int main(int argc, char *argv[])
             {
                 Obj obj;
                 obj.unlock();
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nUnlock write." << endl;
@@ -950,9 +950,9 @@ int main(int argc, char *argv[])
             {
                 Obj obj;
                 obj.unlock();
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
       } break;
       case 6: {
@@ -1014,9 +1014,9 @@ int main(int argc, char *argv[])
             {
                 Obj obj;
                 obj.unlockWrite();
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
@@ -1043,9 +1043,9 @@ int main(int argc, char *argv[])
                 {
                     Obj obj;
                     ASSERT_SAFE_PASS(obj.unlockWrite());
-                }
 
-                TestImpl::assertScriptComplete();
+                    TestImpl::assertScriptComplete();
+                }
             }
             {
                 bsl::vector<int> script;
@@ -1133,9 +1133,9 @@ int main(int argc, char *argv[])
             {
                 Obj obj;
                 obj.unlockRead();
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
         if (verbose) cout << "\nSemaphore is manipulated." << endl;
@@ -1164,9 +1164,9 @@ int main(int argc, char *argv[])
             {
                 Obj obj;
                 obj.unlockRead();
-            }
 
-            TestImpl::assertScriptComplete();
+                TestImpl::assertScriptComplete();
+            }
         }
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
@@ -1190,9 +1190,9 @@ int main(int argc, char *argv[])
                 {
                     Obj obj;
                     ASSERT_SAFE_PASS(obj.unlockRead());
-                }
 
-                TestImpl::assertScriptComplete();
+                    TestImpl::assertScriptComplete();
+                }
             }
             {
                 bsl::vector<int> script;
@@ -1290,9 +1290,9 @@ int main(int argc, char *argv[])
                 {
                     Obj obj;
                     obj.lockWrite();
-                }
 
-                TestImpl::assertScriptComplete();
+                    TestImpl::assertScriptComplete();
+                }
             }
         }
 
@@ -1320,9 +1320,9 @@ int main(int argc, char *argv[])
                 {
                     Obj obj;
                     obj.lockWrite();
-                }
 
-                TestImpl::assertScriptComplete();
+                    TestImpl::assertScriptComplete();
+                }
             }
         }
       } break;
@@ -1445,9 +1445,9 @@ int main(int argc, char *argv[])
                 {
                     Obj obj;
                     obj.lockRead();
-                }
 
-                TestImpl::assertScriptComplete();
+                    TestImpl::assertScriptComplete();
+                }
             }
         }
 
@@ -1531,9 +1531,9 @@ int main(int argc, char *argv[])
                 {
                     Obj obj;
                     obj.lockRead();
-                }
 
-                TestImpl::assertScriptComplete();
+                    TestImpl::assertScriptComplete();
+                }
             }
         }
       } break;
@@ -1568,9 +1568,9 @@ int main(int argc, char *argv[])
 
         {
             Obj obj;
-        }
 
-        TestImpl::assertScriptComplete();
+            TestImpl::assertScriptComplete();
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
