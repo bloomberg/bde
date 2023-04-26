@@ -1747,6 +1747,10 @@ int main(int argc, char *argv[])
             const int THREADS  = VALUES[i].d_numThreads;
             const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
+            TestJobFunctionArgs1 emptyArgs;  // lifetime must exceed pool's
+            emptyArgs.d_startBarrier_p = 0;
+            emptyArgs.d_stopBarrier_p  = 0;
+
             bslmt::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             const Obj& X = x;
@@ -1767,10 +1771,6 @@ int main(int argc, char *argv[])
             }
             startBarrier.wait(); // make sure that threads have indeed started
             ASSERTV(i, 0 == X.numPendingJobs()); // and that queue is empty
-
-            TestJobFunctionArgs1 emptyArgs;
-            emptyArgs.d_startBarrier_p = 0;
-            emptyArgs.d_stopBarrier_p  = 0;
 
             for (int j = 0; j < QUEUE_CAPACITY; ++j) {
                 ASSERTV(i, 0 == x.tryEnqueueJob(testJobFunction3,
