@@ -171,6 +171,7 @@
 // [19] bool operator> (const multimap& lhs, const multimap& rhs);
 // [19] bool operator>=(const multimap& lhs, const multimap& rhs);
 // [19] bool operator<=(const multimap& lhs, const multimap& rhs);
+// [19] auto operator<=>(const multimap& lhs, const multimap& rhs);
 //
 //// specialized algorithms:
 // [ 8] void swap(multimap& a, multimap& b);
@@ -2295,10 +2296,16 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
         // Verify that the signatures and return types are standard.
 
         operatorPtr operatorEq = operator==;
-        operatorPtr operatorNe = operator!=;
-
         (void) operatorEq;  // quash potential compiler warnings
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        (void) [](const Obj& lhs, const Obj& rhs) -> bool {
+            return lhs != rhs;
+        };
+#else
+        operatorPtr operatorNe = operator!=;
         (void) operatorNe;
+#endif
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;

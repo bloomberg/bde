@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Mar  6 11:50:16 2023
+// Generated on Tue Apr 11 12:04:50 2023
 // Command line: sim_cpp11_features.pl bslstl_multimap.h
 
 #ifdef COMPILING_BSLSTL_MULTIMAP_H
@@ -1304,6 +1304,7 @@ bool operator==(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
     // parameter) types 'KEY' and 'VALUE' both be 'equality-comparable' (see
     // {Requirements on 'KEY' and 'VALUE'}).
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator!=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
@@ -1315,6 +1316,20 @@ bool operator!=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
     // in the ordered sequence of key-value pairs of 'rhs'.  This method
     // requires that the (template parameter) types 'KEY' and 'VALUE' both be
     // 'equality-comparable' (see {Requirements on 'KEY' and 'VALUE'}).
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+BloombergLP::bslalg::SynthThreeWayUtil::Result<pair<const KEY, VALUE>>
+operator<=>(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
+            const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
+    // Perform a lexicographic three-way comparison of the specified 'lhs' and
+    // the specified 'rhs' maps by using the comparison operators of
+    // 'bsl::pair<const KEY, VALUE>' on each element; return the result of that
+    // comparison.
+
+#else
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator<(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
@@ -1363,6 +1378,8 @@ bool operator>=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
     // 'lhs' is not lexicographically less than 'rhs' (see 'operator<').  This
     // method requires that 'operator<', inducing a total order, be defined for
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -2458,6 +2475,7 @@ bool bsl::operator==(
                                                     rhs.size());
 }
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 bool bsl::operator!=(
@@ -2466,6 +2484,25 @@ bool bsl::operator!=(
 {
     return !(lhs == rhs);
 }
+#endif
+
+#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+BloombergLP::bslalg::SynthThreeWayUtil::Result<bsl::pair<const KEY, VALUE>>
+bsl::operator<=>(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
+                 const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs)
+{
+    return bsl::lexicographical_compare_three_way(
+                              lhs.begin(),
+                              lhs.end(),
+                              rhs.begin(),
+                              rhs.end(),
+                              BloombergLP::bslalg::SynthThreeWayUtil::compare);
+}
+
+#else
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
@@ -2508,6 +2545,8 @@ bool bsl::operator>=(
 {
     return !(lhs < rhs);
 }
+
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
