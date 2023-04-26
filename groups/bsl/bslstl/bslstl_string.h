@@ -631,6 +631,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_algorithm.h>
 #include <bslstl_hash.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
@@ -3687,6 +3688,27 @@ wstring to_wstring(long double value);
     // converts a floating point value to a string with the same contents as
     // 'what std::sprintf(buf, sz, L"%Lf", value)' would produce for a
     // sufficiently large buffer.
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class OTHER_CHAR_TYPE>
+typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::size_type
+erase(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
+      const OTHER_CHAR_TYPE&                           c);
+    // Erase (in-place) all the elements from the specified 'str' that compare
+    // equal to the specified 'c', and return the number of erased elements.
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class UNARY_PREDICATE>
+typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::size_type
+erase_if(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
+         const UNARY_PREDICATE&                           pred);
+    // Erase (in-place) all the elements from the specified 'str' where the
+    // specified 'pred' returns 'true', and return the number of erased
+    // elements.
 
 enum MaxDecimalStringLengths{
     // This 'enum' give upper bounds on the maximum string lengths storing each
@@ -7287,6 +7309,46 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
                                 BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)))
 {
     a.swap(b);
+}
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class OTHER_CHAR_TYPE>
+inline
+typename bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::size_type
+bsl::erase(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
+           const OTHER_CHAR_TYPE&                           c)
+{
+    typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::iterator it =
+                                        bsl::remove(str.begin(), str.end(), c);
+
+    typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::size_type
+        result = bsl::distance(it, str.end());
+
+    str.erase(it, str.end());
+
+    return result;
+}
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class UNARY_PREDICATE>
+inline
+typename bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::size_type
+bsl::erase_if(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
+              const UNARY_PREDICATE&                           pred)
+{
+    typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::iterator it =
+                                  bsl::remove_if(str.begin(), str.end(), pred);
+
+    typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::size_type
+        result = bsl::distance(it, str.end());
+
+    str.erase(it, str.end());
+
+    return result;
 }
 
 // FREE OPERATORS

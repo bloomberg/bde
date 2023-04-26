@@ -354,9 +354,11 @@ using bsls::nameOfType;
 // [  ] basic_istream& operator>>(basic_istream& stream, string& str);
 // [29] hashAppend(HASHALG& hashAlg, const basic_string& str);
 // [29] hashAppend(HASHALG& hashAlg, const std::basic_string& str);
+// [42] size_type erase(basic_string& str, const C& c);
+// [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [41] USAGE EXAMPLE
+// [43] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -6003,7 +6005,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 41: {
+      case 43: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6215,6 +6217,8 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 42:     BSLA_FALLTHROUGH;
+      case 41:     BSLA_FALLTHROUGH;
       case 40:     BSLA_FALLTHROUGH;
       case 39:     BSLA_FALLTHROUGH;
       case 38:     BSLA_FALLTHROUGH;

@@ -1,6 +1,7 @@
 // bslstl_string_test.t.cpp                                           -*-C++-*-
 #include <bslstl_string_test.h>
 
+#include <bslstl_algorithm.h>    // 'count', 'sort'
 #include <bslstl_forwarditerator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringref.h>
@@ -37,9 +38,9 @@
 
 #include <bsltf_stdstatefulallocator.h>
 
-#include <algorithm>    // 'adjacent_find', 'sort'
 #include <cstring>      // 'memcmp'
 #include <iomanip>
+#include <ios>          // 'hex'
 #include <iostream>
 #include <istream>
 #include <limits>
@@ -378,9 +379,11 @@ using bsls::nameOfType;
 // [37] string operator+(const string&&,     CHAR);
 // [37] string operator+(CHAR,               const string&);
 // [37] string operator+(CHAR,               const string&&);
+// [42] size_type erase(basic_string& str, const C& c);
+// [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [41] USAGE EXAMPLE
+// [43] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -1230,6 +1233,30 @@ size_t ConvertibleToStringViewOnlyType<TYPE, TRAITS>::length() const
     return TRAITS::length(d_value_p);
 }
 
+                 // ------------------------------
+                 // class CharacterSearchPredicate
+                 // ------------------------------
+
+template <class TYPE>
+class CharacterSearchPredicate
+    // This predicate matches the character passed in at construction.
+{
+    TYPE d_chr;
+
+  public:
+    // CREATORS
+    CharacterSearchPredicate(const TYPE chr)                        // IMPLICIT
+        // Create an object whose 'operator()' matches the specified 'chr'.
+    : d_chr(chr)
+    {
+    }
+
+    // ACCESSORS
+    bool operator()(const TYPE chr) const { return d_chr == chr; }
+        // Return 'true' if the specified 'chr' matches the character passed to
+        // this object's constructor.
+};
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -1399,6 +1426,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase42();
+        // Test 'erase' and 'erase_if'.
+
     static void testCase41();
         // Test 'starts_with' and 'ends_with'.
 
@@ -1681,6 +1711,170 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'erase' AND 'erase_if'
+    //
+    // Concerns:
+    //: 1 The 'erase' and 'erase_if' free functions work correctly for objects
+    //:   of any size and content.
+    //:
+    //: 2 The NUL character is handled correctly regardless of whether it
+    //:   belongs to the object or is the character being erased.
+    //:
+    //: 3 An empty string is handled correctly.
+    //:
+    //: 4 No additional memory allocation occurs.
+    //
+    // Plan:
+    //: 1 Call 'erase' and 'erase_if' on an empty string and make sure there's
+    //:   no effect. (C-1)
+    //:
+    //: 2 Construct an object with a variety of elements, including the NUL
+    //:   character.
+    //:
+    //: 3 Call 'erase' and 'erase_if' methods and verify the results.
+    //:   (C-1, 2, 3)
+    //:
+    //: 4 Verify that no additional memory allocation occurs during erasure.
+    //:   (C-4)
+    //
+    // Testing:
+    //   size_type erase(basic_string& str, const C& c);
+    //   size_type erase_if(basic_string& str, const UNARY_PRED& pred);
+    // ------------------------------------------------------------------------
+
+    {
+        if (veryVerbose)
+            printf("\t...erasing '\\0' from an empty string\n");
+        {
+            Obj mX(g(""));  // empty string
+            Tam dam(defaultAllocator_p);
+
+            ASSERTV(mX.length(), 0 == mX.length());
+
+            const TYPE chr = '\0';  // not present in 'mX'
+
+            const size_t count = bsl::count(mX.begin(), mX.end(), chr);
+            ASSERTV(count, 0 == count);
+
+            const size_t erased = bsl::erase(mX, chr);
+
+            ASSERTV(erased, 0 == erased);
+            ASSERTV(mX.length(), 0 == mX.length());
+
+            const size_t eraseIfd =
+                        bsl::erase_if(mX, CharacterSearchPredicate<TYPE>(chr));
+
+            ASSERTV(eraseIfd, 0 == eraseIfd);
+            ASSERTV(mX.length(), 0 == mX.length());
+
+            ASSERT(dam.isTotalSame());
+        }
+
+        const char *SPEC = "ABBCCCDDDDEEEEEFFFFFF";
+        const Obj   SPECOBJ(g(SPEC));
+
+        Obj data;
+        data.push_back(TYPE('\0'));
+        data += SPECOBJ;
+        data.push_back(TYPE('\0'));
+        data.push_back(TYPE('\0'));
+        data += SPECOBJ;
+        data.push_back(TYPE('\0'));
+        data.push_back(TYPE('\0'));
+        data.push_back(TYPE('\0'));
+
+        // Make sure 'data' is too large for small-string optimization.
+        data += data;
+        data += data;
+
+        for (size_t len = 0; len < data.length(); ++len) {
+            if (veryVerbose)
+                printf("\t...at length %zu\n", len);
+            const Obj    DATA(data, len);
+            const size_t LENGTH = DATA.length();
+
+            Obj uniqueDataElements(data);
+            bsl::sort(uniqueDataElements.begin(), uniqueDataElements.end());
+            bsl::unique(uniqueDataElements.begin(), uniqueDataElements.end());
+
+            if (veryVerbose)
+                printf("\t\t...erasing a non-existent character\n");
+            {
+                Obj mX(DATA);  // object to (not) erase from
+                Tam dam(defaultAllocator_p);
+
+                const TYPE chr = 'Z';  // not present in 'mX'
+
+                const size_t count = bsl::count(mX.begin(), mX.end(), chr);
+                ASSERTV(count, 0 == count);
+
+                const size_t erased = bsl::erase(mX, chr);
+
+                ASSERTV(erased, 0 == erased);
+                ASSERTV(mX.length(), LENGTH == mX.length());
+
+                const size_t eraseIfd =
+                        bsl::erase_if(mX, CharacterSearchPredicate<TYPE>(chr));
+
+                ASSERTV(eraseIfd, 0 == eraseIfd);
+                ASSERTV(mX.length(), LENGTH == mX.length());
+
+                ASSERT(dam.isTotalSame());
+            }
+
+            if (veryVerbose)
+                printf("\t\t...testing erasing each character from a "
+                       "string\n");
+            for (size_t i = 0; i < uniqueDataElements.length(); ++i) {
+                Obj mX(DATA);  // object to erase from
+                Tam dam(defaultAllocator_p);
+
+                // Use 'uniqueDataElements' to skip redundant elements.
+                const TYPE chr = uniqueDataElements[i];
+
+                if (veryVeryVerbose)
+                    std::cout << "\t\t... erasing '"
+                              << (std::isprint(chr) ? char(chr) : '.')
+                              << "' ('\\x" << std::hex << int(chr) << std::dec
+                              << "')" << std::endl;
+
+                const size_t count = bsl::count(mX.begin(), mX.end(), chr);
+
+                const size_t erased = bsl::erase(mX, chr);
+
+                ASSERTV(count, erased, count == erased);
+                ASSERTV(mX.length(), erased, LENGTH == mX.length() + erased);
+
+                const size_t postCount = bsl::count(mX.begin(), mX.end(), chr);
+                ASSERTV(postCount, 0 == postCount);
+                ASSERT(dam.isTotalSame());
+
+                Obj mY(DATA);  // object to erase_if from
+
+                dam.reset();
+
+                const size_t eraseIfd =
+                        bsl::erase_if(mY, CharacterSearchPredicate<TYPE>(chr));
+
+                ASSERTV(count, eraseIfd, count == eraseIfd);
+                ASSERTV(mY.length(),
+                        eraseIfd,
+                        LENGTH == mY.length() + eraseIfd);
+
+                const size_t postIfCount = bsl::count(mY.begin(),
+                                                      mY.end(),
+                                                      chr);
+                ASSERTV(postIfCount, 0 == postIfCount);
+                ASSERT(dam.isTotalSame());
+            }
+        }
+    }
+}
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
@@ -2382,6 +2576,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
 
     const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
     const size_t MAX_LEN  = strlen(DATA[NUM_DATA - 1].d_spec_p);
+    (void) MAX_LEN;
 
     bslma::TestAllocator         la("left",    veryVeryVeryVerbose);
     StdAlloc                     sla(&la);
@@ -20484,6 +20679,9 @@ int main(int argc, char *argv[])
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
+    // Suppress warnings.
+    (void) k_SHORT_BUFFER_CAPACITY_CHAR8_T;
+
     // As part of our overall allocator testing strategy, we will create three
     // test allocators.
 
@@ -20516,6 +20714,48 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 42: {
+        // -------------------------------------------------------------------
+        // TESTING 'erase' AND 'erase_if'
+        //
+        // Concerns:
+        //: 1 The 'erase' and 'erase_if' free functions work correctly for
+        //:   objects of any size and content.
+        //:
+        //: 2 The NUL character is handled correctly regardless of whether it
+        //:   belongs to the object or is the character being erased.
+        //:
+        //: 3 An empty string is handled correctly.
+        //:
+        //: 4 No additional memory allocation occurs.
+        //
+        // Plan:
+        //: 1 Call 'erase' and 'erase_if' on an empty string and make sure
+        //:   there is no effect. (C-1)
+        //:
+        //: 2 Construct an object with a variety of elements, including the NUL
+        //:   character.
+        //:
+        //: 3 Call 'erase' and 'erase_if' methods and verify the results.
+        //:   (C-1, 2, 3)
+        //:
+        //: 4 Verify that no additional memory allocation occurs during
+        //:   erasure. (C-4)
+        //
+        // Testing:
+        //   size_type erase(basic_string& str, const C& c);
+        //   size_type erase_if(basic_string& str, const UNARY_PRED& pred);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING 'erase' AND 'erase_if'\n"
+                                 "==============================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase42();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase42();
+      } break;
       case 41: {
         // --------------------------------------------------------------------
         // TESTING 'starts_with' AND 'ends_with'
