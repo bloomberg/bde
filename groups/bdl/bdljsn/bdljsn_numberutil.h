@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Interpretting a JSON Number String
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Interpreting a JSON Number String
+/// - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using 'bdljsn::NumberUtil' to work with a JSON
 // number string.  Imagine we are given and array of strings for numbers we
 // expect to be integers, for each string we want to render some properties for
@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 // First, we define an interesting set of example data:
 //..
 //  const char *EXAMPLE_DATA[] = {
-//     // value                               coverted int value & notes
-//     // -----                               --------------------------
+//     // value                               converted int value & notes
+//     // -----                               ---------------------------
 //     "NaN",                                // invalid number
 //     "INF",                                // invalid number
 //     "1",                                  // 1,         exact
@@ -184,7 +184,7 @@ struct NumberUtil {
         // or -INF (as appropriate).  The behavior is undefined unless
         // 'isValidNumber(value)' is 'true'.
 
-           // exact floint point conversions
+           // exact floating point conversions
 
     static int asDecimal64Exact(bdldfp::Decimal64       *result,
                                 const bsl::string_view&  value);
@@ -227,7 +227,7 @@ struct NumberUtil {
                          const bsl::string_view&  value);
         // Load into the specified 'result' (of the template parameter type
         // 't_INTEGER_TYPE') with the specified 'value', even if a non-zero
-        // status is returned (truncating fractional digits if necesssary).
+        // status is returned (truncating fractional digits if necessary).
         // Return 0 on success, 'k_OVERFLOW' if 'value' is larger than can be
         // represented by 'result', 'k_UNDERFLOW' if 'value' is smaller than
         // can be represented by 'result',  and 'k_NOT_INTEGRAL' if 'value' is
@@ -383,13 +383,13 @@ struct NumberUtil_ImpUtil {
         // Finally, note that 'significantDigits', 'significantDigitBias', and
         // 'significantDigitsDotOffset' are useful when considering a canonical
         // representation for a JSON Number, which consists of a whole number
-        // (with leading and trailing zeroes removed) and an exponent.   This
+        // (with leading and trailing zeros removed) and an exponent.   This
         // canonical representation can be used when determining whether two
         // JSON numbers are equal.  For example, "-12.30e-4" would have a
         // canonical representation -123e-5.  This canonical representation can
         // be computed by taking the returned 'significantDigits', "12.3",
         // ignoring the '.' character at 'significantDigitsOffset' and
-        // incorporating 'isNegative' to get the canonical singificant digits
+        // incorporating 'isNegative' to get the canonical significant digits
         // -123, then combining 'exponent' ("4") with 'isExponentNegative' to
         // get the exponent of -4 and then adding the returned
         // 'significantDigitsBias' of -1 to that exponent to get the canonical

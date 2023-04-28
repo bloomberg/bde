@@ -66,14 +66,20 @@ BSLS_IDENT("$Id: $")
 // <UNSIGNED64> ::= <NUMBER>
 //      <UNSIGNED64> must be in range
 //                           [0 .. 0xFFFFFFFFFFFFFFFFuLL].
+//
+// <DECIMAL_EXPONENT> ::= <DECIMAL_NUMBER>
 // <REAL> ::= <OPTIONAL_SIGN>
 //            (<DECIMAL_DIGIT>+ (. <DECIMAL_DIGIT>*)? | . <DECIMAL_DIGIT>+)
-//            (e|E <DECIMAL_NUMBER>)
-// <INF>    ::= infinity | inf
+//            (e|E <DECIMAL_EXPONENT>)
+//
+// <INF>    ::= <OPTIONAL_SIGN> infinity | inf
 //              case insensitive
+//
 // <NAN-SEQUENCE> ::= [abcdefghijklmnopqrstuvwxyz0123456789_]*
-// <NAN>    ::= nan(<NAN-SEQUENCE>) | nan
+//                    case insensitive
+// <NAN>    ::= <OPTIONAL_SIGN> nan(<NAN-SEQUENCE>) | nan
 //              case insensitive
+//
 // <DOUBLE> ::= <REAL> | <INF> | <NAN>
 //      <DOUBLE> must be in range [DBL_MIN .. DBL_MAX].
 //..
@@ -130,15 +136,6 @@ BSLS_IDENT("$Id: $")
 //:     char-sequence may be empty or contain digits, letters from the Latin
 //:     alphabet and underscores.
 //
-///!Warning!: Microsoft Visual Studio 2013 Output for Infinity and NaN
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Microsoft Visual Studio 2013 generates surprising output text when printing
-// (using 'printf') or streaming (using C++ iostream) the 'double'
-// representations for infinity and NaN.  For example, infinity might be
-// rendered "1.#INF00" and NaN might be rendered "1.#IND00" or "1.#NAN0".
-// 'parseDouble' will successfully parse this text but will not return the
-// result one would naively expect (e.g., returning the value 1.0).
-//
 ///Usage Example
 ///-------------
 // In this section, we show the intended usage of this component.
@@ -151,7 +148,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create the string:
 //..
-//  bsl::string_view input("20171024", 4);
+//  const bsl::string_view input("20171024", 4);
 //..
 // Then we create the output variables for the parser:
 //..
@@ -160,7 +157,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next we call the parser function:
 //..
-//  int rv = bdlb::NumericParseUtil::parseInt(&year, &rest, input);
+//  const int rv = bdlb::NumericParseUtil::parseInt(&year, &rest, input);
 //..
 // Then we verify the results:
 //..
@@ -172,6 +169,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
@@ -208,17 +206,18 @@ struct NumericParseUtil {
                            bsl::string_view        *remainder,
                            const bsl::string_view&  inputString);
         // Parse the specified 'inputString' for a sequence of characters
-        // matching the production rule <DOUBLE> (see {GRAMMAR PRODUCTION
-        // RULES}) and place into the specified 'result' the corresponding
+        // matching the production rule <DOUBLE> (see {Grammar Production
+        // Rules}) and place into the specified 'result' the corresponding
         // value.  Optionally specify 'remainder', in which to store the
         // remainder of the 'inputString' immediately following the
         // successfully parsed text, or the position at which a parse failure
         // was detected.  Return zero on success, and a non-zero value
         // otherwise.  The value of 'result' is unchanged if a parse failure
-        // occurs.  The behavior is undefined unless the current numeric locale
-        // is the "C" locale, such that
-        // 'strcmp(setlocale(LC_NUMERIC, 0), "C") == 0'.  For more information
-        // see {Floating Point Values}.
+        // occurs.  Underflow and overflow are not failures, and return 0.0 and
+        // infinity with the appropriate sign, respectively.  The behavior is
+        // undefined unless the current numeric locale is the "C" locale, such
+        // that 'strcmp(setlocale(LC_NUMERIC, 0), "C") == 0'.  For more
+        // information see {Floating Point Values}.
 
     static int parseInt(int                     *result,
                         const bsl::string_view&  inputString,
@@ -228,7 +227,7 @@ struct NumericParseUtil {
                         const bsl::string_view&  inputString,
                         int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
-        // characters forming an <INT> (see {GRAMMAR PRODUCTION RULES}) in the
+        // characters forming an <INT> (see {Grammar Production Rules}) in the
         // optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
         // value.  Optionally specify 'remainder', in which to store the
@@ -259,7 +258,7 @@ struct NumericParseUtil {
                           const bsl::string_view&  inputString,
                           int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
-        // characters forming a valid <INT64> (see {GRAMMAR PRODUCTION RULES})
+        // characters forming a valid <INT64> (see {Grammar Production Rules})
         // in the optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
         // value.  Optionally specify 'remainder', in which to store the
@@ -290,7 +289,7 @@ struct NumericParseUtil {
                           const bsl::string_view&  inputString,
                           int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
-        // characters forming a valid <SHORT> (see {GRAMMAR PRODUCTION RULES})
+        // characters forming a valid <SHORT> (see {Grammar Production Rules})
         // in the optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
         // value.  Optionally specify 'remainder', in which to store the
@@ -321,7 +320,7 @@ struct NumericParseUtil {
                          const bsl::string_view&  inputString,
                          int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
-        // characters forming an <UNSIGNED> (see {GRAMMAR PRODUCTION RULES}) in
+        // characters forming an <UNSIGNED> (see {Grammar Production Rules}) in
         // the optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
         // value.  Optionally specify 'remainder', in which to store the
@@ -351,8 +350,8 @@ struct NumericParseUtil {
                            const bsl::string_view&  inputString,
                            int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
-        // characters forming a valid <UNSIGNED64> (see {GRAMMAR PRODUCTION
-        // RULES}) in the optionally specified 'base' or in base 10 if 'base'
+        // characters forming a valid <UNSIGNED64> (see {Grammar Production
+        // Rules}) in the optionally specified 'base' or in base 10 if 'base'
         // is not specified, and place into the specified 'result' the
         // corresponding value.  Optionally specify 'remainder', in which to
         // store the remainder of the 'inputString' immediately following the
@@ -382,7 +381,7 @@ struct NumericParseUtil {
                            const bsl::string_view&  inputString,
                            int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
-        // characters forming a valid <USHORT> (see {GRAMMAR PRODUCTION RULES})
+        // characters forming a valid <USHORT> (see {Grammar Production Rules})
         // in the optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
         // value.  Optionally specify 'remainder', in which to store the

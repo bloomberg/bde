@@ -94,11 +94,6 @@
 // [10] DRQS 165560983
 //-----------------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_CMP_MSVC
-// disable warning about decorated name length being exceeded
-#pragma warning( disable : 4503 )
-#endif
-
 // ============================================================================
 //                MACROS EXPORTING INITIALIZATION OUT OF MAIN
 // ----------------------------------------------------------------------------

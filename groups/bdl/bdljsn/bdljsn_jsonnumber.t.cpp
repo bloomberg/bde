@@ -1,6 +1,8 @@
 // bdljsn_jsonnumber.t.cpp                                            -*-C++-*-
 #include <bdljsn_jsonnumber.h>
 
+#include <bdlb_stringviewutil.h>
+
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalutil.h>
 
@@ -17,13 +19,14 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_log.h>
 #include <bsls_nameof.h>
 #include <bsls_review.h>
 
 #include <bsl_cassert.h>
 #include <bsl_cstddef.h>     // 'bsl::size_t'
 #include <bsl_cstdlib.h>     // 'bsl::atoi'
-#include <bsl_cstring.h>     // 'bsl::memcpy'
+#include <bsl_cstring.h>     // 'bsl::memcpy', 'bsl:strstr'
 #include <bsl_iostream.h>
 #include <bsl_limits.h>      // 'bsl::numeric_limits'
 #include <bsl_ostream.h>      // 'operator<<'
@@ -153,6 +156,8 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [17] USAGE EXAMPLE
+// [  ] CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures
+// [  ] CONCERN: Only expected bsls log messages occur.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -281,6 +286,85 @@ const DefaultDataRow DEFAULT_DATA[] =
     , { L_  , 'Y', LONGEST_STRING }
 };
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
+
+// ============================================================================
+//                HELPERS FOR REVIEW & LOG MESSAGE HANDLING
+// ----------------------------------------------------------------------------
+
+static bool containsCaseless(const bsl::string_view& string,
+                             const bsl::string_view& subString)
+    // Return 'true' if the specified 'subString' is present in the specified
+    // 'string' disregarding case of alphabet characters '[a-zA-Z]', otherwise
+    // return 'false'.
+{
+    if (subString.empty()) {
+        return true;                                                  // RETURN
+    }
+
+    typedef bdlb::StringViewUtil SVU;
+    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
+
+    return !rsv.empty();
+}
+
+// ============================================================================
+//                   EXPECTED 'BSLS_REVIEW' TEST HANDLERS
+// ----------------------------------------------------------------------------
+
+// These handlers are needed only temporarily until we determine how to fix the
+// broken contract of 'bdlb::NumericParseUtil::parseDouble()' that says under-
+// and overflow is not allowed yet the function supports it.
+
+bool isBdlbNumericParseUtilReview(const bsls::ReviewViolation& reviewViolation)
+    // Return 'true' if the specified 'reviewViolation' has been raised by the
+    // 'bdlb_numericparseutil' component or no source file names are supported
+    // by the build, otherwise return 'false'.
+{
+    const char *fn = reviewViolation.fileName();
+    const bool fileOk = ('\0' == fn[0] // empty or has the component name
+                             || containsCaseless(fn, "bdlb_numericparseutil"));
+    return fileOk;
+}
+
+bool isUnderflowReview(const bsls::ReviewViolation& reviewViolation)
+    // Return 'true' if the specified 'reviewViolation' is an underflow message
+    // from the 'bdlb_numericparseutil' component (or no source file names are
+    // supported by the build), otherwise return 'false'.
+{
+
+    return containsCaseless(reviewViolation.comment(), "underflow")
+        && isBdlbNumericParseUtilReview(reviewViolation);
+}
+
+bool isOverflowReview(const bsls::ReviewViolation& reviewViolation)
+    // Return 'true' if the specified 'reviewViolation' is an overflow message
+    // from the 'bdlb_numericparseutil' component (or no source file names are
+    // supported by the build), otherwise return 'false'.
+{
+
+    return containsCaseless(reviewViolation.comment(), "overflow")
+        && isBdlbNumericParseUtilReview(reviewViolation);
+}
+
+void expectUnderflow(const bsls::ReviewViolation& reviewViolation)
+    // If the specified 'reviewViolation' is an expected underflow-related
+    // message from 'parseDouble' do nothing, otherwise call
+    // 'bsls::Review::failByAbort()'.
+{
+    if (!isUnderflowReview(reviewViolation)) {
+        bsls::Review::failByAbort(reviewViolation);
+    }
+}
+
+void expectOverflow(const bsls::ReviewViolation& reviewViolation)
+    // If the specified 'reviewViolation' is an expected overflow-related
+    // message from 'parseDouble' do nothing, otherwise call
+    // 'bsls::Review::failByAbort()'.
+{
+    if (!isOverflowReview(reviewViolation)) {
+        bsls::Review::failByAbort(reviewViolation);
+    }
+}
 
 // ============================================================================
 //                          CLASSES FOR TESTING
@@ -507,6 +591,8 @@ void testCase11I(int        argc,
 
     if (veryVerbose) cout << "Test overflow behavior" << endl;
     {
+        bsls::ReviewFailureHandlerGuard reviewGuard(&expectOverflow);
+
         bsl::string text(MAX_AS_STRING);
         text += "0";  // Multiply maximum value by 10.
 
@@ -521,6 +607,8 @@ void testCase11I(int        argc,
 
     if (veryVerbose) cout << "Test underflow behavior" << endl;
     {
+        bsls::ReviewFailureHandlerGuard reviewGuard(&expectUnderflow);
+
         if (IS_SIGNED) {
             bsl::string text(MAX_AS_STRING);
             text =       text + "0";  // Multiply maximum value by 10.
@@ -787,6 +875,8 @@ void testCase11F(int                  argc,
 
     if (veryVerbose) cout << "Test overflow behavior" << endl;
     {
+        bsls::ReviewFailureHandlerGuard reviewGuard(&expectOverflow);
+
         Obj mX(      SUPER_MAX_AS_STRING); const Obj& X = mX;
         Obj mY("-" + SUPER_MAX_AS_STRING); const Obj& Y = mY;
 
@@ -799,6 +889,8 @@ void testCase11F(int                  argc,
 
     if (veryVerbose) cout << "Test underflow  behavior" << endl;
     {
+        bsls::ReviewFailureHandlerGuard reviewGuard(&expectUnderflow);
+
         Obj mX(      SUPER_MIN_AS_STRING); const Obj& X = mX;
         Obj mY("-" + SUPER_MIN_AS_STRING); const Obj& Y = mY;
 
@@ -870,18 +962,17 @@ int main(int argc, char *argv[])
 
     const int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
 
-    BSLA_MAYBE_UNUSED const bool             verbose = argc > 2;
-    BSLA_MAYBE_UNUSED const bool         veryVerbose = argc > 3;
-    BSLA_MAYBE_UNUSED const bool     veryVeryVerbose = argc > 4;
-    BSLA_MAYBE_UNUSED const bool veryVeryVeryVerbose = argc > 5;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
-
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
@@ -1885,7 +1976,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 For each of the supported numeric types, replicate the test
-        //:   framework (using the "footprint" iditom) used in test case 2.
+        //:   framework (using the "footprint" idiom) used in test case 2.
         //:
         //:   1 To facilitate the replication of test frameworks, helper
         //:     function templates 'testCase11I' (integral types) and

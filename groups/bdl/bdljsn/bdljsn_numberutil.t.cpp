@@ -5,11 +5,13 @@
 #include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_decimalutil.h>
 
-#include <bdlpcre_regex.h>
 #include <bdlma_guardingallocator.h>
 
 #include <bdlb_numericparseutil.h>
 #include <bdlb_string.h>
+#include <bdlb_stringviewutil.h>
+
+#include <bdlpcre_regex.h>
 
 #include <bsla_maybeunused.h>
 
@@ -24,14 +26,18 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
+#include <bsls_log.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
+
 #include <bsltf_templatetestfacility.h>
 
 #include <bsl_cstddef.h>  // 'bsl::size_t'
+#include <bsl_cstdlib.h>  // 'bsl::atoi'
 #include <bsl_cstring.h>  // 'bsl::strlen', 'bsl::memcpy'
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -40,10 +46,8 @@
 #include <bsl_string_view.h>
 #include <bsl_vector.h>
 
-#include <stdint.h>
-#include <stdlib.h>  // atoi
-
 using bsl::cout;
+using bsl::cerr;
 using bsl::endl;
 using namespace BloombergLP;
 
@@ -62,22 +66,22 @@ using namespace BloombergLP;
 // NumberUtil
 // ----------
 // CLASS METHODS
-// [ 9] bool isIntegralNumber(const bsl::string_view& );
-// [ 3] bool isValidNumber(const bsl::string_view& );
-// [ 6] float asFloat(const bsl::string_view& );
-// [ 6] double asDouble(const bsl::string_view& );
-// [ 7] bdldfp::Decimal64 asDecimal64(const bsl::string_view& );
-// [ 7] int asDecimal64Exact(Decimal64 *, const bsl::string_view&  );
-// [11] int asInt(int *, const bsl::string_view& );
-// [11] int asInt64(Int64 *, const bsl::string_view& );
-// [11] int asUint(unsigned int *, const bsl::string_view& );
-// [ 5] int asUint64(Uint64 *, const bsl::string_view& );
-// [10] int asInteger(t_INTEGER_TYPE *, const bsl::string_view& );
-// [12] void stringify(bsl::string *, Int64 );
-// [12] void stringify(bsl::string *, Uint64 );
-// [12] void stringify(bsl::string *, double );
+// [ 9] bool isIntegralNumber(const bsl::string_view&);
+// [ 3] bool isValidNumber(const bsl::string_view&);
+// [ 6] float asFloat(const bsl::string_view&);
+// [ 6] double asDouble(const bsl::string_view&);
+// [ 7] bdldfp::Decimal64 asDecimal64(const bsl::string_view&);
+// [ 7] int asDecimal64Exact(Decimal64 *, const bsl::string_view&);
+// [11] int asInt(int *, const bsl::string_view&);
+// [11] int asInt64(Int64 *, const bsl::string_view&);
+// [11] int asUint(unsigned int *, const bsl::string_view&);
+// [ 5] int asUint64(Uint64 *, const bsl::string_view&);
+// [10] int asInteger(t_INTEGER_TYPE *, const bsl::string_view&);
+// [12] void stringify(bsl::string *, Int64);
+// [12] void stringify(bsl::string *, Uint64);
+// [12] void stringify(bsl::string *, double);
 // [12] void stringify(bsl::string *, const bdldfp::Decimal64& vlue);
-// [ 8] bool areEqual(const string_view& , const string_view& );
+// [ 8] bool areEqual(const string_view& , const string_view&);
 //
 // NumberUtil_ImpUtil
 // ------------------
@@ -88,7 +92,9 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
 // [ 3] CONCERN: 'IsValidNumber' functor can be used as an oracle.
-// [ 2] CONCERN: Test Machinary
+// [ 2] CONCERN: Test Machinery
+// [  ] CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures
+// [  ] CONCERN: 'bsls::Log' messages are sent by the tested module only.
 // [-1] BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle
 
 // ============================================================================
@@ -136,7 +142,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                    NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -145,7 +151,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
-//                                TEST APPARATUS
+//                              TEST APPARATUS
 // ----------------------------------------------------------------------------
 
 typedef BloombergLP::bdljsn::NumberUtil          Obj;
@@ -164,13 +170,71 @@ BSLA_MAYBE_UNUSED bool     veryVeryVerbose;
 BSLA_MAYBE_UNUSED bool veryVeryVeryVerbose;
 
 // ============================================================================
-//                             HELPER FUNCTIONS
+//                HELPERS FOR REVIEW & LOG MESSAGE HANDLING
 // ----------------------------------------------------------------------------
 
-                        // ===================
-                        // class IsValidNumber
-                        // ===================
+static bool containsCaseless(const bsl::string_view& string,
+                             const bsl::string_view& subString)
+    // Return 'true' if the specified 'subString' is present in the specified
+    // 'string' disregarding case of alphabet characters '[a-zA-Z]', otherwise
+    // return 'false'.
+{
+    if (subString.empty()) {
+        return true;                                                  // RETURN
+    }
 
+    typedef bdlb::StringViewUtil SVU;
+    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
+
+    return !rsv.empty();
+}
+
+// ============================================================================
+//                    EXPECTED 'BSLS_REVIEW' TEST HANDLERS
+// ----------------------------------------------------------------------------
+
+// These handlers are needed only temporarily until we determine how to fix the
+// broken contract of 'bdlb::NumericParseUtil::parseDouble()' that says under-
+// and overflow is not allowed yet the function supports it.
+
+bool isBdlbNumericParseUtilReview(const bsls::ReviewViolation& reviewViolation)
+    // Return 'true' if the specified 'reviewViolation' has been raised by the
+    // 'bdlb_numericparseutil' component or no source file names are supported
+    // by the build, otherwise return 'false'.
+{
+    const char *fn = reviewViolation.fileName();
+    const bool fileOk = ('\0' == fn[0]) // empty or has the component name
+                              || containsCaseless(fn, "bdlb_numericparseutil");
+    return fileOk;
+}
+
+bool isRangeReview(const bsls::ReviewViolation& reviewViolation)
+    // Return 'true' if the specified 'reviewViolation' is an overflow or
+    // underflow message from the 'bdlb_numericparseutil' component (or no
+    // source file names are supported by the build), otherwise return 'false'.
+{
+    return isBdlbNumericParseUtilReview(reviewViolation) &&
+                    (containsCaseless(reviewViolation.comment(), "overflow") ||
+                     containsCaseless(reviewViolation.comment(), "underflow"));
+}
+
+void ignoreRangeMsgs(const bsls::ReviewViolation& reviewViolation)
+    // If the specified 'reviewViolation' is an expected overflow-related
+    // message from 'parseDouble' do nothing, otherwise call
+    // 'bsls::Review::failByAbort()'.
+{
+    if (!isRangeReview(reviewViolation)) {
+        bsls::Review::failByAbort(reviewViolation);
+    }
+}
+
+// ============================================================================
+//                        JSON NUMBER VALIDATOR ORACLE
+// ----------------------------------------------------------------------------
+
+                           // ===================
+                           // class IsValidNumber
+                           // ===================
 class IsValidNumber {
     // This functor class matches the textual pattern of a valid JSON number.
 
@@ -185,13 +249,13 @@ class IsValidNumber {
 
     // ACCESSORS
     bool operator()(const bsl::string_view& text) const;
-        // Return 'true' if the specifiedd 'text' matches the pattern of
-        // a valid JSON number, and 'false' otherwise.
+        // Return 'true' if the specified 'text' matches the pattern of a valid
+        // JSON number, and 'false' otherwise.
 };
 
-                        // -------------------
-                        // class IsValidNumber
-                        // -------------------
+                           // -------------------
+                           // class IsValidNumber
+                           // -------------------
 
 // CREATORS
 IsValidNumber::IsValidNumber()
@@ -217,6 +281,10 @@ bool IsValidNumber::operator()(const bsl::string_view& text) const
     return 0 == d_regEx.match(text);
 }
 
+// ============================================================================
+//                             HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+
 template <class FP_TYPE>
 FP_TYPE fabsval(FP_TYPE input)
     // Return the absolute value of the specified 'input'.
@@ -230,14 +298,14 @@ int fuzzyCompare(FP_TYPE a, FP_TYPE b)
     // Return 'true' if the specified 'a' and 'b' are approximately the same
     // floating point value, and 'false' otherwise'.
 {
-  const FP_TYPE S_REL_TOL = FP_TYPE(1e-12);  // Default relative and
-  const FP_TYPE S_ABS_TOL = FP_TYPE(1e-24);  // absolute tolerances.
+    const FP_TYPE S_REL_TOL = FP_TYPE(1e-12);  // Default relative and
+    const FP_TYPE S_ABS_TOL = FP_TYPE(1e-24);  // absolute tolerances.
 
-  // First check for the *very* special case of true equality.
+    // First check for the *very* special case of true equality.
 
-  if (a == b) {
-      return true;                                                    // RETURN
-  }
+    if (a == b) {
+        return true;                                                  // RETURN
+    }
 
     // Next check for special case where the relative difference is "infinite".
 
@@ -361,8 +429,8 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
     if (exponent.size() > 0) {
         bsl::string_view remainder;
         int rc = bdlb::NumericParseUtil::parseInt64(&originalExponent,
-                                                    &remainder,
-                                                    exponent);
+                                                          &remainder,
+                                                          exponent);
         if (0 != rc || 0 != remainder.size()) {
             return;                                                   // RETURN
         }
@@ -381,7 +449,8 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
         originalExponent += exponentBias;
     }
 
-    bsl::string::size_type decimalPos = digits.find_first_of('.');
+    typedef bsl::string::size_type SizeType;
+    SizeType decimalPos = digits.find_first_of('.');
     if (decimalPos != bsl::string::npos) {
         digits.erase(digits.begin() + decimalPos);
     }
@@ -397,12 +466,13 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
 
         Int64 adjustedDecimalPos = Int64(decimalPos) + originalExponent - exp;
         if (adjustedDecimalPos <= 0) {
-            bsl::string zeros(-adjustedDecimalPos, '0');
+            bsl::string zeros(SizeType(-adjustedDecimalPos), '0');
 
             output << "0." << zeros << digits << 'e' << bsl::to_string(exp);
         }
         else if (adjustedDecimalPos > static_cast<int>(digits.size())) {
-            bsl::string zeros(adjustedDecimalPos - digits.size(), '0');
+            bsl::string zeros(SizeType(adjustedDecimalPos) - digits.size(),
+                              '0');
             output << digits << zeros << 'e' << bsl::to_string(exp);
         }
         else if (adjustedDecimalPos == static_cast<int>(digits.size())) {
@@ -410,7 +480,7 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
         }
         else {
             bsl::string adjusted(digits);
-            adjusted.insert(adjustedDecimalPos, 1, '.');
+            adjusted.insert(SizeType(adjustedDecimalPos), 1, '.');
             output << adjusted << 'e' << bsl::to_string(exp);
         }
 
@@ -534,7 +604,7 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
         return 0;                                                     // RETURN
     }
 
-    const Int64  INT_MIN_VALUE = bsl::numeric_limits<Int64>::min();
+    const Int64  INT_MIN_VALUE  = bsl::numeric_limits<Int64>::min();
     const Uint64 UINT_MAX_VALUE = bsl::numeric_limits<Uint64>::max();
 
     Uint64 uExponent;
@@ -609,6 +679,10 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
     return 0;
 }
 
+// ============================================================================
+//                          TEMPLATED TEST CASE 10
+// ----------------------------------------------------------------------------
+
 template <class t_INTEGRAL_TYPE>
 struct AsIntegralTest {
     // Provide a 'bsltf_templatetestfacility' compatible test case for testing
@@ -632,8 +706,8 @@ struct AsIntegralTest {
 
         const Uint64 k_MAX = bsl::numeric_limits<Uint64>::max();
 
-        // 'd_result' is held in a Uint64 to allow for testing Uint64, but
-        // requires holding a separate d_isNegative flag.
+        // 'd_result' is held in a 'Uint64' to allow for testing 'Uint64', but
+        // requires holding a separate 'd_isNegative' flag.
 
         struct Data {
             int         d_line;
@@ -643,46 +717,46 @@ struct AsIntegralTest {
             Uint64      d_result;
         } DATA[] = {
                 // Test a variety of 0 values
-            { L_, OK,                        "0", P,           0 },
-            { L_, OK,                      "0.0", P,           0 },
-            { L_, OK,                   "0.0000", P,           0 },
-            { L_, OK,            "0.0000e100000", P,           0 },
-            { L_, OK,              "0.0e-100000", P,           0 },
-            { L_, OK,             "0.00e+100000", P,           0 },
-            { L_, OK,            "0.000e-100000", P,           0 },
-            { L_, OK,    "0.00000000e1000000000", P,           0 },
-            { L_, OK,   "0e18446744073709551615", P,           0 },
-            { L_, OK,  "0e-18446744073709551615", P,           0 },
+            { L_, OK,                        "0", P,           0    },
+            { L_, OK,                      "0.0", P,           0    },
+            { L_, OK,                   "0.0000", P,           0    },
+            { L_, OK,            "0.0000e100000", P,           0    },
+            { L_, OK,              "0.0e-100000", P,           0    },
+            { L_, OK,             "0.00e+100000", P,           0    },
+            { L_, OK,            "0.000e-100000", P,           0    },
+            { L_, OK,    "0.00000000e1000000000", P,           0    },
+            { L_, OK,   "0e18446744073709551615", P,           0    },
+            { L_, OK,  "0e-18446744073709551615", P,           0    },
 
                 // Test a variety of integers
-            { L_, OK,                        "1", P,           1 },
-            { L_, OK,                     "1e-0", P,           1 },
-            { L_, OK,                     "1e+0", P,           1 },
-            { L_, OK,                       "10", P,          10 },
-            { L_, OK,                      "105", P,         105 },
-            { L_, OK,                      "1e1", P,          10 },
-            { L_, OK,                    "1.5e1", P,          15 },
-            { L_, OK,                    "1.5e1", P,          15 },
-            { L_, OK,                    "1.5e2", P,         150 },
-            { L_, OK,                    "1.0e2", P,         100 },
-            { L_, OK,                 "150.0e-1", P,          15 },
-            { L_, OK,                "-150.0e-1", N,          15 },
-            { L_, OK,            "1E+0000000001", P,          10 },
-            { L_, OK,                    "-1e10", N, 10000000000ULL},
+            { L_, OK,                        "1", P,           1    },
+            { L_, OK,                     "1e-0", P,           1    },
+            { L_, OK,                     "1e+0", P,           1    },
+            { L_, OK,                       "10", P,          10    },
+            { L_, OK,                      "105", P,         105    },
+            { L_, OK,                      "1e1", P,          10    },
+            { L_, OK,                    "1.5e1", P,          15    },
+            { L_, OK,                    "1.5e1", P,          15    },
+            { L_, OK,                    "1.5e2", P,         150    },
+            { L_, OK,                    "1.0e2", P,         100    },
+            { L_, OK,                 "150.0e-1", P,          15    },
+            { L_, OK,                "-150.0e-1", N,          15    },
+            { L_, OK,            "1E+0000000001", P,          10    },
+            { L_, OK,                    "-1e10", N, 10000000000ULL },
 
                 // min and max values for various integral types
-            { L_, OK,                    "-128", N, 128 },
-            { L_, OK,                     "127", P, 127 },
-            { L_, OK,                     "255", P, 255 },
-            { L_, OK,                  "-32768", N, 32768 },
-            { L_, OK,                   "32767", P, 32767 },
-            { L_, OK,                   "65535", P, 65535 },
-            { L_, OK,             "-2147483648", N, 2147483648ULL },
-            { L_, OK,              "2147483647", P, 2147483647ULL },
-            { L_, OK,              "4294967295", P, 4294967295ULL },
+            { L_, OK,                    "-128", N,                 128    },
+            { L_, OK,                     "127", P,                 127    },
+            { L_, OK,                     "255", P,                 255    },
+            { L_, OK,                  "-32768", N,               32768    },
+            { L_, OK,                   "32767", P,               32767    },
+            { L_, OK,                   "65535", P,               65535    },
+            { L_, OK,             "-2147483648", N,          2147483648ULL },
+            { L_, OK,              "2147483647", P,          2147483647ULL },
+            { L_, OK,              "4294967295", P,          4294967295ULL },
             { L_, OK,    "-9223372036854775808", N, 9223372036854775808ULL },
             { L_, OK,     "9223372036854775807", P, 9223372036854775807ULL },
-            { L_, OK,    "18446744073709551615", P, k_MAX },
+            { L_, OK,    "18446744073709551615", P, k_MAX                  },
 
                 // test values whose expected values can't be represented
                 // 'd_expected' should not be used.
@@ -742,7 +816,7 @@ struct AsIntegralTest {
             if (!ISNEG && (EXPECTED_U64 > maxAsU64 || STATUS == EOVER)) {
                 // The 'INPUT' is a positive value, and its 'VALUE' is above
                 // the maximum representable value for this type (or outside
-                // the range EXPECTED_U64 can represent).
+                // the range 'EXPECTED_U64' can represent).
 
                 expectedRc = Obj::k_OVERFLOW;
                 expected   = bsl::numeric_limits<t_INTEGRAL_TYPE>::max();
@@ -750,7 +824,7 @@ struct AsIntegralTest {
             else if (ISNEG && (EXPECTED_U64 > minAsU64 || STATUS == EOVER)) {
                 // The 'INPUT' is a negative value, and its 'VALUE' is below
                 // the minimum representable value for this type (or outside
-                // the range EXPECTED_U64 can represent).
+                // the range 'EXPECTED_U64' can represent).
 
                 expectedRc = Obj::k_UNDERFLOW;
                 expected   = bsl::numeric_limits<t_INTEGRAL_TYPE>::min();
@@ -773,7 +847,7 @@ struct AsIntegralTest {
 
             if (expected != result || expectedRc != rc) {
                 // Do not unnecessarily repeat a large number of error reports.
-                continue;
+                continue;                                           // CONTINUE
             }
 
             // Generate equivalent numeric values but with a wide range of
@@ -809,13 +883,12 @@ struct AsIntegralTest {
 // points extracted and messaged a bit.
 //
 // Two modified tests:
-// n_multidigit_number_then_00.json - test data format cannot handle embeded 0,
-//                   manually tested
+// n_multidigit_number_then_00.json - test data format can't handle embedded 0,
+//                                    manually tested
 //
-// y_number_after_space.json - this is not a valid number according
-//     to the JSON spec.  A whitespace prefix will be handled by the
-//     tokenizer it bdljsn.
-//
+// y_number_after_space.json - this is not a valid number according to the JSON
+//                             spec.  A whitespace prefix will be handled by
+//                             the tokenizer it bdljsn.
 
 struct JSonSuiteNumericData {
     int         d_line;
@@ -945,7 +1018,7 @@ def main():
                 json = input.read()
             if len(json) > 100:
                 json = b"Skipped Too Long"
-            success_text = "true" if success else "false";
+            success_text = " true" if success else "false";
             print(f', {{ L_, "{filename}", {success_text}, "',
                   end = "", flush = True)
             sys.stdout.buffer.write(json)
@@ -1019,11 +1092,10 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
-    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&ignoreRangeMsgs);
 
     // CONCERN: In no case does memory come from the global allocator.
-
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
@@ -1047,17 +1119,25 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << bsl::endl
-                      << "USAGE EXAMPLE" << bsl::endl
-                      << "=============" << bsl::endl;
+            bsl::cout << "\nUSAGE EXAMPLE"
+                         "\n=============" << bsl::endl;
+        }
+
+        if (!verbose) {
+            // Usage examples are supposed to use ASSERT to make their point,
+            // not direct printouts as a test driver is not supposed to print
+            // anything but the test case number executed when no verbosity was
+            // requested on the command line.  Therefore we do not execute this
+            // usage example unless output was requested.
+            break;                                                     // BREAK
         }
 
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Interpretting a JSON Number String
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Interpreting a JSON Number String
+/// - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using 'bdljsn::NumberUtil' to work with a JSON
 // number string.  Imagine we are given and array of strings for numbers we
 // expect to be integers, for each string we want to render some properties for
@@ -1066,8 +1146,8 @@ int main(int argc, char *argv[])
 // First, we define an interesting set of example data:
 //..
     const char *EXAMPLE_DATA[] = {
-       // value                               coverted int value & notes
-       // -----                               --------------------------
+       // value                               converted int value & notes
+       // -----                               ---------------------------
        "NaN",                                // invalid number
        "INF",                                // invalid number
        "1",                                  // 1,         exact
@@ -1170,6 +1250,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\nTESTING: stringify"
                       << "\n==================" << bsl::endl;
         }
+
         if (verbose) bsl::cout << "\tTest stringify Int64" << bsl::endl;
         {
             struct Data {
@@ -1177,14 +1258,14 @@ int main(int argc, char *argv[])
                 Int64       d_input;
                 const char *d_expected;
             } DATA[] = {
-            { L_,                          0,                    "0" },
-            { L_,                         15,                   "15" },
-            { L_,                        -15,                  "-15" },
-            { L_,                        100,                  "100" },
+                { L_,                          0,                    "0" },
+                { L_,                         15,                   "15" },
+                { L_,                        -15,                  "-15" },
+                { L_,                        100,                  "100" },
 
-                    // boundary checks
-            { L_,      9223372036854775807LL,  "9223372036854775807" },
-            { L_, -9223372036854775807LL - 1, "-9223372036854775808" },
+                        // boundary checks
+                { L_,      9223372036854775807LL,  "9223372036854775807" },
+                { L_, -9223372036854775807LL - 1, "-9223372036854775808" },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1216,12 +1297,12 @@ int main(int argc, char *argv[])
                 Uint64      d_input;
                 const char *d_expected;
             } DATA[] = {
-            { L_,                          0,                    "0" },
-            { L_,                         15,                    "15" },
-            { L_,                        100,                   "100" },
+                { L_,                          0,                    "0"  },
+                { L_,                         15,                    "15" },
+                { L_,                        100,                   "100" },
 
-                    // boundary checks
-            { L_,    18446744073709551615ULL,  "18446744073709551615" },
+                        // boundary checks
+                { L_,    18446744073709551615ULL,  "18446744073709551615" },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1253,19 +1334,18 @@ int main(int argc, char *argv[])
                 double      d_input;
                 const char *d_expected;
             } DATA[] = {
-            { L_,                  0,                     "0" },
-            { L_,                 15,                    "15" },
-            { L_,                100,                   "100" },
+                { L_,                  0,                     "0" },
+                { L_,                 15,                    "15" },
+                { L_,                100,                   "100" },
 
-            { L_,                1.5,                   "1.5" },
-            { L_,        2.22045e-16,           "2.22045e-16" },
-            { L_, 1.4142135623730951,    "1.4142135623730951" },
-            { L_,  3.141592653589793,     "3.141592653589793" },
+                { L_,                1.5,                   "1.5" },
+                { L_,        2.22045e-16,           "2.22045e-16" },
+                { L_, 1.4142135623730951,    "1.4142135623730951" },
+                { L_,  3.141592653589793,     "3.141592653589793" },
 
-                    // boundary checks
-            { L_,       1.79769e+308,          "1.79769e+308" },
-            { L_,       2.22507e-308,          "2.22507e-308" },
-
+                        // boundary checks
+                { L_,       1.79769e+308,          "1.79769e+308" },
+                { L_,       2.22507e-308,          "2.22507e-308" },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1363,6 +1443,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\nTESTING: as[Ui|I]nt[64]"
                       << "\n=======================" << bsl::endl;
         }
+
         if (verbose) bsl::cout << "\tTest asInt" << bsl::endl;
         {
             struct Data {
@@ -1380,8 +1461,8 @@ int main(int argc, char *argv[])
                     // boundary checks
                 { L_,      OK,         2147483647,           "2147483647" },
                 { L_,   EOVER,         2147483647,           "2147483648" },
-                { L_,      OK,        -2147483648,          "-2147483648" },
-                { L_,  EUNDER,        -2147483648,          "-2147483649" },
+                { L_,      OK,        -2147483647-1,        "-2147483648" },
+                { L_,  EUNDER,        -2147483647-1,        "-2147483649" },
 
                     // fraction
                 { L_, ENOTINT,                  1,                "15e-1" },
@@ -1414,18 +1495,18 @@ int main(int argc, char *argv[])
                 unsigned int  d_expected;
                 const char   *d_input;
             } DATA[] = {
-                { L_,      OK,                  0,                    "0" },
-                { L_,      OK,                  0,              "-0.0000" },
-                { L_,      OK,                 15,                   "15" },
-                { L_,      OK,                100,                  "1e2" },
+                { L_,      OK,                  0U,                   "0" },
+                { L_,      OK,                  0U,             "-0.0000" },
+                { L_,      OK,                 15U,                  "15" },
+                { L_,      OK,                100U,                 "1e2" },
 
                     // boundary checks
-                { L_,      OK,         4294967295,           "4294967295" },
-                { L_,   EOVER,         4294967295,           "4294967296" },
-                { L_,  EUNDER,                  0,                   "-1" },
+                { L_,      OK,         4294967295U,          "4294967295" },
+                { L_,   EOVER,         4294967295U,          "4294967296" },
+                { L_,  EUNDER,                  0U,                  "-1" },
 
                     // fraction
-                { L_, ENOTINT,                  1,                "15e-1" },
+                { L_, ENOTINT,                  1U,               "15e-1" },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1526,7 +1607,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 For numbers outside of the range bsl::numeric_limits<T> min and
         //:   max, that the min or max value (respectively) is returned with a
-        //:   status of k_UNDERFLOW or k_OVERFLOW (repsectively).
+        //:   status of k_UNDERFLOW or k_OVERFLOW (respectively).
         //:
         //: 4 That negative values are correctly handled.
         //:
@@ -1541,7 +1622,7 @@ int main(int argc, char *argv[])
         //: 1 Use the 'bsltf_templatetestfacility' to apply the test over
         //:   a range of signed and unsigned integral types.  For a test table
         //:   that tests a range of varied input, compute the expected result
-        //:   from the canonical expted result in the test table, and verify
+        //:   from the canonical expected result in the test table, and verify
         //:   'asInteger' returns the computed expected result.
         //:
         //:   1 For each test point, generate a set of equivalent
@@ -1615,8 +1696,8 @@ int main(int argc, char *argv[])
         //:     result is returned.
         //:
         //: 2 For the same test table, test a couple extreme points from the
-        //:   equivlance set with thousands of '0' characters.  Verify the same
-        //:   result is returned.
+        //:   equivalence set with thousands of '0' characters.  Verify the
+        //:   same result is returned.
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when.
@@ -1893,21 +1974,16 @@ int main(int argc, char *argv[])
             const char *L_INPUT = JSON_SUITE_DATA[i].d_input;
             const char *L_NAME  = JSON_SUITE_DATA[i].d_testName;
 
-            if (!L_EXP) {
-                // Ignore invalid JSON numbers.
-
-                continue;
+            if (!L_EXP) {  // Ignore invalid JSON numbers.
+                continue;                                           // CONTINUE
             }
 
             for (int j = 0; j < NUM_JSON_SUITE_DATA; ++j) {
                 const bool  R_EXP   = JSON_SUITE_DATA[j].d_isValid;
                 const char *R_INPUT = JSON_SUITE_DATA[j].d_input;
                 const char *R_NAME  = JSON_SUITE_DATA[j].d_testName;
-
-                if (!R_EXP) {
-                    // Ignore invalid JSON numbers.
-
-                    continue;
+                if (!R_EXP) {  // Ignore invalid JSON numbers.
+                    continue;                                       // CONTINUE
                 }
 
                 // We must jump through some hoops to determine the expected
@@ -1915,10 +1991,9 @@ int main(int argc, char *argv[])
                 // and "123e-10000000", which are not at the same iterator
                 // position, but will compare true when converted to another
                 // representation (both convert to 0).  The logic here assumes
-                // that either that the test data does *not* include two
-                // different test points that are numerically equal but do not
-                // convert to a Decimal64 exactly (a property we manually
-                // verified).
+                // that the test data does *not* include two different test
+                // points that are numerically equal but do not convert to a
+                // Decimal64 exactly (a property we manually verified).
 
                 bdldfp::Decimal64 junk;
                 bool lhsIsExact = 0 == Obj::asDecimal64Exact(&junk, L_INPUT);
@@ -2070,9 +2145,9 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         }
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int              LINE         = DATA[i].d_line;
-            const char            *INPUT        = DATA[i].d_input;
-            const int              STATUS       = DATA[i].d_status;
+            const int   LINE   = DATA[i].d_line;
+            const char *INPUT  = DATA[i].d_input;
+            const int   STATUS = DATA[i].d_status;
 
             // This is a sanity check that our test data is correct.
             int rc = verifyDecimal64Exactness(INPUT);
@@ -2161,7 +2236,7 @@ int main(int argc, char *argv[])
                     // incorrectly returning INEXACT for 0 with large or small
                     // exponents.
 
-                    continue;
+                    continue;                                       // CONTINUE
                 }
                 rc = Obj::asDecimal64Exact(&result, input);
                 ASSERTV(LINE, EXPECTED, result, EXPECTED == result);
@@ -2186,7 +2261,7 @@ int main(int argc, char *argv[])
             if (!EXP) {
                 // Ignore invalid JSON numbers.
 
-                continue;
+                continue;                                           // CONTINUE
             }
 
             double  expected;
@@ -2244,8 +2319,8 @@ int main(int argc, char *argv[])
         //:     result is returned.
         //:
         //: 2 For the same test table, test a couple extreme points from the
-        //:   equivlance set with thousands of '0' characters.  Verify the same
-        //:   result is returned.
+        //:   equivalence set with thousands of '0' characters.  Verify the
+        //:   same result is returned.
         //:
         //: 3 For the JSONTestSuite number data, for those numbers that are
         //:   valid verify 'asDouble' returns the same value as an 'oracle' (in
@@ -2352,19 +2427,19 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::string>::const_iterator it =
                                                         equivalentData.begin();
             for (; it != equivalentData.end(); ++it) {
-              const bsl::string& input = *it;
-              if (veryVeryVerbose) {
-                  bsl::cout << "   ";
-                  P_(LINE); P(input);
-              }
-              volatile double result = Obj::asDouble(input);
+                const bsl::string& input = *it;
+                if (veryVeryVerbose) {
+                    bsl::cout << "   ";
+                    P_(LINE); P(input);
+                    }
+                    volatile double result = Obj::asDouble(input);
 
-              ASSERTV(LINE, input, EXPECTED, result,
-                      fuzzyCompare(EXPECTED, result));
+                    ASSERTV(LINE, input, EXPECTED, result,
+                            fuzzyCompare(EXPECTED, result));
 
-              volatile float fR = Obj::asFloat(input);
-              ASSERTV(LINE, input, fR == static_cast<float>(result));
-            }
+                  volatile float fR = Obj::asFloat(input);
+                  ASSERTV(LINE, input, fR == static_cast<float>(result));
+                }
         }
 
         if (verbose) {
@@ -2382,25 +2457,28 @@ int main(int argc, char *argv[])
 
             bsl::vector<bsl::string> equivalentData;
 
-            // Both MSVC and MacOS have limits to the number of digits that
-            // can can be handled by strtod, limiting the size of the input
-            // data to a few thousand characters.  The limit for the
-            // underlying 'strtod' implementation on MacOS is 19,999 digits
-            // as of MacOS Monterey 12.6 and Apple clang version 14.0.0.
-
+            // Both MSVC and MacOS have limits to the number of digits that can
+            // be handled by the standard library 'strtod' or 'from_chars' used
+            // by 'parseDouble', thus limiting the size of the possible input
+            // data to only a few thousand characters.  The limit for the
+            // for 'strtod' on MacOS is 19,999 digits as of MacOS Monterey 12.6
+            // and Apple clang version 14.0.0.  'from_chars' from MSVC limits
+            // the accepted exponent value range (instead of string length).
             generateEquivalenceSet(&equivalentData, -2000, -1999, INPUT);
-            generateEquivalenceSet(&equivalentData,   1999, 2000, INPUT);
+            generateEquivalenceSet(&equivalentData,  1999,  2000, INPUT);
+
             bsl::vector<bsl::string>::const_iterator it =
                                                         equivalentData.begin();
             for (; it != equivalentData.end(); ++it) {
-              const bsl::string& input = *it;
-              if (veryVeryVerbose) {
-                  bsl::cout << "   ";
-                  P_(LINE); P_(INPUT); P(input.size());
-              }
-              volatile double result = Obj::asDouble(input);
+                const bsl::string& input = *it;
+                if (veryVeryVerbose) {
+                    bsl::cout << "   ";
+                    P_(LINE); P_(INPUT); P(input.size());
+                }
+                volatile double result = Obj::asDouble(input);
 
-              ASSERTV(LINE, EXPECTED, result, fuzzyCompare(EXPECTED, result));
+                ASSERTV(LINE, EXPECTED, result,
+                        fuzzyCompare(EXPECTED, result));
             }
         }
         if (verbose) {
@@ -2413,10 +2491,8 @@ int main(int argc, char *argv[])
             const char *INPUT = JSON_SUITE_DATA[i].d_input;
             const char *NAME  = JSON_SUITE_DATA[i].d_testName;
 
-            if (!EXP) {
-                // Ignore invalid JSON numbers.
-
-                continue;
+            if (!EXP) {  // Ignore invalid JSON numbers.
+                continue;                                           // CONTINUE
             }
 
             double result, expected;
@@ -2444,7 +2520,7 @@ int main(int argc, char *argv[])
         //: 1 For basic integral text input in the [0, k_MAX] return that
         //:   number and a status of 0.
         //:
-        //: 2 For integrals in the range [0, UINT54_MAX] that any alternative
+        //: 2 For integrals in the range [0, UINT64_MAX] that any alternative
         //:   equivalent JSON Number rendering for the number (e.g., for "1",
         //:  "1e-1", "0.1e1" etc) will correctly return that integer and a
         //:   status of 0.
@@ -2571,7 +2647,7 @@ int main(int argc, char *argv[])
                 // We already have an error with this number, no need to
                 // generate 200 more with an equivalence set.
 
-                continue;
+                continue;                                           // CONTINUE
             }
 
             // Generate equivalent numeric values but with a wide range of
@@ -2703,7 +2779,7 @@ int main(int argc, char *argv[])
         //: 5 'isExponentNegative' correctly returns whether the exponent
         //:    begins with '-'.
         //:
-        //: 6 'exponentBegin' correclty returns the exponent part of the
+        //: 6 'exponentBegin' correctly returns the exponent part of the
         //:    representation.
         //:
         //: 7 If there is no exponent part of the representation,
@@ -2750,7 +2826,7 @@ int main(int argc, char *argv[])
 
         struct Data {
             int         d_line;
-            const char *d_text;     // input tex
+            const char *d_text;     // input text
             bool        d_isNeg;    // is negative
             const char *d_intPart;  // integer digits
             const char *d_fracPart; // fraction digits
@@ -2929,7 +3005,7 @@ int main(int argc, char *argv[])
         //:    exponent digits.
         //:
         //: 13 'isValidNumber' does not reference data past the end of the
-        //;    given input.
+        //:    given input.
         //:
         //: 14 The 'IsValidNumber' functor produces the same result as the
         //:    'isValidNumber' function.
@@ -3128,7 +3204,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CONCERN: Test Machinary
+        // CONCERN: Test Machinery
         //
         // Concerns:
         //: 1 That generateEquivalenceSet can correctly adjust the exponent
@@ -3154,11 +3230,11 @@ int main(int argc, char *argv[])
         //:   value in the range.
         //
         // Testing:
-        //   CONCERN: Test Machinary
+        //   CONCERN: Test Machinery
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nCONCERN: Test Machinary"
+            bsl::cout << "\nCONCERN: Test Machinery"
                       << "\n=======================" << bsl::endl;
         }
 
@@ -3235,7 +3311,6 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-
       case 1: {
         //---------------------------------------------------------------------
         // BREATHING TEST
@@ -3554,7 +3629,7 @@ int main(int argc, char *argv[])
         // BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle
         //
         // This benchmark compares the current 'asDecimal64Exact' function
-        // which deligates entirely to 'inteldfp' parsing, to a "homebrew"
+        // which delegates entirely to 'inteldfp' parsing, to a "homebrewn"
         // implementation that parses the string into digits to use with
         // 'makeDecimla64Raw' (falling back to 'inteldfp' parsing for inexact
         // conversions)

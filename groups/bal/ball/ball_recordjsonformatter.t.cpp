@@ -36,7 +36,7 @@
 
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>                      // for 'getpid'
+   #include <unistd.h>                      // for 'getpid'
 #endif
 
 using namespace BloombergLP;
@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
                 Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
-                (void*)mR;
+                (void)mR;
 
                 // Verify the value of the object.
                 ASSERTV(CONFIG, X == W);
@@ -541,9 +541,7 @@ int main(int argc, char *argv[])
                         bslma::TestAllocator za("different",
                                                 veryVeryVeryVerbose);
 
-                        int numPasses = 0;
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                            ++numPasses;
                             if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                             // Create source object 'Y'.

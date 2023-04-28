@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // "category"        category of logged record        ["category"]
 // "severity"        severity of logged record        ["severity"]
 // "message"         log message text                 ["message"]
-// "attributes"      all user-defiend attributes      ["attributes"]
+// "attributes"      all user-defined attributes      ["attributes"]
 // <attribute name>  specific user-defined attribute  ["bas.uuid"]
 //..
 // The output format of each field can be customized by replacing a string

@@ -263,7 +263,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
     Int64 numSigDigits = significantDigits.size() -
                                                  (sigDigitsSeparated  ? 1 : 0);
 
-    // Return an error the number has too many digits (numSigDigits + zeroes
+    // Return an error the number has too many digits (numSigDigits + zeros
     // from the exponent) to fit into a Uint64.
 
     if (numSigDigits + exponent > 20) {
@@ -287,7 +287,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
 
         //  If the significant digits previously had a separator, and we've
         //  adjusted the end of the significant digits past the separator or
-        //  just up to the separator, we need to substract one more to account
+        //  just up to the separator, we need to subtract one more to account
         //  for the separator.
 
         if (sigDigitsSeparated && adjustedSignificant.size() <=
@@ -860,7 +860,7 @@ void NumberUtil_ImpUtil::decompose(
 
         firstSignificantDigit = 0;
 
-        // if 'lastNotZero' is 'npos' the nubmer is all 0's
+        // if 'lastNotZero' is 'npos' the number is all 0's
 
         lastSignificantDigit = lastNotZero == npos ? 0 : lastNotZero;
 
@@ -886,7 +886,8 @@ void NumberUtil_ImpUtil::decompose(
             // E.g., "0.020"
             BSLS_ASSERT(1 == digitsDotOffset);
 
-            bsl::string_view::size_type firstNotZero = fraction->find_first_not_of('0');
+            const bsl::string_view::size_type firstNotZero =
+                                              fraction->find_first_not_of('0');
 
             // Already handled 0.[0]+ (ignoreFraction would have been 'true').
             BSLS_ASSERT(firstNotZero != bsl::string_view::npos);

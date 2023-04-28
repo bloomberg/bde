@@ -925,7 +925,7 @@ BSLS_IDENT("$Id: $")
 //
 //:   o GCC 12 and later
 //:   o clang using at least GCC 12 GNU C++ Library
-//:   o Microsoft Visual Studio 2017 / MSVC 19.10 and later
+//:   o Microsoft Visual Studio 2019 / MSVC 19.20 and later
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM'
 ///--------------------------------------------
@@ -1732,7 +1732,10 @@ BSLS_IDENT("$Id: $")
 
         // VS 2017 15.8
         #if BSLS_PLATFORM_CMP_VERSION >= 1915
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV                   1
+            // MSVC 19.15 has the floating point <charconv>' functions but they
+            // do not report under and overflow properly.
+
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
         #endif
 
         // C++17 library features introduced in Visual Studio 2019
@@ -1740,6 +1743,7 @@ BSLS_IDENT("$Id: $")
         // VS 2019 16.0
         #if BSLS_PLATFORM_CMP_VERSION >= 1920
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV                   1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS            1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS     1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET               1

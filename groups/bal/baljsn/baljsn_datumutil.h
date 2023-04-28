@@ -141,7 +141,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  bdld::DatumMaker                   m(&bsa);
 //
 //  bdld::Datum books = m.a(m.m("Author", "Ann Leckie",
-//                              "Title", "Ancilliary Justice"),
+//                              "Title", "Ancillary Justice"),
 //                          m.m("Author", "John Scalzi",
 //                              "Title", "Redshirts"));
 //..
@@ -162,7 +162,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  const bsl::string EXPECTED_BOOKS_JSON = R"JSON([
 //    {
 //        "Author" : "Ann Leckie",
-//        "Title" : "Ancilliary Justice"
+//        "Title" : "Ancillary Justice"
 //    },
 //    {
 //        "Author" : "John Scalzi",

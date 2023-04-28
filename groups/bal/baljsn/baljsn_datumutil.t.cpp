@@ -3,6 +3,27 @@
 
 #include <baljsn_simpleformatter.h>
 
+#include <bdlb_stringviewutil.h>
+
+#include <bdld_datum.h>
+#include <bdld_datumarraybuilder.h>
+#include <bdld_datumerror.h>
+#include <bdld_datummaker.h>
+#include <bdld_datummapbuilder.h>
+#include <bdld_manageddatum.h>
+
+#include <bdldfp_decimal.h>
+
+#include <bdlma_bufferedsequentialallocator.h>
+
+#include <bdlsb_fixedmeminstreambuf.h>  // for testing only
+#include <bdlsb_memoutstreambuf.h>      // for testing only
+
+#include <bdlt_date.h>
+#include <bdlt_time.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeinterval.h>
+
 #include <bsl_climits.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -26,25 +47,6 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
-
-#include <bdld_datum.h>
-#include <bdld_datumarraybuilder.h>
-#include <bdld_datumerror.h>
-#include <bdld_datummaker.h>
-#include <bdld_datummapbuilder.h>
-#include <bdld_manageddatum.h>
-
-#include <bdldfp_decimal.h>
-
-#include <bdlma_bufferedsequentialallocator.h>
-
-#include <bdlsb_fixedmeminstreambuf.h>  // for testing only
-#include <bdlsb_memoutstreambuf.h>      // for testing only
-
-#include <bdlt_date.h>
-#include <bdlt_time.h>
-#include <bdlt_datetime.h>
-#include <bdlt_datetimeinterval.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -157,6 +159,68 @@ bool             verbose;
 bool         veryVerbose;
 bool     veryVeryVerbose;
 bool veryVeryVeryVerbose;
+
+// ============================================================================
+//                HELPERS FOR REVIEW & LOG MESSAGE HANDLING
+// ----------------------------------------------------------------------------
+
+static bool containsCaseless(const bsl::string_view& string,
+                             const bsl::string_view& subString)
+    // Return 'true' if the specified 'subString' is present in the specified
+    // 'string' disregarding case of alphabet characters '[a-zA-Z]', otherwise
+    // return 'false'.
+{
+    if (subString.empty()) {
+        return true;                                                  // RETURN
+    }
+
+    typedef bdlb::StringViewUtil SVU;
+    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
+
+    return !rsv.empty();
+}
+
+// ============================================================================
+//                    EXPECTED 'BSLS_REVIEW' TEST HANDLERS
+// ----------------------------------------------------------------------------
+
+// These handlers are needed only temporarily until we determine how to fix the
+// broken contract of 'bdlb::NumericParseUtil::parseDouble()' that says under-
+// and overflow is not allowed yet the function supports it.
+
+bool isBdlbNumericParseUtilReview(const bsls::ReviewViolation& reviewViolation)
+    // Return 'true' if the specified 'reviewViolation' has been raised by the
+    // 'bdlb_numericparseutil' component or no source file names are supported
+    // by the build, otherwise return 'false'.
+{
+    const char *fn = reviewViolation.fileName();
+    const bool fileOk = ('\0' == fn[0]) // empty or has the component name
+                              || containsCaseless(fn, "bdlb_numericparseutil");
+    return fileOk;
+}
+
+bool isParseDoubleReview(const bsls::ReviewViolation& reviewViolation)
+    // Return 'true' if the specified 'reviewViolation' is an over/underflow or
+    // hexfloat message from the 'bdlb_numericparseutil' component (or no
+    // source file names are supported by the build configuration), otherwise
+    // return 'false'.
+{
+    return isBdlbNumericParseUtilReview(reviewViolation) &&
+           (containsCaseless(reviewViolation.comment(), "overflow") ||
+            containsCaseless(reviewViolation.comment(), "underflow") ||
+            containsCaseless(reviewViolation.comment(), "hexfloat"));
+}
+
+void ignoreParseDoubleMsgs(const bsls::ReviewViolation& reviewViolation)
+    // If the specified 'reviewViolation' is an expected parseDouble-related
+    // message (over/underflow, parsed a hexfloat) do nothing, otherwise call
+    // 'bsls::Review::failByAbort()'.
+{
+    if (!isParseDoubleReview(reviewViolation)) {
+        bsls::Review::failByAbort(reviewViolation);
+    }
+}
+
 
 // ============================================================================
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -767,7 +831,7 @@ void testCase04()
         MD          datum(D::createInteger(obj), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // int's are not a "safely" encode-able type
+        // 'int's are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -873,7 +937,7 @@ void testCase04()
         MD          datum(D::createDate(obj), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // Date's are not a "safely" encode-able type
+        // 'bdlt::Date's are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -897,7 +961,7 @@ void testCase04()
         MD          datum(D::createDatetime(obj, &ta), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // Datetime's are not a "safely" encode-able type
+        // 'bdlt::Datetime's are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -921,7 +985,7 @@ void testCase04()
         MD          datum(D::createDatetimeInterval(obj, &ta), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // DatetimeInterval's are not a "safely" encode-able type
+        // 'bdlt::DatetimeInterval's are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -945,7 +1009,7 @@ void testCase04()
         MD          datum(D::createTime(obj), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // Time's are not a "safely" encode-able type
+        // 'bdlt::Time's are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -968,7 +1032,7 @@ void testCase04()
         MD          datum(D::createInteger64(obj, &ta), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // Int64's are not a "safely" encode-able type
+        // 'bsls::Int64's are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -1165,6 +1229,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&ignoreParseDoubleMsgs);
+
     // CONCERN: DOES NOT ALLOCATE MEMORY FROM GLOBAL ALLOCATOR
 
     bslma::TestAllocator ga("global", veryVeryVeryVerbose);
@@ -1216,7 +1283,7 @@ int main(int argc, char *argv[])
     bdld::DatumMaker                   m(&bsa);
 
     bdld::Datum books = m.a(m.m("Author", "Ann Leckie",
-                                "Title", "Ancilliary Justice"),
+                                "Title", "Ancillary Justice"),
                             m.m("Author", "John Scalzi",
                                 "Title", "Redshirts"));
 //..
@@ -1238,7 +1305,7 @@ int main(int argc, char *argv[])
     const bsl::string EXPECTED_BOOKS_JSON = R"JSON([
     {
         "Author" : "Ann Leckie",
-        "Title" : "Ancilliary Justice"
+        "Title" : "Ancillary Justice"
     },
     {
         "Author" : "John Scalzi",
@@ -1249,7 +1316,7 @@ int main(int argc, char *argv[])
     const bsl::string EXPECTED_BOOKS_JSON = "[\n"
         "    {\n"
         "        \"Author\" : \"Ann Leckie\",\n"
-        "        \"Title\" : \"Ancilliary Justice\"\n"
+        "        \"Title\" : \"Ancillary Justice\"\n"
         "    },\n"
         "    {\n"
         "        \"Author\" : \"John Scalzi\",\n"
@@ -1430,7 +1497,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //---------------------------------------------------------------------
-
 
         namespace TC = TestCase07;
 
@@ -2328,8 +2394,8 @@ int main(int argc, char *argv[])
           // Skip these tests everywhere except Sun CC or MSVC pre-2015, where
           // they unexpectedly succeed.  Since these are negative tests, being
           // overly permissive in what we accept is not a problem.
-#if !((defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_SUN)) || \
-     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900))
+#if !((defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_SUN))   \
+      || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900))
           , { L_, "n_number_hex_1_digit.json", "TBD" }
           , { L_, "n_number_hex_2_digits.json", "TBD" }
 #endif
@@ -2417,8 +2483,8 @@ int main(int argc, char *argv[])
         namespace TC = TestCase06;
 
         bsls::AlignedBuffer<8 * 1024>      buffer;
-        bdlma::BufferedSequentialAllocator bsa(
-            buffer.buffer(), sizeof(buffer));
+        bdlma::BufferedSequentialAllocator bsa(buffer.buffer(),
+                                               sizeof(buffer));
 
         bdld::DatumMaker m(&bsa);
 
@@ -2859,7 +2925,7 @@ int main(int argc, char *argv[])
         //: 1 'decode' strings, and compare them with the expected return codes
         //:   and Datums, using 'TestAllocator's to ensure allocations are
         //:   handled properly.  Pass different 'maxNestedDepth' option values
-        //:   to make sure errors occur if 'maxNestedDepth' is insuffient and
+        //:   to make sure errors occur if 'maxNestedDepth' is insufficient and
         //:   the string is otherwise valid.
         //
         // Testing:
@@ -2877,8 +2943,8 @@ int main(int argc, char *argv[])
                           << "\n===========" << endl;
 
         bsls::AlignedBuffer<8 * 1024>      buffer;
-        bdlma::BufferedSequentialAllocator bsa(
-            buffer.buffer(), sizeof(buffer));
+        bdlma::BufferedSequentialAllocator bsa(buffer.buffer(),
+                                               sizeof(buffer));
 
         bdld::DatumMaker m(&bsa);
 
@@ -3714,8 +3780,8 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases
         //
         // Plan:
-        //: 1 Construct strings represting the various 'Datum' value types and
-        //:   make sure they're parsed correctly.
+        //: 1 Construct strings representing the various 'Datum' value types
+        //:   and make sure they're parsed correctly.
         //
         // Testing:
         //   BREATHING DECODE TEST

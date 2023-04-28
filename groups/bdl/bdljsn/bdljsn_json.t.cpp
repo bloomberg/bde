@@ -3560,7 +3560,7 @@ class JsonValueConstructorHelper<bsls::Types::Int64>
     static bsls::Types::Int64 getValue()
         // Returns a 'const' reference to a value of the specified type
     {
-        return -0x123456789;
+        return -0x123456789LL;
     }
 };
 
@@ -3589,7 +3589,7 @@ class JsonValueConstructorHelper<bsls::Types::Uint64>
     static bsls::Types::Uint64 getValue()
         // Returns a 'const' reference to a value of the specified type
     {
-        return 0x987654321;
+        return 0x987654321LL;
     }
 };
 

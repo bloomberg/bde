@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
                  << "\n=============" << endl;
 
         if (verbose)
-            cout << "Testing compoonent doc example" << endl;
+            cout << "Testing component doc example" << endl;
         {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
@@ -222,7 +222,6 @@ int main(int argc, char *argv[])
             P(json);
         }
 #endif
-
         }
       } break;
       case 1: {
@@ -244,7 +243,7 @@ int main(int argc, char *argv[])
         //: 3 That memory for the user defined literal JSON is allocated
         //:   from the global allocator.
         //:
-        //: 4 That a user defined literal that does not contian valid JSON
+        //: 4 That a user defined literal that does not contain valid JSON
         //:   invokes the 'bsls::Assert' failure handler.
         //
         // Plan:
@@ -316,8 +315,8 @@ int main(int argc, char *argv[])
                 ASSERT(gam.isInUseSame());
                 bslma::Default::setGlobalAllocator(oldGa);
             }
-
         }
+
         if (verbose) {
             cout << "\tTest with invalid JSON text" << endl;
         }
@@ -329,8 +328,11 @@ int main(int argc, char *argv[])
             ASSERT_PASS(bdljsn::Json a = "true"_json);
             ASSERT_INVOKE_FAIL(bdljsn::Json a = "bad"_json);
             ASSERT_INVOKE_FAIL(bdljsn::Json a = "{]"_json);
-
         }
+#else
+        if (verbose) cout << "User defined literals are not supported in this"
+                             " build.\n";
+        (void)aSsErT;  // Avoids unused local function warning
 #endif
       } break;
       default: {

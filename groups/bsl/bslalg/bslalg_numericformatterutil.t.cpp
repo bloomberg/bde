@@ -262,7 +262,7 @@ static const DblData k_DBL_CPP[] = {
     D(std::numeric_limits<double>::max(), "1.7976931348623157e+308"),
     D(std::numeric_limits<double>::min(), "2.2250738585072014e-308"),
 
-    // Subnormal/denormalized numbers
+    // Subnormal/denormal numbers
     D(std::numeric_limits<double>::denorm_min(), "5e-324"),
 
     D(makeSubnormalDouble(0x0000000000001ull), "5"                  "e-324"),
@@ -2155,7 +2155,7 @@ static const FltData k_FLT_CPP[] = {
     F(std::numeric_limits<float>::max(), "3.4028235e+38"),
     F(std::numeric_limits<float>::min(), "1.1754944e-38"),
 
-    // Subnormal/denormalized numbers
+    // Subnormal/denormal numbers
     F(std::numeric_limits<float>::denorm_min(), "1e-45"),
 
     F(makeSubnormalFloat(0x000001), "1"        "e-45"),
@@ -2605,7 +2605,7 @@ static const FltIntData k_FLT_CPP_INT[] = {
     F(0x999999, 17, "1319413874688"),
     F(0xFFFFFF, 17, "2199023124480"),
 
-    F(0x800001, 19,         "4.398047e+12"), // scientific notation is shorter!
+    F(0x800001, 19,  "4.398047e+12"), // scientific notation is shorter!
     F(0xD55555, 19, "7330077343744"),
     F(0x999999, 19, "5277655498752"),
     F(0xFFFFFF, 19, "8796092497920"),
@@ -7070,7 +7070,9 @@ int main(int argc, char *argv[])
                 const uint32_t IEEE_MANTISSA = mantissa;
                 const uint32_t EXPECTED      = expected;
 
-                char IEEE_MANTISSA_STR[9];
+                // '%06X' may theoretically write 8 characters so compilers
+                // will warn if the array below is less than 11: 0x + 8 + null.
+                char IEEE_MANTISSA_STR[11];
                 sprintf(IEEE_MANTISSA_STR, "0x%06X", IEEE_MANTISSA);
 
                 if (veryVeryVerbose) {

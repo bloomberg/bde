@@ -240,7 +240,7 @@ int extractValue(bdld::ManagedDatum *result,
         return 0;                                                     // RETURN
     }
 
-    double           d;
+    double            d;
     bslstl::StringRef remainder;
     if (0 == bdlb::NumericParseUtil::parseDouble(&d, &remainder, value) &&
         0 == remainder.length()) {

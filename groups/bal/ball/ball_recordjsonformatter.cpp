@@ -7,11 +7,11 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 ///Implementation Notes
 ///--------------------
 // A format specification is, itself, a JSON string supplied to a formatter
-// that defines the sequence and format in which a set of log record filds will
-// be published (as JSON).  The format specification is represented as JSON
-// array of JSON objects and values.  We decode the format specification into a
-// 'bdld::Datum' object and for each object and value in the array, we create a
-// formatter object that preserves the format specification for the
+// that defines the sequence and format in which a set of log record fields
+// will be published (as JSON).  The format specification is represented as
+// JSON array of JSON objects and values.  We decode the format specification
+// into a 'bdld::Datum' object and for each object and value in the array, we
+// create a formatter object that preserves the format specification for the
 // corresponding field in the log record.  When a log record is published,
 // these formatters are supplied with to the log record to render it as JSON.
 //
@@ -338,7 +338,7 @@ namespace {
                    // ========================
 
 class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formater for the 'timestamp' tag.
+    // This class implements JSON field formatter for the 'timestamp' tag.
 
     // PRIVATE TYPES
     enum FractionalSecondPrecision {
@@ -403,7 +403,7 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
                    // =======================
 
 class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formater for the 'tid' tag.
+    // This class implements JSON field formatter for the 'tid' tag.
 
     // PRIVATE TYPES
     enum Format {
@@ -451,7 +451,7 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
                    // =========================
 
 class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements the field formater protocol for JSON format
+    // This class implements the field formatter protocol for JSON format
     // tag that has a single 'name' attribute ('pid', line', 'category',
     // 'message' and a user-defined attribute).
 
@@ -491,7 +491,7 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
                    // ========================
 
 class ProcessIdFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formater for the 'pid' tag.
+    // This class implements JSON field formatter for the 'pid' tag.
 
     // PRIVATE TYPES
     typedef bsl::allocator<char>  allocator_type;
@@ -522,7 +522,7 @@ class ProcessIdFormatter : public FixedFieldFormatter {
                    // ===================
 
 class LineFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formater for the 'line' tag.
+    // This class implements JSON field formatter for the 'line' tag.
 
     // PRIVATE TYPES
     typedef bsl::allocator<char>  allocator_type;
@@ -553,7 +553,7 @@ class LineFormatter : public FixedFieldFormatter {
                    // =======================
 
 class CategoryFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formater for the 'category' tag.
+    // This class implements JSON field formatter for the 'category' tag.
 
     // PRIVATE TYPES
     typedef bsl::allocator<char>  allocator_type;
@@ -584,7 +584,7 @@ class CategoryFormatter : public FixedFieldFormatter {
                    // =======================
 
 class SeverityFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formater for the 'severity' tag.
+    // This class implements JSON field formatter for the 'severity' tag.
 
     // PRIVATE TYPES
     typedef bsl::allocator<char>  allocator_type;
@@ -615,7 +615,7 @@ class SeverityFormatter : public FixedFieldFormatter {
                    // ======================
 
 class MessageFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formater for the 'message' tag.
+    // This class implements JSON field formatter for the 'message' tag.
 
     // PRIVATE TYPES
     typedef bsl::allocator<char>  allocator_type;
@@ -645,7 +645,7 @@ class MessageFormatter : public FixedFieldFormatter {
                    // ===================
 
 class FileFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formater for the 'file' tag.
+    // This class implements JSON field formatter for the 'file' tag.
 
     // PRIVATE TYPES
     enum Path {
@@ -690,7 +690,7 @@ class FileFormatter : public RecordJsonFormatter_FieldFormatter {
                        // ========================
 
 class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formater for a user-defined attribute.
+    // This class implements JSON field formatter for a user-defined attribute.
 
     // PRIVATE TYPES
     enum { k_UNSET = -1 };  // Unspecified index
@@ -737,7 +737,7 @@ class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
                        // =========================
 
 class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formater for the 'attributes' tag.
+    // This class implements JSON field formatter for the 'attributes' tag.
 
   public:
     // TYPES
@@ -757,7 +757,7 @@ class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
         // objects.
 
     typedef bsl::vector<bsl::pair<bsl::string, bool> > AttributeCache;
-        // 'AttributeCache' is an alias for a vector of pairs of an atrribute's
+        // 'AttributeCache' is an alias for a vector of pairs of an attribute's
         // key and a flag indicating whether the attribute should be displayed
         // or not.
 
