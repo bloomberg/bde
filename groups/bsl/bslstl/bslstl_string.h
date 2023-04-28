@@ -632,6 +632,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslstl_algorithm.h>
+#include <bslstl_compare.h>
 #include <bslstl_hash.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
@@ -661,6 +662,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignment.h>
@@ -806,6 +808,24 @@ String_Traits<std::char_traits<char> >::find(const char  *s,
 // and compilers that support them.
 
 #define BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+template <class CHAR_TRAITS, class = void>
+struct String_ComparisonCategory
+{
+    using type = weak_ordering;
+};
+template <class CHAR_TRAITS>
+struct String_ComparisonCategory<CHAR_TRAITS,
+                        bsl::void_t<typename CHAR_TRAITS::comparison_category>>
+{
+    using type = typename CHAR_TRAITS::comparison_category;
+};
+
+template <class CHAR_TRAITS>
+using String_ComparisonCategoryType =
+    typename String_ComparisonCategory<CHAR_TRAITS>::type;
 #endif
 
                     // =======================================
@@ -3206,20 +3226,47 @@ bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-bool
 operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
            const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator==(const CHAR_TYPE                                  *lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
+    // Return 'true' if the specified 'lhs' string has the same value as the
+    // specified 'rhs' string, and 'false' otherwise.  Two strings have the
+    // same value if they have the same length, and the characters at each
+    // respective position have the same value according to 'CHAR_TRAITS::eq'.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+String_ComparisonCategoryType<CHAR_TRAITS>
+operator<=>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
+            const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+String_ComparisonCategoryType<CHAR_TRAITS>
+operator<=>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
+            const CHAR_TYPE                                  *rhs);
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
+String_ComparisonCategoryType<CHAR_TRAITS>
+operator<=>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+            const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Perform a lexicographic three-way comparison of the specified 'lhs' and
+    // the specified 'rhs' strings by using 'CHAR_TRAITS::eq' on each
+    // character; return the result of that comparison.
+
+#else
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
+bool
+operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+bool operator==(const CHAR_TYPE                                  *lhs,
+                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
     // Return 'true' if the specified 'lhs' string has the same value as the
     // specified 'rhs' string, and 'false' otherwise.  Two strings have the
     // same value if they have the same length, and the characters at each
@@ -3350,6 +3397,7 @@ bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
     // Return 'true' if the specified 'lhs' string has a value
     // lexicographically larger than or equal to the specified 'rhs' string,
     // and 'false' otherwise.  See {Lexicographical Comparisons}.
+#endif
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
@@ -7365,19 +7413,65 @@ bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return lhs.size() == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
+                     const CHAR_TYPE                                  *rhs)
+{
+    BSLS_ASSERT_SAFE(rhs);
+
+    std::size_t len = CHAR_TRAITS::length(rhs);
+    return lhs.size() == len
+        && 0 == CHAR_TRAITS::compare(lhs.data(), rhs, len);
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline bsl::String_ComparisonCategoryType<CHAR_TRAITS>
+bsl::operator<=>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
+                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<String_ComparisonCategoryType<CHAR_TRAITS>>(
+                                                       lhs.compare(rhs) <=> 0);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline bsl::String_ComparisonCategoryType<CHAR_TRAITS>
+bsl::operator<=>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
+                 const CHAR_TYPE                                  *rhs)
+{
+    BSLS_ASSERT_SAFE(rhs);
+    return static_cast<String_ComparisonCategoryType<CHAR_TRAITS>>(
+                                                       lhs.compare(rhs) <=> 0);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
+inline bsl::String_ComparisonCategoryType<CHAR_TRAITS>
+bsl::operator<=>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                 const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<String_ComparisonCategoryType<CHAR_TRAITS>>(
+                                                       lhs.compare(rhs) <=> 0);
+}
+
+#else
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-                const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return lhs.size() == rhs.size()
@@ -7394,18 +7488,6 @@ bool bsl::operator==(const CHAR_TYPE                                  *lhs,
     std::size_t len = CHAR_TRAITS::length(lhs);
     return len == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs, rhs.data(), len);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                     const CHAR_TYPE                                  *rhs)
-{
-    BSLS_ASSERT_SAFE(rhs);
-
-    std::size_t len = CHAR_TRAITS::length(rhs);
-    return lhs.size() == len
-        && 0 == CHAR_TRAITS::compare(lhs.data(), rhs, len);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -7682,6 +7764,8 @@ bool bsl::operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
     return !(lhs < rhs);
 }
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>

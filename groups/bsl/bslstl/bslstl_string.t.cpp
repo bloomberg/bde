@@ -294,23 +294,38 @@ using bsls::nameOfType;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const string<C,CT,A>&, const string<C,CT,A>&);
+// [ 6] operator==(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [ 6] operator==(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [ 6] bool operator==(const C *, const string<C,CT,A>&);
 // [ 6] bool operator==(const string<C,CT,A>&, const C *);
 // [ 6] bool operator!=(const string<C,CT,A>&, const string<C,CT,A>&);
+// [ 6] operator!=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [ 6] operator!=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [ 6] bool operator!=(const C *, const string<C,CT,A>&);
 // [ 6] bool operator!=(const string<C,CT,A>&, const C *);
 // [24] bool operator<(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator<(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator<(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator<(const C *, const string<C,CT,A>&);
 // [24] bool operator<(const string<C,CT,A>&, const C *);
 // [24] bool operator>(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator>(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator>(const C *, const string<C,CT,A>&);
 // [24] bool operator>(const string<C,CT,A>&, const C *);
 // [24] bool operator<=(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator<=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator<=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator<=(const C *, const string<C,CT,A>&);
 // [24] bool operator<=(const string<C,CT,A>&, const C *);
 // [24] bool operator>=(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator>=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator>=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator>=(const C *, const string<C,CT,A>&);
 // [24] bool operator>=(const string<C,CT,A>&, const C *);
+// [24] auto operator<=>(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] auto operator<=>(const string<C,CT,A>&, const C *);
+// [24] auto operator<=>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
 // [34] string operator ""_s(const char *, size_t);
 // [34] wstring operator ""_s(const wchar_t *, size_t);
 // [34] string operator ""_S(const char *, size_t);
@@ -4069,7 +4084,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
     //   3 Unequal objects are always returned as unequal.
     //   4 Equality comparisons with 'const CHAR_TYPE *' yield the same results
     //     as equality comparisons with 'string' objects.
-    //   5 Correctly selects the 'bitwiseEqualityComparable' traits.
+    //   5 Equality comparisons with 'std::string' yield the same results as
+    //     equality comparisons with 'string' objects.
+    //   6 Correctly selects the 'bitwiseEqualityComparable' traits.
     //
     // Plan:
     //   For concerns 1 and 3, Specify a set A of unique allocators including
@@ -4089,15 +4106,23 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
     //   parameters right after equality comparisons of 'string' objects have
     //   been verified to perform correctly.
     //
-    //   For concern 5, we instantiate this test driver on a test type having
+    //   For concern 5, test equality operators taking 'std::string' parameters
+    //   right after equality comparisons of 'string' objects have been
+    //   verified to perform correctly.
+    //
+    //   For concern 6, we instantiate this test driver on a test type having
     //   allocators or not, and possessing the bitwise-equality-comparable
     //   trait or not.
     //
     // Testing:
     //   operator==(const string<C,CT,A>&, const string<C,CT,A>&);
+    //   operator==(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+    //   operator==(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
     //   operator==(const C *, const string<C,CT,A>&);
     //   operator==(const string<C,CT,A>&, const C *);
     //   operator!=(const string<C,CT,A>&, const string<C,CT,A>&);
+    //   operator!=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+    //   operator!=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
     //   operator!=(const C *, const string<C,CT,A>&);
     //   operator!=(const string<C,CT,A>&, const C *);
     // --------------------------------------------------------------------
@@ -4187,6 +4212,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
 
                         LOOP2_ASSERT(si, sj,  isSame == (U.c_str() == V));
                         LOOP2_ASSERT(si, sj, !isSame == (U.c_str() != V));
+
+                        // Finally test comparisons with 'std::string'
+                        const std::basic_string<TYPE,TRAITS> stdU(U), stdV(V);
+                        LOOP2_ASSERT(si, sj,  isSame == (U == stdV));
+                        LOOP2_ASSERT(si, sj, !isSame == (U != stdV));
+
+                        LOOP2_ASSERT(si, sj,  isSame == (stdU == V));
+                        LOOP2_ASSERT(si, sj, !isSame == (stdU != V));
                     }
                 }
             }
@@ -4254,6 +4287,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
 
                             LOOP2_ASSERT(si, sj,  isSame == (U.c_str() == V));
                             LOOP2_ASSERT(si, sj, !isSame == (U.c_str() != V));
+
+                            // Finally test comparisons with 'std::string'
+                            const std::basic_string<TYPE,TRAITS> stdU(U),
+                                                                 stdV(V);
+                            LOOP2_ASSERT(si, sj,  isSame == (U == stdV));
+                            LOOP2_ASSERT(si, sj, !isSame == (U != stdV));
+
+                            LOOP2_ASSERT(si, sj,  isSame == (stdU == V));
+                            LOOP2_ASSERT(si, sj, !isSame == (stdU != V));
                         }
                     }
                 }

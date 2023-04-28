@@ -309,17 +309,28 @@ using bsls::nameOfType;
 // [ 6] bool operator!=(const C *, const string<C,CT,A>&);
 // [ 6] bool operator!=(const string<C,CT,A>&, const C *);
 // [24] bool operator<(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator<(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator<(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator<(const C *, const string<C,CT,A>&);
 // [24] bool operator<(const string<C,CT,A>&, const C *);
 // [24] bool operator>(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator>(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator>(const C *, const string<C,CT,A>&);
 // [24] bool operator>(const string<C,CT,A>&, const C *);
 // [24] bool operator<=(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator<=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator<=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator<=(const C *, const string<C,CT,A>&);
 // [24] bool operator<=(const string<C,CT,A>&, const C *);
 // [24] bool operator>=(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] bool operator>=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+// [24] bool operator>=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
 // [24] bool operator>=(const C *, const string<C,CT,A>&);
 // [24] bool operator>=(const string<C,CT,A>&, const C *);
+// [24] auto operator<=>(const string<C,CT,A>&, const string<C,CT,A>&);
+// [24] auto operator<=>(const string<C,CT,A>&, const C *);
+// [24] auto operator<=>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
 // [34] string operator ""_s(const char *, size_t);
 // [34] wstring operator ""_s(const wchar_t *, size_t);
 // [34] string operator ""_S(const char *, size_t);
@@ -6308,7 +6319,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
     //   2) 'operator>', 'operator<=', and 'operator>=' are correctly tied to
     //      'operator<'.
     //   3) 'compare' returns the correct result.
-    //   4) That traits get selected properly.
+    //   4) 'operator<=>' is consistent with '<', '>', '<=', '>='.
+    //   5) That traits get selected properly.
     //
     // Plan:
     //   For a variety of strings of different sizes and different values, test
@@ -6330,17 +6342,28 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
     //   int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& str) const;
     //   int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& s, p2, n2) const;
     //   bool operator<(const string<C,CT,A>&, const string<C,CT,A>&);
+    //   bool operator<(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+    //   bool operator<(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
     //   bool operator<(const C *, const string<C,CT,A>&);
     //   bool operator<(const string<C,CT,A>&, const C *);
     //   bool operator>(const string<C,CT,A>&, const string<C,CT,A>&);
+    //   bool operator>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+    //   bool operator>(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
     //   bool operator>(const C *, const string<C,CT,A>&);
     //   bool operator>(const string<C,CT,A>&, const C *);
     //   bool operator<=(const string<C,CT,A>&, const string<C,CT,A>&);
+    //   bool operator<=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+    //   bool operator<=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
     //   bool operator<=(const C *, const string<C,CT,A>&);
     //   bool operator<=(const string<C,CT,A>&, const C *);
     //   bool operator>=(const string<C,CT,A>&, const string<C,CT,A>&);
+    //   bool operator>=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+    //   bool operator>=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
     //   bool operator>=(const C *, const string<C,CT,A>&);
     //   bool operator>=(const string<C,CT,A>&, const C *);
+    //   auto operator<=>(const string<C,CT,A>&, const string<C,CT,A>&);
+    //   auto operator<=>(const string<C,CT,A>&, const C *);
+    //   auto operator<=>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
     // ------------------------------------------------------------------------
 
     typedef bslstl::StringRefImp<TYPE>            StringRefImp;
@@ -6438,6 +6461,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
                 LOOP2_ASSERT(si, sj,  isLessEq == (U <= V));
                 LOOP2_ASSERT(si, sj, !isLess   == (U >= V));
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+                {
+                    const auto cmp = U <=> V;
+                    LOOP2_ASSERT(si, sj,  isLess   == (cmp < 0));
+                    LOOP2_ASSERT(si, sj, !isLessEq == (cmp > 0));
+                    LOOP2_ASSERT(si, sj,  isLessEq == (cmp <= 0));
+                    LOOP2_ASSERT(si, sj, !isLess   == (cmp >= 0));
+                }
+#endif
+
                 // Then test comparisons with C-strings
                 LOOP2_ASSERT(si, sj,  isLess   == (U.c_str() < V));
                 LOOP2_ASSERT(si, sj, !isLessEq == (U.c_str() > V));
@@ -6448,6 +6481,51 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
                 LOOP2_ASSERT(si, sj, !isLessEq == (U > V.c_str()));
                 LOOP2_ASSERT(si, sj,  isLessEq == (U <= V.c_str()));
                 LOOP2_ASSERT(si, sj, !isLess   == (U >= V.c_str()));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+                {
+                    const auto cmp1 = U.c_str() <=> V;
+                    LOOP2_ASSERT(si, sj,  isLess   == (cmp1 < 0));
+                    LOOP2_ASSERT(si, sj, !isLessEq == (cmp1 > 0));
+                    LOOP2_ASSERT(si, sj,  isLessEq == (cmp1 <= 0));
+                    LOOP2_ASSERT(si, sj, !isLess   == (cmp1 >= 0));
+
+                    const auto cmp2 = U <=> V.c_str();
+                    LOOP2_ASSERT(si, sj,  isLess   == (cmp2 < 0));
+                    LOOP2_ASSERT(si, sj, !isLessEq == (cmp2 > 0));
+                    LOOP2_ASSERT(si, sj,  isLessEq == (cmp2 <= 0));
+                    LOOP2_ASSERT(si, sj, !isLess   == (cmp2 >= 0));
+                }
+#endif
+
+                // Finally test comparisons with 'std::string' objects
+                const std::basic_string<TYPE,TRAITS> stdU(U), stdV(V);
+
+                LOOP2_ASSERT(si, sj,  isLess   == (U < stdV));
+                LOOP2_ASSERT(si, sj, !isLessEq == (U > stdV));
+                LOOP2_ASSERT(si, sj,  isLessEq == (U <= stdV));
+                LOOP2_ASSERT(si, sj, !isLess   == (U >= stdV));
+
+                LOOP2_ASSERT(si, sj,  isLess   == (stdU < V));
+                LOOP2_ASSERT(si, sj, !isLessEq == (stdU > V));
+                LOOP2_ASSERT(si, sj,  isLessEq == (stdU <= V));
+                LOOP2_ASSERT(si, sj, !isLess   == (stdU >= V));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+                {
+                    const auto cmp1 = U <=> stdV;
+                    LOOP2_ASSERT(si, sj,  isLess   == (cmp1 < 0));
+                    LOOP2_ASSERT(si, sj, !isLessEq == (cmp1 > 0));
+                    LOOP2_ASSERT(si, sj,  isLessEq == (cmp1 <= 0));
+                    LOOP2_ASSERT(si, sj, !isLess   == (cmp1 >= 0));
+
+                    const auto cmp2 = stdU <=> V;
+                    LOOP2_ASSERT(si, sj,  isLess   == (cmp2 < 0));
+                    LOOP2_ASSERT(si, sj, !isLessEq == (cmp2 > 0));
+                    LOOP2_ASSERT(si, sj,  isLessEq == (cmp2 <= 0));
+                    LOOP2_ASSERT(si, sj, !isLess   == (cmp2 >= 0));
+                }
+#endif
             }
         }
     }
@@ -6596,6 +6674,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     //   bool operator<=(const string<C,CT,A>& str, const C *s);
     //   bool operator>=(const C *s, const string<C,CT,A>& str);
     //   bool operator>=(const string<C,CT,A>& str, const C *s);
+    //   auto operator<=>(const string<C,CT,A>& str, const C *s);
     // -----------------------------------------------------------------------
 
     bsls::AssertTestHandlerGuard guard;
@@ -6663,6 +6742,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
         ASSERT_SAFE_PASS(if(X >= X.c_str()){});
         ASSERT_SAFE_PASS(if(X.c_str() >= X){});
     }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    if (veryVerbose) printf("\toperator<=>\n");
+
+    {
+        ASSERT_SAFE_FAIL(if(X <=> nullStr == 0){});
+        ASSERT_SAFE_FAIL(if(nullStr <=> X == 0){});
+        ASSERT_SAFE_PASS(if(X <=> X.c_str() == 0){});
+        ASSERT_SAFE_PASS(if(X.c_str() <=> X == 0){});
+    }
+#endif
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
@@ -23643,17 +23733,28 @@ int main(int argc, char *argv[])
         //   int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& str) const;
         //   int compare(p1, n1, const STRING_VIEW_LIKE_TYPE& s, p2, n2) const;
         //   bool operator<(const string<C,CT,A>&, const string<C,CT,A>&);
+        //   operator<(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+        //   operator<(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
         //   bool operator<(const C *, const string<C,CT,A>&);
         //   bool operator<(const string<C,CT,A>&, const C *);
         //   bool operator>(const string<C,CT,A>&, const string<C,CT,A>&);
+        //   operator>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+        //   operator>(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
         //   bool operator>(const C *, const string<C,CT,A>&);
         //   bool operator>(const string<C,CT,A>&, const C *);
         //   bool operator<=(const string<C,CT,A>&, const string<C,CT,A>&);
+        //   operator<=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+        //   operator<=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
         //   bool operator<=(const C *, const string<C,CT,A>&);
         //   bool operator<=(const string<C,CT,A>&, const C *);
         //   bool operator>=(const string<C,CT,A>&, const string<C,CT,A>&);
+        //   operator>=(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
+        //   operator>=(const std::string<C,CT,A1>&, const string<C,CT,A2>&);
         //   bool operator>=(const C *, const string<C,CT,A>&);
         //   bool operator>=(const string<C,CT,A>&, const C *);
+        //   auto operator<=>(const string<C,CT,A>&, const string<C,CT,A>&);
+        //   auto operator<=>(const string<C,CT,A>&, const C *);
+        //   operator<=>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING COMPARISONS"
