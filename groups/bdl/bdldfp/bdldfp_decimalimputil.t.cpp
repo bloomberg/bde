@@ -2284,13 +2284,13 @@ void TestDriver::testCase28()
                            << "\n===================="
                            << bsl::endl;
 
-    if (veryVeryVerbose) T_ bsl::cout << "ValueType32" << bsl::endl;
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
     testFma<Util::ValueType32>();
 
-    if (veryVeryVerbose) T_ bsl::cout << "ValueType64" << bsl::endl;
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
     testFma<Util::ValueType64>();
 
-    if (veryVeryVerbose) T_ bsl::cout << "ValueType128" << bsl::endl;
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
     testFma<Util::ValueType128>();
 }
 

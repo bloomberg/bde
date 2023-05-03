@@ -2,16 +2,16 @@
   Copyright (c) 2007-2011, Intel Corp.
   All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without 
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, 
+    * Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of Intel Corporation nor the names of its contributors 
-      may be used to endorse or promote products derived from this software 
+    * Neither the name of Intel Corporation nor the names of its contributors
+      may be used to endorse or promote products derived from this software
       without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -94,8 +94,15 @@ typedef SItype BID_SINT32;
 typedef UDItype BID_UINT64;
 typedef DItype BID_SINT64;
 
+/*
+ Bloomberg LP: Alignment is set by us to be 8 bytes on 32-bit platforms and 16
+ bytes on 64-bit platforms (here and in 'bid_functions.h').  It is necessary
+ because 32-bit 'malloc', and the 'new' operator guarantee maximum 8 bytes
+ alignment.  In addition, the BDE alignment and allocation facilities do not
+ support higher than 8 bytes alignment on 32-bit platforms either. */
+
 /* It has to be identical to the one defined in bid_functions.h.  */
-typedef __attribute__ ((aligned(16))) struct
+typedef __attribute__ ((aligned(sizeof(void*) < 8 ? 8 : 16))) struct
 {
   BID_UINT64 w[2];
 } BID_UINT128;
@@ -279,17 +286,17 @@ union decimal32 {
   _Decimal32 d;
   BID_UINT32 i;
 };
- 
+
 union decimal64 {
   _Decimal64 d;
   BID_UINT64 i;
 };
- 
+
 union decimal128 {
   _Decimal128 d;
   BID_UINT128 i;
 };
- 
+
 #if BID_HAS_TF_MODE
 union float128 {
   TFtype f;

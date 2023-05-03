@@ -65,25 +65,33 @@ typedef unsigned bid__int64 BID_UINT64;
 typedef signed bid__int64 BID_SINT64;
 #endif
 
-#if defined _MSC_VER
-#if defined _M_IX86 && !defined __INTEL_COMPILER        // Win IA-32, MS compiler
-#define BID_ALIGN(n)
-#else
-#define BID_ALIGN(n) __declspec(align(n))
-#endif
-#else
-// Bloomberg LP:  The following alignment syntax is not supported by all other
-// (for example, Sun CC, IBM xlc), retricting it to gcc & clang.
+// Bloomberg LP: Alignment is set by us to be 8 bytes on 32-bit platforms and
+// 16 bytes on 64-bit platforms (here and in 'bid_gcc_intrinsics.h').  It is
+// necessary because 32-bit 'malloc', and the 'new' operator guarantee maximum
+// 8 bytes alignment.  In addition, the BDE alignment and allocation facilities
+// do not support higher than 8 bytes alignment on 32-bit platforms either.
 
-#if defined(__clang__) || defined(__GNUC__)
-#define BID_ALIGN(n) __attribute__ ((aligned(n)))
+#if defined __INTEL_COMPILER || (defined _MSC_VER && !defined _M_IX86)
+  // Intel compiler or MS compiler but not on Win IA-32.
+
+  // Bloomberg LP: Verified that the MSVC compiler appears to generate bad
+  // optimized code for 32-bit builds if any stricter alignments are specified,
+  // even for just 8 byte alignment.  We get 4 byte alignment for class types
+  // out of the box.
+  #define BID_ALIGN(n) __declspec(align(n))
+  #define BID_UINT128_ALIGN BID_ALIGN(16)
+#elif defined __clang__ || defined __GNUC__
+// Bloomberg LP:  The following alignment syntax is not supported by all other
+// (for example, Sun CC, IBM xlc), restricting it to gcc & clang.
+  #define BID_ALIGN(n) __attribute__ ((aligned(n)))
+  #define BID_UINT128_ALIGN BID_ALIGN (sizeof(void*) < 8 ? 8 : 16)
 #else
-#define BID_ALIGN(n)
-#endif
+  #define BID_ALIGN(n)
+  #define BID_UINT128_ALIGN
 #endif
 
 // bid_gcc_intrinsics.h will also define this.
-typedef struct BID_ALIGN (16)
+typedef struct BID_UINT128_ALIGN
      {
        BID_UINT64 w[2];
      } BID_UINT128;

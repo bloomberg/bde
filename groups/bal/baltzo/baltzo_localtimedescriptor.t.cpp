@@ -35,7 +35,6 @@ using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
-using bsl::flush;
 
 // ============================================================================
 //                             TEST PLAN

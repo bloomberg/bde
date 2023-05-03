@@ -12,8 +12,8 @@ BSLS_IDENT("$Id$")
 //@SEE_ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides a centralized mechanism to include the
-// requesite Intel DFP headers, by issuing the appropriate '#define'
-// configuration macros before including the intel headers.  This component is
+// requisite Intel DFP headers, by issuing the appropriate '#define'
+// configuration macros before including the Intel headers.  This component is
 // for internal use only by the 'bdldfp_decimal*' components.  Direct use of
 // any names declared in this component by any other code invokes undefined
 // behavior.  In other words: this code may change, disappear, break, move
@@ -37,7 +37,7 @@ BSLS_IDENT("$Id$")
    && !defined(INCLUDED_BID_CONF) \
    && !defined(INCLUDED_BID_INTERNAL)
 
-// Controlling macros for the intel library configuration
+// Controlling macros for the Intel library configuration
 
 #    define DECIMAL_CALL_BY_REFERENCE      0
 #    define DECIMAL_GLOBAL_ROUNDING        1
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id$")
 // build modes.  We'll turn it off, for now.  We'll do so for Sun also, since
 // it is disabled in the wrapper-package for that compiler as well.  Also, to
 // prevent redefinition of the 'fexcept_t' type, we signal that we behave like
-// '__QNX__' so that the intel library includes '<fenv.h>'.  As a result, if
+// '__QNX__' so that the Intel library includes '<fenv.h>'.  As a result, if
 // we're not using GCC or Clang on Linux, we pretend to be "QNX", since the
 // Intel library has the right options chosen for that.
 //
@@ -81,7 +81,6 @@ BSLS_IDENT("$Id$")
 
 // In C++, there's always a 'wchar_t' type, so we need to tell Intel's library
 // about this.
-
 
 #    ifndef _WCHAR_T_DEFINED
 #      define _WCHAR_T_DEFINED

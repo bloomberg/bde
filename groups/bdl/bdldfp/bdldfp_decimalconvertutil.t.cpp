@@ -1555,7 +1555,6 @@ int main(int argc, char* argv[])
 
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
 
-
             static const struct {
                 int         d_line;           // line number
                 double      d_binary;         // binary floating point value
@@ -1602,7 +1601,7 @@ int main(int argc, char* argv[])
                 LOOP3_ASSERT(LINE, mX, EXPECTED, mX == EXPECTED);
 
                 if (0 == DIGITS) {
-                    Obj mY = Util::decimal32FromFloat(BINARY);
+                    Obj mY = Util::decimal32FromDouble(BINARY);
 
                     LOOP3_ASSERT(LINE, mX, mY, mX == mY);
                 }

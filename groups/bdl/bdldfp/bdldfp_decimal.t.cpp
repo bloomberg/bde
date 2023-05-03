@@ -2,6 +2,7 @@
 #include <bdldfp_decimal.h>
 #include <bdldfp_uint128.h>
 
+#include <bdlb_nullablevalue.h>
 #include <bdlb_randomdevice.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
@@ -130,7 +131,8 @@ using bsl::atoi;
 // [ 1] Decimal32 Type
 // [ 2] Decimal64 Type
 // [ 3] Decimal128 Type
-// [ 9] USAGE EXAMPLE
+// [ 9] REGRESSIONS
+// [10] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -362,6 +364,7 @@ struct TestDriver {
     // the test driver main program.  This class is necessitated by
     // compile-time performance issues on some platforms.
 
+    static void testCase10();
     static void testCase9();
     static void testCase8();
     static void testCase7();
@@ -374,7 +377,7 @@ struct TestDriver {
 
 };
 
-void TestDriver::testCase9()
+void TestDriver::testCase10()
 {
     // ------------------------------------------------------------------------
     // USAGE EXAMPLE
@@ -441,6 +444,33 @@ void TestDriver::testCase9()
                BDLDFP_DECIMAL_DD(0.3));
         //..
     }
+}
+
+void TestDriver::testCase9()
+{
+    // ------------------------------------------------------------------------
+    // REGRESSIONS
+    //
+    // Concerns:
+    //: 1 'bdlb::NullableValue<Decimal128>' type compiles and behaves as
+    //:   expected. See {DRQS 171486531} - bdlb::NullableValue<Dec128>
+    //:   compile fails on GCC 32-bit.
+    //
+    // Plan:
+    //: 1 Create a variable of the offending type, verify it is empty, add
+    //:   a value, verify it is there. (C-1)
+    //
+    // Testing:
+    //   REGRESSIONS
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << "\nREGRESSIONS"
+                      << "\n===========\n";
+
+    bdlb::NullableValue<bdldfp::Decimal128> nvDec128;
+    ASSERT(nvDec128.isNull());
+    nvDec128.makeValueInplace(BDLDFP_DECIMAL_DL(42.));
+    ASSERT(!nvDec128.isNull() && nvDec128.value() == BDLDFP_DECIMAL_DL(42.));
 }
 
 void TestDriver::testCase8()
@@ -2012,8 +2042,6 @@ void TestDriver::testCase6()
                 } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
             }
         }
-
-        P(sizeof(BDEC::DecimalStorage::Type128) / sizeof(unsigned char));
 
         // Test wire-format
         {
@@ -8028,6 +8056,9 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
+      case 10: {
+        TestDriver::testCase10();
+      } break;
       case 9: {
         TestDriver::testCase9();
       } break;
