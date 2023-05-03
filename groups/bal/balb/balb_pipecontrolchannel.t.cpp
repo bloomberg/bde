@@ -548,8 +548,8 @@ void testCase14(const string& pipeName)
                            OPEN_EXISTING, 0, NULL);
     } while (INVALID_HANDLE_VALUE == pipe);
 
-    DWORD mode = PIPE_READMODE_MESSAGE;
-    SetNamedPipeHandleState(pipe, &mode, NULL, NULL);
+    DWORD mode = PIPE_READMODE_BYTE;
+    ASSERT(0 != SetNamedPipeHandleState(pipe, &mode, NULL, NULL));
 
     DWORD dummy;
     if (!WriteFile(pipe, "EXIT\n", 5, &dummy, 0)) {

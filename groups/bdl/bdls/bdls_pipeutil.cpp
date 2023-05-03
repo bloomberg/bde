@@ -154,6 +154,10 @@ int PipeUtil::send(const bsl::string_view& pipeName,
     }
     while (INVALID_HANDLE_VALUE == pipe);
 
+    // NOTE: The below attempt to set the read mode to 'PIPE_READMODE_MESSAGE'
+    // will silently fail if the named pipe was created in byte mode (e.g., by
+    // 'balb::PipeControlChannel').  The message will then be sent as a
+    // sequence of bytes.
     DWORD mode = PIPE_READMODE_MESSAGE;
     SetNamedPipeHandleState(pipe, &mode, NULL, NULL);
 
@@ -183,7 +187,7 @@ PipeUtil::isOpenForReading(const bsl::string_view& pipeName)
 
     FileDescriptorGuard guard(pipe);
 
-    DWORD mode = PIPE_READMODE_MESSAGE;
+    DWORD mode = PIPE_READMODE_BYTE;
     if (0 == SetNamedPipeHandleState(pipe, &mode, NULL, NULL)) {
         return false;                                                 // RETURN
     }

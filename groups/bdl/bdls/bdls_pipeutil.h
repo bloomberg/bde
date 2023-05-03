@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdls::PipeUtil: Portable utility methods for naming and accessing pipes
 //
-//@SEE_ALSO:
+//@SEE_ALSO: balb_pipecontrolchannel
 //
 //@DESCRIPTION: This component, 'bdls::PipeUtil', provides portable utility
 // methods for named pipes.
@@ -107,10 +107,15 @@ struct PipeUtil {
         // unless 'pipeName' is a valid UTF-8 string.
 
     static bool isOpenForReading(const bsl::string_view& pipeName);
-        // Return 'true' if the pipe with the specified UTF-8 'pipeName' exists
-        // and is currently open for reading by some process, and 'false'
-        // otherwise.  The behavior is undefined unless 'pipeName' is a valid
-        // UTF-8 string.
+        // Return 'true' if the pipe with the specified UTF-8 'pipeName'
+        // exists, the calling process has permission to write to it, and some
+        // process is able to read the bytes written to it, and 'false'
+        // otherwise.  On Windows, this function may block and may write an
+        // "empty message", consisting of a single newline.  The behavior is
+        // undefined unless 'pipeName' is a valid UTF-8 string.  Note that even
+        // though a process might have the pipe open for reading, this function
+        // might still return 'false' because there are not sufficient
+        // resources available.
 };
 
 }  // close package namespace

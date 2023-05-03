@@ -237,12 +237,6 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
 {
     BSLS_LOG_TRACE("Creating named pipe '%s'", pipeName);
 
-    if (bdls::PipeUtil::isOpenForReading(pipeName)) {
-        BSLS_LOG_ERROR("Named pipe '%s' already exists", pipeName);
-
-        return -2;                                                    // RETURN
-    }
-
     bsl::wstring wPipeName;
 
     if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
@@ -254,13 +248,18 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
         CreateNamedPipeW(wPipeName.c_str(),
                          PIPE_ACCESS_INBOUND,
                          PIPE_READMODE_BYTE | PIPE_WAIT,
-                         PIPE_UNLIMITED_INSTANCES,
+                         1,    // only one server instance is permitted
                          MAX_PIPE_BUFFER_LEN,
                          MAX_PIPE_BUFFER_LEN,
                          2000, // default timeout in ms for pipe operations
                          NULL);
 
     if (INVALID_HANDLE_VALUE == d_impl.d_windows.d_handle) {
+        if (ERROR_PIPE_BUSY == GetLastError()) {
+            BSLS_LOG_ERROR("Named pipe '%s' already exists", pipeName);
+
+            return -2;                                                // RETURN
+        }
         BSLS_LOG_TRACE("Failed to create named pipe '%s': %s",
                        d_pipeName.c_str(),
                        describeWin32Error(GetLastError()).c_str());
