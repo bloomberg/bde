@@ -665,9 +665,10 @@ double RadiationMeterReceiver::yield()
 
 namespace MultiPeriodTest {
 
-void testMain(BloombergLP::ball::TestObserver *TO,
-              u::TestType                      testType,
-              TestAllocator                   *alloc)
+void testMain(
+             const bsl::shared_ptr<BloombergLP::ball::TestObserver>&  TO,
+             u::TestType                                              testType,
+             TestAllocator                                           *alloc)
     // This function runs the multi period test, one 'period' being the
     // 'NANOSECONDS_PER_MESSAGE' passed to the throttle.  Use the specified
     // observer '*TO', and the specified 'alloc' for memory allocation.  The
@@ -678,7 +679,8 @@ void testMain(BloombergLP::ball::TestObserver *TO,
     // is single threaded.
 {
     BloombergLP::ball::LoggerManagerConfiguration lmc;
-    BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, alloc);
+    BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, alloc);
+    BloombergLP::ball::LoggerManager::singleton().registerObserver(TO, "TO");
 
     BloombergLP::ball::Administration::addCategory(
                                       "sieve",
@@ -893,16 +895,18 @@ class Func {
     }
 };
 
-void testMain(BloombergLP::ball::TestObserver *TO,
-              u::TestType                      testType,
-              TestAllocator                   *alloc)
+void testMain(
+             const bsl::shared_ptr<BloombergLP::ball::TestObserver>&  TO,
+             u::TestType                                              testType,
+             TestAllocator                                           *alloc)
     // This test case is called from cases 3 and 4, and the test plan is
     // described in detail there.  Use the specified observer '*TO', with the
     // specified 'testType' indicating whether the test is 'printf'-style or
     // stream style.  Use the specified 'alloc' for memory allocation.
 {
     BloombergLP::ball::LoggerManagerConfiguration lmc;
-    BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, alloc);
+    BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, alloc);
+    BloombergLP::ball::LoggerManager::singleton().registerObserver(TO, "TO");
 
     // Re "sieve" category: (1) if recorded, then also published;
     // (2) never triggered.
@@ -963,8 +967,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    BloombergLP::ball::TestObserver  testObserver(&cout);
-    BloombergLP::ball::TestObserver *TO = &testObserver;
+
+    bsl::shared_ptr<BloombergLP::ball::TestObserver> TO =
+              bsl::make_shared<BloombergLP::ball::TestObserver>(&cout);
 
     TestAllocator ta("test", veryVeryVeryVerbose);
 
@@ -987,10 +992,13 @@ int main(int argc, char *argv[])
                              "==========================\n";
 
         bsl::ostringstream oss;
-        BloombergLP::ball::StreamObserver sobs(&oss);
+        bsl::shared_ptr<BloombergLP::ball::StreamObserver> sobs =
+                     bsl::make_shared<BloombergLP::ball::StreamObserver>(&oss);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(&sobs, lmc, &ta);
+        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+        BloombergLP::ball::LoggerManager::singleton().registerObserver(sobs,
+                                                                       "SO");
 
         // Re "sieve" category: (1) if recorded, then also published;
         // (2) never triggered.
@@ -1024,10 +1032,13 @@ int main(int argc, char *argv[])
                              "==========================\n";
 
         bsl::ostringstream oss;
-        BloombergLP::ball::StreamObserver sobs(&oss);
+        bsl::shared_ptr<BloombergLP::ball::StreamObserver> sobs =
+                     bsl::make_shared<BloombergLP::ball::StreamObserver>(&oss);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(&sobs, lmc, &ta);
+        BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, &ta);
+        BloombergLP::ball::LoggerManager::singleton().registerObserver(sobs,
+                                                                       "SO");
 
         // Re "sieve" category: (1) if recorded, then also published;
         // (2) never triggered.
@@ -1080,10 +1091,13 @@ int main(int argc, char *argv[])
         }
 
         bsl::ostringstream oss;
-        BloombergLP::ball::StreamObserver sobs(&oss);
+        bsl::shared_ptr<BloombergLP::ball::StreamObserver> sobs =
+                     bsl::make_shared<BloombergLP::ball::StreamObserver>(&oss);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(&sobs, lmc, &ta);
+        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+        BloombergLP::ball::LoggerManager::singleton().registerObserver(sobs,
+                                                                       "SO");
 
         // Re "sieve" category: (1) if recorded, then also published;
         // (2) never triggered.
@@ -1324,10 +1338,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) P(categoryThreshold);
 
             bsl::ostringstream oss(&ta);
-            BloombergLP::ball::StreamObserver sobs(&oss);
+            bsl::shared_ptr<BloombergLP::ball::StreamObserver> sobs =
+                     bsl::make_shared<BloombergLP::ball::StreamObserver>(&oss);
 
             BloombergLP::ball::LoggerManagerConfiguration lmc;
-            BloombergLP::ball::LoggerManagerScopedGuard lmg(&sobs, lmc, &ta);
+            BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+            BloombergLP::ball::LoggerManager::singleton().registerObserver(
+                                                                         sobs,
+                                                                         "SO");
 
             // Re "sieve" category: (1) if recorded, then also published;
             // (2) never triggered.
@@ -1503,7 +1521,9 @@ int main(int argc, char *argv[])
         const int   ARGS[]  = { 1, 2, 3 };
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
+        BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, &ta);
+        BloombergLP::ball::LoggerManager::singleton().registerObserver(TO,
+                                                                       "TO");
 
         // Re "sieve" category: (1) if recorded, then also published;
         // (2) never triggered.
@@ -2005,7 +2025,9 @@ int main(int argc, char *argv[])
         ASSERT(MAX_ARGS + 1 == sizeof MESSAGE / sizeof *MESSAGE);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
+        BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, &ta);
+        BloombergLP::ball::LoggerManager::singleton().registerObserver(TO,
+                                                                       "TO");
 
         const int NONE  = BloombergLP::ball::Severity::e_TRACE + 1;
         const int TRACE = BloombergLP::ball::Severity::e_TRACE;

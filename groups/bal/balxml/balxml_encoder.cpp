@@ -113,10 +113,10 @@ int Encoder_OptionsCompatibilityUtil::getFormatterInitialIndentLevel(
     int result = 0;
 
     switch (options.encodingStyle()) {
-      case balxml::EncodingStyle::e_COMPACT: {
+      case balxml::EncodingStyle::COMPACT: {
         result = 0;
       } break;
-      case balxml::EncodingStyle::e_PRETTY: {
+      case balxml::EncodingStyle::PRETTY: {
         result = options.initialIndentLevel();
       } break;
     }
@@ -132,10 +132,10 @@ int Encoder_OptionsCompatibilityUtil::getFormatterSpacesPerLevel(
     int result = 0;
 
     switch (options.encodingStyle()) {
-      case balxml::EncodingStyle::e_COMPACT: {
+      case balxml::EncodingStyle::COMPACT: {
         result = 0;
       } break;
-      case balxml::EncodingStyle::e_PRETTY: {
+      case balxml::EncodingStyle::PRETTY: {
         result = options.spacesPerLevel();
       } break;
     }
@@ -151,10 +151,10 @@ int Encoder_OptionsCompatibilityUtil::getFormatterWrapColumn(
     int result = 0;
 
     switch (options.encodingStyle()) {
-      case balxml::EncodingStyle::e_COMPACT: {
+      case balxml::EncodingStyle::COMPACT: {
         result = -1;
       } break;
-      case balxml::EncodingStyle::e_PRETTY: {
+      case balxml::EncodingStyle::PRETTY: {
         result = options.wrapColumn();
       } break;
     }

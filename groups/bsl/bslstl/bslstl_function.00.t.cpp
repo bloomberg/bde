@@ -2988,7 +2988,7 @@ bool allocPropagationCheckImp(const Obj& f, bsl::true_type /*usesBslmaAlloc*/)
     }
 
     const FUNC *target = f.target<FUNC>();
-    return f.allocator() == target->allocator();
+    return f.get_allocator() == target->get_allocator();
 }
 
 template <class FUNC>
@@ -5604,6 +5604,7 @@ int main(int argc, char *argv[])
                             "\n=====================================\n");
 
 #ifdef BSLSTL_FUNCTION_TEST_PART_09
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         using BloombergLP::bdef_Function;
 
         bsl::function<int(const char *)>           original;
@@ -5613,6 +5614,7 @@ int main(int argc, char *argv[])
 
         ASSERT(&converted == &ORIGINAL);
         ASSERT(&CONVERTED == &ORIGINAL);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 #else
         BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
 #endif  // BSLSTL_FUNCTION_TEST_PART_09
@@ -9706,13 +9708,17 @@ int main(int argc, char *argv[])
             bsl::function<int(float)> f1;
             ASSERT(f1 ? false : true);  // Succeed if empty
             ASSERT(bsl::allocator<char>() == f1.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&defaultTestAllocator == f1.allocator());
+#endif
             ASSERT(defaultAllocMonitor.isInUseSame());
 
             bsl::function<int(float)> f2(0);
             ASSERT(f2 ? false : true);  // Succeed if empty
             ASSERT(bsl::allocator<char>() == f2.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&defaultTestAllocator == f2.allocator());
+#endif
             ASSERT(defaultAllocMonitor.isInUseSame());
 
             // Null allocator pointer behaves as though allocator were not
@@ -9722,13 +9728,17 @@ int main(int argc, char *argv[])
             bsl::function<int(float)> f3(bsl::allocator_arg, nullTa_p);
             ASSERT(! f3);
             ASSERT(bsl::allocator<char>() == f3.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&defaultTestAllocator == f3.allocator());
+#endif
             ASSERT(defaultAllocMonitor.isInUseSame());
 
             bsl::function<int(float)> f4(bsl::allocator_arg, nullTa_p, 0);
             ASSERT(! f4);
             ASSERT(bsl::allocator<char>() == f4.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&defaultTestAllocator == f4.allocator());
+#endif
             ASSERT(defaultAllocMonitor.isInUseSame());
         }
 
@@ -9742,7 +9752,9 @@ int main(int argc, char *argv[])
             bsl::function<int(float)> f(bsl::allocator_arg, alloc);
             ASSERT(! f);
             ASSERT(alloc == f.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&ta == f.allocator());
+#endif
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(defaultAllocMonitor.isInUseSame());
 
@@ -9750,7 +9762,9 @@ int main(int argc, char *argv[])
                                          bsl::nullptr_t());
             ASSERT(! f2);
             ASSERT(alloc == f2.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&ta == f2.allocator());
+#endif
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(defaultAllocMonitor.isInUseSame());
         }
@@ -9761,14 +9775,18 @@ int main(int argc, char *argv[])
             bsl::function<int(float)> f(bsl::allocator_arg, &ta);
             ASSERT(! f);
             ASSERT(bsl::allocator<char>(&ta) == f.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&ta == f.allocator());
+#endif
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(defaultAllocMonitor.isInUseSame());
 
             bsl::function<int(float)> f2(bsl::allocator_arg, &ta, 0);
             ASSERT(! f2);
             ASSERT(bsl::allocator<char>(&ta) == f2.get_allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&ta == f2.allocator());
+#endif
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(defaultAllocMonitor.isInUseSame());
         }
@@ -9791,7 +9809,9 @@ int main(int argc, char *argv[])
             ASSERT(typeid(void) == F.target_type());
             ASSERT(0 == F.target<bsl::function<int()> >());
             ASSERT(0 == f.target<bsl::function<int()> >());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&defaultTestAllocator == f.allocator());
+#endif
         }
         ASSERT(defaultAllocMonitor.isInUseSame());
 #endif  // DRQS_164241820_FIXED

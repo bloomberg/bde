@@ -1323,13 +1323,16 @@ int main(int argc, char *argv[])
             funcInPtr  fIn  = &Obj::bdexStreamIn<In>;
             funcOutPtr fOut = &Obj::bdexStreamOut<Out>;
             funcVerPtr fVer =  Obj::maxSupportedBdexVersion;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             funcDepPtr fDep =  Obj::maxSupportedBdexVersion;
-
+#endif
             // quash potential compiler warnings
             (void)fIn;
             (void)fOut;
             (void)fVer;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             (void)fDep;
+#endif
         }
 
         if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
@@ -1337,10 +1340,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
             ASSERT(1 == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(1 == X.maxSupportedBdexVersion());
+#endif
             if (veryVerbose) cout << "\tusing class method syntax:" << endl;
             ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(1 == Obj::maxSupportedBdexVersion());
+#endif
         }
 
         // ------------------------------------

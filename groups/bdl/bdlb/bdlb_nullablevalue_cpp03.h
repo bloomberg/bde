@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan  3 10:43:15 2023
+// Generated on Mon May  1 17:29:06 2023
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -1364,9 +1364,13 @@ template <class TYPE>
 inline
 TYPE& NullableValue<TYPE>::value()
 {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     BSLS_REVIEW_OPT(this->has_value());
 
     return this->dereferenceRaw();
+#else
+    return **this;
+#endif
 }
 // ACCESSORS
 template <class TYPE>
@@ -1449,9 +1453,13 @@ template <class TYPE>
 inline
 const TYPE& NullableValue<TYPE>::value() const
 {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     BSLS_REVIEW_OPT(this->has_value());
 
     return this->dereferenceRaw();
+#else
+    return **this;
+#endif
 }
 
 template <class TYPE>

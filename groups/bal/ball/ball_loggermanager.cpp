@@ -174,7 +174,7 @@ Record *RecordSharedPtrUtil::disassembleSharedPtr(
                                          const bsl::shared_ptr<Record>& record)
 {
     BSLS_ASSERT(s_sharedObjectOffset ==
-                                     reinterpret_cast<char *>(record.ptr())
+                                     reinterpret_cast<char *>(record.get())
                                      - reinterpret_cast<char *>(record.rep()));
 
     // Returning a raw pointer to a 'Record' that is shared, so manually bump
@@ -206,7 +206,7 @@ void RecordSharedPtrUtil::initializeSharedObjectOffset(
     // The following works because 'bdlcc::SharedObjectPool_Rep' stores the
     // shared object in-place in the shared pointer "rep".
 
-    s_sharedObjectOffset = reinterpret_cast<char *>(record.ptr())
+    s_sharedObjectOffset = reinterpret_cast<char *>(record.get())
                            - reinterpret_cast<char *>(record.rep());
 
     BSLS_ASSERT_OPT(0 != s_sharedObjectOffset);

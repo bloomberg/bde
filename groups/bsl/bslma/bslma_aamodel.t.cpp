@@ -648,13 +648,13 @@ int main(int argc, char *argv[])
       } break;
 
       default: {
-        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        std::fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
+        std::fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

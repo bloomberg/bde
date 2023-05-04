@@ -18,6 +18,10 @@
 
 #include <bsla_maybeunused.h>
 
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
+
+
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------

@@ -896,7 +896,7 @@ int Encoder::MemOutStream::length() const
 inline
 bool Encoder::isCompact() const
 {
-    return EncodingStyle::e_COMPACT == d_options->encodingStyle();
+    return EncodingStyle::COMPACT == d_options->encodingStyle();
 }
 
 inline

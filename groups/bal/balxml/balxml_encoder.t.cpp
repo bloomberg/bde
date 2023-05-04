@@ -3859,7 +3859,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         bob.age()                  = 21;
 
         balxml::EncoderOptions options;
-        options.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+        options.setEncodingStyle(balxml::EncodingStyle::PRETTY);
 
         balxml::Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
 
@@ -4224,7 +4224,7 @@ int main(int argc, char *argv[])
 
         {
             EncoderOptions encoderOptions;
-            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_COMPACT);
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::COMPACT);
             encoderOptions.setInitialIndentLevel(10);
             encoderOptions.setSpacesPerLevel(10);
             encoderOptions.setWrapColumn(10);
@@ -4248,7 +4248,7 @@ int main(int argc, char *argv[])
 
         {
             EncoderOptions encoderOptions;
-            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::PRETTY);
 
             int formatterIndentLevel    = 0;
             int formatterSpacesPerLevel = 0;
@@ -4269,7 +4269,7 @@ int main(int argc, char *argv[])
 
         {
             EncoderOptions encoderOptions;
-            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::PRETTY);
             encoderOptions.setInitialIndentLevel(10);
             encoderOptions.setSpacesPerLevel(10);
             encoderOptions.setWrapColumn(10);
@@ -4465,7 +4465,7 @@ int main(int argc, char *argv[])
             bob.hourlyRate()           = VALUE;
 
             balxml::EncoderOptions options;
-            options.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(balxml::EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
 
@@ -4955,9 +4955,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::PRETTY);
+            options2.setEncodingStyle(EncodingStyle::PRETTY);
+            options3.setEncodingStyle(EncodingStyle::PRETTY);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -5010,9 +5010,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
-            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
-            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::COMPACT);
+            options2.setEncodingStyle(EncodingStyle::COMPACT);
+            options3.setEncodingStyle(EncodingStyle::COMPACT);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -5062,9 +5062,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::PRETTY);
+            options2.setEncodingStyle(EncodingStyle::PRETTY);
+            options3.setEncodingStyle(EncodingStyle::PRETTY);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -5114,9 +5114,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
-            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
-            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::COMPACT);
+            options2.setEncodingStyle(EncodingStyle::COMPACT);
+            options3.setEncodingStyle(EncodingStyle::COMPACT);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -5170,9 +5170,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::PRETTY);
+            options2.setEncodingStyle(EncodingStyle::PRETTY);
+            options3.setEncodingStyle(EncodingStyle::PRETTY);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -5226,9 +5226,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
-            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
-            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::COMPACT);
+            options2.setEncodingStyle(EncodingStyle::COMPACT);
+            options3.setEncodingStyle(EncodingStyle::COMPACT);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -5426,9 +5426,9 @@ int main(int argc, char *argv[])
 
             bsl::stringstream result1, result2, result3;
 
-            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::PRETTY);
+            options2.setEncodingStyle(EncodingStyle::PRETTY);
+            options3.setEncodingStyle(EncodingStyle::PRETTY);
 
             int rc;
             balxml::Encoder encoder1(&options1, 0, 0);
@@ -5466,13 +5466,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace(OBJ_NS);
-            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::PRETTY);
 
             options2.setObjectNamespace(OBJ_NS);
-            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::PRETTY);
 
             options3.setObjectNamespace(OBJ_NS);
-            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::PRETTY);
 
             rc = encoder1.encodeToStream(result1, X);
             LOOP_ASSERT(rc, 0 == rc);
@@ -5560,13 +5560,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace("");
-            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::COMPACT);
 
             options2.setObjectNamespace("");
-            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::COMPACT);
 
             options3.setObjectNamespace("");
-            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::COMPACT);
 
             rc = encoder1.encodeToStream(result1, X);
             LOOP_ASSERT(rc, 0 == rc);
@@ -5599,13 +5599,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace(OBJ_NS);
-            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::COMPACT);
 
             options2.setObjectNamespace(OBJ_NS);
-            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::COMPACT);
 
             options3.setObjectNamespace(OBJ_NS);
-            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::COMPACT);
 
             rc = encoder1.encodeToStream(result1, X);
             LOOP_ASSERT(rc, 0 == rc);
@@ -5646,13 +5646,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace(OBJ_NS);
-            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::PRETTY);
 
             options2.setObjectNamespace(OBJ_NS);
-            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::PRETTY);
 
             options3.setObjectNamespace(OBJ_NS);
-            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::PRETTY);
 
             int rc = encoder1.encodeToStream(result1, X);
             rc = encoder2.encodeToStream(result2, X);
@@ -5797,7 +5797,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -5818,7 +5818,7 @@ int main(int argc, char *argv[])
             result.str("");
 
             options.setObjectNamespace(OBJ_NS);
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             rc = encoder.encodeToStream(result, X);
 
@@ -5894,7 +5894,7 @@ int main(int argc, char *argv[])
             result.str("");
 
             options.setObjectNamespace("");
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             rc = encoder.encodeToStream(result, X);
 
@@ -5914,7 +5914,7 @@ int main(int argc, char *argv[])
             result.str("");
 
             options.setObjectNamespace(OBJ_NS);
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             rc = encoder.encodeToStream(result, X);
 
@@ -5966,7 +5966,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6000,7 +6000,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6034,7 +6034,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6069,7 +6069,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6122,7 +6122,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6159,7 +6159,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6197,7 +6197,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6250,7 +6250,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6286,7 +6286,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6322,7 +6322,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6411,7 +6411,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::e_PRETTY);
+                options.setEncodingStyle(EncodingStyle::PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, X);
@@ -6485,7 +6485,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::e_COMPACT);
+                options.setEncodingStyle(EncodingStyle::COMPACT);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, X);
@@ -6576,7 +6576,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6655,7 +6655,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6709,7 +6709,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6746,7 +6746,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6801,7 +6801,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options.setEncodingStyle(EncodingStyle::PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6839,7 +6839,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options.setEncodingStyle(EncodingStyle::COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -6901,7 +6901,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::e_PRETTY);
+                options.setEncodingStyle(EncodingStyle::PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, VALUE);
@@ -6949,7 +6949,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::e_PRETTY);
+                options.setEncodingStyle(EncodingStyle::PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, VALUE);
@@ -7030,7 +7030,7 @@ int main(int argc, char *argv[])
                 }
 
                 options.setFormattingMode(FORMATTING_MODE);
-                options.setEncodingStyle(EncodingStyle::e_PRETTY);
+                options.setEncodingStyle(EncodingStyle::PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, OBJECT);
@@ -7093,7 +7093,7 @@ int main(int argc, char *argv[])
                 }
 
                 options.setFormattingMode(FORMATTING_MODE);
-                options.setEncodingStyle(EncodingStyle::e_PRETTY);
+                options.setEncodingStyle(EncodingStyle::PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, OBJECT);

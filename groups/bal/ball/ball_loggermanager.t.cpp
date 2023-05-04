@@ -1031,7 +1031,11 @@ void verifyLoggerManagerDefaults(const ball::LoggerManager&  manager,
     const Obj& X = manager;
 
     ASSERT(oa                 == X.allocator());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     ASSERT(expectedObserver   == X.observer());
+#else
+    (void)expectedObserver;
+#endif
 
     ASSERT(FACTORY_RECORD     == X.defaultRecordThresholdLevel());
     ASSERT(FACTORY_PASS       == X.defaultPassThresholdLevel());
@@ -1141,8 +1145,12 @@ extern "C" void *initSingletonThread(void *args)
     ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
 
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ball::LoggerManager::initSingleton(threadArgs->d_to_p,
                                            *threadArgs->d_lmc_p);
+#else
+        ball::LoggerManager::initSingleton(*threadArgs->d_lmc_p);
+#endif
     }
 
     return 0;
@@ -1162,8 +1170,12 @@ extern "C" void *scopedGuardThread(void *args)
     ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
 
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ball::LoggerManagerScopedGuard guard(threadArgs->d_to_p,
                                              *threadArgs->d_lmc_p);
+#else
+        ball::LoggerManagerScopedGuard guard(*threadArgs->d_lmc_p);
+#endif
     }
 
     return 0;
@@ -1900,10 +1912,8 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4;
 
-        ball::StreamObserver observer(&cout);
-
         ball::LoggerManagerConfiguration mXC;
-        ball::LoggerManagerScopedGuard   lmGuard(&observer, mXC);
+        ball::LoggerManagerScopedGuard   lmGuard(mXC);
 
         factorial(10);
         factorial(-1);
@@ -1932,9 +1942,8 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3;
 
-        ball::StreamObserver             observer(&cout);
         ball::LoggerManagerConfiguration mXC;
-        ball::LoggerManagerScopedGuard   lmGuard(&observer, mXC);
+        ball::LoggerManagerScopedGuard   lmGuard(mXC);
 
         ball::LoggerManager& mX = ball::LoggerManager::singleton();
 
@@ -2161,7 +2170,10 @@ int main(int argc, char *argv[])
                                                        0,
                                                        0));
 
-                  ball::TestObserver  mTO(&bsl::cout);
+            bsl::shared_ptr<ball::TestObserver> sTO =
+                              bsl::make_shared<ball::TestObserver>(&bsl::cout);
+
+                  ball::TestObserver& mTO = *sTO;
             const ball::TestObserver& TO = mTO;
 
             ASSERT(0 == TO.numPublishedRecords());
@@ -2174,9 +2186,10 @@ int main(int argc, char *argv[])
                 logMessageTest(false, TO, TO.numPublishedRecords());
 
                 {
-                     ball::LoggerManagerScopedGuard guard(&mTO, lmc);
+                     ball::LoggerManagerScopedGuard guard(lmc);
 
                      ASSERT(Obj::isInitialized());
+                     Obj::singleton().registerObserver(sTO, "TO");
                      bslsLogMsgCount = 0;
                      logMessageTest(true, TO, TO.numPublishedRecords());
                 }
@@ -2195,7 +2208,10 @@ int main(int argc, char *argv[])
                                                        0,
                                                        0));
 
-                  ball::TestObserver  mTO(&bsl::cout);
+            bsl::shared_ptr<ball::TestObserver> sTO =
+                              bsl::make_shared<ball::TestObserver>(&bsl::cout);
+
+                  ball::TestObserver& mTO = *sTO;
             const ball::TestObserver& TO = mTO;
 
             ASSERT(0 == TO.numPublishedRecords());
@@ -2208,9 +2224,10 @@ int main(int argc, char *argv[])
                 logMessageTest(false, TO, TO.numPublishedRecords());
 
                 {
-                     ball::LoggerManager::initSingleton(&mTO, lmc);
+                     ball::LoggerManager::initSingleton(lmc);
 
                      ASSERT(Obj::isInitialized());
+                     Obj::singleton().registerObserver(sTO, "TO");
                      bslsLogMsgCount = 0;
                      logMessageTest(true, TO, TO.numPublishedRecords());
 
@@ -2231,7 +2248,10 @@ int main(int argc, char *argv[])
                                                        0,
                                                        0));
 
-                  ball::TestObserver  mTO(&bsl::cout);
+            bsl::shared_ptr<ball::TestObserver> sTO =
+                              bsl::make_shared<ball::TestObserver>(&bsl::cout);
+
+                  ball::TestObserver& mTO = *sTO;
             const ball::TestObserver& TO = mTO;
 
             ASSERT(0 == TO.numPublishedRecords());
@@ -2241,13 +2261,15 @@ int main(int argc, char *argv[])
                 bslsLogMsgCount = 0;
                 logMessageTest(false, TO, TO.numPublishedRecords());
 
-                ball::LoggerManagerScopedGuard guard(&mTO, lmc);
+                ball::LoggerManagerScopedGuard guard(lmc);
 
                 ASSERT( Obj::isInitialized());
+                Obj::singleton().registerObserver(sTO, "TO");
+
                 bslsLogMsgCount = 0;
                 logMessageTest(true, TO, TO.numPublishedRecords());
                 {
-                     ball::LoggerManagerScopedGuard guard(&mTO, lmc);
+                     ball::LoggerManagerScopedGuard guard(lmc);
 
                      ASSERT(Obj::isInitialized());
                      bslsLogMsgCount = 0;
@@ -2272,7 +2294,10 @@ int main(int argc, char *argv[])
                                                        0,
                                                        0));
 
-                  ball::TestObserver  mTO(&bsl::cout);
+            bsl::shared_ptr<ball::TestObserver> sTO =
+                              bsl::make_shared<ball::TestObserver>(&bsl::cout);
+
+                  ball::TestObserver& mTO = *sTO;
             const ball::TestObserver& TO = mTO;
 
             ThreadArgs threadArgs = { &mTO, &lmc };
@@ -2300,9 +2325,16 @@ int main(int argc, char *argv[])
                     bslmt::ThreadUtil::join(threads[j], 0);
                 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 if (!Obj::isInitialized()) {
                     Obj::initSingleton(&mTO, lmc);
                 }
+#else
+                if (!Obj::isInitialized()) {
+                    Obj::initSingleton(lmc);
+                }
+                Obj::singleton().registerObserver(sTO, "TO");
+#endif
 
                 bslsLogMsgCount = 0;
                 logMessageTest(true, TO, TO.numPublishedRecords());
@@ -2428,7 +2460,12 @@ int main(int argc, char *argv[])
             ball::StreamObserver obs(&cout);
             ball::LoggerManagerConfiguration cfg;
             bslma::ManagedPtr<ball::LoggerManager> mp;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+#else
+            (void)obs;
+            ball::LoggerManager::createLoggerManager(&mp, cfg, &ta);
+#endif
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 != ball::LoggerManager::initSingleton(p, false));
             ASSERT(ta.d_tracked_pointer_p            == p);
@@ -2443,7 +2480,12 @@ int main(int argc, char *argv[])
             ball::StreamObserver obs(&cout);
             ball::LoggerManagerConfiguration cfg;
             bslma::ManagedPtr<ball::LoggerManager> mp;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+#else
+            (void)obs;
+            ball::LoggerManager::createLoggerManager(&mp, cfg, &ta);
+#endif
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 == ball::LoggerManager::initSingleton(p));
             ASSERT(ta.d_tracked_pointer_p            == p);
@@ -2458,7 +2500,12 @@ int main(int argc, char *argv[])
             ball::StreamObserver obs(&cout);
             ball::LoggerManagerConfiguration cfg;
             bslma::ManagedPtr<ball::LoggerManager> mp;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+#else
+            (void)obs;
+            ball::LoggerManager::createLoggerManager(&mp, cfg, &ta);
+#endif
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 == ball::LoggerManager::initSingleton(p));
             ASSERT(ta.d_tracked_pointer_p            == p);
@@ -2515,7 +2562,12 @@ int main(int argc, char *argv[])
             ball::StreamObserver obs(&cout);
             ball::LoggerManagerConfiguration cfg;
             bslma::ManagedPtr<ball::LoggerManager> mp;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+#else
+            (void)obs;
+            ball::LoggerManager::createLoggerManager(&mp, cfg, &ta);
+#endif
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 != ball::LoggerManager::initSingleton(p, true));
             ASSERT(ta.d_tracked_pointer_p            == p);
@@ -2530,7 +2582,12 @@ int main(int argc, char *argv[])
             ball::StreamObserver obs(&cout);
             ball::LoggerManagerConfiguration cfg;
             bslma::ManagedPtr<ball::LoggerManager> mp;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+#else
+            (void)obs;
+            ball::LoggerManager::createLoggerManager(&mp, cfg, &ta);
+#endif
             ball::LoggerManager *p = mp.release().first;
             ASSERT(0 == ball::LoggerManager::initSingleton(p, true));
             ASSERT(ta.d_tracked_pointer_p            == p);
@@ -2545,7 +2602,12 @@ int main(int argc, char *argv[])
             ball::StreamObserver obs(&cout);
             ball::LoggerManagerConfiguration cfg;
             bslma::ManagedPtr<ball::LoggerManager> mp;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+#else
+            (void)obs;
+            ball::LoggerManager::createLoggerManager(&mp, cfg, &ta);
+#endif
             ball::LoggerManager *p = mp.release().first;
             ASSERT(0 == ball::LoggerManager::initSingleton(p, true));
             ASSERT(ta.d_tracked_pointer_p            == p);
@@ -2630,19 +2692,30 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         TestDestroyObserver                  observer1;
+#endif
         bsl::shared_ptr<TestDestroyObserver> observer2(
                                                     new TestDestroyObserver());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(0 == observer1.getReleaseCnt());
+#endif
         ASSERT(0 == observer2->getReleaseCnt());
         {
             ball::LoggerManagerConfiguration mXC;
-            ball::LoggerManagerScopedGuard   lmGuard(&observer1, mXC);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ball::LoggerManagerScopedGuard lmGuard(&observer1, mXC);
+#else
+            ball::LoggerManagerScopedGuard lmGuard(mXC);
+#endif
 
             Obj::singleton().registerObserver(observer2, "observer2");
         }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERTV(observer1.getReleaseCnt(),  1 == observer1.getReleaseCnt());
+#endif
         ASSERTV(observer2->getReleaseCnt(), 1 == observer2->getReleaseCnt());
 
       } break;
@@ -2727,13 +2800,19 @@ int main(int argc, char *argv[])
         int numBufferedRecords = 0;
 
         bslma::TestAllocator             ta;
-        ball::TestObserver               to(&bsl::cout, &ta);
-        const ball::TestObserver        *TO = &to;
+        bsl::shared_ptr<ball::TestObserver> sTO =
+                     bsl::allocate_shared<ball::TestObserver>(&ta, &bsl::cout);
+        const ball::TestObserver        *TO = sTO.get();
         ball::LoggerManagerConfiguration mXC;
         mXC.setTriggerMarkers(
                   BloombergLP::ball::LoggerManagerConfiguration::e_NO_MARKERS);
 
-        ball::LoggerManager::initSingleton(&to, mXC, &ta);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        ball::LoggerManager::initSingleton(sTO.get(), mXC, &ta);
+#else
+        ball::LoggerManager::initSingleton(mXC, &ta);
+        ball::LoggerManager::singleton().registerObserver(sTO, "TO");
+#endif
         ball::LoggerManager& mX = ball::LoggerManager::singleton();
 
         for (int i = 0; i < (int) thresholds.size(); ++i) {
@@ -3052,11 +3131,19 @@ int main(int argc, char *argv[])
                                                 bsls::Log::logMessageHandler();
         {
             if (veryVerbose) cout << "\tCreate the test observer." << endl;
-            ball::TestObserver observer(&cout);
+            bsl::shared_ptr<ball::TestObserver> observerSP =
+                                   bsl::make_shared<ball::TestObserver>(&cout);
+            ball::TestObserver& observer = *observerSP;
 
             if (veryVerbose) cout << "\tCreate scoped guard." << endl;
             ball::LoggerManagerConfiguration mXC;
-            ball::LoggerManagerScopedGuard   lmGuard(&observer, mXC);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ball::LoggerManagerScopedGuard lmGuard(&observer, mXC);
+#else
+            ball::LoggerManagerScopedGuard lmGuard(mXC);
+            ball::LoggerManager::singleton().registerObserver(observerSP,
+                                                              "TO");
+#endif
 
             Obj&       mX = ball::LoggerManager::singleton();
             const Obj& X  = mX;
@@ -3183,12 +3270,20 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numBlocksInUse());
         ASSERT(0 == ga.numBlocksInUse());
         {
-            ball::TestObserver observer(&bsl::cout, &oa);
+            bsl::shared_ptr<ball::TestObserver> observerSP =
+                     bsl::allocate_shared<ball::TestObserver>(&oa, &bsl::cout);
+            ball::TestObserver& observer = *observerSP;
 
             InitializationVerifier ivPre(false);
             ASSERT(false == Obj::isInitialized());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ball::LoggerManagerScopedGuard lmGuard(&observer, mXC);
+#else
+            ball::LoggerManagerScopedGuard lmGuard(mXC);
+            ball::LoggerManager::singleton().registerObserver(observerSP,
+                                                              "TO");
+#endif
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 <  ga.numBlocksInUse());
 
@@ -3198,7 +3293,9 @@ int main(int argc, char *argv[])
             Obj&       mX = Obj::singleton();
             const Obj& X  = mX;
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(&observer == X.observer());
+#endif
             ASSERT(1         == X.numCategories());
 
             // add a category
@@ -3503,11 +3600,19 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_CONCURRENT_TESTS;
 
-        ball::StreamObserver             observer(&cout);
+        bsl::shared_ptr<ball::TestObserver> observerSP =
+                                   bsl::make_shared<ball::TestObserver>(&cout);
+        ball::TestObserver& observer = *observerSP;
+
         ball::LoggerManagerConfiguration mXC;
 
         ASSERT(false == Obj::isInitialized());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ball::LoggerManagerScopedGuard lmGuard(&observer, mXC);
+#else
+        ball::LoggerManagerScopedGuard lmGuard(mXC);
+        ball::LoggerManager::singleton().registerObserver(observerSP, "TO");
+#endif
         ASSERT(true  == Obj::isInitialized());
 
         verifyLoggerManagerDefaults(Obj::singleton(), 0, &observer);
@@ -3555,11 +3660,20 @@ int main(int argc, char *argv[])
 
         static bslma::TestAllocator      sa("supplied", veryVeryVeryVerbose);
 
-        ball::StreamObserver             observer(&cout);
+
+        bsl::shared_ptr<ball::TestObserver> observerSP =
+                                   bsl::make_shared<ball::TestObserver>(&cout);
+        ball::TestObserver& observer = *observerSP;
+
         ball::LoggerManagerConfiguration mXC;
 
         ASSERT(false == Obj::isInitialized());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ball::LoggerManagerScopedGuard lmGuard(&observer, mXC, &sa);
+#else
+        ball::LoggerManagerScopedGuard lmGuard(mXC, &sa);
+        ball::LoggerManager::singleton().registerObserver(observerSP, "TO");
+#endif
         ASSERT(true  == Obj::isInitialized());
 
         verifyLoggerManagerDefaults(Obj::singleton(), &sa, &observer);
@@ -3609,7 +3723,6 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator             sa("supplied", veryVeryVeryVerbose);
 
-        PublishCountingObserver          observer;
         ball::LoggerManagerConfiguration mXC;
 
         mXC.setTriggerMarkers(
@@ -3617,7 +3730,16 @@ int main(int argc, char *argv[])
 
 
         ASSERT(false == Obj::isInitialized());
+        bsl::shared_ptr<PublishCountingObserver> observerSP =
+                                   bsl::make_shared<PublishCountingObserver>();
+        PublishCountingObserver& observer = *observerSP;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ball::LoggerManagerScopedGuard lmGuard(&observer, mXC, &sa);
+#else
+        ball::LoggerManagerScopedGuard lmGuard(mXC, &sa);
+        ball::LoggerManager::singleton().registerObserver(observerSP, "PCO");
+#endif
         ASSERT(true  == Obj::isInitialized());
 
         Obj&       mX = Obj::singleton();
@@ -3883,12 +4005,14 @@ int main(int argc, char *argv[])
         {
             Logger *logger[NUM_LOGGERS];
             RecBuf *recBuf[NUM_LOGGERS];
-            ball::TestObserver observer(&cout);
+
+            bsl::shared_ptr<ball::TestObserver> observer =
+                                   bsl::make_shared<ball::TestObserver>(&cout);
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) ball::FixedSizeRecordBuffer(BUF_SIZE);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
-                    logger[i] = mX.allocateLogger(recBuf[i], &observer);
+                    logger[i] = mX.allocateLogger(recBuf[i], observer);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 mX.setLogger(logger[i]);
                 ASSERT(&mX.getLogger() == logger[i]);
@@ -3909,14 +4033,16 @@ int main(int argc, char *argv[])
 
             Logger *logger[NUM_LOGGERS];
             RecBuf *recBuf[NUM_LOGGERS];
-            ball::TestObserver observer(&cout);
+
+            bsl::shared_ptr<ball::TestObserver> observer =
+                                   bsl::make_shared<ball::TestObserver>(&cout);
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) ball::FixedSizeRecordBuffer(BUF_SIZE);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
                     logger[i] = mX.allocateLogger(recBuf[i],
                                                   (i + 1) * K,
-                                                  &observer);
+                                                  observer);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERT((i + 1) * K == logger[i]->messageBufferSize());
                 mX.setLogger(logger[i]);
@@ -4023,8 +4149,11 @@ int main(int argc, char *argv[])
                 }
 
                 bsl::stringstream outStream;
-                BALL_LOGGERMANAGER_TEST_CASE_17::MyObserver testObserver(
-                                                                    outStream);
+                using BALL_LOGGERMANAGER_TEST_CASE_17::MyObserver;
+
+                bsl::shared_ptr<MyObserver> testObserverSP(
+                                                    new MyObserver(outStream));
+                MyObserver& testObserver = *testObserverSP;
 
                 ball::LoggerManagerConfiguration mXC;
 
@@ -4039,7 +4168,12 @@ int main(int argc, char *argv[])
                 mXC.setDefaultRecordBufferSizeIfValid(k_MAX_LIMIT);
 
                 bslma::ManagedPtr<Obj> objPtr;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 Obj::createLoggerManager(&objPtr, &testObserver, mXC, &oa);
+#else
+                Obj::createLoggerManager(&objPtr, mXC, &oa);
+                objPtr->registerObserver(testObserverSP, "TO");
+#endif
 
                 Obj& mX = *objPtr;  const Obj& X = mX;
 
@@ -4189,9 +4323,11 @@ int main(int argc, char *argv[])
         for (int a = 0; a < 2; ++a) {
             if (veryVerbose) cout << testNames[a] << endl;
 
-            ball::TestObserver observer(&cout);
+            bsl::shared_ptr<ball::TestObserver> observerSP =
+                                   bsl::make_shared<ball::TestObserver>(&cout);
+            ball::TestObserver& observer = *observerSP;
 
-            Cnf nameFilter(&toLower);
+                Cnf nameFilter(&toLower);
 
             Obj::UserFieldsPopulatorCallback populator(&myUserFieldsPopulator);
 
@@ -4213,7 +4349,12 @@ int main(int argc, char *argv[])
                 thresholdsCallback = &inheritThresholdLevels;
 
                 mXC.setDefaultThresholdLevelsCallback(thresholdsCallback);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 mX_p = &(Obj::initSingleton(&observer, mXC));
+#else
+                mX_p = &(Obj::initSingleton(mXC));
+                Obj::singleton().registerObserver(observerSP, "TO");
+#endif
             }
             else {
                 thresholdsCallback =
@@ -4226,7 +4367,12 @@ int main(int argc, char *argv[])
                                        , (Obj*)0);
 
                 mXC.setDefaultThresholdLevelsCallback(thresholdsCallback);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 Obj::createLoggerManager(&mX_mp, &observer, mXC);
+#else
+                Obj::createLoggerManager(&mX_mp, mXC);
+                mX_mp->registerObserver(observerSP, "TO");
+#endif
                 mX_p = mX_mp.ptr();
                 g_overrideManager = mX_p;
             }
@@ -4999,13 +5145,23 @@ int main(int argc, char *argv[])
             cout << "\nCONCERN: LOG RECORD POPULATOR CALLBACKS"
                  << "\n=======================================" << endl;
 
-        ball::TestObserver  observer1Holder(&cout);
-        ball::TestObserver *observer1 = &observer1Holder;
-
         ball::LoggerManagerConfiguration mXC;
         mXC.setUserFieldsPopulatorCallback(&testUserFieldsPopulatorCb);
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        ball::TestObserver  observer1Holder(&cout);
+        ball::TestObserver *observer1 = &observer1Holder;
+
         ball::LoggerManagerScopedGuard lmGuard(observer1, mXC);
+#else
+        bsl::shared_ptr<ball::TestObserver> observer1sp(
+                                                new ball::TestObserver(&cout));
+        ball::TestObserver *observer1 = observer1sp.get();
+
+        ball::LoggerManagerScopedGuard lmGuard(mXC);
+        ASSERT(0 == Obj::singleton().registerObserver(observer1sp,
+                                                      "observer1"));
+#endif
 
         Obj& mX = Obj::singleton();  const Obj& X = mX;
 
@@ -5186,8 +5342,10 @@ int main(int argc, char *argv[])
                                                 new ball::TestObserver(&cout));
 
         ASSERT(0 == mX.registerObserver(observer1, "observer1"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(0 == X.observer());  // observer is not installed as legacy
                                     // mandatory observer
+#endif
 
         ASSERT(observer1.get() == X.findObserver("observer1").get());
 
@@ -5228,8 +5386,10 @@ int main(int argc, char *argv[])
                                                 new ball::TestObserver(&cout));
 
         ASSERT(0 == mX.registerObserver(observer2, "observer2"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(0 == X.observer());  // observer is not installed as legacy
                                     // mandatory observer
+#endif
 
         ASSERT(observer1.get() == X.findObserver("observer1").get());
         ASSERT(observer2.get() == X.findObserver("observer2").get());
@@ -5360,8 +5520,10 @@ int main(int argc, char *argv[])
                                                 new ball::TestObserver(&cout));
 
             ASSERT(0 == mX.registerObserver(observer1, "observer1"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());  // observer is not installed as legacy
                                         // mandatory observer
+#endif
 
             ASSERT(observer1.get() == X.findObserver("observer1").get());
 
@@ -5383,7 +5545,9 @@ int main(int argc, char *argv[])
                                                 new ball::TestObserver(&cout));
 
             ASSERT(0 == mX.registerObserver(observer2, "observer2"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(observer1.get() == X.findObserver("observer1").get());
             ASSERT(observer2.get() == X.findObserver("observer2").get());
 
@@ -5410,7 +5574,9 @@ int main(int argc, char *argv[])
                                                 new ball::TestObserver(&cout));
 
             ASSERT(0 != mX.registerObserver(observer3, "observer1"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(observer1.get() == X.findObserver("observer1").get());
             ASSERT(observer2.get() == X.findObserver("observer2").get());
 
@@ -5436,7 +5602,9 @@ int main(int argc, char *argv[])
             // have any special meaning (and is not clashing with internal
             // name).
             ASSERT(0 == mX.registerObserver(observer3, "default"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(observer1.get() == X.findObserver("observer1").get());
             ASSERT(observer2.get() == X.findObserver("observer2").get());
             ASSERT(observer3.get() == X.findObserver("default").get());
@@ -5466,7 +5634,9 @@ int main(int argc, char *argv[])
 
             // Deregistering observers.
             ASSERT(0 != mX.deregisterObserver("testObserver"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(observer1.get() == X.findObserver("observer1").get());
             ASSERT(observer2.get() == X.findObserver("observer2").get());
             ASSERT(observer3.get() == X.findObserver("default").get());
@@ -5495,7 +5665,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == mX.deregisterObserver("default"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(observer1.get() == X.findObserver("observer1").get());
             ASSERT(observer2.get() == X.findObserver("observer2").get());
             ASSERT(0               == X.findObserver("default").get());
@@ -5525,7 +5697,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == mX.deregisterObserver("observer1"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(0               == X.findObserver("observer1").get());
             ASSERT(observer2.get() == X.findObserver("observer2").get());
             ASSERT(0               == X.findObserver("default").get());
@@ -5555,7 +5729,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == mX.deregisterObserver("observer2"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(0 == X.findObserver("observer1").get());
             ASSERT(0 == X.findObserver("observer2").get());
             ASSERT(0 == X.findObserver("default").get());
@@ -5589,7 +5765,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.registerObserver(observer2, "observer2"));
             ASSERT(0 == mX.registerObserver(observer3, "default"));
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.observer());
+#endif
             ASSERT(observer1.get() == X.findObserver("observer1").get());
             ASSERT(observer2.get() == X.findObserver("observer2").get());
             ASSERT(observer3.get() == X.findObserver("default").get());
@@ -6279,7 +6457,9 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             ASSERTV(CONFIG, &oa == X.allocator());
-            ASSERTV(CONFIG, 0   == X.observer()); // no observers
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ASSERTV(CONFIG, 0 == X.observer());  // no observers
+#endif
 
             ASSERT(FACTORY_RECORD     == X.defaultRecordThresholdLevel());
             ASSERT(FACTORY_PASS       == X.defaultPassThresholdLevel());
@@ -6406,8 +6586,9 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             ASSERTV(CONFIG, &oa == X.allocator());
-            ASSERTV(CONFIG, 0   == X.observer()); // no observers
-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ASSERTV(CONFIG, 0 == X.observer());  // no observers
+#endif
             ASSERT(FACTORY_RECORD     == X.defaultRecordThresholdLevel());
             ASSERT(FACTORY_PASS       == X.defaultPassThresholdLevel());
             ASSERT(FACTORY_TRIGGER    == X.defaultTriggerThresholdLevel());
@@ -6523,7 +6704,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        ball::TestObserver testObserver(&cout);
+        bsl::shared_ptr<ball::TestObserver> observer =
+                                   bsl::make_shared<ball::TestObserver>(&cout);
 
         Cnf nameFilter(&toLower);
 
@@ -6537,13 +6719,21 @@ int main(int argc, char *argv[])
         mXC.setDefaultThresholdLevelsCallback(thresholdsCallback);
         mXC.setUserFieldsPopulatorCallback(populator);
 
-        ball::LoggerManagerScopedGuard lmGuard(&testObserver, mXC);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        ball::LoggerManagerScopedGuard lmGuard(observer.get(), mXC);
+#else
+        ball::LoggerManagerScopedGuard lmGuard(mXC);
+        ASSERT(0 == Obj::singleton().registerObserver(observer, "TO"));
+#endif
 
         Obj&       mX = Obj::singleton();
         const Obj& X  = mX;
 
-        ASSERT(&testObserver == X.observer());
-        ASSERT(1             == X.numCategories());
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        ASSERT(observer.get() == X.observer());
+#endif
+        ASSERT(1              == X.numCategories());
 
         const Cat& dfltCat = mX.defaultCategory();
         ASSERT(&dfltCat == X.lookupCategory(DEFAULT_CATEGORY_NAME));
@@ -6637,7 +6827,7 @@ int main(int argc, char *argv[])
 
         ball::Logger& logger = mX.getLogger();
 
-        if (veryVerbose) testObserver.setVerbose(1);
+        if (veryVerbose) observer->setVerbose(1);
         logger.logMessage(*cat1, 64, __FILE__, __LINE__,
                           "First attempt to log to cat1.");
 
@@ -6692,6 +6882,7 @@ int main(int argc, char *argv[])
                           << "CONCERN: LEGACY OBSERVER LIFETIME" << endl
                           << "=================================" << endl;
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         {
             ball::TestObserver testObserver(&cout);
             ball::LoggerManagerConfiguration mXC;
@@ -6700,6 +6891,7 @@ int main(int argc, char *argv[])
         }
         // Registered legacy observer goes out of scope and destroyed.
         ball::LoggerManager::shutDownSingleton();
+#endif
 
       } break;
       case -2: {

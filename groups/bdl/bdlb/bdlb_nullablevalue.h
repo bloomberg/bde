@@ -1331,9 +1331,13 @@ template <class TYPE>
 inline
 TYPE& NullableValue<TYPE>::value()
 {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     BSLS_REVIEW_OPT(this->has_value());
 
     return this->dereferenceRaw();
+#else
+    return **this;
+#endif
 }
 // ACCESSORS
 template <class TYPE>
@@ -1416,9 +1420,13 @@ template <class TYPE>
 inline
 const TYPE& NullableValue<TYPE>::value() const
 {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     BSLS_REVIEW_OPT(this->has_value());
 
     return this->dereferenceRaw();
+#else
+    return **this;
+#endif
 }
 
 template <class TYPE>

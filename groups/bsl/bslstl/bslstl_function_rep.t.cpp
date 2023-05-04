@@ -1191,7 +1191,9 @@ void TestDriver<TYPE>::copyInit()
     }
     ASSERT(dest.get_allocator() == &ta2);
     ASSERT(ta2.numBlocksInUse() == ta1.numBlocksInUse());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     ASSERT(dest.isInplace() == SOURCE.isInplace());
+#endif
 }
 
 template <class TYPE>

@@ -152,7 +152,7 @@ class Hisser {
     }
 };
 
-void PrintTo(const Hisser& hisser, ::native_std::ostream *stream)
+void PrintTo(const Hisser& hisser, ::std::ostream *stream)
 {
     *stream << '"';
 
@@ -165,12 +165,12 @@ void PrintTo(const Hisser& hisser, ::native_std::ostream *stream)
 
 namespace internal {
 
-void PrintTo(int value, ::native_std::ostream* stream_p)
+void PrintTo(int value, ::std::ostream *stream_p)
 {
     *stream_p << value;
 }
 
-void PrintTo(const bsl::string_view& sv, ::native_std::ostream* stream_p)
+void PrintTo(const bsl::string_view& sv, ::std::ostream *stream_p)
 {
     *stream_p << '"';
     for (unsigned uu = 0; uu < sv.length(); ++uu) {
@@ -246,7 +246,7 @@ class Hisser {
     }
 };
 
-void PrintTo(const Hisser& hisser, ::native_std::ostream *stream)
+void PrintTo(const Hisser& hisser, ::std::ostream *stream)
 {
     *stream << '"';
 

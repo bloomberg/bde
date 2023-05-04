@@ -24,6 +24,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
+#include <bslalg_constructorproxy.h>
+
 namespace BloombergLP {
 namespace s_baltst {
 

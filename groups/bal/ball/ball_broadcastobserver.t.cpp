@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
         bsl::shared_ptr<Observer> oPtr =
                                     broadcastObserver.findObserver("observer");
 
-        ASSERT(oPtr.ptr());
+        ASSERT(oPtr.get());
 
         bsl::shared_ptr<ConfigurableObserver> anotherObserverPtr;
 

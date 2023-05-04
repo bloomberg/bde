@@ -22,6 +22,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
+#include <bslalg_constructorproxy.h>
+
 #include <s_baltst_testnilvalue.h>
 #include <s_baltst_testselection.h>
 
