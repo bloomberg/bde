@@ -523,19 +523,6 @@ int main(int argc, char *argv[])
         using namespace bdlb;
         const bsl::size_t k_NUM_TESTS = sizeof(k_DATA) / sizeof(k_DATA[0]);
 
-        bsl::hash<BigEndianInt16>     bslHashFuncI16;
-        bsl::hash<BigEndianUint16>    bslHashFuncU16;
-        bsl::hash<BigEndianInt32>     bslHashFuncI32;
-        bsl::hash<BigEndianUint32>    bslHashFuncU32;
-        bsl::hash<BigEndianInt64>     bslHashFuncI64;
-        bsl::hash<BigEndianUint64>    bslHashFuncU64;
-        bsl::set<short>               hashResI16;
-        bsl::set<unsigned short>      hashResU16;
-        bsl::set<int>                 hashResI32;
-        bsl::set<unsigned int>        hashResU32;
-        bsl::set<bsls::Types::Int64>  hashResI64;
-        bsl::set<bsls::Types::Uint64> hashResU64;
-
         const char genericSeed[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         for (bsl::size_t i = 0; i < k_NUM_TESTS; ++i) {
@@ -748,18 +735,18 @@ int main(int argc, char *argv[])
         using namespace bdlb;
         const bsl::size_t k_NUM_TESTS = sizeof(k_DATA) / sizeof(k_DATA[0]);
 
-        bsl::hash<BigEndianInt16>     bslHashFuncI16;
-        bsl::hash<BigEndianUint16>    bslHashFuncU16;
-        bsl::hash<BigEndianInt32>     bslHashFuncI32;
-        bsl::hash<BigEndianUint32>    bslHashFuncU32;
-        bsl::hash<BigEndianInt64>     bslHashFuncI64;
-        bsl::hash<BigEndianUint64>    bslHashFuncU64;
-        bsl::set<short>               hashResI16;
-        bsl::set<unsigned short>      hashResU16;
-        bsl::set<int>                 hashResI32;
-        bsl::set<unsigned int>        hashResU32;
-        bsl::set<bsls::Types::Int64>  hashResI64;
-        bsl::set<bsls::Types::Uint64> hashResU64;
+        bsl::hash<BigEndianInt16>  bslHashFuncI16;
+        bsl::hash<BigEndianUint16> bslHashFuncU16;
+        bsl::hash<BigEndianInt32>  bslHashFuncI32;
+        bsl::hash<BigEndianUint32> bslHashFuncU32;
+        bsl::hash<BigEndianInt64>  bslHashFuncI64;
+        bsl::hash<BigEndianUint64> bslHashFuncU64;
+        bsl::set<bsl::size_t>      hashResI16;
+        bsl::set<bsl::size_t>      hashResU16;
+        bsl::set<bsl::size_t>      hashResI32;
+        bsl::set<bsl::size_t>      hashResU32;
+        bsl::set<bsl::size_t>      hashResI64;
+        bsl::set<bsl::size_t>      hashResU64;
 
         for (bsl::size_t i = 0; i < k_NUM_TESTS; ++i) {
             BigEndianInt16  bei16 = BigEndianInt16::make (k_DATA[i].d_i16);

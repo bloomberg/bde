@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void query(bsl::string       *result,
 //             const bsl::string *columns,
-//             int                numberOfColumns)
+//             size_t             numberOfColumns)
 //  {
 //
 //      // Query the database....

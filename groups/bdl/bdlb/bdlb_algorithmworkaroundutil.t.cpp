@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
 
                 {
                     const int *result = Util::lowerBound(INPUT, END, VALUE);
-                    const int offset = result - INPUT;
+                    const long offset = result - INPUT;
 
                     ASSERTV(EXP_LOWER, offset, EXP_LOWER == offset);
                     if (result < END) {
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
                     const int *result =
                         Util::lowerBound(INPUT, END, VALUE, bsl::less<int>());
 
-                    const int offset = result - INPUT;
+                    const long offset = result - INPUT;
 
                     ASSERTV(EXP_LOWER, offset, EXP_LOWER == offset);
                     if (result < END) {
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
                 }
                 {
                     const int *result = Util::upperBound(INPUT, END, VALUE);
-                    const int offset = result - INPUT;
+                    const long offset = result - INPUT;
 
                     ASSERTV(EXP_UPPER, offset, EXP_UPPER == offset);
                     if (result < END) {
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
                     const int *result =
                         Util::upperBound(INPUT, END, VALUE, bsl::less<int>());
 
-                    const int offset = result - INPUT;
+                    const long offset = result - INPUT;
 
                     ASSERTV(EXP_UPPER, offset, EXP_UPPER == offset);
                     if (result < END) {

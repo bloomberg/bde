@@ -590,21 +590,21 @@ int main(int argc, char *argv[])
 
             Obj mX(&supplied);
 
-            void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            void *memory = mX.allocate(0xA0000000u);  (void)memory;
         }
         {
             TrackingAllocator supplied;
 
             Obj mX(k_INITIAL_SIZE, &supplied);
 
-            void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            void *memory = mX.allocate(0xA0000000u);  (void)memory;
         }
         {
             TrackingAllocator supplied;
 
             Obj mX(k_INITIAL_SIZE, k_MAX_BUFFER_SIZE, &supplied);
 
-            void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+            void *memory = mX.allocate(0xA0000000u);  (void)memory;
         }
 
         for (bsl::size_t growthIndex = 0;
@@ -615,14 +615,14 @@ int main(int argc, char *argv[])
 
                 Obj mX(growthStrategy[growthIndex], &supplied);
 
-                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                void *memory = mX.allocate(0xA0000000u);  (void)memory;
             }
             {
                 TrackingAllocator supplied;
 
                 Obj mX(k_INITIAL_SIZE, growthStrategy[growthIndex], &supplied);
 
-                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                void *memory = mX.allocate(0xA0000000u);  (void)memory;
             }
             {
                 TrackingAllocator supplied;
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
                        growthStrategy[growthIndex],
                        &supplied);
 
-                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                void *memory = mX.allocate(0xA0000000u);  (void)memory;
             }
         }
 
@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(alignmentStrategy[alignmentIndex], &supplied);
 
-                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                void *memory = mX.allocate(0xA0000000u);  (void)memory;
             }
             {
                 TrackingAllocator supplied;
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
                        alignmentStrategy[alignmentIndex],
                        &supplied);
 
-                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                void *memory = mX.allocate(0xA0000000u);  (void)memory;
             }
             {
                 TrackingAllocator supplied;
@@ -663,7 +663,7 @@ int main(int argc, char *argv[])
                        alignmentStrategy[alignmentIndex],
                        &supplied);
 
-                void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                void *memory = mX.allocate(0xA0000000u);  (void)memory;
             }
         }
 
@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
                            alignmentStrategy[alignmentIndex],
                            &supplied);
 
-                    void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                    void *memory = mX.allocate(0xA0000000u);  (void)memory;
                 }
                 {
                     TrackingAllocator supplied;
@@ -691,7 +691,7 @@ int main(int argc, char *argv[])
                            alignmentStrategy[alignmentIndex],
                            &supplied);
 
-                    void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                    void *memory = mX.allocate(0xA0000000u);  (void)memory;
                 }
                 {
                     TrackingAllocator supplied;
@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
                            alignmentStrategy[alignmentIndex],
                            &supplied);
 
-                    void *memory = mX.allocate(0xA0000000u);  (void *)memory;
+                    void *memory = mX.allocate(0xA0000000u);  (void)memory;
                 }
             }
         }

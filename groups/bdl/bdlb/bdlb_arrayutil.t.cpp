@@ -170,12 +170,12 @@ void getAndCheckData(bool verbose);
 //..
     void query(bsl::string       *result,
                const bsl::string *columns,
-               int                numberOfColumns)
+               size_t             numberOfColumns)
     {
 
         // Query the database.
 
-        for (int i = 0; i != numberOfColumns; ++i) {
+        for (size_t i = 0; i != numberOfColumns; ++i) {
             result[i] = "queried " + columns[i];
         }
     }
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
         bdlb::ArrayUtil::rend(constIntArray);
         bdlb::ArrayUtil::size(constIntArray);
         bdlb::ArrayUtil::length(constIntArray);
-        sizeof(bdlb::ArrayUtil::sizer(constIntArray));
+        (void) sizeof(bdlb::ArrayUtil::sizer(constIntArray));
         BDLB_ARRAYUTIL_SIZE(constIntArray);
         BDLB_ARRAYUTIL_LENGTH(constIntArray);
 
@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
         bdlb::ArrayUtil::rend(volatileIntArray);
         bdlb::ArrayUtil::size(volatileIntArray);
         bdlb::ArrayUtil::length(volatileIntArray);
-        sizeof(bdlb::ArrayUtil::sizer(volatileIntArray));
+        (void) sizeof(bdlb::ArrayUtil::sizer(volatileIntArray));
         BDLB_ARRAYUTIL_SIZE(volatileIntArray);
         BDLB_ARRAYUTIL_LENGTH(volatileIntArray);
 
@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
         bdlb::ArrayUtil::rend(intArray);
         bdlb::ArrayUtil::size(intArray);
         bdlb::ArrayUtil::length(intArray);
-        sizeof(bdlb::ArrayUtil::sizer(intArray));
+        (void) sizeof(bdlb::ArrayUtil::sizer(intArray));
         BDLB_ARRAYUTIL_SIZE(intArray);
         BDLB_ARRAYUTIL_LENGTH(intArray);
 
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
         bdlb::ArrayUtil::rend(constUserDefinedArray);
         bdlb::ArrayUtil::size(constUserDefinedArray);
         bdlb::ArrayUtil::length(constUserDefinedArray);
-        sizeof(bdlb::ArrayUtil::sizer(constUserDefinedArray));
+        (void) sizeof(bdlb::ArrayUtil::sizer(constUserDefinedArray));
         BDLB_ARRAYUTIL_SIZE(constUserDefinedArray);
         BDLB_ARRAYUTIL_LENGTH(constUserDefinedArray);
 
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
         bdlb::ArrayUtil::rend(volatileUserDefinedArray);
         bdlb::ArrayUtil::size(volatileUserDefinedArray);
         bdlb::ArrayUtil::length(volatileUserDefinedArray);
-        sizeof(bdlb::ArrayUtil::sizer(volatileUserDefinedArray));
+        (void) sizeof(bdlb::ArrayUtil::sizer(volatileUserDefinedArray));
         BDLB_ARRAYUTIL_SIZE(volatileUserDefinedArray);
         BDLB_ARRAYUTIL_LENGTH(volatileUserDefinedArray);
 
@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
         bdlb::ArrayUtil::rend(userDefinedArray);
         bdlb::ArrayUtil::size(userDefinedArray);
         bdlb::ArrayUtil::length(userDefinedArray);
-        sizeof(bdlb::ArrayUtil::sizer(userDefinedArray));
+        (void) sizeof(bdlb::ArrayUtil::sizer(userDefinedArray));
         BDLB_ARRAYUTIL_SIZE(userDefinedArray);
         BDLB_ARRAYUTIL_LENGTH(userDefinedArray);
 
