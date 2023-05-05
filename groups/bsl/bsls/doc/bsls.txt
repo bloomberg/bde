@@ -592,3 +592,172 @@
  The {'bsls_util'} component provides pure functions that supply essential
  low-level support for implementing portable generic facilities such as might
  be found in the C++ standard library.
+
+/Movable and Forwarding Reference Macros And Utilities
+/-----------------------------------------------------
+ Modern C++ (C++11 and later) introduces the concepts of moving and forwarding
+ function arguments.  The BDE library provides facilities to replicate these
+ features in C++03, and also allow writing code in a way that the same code can
+ be compiled in both C++03 and in modern C++ (where the features are natively
+ supported).  This document describes which of these BDE facilities to use in
+ which contexts.  This section assumes familiarity with movable types and the
+ use of {'bslmf_movableref'} for move semantics in C++03-compatible code.
+
+/Summary
+/- - - -
+ Four utilities are to be described and their correct usage explained, and
+ they are summarized in the following table.  The term "forwarding" refers to
+ passing a variable recieved as an argument in one function to another
+ function, generally without altering it.  The term "perfect forwarding"
+ refers to forwarding not only the value that the argument represents, but
+ also characterstics of the argument such as cv-qualifications, and whether it
+ is an rvalue or an lvalue.
+
+/: 'BSLS_COMPILERFEATURES_FORWARD_REF(T)':
+/:     Used to declare a function template argument of type 'T' that is to be
+/:     perfect-forwarded.
+/: 'BSLS_COMPILERFEATURES_FORWARD(T, V)':
+/:     Used to perfect-forward a function template argument, 'V', of type 'T'.
+/: 'BSLMF_MOVABLEREF_DEDUCE(T)':
+/:     Used to deduce the type 'T' of a templated rvalue reference argument.
+/: 'bslmf::ForwardingType' and 'bslmf::ForwardingRefType':
+/:     Used to forward arguments through layers of nested calls efficiently.
+
+ The following sections explain in detail the contexts in which the above
+ macros and types are used.
+
+/Perfect Forwarding
+/ - - - - - - - - -
+ In modern C++, function parameters marked with double ampersands ('&&') can
+ either be movable references or forwarding references.  The difference is
+ whether the type of the parameter excluding the '&&' is a template type of the
+ function (templates are forwarding references, non-templates are movable
+ references).  Forwarding references are lvalues that can bind to either an
+ lvalue reference or an rvalue reference, and can be converted back to the
+ original reference type with 'bsl::forward'.  The BDE library achieves this
+ effect in C++03 with two macros, 'BSLS_COMPILERFEATURES_FORWARD_REF' and
+ 'BSLS_COMPILERFEATURES_FORWARD'.
+
+ 'BSLS_COMPILERFEATURES_FORWARD_REF(T)' is used to declare a function template
+ argument of type 'T' that is to be perfect-forwarded.
+
+ 'BSLS_COMPILERFEATURES_FORWARD(T, V)' is used to perfect-forward a function
+ template argument, 'V', of type 'T'.
+
+ For example:
+..
+  template <class T>
+  void deduce(BSLS_COMPILERFEATURES_FORWARD_REF(T) t) // Forwarding reference
+  {
+      Forwarded tt(BSLS_COMPILERFEATURES_FORWARD(T, t)); // Perfect forwarding
+  }
+..
+
+/Short Complete Example
+/ - - - - - - - - - - -
+ The following code will compile and run in any BDE-supported version of C++.
+..
+  #include <bslmf_movableref.h>
+  #include <bslmf_util.h>
+  
+  #include <bsls_compilerfeatures.h>
+  
+  #include <bsl_iostream.h>
+  #include <bsl_utility.h>
+  
+  using namespace BloombergLP;
+  
+  struct Forwarded;
+  
+  // =====================================================================
+  // Parameter 't' of function 'deduce' is a forwarding reference that is
+  // forwarded to the constructor of local 'tt' to demonstrate being moved
+  // or copied, depending on the type of the parameter passed.
+  // =====================================================================
+  template <class T>
+  void deduce(BSLS_COMPILERFEATURES_FORWARD_REF(T) t)  // Forwarding reference
+  {
+      Forwarded tt(BSLS_COMPILERFEATURES_FORWARD(T, t));  // Perfect forwarding
+  }
+  
+  struct Forwarded
+  {
+      // A class to demonstrate whether moving or copying is taking place
+      Forwarded(){bsl::cout << "Default\n";}
+      Forwarded(const Forwarded&){bsl::cout << "Copy\n";}
+      Forwarded(bslmf::MovableRef<Forwarded>){bsl::cout << "Move\n";}
+  };
+  
+  int main()
+  {
+      Forwarded f;
+      deduce(f);                               // Parameter is lvalue reference
+      deduce(bslmf::MovableRefUtil::move(f));  // Parameter is rvalue reference
+  }
+..
+ This program should output the following.
+..
+  Default
+  Copy
+  Move
+..
+
+/Movable Reference to Templated Type
+/- - - - - - - - - - - - - - - - - -
+ 'bslmf::MovableRef' is a template facility that provides move semantics in
+ C++03.  One common issue with 'MovableRef<T>' is its use in a context where
+ 'T' itself is a template parameter: the compiler will be unable to deduce the
+ type of 'T' in C++11 (or later) as one would expect.  For example:
+..
+  template <class T>
+  void f(bslmf::MovableRef<A<T> > a);
+
+  int main()
+  {
+      A<int> a1;
+      f(bslmf::MovableRefUtil::move(a1)); // COMPILE ERROR! Can't deduce 'T'.
+  }
+..
+ To deduce this type, the macro 'BSLMF_MOVABLEREF_DEDUCE' can be used, for
+ example:
+..
+  template <class T>
+  void g(BSLMF_MOVABLEREF_DEDUCE(A<T>) a);
+      // A function that takes a 'MovableRef<A<T>>'
+
+  int main()
+  {
+      A<int> a2;
+      g(bslmf::MovableRefUtil::move(a2)); // compiles!
+  }
+..
+ A real world example can be found in component {'bdlb_nullablevalue'}.  The
+ 'bdlb::NullableValue<TYPE>' constructor taking a movable reference to a
+ 'bdlb::NullableValue<BDE_OTHER_TYPE>', with 'BDE_OTHER_TYPE' convertible to
+ 'TYPE', uses 'BSLMF_MOVABLEREF_DEDUCE'.
+..
+  template <class BDE_OTHER_TYPE>
+  NullableValue(BSLMF_MOVABLEREF_DEDUCE(
+                                    NullableValue<BDE_OTHER_TYPE>) value,
+                const allocator_type&                              allocator,
+                typename bsl::enable_if<
+                   bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
+                   !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
+                   EnableType>::type = EnableType());             // IMPLICIT
+..
+
+/Forwarding Parameters Through Many Layers Efficiently
+/- - - - - - - - - - - - - - - - - - - - - - - - - - -
+ Generic code that forwards arguments through many layers of metaprogramming
+ templates -- e.g., 'bsl::function' and 'bsl::bind' -- can be made more
+ efficient through judicious use of 'bslmf::ForwardingRefType'.  This allows a
+ number of small optimizations. For example, the collapse of array references
+ to pointers that are unpacked only once, thereby reducing the number of
+ template instantiations of the middle layers.  The older
+ 'bslmf::ForwardingType' served the same purpose, but is no longer recommended
+ since 'bslmf::ForwardingRefType' is simpler to use.
+
+ *Note:* *The* *component* 'bslmf_forwardingreftype' *is* *a* *complex* *tool*
+ *with* *a* *singular* *purpose,* *and* *occassions* *for* *its* *legitimate*
+ *use* *are* *rare*.
+
