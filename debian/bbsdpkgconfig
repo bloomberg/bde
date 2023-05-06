@@ -32,7 +32,7 @@
         }
     },
     {
-        "ufids": [ "opt"],
+        "ufids": [ "opt_32"],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks",
@@ -52,7 +52,7 @@
         }
     },
     {
-        "ufids": [ "opt_dbg", "dbg", "opt_dbg_64_pic", "dbg_64_pic" ],
+        "ufids": [ "opt_dbg_32", "dbg_32", "opt_dbg_64_pic", "dbg_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -62,7 +62,7 @@
         }
     },
     {
-        "ufids": [ "opt_pic", "opt_dbg_pic", "dbg_safe" ],
+        "ufids": [ "opt_32_pic", "opt_dbg_32_pic", "dbg_32_safe" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev-extra": [ "bal", "bal-symlinks" ],
@@ -117,7 +117,7 @@
         }
     },
     {
-        "ufids": [ "opt"],
+        "ufids": [ "opt_32"],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks",
@@ -137,7 +137,7 @@
         }
     },
     {
-        "ufids": [ "opt_dbg", "dbg", "opt_dbg_64_pic", "dbg_64_pic" ],
+        "ufids": [ "opt_dbg_32", "dbg_32", "opt_dbg_64_pic", "dbg_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -147,7 +147,7 @@
         }
     },
     {
-        "ufids": [ "opt_pic", "opt_dbg_pic", "dbg_safe" ],
+        "ufids": [ "opt_32_pic", "opt_dbg_32_pic", "dbg_32_safe" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev-extra": [ "bal", "bal-symlinks" ],
@@ -202,7 +202,7 @@
         }
     },
     {
-        "ufids": [ "opt"],
+        "ufids": [ "opt_32"],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks",
@@ -222,7 +222,7 @@
         }
     },
     {
-        "ufids": [ "opt_dbg", "dbg", "opt_dbg_64_pic", "dbg_64_pic" ],
+        "ufids": [ "opt_dbg_32", "dbg_32", "opt_dbg_64_pic", "dbg_64_pic" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -232,7 +232,7 @@
         }
     },
     {
-        "ufids": [ "opt_pic", "opt_dbg_pic", "dbg_safe" ],
+        "ufids": [ "opt_32_pic", "opt_dbg_32_pic", "dbg_32_safe" ],
         "targets": [ "all" ],
         "install": {
             "libbal-dev-extra": [ "bal", "bal-symlinks" ],
