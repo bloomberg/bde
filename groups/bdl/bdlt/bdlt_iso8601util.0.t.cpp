@@ -937,18 +937,6 @@ bool containsOnlyDigits(const char *string)
     return true;
 }
 
-static
-bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
-    // Return copy of the specified string with all 'T' & 't' characters
-    // replaced with a SPACE character.
-{
-    bsl::string s(buffer, length);
-    for (bsl::string::iterator it = s.begin(); it != s.end(); ++it) {
-        if (*it == 'T' || *it == 't') *it = ' ';
-    }
-    return s;
-}
-
 namespace {
 namespace u {
 

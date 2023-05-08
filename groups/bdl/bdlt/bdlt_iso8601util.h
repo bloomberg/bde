@@ -680,7 +680,7 @@ struct Iso8601Util {
 
   private:
     // PRIVATE TYPES
-    typedef bsl::ptrdiff_t ptrdiff_t;
+    typedef bsl::ptrdiff_t ssize_t;
 
     // PRIVATE CLASS METHODS
     static Iso8601UtilConfiguration defaultConfiguration();
@@ -748,73 +748,73 @@ struct Iso8601Util {
 
     // CLASS METHODS
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const bsls::TimeInterval&        object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const bsls::TimeInterval&        object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const Date&                      object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const Date&                      object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const Time&                      object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const Time&                      object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const Datetime&                  object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const Datetime&                  object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DateTz&                    object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DateTz&                    object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const TimeTz&                    object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const TimeTz&                    object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DatetimeTz&                object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DatetimeTz&                object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DateOrDateTz&              object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DateOrDateTz&              object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const TimeOrTimeTz&              object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const TimeOrTimeTz&              object,
                         const GenerateConfiguration&     configuration);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DatetimeOrDatetimeTz&      object);
     static int generate(char                            *buffer,
-                        ptrdiff_t                        bufferLength,
+                        ssize_t                          bufferLength,
                         const DatetimeOrDatetimeTz&      object,
                         const GenerateConfiguration&     configuration);
         // Write the ISO 8601 representation of the specified 'object' to the
@@ -1131,7 +1131,7 @@ struct Iso8601Util {
 
     static int parse(bsls::TimeInterval *result,
                      const char         *string,
-                     ptrdiff_t           length);
+                     ssize_t             length);
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'bsls::TimeInterval' value, and load the value
         // into the specified 'result'.  Return 0 on success, and a non-zero
@@ -1152,7 +1152,7 @@ struct Iso8601Util {
 
     static int parse(Date               *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' value, and load the value into the
@@ -1171,7 +1171,7 @@ struct Iso8601Util {
 
     static int parse(Time               *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' value, and load the value into the
@@ -1199,7 +1199,7 @@ struct Iso8601Util {
 
     static int parse(Datetime           *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' value, and load the value into the
@@ -1227,7 +1227,7 @@ struct Iso8601Util {
 
     static int parse(DateTz             *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DateTz' value, and load the value into the
@@ -1246,7 +1246,7 @@ struct Iso8601Util {
 
     static int parse(TimeTz             *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'TimeTz' value, and load the value into the
@@ -1272,7 +1272,7 @@ struct Iso8601Util {
 
     static int parse(DatetimeTz         *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DatetimeTz' value, and load the value into the
@@ -1298,7 +1298,7 @@ struct Iso8601Util {
 
     static int parse(DateOrDateTz       *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' or 'DateTz' value, depending on the
@@ -1319,7 +1319,7 @@ struct Iso8601Util {
 
     static int parse(TimeOrTimeTz       *result,
                      const char         *string,
-                     ptrdiff_t           length,
+                     ssize_t             length,
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' or 'TimeTz' value, depending on the
@@ -1347,7 +1347,7 @@ struct Iso8601Util {
 
     static int parse(DatetimeOrDatetimeTz *result,
                      const char           *string,
-                     ptrdiff_t             length,
+                     ssize_t               length,
                      ParseConfiguration    configuration =
                                                          ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
@@ -1618,7 +1618,7 @@ struct Iso8601Util {
     BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(Datetime   *result,
                             const char *string,
-                            ptrdiff_t   length);
+                            ssize_t     length);
         // !DEPRECATED!: Use 'parse' with 'configuration.relaxed() == true'
         // instead.
         //
@@ -1651,7 +1651,7 @@ struct Iso8601Util {
     BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeTz *result,
                             const char *string,
-                            ptrdiff_t   length);
+                            ssize_t     length);
         // !DEPRECATED!: Use 'parse' with 'configuration.relaxed() == true'
         // instead.
         //
@@ -1682,7 +1682,7 @@ struct Iso8601Util {
     BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeOrDatetimeTz *result,
                             const char           *string,
-                            ptrdiff_t             length);
+                            ssize_t               length);
         // !DEPRECATED!: Use 'parse' with 'configuration.relaxed() == true'
         // instead.
         //
@@ -1808,44 +1808,44 @@ struct Iso8601Util {
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const Date&        object,
-                        ptrdiff_t          bufferLength);
+                        ssize_t            bufferLength);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const Time&        object,
-                        ptrdiff_t          bufferLength);
+                        ssize_t            bufferLength);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const Datetime&    object,
-                        ptrdiff_t          bufferLength);
+                        ssize_t            bufferLength);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const DateTz&      object,
-                        ptrdiff_t          bufferLength);
+                        ssize_t            bufferLength);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const TimeTz&      object,
-                        ptrdiff_t          bufferLength);
+                        ssize_t            bufferLength);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
-                        ptrdiff_t          bufferLength);
+                        ssize_t            bufferLength);
         // !DEPRECATED!: Use the overloads taking the 'bufferLength' argument
         // *before* the 'object' argument instead.
 
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static int generate(char              *buffer,
                         const DateTz&      object,
-                        ptrdiff_t          bufferLength,
+                        ssize_t            bufferLength,
                         bool               useZAbbreviationForUtc);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static int generate(char              *buffer,
                         const TimeTz&      object,
-                        ptrdiff_t          bufferLength,
+                        ssize_t            bufferLength,
                         bool               useZAbbreviationForUtc);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
-                        ptrdiff_t          bufferLength,
+                        ssize_t            bufferLength,
                         bool               useZAbbreviationForUtc);
         // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
         // object instead.
@@ -1901,7 +1901,7 @@ Iso8601UtilConfiguration Iso8601Util::defaultConfiguration()
 // CLASS METHODS
 inline
 int Iso8601Util::generate(char                     *buffer,
-                          ptrdiff_t                 bufferLength,
+                          ssize_t                   bufferLength,
                           const bsls::TimeInterval& object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1915,7 +1915,7 @@ int Iso8601Util::generate(char                     *buffer,
 
 inline
 int Iso8601Util::generate(char        *buffer,
-                          ptrdiff_t    bufferLength,
+                          ssize_t      bufferLength,
                           const Date&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1929,7 +1929,7 @@ int Iso8601Util::generate(char        *buffer,
 
 inline
 int Iso8601Util::generate(char        *buffer,
-                          ptrdiff_t    bufferLength,
+                          ssize_t      bufferLength,
                           const Time&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1944,7 +1944,7 @@ int Iso8601Util::generate(char        *buffer,
 inline
 int
 Iso8601Util::generate(char            *buffer,
-                      ptrdiff_t        bufferLength,
+                      ssize_t          bufferLength,
                       const Datetime&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1958,7 +1958,7 @@ Iso8601Util::generate(char            *buffer,
 
 inline
 int Iso8601Util::generate(char          *buffer,
-                          ptrdiff_t      bufferLength,
+                          ssize_t        bufferLength,
                           const DateTz&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1972,7 +1972,7 @@ int Iso8601Util::generate(char          *buffer,
 
 inline
 int Iso8601Util::generate(char          *buffer,
-                          ptrdiff_t      bufferLength,
+                          ssize_t        bufferLength,
                           const TimeTz&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1987,7 +1987,7 @@ int Iso8601Util::generate(char          *buffer,
 inline
 int
 Iso8601Util::generate(char              *buffer,
-                      ptrdiff_t          bufferLength,
+                      ssize_t            bufferLength,
                       const DatetimeTz&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -2001,7 +2001,7 @@ Iso8601Util::generate(char              *buffer,
 
 inline
 int Iso8601Util::generate(char                *buffer,
-                          ptrdiff_t            bufferLength,
+                          ssize_t              bufferLength,
                           const DateOrDateTz&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -2015,7 +2015,7 @@ int Iso8601Util::generate(char                *buffer,
 
 inline
 int Iso8601Util::generate(char                *buffer,
-                          ptrdiff_t            bufferLength,
+                          ssize_t              bufferLength,
                           const TimeOrTimeTz&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -2029,7 +2029,7 @@ int Iso8601Util::generate(char                *buffer,
 
 inline
 int Iso8601Util::generate(char                        *buffer,
-                          ptrdiff_t                    bufferLength,
+                          ssize_t                      bufferLength,
                           const DatetimeOrDatetimeTz&  object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -2706,7 +2706,7 @@ int Iso8601Util::parseRelaxed(DatetimeOrDatetimeTz    *result,
 inline
 int Iso8601Util::generate(char        *buffer,
                           const Date&  object,
-                          ptrdiff_t    bufferLength)
+                          ssize_t      bufferLength)
 {
     return generate(buffer, bufferLength, object);
 }
@@ -2714,7 +2714,7 @@ int Iso8601Util::generate(char        *buffer,
 inline
 int Iso8601Util::generate(char        *buffer,
                           const Time&  object,
-                          ptrdiff_t    bufferLength)
+                          ssize_t      bufferLength)
 {
     return generate(buffer, bufferLength, object);
 }
@@ -2722,7 +2722,7 @@ int Iso8601Util::generate(char        *buffer,
 inline
 int Iso8601Util::generate(char            *buffer,
                           const Datetime&  object,
-                          ptrdiff_t        bufferLength)
+                          ssize_t          bufferLength)
 {
     return generate(buffer, bufferLength, object);
 }
@@ -2730,7 +2730,7 @@ int Iso8601Util::generate(char            *buffer,
 inline
 int Iso8601Util::generate(char          *buffer,
                           const DateTz&  object,
-                          ptrdiff_t      bufferLength)
+                          ssize_t        bufferLength)
 {
     return generate(buffer, bufferLength, object);
 }
@@ -2738,7 +2738,7 @@ int Iso8601Util::generate(char          *buffer,
 inline
 int Iso8601Util::generate(char          *buffer,
                           const TimeTz&  object,
-                          ptrdiff_t      bufferLength)
+                          ssize_t        bufferLength)
 {
     return generate(buffer, bufferLength, object);
 }
@@ -2746,7 +2746,7 @@ int Iso8601Util::generate(char          *buffer,
 inline
 int Iso8601Util::generate(char              *buffer,
                           const DatetimeTz&  object,
-                          ptrdiff_t          bufferLength)
+                          ssize_t            bufferLength)
 {
     return generate(buffer, bufferLength, object);
 }
@@ -2754,7 +2754,7 @@ int Iso8601Util::generate(char              *buffer,
 inline
 int Iso8601Util::generate(char          *buffer,
                           const DateTz&  object,
-                          ptrdiff_t      bufferLength,
+                          ssize_t        bufferLength,
                           bool           useZAbbreviationForUtc)
 {
     Iso8601UtilConfiguration configuration = defaultConfiguration();
@@ -2766,7 +2766,7 @@ int Iso8601Util::generate(char          *buffer,
 inline
 int Iso8601Util::generate(char          *buffer,
                           const TimeTz&  object,
-                          ptrdiff_t      bufferLength,
+                          ssize_t        bufferLength,
                           bool           useZAbbreviationForUtc)
 {
     Iso8601UtilConfiguration configuration = defaultConfiguration();
@@ -2778,7 +2778,7 @@ int Iso8601Util::generate(char          *buffer,
 inline
 int Iso8601Util::generate(char              *buffer,
                           const DatetimeTz&  object,
-                          ptrdiff_t          bufferLength,
+                          ssize_t            bufferLength,
                           bool               useZAbbreviationForUtc)
 {
     Iso8601UtilConfiguration configuration = defaultConfiguration();
