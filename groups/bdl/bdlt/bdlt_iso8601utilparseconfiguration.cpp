@@ -2,7 +2,7 @@
 #include <bdlt_iso8601utilparseconfiguration.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlt_iso8601utilconfiguration_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlt_iso8601utilparseconfiguration_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 

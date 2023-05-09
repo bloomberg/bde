@@ -34,16 +34,12 @@ using bsl::ostream;
 // 'setAttributeName' and 'attributeName'.
 //
 // Primary Manipulators:
-//: o 'setFractionalSecondPrecision'
-//: o 'setOmitColonInZoneDesignator'
-//: o 'setUseCommaForDecimalSign'
-//: o 'setUseZAbbreviationForUtc'
+//: o 'setBasic'
+//: o 'setRelaxed'
 //
 // Basic Accessors:
-//: o 'fractionalSecondPrecision'
-//: o 'omitColonInZoneDesignator'
-//: o 'useCommaForDecimalSign'
-//: o 'useZAbbreviationForUtc'
+//: o 'basic'
+//: o 'relaxed'
 //
 // We will therefore follow our standard 10-case approach to testing
 // value-semantic types, with the default constructor and primary manipulators
@@ -227,8 +223,8 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-// Our type, 'Iso8601ParseConfiguration', has two boolean attributes, 'basic'
-// and 'relaxed'.
+// Our type, 'Iso8601UtilParseConfiguration', has two boolean attributes,
+// 'basic' and 'relaxed'.
 //..
         typedef bdlt::Iso8601UtilParseConfiguration Config;
 //..
@@ -1153,8 +1149,8 @@ int main(int argc, char *argv[])
         //: 6 Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
-        //   Iso8601UtilConfiguration();
-        //   ~Iso8601UtilConfiguration();
+        //   Iso8601UtilParseConfiguration();
+        //   ~Iso8601UtilParseConfiguration();
         //   void setBasic(int value);
         //   void setRelaxed(bool value);
         // --------------------------------------------------------------------

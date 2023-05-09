@@ -8,12 +8,12 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an attribute class to configure ISO 8601 string parsing.
 //
 //@CLASSES:
-//  bdlt::Iso8601UtilConfiguration: configuration for ISO 8601 string parsing
+//  bdlt::Iso8601UtilParseConfiguration: config for ISO 8601 string parsing
 //
-//@SEE_ALSO: bdlt_iso8601util
+//@SEE_ALSO: bdlt_iso8601util, bdlt_iso8601utilconfiguration
 //
 //@DESCRIPTION: This component provides an unconstrained (value-semantic)
-// attribute class, 'bdlt::Iso8601UtilConfiguration', that may be used to
+// attribute class, 'bdlt::Iso8601UtilParseConfiguration', that may be used to
 // configure various aspects of generated ISO 8601 strings.
 //
 ///Attributes
@@ -40,8 +40,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Our type, 'Iso8601ParseConfiguration', has two boolean attributes, 'basic'
-// and 'relaxed'.
+// Our type, 'Iso8601UtilParseConfiguration', has two boolean attributes,
+// 'basic' and 'relaxed'.
 //..
 //      typedef bdlt::Iso8601UtilParseConfiguration Config;
 //..
@@ -113,11 +113,9 @@ namespace bdlt {
 
 class Iso8601UtilParseConfiguration {
     // This unconstrained (value-semantic) attribute class characterizes how to
-    // configure certain behavior in 'Iso8601Util' functions.  Currently, only
-    // the 'parse' methods of that utility are affected by
-    // 'Iso8601UtilConfiguration' settings.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
+    // configure certain behavior in 'Iso8601Util' functions.  See the
+    // Attributes section under @DESCRIPTION in the component-level
+    // documentation for information on the class attributes.
 
   private:
     // DATA
@@ -133,23 +131,25 @@ class Iso8601UtilParseConfiguration {
   public:
     // CREATORS
     Iso8601UtilParseConfiguration();
-        // Create an 'Iso8601UtilConfiguration' object having the (default)
-        // attribute values:
+        // Create an 'Iso8601UtilParseConfiguration' object having the
+        // (default) attribute values:
         //..
         //  relaxed() == false
         //  basic()   == false
         //..
 
-    // Iso8601UtilParseConfiguration( const Iso8601UtilParseConfiguration&
-    // original) = default;
-        // Create an 'Iso8601UtilConfiguration' object having the value of the
-        // specified 'original' configuration.
+    // Iso8601UtilParseConfiguration(
+    //                 const Iso8601UtilParseConfiguration original) = default;
+        // Create an 'Iso8601UtilParseConfiguration' object having the value of
+        // the specified 'original' configuration.
 
     ~Iso8601UtilParseConfiguration();
         // Destroy this object.
 
-    // MANIPULATORS Iso8601UtilParseConfiguration& operator=( const
-    // Iso8601UtilParseConfiguration& rhs) = default;
+    // MANIPULATORS
+
+    // Iso8601UtilParseConfiguration& operator=(
+    //                     const Iso8601UtilParseConfiguration& rhs) = default;
         // Assign to this object the value of the specified 'rhs'
         // configuration, and return a reference providing modifiable access to
         // this object.
@@ -164,12 +164,12 @@ class Iso8601UtilParseConfiguration {
 
     // ACCESSORS
     bool basic() const;
-        // True if the 'basic' field of this object is set and 'false'
+        // Return 'true' if the 'basic' field of this object is set and 'false'
         // otherwise.
 
     bool relaxed() const;
-        // True if the 'relaxed' field of this object is set and 'false'
-        // otherwise.
+        // Return 'true' if the 'relaxed' field of this object is set and
+        // 'false' otherwise.
 
                                   // Aspects
 
@@ -202,7 +202,7 @@ bool operator==(Iso8601UtilParseConfiguration lhs,
 bool operator!=(Iso8601UtilParseConfiguration lhs,
                 Iso8601UtilParseConfiguration rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration'
+    // same value, and 'false' otherwise.  Two 'Iso8601UtilParseConfiguration'
     // objects do not have the same value if either of their 'basic' or
     // 'relaxed' attributes (respectively) do not have the same value.
 
@@ -219,9 +219,9 @@ bsl::ostream& operator<<(bsl::ostream&                        stream,
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                      // ------------------------------
-                      // class Iso8601UtilConfiguration
-                      // ------------------------------
+                      // -----------------------------------
+                      // class Iso8601UtilParseConfiguration
+                      // -----------------------------------
 
 // CREATORS
 inline
