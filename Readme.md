@@ -62,25 +62,25 @@ The following commands can be used to configure and build the BDE repository:
 
    ```shell
    $ export BDE_CMAKE_BUILD_DIR=$PWD/_build   # configure the build directory
-   $ cmake_build.py configure -u dbg_exc_mt_64_cpp14
+   $ bbs_build configure -u opt_dbg_64_cpp17
    ```
 
 3. To build the libraries, but not the test drivers, run:
 
    ```shell
-   $ cmake_build.py build
+   $ bbs_build build
    ```
 
    To also build the test drivers, run:
 
    ```shell
-   $ cmake_build.py build --test build
+   $ bbs_build build --test build
    ```
 
    To build and run the test drivers, run:
 
    ```shell
-   $ cmake_build.py build --test run
+   $ bbs_build build --test run
    ```
 
 Build Instructions (Bloomberg LP)
@@ -100,25 +100,25 @@ The following commands can be used to configure and build the BDE repository:
 
    ```shell
    $ export BDE_CMAKE_BUILD_DIR=$PWD/_build   # configure the build directory
-   $ cmake_build.py configure -u dbg_exc_mt_64_cpp14
+   $ bbs_build configure -u opt_dbg_64_cpp17
    ```
 
 3. To build the libraries, but not the test drivers, run:
 
    ```shell
-   $ cmake_build.py build
+   $ bbs_build build
    ```
 
    To also build the test drivers, run:
 
    ```shell
-   $ cmake_build.py build --test build
+   $ bbs_build build --test build
    ```
 
    To build and run the test drivers, run:
 
    ```shell
-   $ cmake_build.py build --test run
+   $ bbs_build build --test run
    ```
 
 License
