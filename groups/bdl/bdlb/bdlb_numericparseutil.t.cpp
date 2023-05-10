@@ -81,7 +81,8 @@
     #define u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG                       1
 #endif
 
-#if !defined(BSLS_PLATFORM_OS_SUNOS) && !defined(BSLS_PLATFORM_OS_SOLARIS)
+#if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)) ||\
+    defined(BSLS_PLATFORM_CMP_GNU)
     // SunOS/Solaris 'strtod' does not support hexfloats, even though its C99.
     #define u_BDLB_NUMERICPARSEUTIL_SUPPORT_PARSING_HEXFLOAT                  1
 #endif
@@ -399,6 +400,34 @@ bsl::ostream& operator<<(bsl::ostream& os, OpMode::Enum opMode)
 //-----------------------------------------------------------------------------
 
 namespace testDouble {
+
+void checkConfig()
+{
+#ifdef u_PARSEDOUBLE_USES_STRTOD
+        if (verbose) puts("'parseDouble' uses 'strtod'");
+#endif
+#ifdef u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY
+        if (verbose) puts("'parseDouble' uses 'from_chars' then 'strtod' in "
+                          "case of Range Error.");
+    #ifndef u_PARSEDOUBLE_USES_FROM_CHARS
+        ASSERT("u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY without using"
+               " 'bsl::from_chars'?" == 0);
+    #endif
+#endif
+
+#if defined(u_PARSEDOUBLE_USES_FROM_CHARS) &&               \
+    !defined(u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY)
+        if (verbose) puts("'parseDouble' uses 'from_chars' only");
+#elif !defined(u_PARSEDOUBLE_USES_STRTOD)
+        ASSERT("'parseDouble' uses neither 'strtod' nor 'from_chars'?" == 0);
+#endif
+
+#ifdef u_BDLB_NUMERICPARSEUTIL_SUPPORT_PARSING_HEXFLOAT
+        if (verbose) puts("Hexfloat parsing supported");
+#else
+        if (verbose) puts("NO hexfloat parsing (Solaris && Sun-CC)");
+#endif
+}
 
 // ============================================================================
 // C GLOBAL 'errno' VERIFICATION SUPPORT CODE
@@ -6550,24 +6579,10 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nPARSE DOUBLE"
                                   "\n============\n";
 
-        testDouble::testParseDouble();
+        using namespace testDouble;
 
-#ifdef u_PARSEDOUBLE_USES_STRTOD
-        if (verbose) puts("u_PARSEDOUBLE_USES_STRTOD");
-#endif
-#ifdef u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY
-        if (verbose) puts("u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY");
-    #ifndef u_PARSEDOUBLE_USES_FROM_CHARS
-        ASSERT("u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY without using"
-               " 'bsl::from_chars'?" == 0);
-    #endif
-#endif
-
-#ifdef u_PARSEDOUBLE_USES_FROM_CHARS
-        if (verbose) puts("u_PARSEDOUBLE_USES_FROM_CHARS");
-#elif !defined(u_PARSEDOUBLE_USES_STRTOD)
-        ASSERT("'parseDouble' uses neither 'strtod' nor 'from_chars'?" == 0);
-#endif
+        checkConfig();
+        testParseDouble();
       } break;
       case 4: {
         // --------------------------------------------------------------------
