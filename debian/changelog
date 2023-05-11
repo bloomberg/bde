@@ -1,5 +1,32 @@
-bsl-internal (3.117.0.0) unstable; urgency=low
+bsl-internal (3.118.0.0) unstable; urgency=low
 
+  * 8d0c75397 Bumped version to 3.118.0.0
+  * b582f5462 Merge pull request #4264 from afeher/drqs-172022346-gcc-solaris-has-hexfloat-strtod
+  * 88b09e6a2 Use 32 ufid flag in dpkg build (#4257)
+  * a72bdc89f bsls package doc about forwarding (#4234)
+  * 0e9c19502 Ensure that BDE compiles with BDE_OMIT_INTERNAL_DEPRECATED (#4253)
+  * 0054135f3 Reduce warnings in bdl on gcc10 {DRQS 171723333} (#4256)
+  * 1a6515537 Fix bug in bdls::PipeUtil::isOpenForReading with byte mode named pipes on Windows (DRQS 171868432) (#4243)
+  * 21e3897c3 No 16 byte alignment on 32bit (inteldfp). (#4249)
+  * 2ce911d7c Add missing stop() calls, reorder objects (#4250)
+  * 5cb5985af Use 'from_chars' where supported. (#4056)
+  * 30f6ff2a5 C++20 work: Add the ‘operator<=>’ to the 'bslstl::basic_string' (DRQS 171318810) (#4229)
+  * 3e3f839d6 Remove stray .t.cpp from deleted component (#4248)
+  * c71e58c0f correct asan issue (#4246)
+  * 785209122 blind fix for asan issue (#4245)
+  * 4ff019106 Add erase erase if to string (#4204)
+  * a549c07d5 <=> added (#4221)
+  * 5468dcbf0 operator!= test fix (#4244)
+  * 862740f91 <=> added (#4224)
+  * b9462df45 C++20 work: alias c++20 concepts (DRQS 171544623) (#4239)
+  * 11174080e bdlf_noop Functions returning void cannot be constexpr in C++11 (#4242)
+  * d1699b73b C++20 work: Add the ‘operator<=>’ to the 'bslstl::set' (DRQS 171318939) (#4223)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 11 May 2023 10:04:03 -0400
+
+bsl-internal (3.117.0.0) git; urgency=low
+
+  * 2ffb75b63 Changelog for version 3.117.0.0
   * 454e43ddb Bumped version to 3.117.0.0
   * b41722b11 Remove convertible allocator - drqs170078536 (#3856)
   * edfde46f2 Revert `bslma::UsesBslmaAllocator` - DRQS 169232400 (#3701)
@@ -32,7 +59,7 @@ bsl-internal (3.117.0.0) unstable; urgency=low
   * d1536d898 Mark failing baljsn_datumutil tests on Sun (#4216)
   * 7f6496fca Fix use-after-free bug in rbtreeutil.t. Found by ASAN (#4205)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Apr 2023 11:35:37 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Apr 2023 11:40:03 -0400
 
 bsl-internal (3.116.0.0) git; urgency=low
 
