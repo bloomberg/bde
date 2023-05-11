@@ -1,5 +1,11 @@
-bsl-internal (3.118.0.0) unstable; urgency=low
+bsl-internal (3.118.0.1) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 11 May 2023 10:30:12 -0400
+
+bsl-internal (3.118.0.0) git; urgency=low
+
+  * a30c810d3 Changelog for version 3.118.0.0
   * 8d0c75397 Bumped version to 3.118.0.0
   * b582f5462 Merge pull request #4264 from afeher/drqs-172022346-gcc-solaris-has-hexfloat-strtod
   * 88b09e6a2 Use 32 ufid flag in dpkg build (#4257)
@@ -22,7 +28,7 @@ bsl-internal (3.118.0.0) unstable; urgency=low
   * 11174080e bdlf_noop Functions returning void cannot be constexpr in C++11 (#4242)
   * d1699b73b C++20 work: Add the ‘operator<=>’ to the 'bslstl::set' (DRQS 171318939) (#4223)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 11 May 2023 10:04:03 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 11 May 2023 10:11:49 -0400
 
 bsl-internal (3.117.0.0) git; urgency=low
 
