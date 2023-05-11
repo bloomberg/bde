@@ -28,44 +28,44 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
 
 // Conditionally included headers
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
-    #include <bsl_cmath.h>        // 'bsl::isinf', 'bsl::isnan', 'bsl::signbit'
+  #include <bsl_cmath.h>        // 'bsl::isinf', 'bsl::isnan', 'bsl::signbit'
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
-    #include <bsl_charconv.h>
-    #include <bsl_cmath.h>        // 'bsl::isnan'
-    #include <bsl_system_error.h>
+  #include <bsl_charconv.h>
+  #include <bsl_cmath.h>        // 'bsl::isnan'
+  #include <bsl_system_error.h>
 #else   // has float 'from_chars'
-    #include <bsl_cerrno.h>       // 'errno', 'ERANGE'
+  #include <bsl_cerrno.h>       // 'errno', 'ERANGE'
 #endif  // no float 'from_chars'
 
 // Solaris 'strtod' linked by us does not parse hexadecimal floats.
-#if !defined(BSLS_PLATFORM_OS_SUNOS) && !defined(BSLS_PLATFORM_OS_SOLARIS)
-    #define BDLB_NUMERICPARSEUTIL_HAS_HEXFLOAT                                1
+#if !(defined(BSLS_PLATFORM_OS_SUNOS) && defined(BSLS_PLATFORM_OS_SOLARIS)) ||\
+    defined(BSLS_PLATFORM_CMP_GNU)
+  #define BDLB_NUMERICPARSEUTIL_PARSES_HEXFLOAT                               1
 #endif
 
-#include <bsl_iostream.h>
 #if defined(__GLIBC__) && __GLIBC__ <= 2
-    // glibc is linked dynamically, and we may get linked to any 2.x major
-    // version when compiling against it, regardless of the '__GLIBC_MINOR__'
-    // macro value we see compile time.  The bugs we identify below may get
-    // fixed during the lifetime of GNU libc major version 2, but the code has
-    // to be able to handle either case in the same binary due to the dynamic
-    // linking of libc.
+  // glibc is linked dynamically, and we may get linked to any 2.x major
+  // version when compiling against it, regardless of the '__GLIBC_MINOR__'
+  // macro value we see compile time.  The bugs we identify below may get fixed
+  // during the lifetime of GNU libc major version 2, but the code has to be
+  // able to handle either case in the same binary due to the dynamic linking
+  // of libc.
 
-    #define u_GLIBC2_STRTOD_HEX_DENORM_MIN_HALF_BUG                           1
-        // Hexadecimal float representations of the value "half of IEEE-754
-        // double precision minimum subnormal" (positive or negative) that has
-        // only a single bit set in its significand (in the string format) gets
-        // parsed into the value 'DBL_TRUE_MIN' ('<climits>'), or in C++
-        // vernacular 'bsl::numeric_limits<double>::denorm_min()' instead of
-        // zero.
+  #define u_GLIBC2_STRTOD_HEX_DENORM_MIN_HALF_BUG                             1
+      // Hexadecimal float representations of the value "half of IEEE-754
+      // double precision minimum subnormal" (positive or negative) that has
+      // only a single bit set in its significand (in the string format) gets
+      // parsed into the value 'DBL_TRUE_MIN' ('<climits>'), or in C++
+      // vernacular 'bsl::numeric_limits<double>::denorm_min()' instead of
+      // zero.
 
-    #define u_GLIBC2_STRTOD_EDOM_BUG                                          1
-        // Up to version 2.14 GNU glibc 'strtod' implementation contains a bug
-        // where certain underflows are reported using the 'EDOM == errno',
-        // instead of the required 'ERANGE == errno'.  The corresponding issue
-        // is 9696 (https://sourceware.org/bugzilla/show_bug.cgi?id=9696 ).
+  #define u_GLIBC2_STRTOD_EDOM_BUG                                            1
+      // Up to version 2.14 GNU glibc 'strtod' implementation contains a bug
+      // where certain underflows are reported using the 'EDOM == errno',
+      // instead of the required 'ERANGE == errno'.  The corresponding issue is
+      // 9696 (https://sourceware.org/bugzilla/show_bug.cgi?id=9696 ).
 #endif
 
 namespace {
@@ -618,7 +618,7 @@ int NumericParseUtil::parseDouble(double                  *result,
     }
 
     if (endPtr != buffer) {
-#ifdef BDLB_NUMERICPARSEUTIL_HAS_HEXFLOAT
+#ifdef BDLB_NUMERICPARSEUTIL_PARSES_HEXFLOAT
         BSLS_REVIEW_OPT("Valid hexfloat parsed by strtod, "
                         "Please route this issue to BDE (Group 101)."
                         && !u::couldBeHexFloat(stdlibInput));
