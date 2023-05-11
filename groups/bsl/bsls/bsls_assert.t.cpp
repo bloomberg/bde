@@ -1116,10 +1116,10 @@ struct List_Link {
 class List;                         // Forward declaration.
 
 class ListIter {
+    List_Link **d_current_p;
 #ifdef BDE_BUILD_TARGET_SAFE_2
     List *d_parent_p;               // Exists only in "safe 2 mode".
 #endif
-    List_Link **d_current_p;
     friend class List;
     friend bool operator==(const ListIter&, const ListIter&);
   private:
@@ -1724,7 +1724,7 @@ void test_case_18() {
         try
         {
 #endif  // BDE_BUILD_TARGET_EXC
-            sillyFunc(veryVerbose);
+            usage_example_assert_6::sillyFunc(veryVerbose);
             ASSERT(false);
 #ifdef BDE_BUILD_TARGET_EXC
         }
