@@ -414,8 +414,8 @@ struct MyClass1 {
     // 'd_allocator_p' pointer is always initialized to a null pointer, while
     // the 'd_data_p' pointer is never initialized.  This class supports move,
     // copy, and destructor counters and can be used in tests that check for
-    // unnecessary copies.  A signal value, 'k_MOVED_FROM_VAL', is used to detect
-    // an object in a moved-from state.
+    // unnecessary copies.  A signal value, 'k_MOVED_FROM_VAL', is used to
+    // detect an object in a moved-from state.
 
     // DATA
     MyClassDef d_def;
@@ -10834,7 +10834,7 @@ void TestDriver<TYPE>::testCase4d()
 
         bslma::DefaultAllocatorGuard dag(&da);
 
-#ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
         if (veryVerbose)
             printf("\tallocator tests of allocator extended "
                    "value_or'.\n");
@@ -10860,12 +10860,12 @@ void TestDriver<TYPE>::testCase4d()
             Obj              source(4);
             const ValueType& i3 =
                 MoveUtil::move(source).value_or(bsl::allocator_arg, &ta, val);
-            ASSERT(i3 == 4);
-            ASSERT(source.value() == k_MOVED_FROM_VAL);
+            ASSERT(i3.value() == 4);
+            ASSERT(source->value() == k_MOVED_FROM_VAL);
             ASSERT(i3.get_allocator() == &ta);
 #endif  //defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
         }
-#endif  //BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#endif  //BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
     }
 }
 

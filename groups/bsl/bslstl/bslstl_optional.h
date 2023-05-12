@@ -1245,7 +1245,7 @@ class optional {
         // 'TYPE' if this object is non-null, and the specified 'value'
         // converted to 'TYPE' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.
-#  ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
     template <class ANY_TYPE>
     TYPE value_or(bsl::allocator_arg_t, allocator_type, ANY_TYPE&& value) &&;
         // If this object is non-null, return a copy of the underlying object
@@ -1253,7 +1253,7 @@ class optional {
         // allocator, and the specified 'value' converted to 'TYPE' using the
         // specified 'allocator' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.
-#  endif  // BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  endif  // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 # endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 
     optional& operator=(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;
@@ -1475,7 +1475,7 @@ class optional {
         // 'TYPE' if this object is non-null, and the specified 'value'
         // converted to 'TYPE' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.
-#  ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
     template <class ANY_TYPE>
     TYPE value_or(bsl::allocator_arg_t,
                   allocator_type,
@@ -1485,7 +1485,7 @@ class optional {
         // allocator, and the specified 'value' converted to 'TYPE' using the
         // specified 'allocator' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.
-#  endif  // BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  endif  // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 # else
     template <class ANY_TYPE>
     TYPE value_or(BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) value) const;
@@ -1493,7 +1493,7 @@ class optional {
         // 'TYPE' if this object is non-null, and the specified 'value'
         // converted to 'TYPE' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.
-#  ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
     template <class ANY_TYPE>
     TYPE value_or(bsl::allocator_arg_t,
                   allocator_type,
@@ -1503,7 +1503,7 @@ class optional {
         // allocator, and the specified 'value' converted to 'TYPE' using the
         // specified 'allocator' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.
-#  endif  // BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  endif  // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 # endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS else
 
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -3625,7 +3625,7 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(ANY_TYPE&& value) &&
     }
 }
 
-#  ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class ANY_TYPE>
 inline
@@ -3642,8 +3642,8 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(bsl::allocator_arg_t,
             allocator.mechanism(), std::forward<ANY_TYPE>(value));
     }
 }
-#  endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-# endif  // BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  endif  // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 
 template <class TYPE, bool USES_BSLMA_ALLOC>
 inline
@@ -3972,7 +3972,7 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(
     }
 }
 
-#  ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class ANY_TYPE>
 inline
@@ -3991,7 +3991,7 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(
             BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, value));
     }
 }
-#  endif  // BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  endif  // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 # else  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class ANY_TYPE>
@@ -4007,7 +4007,7 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(
     }
 }
 
-#  ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#  ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class ANY_TYPE>
 inline
@@ -4026,8 +4026,8 @@ TYPE optional<TYPE, USES_BSLMA_ALLOC>::value_or(
             BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, value));
     }
 }
-#  endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-# endif  // BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION else
+#  endif  // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS else
 
 template <class TYPE, bool USES_BSLMA_ALLOC>
 inline
