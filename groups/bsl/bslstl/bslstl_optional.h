@@ -5792,7 +5792,7 @@ bool operator>=(const std::optional<LHS_TYPE>& lhs,
 // correctly as optional types.  The end result is endless recursion
 // evaluating the requires clause for the spaceship operator when it is
 // implemented according to the C++20 specification, which currently happens
-// for gcc-11, gcc-12 and MSVC-2022 when building with C++20.
+// for GCC 11-13 and MSVC-2022 when building with C++20.
 //
 // The issue with the standard is tracked here:
 // https://cplusplus.github.io/LWG/lwg-active.html#3746
@@ -5810,10 +5810,8 @@ bool operator>=(const std::optional<LHS_TYPE>& lhs,
 // implementations, hence the two distinct macros and implementations.
 
 # if BSLS_COMPILERFEATURES_CPLUSPLUS==202002L && \
-     defined(BSLS_PLATFORM_CMP_GNU) && \
      defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && \
-     (BSLS_PLATFORM_CMP_VERSION > 110000 &&      \
-      BSLS_PLATFORM_CMP_VERSION < 130000)
+     (11 <= _GLIBCXX_RELEASE && _GLIBCXX_RELEASE < 14)
 
 #define BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
 
