@@ -1820,12 +1820,19 @@ int main(int argc, char *argv[])
         //:   when '__cpp_impl_three_way_comparison' and
         //:   '__cpp_lib_three_way_comparison' are both defined and have values
         //:   as defined by the ISO C++20 or greater.
+        //:
+        //: 3 That the types 'partial_ordering', 'weak_ordering',
+        //:   'strong_ordering', 'common_comparison_category',
+        //:   'compare_three_way' and 'compare_three_way_result' are defined.
         //
         // Plan:
         //: 1 Verify that both '__cpp_*' macros are defined and have a value at
         //:   least '201907L' when the macro is defined.
         //:
         //: 2 Verify that '<=>' operator can be used when the macro is defined.
+        //:
+        //: 3 Verify that the types that are used in the three-way comparisons
+        //:   exist.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
@@ -1836,6 +1843,8 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
             ASSERTV(__cpp_impl_three_way_comparison,
                     __cpp_impl_three_way_comparison >= 201907L);
+            ASSERTV(__cpp_lib_three_way_comparison,
+                    __cpp_lib_three_way_comparison >= 201907L);
             // TODO: Add tests to ensure compliance of the compiler support for
             // the three way operator, per DRQS 171563596
 
@@ -1848,8 +1857,54 @@ int main(int argc, char *argv[])
             static_assert(0 <=> 1 <  0);
             static_assert(1 <=> 1 == 0);
             static_assert(1 <=> 0 >  0);
-#else
-        if (verbose) printf("'<=>' is not supported in this configuration\n");
+
+            // (C.3) ensure that the types exist
+            // 17.11.2, comparison category types
+            //   class partial_ordering;
+            //   class weak_ordering;
+            //   class strong_ordering;
+            bsl::partial_ordering  *pPartialOrdering = nullptr;
+            bsl::weak_ordering     *pWeakOrdering    = nullptr;
+            bsl::strong_ordering   *pStrongOrdering  = nullptr;
+
+            (void) pPartialOrdering;
+            (void) pWeakOrdering;
+            (void) pStrongOrdering;
+
+            // 17.11.3, common comparison category type
+            //   template<class... Ts>
+            //   struct common_comparison_category {using type = see below; };
+            bsl::common_comparison_category<bsl::partial_ordering> *ccc1
+                                                                     = nullptr;
+            bsl::common_comparison_category<bsl::partial_ordering,
+                                            bsl::weak_ordering>    *ccc2
+                                                                     = nullptr;
+            bsl::common_comparison_category<bsl::partial_ordering,
+                                            bsl::weak_ordering,
+                                            bsl::strong_ordering>  *ccc3
+                                                                     = nullptr;
+            (void) ccc1;
+            (void) ccc2;
+            (void) ccc3;
+
+            // 17.11.5, result of three-way comparison
+            //   template<class T, class U = T>
+            //   struct compare_three_way_result;
+            // 20.14.7.7, class compare_three_way
+            //   struct compare_three_way;
+            bsl::compare_three_way                   *pCompareThreeWay
+                                                                     = nullptr;
+            bsl::compare_three_way_result<int>       *pCompareThreeWayResult1
+                                                                     = nullptr;
+            bsl::compare_three_way_result<int, long> *pCompareThreeWayResult2
+                                                                     = nullptr;
+
+            (void) pCompareThreeWay;
+            (void) pCompareThreeWayResult1;
+            (void) pCompareThreeWayResult2;
+
+ #else
+        if (verbose) printf("'<=>' IS NOT SUPPORTED IN THIS CONFIGURATION\n");
 #endif
       } break;
       case 35: {

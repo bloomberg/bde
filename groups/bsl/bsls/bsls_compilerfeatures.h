@@ -1001,9 +1001,12 @@ BSLS_IDENT("$Id: $")
   #define BSLS_COMPILERFEATURES_SUPPORT_CTAD                                  1
 #endif
 
-#if defined(__cpp_impl_three_way_comparison) &&                              \
+#if defined(__cpp_impl_three_way_comparison) &&                               \
                                     __cpp_impl_three_way_comparison >= 201907L
+# if defined(__cpp_lib_three_way_comparison) &&                               \
+                                      __cpp_lib_three_way_comparison >= 201907L
   #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                  1
+# endif
 #endif
 
 #if defined(__cplusplus)
