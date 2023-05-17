@@ -649,12 +649,17 @@ struct IsBitwiseMoveable_Imp<t_TYPE, false> {
                   "This imp-detail instantiation should not be selected for "
                   "function types");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     // TBD: remove this before release
 
+    // Note that a copy c'tor declared as 'deleted' will result in
+    // 'std::is_trivially_copyable' being 'false' on Windows, but not on
+    // g++ or clang.
+
     static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
-                                 || std::is_trivially_copyable<t_TYPE>::value);
-#endif
+                                 || std::is_trivially_copyable<t_TYPE>::value,
+                  "Types with copy constructors or destructors defined "
+                  "should be declared 'bslmf::IsBitwiseCopyable', not "
+                  "'bsl::is_trivially_copyable'");
 
     static const bool k_ValueWithoutOnebyteHeuristic =
                         bsl::is_trivially_copyable<t_TYPE>::value ||

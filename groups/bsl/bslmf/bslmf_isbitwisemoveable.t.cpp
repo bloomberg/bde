@@ -1043,7 +1043,7 @@ int main(int argc, char *argv[])
         // TBD: remove this before release, and also remove the check from
         // the .h file.
 
-        ASSERT(!bsl::is_trivially_copyable<
+       ASSERT(!bsl::is_trivially_copyable<
                              UserDefinedFakeTriviallyCopyableTestType>::value
                || std::is_trivially_copyable<
                              UserDefinedFakeTriviallyCopyableTestType>::value);

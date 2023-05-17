@@ -90,7 +90,7 @@ struct IsBitwiseCopyable;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool IsBitwiseCopyable_v =
-                                              IsBitwiseCopyable<t_TYPE>::value;
+                                          IsBitwiseCopywmakeble<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_trivially_copyable' meta-function.
 #endif
@@ -101,11 +101,15 @@ struct IsBitwiseCopyable :
                            bool,
                            DetectNestedTrait<t_TYPE, IsBitwiseCopyable>::value
                           || bsl::is_trivially_copyable<t_TYPE>::value>::type {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
+    defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
     // TBD: remove or comment out this check before merging to 'main'.
 
     static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
-                                 || std::is_trivially_copyable<t_TYPE>::value);
+                                 || std::is_trivially_copyable<t_TYPE>::value,
+                  "Types with copy constructors or destructors defined "
+                  "should be declared 'bslmf::IsBitwiseCopyable', not "
+                  "'bsl::is_trivially_copyable'");
 #endif
 };
 
@@ -118,8 +122,14 @@ class IsBitwiseCopyableCheck : public IsBitwiseCopyable<t_TYPE> {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     // TBD: remove or comment out this check before merging to 'main'.
 
+    // Note that 'std::is_trivially_copyable' is 'false' on Windows for types
+    // with copy c'tors declared as 'deleted', but 'true' on other platforms.
+
     static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
-                                 || std::is_trivially_copyable<t_TYPE>::value);
+                                 || std::is_trivially_copyable<t_TYPE>::value,
+                  "Types with copy constructors or destructors defined "
+                  "should be declared 'bslmf::IsBitwiseCopyable', not "
+                  "'bsl::is_trivially_copyable'");
 #endif
 };
 

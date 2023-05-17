@@ -345,7 +345,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_assert.h>
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsls_assert.h>
 #include <bsls_byteorder.h>
@@ -880,12 +880,14 @@ WyHashIncrementalAlgorithm::computeHash()
 //                                TYPE TRAITS
 // ============================================================================
 
-namespace bsl {
+namespace BloombergLP {
+namespace bslmf {
 template <>
-struct is_trivially_copyable<
-                     BloombergLP::bslh::WyHashIncrementalAlgorithm> : true_type
+struct IsBitwiseCopyable<
+                BloombergLP::bslh::WyHashIncrementalAlgorithm> : bsl::true_type
 {};
-}  // close namespace bsl
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 #undef BSLH_WYHASHINCREMENTALALGORITHM_WYMUM_PSEUDO_MULTIPLY
 #undef BSLH_WYHASHINCREMENTALALGORITHM_WYMUM_XOR
