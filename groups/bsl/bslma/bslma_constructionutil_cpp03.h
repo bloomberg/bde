@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jun  8 12:15:23 2023
+// Generated on Thu Jun  8 14:51:14 2023
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
