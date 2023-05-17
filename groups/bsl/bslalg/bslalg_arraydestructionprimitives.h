@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -----                             -------------------------------------
-//   bsl::is_trivially_copyable       Expressed in English as "TYPE has the
+//   bslmf::IsBitwiseCopyable         Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocatortraits.h>
 
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <cstddef>  // 'size_t'
 
@@ -131,7 +131,7 @@ struct ArrayDestructionPrimitives {
         // specified 'begin' address and ending immediately before the
         // specified 'end' address, using the specified 'allocator'.  Elide the
         // use of the destructor entirely if (template parameter) 'TARGET_TYPE'
-        // is trivially copyable, i.e., in the overload where the last argument
+        // is bitwise copyable, i.e., in the overload where the last argument
         // (used only for overload resolution) is of type 'bsl::true_type'.
 
     template <class TARGET_TYPE>
@@ -141,8 +141,8 @@ struct ArrayDestructionPrimitives {
         // Destroy each instance of 'TARGET_TYPE' in the array beginning at the
         // specified 'begin' address and ending immediately before the
         // specified 'end' address.  Elide the use of the destructor entirely
-        // if (template parameter) 'TARGET_TYPE' is trivially copyable, i.e.
-        // in the overload where the last argument (used only for overload
+        // if (template parameter) 'TARGET_TYPE' is bitwise copyable, i.e. in
+        // the overload where the last argument (used only for overload
         // resolution) if of type 'bsl::true_type'.
 
   public:
@@ -187,7 +187,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
                                          ALLOCATOR,
                                          bsl::true_type)
 {
-    // 'bsl::is_trivially_copyable' is a valid surrogate for having a trivial
+    // 'bslmf::IsBitwiseCopyable' is a valid surrogate for having a trivial
     // destructor.
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
@@ -217,7 +217,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
                                          TARGET_TYPE *end,
                                          bsl::true_type)
 {
-    // 'bsl::is_trivially_copyable' is a valid surrogate for having a trivial
+    // 'bslmf::IsBitwiseCopyable' is a valid surrogate for having a trivial
     // destructor.
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
@@ -253,7 +253,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     destroy(begin,
             end,
             allocator,
-            typename bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::type());
+            typename bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::type());
 }
 
 template <class TARGET_TYPE>
@@ -267,7 +267,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
 
     destroy(begin,
             end,
-            typename bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::type());
+            typename bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::type());
 }
 
 }  // close package namespace

@@ -15,7 +15,7 @@
 
 #include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
@@ -1394,6 +1394,15 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
         setValue(this, original.datum());
     }
 
+    // MANIPULATORS
+    BitwiseCopyableTestType& operator=(
+                                      const BitwiseCopyableTestType&  original)
+    {
+        setValue(this, original.datum());
+
+        return *this;
+    }
+
     // FRIENDS
     friend void debugprint(const BitwiseCopyableTestType& obj)
     {
@@ -1402,10 +1411,12 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 };
 
 // TRAITS
-namespace bsl {
-template <> struct is_trivially_copyable<BitwiseCopyableTestType>
-    : true_type {};
-}  // close namespace bsl
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseCopyable<BitwiseCopyableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+}  // close enterprise namespace
 
                        // ==================================
                        // class LargeBitwiseMoveableTestType
@@ -2101,8 +2112,8 @@ void testEmplaceDefaultValue(bool bitwiseMoveableFlag,
 
     ASSERTV(bitwiseMoveableFlag,   bslmf::IsBitwiseMoveable<TYPE>::value,
             bitwiseMoveableFlag == bslmf::IsBitwiseMoveable<TYPE>::value);
-    ASSERTV(bitwiseCopyableFlag,   bsl::is_trivially_copyableCHECKED<TYPE>::value,
-            bitwiseCopyableFlag == bsl::is_trivially_copyableCHECKED<TYPE>::value);
+    ASSERTV(bitwiseCopyableFlag,   bslmf::IsBitwiseCopyable<TYPE>::value,
+            bitwiseCopyableFlag == bslmf::IsBitwiseCopyable<TYPE>::value);
 
     {
         for (size_t ti = 0; ti < NUM_DATA_9DV; ++ti) {

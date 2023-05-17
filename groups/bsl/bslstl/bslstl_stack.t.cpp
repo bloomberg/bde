@@ -14,6 +14,7 @@
 
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_alignmentutil.h>
@@ -3792,6 +3793,8 @@ void TestDriver<CONTAINER>::testCase11()
     BSLMF_ASSERT((0 == bsl::is_trivially_copyable<Obj>::value));
 
     BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
+
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseCopyable<Obj>::value));
 
     BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<Obj>::value));
 

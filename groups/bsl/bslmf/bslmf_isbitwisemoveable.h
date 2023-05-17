@@ -565,9 +565,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isempty.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_isreference.h>
-#include <bslmf_istriviallycopyable.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
@@ -624,9 +624,9 @@ struct IsBitwiseMoveable_Imp<t_TYPE, false> {
                            DetectNestedTrait<t_TYPE, IsBitwiseMoveable>::value;
 
   public:
-    static const bool value = bsl::is_trivially_copyableCHECKED<t_TYPE>::value ||
-                              k_NestedBitwiseMoveableTrait ||
-                              sizeof(t_TYPE) == 1;
+    static const bool value = IsBitwiseCopyableCheck<t_TYPE>::value
+                                                || k_NestedBitwiseMoveableTrait
+                                                || sizeof(t_TYPE) == 1;
 
     typedef bsl::integral_constant<bool, value> type;
 
@@ -649,8 +649,15 @@ struct IsBitwiseMoveable_Imp<t_TYPE, false> {
                   "This imp-detail instantiation should not be selected for "
                   "function types");
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // TBD: remove this before release
+
+    static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
+                                 || std::is_trivially_copyable<t_TYPE>::value);
+#endif
+
     static const bool k_ValueWithoutOnebyteHeuristic =
-                        bsl::is_trivially_copyableCHECKED<t_TYPE>::value ||
+                        bsl::is_trivially_copyable<t_TYPE>::value ||
                         std::is_empty<t_TYPE>::value  // required for gcc < 5.0
                         || k_NestedBitwiseMoveableTrait;
 #endif

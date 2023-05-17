@@ -26,6 +26,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -1180,7 +1181,7 @@ class BitwiseCopyableTestTypeNoAlloc : public SmallTestTypeNoAlloc {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestTypeNoAlloc,
-                                   bsl::is_trivially_copyable);
+                                   bslmf::IsBitwiseCopyable);
     BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestTypeNoAlloc,
                                    bslmf::IsBitwiseEqualityComparable);
 

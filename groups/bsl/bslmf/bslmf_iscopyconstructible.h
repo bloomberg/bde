@@ -55,10 +55,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isarray.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_isreference.h>
 #include <bslmf_isvolatile.h>
-#include <bslmf_istriviallycopyable.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -160,7 +160,7 @@ namespace bslmf {
 template <class t_TYPE>
 struct IsCopyConstructible_Imp
 : bsl::integral_constant<bool,
-                         bsl::is_trivially_copyableCHECKED<t_TYPE>::value ||
+                         bslmf::IsBitwiseCopyableCheck<t_TYPE>::value ||
                              bsl::is_reference<t_TYPE>::value ||
                              !(bsl::is_volatile<t_TYPE>::value ||
                                bsl::is_function<t_TYPE>::value)> {

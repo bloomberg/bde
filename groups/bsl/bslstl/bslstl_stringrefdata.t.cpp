@@ -4,6 +4,7 @@
 
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
@@ -442,13 +443,13 @@ ASSERT(strObj.length() == strRf2.length());
           typedef bslstl::StringRefData<char>    RefData;
           typedef bslstl::StringRefData<wchar_t> WRefData;
 
-          ASSERT(bsl::is_trivially_copyable<RefData>::value);
+          ASSERT(bslmf::IsBitwiseCopyable<RefData>::value);
           ASSERT(bslmf::IsBitwiseMoveable<RefData>::value);
           ASSERT(!bsl::is_trivially_default_constructible<RefData>::value);
           ASSERT(!bslma::UsesBslmaAllocator<RefData>::value);
           ASSERT(!bslmf::IsBitwiseEqualityComparable<RefData>::value);
 
-          ASSERT(bsl::is_trivially_copyable<WRefData>::value);
+          ASSERT(bslmf::IsBitwiseCopyable<WRefData>::value);
           ASSERT(bslmf::IsBitwiseMoveable<WRefData>::value);
           ASSERT(!bsl::is_trivially_default_constructible<WRefData>::value);
           ASSERT(!bslma::UsesBslmaAllocator<WRefData>::value);

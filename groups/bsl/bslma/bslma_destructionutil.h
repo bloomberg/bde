@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -------------------------------   -------------------------------------
-//  bsl::is_trivially_copyable        Expressed in English as "TYPE has the
+//  bslmf::IsBitwiseCopyable          Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be
@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_removecv.h>
 
 #include <bsls_assert.h>
@@ -197,7 +197,7 @@ void DestructionUtil::destroy(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-    destroy(object, typename bsl::is_trivially_copyable<TYPE>::type());
+    destroy(object, typename bslmf::IsBitwiseCopyableCheck<TYPE>::type());
 }
 
 }  // close package namespace

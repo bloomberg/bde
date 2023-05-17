@@ -285,6 +285,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_allocatorargt.h>
 #include <bslmf_conditional.h>
 #include <bslmf_integersequence.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
@@ -3443,6 +3444,12 @@ struct is_trivially_default_constructible<bsl::pair<T1, T2> >
 
 namespace BloombergLP {
 namespace bslmf {
+
+template <class T1, class T2>
+struct IsBitwiseCopyable<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, IsBitwiseCopyableCheck<T1>::value
+                                  && IsBitwiseCopyableCheck<T2>::value>
+{};
 
 template <class T1, class T2>
 struct IsPair<bsl::pair<T1, T2> > : bsl::true_type

@@ -1048,12 +1048,12 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<int> >::value));
-        ASSERT((bsl::is_trivially_copyable<bsl::allocator<int> >::value));
+        ASSERT((bslmf::IsBitwiseCopyable<bsl::allocator<int> >::value));
         ASSERT((bslmf::IsBitwiseEqualityComparable<
                                                 bsl::allocator<int> >::value));
 
         ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<void> >::value));
-        ASSERT((bsl::is_trivially_copyable<bsl::allocator<void> >::value));
+        ASSERT((bslmf::IsBitwiseCopyable<bsl::allocator<void> >::value));
         ASSERT((bslmf::IsBitwiseEqualityComparable<
                                                bsl::allocator<void> >::value));
 

@@ -498,11 +498,13 @@ int main(int argc, char *argv[])
         typedef int TYPE;
 
         ASSERT(bslmf::IsBitwiseMoveable<equal_to<TYPE> >::value);
+        ASSERT(bslmf::IsBitwiseCopyable<equal_to<TYPE> >::value);
         ASSERT(bsl::is_trivially_copyable<equal_to<TYPE> >::value);
         ASSERT(bsl::is_trivially_default_constructible<equal_to<TYPE>
                                                                      >::value);
 
         ASSERT(bslmf::IsBitwiseMoveable<equal_to<void> >::value);
+        ASSERT(bslmf::IsBitwiseCopyable<equal_to<void> >::value);
         ASSERT(bsl::is_trivially_copyable<equal_to<void> >::value);
         ASSERT(bsl::is_trivially_default_constructible<equal_to<void>
                                                                      >::value);

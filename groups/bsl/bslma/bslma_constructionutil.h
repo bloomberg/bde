@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //                                                first, and the allocator type
 //                                                is second
 //
-//  bsl::is_trivially_copyable                    "TYPE has the bitwise
+//  bslmf::IsBitwiseCopyable                      "TYPE has the bitwise
 //                                                copyable trait", or
 //                                                "TYPE is bitwise copyable"
 //                                                (implies that it has a
@@ -1102,7 +1102,7 @@ void ConstructionUtil::construct(TARGET_TYPE        *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::value
+                : bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
                     ? Imp::e_BITWISE_COPYABLE_TRAITS
                     : Imp::e_NIL_TRAITS
     };
@@ -1123,7 +1123,7 @@ void ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::value
+                : bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
                     ? Imp::e_BITWISE_COPYABLE_TRAITS
                     : Imp::e_NIL_TRAITS
     };
@@ -1140,7 +1140,7 @@ void ConstructionUtil::construct(TARGET_TYPE        *address,
                                  const TARGET_TYPE&  original)
 {
     enum {
-        k_VALUE = bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : Imp::e_NIL_TRAITS
     };
@@ -1156,7 +1156,7 @@ void ConstructionUtil::construct(TARGET_TYPE  *address,
                                  TARGET_TYPE&  original)
 {
     enum {
-        k_VALUE = bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : Imp::e_NIL_TRAITS
     };
@@ -1176,7 +1176,7 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::value
+                : bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
                  ? Imp::e_BITWISE_COPYABLE_TRAITS
                  : Imp::e_NIL_TRAITS
     };
@@ -1194,7 +1194,7 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
 {
 
     enum {
-        k_VALUE = bsl::is_trivially_copyableCHECKED<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : Imp::e_NIL_TRAITS
     };

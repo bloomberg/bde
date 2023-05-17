@@ -6,6 +6,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -259,7 +260,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TYPE TRAITS"
                             "\n===================\n");
 
-        BSLMF_ASSERT(bsl::is_trivially_copyable<Obj>::value);
+        BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Obj>::value);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         BSLMF_ASSERT(std::is_trivially_copyable<Obj>::value);

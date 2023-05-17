@@ -683,6 +683,7 @@ int main(int argc, char *argv[])
         typedef int TYPE;
 
         ASSERT(bslmf::IsBitwiseMoveable<hash<TYPE> >::value);
+        ASSERT(bslmf::IsBitwiseCopyable<hash<TYPE> >::value);
         ASSERT(bsl::is_trivially_copyable<hash<TYPE> >::value);
         ASSERT(bsl::is_trivially_default_constructible<hash<TYPE> >::value);
 

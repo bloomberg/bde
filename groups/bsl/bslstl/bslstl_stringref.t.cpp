@@ -10,6 +10,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
@@ -4323,7 +4324,7 @@ int main(int argc, char *argv[])
         typedef bslstl::StringRefImp<char>    RefImp;
         typedef bslstl::StringRefImp<wchar_t> WRefImp;
 
-        ASSERT( bsl::is_trivially_copyable<RefImp>::value);
+        ASSERT( bslmf::IsBitwiseCopyable<RefImp>::value);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT( std::is_trivially_copyable<RefImp>::value);
 #endif
@@ -4332,7 +4333,7 @@ int main(int argc, char *argv[])
         ASSERT( bslmf::IsBitwiseMoveable<RefImp>::value);
         ASSERT(!bslma::UsesBslmaAllocator<RefImp>::value);
 
-        ASSERT( bsl::is_trivially_copyable<WRefImp>::value);
+        ASSERT( bslmf::IsBitwiseCopyable<WRefImp>::value);
         ASSERT(!bsl::is_trivially_default_constructible<WRefImp>::value);
         ASSERT(!bslmf::IsBitwiseEqualityComparable<WRefImp>::value);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

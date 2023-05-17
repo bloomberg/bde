@@ -15,6 +15,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_istriviallycopyable.h>
@@ -836,6 +837,7 @@ int main(int argc, char *argv[])
         ASSERT( bsl::is_trivially_copyable<Obj>::value);
         ASSERT( bsl::is_nothrow_move_constructible<Obj>::value);
 
+        ASSERT( bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT( bslmf::IsBitwiseMoveable<Obj>::value);
         ASSERT(!bslmf::IsBitwiseEqualityComparable<Obj>::value);
 

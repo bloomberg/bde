@@ -6,6 +6,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
@@ -448,6 +449,7 @@ int main(int argc, char *argv[])
         typedef std::filesystem::path TYPE;
 
         ASSERT(bslmf::IsBitwiseMoveable<bslh::Hash<TYPE> >::value);
+        ASSERT(bslmf::IsBitwiseCopyable<bslh::Hash<TYPE> >::value);
         ASSERT(bsl::is_trivially_copyable<bslh::Hash<TYPE> >::value);
         ASSERT(
             bsl::is_trivially_default_constructible<bslh::Hash<TYPE> >::value);

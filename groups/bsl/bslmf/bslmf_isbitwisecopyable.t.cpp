@@ -7,6 +7,7 @@
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
+#include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
 #include <bslmf_removevolatile.h>  // gcc workaround
@@ -267,6 +268,10 @@ typedef int MyTriviallyCopyableType::*DataMemberPtrTestType;
 typedef int (MyTriviallyCopyableType::*MethodPtrTestType)();
     // This pointer to non-static function member type is used for testing.
 
+struct MyNonTrivialDestructorType {
+    ~MyNonTrivialDestructorType() {}
+};
+
 }  // close unnamed namespace
 
 namespace BloombergLP {
@@ -278,9 +283,17 @@ struct IsBitwiseCopyable<MyTriviallyCopyableType> : bsl::true_type {
     // 'MyTriviallyCopyableType' is a trivially copyable.
 };
 
-}  // close namespace bsl
+}  // close namespace bslmf
 }  // close namespace BloombergLP
 
+namespace bsl {
+
+// This is a lie.  'std::is_trivially_copyable' is not 'true'
+
+template <>
+struct is_trivially_copyable<MyNonTrivialDestructorType> : true_type {};
+
+}  // close namespace bsl
 
 namespace {
 
@@ -740,6 +753,15 @@ int main(int argc, char *argv[])
         ASSERT_IS_BITWISE_COPYABLE(void() const,               false);
         ASSERT_IS_BITWISE_COPYABLE(int(float,double...) const, false);
 #endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        // TBD: remove or comment out this check before merging to 'main',
+        // and also comment out the similar check in the .h file.
+
+        ASSERT(bsl::is_trivially_copyable<MyNonTrivialDestructorType>::value
+             == std::is_trivially_copyable<MyNonTrivialDestructorType>::value);
+#endif
+
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

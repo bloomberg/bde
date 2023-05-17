@@ -24,9 +24,9 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 
 #include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
-#include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 namespace BloombergLP {
@@ -53,7 +53,7 @@ class StdTestAllocator {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator,
-                                   bsl::is_trivially_copyable);
+                                   bslmf::IsBitwiseCopyable);
     BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator,
                                    bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(StdTestAllocator,

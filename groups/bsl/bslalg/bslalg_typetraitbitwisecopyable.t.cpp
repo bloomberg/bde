@@ -90,16 +90,20 @@ class AnotherNotTrivial {
 
   public:
     BSLMF_NESTED_TRAIT_DECLARATION(AnotherNotTrivial,
-                                   bsl::is_trivially_copyable);
+                                   bslmf::IsBitwiseCopyable);
 
     AnotherNotTrivial() : d_this_p(this) {}
     AnotherNotTrivial(const AnotherNotTrivial&) : d_this_p(this) {}
 };
 
-namespace bsl {
+namespace BloombergLP {
+namespace bslmf {
+
 template <>
-struct is_trivially_copyable<AlmostTrivial> : true_type {};
-}  // close namespace bsl
+struct IsBitwiseCopyable<AlmostTrivial> : bsl::true_type {};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 //=============================================================================
 //                              USAGE EXAMPLE

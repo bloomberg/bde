@@ -2595,6 +2595,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase23()
 
     BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
 
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseCopyable<Obj>::value));
+
     BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<Obj>::value));
 
     BSLMF_ASSERT((0 == bslmf::HasPointerSemantics<Obj>::value));

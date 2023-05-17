@@ -1,3 +1,4 @@
+
 // bslma_stdallocator.h                                               -*-C++-*-
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
 #define INCLUDED_BSLMA_STDALLOCATOR
@@ -449,10 +450,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
-#include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
@@ -496,7 +497,8 @@ class allocator {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseCopyable);
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(
@@ -637,7 +639,8 @@ class allocator<void> {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseCopyable);
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(

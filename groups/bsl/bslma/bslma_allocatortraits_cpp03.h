@@ -460,9 +460,9 @@ struct AllocatorTraits_RebindFront {
 };
 
 template <template <class, class...> class ALLOC,
-	  class T,
-	  class ...ARGS,
-	  class U>
+          class T,
+          class ...ARGS,
+          class U>
 struct AllocatorTraits_RebindFront<ALLOC<T, ARGS...>, U> {
     using type = ALLOC<U, ARGS...>;
 };
@@ -474,8 +474,8 @@ struct AllocatorTraits_RebindFront {
 };
 
 template <template <class> class ALLOC,
-	  class T,
-	  class U>
+          class T,
+          class U>
 struct AllocatorTraits_RebindFront<ALLOC<T>, U> {
     typedef ALLOC<U> type;
 };
@@ -659,23 +659,23 @@ struct allocator_traits {
 
     typedef typename
          BloombergLP::bslma::AllocatorTraits_PointerType<ALLOCATOR_TYPE>::type
-	                                              pointer;
+                                                      pointer;
     typedef typename
     BloombergLP::bslma::AllocatorTraits_ConstPointerType<ALLOCATOR_TYPE>::type
-	                                              const_pointer;
+                                                      const_pointer;
     typedef typename
      BloombergLP::bslma::AllocatorTraits_VoidPointerType<ALLOCATOR_TYPE>::type
-	                                              void_pointer;
+                                                      void_pointer;
     typedef typename BloombergLP::bslma::
                     AllocatorTraits_ConstVoidPointerType<ALLOCATOR_TYPE>::type
-	                                              const_void_pointer;
+                                                      const_void_pointer;
 
     typedef typename
       BloombergLP::bslma::AllocatorTraits_DifferenceType<ALLOCATOR_TYPE>::type
-	                                              difference_type;
+                                                      difference_type;
     typedef typename
-	    BloombergLP::bslma::AllocatorTraits_SizeType<ALLOCATOR_TYPE>::type
-	                                              size_type;
+            BloombergLP::bslma::AllocatorTraits_SizeType<ALLOCATOR_TYPE>::type
+                                                      size_type;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
@@ -700,7 +700,7 @@ struct allocator_traits {
 
         typedef typename BloombergLP::bslma::
                 AllocatorTraits_RebindAlloc<ALLOCATOR_TYPE, ELEMENT_TYPE>::type
-	                                                        allocator_type;
+                                                                allocator_type;
 
         template <typename ARG>
         rebind_alloc(const ARG& allocatorArg)
@@ -1988,7 +1988,7 @@ allocator_traits<ALLOCATOR_TYPE>::max_size(
 {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     return BloombergLP::bslma::
-	 AllocatorTraits_CallMaxSize<ALLOCATOR_TYPE>::max_size(basicAllocator);
+         AllocatorTraits_CallMaxSize<ALLOCATOR_TYPE>::max_size(basicAllocator);
 #else
     // Cannot sniff out whether 'basicAllocator.max_size()' is valid in C++03,
     // but for now require that allocators have a 'max_size' method and just

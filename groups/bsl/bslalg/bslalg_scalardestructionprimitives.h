@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -------------------------------   -------------------------------------
-//  bsl::is_trivially_copyable        Expressed in English as "TYPE has the
+//  bslmf::IsBitwiseCopyable          Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be

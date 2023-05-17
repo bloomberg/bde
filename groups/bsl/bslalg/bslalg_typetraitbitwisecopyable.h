@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 namespace BloombergLP {
@@ -51,14 +51,14 @@ struct TypeTraitBitwiseCopyable {
 
     template <class TYPE>
     struct NestedTraitDeclaration :
-        bslmf::NestedTraitDeclaration<TYPE, bsl::is_trivially_copyableCHECKED>
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseCopyable>
     {
         // This class template ties the 'bslalg::TypeTraitBitwiseCopyable'
         // trait tag to the 'bsl::is_trivially_copyable' trait metafunction.
     };
 
     template <class TYPE>
-    struct Metafunction : bsl::is_trivially_copyableCHECKED<TYPE>::type { };
+    struct Metafunction : bslmf::IsBitwiseCopyable<TYPE>::type { };
 };
 
 }  // close package namespace

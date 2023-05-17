@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_dequeimputil.h>
 
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -782,15 +782,17 @@ DequeIterator<VALUE_TYPE, 1>::valuePtr() const
 //                                TYPE TRAITS
 // ============================================================================
 
-namespace bsl {
+namespace BloombergLP {
+namespace bslmf {
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-struct is_trivially_copyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
-                                                                BLOCK_LENGTH> >
-    : true_type
+struct IsBitwiseCopyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
+                                                            BLOCK_LENGTH> >
+    : bsl::true_type
 {};
 
-}  // close namespace bsl
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 #endif
 

@@ -98,9 +98,30 @@ BSLS_KEYWORD_INLINE_VARIABLE constexpr bool IsBitwiseCopyable_v =
 template <class t_TYPE>
 struct IsBitwiseCopyable :
           bsl::integral_constant<
-                         bool,
-                         DetectNestedTrait<t_TYPE, IsBitwiseCopyable>::value
-                        || bsl::is_trivially_copyable<t_TYPE>::value>::type {};
+                           bool,
+                           DetectNestedTrait<t_TYPE, IsBitwiseCopyable>::value
+                          || bsl::is_trivially_copyable<t_TYPE>::value>::type {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // TBD: remove or comment out this check before merging to 'main'.
+
+    static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
+                                 || std::is_trivially_copyable<t_TYPE>::value);
+#endif
+};
+
+template <class t_TYPE>
+class IsBitwiseCopyableCheck : public IsBitwiseCopyable<t_TYPE> {
+    // This 'class' is never to be specialized -- it is to be used exclusively
+    // for checking 'IsBitwiseCopyable' in such a way that the following
+    // static assert always occurs, even if 'IsBitwiseCopyable' is specialized.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // TBD: remove or comment out this check before merging to 'main'.
+
+    static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
+                                 || std::is_trivially_copyable<t_TYPE>::value);
+#endif
+};
 
 template <class t_TYPE>
 struct IsBitwiseCopyable<t_TYPE&> : bsl::false_type {

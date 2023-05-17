@@ -6,7 +6,7 @@
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_usesbslmaallocator.h>            // for testing only
-#include <bslmf_istriviallycopyable.h>           // for testing only
+#include <bslmf_isbitwisecopyable.h>           // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>                   // for testing only
@@ -335,10 +335,12 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 };
 
 // TRAITS
-namespace bsl {
-template <> struct is_trivially_copyable<BitwiseCopyableTestType>
-    : true_type {};
-}  // close namespace bsl
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseCopyable<BitwiseCopyableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
