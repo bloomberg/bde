@@ -311,6 +311,8 @@ void TestContainerConstructors()
         ASSERT(10           == carrD.size());
     }
 
+#endif
+
     bsl::vector<int>           vec(30);
     const bsl::vector<int>&    cVec = vec;
 
@@ -327,7 +329,6 @@ void TestContainerConstructors()
         ASSERT(cVec.data() == carrD.data());
         ASSERT(30          == carrD.size());
     }
-#endif
 }
 
 void TestAccessors()

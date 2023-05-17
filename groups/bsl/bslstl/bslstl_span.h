@@ -29,6 +29,7 @@ BSLS_IDENT("$Id: $")
 //: o A 'bsl::span' can be implicitly constructed from a 'bsl::array'.
 //: o The implicit construction from an arbitrary container that supports
 //:   'data()' and 'size()' is enabled only for C++11 and later.
+//: o bsl::span is implicitly constructible from a bsl::vector in C++03.
 //
 ///Usage
 ///-----
@@ -634,6 +635,28 @@ class span<TYPE, dynamic_extent> {
         // 't_OTHER_TYPE(*)[]' is convertible to 'element_type(*)[]'.
 #endif
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class t_OTHER_TYPE, class ALLOCATOR>
+    span(bsl::vector<t_OTHER_TYPE, ALLOCATOR>& v,
+         typename bsl::enable_if<
+               Span_Utility::IsArrayConvertible<
+                                            t_OTHER_TYPE, element_type>::value,
+               void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
+        // Construct a span from the specified bsl::vector 'v'.  This
+        // constructor participates in overload resolution only if
+        // 't_OTHER_TYPE(*)[]' is convertible to 'element_type(*)[]'.
+
+    template <class t_OTHER_TYPE, class ALLOCATOR>
+    span(const bsl::vector<t_OTHER_TYPE, ALLOCATOR>& v,
+         typename bsl::enable_if<
+             Span_Utility::IsArrayConvertible<
+                                      const t_OTHER_TYPE, element_type>::value,
+         void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
+        // Construct a span from the specified bsl::vector 'v'.  This
+        // constructor participates in overload resolution only if
+        // 'const t_OTHER_TYPE(*)[]' is convertible to 'element_type(*)[]'.
+#endif
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     template <class CONTAINER>
     BSLS_KEYWORD_CONSTEXPR_CPP14 span(
@@ -1237,6 +1260,32 @@ bsl::span<TYPE, bsl::dynamic_extent>::span(
             void *>::type) BSLS_KEYWORD_NOEXCEPT
 : d_data_p(arr.data())
 , d_size(SIZE)
+{
+}
+#endif
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class TYPE>
+template <class t_OTHER_TYPE, class ALLOCATOR>
+inline bsl::span<TYPE, bsl::dynamic_extent>::span(
+                      bsl::vector<t_OTHER_TYPE, ALLOCATOR>& v,
+                      typename bsl::enable_if<Span_Utility::IsArrayConvertible<
+                                            t_OTHER_TYPE, element_type>::value,
+                      void *>::type)
+: d_data_p(v.data())
+, d_size(v.size())
+{
+}
+
+template <class TYPE>
+template <class t_OTHER_TYPE, class ALLOCATOR>
+inline bsl::span<TYPE, bsl::dynamic_extent>::span(
+                      const bsl::vector<t_OTHER_TYPE, ALLOCATOR>& v,
+                      typename bsl::enable_if<Span_Utility::IsArrayConvertible<
+                                      const t_OTHER_TYPE, element_type>::value,
+                      void *>::type)
+: d_data_p(v.data())
+, d_size(v.size())
 {
 }
 #endif
