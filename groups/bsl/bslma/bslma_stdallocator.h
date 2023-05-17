@@ -1,3 +1,4 @@
+
 // bslma_stdallocator.h                                               -*-C++-*-
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
 #define INCLUDED_BSLMA_STDALLOCATOR
