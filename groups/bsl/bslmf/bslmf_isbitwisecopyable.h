@@ -90,7 +90,7 @@ struct IsBitwiseCopyable;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool IsBitwiseCopyable_v =
-                                          IsBitwiseCopywmakeble<t_TYPE>::value;
+                                              IsBitwiseCopyable<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_trivially_copyable' meta-function.
 #endif
