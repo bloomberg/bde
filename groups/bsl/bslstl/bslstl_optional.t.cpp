@@ -8207,19 +8207,20 @@ void TestDriver<TYPE>::testCase15()
     //
     // --------------------------------------------------------------------
 
+    const char *valueTypeName    = bsls::NameOf<ValueType>().name();
+    const char *objName          = bsls::NameOf<Obj>().name();
+    const bool  usesAllocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
+
     if (verbose)
-        printf("\nTESTING TRAITS AND TYPEDEFS"
-               "\n===========================\n");
+        printf("\nTESTING TRAITS AND TYPEDEFS: type: %s, alloc: %s"
+               "\n===========================\n",
+                valueTypeName, usesAllocatorObj ? "true" : "false");
 
     {
-        const char *valueTypeName = bsls::NameOf<ValueType>().name();
-        const char *objName       = bsls::NameOf<Obj>().name();
-
         ASSERT((bsl::is_same<typename Obj::value_type, ValueType>::value));
         ASSERT(
             (bsl::is_same<typename ObjC::value_type, const ValueType>::value));
 
-        const bool usesAllocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
         const bool usesAllocatorValueType =
                                    bslma::UsesBslmaAllocator<ValueType>::value;
         const bool usesArgTObj = bslmf::UsesAllocatorArgT<Obj>::value;
@@ -8228,9 +8229,6 @@ void TestDriver<TYPE>::testCase15()
                                                  Obj>::value;
         const bool convValueType = bsl::is_convertible<bslma::Allocator *,
                                                        ValueType>::value;
-        if (veryVerbose) {
-            P_(valueTypeName);    P_(convObj);    P(convValueType);
-        }
 
         ASSERTV(valueTypeName, objName, usesAllocatorObj,
                                                         usesAllocatorValueType,
@@ -8240,13 +8238,41 @@ void TestDriver<TYPE>::testCase15()
         ASSERTV(valueTypeName, objName, usesArgTObj, usesAllocatorObj,
                                               usesArgTObj == usesAllocatorObj);
 
+        if (veryVerbose) {
+            P_(valueTypeName);    P_(convObj);    P(convValueType);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            T_ P(std::is_trivially_destructible<Obj>::value);
+#endif
+            T_ P_(bslmf::IsBitwiseMoveable<ValueType>::value);
+            P(    bslmf::IsBitwiseMoveable<Obj>::value);
+            T_ P_(bslmf::IsBitwiseCopyable<ValueType>::value);
+            P(    bslmf::IsBitwiseCopyable<Obj>::value);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+            T_ P_(bslmf::IsBitwiseMoveable<std::optional<ValueType>>::value);
+            P(    bslmf::IsBitwiseCopyable<std::optional<ValueType>>::value);
+#endif
+            T_ P(usesAllocatorObj);
+        }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT(std::is_trivially_destructible<Obj>::value ==
                std::is_trivially_destructible<ValueType>::value);
-#else
-        ASSERT(bsl::is_trivially_copyable<Obj>::value ==
-               bsl::is_trivially_copyable<ValueType>::value);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        ASSERTV(valueTypeName, usesAllocatorObj,
+                bslmf::IsBitwiseCopyable<std::optional<ValueType>>::value,
+                bslmf::IsBitwiseCopyable<Obj>::value,
+                bslmf::IsBitwiseCopyable<ValueType>::value,
+                bslmf::IsBitwiseCopyable<Obj>::value ==
+                bslmf::IsBitwiseCopyable<std::optional<ValueType>>::value);
+#else
+        ASSERTV(valueTypeName, usesAllocatorObj,
+                bslmf::IsBitwiseCopyable<Obj>::value,
+                bslmf::IsBitwiseCopyable<ValueType>::value,
+                bslmf::IsBitwiseCopyable<Obj>::value ==
+                bslmf::IsBitwiseCopyable<ValueType>::value);
+#endif
     }
 }
 template <class TYPE>
