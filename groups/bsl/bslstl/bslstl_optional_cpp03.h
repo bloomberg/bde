@@ -871,10 +871,6 @@ struct Optional_Data : public Optional_DataImp<TYPE> {
     // primary template properly destroys the owned instance of 'TYPE' in its
     // destructor.
 
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(Optional_Data,
-                                      bslmf::IsBitwiseCopyable,
-                                      bslmf::IsBitwiseCopyable<TYPE>::value);
-
   public:
     // CREATORS
     ~Optional_Data();

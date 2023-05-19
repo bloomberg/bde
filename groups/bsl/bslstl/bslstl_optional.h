@@ -106,6 +106,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_decay.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isaccessiblebaseof.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isnothrowmoveconstructible.h>
@@ -670,10 +671,6 @@ struct Optional_Data : public Optional_DataImp<TYPE> {
     // 'optional' by inheriting from `Optional_DataImp`.  In addition, this
     // primary template properly destroys the owned instance of 'TYPE' in its
     // destructor.
-
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(Optional_Data,
-                                      bslmf::IsBitwiseCopyable,
-                                      bslmf::IsBitwiseCopyable<TYPE>::value);
 
   public:
     // CREATORS

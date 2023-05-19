@@ -17,6 +17,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isfundamental.h>
 #include <bslmf_issame.h>
 
 #include <bsls_buildtarget.h>
@@ -309,6 +310,12 @@ typedef bsltf::MoveState            MoveState;
 namespace {
     enum { k_MOVED_FROM_VAL = 0x01d };
     enum { k_DESTROYED = 0x05c };
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    enum { k_CPP17 = true };
+#else
+    enum { k_CPP17 = false };
+#endif
 
 }  // close unnamed namespace
 
@@ -8259,19 +8266,45 @@ void TestDriver<TYPE>::testCase15()
                std::is_trivially_destructible<ValueType>::value);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+        {
+            // 'bsl::allocator<char>' has this problematic quality:
+
+            BSLMF_ASSERT(bslmf::IsBitwiseCopyable<bsl::allocator<char>
+                                                                     >::value);
+            BSLMF_ASSERT(!bslma::UsesBslmaAllocator<bsl::allocator<char>
+                                                                     >::value);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+            // ... and yet, for mysterious reasons:
+
+            BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
+                                         std::optional<bsl::allocator<char>>>);
+
+            // So, because 'std::optional' is the base class of 'bsl::optional'
+            // for non-allocating types, this means that:
+
+            BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
+                                         bsl::optional<bsl::allocator<char>>>);
+#endif
+
+            // ... and we have to be careful and guard this next assert:
+
+            if (!bsl::is_same<ValueType, bsl::allocator<char> >::value ||
+                                                                    !k_CPP17) {
+                ASSERTV(valueTypeName, usesAllocatorObj,
+                        bslmf::IsBitwiseCopyable<Obj>::value,
+                        bslmf::IsBitwiseCopyable<ValueType>::value,
+                        bslmf::IsBitwiseCopyable<Obj>::value ==
+                        bslmf::IsBitwiseCopyable<ValueType>::value);
+            }
+        }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         ASSERTV(valueTypeName, usesAllocatorObj,
-                bslmf::IsBitwiseCopyable<std::optional<ValueType>>::value,
-                bslmf::IsBitwiseCopyable<Obj>::value,
-                bslmf::IsBitwiseCopyable<ValueType>::value,
-                bslmf::IsBitwiseCopyable<Obj>::value ==
-                bslmf::IsBitwiseCopyable<std::optional<ValueType>>::value);
-#else
-        ASSERTV(valueTypeName, usesAllocatorObj,
-                bslmf::IsBitwiseCopyable<Obj>::value,
-                bslmf::IsBitwiseCopyable<ValueType>::value,
-                bslmf::IsBitwiseCopyable<Obj>::value ==
-                bslmf::IsBitwiseCopyable<ValueType>::value);
+                bslmf::IsBitwiseCopyable_v<ValueType>,
+                bslmf::IsBitwiseCopyable_v<Obj>,
+                bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>,
+                bslmf::IsBitwiseCopyable_v<Obj> ==
+                bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>);
 #endif
     }
 }
