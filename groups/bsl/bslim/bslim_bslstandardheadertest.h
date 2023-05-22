@@ -18,16 +18,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_compilerfeatures.h>
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-  // The following '#include_next' test was previously done in
-  // 'bsls_compilerfeatures.t.cpp' but generated unsuppressable warnings in GNU
-  // about inappropriate use of '#include_next' in a .cpp file.
-
-# include_next<cstdio>      // Preprocessor feature test: this *IS* the check.
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-
 #endif
 
 // ----------------------------------------------------------------------------

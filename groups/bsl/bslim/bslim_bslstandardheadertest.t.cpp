@@ -84,9 +84,9 @@
 #include <bsl_c_stdlib.h>
 #include <bsl_c_string.h>
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-// The POSIX header <sys/time.h> is not available from Visual Studio.
-#include <bsl_c_sys_time.h>
+#ifndef BSLS_PLATFORM_CMP_MSVC
+    // The POSIX header <sys/time.h> is not available from Visual Studio.
+    #include <bsl_c_sys_time.h>
 #endif
 
 #include <bsl_c_time.h>
@@ -113,10 +113,11 @@
 #include <bsl_ctime.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900)
-// The standard header <cuchar> is not available on most platforms.
-#include <bsl_cuchar.h>
+    // The standard header <cuchar> is not available on most platforms.
+    #include <bsl_cuchar.h>
 #endif
 
+#include <bsl_coroutine.h>        // C++20 header
 #include <bsl_cwchar.h>
 #include <bsl_cwctype.h>
 #include <bsl_deque.h>
@@ -210,24 +211,16 @@
 
 #include <utility>     // 'std::pair'
 
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
+#include <stdio.h>     // 'printf'
 #include <stdlib.h>    // 'atoi'
 
 // Finished including potentially deprecated headers, rest of deprecations
 // should be reported.
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    #define snprintf _snprintf
-    #undef _SILENCE_CXX17_C_HEADER_DEPRECATION_WARNING
-    #undef _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
-#endif
 #ifdef BSLIM_BSLSTANDARDHEADERTEST_GNU_DEPRECATED_WAS_SET
     #define __DEPRECATED
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;
-using namespace bslim;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -238,6 +231,13 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [34] bsl::coroutine_traits<>
+// [34] bsl::coroutine_handle<>
+// [34] bsl::noop_coroutine()
+// [34] bsl::noop_coroutine_promise
+// [34] bsl::noop_coroutine_handle
+// [34] bsl::suspend_never
+// [34] bsl::suspend_always
 // [33] C++20 'bsl_concepts.h' HEADER
 // [32] bsl::cmp_equal();
 // [32] bsl::cmp_not_equal();
@@ -423,6 +423,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
+
 static bool verbose;
 static bool veryVerbose;
 static bool veryVeryVerbose;
@@ -507,7 +508,7 @@ void MapTestDriver<CONTAINER>::testCase1()
     //   CONCERN: Support references as 'mapped_type' in map-like containers.
     // ------------------------------------------------------------------------
     if (verbose) {
-        cout << "\tTesting with: " << bsls::NameOf<ValueType>().name() << endl;
+        printf("\tTesting with: %s\n", bsls::NameOf<ValueType>().name());
     }
 
     BSLMF_ASSERT(false == bsl::is_reference<KeyType>::value);
@@ -586,12 +587,10 @@ void MapTestDriver<CONTAINER>::testCase1()
     ASSERT(ret == mX.end());
 
     ASSERT(tempMapped.object() == tempMapped2.object());
-
-    cout<< "here3\n";
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-namespace TestCxx17TypeAliases {
+namespace TestCpp17TypeAliases {
     // This namespace is for testing the C++17 type aliases that have been to
     // bsl.  The goal here is not to ensure that the platform standard library
     // has implemented this functionality correctly, but instead to ensure that
@@ -600,14 +599,15 @@ namespace TestCxx17TypeAliases {
 
 namespace SW {
     struct SwapA {
-        // a class that can't be copied or assigned, so the default
+        // A type that can't be copied or assigned, so the default
         // implementation of 'swap' will not work.
+
         SwapA           (SwapA const&) = delete;
         SwapA& operator=(SwapA const&) = delete;
     };
 
     struct SwapB {
-        // a class that can't be copied or assigned, so the default
+        // A type that can't be copied or assigned, so the default
         // implementation of 'swap' will not work.
         SwapB           (SwapB const&) = delete;
         SwapB& operator=(SwapB const&) = delete;
@@ -643,12 +643,12 @@ void Conjunction ()
     typedef bsl::false_type F;
     typedef bsl::true_type  T;
 
-    static_assert(bsl::conjunction  <F>::value == bsl::conjunction_v<F>);
-    static_assert(bsl::conjunction  <T>::value == bsl::conjunction_v<T>);
-    static_assert(bsl::conjunction  <F, F>::value == bsl::conjunction_v<F, F>);
-    static_assert(bsl::conjunction  <F, T>::value == bsl::conjunction_v<F, T>);
-    static_assert(bsl::conjunction  <T, F>::value == bsl::conjunction_v<T, F>);
-    static_assert(bsl::conjunction  <T, T>::value == bsl::conjunction_v<T, T>);
+    static_assert(bsl::conjunction<F   >::value == bsl::conjunction_v<F   >);
+    static_assert(bsl::conjunction<T   >::value == bsl::conjunction_v<T   >);
+    static_assert(bsl::conjunction<F, F>::value == bsl::conjunction_v<F, F>);
+    static_assert(bsl::conjunction<F, T>::value == bsl::conjunction_v<F, T>);
+    static_assert(bsl::conjunction<T, F>::value == bsl::conjunction_v<T, F>);
+    static_assert(bsl::conjunction<T, T>::value == bsl::conjunction_v<T, T>);
 }
 
 void Disjunction ()
@@ -821,7 +821,7 @@ class CompletionFunction {
                             // class RangesDummyView
                             // =====================
 
-class RangesDummyView : public ranges::view_interface<RangesDummyView> {
+class RangesDummyView : public bsl::ranges::view_interface<RangesDummyView> {
     // This class is inherited from 'bsl::ranges::view_interface' and its only
     // purpose is to prove that 'bsl::ranges::view_interface' exists and is
     // usable.
@@ -881,9 +881,66 @@ int main(int argc, char *argv[])
     (void) veryVeryVerbose;
     (void) veryVeryVeryVerbose;
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
+    setbuf(stdout, NULL);    // Use unbuffered output
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 34: {
+        // --------------------------------------------------------------------
+        // C++20 '<bsl_coroutine.h>'
+        //
+        // Concerns:
+        //: 1 Templates 'bsl::coroutine_traits' and 'bsl::coroutine_handle' are
+        //:   aliases to their corresponding 'std' counterparts.
+        //:
+        //: 2 Function 'bsl::noop_coroutine()', and classes
+        //:   'bsl::noop_coroutine_promise' and 'bsl::noop_coroutine_handle'
+        //:   are aliases to their corresponding 'std' counterparts.
+        //:
+        //: 3 Types 'bsl::suspend_always' and 'bsl::suspend_never' are aliases
+        //:   to their corresponding 'std' counterparts.
+        //
+        // Plan:
+        //: 1 Use 'bsl::is_same_v' in 'ASSERT' to ensure type identity.
+        //: 1 Create specific types from templates and compare those as above.
+        //: 2 Compare function addresses for 'noop_coroutine'.
+        //
+        // Testing:
+        //   bsl::coroutine_traits<>
+        //   bsl::coroutine_handle<>
+        //   bsl::noop_coroutine()
+        //   bsl::noop_coroutine_promise
+        //   bsl::noop_coroutine_handle
+        //   bsl::suspend_never
+        //   bsl::suspend_always
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nC++20 '<bsl_coroutine.h>'"
+                            "\n=========================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+        {
+            struct FakeTask {
+            };
+            ASSERT((bsl::is_same_v<bsl::coroutine_traits<FakeTask>,
+                                   std::coroutine_traits<FakeTask>> ));
+        }
+
+        ASSERT((bsl::is_same_v<bsl::coroutine_handle<>,
+                               std::coroutine_handle<>>));
+
+        ASSERT((bsl::is_same_v<bsl::noop_coroutine_promise,
+                               std::noop_coroutine_promise>));
+
+        ASSERT((bsl::is_same_v<bsl::noop_coroutine_handle,
+                               std::noop_coroutine_handle>));
+
+        ASSERT(&bsl::noop_coroutine == &std::noop_coroutine);
+
+#else
+        if (verbose) puts("SKIP: '<bsl_coroutine.h>' is not supported.");
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_concepts.h' HEADER
@@ -903,7 +960,7 @@ int main(int argc, char *argv[])
                             "\n=====================================\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-        BSLMF_ASSERT(( bsl::same_as<int, int>));
+        BSLMF_ASSERT(( bsl::same_as<int, int >));
         BSLMF_ASSERT((!bsl::same_as<int, char>));
 
         {
@@ -914,75 +971,77 @@ int main(int argc, char *argv[])
         }
         {
             class C {};
-            BSLMF_ASSERT(( bsl::convertible_to<char, int>));
-            BSLMF_ASSERT(( bsl::convertible_to<int, char>));
-            BSLMF_ASSERT(( bsl::convertible_to<int, int>));
-            BSLMF_ASSERT((!bsl::convertible_to<C, int>));
+            BSLMF_ASSERT(( bsl::convertible_to<char, int >));
+            BSLMF_ASSERT(( bsl::convertible_to<int,  char>));
+            BSLMF_ASSERT(( bsl::convertible_to<int,  int >));
+            BSLMF_ASSERT((!bsl::convertible_to<C,    int >));
         }
         {
             class C {};
-            BSLMF_ASSERT(( bsl::common_reference_with<int, char>));
-            BSLMF_ASSERT(( bsl::common_reference_with<int, const int>));
-            BSLMF_ASSERT((!bsl::common_reference_with<C, int>));
-            BSLMF_ASSERT((!bsl::common_reference_with<int*, unsigned*>));
+            BSLMF_ASSERT(( bsl::common_reference_with<int,   char      >));
+            BSLMF_ASSERT(( bsl::common_reference_with<int,   const int >));
+            BSLMF_ASSERT((!bsl::common_reference_with<C,     int       >));
+            BSLMF_ASSERT((!bsl::common_reference_with<int *, unsigned *>));
         }
 
-        BSLMF_ASSERT(( bsl::common_with<int, char>));
-        BSLMF_ASSERT(( bsl::common_with<int*, void*>));
-        BSLMF_ASSERT((!bsl::common_with<int*, char*>));
+        BSLMF_ASSERT(( bsl::common_with<int,   char  >));
+        BSLMF_ASSERT(( bsl::common_with<int *, void *>));
+        BSLMF_ASSERT((!bsl::common_with<int *, char *>));
 
-        BSLMF_ASSERT(( bsl::integral<int>));
-        BSLMF_ASSERT(( bsl::integral<char>));
+        BSLMF_ASSERT(( bsl::integral<int   >));
+        BSLMF_ASSERT(( bsl::integral<char  >));
         BSLMF_ASSERT((!bsl::integral<double>));
 
-        BSLMF_ASSERT(( bsl::signed_integral<int>));
+        BSLMF_ASSERT(( bsl::signed_integral<int     >));
         BSLMF_ASSERT((!bsl::signed_integral<unsigned>));
 
         BSLMF_ASSERT(( bsl::unsigned_integral<unsigned>));
-        BSLMF_ASSERT((!bsl::unsigned_integral<int>));
+        BSLMF_ASSERT((!bsl::unsigned_integral<int     >));
 
         BSLMF_ASSERT(( bsl::floating_point<double>));
-        BSLMF_ASSERT((!bsl::floating_point<int>));
+        BSLMF_ASSERT((!bsl::floating_point<int   >));
 
         BSLMF_ASSERT(( bsl::assignable_from<int&, int>));
-        BSLMF_ASSERT((!bsl::assignable_from<int, int>));
+        BSLMF_ASSERT((!bsl::assignable_from<int,  int>));
 
         {
             struct C {
-                C(const C&) = delete;
+                C(const C&)            = delete;
                 C &operator=(const C&) = delete;
             };
             BSLMF_ASSERT(( bsl::swappable<int>));
-            BSLMF_ASSERT((!bsl::swappable<C>));
+            BSLMF_ASSERT((!bsl::swappable<C  >));
         }
 
         BSLMF_ASSERT(( bsl::swappable_with<int&, int&>));
-        BSLMF_ASSERT((!bsl::swappable_with<int, int>));
+        BSLMF_ASSERT((!bsl::swappable_with<int,  int >));
 
         {
             class C { ~C() = delete; };
             BSLMF_ASSERT(( bsl::destructible<int>));
-            BSLMF_ASSERT((!bsl::destructible<C>));
+            BSLMF_ASSERT((!bsl::destructible<C  >));
         }
 
-        BSLMF_ASSERT(( bsl::constructible_from<int, int>));
+        BSLMF_ASSERT(( bsl::constructible_from<int, int >));
         BSLMF_ASSERT((!bsl::constructible_from<int, int*>));
 
-        BSLMF_ASSERT(( bsl::default_initializable<int>));
+        BSLMF_ASSERT(( bsl::default_initializable<int >));
         BSLMF_ASSERT((!bsl::default_initializable<int&>));
 
         {
             struct C { C(C&&) = delete; };
             BSLMF_ASSERT(( bsl::move_constructible<int>));
-            BSLMF_ASSERT((!bsl::move_constructible<C>));
+            BSLMF_ASSERT((!bsl::move_constructible<C  >));
         }
 
         {
             struct C { C(const C&) = delete; };
             BSLMF_ASSERT(( bsl::copy_constructible<int>));
-            BSLMF_ASSERT((!bsl::copy_constructible<C>));
+            BSLMF_ASSERT((!bsl::copy_constructible<C  >));
         }
-#endif
+#else
+        if (verbose) puts("SKIP: '<bsl_concepts.h>' is not supported.");
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -1526,7 +1585,7 @@ int main(int argc, char *argv[])
         ranges::subrange_kind subrangeKind;
         (void) subrangeKind;
 
-        // Testing algorithms aliased in the 'bsl_algorithm.h'
+        // Testing algorithms aliased in '<bsl_algorithm.h>'
 
         auto greaterThanTwo = [](int  i)
                                {
@@ -1672,12 +1731,12 @@ int main(int argc, char *argv[])
 
         vecToTransform[1] = 2;
 
-        ranges::remove(vecToTransform, 2);
+        (void)ranges::remove(vecToTransform, 2);
         ASSERTV(vecToTransform[1], 1 == vecToTransform[1]);  // 1, 1, 1, 1, 1
 
         vecToTransform[1] = 3;
 
-        ranges::remove_if(vecToTransform, greaterThanTwo);
+        (void)ranges::remove_if(vecToTransform, greaterThanTwo);
         ASSERTV(vecToTransform[1], 1 == vecToTransform[1]);  // 1, 1, 1, 1, 1
 
         ranges::remove_copy_result removeCopyResult = ranges::remove_copy(
@@ -1762,7 +1821,7 @@ int main(int argc, char *argv[])
 
         vecToTransform = Vector{1, 1, 1, 2, 2};
 
-        ranges::unique(vecToTransform);
+        (void)ranges::unique(vecToTransform);
         ASSERTV(vecToTransform[1], 2 == vecToTransform[1]); // 1, 2, ?, ?, ?
 
         vecToTransform = Vector{1, 1, 1, 2, 2};
@@ -3147,15 +3206,15 @@ int main(int argc, char *argv[])
         // We don't really need to call these routines, because all they do is
         // 'static_assert', but this keeps the compiler from warning about
         // "unused functions".
-        TestCxx17TypeAliases::Conjunction();
-        TestCxx17TypeAliases::Disjunction();
-        TestCxx17TypeAliases::HasUniqueObjectReps();
-        TestCxx17TypeAliases::IsAggregate();
-        TestCxx17TypeAliases::IsInvocable();
-        TestCxx17TypeAliases::IsInvocableR();
-        TestCxx17TypeAliases::IsSwappable();
-        TestCxx17TypeAliases::IsSwappableWith();
-        TestCxx17TypeAliases::Negation();
+        TestCpp17TypeAliases::Conjunction();
+        TestCpp17TypeAliases::Disjunction();
+        TestCpp17TypeAliases::HasUniqueObjectReps();
+        TestCpp17TypeAliases::IsAggregate();
+        TestCpp17TypeAliases::IsInvocable();
+        TestCpp17TypeAliases::IsInvocableR();
+        TestCpp17TypeAliases::IsSwappable();
+        TestCpp17TypeAliases::IsSwappableWith();
+        TestCpp17TypeAliases::Negation();
 #endif
 
       } break;
@@ -3278,7 +3337,7 @@ int main(int argc, char *argv[])
         ASSERT(itemTuple1 == *itrTuple1);
         ASSERT(itemTuple2 == *itrTuple2);
 #else
-        if (verbose) cout << "SKIP: 'std::tuple' not available" << endl;
+        if (verbose) puts("SKIP: 'std::tuple' not available");
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
       } break;

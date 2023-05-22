@@ -517,7 +517,9 @@ BSLS_IDENT("$Id: $")
 // This macro is defined first for the following compiler versions:
 //
 //:   o GCC 11.1
-//:   o clang 15
+//:   o clang 15 when compiling against either:
+//:       o libc++ version 15, or
+//:       o libstdc++ version 11
 //:   o Microsoft Visual Studio 2022 / MSVC 19.30
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
@@ -907,9 +909,9 @@ BSLS_IDENT("$Id: $")
 //
 // This macro is defined first for the following compiler versions:
 //
-//:   o GCC 8 and later
+//:   o GCC 8
 //:   o clang using at least GCC 8 GNU C++ Library
-//:   o Microsoft Visual Studio 2017 / MSVC 19.10 and later
+//:   o Microsoft Visual Studio 2017 / MSVC 19.10
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV'
 ///------------------------------------------
@@ -923,9 +925,9 @@ BSLS_IDENT("$Id: $")
 //
 // This macro is defined first for the following compiler versions:
 //
-//:   o GCC 12 and later
+//:   o GCC 12
 //:   o clang using at least GCC 12 GNU C++ Library
-//:   o Microsoft Visual Studio 2019 / MSVC 19.20 and later
+//:   o Microsoft Visual Studio 2019 / MSVC 19.20
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM'
 ///--------------------------------------------
@@ -935,9 +937,9 @@ BSLS_IDENT("$Id: $")
 //
 // This macro is defined first for the following compiler versions:
 //
-//:   o GCC 9 and later
-//:   o clang 14 and later, or clang using at least GCC 9 GNU C++ Library
-//:   o Microsoft Visual Studio 2017 15.7 / MSVC 19.14 and later
+//:   o GCC 9
+//:   o clang 14, or clang using at least GCC 9 GNU C++ Library
+//:   o Microsoft Visual Studio 2017 15.7 / MSVC 19.14
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION'
 ///-----------------------------------------
@@ -953,15 +955,15 @@ BSLS_IDENT("$Id: $")
 //
 // This macro is defined first for the following compiler versions:
 //
-//:   o GCC 9 and later
-//:   o clang 7 and later, or clang using at least GCC 9 GNU C++ Library
-//:   o Microsoft Visual Studio 2019 16.2 / MSVC 19.22 and later
+//:   o GCC 9
+//:   o clang 7, or clang using at least GCC 9 GNU C++ Library
+//:   o Microsoft Visual Studio 2019 16.2 / MSVC 19.22
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS'
 ///------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS' macro is defined if the native
 // standard library provides the <concepts> header and implements all required
-// content with no major issues.
+// C++20 content with no major issues.
 //
 // This macro is defined if the standard '__cpp_lib_concepts' feature-test
 // macro is defined and '__cpp_lib_concepts >= 202002L'.
@@ -970,7 +972,7 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' macro is defined if the native
 // standard library provides the <ranges> header and implements all required
-// content with no major issues.
+// C++20 content with no major issues.
 //
 // This macro is defined if the standard '__cpp_lib_ranges' feature-test macro
 // is defined and '__cpp_lib_ranges >= 202110L'.
@@ -979,7 +981,7 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' macro is
 // defined if 'bsl::atomic_signed_lock_free' and
-// 'bsl:atomic_unsigned_lock_free' types are available.
+// 'bsl:atomic_unsigned_lock_free' types are available with C++20 semantics.
 //
 // This macro is defined if the standard
 // '__cpp_lib_atomic_lock_free_type_aliases' feature-test macro is defined.
@@ -989,18 +991,19 @@ BSLS_IDENT("$Id: $")
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is defined
 // if the following free functions are available: 'bsl::atomic_flag_wait',
 // 'bsl::atomic_flag_wait_explicit', 'bsl::atomic_flag_notify_one',
-// 'bsl::atomic_flag_notify_all'.
+// 'bsl::atomic_flag_notify_all' with C++20 semantics.
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
 ///-----------------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS' is
 // defined if the 'bsl::atomic_flag_test' and 'bsl::atomic_flag_test_explicit'
-// functions are available.
+// functions are available with C++20 semantics.
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE'
 ///---------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' macro is
-// defined if the 'bsl::make_unique_for_overwrite' function is available.
+// defined if the 'bsl::make_unique_for_overwrite' function is available with
+// C++20 semantics.
 //
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR'
 ///------------------------------------------
@@ -1013,7 +1016,8 @@ BSLS_IDENT("$Id: $")
 /// 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV'
 ///-----------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' macro is defined if the
-// 'bsl::mbrtoc8' and 'bsl::c8rtomb' functions are available.
+// 'bsl::mbrtoc8' and 'bsl::c8rtomb' functions are available with C++20
+// semantics.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------

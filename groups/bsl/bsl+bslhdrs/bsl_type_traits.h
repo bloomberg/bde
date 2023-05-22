@@ -298,8 +298,9 @@ constexpr bool is_standard_layout_v = std::is_standard_layout<TYPE>::value;
 
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 100000 &&  \
+    BSLS_COMPILERFEATURES_CPLUSPLUS > 201703L
+    // g++ 10.2.1 starts warn from ~201709L
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -312,8 +313,8 @@ BSLA_DEPRECATED  // Warn of using 'bsl::is_pod_v' even though we suppress
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_pod_v = std::is_pod<TYPE>::value;
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 100000 &&  \
+    BSLS_COMPILERFEATURES_CPLUSPLUS > 201703L
 #pragma GCC diagnostic pop
 #endif
 

@@ -44,6 +44,14 @@ BSLS_IDENT("$Id$ $CSID$")
   BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_COROUTINE)
+  #include <coroutine>
+  #if !defined(__cpp_lib_coroutine) || __cpp_lib_coroutine < 201902L
+    #error <coroutine> implementation discrepancy!
+    BSLS_PLATFORM_COMPILER_ERROR;
+  #endif
+#endif
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

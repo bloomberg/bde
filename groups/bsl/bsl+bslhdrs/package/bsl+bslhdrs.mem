@@ -121,6 +121,7 @@ bsl_barrier.h
 bsl_bit.h
 bsl_compare.h
 bsl_concepts.h
+bsl_coroutine.h
 bsl_latch.h
 bsl_numbers.h
 bsl_ranges.h

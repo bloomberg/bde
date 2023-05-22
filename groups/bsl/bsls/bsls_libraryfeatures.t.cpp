@@ -97,7 +97,7 @@
 // library headers not covered by a more specific macro.
 
 // Verify assumption that <concepts> can be included.
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
     #include <concepts>
 #endif
 
@@ -472,9 +472,9 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV_defined =
 
                         // case 19
 
-#include <vector> // for 'ranges'
-namespace case19 {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+#include <vector> // for 'concepts'
+namespace case19 {
 template <class TYPE>
 requires std::equality_comparable<TYPE>
 constexpr bool equal(const TYPE& lhs, const TYPE& rhs)
@@ -483,9 +483,9 @@ constexpr bool equal(const TYPE& lhs, const TYPE& rhs)
 {
     return lhs == rhs;
 }
-#endif
 
 }  // close namespace case19
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
                     // case 13
 
@@ -1097,35 +1097,35 @@ static void printFlags()
 
     printf("\n  BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS: ");
 #ifdef BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_C90_GETS: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_C90_GETS
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C90_GETS) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C90_GETS));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1133,7 +1133,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1141,7 +1141,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
     printf("%s\n",
-                STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING) );
+                STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1149,7 +1149,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     printf("%s\n",
-            STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API) );
+            STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1157,7 +1157,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     printf("%s\n",
-           STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES) );
+           STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1165,7 +1165,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
     printf("%s\n",
-        STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR) );
+        STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1173,7 +1173,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     printf("%s\n",
-               STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION) );
+               STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1181,28 +1181,28 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
     printf("%s\n",
-                   STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS) );
+                   STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1210,7 +1210,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1218,7 +1218,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1226,7 +1226,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
     printf("%s\n",
-                   STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS) );
+                   STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1234,7 +1234,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1242,7 +1242,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     printf("%s\n",
-          STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS) );
+          STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1250,77 +1250,77 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
     printf("%s\n",
-                   STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS) );
+                   STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_GNU: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_GNU
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_GNU) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_GNU));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_IBM: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_IBM
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_IBM) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_IBM));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_LLVM: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_LLVM
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_LLVM) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_LLVM));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_MSVC: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_MSVC) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_MSVC));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_STLPORT
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_STLPORT) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_STLPORT));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1328,21 +1328,21 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
     printf("%s\n",
-           STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS) );
+           STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1350,28 +1350,35 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS));
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_COROUTINE: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_COROUTINE
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_COROUTINE));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1379,7 +1386,7 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1388,14 +1395,14 @@ static void printFlags()
 
     printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) );
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE) );
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1403,7 +1410,7 @@ static void printFlags()
     printf("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) );
+                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1411,21 +1418,21 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_STLPORT
-    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_STLPORT) );
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_STLPORT));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1433,154 +1440,154 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP) );
+                  STRINGIFY(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
 #ifdef BSLS_PLATFORM_CMP_CLANG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_PLATFORM_CMP_IBM: ");
 #ifdef BSLS_PLATFORM_CMP_IBM
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_IBM) );
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_IBM));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_PLATFORM_CMP_MSVC: ");
 #ifdef BSLS_PLATFORM_CMP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC) );
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  BSLS_PLATFORM_CMP_SUN: ");
 #ifdef BSLS_PLATFORM_CMP_SUN
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_SUN) );
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_SUN));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  _CPPLIB_VER: ");
 #ifdef _CPPLIB_VER
-    printf("%s\n", STRINGIFY(_CPPLIB_VER) );
+    printf("%s\n", STRINGIFY(_CPPLIB_VER));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  _GLIBCXX_HAVE_AT_QUICK_EXIT: ");
 #ifdef _GLIBCXX_HAVE_AT_QUICK_EXIT
-    printf("%s\n", STRINGIFY(_GLIBCXX_HAVE_AT_QUICK_EXIT) );
+    printf("%s\n", STRINGIFY(_GLIBCXX_HAVE_AT_QUICK_EXIT));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  _GLIBCXX_HAVE_QUICK_EXIT: ");
 #ifdef _GLIBCXX_HAVE_QUICK_EXIT
-    printf("%s\n", STRINGIFY(_GLIBCXX_HAVE_QUICK_EXIT) );
+    printf("%s\n", STRINGIFY(_GLIBCXX_HAVE_QUICK_EXIT));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  _LIBCPP_VERSION: ");
 #ifdef _LIBCPP_VERSION
-    printf("%s\n", STRINGIFY(_LIBCPP_VERSION) );
+    printf("%s\n", STRINGIFY(_LIBCPP_VERSION));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  _RWSTD_VER: ");
 #ifdef _RWSTD_VER
-    printf("%s\n", STRINGIFY(_RWSTD_VER) );
+    printf("%s\n", STRINGIFY(_RWSTD_VER));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  _YVALS: ");
 #ifdef _YVALS
-    printf("%s\n", STRINGIFY(_YVALS) );
+    printf("%s\n", STRINGIFY(_YVALS));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __APPLE_CC__: ");
 #ifdef __APPLE_CC__
-    printf("%s\n", STRINGIFY(__APPLE_CC__) );
+    printf("%s\n", STRINGIFY(__APPLE_CC__));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __GLIBCPP__: ");
 #ifdef __GLIBCPP__
-    printf("%s\n", STRINGIFY(__GLIBCPP__) );
+    printf("%s\n", STRINGIFY(__GLIBCPP__));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __GLIBCXX__: ");
 #ifdef __GLIBCXX__
-    printf("%s\n", STRINGIFY(__GLIBCXX__) );
+    printf("%s\n", STRINGIFY(__GLIBCXX__));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __GXX_EXPERIMENTAL_CXX0X__: ");
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
-    printf("%s\n", STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__) );
+    printf("%s\n", STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __IBMCPP__: ");
 #ifdef __IBMCPP__
-    printf("%s\n", STRINGIFY(__IBMCPP__) );
+    printf("%s\n", STRINGIFY(__IBMCPP__));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __INTELLISENSE__: ");
 #ifdef __INTELLISENSE__
-    printf("%s\n", STRINGIFY(__INTELLISENSE__) );
+    printf("%s\n", STRINGIFY(__INTELLISENSE__));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __SGI_STL_PORT: ");
 #ifdef __SGI_STL_PORT
-    printf("%s\n", STRINGIFY(__SGI_STL_PORT) );
+    printf("%s\n", STRINGIFY(__SGI_STL_PORT));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __STD_RWCOMPILER_H__: ");
 #ifdef __STD_RWCOMPILER_H__
-    printf("%s\n", STRINGIFY(__STD_RWCOMPILER_H__) );
+    printf("%s\n", STRINGIFY(__STD_RWCOMPILER_H__));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __STLPORT_VERSION: ");
 #ifdef __STLPORT_VERSION
-    printf("%s\n", STRINGIFY(__STLPORT_VERSION) );
+    printf("%s\n", STRINGIFY(__STLPORT_VERSION));
 #else
     printf("UNDEFINED\n");
 #endif
 
     printf("\n  __cpp_lib_atomic_is_always_lock_free: ");
 #ifdef __cpp_lib_atomic_is_always_lock_free
-    printf("%s\n", STRINGIFY(__cpp_lib_atomic_is_always_lock_free) );
+    printf("%s\n", STRINGIFY(__cpp_lib_atomic_is_always_lock_free));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -1666,7 +1673,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 When these macros are defined include the appropriate headers and
-        //:   use the expected calls.
+        //:   use the expected names.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION

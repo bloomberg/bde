@@ -20,6 +20,12 @@
     #include <initializer_list>
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_COROUTINE)
+    #include <coroutine>
+
+    #include <type_traits>  // For testing only
+#endif
+
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -50,6 +56,7 @@
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 // [ 3] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 // [ 4] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+// [37] BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
 // [34] BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // [ 5] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
@@ -84,7 +91,7 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [37] USAGE EXAMPLE
+// [38] USAGE EXAMPLE
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -1102,6 +1109,309 @@ Holder(const T &) -> Holder<T>;
 #endif
 }  // close namespace test_case_34
 
+//=============================================================================
+//                           COROUTINE TESTING
+//-----------------------------------------------------------------------------
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+
+// For testing only
+#include <functional>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <utility>
+
+namespace CoroutineTestHelpers {
+
+namespace Simple {
+
+static unsigned s_numCalls{};
+
+struct Generator {
+    struct promise_type {
+        using Handle = std::coroutine_handle<promise_type>;
+
+        Generator get_return_object() {
+            ++s_numCalls;
+            return Generator{ Handle::from_promise(*this) };
+        }
+
+        std::suspend_always initial_suspend() {
+            ++s_numCalls;
+            return {};
+        }
+        std::suspend_never final_suspend() noexcept {
+            ++s_numCalls;
+            return {};
+        }
+
+        std::suspend_always yield_value(unsigned value) {
+            // In this method 'd_value' is the "counter", see 'co_yield' in
+            // 'coroutine' below.  's_numCalls' is for the rarely called ones.
+            d_value = value;
+            return {};
+        }
+
+        void return_void() {
+            ++s_numCalls;
+        }
+
+        void unhandled_exception() {
+            ++s_numCalls;
+            // There will be no exception thrown so we do not attempt to
+            // propagate it to the caller.
+        }
+
+        unsigned           d_value{};
+    };
+
+    explicit Generator(promise_type::Handle h) : d_handle(h) { }
+
+    ~Generator() {
+        d_handle.destroy();
+    }
+
+    unsigned getNext() {
+        d_handle.resume();
+        return theValue();
+    }
+
+    unsigned theValue() const {
+        return d_handle.promise().d_value;
+    }
+
+  private:
+    promise_type::Handle d_handle;
+};
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION / 10000 == 15
+    #pragma GCC diagnostic push
+    // warning bug https://github.com/llvm/llvm-project/issues/56768
+    #pragma GCC diagnostic ignored "-Wunsequenced"
+#endif
+
+Generator coroutine() {
+    unsigned count{};
+    for (;;) {
+        co_yield count++;
+    }
+}
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION / 10000 == 15
+    #pragma GCC diagnostic pop
+#endif
+
+}  // close namespace Simple
+
+
+namespace Complex {
+
+                    // ===============================
+                    // template struct ValueAwaiter<V>
+                    // ===============================
+
+template <typename t_VALUE>
+struct ValueAwaiter {
+    t_VALUE d_value;
+
+    constexpr bool await_ready()       { return true;    }
+              void await_suspend(auto) {                 }
+    t_VALUE        await_resume()      { return d_value; }
+};
+
+                       // ======================
+                       // struct IsAwaitableTest
+                       // ======================
+
+struct IsAwaitableTest {
+    struct promise_type;
+};
+
+struct IsAwaitableTest::promise_type {
+    constexpr std::suspend_always initial_suspend() const        { return {}; }
+    constexpr std::suspend_always final_suspend() const noexcept { return {}; }
+              void                unhandled_exception()          {            }
+              IsAwaitableTest     get_return_object()            { return {}; }
+              void                return_void()                  {            }
+};
+
+                       // ===================
+                       // concept IsAwaitable
+                       // ===================
+
+template <typename t_TYPE>
+concept IsAwaitable =
+    std::is_class_v<t_TYPE>
+    && requires() { [](t_TYPE t)->IsAwaitableTest { co_await t; }; }
+    ;
+
+                    // ===========================
+                    // template struct TaskBase<V>
+                    // ===========================
+
+template <typename t_VALUE>
+struct TaskBase {
+    std::optional<t_VALUE> d_value;
+
+    void    return_value(auto&& value) { d_value = value; }
+    t_VALUE value()                    { return *d_value; }
+};
+
+template <>
+struct TaskBase<void> {
+    void return_void() {}
+    void value()       {}
+};
+
+                        // =======================
+                        // template struct Task<R>
+                        // =======================
+
+template <typename t_RESULT = void>
+struct Task {
+    struct promise_type: TaskBase<t_RESULT> {
+        std::coroutine_handle<> d_continuation{std::noop_coroutine()};
+        std::exception_ptr      d_error{};
+
+        t_RESULT value()
+        {
+            if (d_error) {
+                std::rethrow_exception(d_error);
+            }
+            return TaskBase<t_RESULT>::value();
+        }
+
+        struct final_awaiter: std::suspend_always {
+            promise_type *d_promise_p;
+
+            std::coroutine_handle<> await_suspend(auto) noexcept {
+                // This is the point where we would get a compilation error if
+                // the compiler implemented the Coroutine TR only.
+                return d_promise_p->d_continuation;
+            }
+        };
+
+        std::suspend_always initial_suspend()        { return {};         }
+        final_awaiter       final_suspend() noexcept { return {{}, this}; }
+
+        Task get_return_object()   { return Task{UniquePromise(this)};  }
+        void unhandled_exception() { d_error = std::current_exception(); }
+
+        template <typename t_AWAITER>
+            requires IsAwaitable<t_AWAITER>
+        auto await_transform(t_AWAITER a) { return a; }
+
+        template <typename t_VALUE_AWAITER>
+            requires (!IsAwaitable<t_VALUE_AWAITER>)
+        auto await_transform(t_VALUE_AWAITER v) {
+            return ValueAwaiter<t_VALUE_AWAITER>{v};
+        }
+    };
+
+    using Handle = std::coroutine_handle<promise_type>;
+
+    using PromiseDeleter = decltype([](promise_type *ptPtr){
+        Handle::from_promise(*ptPtr).destroy();
+    });
+
+    using UniquePromise = std::unique_ptr<promise_type, PromiseDeleter>;
+
+    UniquePromise d_promise;
+
+    void start() { Handle::from_promise(*d_promise).resume(); }
+
+    t_RESULT value() { return d_promise->value(); }
+
+    struct nested_awaiter {
+        promise_type *d_promise_p;
+
+        bool await_ready() const { return false; }
+
+        using VoidHandle = std::coroutine_handle<>;
+
+        VoidHandle await_suspend(VoidHandle continuation) {
+            d_promise_p->d_continuation = continuation;
+            return Handle::from_promise(*d_promise_p);
+        }
+        t_RESULT await_resume() { return d_promise_p->value(); }
+    };
+    nested_awaiter operator co_await() {
+        return nested_awaiter{d_promise.get()};
+    }
+};
+
+                            // =========
+                            // struct Io
+                            // =========
+struct Io {
+    using Callback = std::function<void(std::string)>;
+        // Use of 'std' is deliberate, 'std::string' is not a literal type
+
+    std::unordered_map<int, Callback> d_outstanding;
+
+    void submit(int fd, auto fun) {
+        d_outstanding[fd] = fun;
+    }
+
+    void complete(int fd, std::string value) {
+        auto it = d_outstanding.find(fd);
+        if (it != d_outstanding.end()) {
+            auto fun = it->second;
+            d_outstanding.erase(it);
+            fun(std::move(value));
+        }
+    }
+};
+                            // ================
+                            // struct AsyncRead
+                            // ================
+struct AsyncRead {
+    Io&         d_context;
+    int         d_fd;
+    std::string d_value{};
+
+    AsyncRead(Io& context, int fd): d_context(context), d_fd(fd) {}
+
+    bool await_ready() const { return false; }
+
+    void await_suspend(std::coroutine_handle<> handle) {
+        d_context.submit(d_fd, [this, handle](std::string const& line) {
+            d_value = line;
+            handle.resume();
+        });
+    }
+
+    std::string await_resume() { return d_value; }
+};
+
+Task<std::string> g(Io& c)
+{
+    co_return co_await AsyncRead{c, 1};
+}
+
+Task<> e() {
+    throw std::runtime_error("Exception from Task<>");
+    co_return;
+}
+
+Task<> coroutineRunner(Io& c) {
+    const auto firstLine = co_await AsyncRead{ c, 1 };
+    ASSERTV(firstLine.c_str(), "first line" == firstLine);
+
+    const auto secondLine = co_await g(c);
+    ASSERTV(secondLine.c_str(), "second line" == secondLine);
+
+    co_await e();  // 'e()' throws
+
+    ASSERT(!"We should never get here");
+}
+
+}  // close namespace Complex
+}  // close namespace CoroutineTestHelpers
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+
 // ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -1115,6 +1425,13 @@ static void printFlags()
     puts("printFlags: Enter");
 
     puts("\n==printFlags: bsls_compilerfeatures Macros==");
+
+    fputs("\n  BSLS_COMPILERFEATURES_CPLUSPLUS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_CPLUSPLUS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_CPLUSPLUS));
+#else
+    puts("UNDEFINED");
+#endif
 
     fputs("\n  BSLS_COMPILERFEATURES_FILLT(n): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_FILLT
@@ -1262,6 +1579,13 @@ static void printFlags()
     fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_COROUTINE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_COROUTINE));
 #else
     puts("UNDEFINED");
 #endif
@@ -1697,6 +2021,20 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    fputs("\n  __cpp_impl_coroutine: ", stdout);
+#ifdef __cpp_impl_coroutine
+    puts(STRINGIFY(__cpp_impl_coroutine));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  __cpp_lib_coroutine: ", stdout);
+#ifdef __cpp_lib_coroutine
+    puts(STRINGIFY(__cpp_lib_coroutine));
+#else
+    puts("UNDEFINED");
+#endif
+
     puts("\n\nprintFlags: Leave\n");
 }
 
@@ -1708,15 +2046,10 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
+    bool         veryVerbose = argc > 3;  (void)veryVerbose;
     bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
 
-    (void)       veryVerbose;  // unused variable warning
-    (void)   veryVeryVerbose;  // unused variable warning
-    (void)veryVeryVeryVerbose;  // unused variable warning
-
-    setbuf(stdout, NULL);    // Use unbuffered output
+    setbuf(stdout, NULL);  // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -1725,7 +2058,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1806,6 +2139,149 @@ int main(int argc, char *argv[])
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_COROUTINE'
+        //
+        // Concerns:
+        //: 1 '__cpp_lib_coroutine' is defined by '<coroutine>' to a value
+        //:   equal or larger to 201902L.
+        //:
+        //: 2 The 'std::coroutine_traits' class template provides the expected
+        //:   'promise_type' member.
+        //:
+        //: 3 'std::noop_coroutine_handle' is the same type as
+        //:   'std::coroutine_handle<std::noop_coroutine_promise>'.
+        //:
+        //: 4 The result of a 'std::noop_coroutine()' call is a
+        //:   'std::noop_coroutine_handle'.
+        //:
+        //: 5 'std::suspend_never' and 'std::suspend_always' are available.
+        //:
+        //: 6 'std::coroutine_handle<Promise>' types are comparable.
+        //:
+        //: 7 A simple generator compiles and works as expected.
+        //:
+        //: 8 We have at least a C++20 standard implementation of coroutines,
+        //:   not "just" a Coroutine TR implementation.
+        //
+        // Plan:
+        //: 1 Use 'std::is_same_v' to compare types, instantiate templates to
+        //:   make them into types for comparison, use 'decltype' to get the
+        //:   return type of functions (function calls). (C-2, 3, 4)
+        //:
+        //: 2 Compare the return value of 'std::noop_coroutine'. (C-6)
+        //:
+        //: 3 Create a simple 'Generator' type that generates 'unsigned'
+        //:   values.  Create a simple coroutine function (as a class method of
+        //:   a local 'struct' so the function is local and visible here) that
+        //:   returns numbers increasing from zero.  Using a counter external
+        //:   to the 'Generator::promise_type' verify that during construction,
+        //:   counting, and destruction only the expected number of methods are
+        //:   called.  Construct a 'Generator' by calling 'coroutine'.  Use the
+        //:   'get_next()' method of the generator a few times and verify that
+        //:   it returns numbers from zero, incremented one by one. (C-5, 7)
+        //:
+        //: 4 Create a complex coroutine that uses awaiter(s) and returns a
+        //:   coroutine handle from 'await_suspend'.  The TD specification did
+        //:   not allow that, but the C++20 standard does).  Verify that it
+        //:   compiles and works as expected. (C-5, 8)
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+        // --------------------------------------------------------------------
+        MACRO_TEST_TITLE("_SUPPORT_COROUTINE",
+                         "==================");
+
+        // C-1
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+  #ifndef __cpp_lib_coroutine
+        ASSERT(!"'__cpp_lib_coroutine' is not defined by '<coroutine>'");
+  #else
+        ASSERTV(__cpp_lib_coroutine, __cpp_lib_coroutine >= 201902L);
+  #endif
+
+        // C-2
+        {
+            struct Task {
+                struct Promise;
+                using promise_type = Promise;
+            };
+            using TaskTraits = std::coroutine_traits<Task>;
+            ASSERT((std::is_same_v<TaskTraits::promise_type, Task::Promise>));
+        }
+
+        // C-3
+        ASSERT((std::is_same_v<
+                         std::noop_coroutine_handle,
+                         std::coroutine_handle<std::noop_coroutine_promise>>));
+
+        // C-4
+        ASSERT((std::is_same_v<decltype(std::noop_coroutine()),
+                               std::noop_coroutine_handle>));
+
+        // C-5 is verified by C-8, C-9 before 'main'
+
+        // C-6
+        ASSERT( std::noop_coroutine() == std::noop_coroutine());
+        ASSERT( std::noop_coroutine() >= std::noop_coroutine());
+        ASSERT( std::noop_coroutine() <= std::noop_coroutine());
+        ASSERT(!(std::noop_coroutine() > std::noop_coroutine()));
+        ASSERT(!(std::noop_coroutine() < std::noop_coroutine()));
+
+        // C-7 (C-5 before 'main')
+        {
+            using namespace CoroutineTestHelpers::Simple;
+
+            Generator g = coroutine();
+
+            ASSERTV(s_numCalls, 2 == s_numCalls);
+            // Calls: 'get_return_object()' and 'initial_suspend()'
+
+            ASSERTV(g.theValue(), 0 == g.theValue());
+
+            ASSERTV(g.theValue(), 0 == g.getNext());
+            ASSERTV(g.theValue(), 0 == g.theValue());
+
+            ASSERTV(g.theValue(), 1 == g.getNext());
+            ASSERTV(g.theValue(), 2 == g.getNext());
+            ASSERTV(g.theValue(), 3 == g.getNext());
+
+            ASSERTV(g.theValue(), 4 == g.getNext());
+            ASSERTV(g.theValue(), 4 == g.theValue());
+        }
+        using CoroutineTestHelpers::Simple::s_numCalls;
+        ASSERTV(s_numCalls, 2 == s_numCalls); // Unchanged, we expect no
+        // additional calls during the counting and destruction.
+
+        // C-8 (C-5 before 'main')
+        {
+            using namespace CoroutineTestHelpers::Complex;
+
+            bool seenAnException = false;
+            try {
+                Io context;
+                auto task = coroutineRunner(context);
+                task.start();
+
+                context.complete(1, "first line");
+                context.complete(1, "second line");
+
+                task.value(); // This causes the exception to be thrown
+            }
+            catch (std::exception const& exception) {
+                seenAnException = true;
+                static const std::string EXPECTED = "Exception from Task<>";
+                ASSERTV(exception.what(), EXPECTED.c_str(),
+                        EXPECTED == exception.what());
+            }
+            ASSERT(seenAnException);
+        }
+#else
+        if (verbose) puts(
+                        "Coroutines are not supported in this configuration.");
+#endif
       } break;
       case 36: {
         // --------------------------------------------------------------------

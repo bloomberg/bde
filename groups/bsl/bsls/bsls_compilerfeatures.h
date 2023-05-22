@@ -25,6 +25,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: C++14 'constexpr' spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: C++17 'constexpr' spec.
+//  BSLS_COMPILERFEATURES_SUPPORT_COROUTINE: core & lib C++20 coroutine support
 //  BSLS_COMPILERFEATURES_SUPPORT_CTAD: flag for template argument deduction
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
 //  BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: for function templates
@@ -227,6 +228,12 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'constexpr' with C++17 semantics is supported
 //:     by the current compiler settings for this platform.  In particular,
 //:     this allows lambda functions to be defined in a 'constexpr' function.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_COROUTINE':
+//:     This macro is defined if coroutines with C++20 (or later) semantics are
+//:     supported by the current compiler settings, including the existence of
+//:     the <coroutine> standard header that provides the basic library
+//:     facilities necessary to make use of coroutines.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CTAD':
 //:     This macro is defined if template argument deduction introduced in the
@@ -579,7 +586,7 @@ BSLS_IDENT("$Id: $")
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined in the compiler supports the 'constexpr' reserved
 // keyword with C++14 semantics.
 //
@@ -589,14 +596,25 @@ BSLS_IDENT("$Id: $")
 //:   o Visual Studio 2017 version 15.0 (_MSC_VER 1910)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined in the compiler supports the 'constexpr' reserved
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'constexpr' reserved
 // keyword with C++17 semantics.
 //
 //: o Compiler support:
 //:   o gcc 7.3
 //:   o clang 5
 //:   o Visual Studio 2017 version 15.0 (_MSC_VER 1910)
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_COROUTINE'
+///- - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports at least the C++20 coroutine
+// core language features and also provides the '<coroutine>' standard header
+// providing the basic library facilities necessary to make use of coroutines.
+//
+//: o Compiler support (in C++20 mode):
+//:   o gcc 11
+//:   o clang 14
+//:   o Visual Studio 2019 version 16.8 (_MSC_VER 1928)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
 /// - - - - - - - - - - - - - - - - - - - -
@@ -971,6 +989,19 @@ BSLS_IDENT("$Id: $")
 
 #if defined(__cpp_hex_float)
   #define BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS                     1
+#endif
+
+#if defined(__cpp_impl_coroutine) && __cpp_impl_coroutine >= 201902L
+    // && defined(__cpp_lib_coroutine)  && __cpp_lib_coroutine >= 201902L
+    //
+    // There are no known compilers that define the core language feature macro
+    // but do not provide the corresponding library header.  As *this* header
+    // is included into almost every translation unit we won't
+    // '#include <coroutine>' or the '<version>' standard headers (that would
+    // '#define __cpp_lib_coroutine'), but we verify the presence and value of
+    // '__cpp_lib_coroutine' both in the implementation file and the test
+    // driver.
+    #define BSLS_COMPILERFEATURES_SUPPORT_COROUTINE                           1
 #endif
 
 // ============================================================================

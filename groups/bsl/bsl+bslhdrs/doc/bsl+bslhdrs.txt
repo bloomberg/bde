@@ -53,6 +53,7 @@
      bsl_compare.h
      bsl_complex.h
      bsl_concepts.h
+     bsl_coroutine.h
      bsl_csetjmp.h
      bsl_csignal.h
      bsl_cstdarg.h
