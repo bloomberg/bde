@@ -3350,6 +3350,7 @@ int main(int argc, char *argv[])
         ASSERT(Obj::isSymbolicLink(dir_junction));
         st.clear();
         ASSERT(Obj::getSymbolicLinkTarget(&st, dir_junction) == 0);
+        bdls::PathUtil::getBasename(&st, st); // cut dirname
         ASSERT(st == dir);
 #endif
       } break;

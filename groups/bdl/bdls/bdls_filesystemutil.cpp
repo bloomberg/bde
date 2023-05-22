@@ -1815,7 +1815,7 @@ int u_getSymbolicLinkTarget(STRING_TYPE *result,
       }
     }
 
-    if(wideToNarrow(result, bsl::wstring_view(name, nameLen))) {
+    if(!wideToNarrow(result, bsl::wstring_view(name, nameLen))) {
         return -1;                                                    // RETURN
     }
     return 0;
