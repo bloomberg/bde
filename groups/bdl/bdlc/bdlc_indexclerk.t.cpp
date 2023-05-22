@@ -296,8 +296,8 @@ int ggg(Obj *object, const char *spec, int vF = 1)
         return 0;                                                     // RETURN
     }
 
-    const int specLength = strlen(spec);
-    const int firstInvalid = strspn(spec, VALID);
+    const int specLength = static_cast<int>(strlen(spec));
+    const int firstInvalid = static_cast<int>(strspn(spec, VALID));
 
     if (specLength != firstInvalid) {
         const int pos = firstInvalid;
@@ -352,7 +352,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
     const char *const nextNewIndexAddr = spec + nextNewIndexPos;
 
     if (const char *p = strchr(nextNewIndexAddr, DELIM)) {
-        const int pos = p - spec;
+        const int pos = static_cast<int>(p - spec);
         if (vF) {
             cout << "Error at position " << pos << ": "
                  << "encountered second delimiter." << endl;
@@ -1096,7 +1096,7 @@ int main(int argc, char *argv[])
             X.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             In in(OD, LOD);
             ASSERT(in);                         ASSERT(!in.isEmpty());
 
@@ -1117,7 +1117,7 @@ int main(int argc, char *argv[])
                 bslx::OutStreamFunctions::bdexStreamOut(out, X, VERSION);
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -1150,7 +1150,7 @@ int main(int argc, char *argv[])
             // Testing empty and invalid streams.
             Out out(1);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1188,11 +1188,11 @@ int main(int argc, char *argv[])
 
             Out out(1);
             bslx::OutStreamFunctions::bdexStreamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
+            const int LOD1 = static_cast<int>(out.length());
             bslx::OutStreamFunctions::bdexStreamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
+            const int LOD2 = static_cast<int>(out.length());
             bslx::OutStreamFunctions::bdexStreamOut(out, X3, VERSION);
-            const int LOD  = out.length();
+            const int LOD  = static_cast<int>(out.length());
             const char *const    OD   = out.data();
 
             for (int i = 0; i < LOD; ++i) {
@@ -1298,7 +1298,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X, &objectAllocator);
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
@@ -1318,7 +1318,7 @@ int main(int argc, char *argv[])
             out.putInt32(id);
             bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X, &objectAllocator);
             ASSERT(W != t); ASSERT(X == t);
@@ -1341,7 +1341,7 @@ int main(int argc, char *argv[])
             out.putInt32(id);
             bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X, &objectAllocator);
             ASSERT(W != t); ASSERT(X == t);
@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[])
             out.putInt32(id);
             bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X, &objectAllocator);
             ASSERT(W != t); ASSERT(X == t);
@@ -1385,7 +1385,7 @@ int main(int argc, char *argv[])
             out.putInt32(id);
             bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X, &objectAllocator);
             ASSERT(W != t); ASSERT(X == t);
@@ -1404,7 +1404,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X, &objectAllocator);
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
@@ -1422,7 +1422,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X, &objectAllocator);
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);

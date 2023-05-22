@@ -364,7 +364,7 @@ BSLS_IDENT("$Id: $")
 // permutations of 'N' distinct elements.
 //..
 //  class SequentialStrings {
-//      int         d_length;
+//      size_t      d_length;
 //      bsl::string d_current;
 //
 //    public:
@@ -405,7 +405,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //          return d_current.data();
 //      }
-//      int length() const
+//      size_t length() const
 //          // Return length of result type (in bytes).
 //      {
 //          return d_current.length();
@@ -422,7 +422,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct SequentialVector {
 //      bsl::vector<char> d_ranges;
-//      int               d_length;
+//      size_t            d_length;
 //      bsl::string       d_current;
 //
 //    public:
@@ -449,7 +449,7 @@ BSLS_IDENT("$Id: $")
 //      void next()
 //          // Advance to the next element.
 //      {
-//          for (int i = 0;
+//          for (size_t i = 0;
 //               i < d_length && ++d_current[i] == d_ranges[i]; ++i) {
 //              d_current[i] = 0;
 //          }
@@ -468,7 +468,7 @@ BSLS_IDENT("$Id: $")
 //          return d_current.data();
 //      }
 //
-//      int length() const
+//      size_t length() const
 //          // Return length of current value (in bytes).
 //      {
 //          return d_current.length();

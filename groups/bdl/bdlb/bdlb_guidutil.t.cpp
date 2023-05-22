@@ -385,8 +385,6 @@ struct BasicBloomFilter
         // returned, otherwise false will probably be returned, but true may be
         // returned.
     {
-        ASSERT(randomInts);
-
         bool     exists = true;
         uint64_t rnd = randomInts[bdlb::GuidState_Imp::k_GENERATOR_COUNT - 1];
 
@@ -962,7 +960,6 @@ int main(int argc, char *argv[])
         Obj guids[NUM_ITERS + 2];
         Obj prevGuids[NUM_ITERS + 2];
         cout << dec;
-        bsl::memset(guids, 0, sizeof(guids));
         if (veryVerbose) {
             cout << endl
                  << "A single GUID can be passed and loaded." << endl
@@ -996,7 +993,9 @@ int main(int argc, char *argv[])
                  << "-------------------------------------------" << endl;
         }
         for (int i = 1; i < NUM_ITERS + 1; ++i) {
-            bsl::memset(guids, 0, sizeof(guids));
+            for (int j = 0; j < NUM_ITERS + 2; ++j) {
+                guids[j] = Obj();
+            }
             Util::generateNonSecure(guids + 1, i - 1);
             if (veryVerbose)  {
                 int idx = i ? i - 1 : 0;
@@ -1378,7 +1377,6 @@ int main(int argc, char *argv[])
         Obj guids[NUM_ITERS + 1]; // one larger to be allow checking bounds.
         Obj prev_guids[NUM_ITERS + 1];
         cout << dec;
-        bsl::memset(guids, 0, sizeof(guids));
         if (veryVerbose) {
             cout << endl
                  << "A single GUID can be passed and loaded." << endl
@@ -1413,7 +1411,9 @@ int main(int argc, char *argv[])
                  << "-------------------" << endl;
         }
         for (bsl::size_t i = 0; i < NUM_ITERS; ++i) {
-            bsl::memset(guids, 0, sizeof(guids));
+            for (int j = 0; j < NUM_ITERS + 2; ++j) {
+                guids[j] = Obj();
+            }
             if (i & 1) {
                 Util::generate(guids, i);
             }

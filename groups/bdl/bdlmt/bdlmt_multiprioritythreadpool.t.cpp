@@ -1198,7 +1198,7 @@ int main(int argc, char *argv[])
             pool.enqueueJob(
                            &pushInt,
                            reinterpret_cast<void *>(scramble[i] * scramble[i]),
-                           scramble[i]);
+                           static_cast<int>(scramble[i]));
         }
 
         ASSERT(k_SCRAMBLE_LEN == pool.numPendingJobs());

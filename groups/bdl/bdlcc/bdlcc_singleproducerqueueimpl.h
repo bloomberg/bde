@@ -339,7 +339,7 @@ class SingleProducerQueueImpl {
     };
 
     // CREATORS
-    SingleProducerQueueImpl(bslma::Allocator *basicAllocator = 0);
+    explicit SingleProducerQueueImpl(bslma::Allocator *basicAllocator = 0);
         // Create a thread-aware queue.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.

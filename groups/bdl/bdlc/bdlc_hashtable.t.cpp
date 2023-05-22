@@ -669,7 +669,8 @@ int main(int argc, char *argv[])
                 const Key KEY  = DATA[i].d_key;
 
                 unsigned int expected =
-                                  bdlb::HashUtil::hash1(KEY, bsl::strlen(KEY));
+                     bdlb::HashUtil::hash1(KEY,
+                                           static_cast<int>(bsl::strlen(KEY)));
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -713,7 +714,8 @@ int main(int argc, char *argv[])
                 const Key KEY  = DATA[i].d_key;
 
                 unsigned int expected =
-                               bdlb::HashUtil::hash1(KEY.data(), KEY.length());
+                         bdlb::HashUtil::hash1(KEY.data(),
+                                               static_cast<int>(KEY.length()));
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -889,7 +891,8 @@ int main(int argc, char *argv[])
                 const Key KEY  = DATA[i].d_key;
 
                 unsigned int expected =
-                                  bdlb::HashUtil::hash2(KEY, bsl::strlen(KEY));
+                     bdlb::HashUtil::hash2(KEY,
+                                           static_cast<int>(bsl::strlen(KEY)));
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -935,7 +938,8 @@ int main(int argc, char *argv[])
                 const Key KEY  = DATA[i].d_key;
 
                 unsigned int expected =
-                               bdlb::HashUtil::hash2(KEY.data(), KEY.length());
+                         bdlb::HashUtil::hash2(KEY.data(),
+                                               static_cast<int>(KEY.length()));
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)

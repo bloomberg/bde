@@ -829,8 +829,8 @@ bsl::string replaceTWithSpace(const char *buffer, int length)
 
 void testCase17(bool verbose,
                 bool veryVerbose,
-                bool veryVeryVerbose,
-                bool veryVeryVeryVerbose)
+                bool /* veryVeryVerbose */,
+                bool /* veryVeryVeryVerbose */)
 {
 
     if (verbose) cout << endl
@@ -1131,9 +1131,10 @@ void testCase17(bool verbose,
                         ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
 
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                 X.is<bdlt::Datetime>());
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -1146,9 +1147,10 @@ void testCase17(bool verbose,
                                 XX == X.the<bdlt::Datetime>());
 
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                 X.is<bdlt::Datetime>());
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -1161,9 +1163,10 @@ void testCase17(bool verbose,
                                 ZZ == X.the<bdlt::DatetimeTz>());
 
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                 X.is<bdlt::Datetime>());
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -1401,9 +1404,10 @@ void testCase17(bool verbose,
                         ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
 
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                 X.is<bdlt::DatetimeTz>());
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -1417,9 +1421,10 @@ void testCase17(bool verbose,
                                 XX == X.the<bdlt::Datetime>());
 
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                 X.is<bdlt::DatetimeTz>());
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -1433,9 +1438,10 @@ void testCase17(bool verbose,
                                 ZZ == X.the<bdlt::DatetimeTz>());
 
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                0 == Util::parseRelaxed(&mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                 X.is<bdlt::DatetimeTz>());
                         ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -1638,9 +1644,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, X.isUnset());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
             ASSERTV(LINE, STRING, X.isUnset());
 
             mX = XX;
@@ -1648,9 +1654,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
             ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
@@ -1660,9 +1666,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
             ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
@@ -1850,9 +1856,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, X.isUnset());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
             ASSERTV(LINE, STRING, X.isUnset());
 
             mX = XX;
@@ -1860,9 +1866,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
             ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
@@ -1872,9 +1878,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
             ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
@@ -1959,9 +1965,10 @@ void testCase17(bool verbose,
 
                 mX = XX;
 
-                ASSERT( 0 == Util::parseRelaxed(&mX,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                ASSERT( 0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERT(mX.is<bdlt::Datetime>());
                 ASSERT(XX != mX.the<bdlt::Datetime>());
 
@@ -2105,9 +2112,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, X.isUnset());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
             ASSERTV(LINE, STRING, X.isUnset());
 
             mX = XX;
@@ -2115,9 +2122,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
             ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
@@ -2127,9 +2134,9 @@ void testCase17(bool verbose,
             ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
 
             ASSERTV(LINE, STRING, 0 != Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
             ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
@@ -2389,9 +2396,10 @@ void testCase17(bool verbose,
             ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
 
             ASSERTV(LINE, INPUT, LENGTH,
-                    0 == Util::parseRelaxed(&mX,
-                                            relaxed.data(),
-                                            relaxed.length()));
+                    0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             if (IS_DATETIMETZ) {
                 ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
@@ -2527,9 +2535,9 @@ void testCase17(bool verbose,
 
             ASSERTV(
                 LINE, INPUT, LENGTH, 0 == Util::parseRelaxed(
-                                                        &mX,
-                                                        relaxed.data(),
-                                                        relaxed.length()));
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
 
             ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
             ASSERTV(LINE, INPUT, LENGTH,
@@ -2602,8 +2610,8 @@ void testCase17(bool verbose,
 
 void testCase16(bool verbose,
                 bool veryVerbose,
-                bool veryVeryVerbose,
-                bool veryVeryVeryVerbose)
+                bool /* veryVeryVerbose */,
+                bool /* veryVeryVeryVerbose */)
 {
 
     if (verbose) cout << endl
@@ -5966,16 +5974,18 @@ if (veryVerbose)
                             mZ = ZZ;
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                    0 == Util::parseRelaxed(&mX,
-                                                            relaxed.data(),
-                                                            relaxed.length()));
+                                    0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIME == X);
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                    0 == Util::parseRelaxed(&mZ,
-                                                            relaxed.data(),
-                                                            relaxed.length()));
+                                    0 == Util::parseRelaxed(
+                                          &mZ,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIME == Z.localDatetime());
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -6090,16 +6100,18 @@ if (veryVerbose)
                             mZ = ZZ;
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                    0 == Util::parseRelaxed(&mX,
-                                                            relaxed.data(),
-                                                            relaxed.length()));
+                                    0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ.utcDatetime() == X);
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
-                                    0 == Util::parseRelaxed(&mZ,
-                                                            relaxed.data(),
-                                                            relaxed.length()));
+                                    0 == Util::parseRelaxed(
+                                          &mZ,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ               == Z);
 
@@ -6195,15 +6207,17 @@ if (veryVerbose)
                 const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parseRelaxed(&mX,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 != Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parseRelaxed(&mZ,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 != Util::parseRelaxed(
+                                          &mZ,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
@@ -6289,15 +6303,17 @@ if (veryVerbose)
                 const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parseRelaxed(&mX,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 != Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parseRelaxed(&mZ,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 != Util::parseRelaxed(
+                                          &mZ,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
@@ -6357,9 +6373,10 @@ if (veryVerbose)
 
                     mD = XX;
 
-                    ASSERT( 0 == Util::parseRelaxed(&mD,
-                                                    relaxed.data(),
-                                                    relaxed.length()));
+                    ASSERT( 0 == Util::parseRelaxed(
+                                          &mD,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                     ASSERT(XX != D);
 
                     mD = XX;
@@ -6420,15 +6437,17 @@ if (veryVerbose)
                 const bsl::string relaxed = replaceTWithSpace(STRING, LENGTH);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parseRelaxed(&mX,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 != Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parseRelaxed(&mZ,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 != Util::parseRelaxed(
+                                          &mZ,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
@@ -6597,15 +6616,17 @@ if (veryVerbose)
                 mZ = ZZ;
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parseRelaxed(&mX,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, EXPECTED, X, EXPECTED.utcDatetime() == X);
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parseRelaxed(&mZ,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 == Util::parseRelaxed(
+                                          &mZ,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
 
                 mX = XX;
@@ -6754,23 +6775,26 @@ if (veryVerbose)
 
                 if (0 == OFFSET) {
                     ASSERTV(LINE, INPUT,
-                            0 == Util::parseRelaxed(&mX,
-                                                    relaxed.data(),
-                                                    relaxed.length()));
+                            0 == Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                     ASSERTV(LINE, INPUT, EXPECTED.utcDatetime() == X);
                 }
                 else {
                     ASSERTV(LINE, INPUT,
-                            0 != Util::parseRelaxed(&mX,
-                                                    relaxed.data(),
-                                                    relaxed.length()));
+                            0 != Util::parseRelaxed(
+                                          &mX,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                     ASSERTV(LINE, INPUT, XX == X);
                 }
 
                 ASSERTV(LINE, INPUT,
-                        0 == Util::parseRelaxed(&mZ,
-                                                relaxed.data(),
-                                                relaxed.length()));
+                        0 == Util::parseRelaxed(
+                                          &mZ,
+                                          relaxed.data(),
+                                          static_cast<int>(relaxed.length())));
                 ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
 
                 mX = XX;

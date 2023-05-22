@@ -2585,7 +2585,7 @@ DEFINE_TEST_CASE(15) {
                     cout << "ACTUAL FORMAT:" << endl << out1.str() << endl;
                 }
 
-                const int SZ = strlen(FMT) + 1;
+                const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(ti,
@@ -5549,7 +5549,7 @@ DEFINE_TEST_CASE(10) {
             bslx::OutStreamFunctions::bdexStreamOut(out, X, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             bslx::TestInStream in(OD, LOD); ASSERT(in); ASSERT(!in.isEmpty());
             Obj t(g("DE"), &testAllocator);
@@ -5611,7 +5611,7 @@ DEFINE_TEST_CASE(10) {
                     bslx::OutStreamFunctions::bdexStreamOut(out, U, VERSION);
 
                     const char *const OD  = out.data();
-                    const int         LOD = out.length();
+                    const int         LOD = static_cast<int>(out.length());
 
                     // Must reset stream for each iteration of inner loop.
                     bslx::TestInStream in(OD, LOD);
@@ -5755,11 +5755,11 @@ DEFINE_TEST_CASE(10) {
 
             bslx::TestOutStream out(1);
             bslx::OutStreamFunctions::bdexStreamOut(out, Y1, VERSION);
-            const int LOD1 = out.length();
+            const int LOD1 = static_cast<int>(out.length());
             bslx::OutStreamFunctions::bdexStreamOut(out, Y2, VERSION);
-            const int LOD2 = out.length();
+            const int LOD2 = static_cast<int>(out.length());
             bslx::OutStreamFunctions::bdexStreamOut(out, Y3, VERSION);
-            const int LOD  = out.length();
+            const int LOD  = static_cast<int>(out.length());
             const char *const OD = out.data();
 
             for (int i = 0; i < LOD; ++i) {
@@ -5872,7 +5872,7 @@ DEFINE_TEST_CASE(10) {
                 out.putFloat64(a[i]);
             }
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
             bslx::TestInStream in(OD, LOD); ASSERT(in);
@@ -6508,7 +6508,7 @@ DEFINE_TEST_CASE(5) {
                     cout << "ACTUAL FORMAT:" << endl << out1.str() << endl;
                 }
 
-                const int SZ = strlen(FMT) + 1;
+                const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(ti,
@@ -6768,7 +6768,7 @@ DEFINE_TEST_CASE(3) {
                 const char *const SPEC = DATA[ti].d_spec_p;
                 const int LENGTH       = DATA[ti].d_length;
                 const Element *const e = DATA[ti].d_elements;
-                const int curLen       = strlen(SPEC);
+                const int curLen       = static_cast<int>(strlen(SPEC));
 
                 Obj mX(&testAllocator);
                 const Obj& X = gg(&mX, SPEC);   // original spec
@@ -6864,7 +6864,7 @@ DEFINE_TEST_CASE(3) {
                 const char *const SPEC = DATA[ti].d_spec_p;
                 const int LENGTH       = DATA[ti].d_length;
                 const Element *const e = DATA[ti].d_elements;
-                const int curLen       = strlen(SPEC);
+                const int curLen       = static_cast<int>(strlen(SPEC));
 
                 Obj mX(&testAllocator);
                 const Obj& X = gg(&mX, SPEC);   // original spec
@@ -6956,7 +6956,7 @@ DEFINE_TEST_CASE(3) {
                 const int LINE         = DATA[ti].d_lineNum;
                 const char *const SPEC = DATA[ti].d_spec_p;
                 const int INDEX        = DATA[ti].d_index;
-                const int curLen       = strlen(SPEC);
+                const int curLen       = static_cast<int>(strlen(SPEC));
 
                 Obj mX(&testAllocator);
 

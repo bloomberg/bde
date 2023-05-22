@@ -287,11 +287,10 @@ class IndexClerk {
         // Destroy this index clerk.
 
     // MANIPULATORS
-
-    // !IndexClerk& operator=(const IndexClerk& rhs);
+    IndexClerk& operator=(const IndexClerk& rhs);
         // Assign to this index clerk the value of the specified 'rhs' index
-        // clerk, and return a reference to this modifiable index clerk.  Note
-        // that this method's definition is compiler generated.
+        // clerk, and return a reference to this modifiable index clerk.
+
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -513,6 +512,14 @@ IndexClerk::~IndexClerk()
 }
 
 // MANIPULATORS
+inline
+IndexClerk& IndexClerk::operator=(const IndexClerk& rhs)
+{
+    d_unusedStack = rhs.d_unusedStack;
+    d_nextNewIndex = rhs.d_nextNewIndex;
+    return *this;
+}
+
 inline
 int IndexClerk::getIndex()
 {

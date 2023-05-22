@@ -185,6 +185,11 @@ BSLS_IDENT("$Id: $")
 //      : d_int   (value.first)
 //      , d_double(value.second) { }
 //
+//      YourValueType & operator=(const YourValueType& original) {
+//          d_int    = original.d_int;
+//          d_double = original.d_double;
+//          return *this;
+//      }
 //  };
 //
 //  }  // close package namespace
@@ -192,9 +197,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that, having defined a constructor, the compiler no longer generates
 // the constructors that had been generated implicitly.  Accordingly, we have
-// added a default constructor and copy constructor.  Also, since aggregate
-// initialization is no longer allowed, we have also added a value constructor
-// and slightly modified the syntax of initialization in function 'g()' below:
+// added a default constructor, copy constructor and assignment operator.
+// Also, since aggregate initialization is no longer allowed, we have also
+// added a value constructor and slightly modified the syntax of initialization
+// in function 'g()' below:
 //..
 //  void g()
 //  {

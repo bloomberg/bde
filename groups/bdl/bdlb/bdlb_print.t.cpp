@@ -229,9 +229,9 @@ void generatePseudoRandomInputBufferData(char         *result,
     }
 }
 
-void printPrintable(const char *input, int length)
+void printPrintable(const char *input, size_t length)
 {
-    for (int i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
         char c = input[i];
         if (bsl::isspace(c)) {
             cout << '_';
@@ -375,7 +375,8 @@ int main(int argc, char *argv[])
         for (size_t i = 0; i < LONG_STR_LEN; ++i) {
             bsl::ostringstream oss;
 
-            Util::singleLineHexDump(oss, LONG_STR, i) << bsl::flush;
+            Util::singleLineHexDump(oss, LONG_STR, static_cast<int>(i))
+                                                                 << bsl::flush;
 
             if (veryVerbose) {
                 bsl::cout
@@ -446,9 +447,10 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream out3;
-                Util::singleLineHexDump(out3,
-                                        inputBuffer,
-                                        len) << '\0' << bsl::flush;
+                Util::singleLineHexDump(
+                                  out3,
+                                  inputBuffer,
+                                  static_cast<int>(len)) << '\0' << bsl::flush;
                 LOOP2_ASSERT(i, len,
                              outLen == bsl::strlen(out3.str().c_str()));
                 LOOP2_ASSERT(i, len,
@@ -460,7 +462,8 @@ int main(int argc, char *argv[])
                 bsl::ostringstream out4;
                 ::originalSingleLineHexDump(out4,
                                             inputBuffer,
-                                            len) << '\0' << bsl::flush;
+                                            static_cast<int>(len))
+                                                         << '\0' << bsl::flush;
                 LOOP2_ASSERT(i, len,
                              outLen == bsl::strlen(out4.str().c_str()));
                 LOOP2_ASSERT(i, len,
@@ -575,7 +578,7 @@ int main(int argc, char *argv[])
             const char *SPEC            = DATA[i].d_spec;
             const bool  EXPAND          = DATA[i].d_expandSlash;
             const char *EXPECTED_RESULT = DATA[i].d_expectedResult;
-            const int   LEN             = bsl::strlen(SPEC);
+            const int   LEN             = static_cast<int>(bsl::strlen(SPEC));
 
             if (veryVerbose) {
                     P_(LINE)
@@ -598,7 +601,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE   = DATA[i].d_lineNum;
             const char *SPEC   = DATA[i].d_spec;
-            const int   LEN    = bsl::strlen(SPEC);
+            const int   LEN    = static_cast<int>(bsl::strlen(SPEC));
             const bool  EXPAND = DATA[i].d_expandSlash;
 
             if (veryVerbose) {
@@ -621,7 +624,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting null hex conversion." << endl;
         {
             const char SPEC[] = "\x00";
-            const int  LEN    = bsl::strlen(SPEC);
+            const int  LEN    = static_cast<int>(bsl::strlen(SPEC));
 
             const char EXPECTED_RETURN[] = "";
 
@@ -827,10 +830,10 @@ int main(int argc, char *argv[])
                 const int          LINE     = DATA[ti].d_line;
                 const bsl::string& EXPECTED = DATA[ti].d_expected;
                 const bsl::string& INPUT    = DATA[ti].d_input;
+                const int          LEN      = static_cast<int>(INPUT.length());
 
                 bsl::stringstream out;
-                out << bdlb::PrintStringHexDumper(INPUT.c_str(),
-                                                  INPUT.length());
+                out << bdlb::PrintStringHexDumper(INPUT.c_str(), LEN);
 
                 if (veryVerbose) {
                     P_(LINE)  P_(INPUT)  P_(EXPECTED)  P(out.str());
@@ -899,9 +902,10 @@ int main(int argc, char *argv[])
                 const int          LINE     = DATA[ti].d_line;
                 const bsl::string& EXPECTED = DATA[ti].d_expected;
                 const bsl::string& INPUT    = DATA[ti].d_input;
+                const int          LEN      = static_cast<int>(INPUT.length());
 
                 bsl::stringstream out;
-                Util::hexDump(out, INPUT.c_str(), INPUT.length());
+                Util::hexDump(out, INPUT.c_str(), LEN);
 
                 if (veryVerbose) {
                     P_(LINE)  P_(INPUT)  P_(EXPECTED)  P(out.str());

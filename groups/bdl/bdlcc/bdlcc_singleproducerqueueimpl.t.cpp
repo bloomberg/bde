@@ -173,8 +173,12 @@ class AllocExceptionHelper {
     bslma::Allocator *d_allocator_p;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocExceptionHelper,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    AllocExceptionHelper(bslma::Allocator *allocator)
+    explicit AllocExceptionHelper(bslma::Allocator *allocator)
     : d_allocator_p(allocator)
     {
         d_memory = d_allocator_p->allocate(1);

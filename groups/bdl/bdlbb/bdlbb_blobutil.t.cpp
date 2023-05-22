@@ -1039,6 +1039,7 @@ int main(int argc, char *argv[])
                 // This check should be uncommented after the issue is fixed.
                 //
                 // ASSERT(1 == DST.buffer(index).buffer().use_count());
+                (void) index;
 
                 // Insert empty buffer.
 

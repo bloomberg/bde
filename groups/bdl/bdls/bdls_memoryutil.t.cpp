@@ -83,7 +83,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 extern "C"
-void _exiting_handler(int signum)
+void _exiting_handler(int /*signum*/)
 {
     _exit(1);
 }

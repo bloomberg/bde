@@ -167,6 +167,11 @@ struct Element {
 
         d_data = original.d_data;
     }
+    Element & operator=(const Element& original)
+    {
+        d_data = original.d_data;
+        return *this;
+    }
     ~Element()
     {
         --s_allocCount;

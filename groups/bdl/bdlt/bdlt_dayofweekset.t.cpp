@@ -647,7 +647,7 @@ int main(int argc, char *argv[])
 
             int oldLen = -1;
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int curLen = strlen(DATA[i].d_spec);
+                const int curLen = static_cast<int>(strlen(DATA[i].d_spec));
                 if (curLen != oldLen) {
                     if (veryVerbose) cout << "\tUsing lhs objects of length "
                                           << curLen << '.' << endl;
@@ -995,7 +995,7 @@ int main(int argc, char *argv[])
                 const char *SPEC_S = DATA[ti].d_specS;
                 const char *SPEC_C = DATA[ti].d_specC;
 
-                const int curLen = strlen(SPEC_A);
+                const int curLen = static_cast<int>(strlen(SPEC_A));
                 if (curLen != oldLen) {
                     if (veryVerbose) cout << "\tUsing lhs objects of length "
                                           << curLen << '.' << endl;
@@ -1308,7 +1308,7 @@ int main(int argc, char *argv[])
                 const int   LE     = DATA[ti].d_LE;
                 const int   GE     = DATA[ti].d_GE;
 
-                const int curLen = strlen(SPEC_A);
+                const int curLen = static_cast<int>(strlen(SPEC_A));
                 if (curLen != oldLen) {
                     if (veryVerbose) cout << "\tUsing lhs objects of length "
                                           << curLen << '.' << endl;
@@ -1395,7 +1395,7 @@ int main(int argc, char *argv[])
             int k;
             for (int ti = 0; SPECS[ti]; ++ti) {
                 const char *const SPEC   = SPECS[ti];
-                const int         curLen = strlen(SPEC);
+                const int         curLen = static_cast<int>(strlen(SPEC));
                 const bool isFullWeek    = !strcmp(SPEC, "ABCDEFG");
 
                 if (veryVerbose) cout << "\t\tFor objects of initial length "
@@ -1619,7 +1619,7 @@ int main(int argc, char *argv[])
             ASSERT(out);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -1663,7 +1663,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, &out == &rvOut);
                 LOOP_ASSERT(i, out);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -1700,7 +1700,7 @@ int main(int argc, char *argv[])
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1749,7 +1749,7 @@ int main(int argc, char *argv[])
             ASSERT(out);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1815,17 +1815,17 @@ int main(int argc, char *argv[])
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
             ASSERT(out);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
             ASSERT(out);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
             ASSERT(out);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -1924,7 +1924,7 @@ int main(int argc, char *argv[])
             Out out(VERSION_SELECTOR, &allocator);
             out.putUint8(SERIAL_Y);  // Stream out "new" value.
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1950,7 +1950,7 @@ int main(int argc, char *argv[])
             out.putUint8(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1973,7 +1973,7 @@ int main(int argc, char *argv[])
             out.putUint8(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1999,7 +1999,7 @@ int main(int argc, char *argv[])
             out.putUint8(1);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2200,7 +2200,7 @@ int main(int argc, char *argv[])
             int uOldLen = -1;
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
-                const int         uLen   = strlen(U_SPEC);
+                const int         uLen   = static_cast<int>(strlen(U_SPEC));
 
                 if (verbose && uLen > uOldLen) {
                     cout << "\tFor lhs objects of length " << uLen << ":\t";
@@ -2216,7 +2216,8 @@ int main(int argc, char *argv[])
                 // int vOldLen = -1;
                 for (int vi = 0; SPECS[vi]; ++vi) {
                     const char *const V_SPEC = SPECS[vi];
-                    const int         vLen   = strlen(V_SPEC);
+                    const int         vLen   =
+                                              static_cast<int>(strlen(V_SPEC));
 
                     if (veryVerbose) {
                         cout << "\t\tFor rhs objects of length " << vLen
@@ -2262,7 +2263,7 @@ int main(int argc, char *argv[])
             int oldLen = -1;
             for (int ti = 0; SPECS[ti]; ++ti) {
                 const char *const SPEC   = SPECS[ti];
-                const int         curLen = strlen(SPEC);
+                const int         curLen = static_cast<int>(strlen(SPEC));
 
                 if (veryVerbose) {
                     cout << "\tFor an object of length " << curLen << ":\t";
@@ -2359,7 +2360,7 @@ int main(int argc, char *argv[])
             int oldLen = -1;
             for (int ti = 0; SPECS[ti]; ++ti) {
                 const char *const SPEC   = SPECS[ti];
-                const int         curLen = strlen(SPEC);
+                const int         curLen = static_cast<int>(strlen(SPEC));
 
                 if (veryVerbose) {
                     cout << "\tFor an object of length " << curLen << ":\t";
@@ -2469,7 +2470,7 @@ int main(int argc, char *argv[])
 
             int oldLen = -1;
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int curLen = strlen(DATA[i].d_spec);
+                const int curLen = static_cast<int>(strlen(DATA[i].d_spec));
                 if (curLen != oldLen) {
                     if (veryVerbose) cout << "\tUsing lhs objects of length "
                                           << curLen << '.' << endl;
@@ -2662,7 +2663,7 @@ int main(int argc, char *argv[])
                 const int         IND    = DATA[ti].d_indent;
                 const int         SPL    = DATA[ti].d_spaces;
                 const char *const FMT    = DATA[ti].d_fmt_p;
-                const int         curLen = strlen(SPEC);
+                const int         curLen = static_cast<int>(strlen(SPEC));
 
                 Obj mX;  const Obj& X = gg(&mX, SPEC);
                 ASSERTV(LINE, curLen == X.length());  // same lengths
@@ -2728,7 +2729,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_lineNum;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const char *const FMT    = DATA[ti].d_fmt_p;
-                const int         curLen = strlen(SPEC);
+                const int         curLen = static_cast<int>(strlen(SPEC));
 
                 Obj mX;  const Obj& X = gg(&mX, SPEC);
                 ASSERTV(ti, curLen == X.length());  // same lengths
@@ -3285,7 +3286,7 @@ int main(int argc, char *argv[])
                 const char *const    SPEC   = DATA[ti].d_spec_p;
                 const int            LENGTH = DATA[ti].d_length;
                 const Element *const ELEMS  = DATA[ti].d_elements;
-                const int            curLen = strlen(SPEC);
+                const int            curLen = static_cast<int>(strlen(SPEC));
 
                 Obj mX;
                 Obj& mmX = gg(&mX, SPEC);   // original spec
@@ -3369,7 +3370,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_lineNum;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         INDEX  = DATA[ti].d_index;
-                const int         curLen = strlen(SPEC);
+                const int         curLen = static_cast<int>(strlen(SPEC));
 
                 Obj mX;
 

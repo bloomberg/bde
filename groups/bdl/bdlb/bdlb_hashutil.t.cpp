@@ -280,7 +280,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 
         for (int i = 0; i < numElements; ++i, input.next()) {
             unsigned int hash = Util::hash1(input.data(),
-                                                     input.length());
+                                            static_cast<int>(input.length()));
             ++table[hash % size];
         }
 
@@ -327,15 +327,16 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 
         for (int i = 0; i < numElements; ++i, input.next()) {
             unsigned int hash1 = Util::hash1(input.data(),
-                                                      input.length());
+                                             static_cast<int>(input.length()));
 
             int chainLength = 0;
             int bucket      = hash1 % size;
             if (ResultType() == table[bucket]) {
                 table[bucket] = input.current();
             } else {
-                unsigned int hash2 = Util::hash2(input.data(),
-                                                          input.length());
+                unsigned int hash2 =
+                                 Util::hash2(input.data(),
+                                             static_cast<int>(input.length()));
                 hash2 = 1 + hash2 % (size - 1);
 
                 while (++chainLength < size) {
@@ -427,7 +428,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // permutations of 'N' distinct elements.
 //..
     class SequentialStrings {
-        int         d_length;
+        size_t      d_length;
         bsl::string d_current;
 
       public:
@@ -468,7 +469,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
         {
             return d_current.data();
         }
-        int length() const
+        size_t length() const
             // Return length of result type (in bytes).
         {
             return d_current.length();
@@ -485,7 +486,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 //..
     struct SequentialVector {
         bsl::vector<char> d_ranges;
-        int               d_length;
+        size_t            d_length;
         bsl::string       d_current;
 
       public:
@@ -512,7 +513,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
         void next()
             // Advance to the next element.
         {
-            for (int i = 0;
+            for (size_t i = 0;
                  i < d_length && ++d_current[i] == d_ranges[i]; ++i) {
                 d_current[i] = 0;
             }
@@ -531,7 +532,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             return d_current.data();
         }
 
-        int length() const
+        size_t length() const
             // Return length of current value (in bytes).
         {
             return d_current.length();
@@ -1257,9 +1258,10 @@ int main(int argc, char *argv[])
                     const int   SIZE = DATA[ti].d_size;
                     const int   HASH = DATA[ti].d_hash;
 
-                    const int hash = Util::hash0(SPEC,
-                                                 bsl::strlen(SPEC),
-                                                 SIZE);
+                    const int hash = Util::hash0(
+                                           SPEC,
+                                           static_cast<int>(bsl::strlen(SPEC)),
+                                           SIZE);
 
                     if (veryVeryVerbose)
                         cout << SPEC << ", " << SIZE << " ---> " << hash
@@ -1420,7 +1422,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_STRING_DATA; ++ti) {
             const int   LINE   = STRING_DATA[ti].d_line;
             const char *STRING = STRING_DATA[ti].d_string;
-            const int   LENGTH = bsl::strlen(STRING);
+            const int   LENGTH = static_cast<int>(bsl::strlen(STRING));
 
             int sum = 0;
             if (veryVerbose) {

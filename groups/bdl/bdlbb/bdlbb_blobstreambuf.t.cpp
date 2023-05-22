@@ -151,7 +151,7 @@ void testBlobBufferFactory::allocate(bdlbb::BlobBuffer *buffer)
                          (char *) d_allocator_p->allocate(d_currentBufferSize),
                           d_allocator_p);
 
-    buffer->reset(shptr, d_currentBufferSize);
+    buffer->reset(shptr, static_cast<int>(d_currentBufferSize));
     if (d_growFlag && d_currentBufferSize < 1024) {
         d_currentBufferSize *= 2;
     }
@@ -765,7 +765,7 @@ int main(int argc, char *argv[])
 
                 bdlbb::Blob blob(&fa, &ta);
                 {
-                    Obj mX(&blob); const Obj&    X = mX;
+                    Obj mX(&blob); /* const Obj&    X = mX; */
                     bsl::istream stream(&mX);
                     ASSERT(stream.rdbuf() == &mX);
 
@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
                                 posInBuf = 0;
                             }
                             *(blob.buffer(currentBuf).data() + posInBuf) =
-                                                                       'A' + j;
+                                                    static_cast<char>('A' + j);
                             if (veryVerbose) {
                                 bsl::cout << "Wrote " << j << " at offset "
                                           << posInBuf << " in buffer "

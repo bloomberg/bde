@@ -346,7 +346,7 @@ if (verbose) {  // added in test driver
             ASSERT(out);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -388,7 +388,7 @@ if (verbose) {  // added in test driver
                 LOOP_ASSERT(i, &out == &rvOut);
                 LOOP_ASSERT(i, out);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -424,7 +424,7 @@ if (verbose) {  // added in test driver
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -471,7 +471,7 @@ if (verbose) {  // added in test driver
             ASSERT(out);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -521,17 +521,17 @@ if (verbose) {  // added in test driver
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
             ASSERT(out);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
             ASSERT(out);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
             ASSERT(out);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -621,7 +621,7 @@ if (verbose) {  // added in test driver
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt8(SERIAL_Y);  // Stream out "new" value.
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Enum mT(X);  const Enum& T = mT;
             ASSERT(X == T);
@@ -647,7 +647,7 @@ if (verbose) {  // added in test driver
             out.putInt8(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Enum mT(X);  const Enum& T = mT;
             ASSERT(X == T);
@@ -670,7 +670,7 @@ if (verbose) {  // added in test driver
             out.putInt8(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Enum mT(X);  const Enum& T = mT;
             ASSERT(X == T);
@@ -697,7 +697,7 @@ if (verbose) {  // added in test driver
             out.putInt8(static_cast<char>(Obj::e_SUN - 1));
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Enum mT(X);  const Enum& T = mT;
             ASSERT(X == T);
@@ -724,7 +724,7 @@ if (verbose) {  // added in test driver
             out.putInt8(static_cast<char>(Obj::e_SAT + 1));
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Enum mT(X);  const Enum& T = mT;
             ASSERT(X == T);

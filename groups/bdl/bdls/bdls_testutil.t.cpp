@@ -663,7 +663,7 @@ void OutputRedirector::reset()
 
 bool OutputRedirector::load()
 {
-    ASSERT(d_isRedirectedFlag);
+    ASSERT(isRedirected());
     ASSERT(!ferror(stdout));
 
     d_outputSize = ftell(stdout);
@@ -1891,7 +1891,7 @@ int main(int argc, char *argv[])
             const char *testString = "This is good output";
 
             output.reset();
-            const int stringLength = strlen(testString);
+            const int stringLength = static_cast<int>(strlen(testString));
             for (int idx = 0;
                      idx * stringLength < k_OUTPUT_BUFFER_SIZE;
                    ++idx) {

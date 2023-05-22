@@ -288,7 +288,6 @@ struct ConstructorTestHelp1a
 
    // ACCESSORS
    void reset();
-   static void resetWithCount(ConstructorTestHelp1a *self, int count);
 };
 
 struct ConstructorTestHelp1b
@@ -350,12 +349,6 @@ void ConstructorTestHelp1a::reset()
 
 void ConstructorTestHelp1b::reset()
 {++d_resetCount;}
-
-void ConstructorTestHelp1a::resetWithCount(ConstructorTestHelp1a *self,
-                                           int                    count)
-{
-   self->d_resetCount = count;
-}
 
 void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
                                            int                    count)

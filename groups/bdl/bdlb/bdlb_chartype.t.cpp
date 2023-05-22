@@ -650,7 +650,7 @@ int main(int argc, char *argv[])
 
                 int count = 0;
                 for (int i = 0; i < 256; ++i) {
-                    count += Util::isCategory(i, category);
+                    count += Util::isCategory(static_cast<char>(i), category);
                 }
 
                 if (veryVerbose) { T_ P_(ci) P_(category) P(count) }
@@ -700,7 +700,8 @@ int main(int argc, char *argv[])
                 }
                 {
                     for (int i = 0; i < 256; ++i) {
-                        const bool isMem = Util::isCategory(i, category);
+                        const bool isMem =
+                              Util::isCategory(static_cast<char>(i), category);
                         if (veryVeryVerbose) { T_ T_ P_(i) P(isMem) }
                         LOOP4_ASSERT(category, i, isMem, n[i], isMem == n[i]);
                     }
@@ -899,42 +900,42 @@ int main(int argc, char *argv[])
 
                 typedef bdlb::CharType U;        // *** Very Short Alias
 
-                LOOP_ASSERT(i, isUpper(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isUpper(c)  == Util::isCategory(c,
                                                                U::e_UPPER));
-                LOOP_ASSERT(i, isLower(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isLower(c)  == Util::isCategory(c,
                                                                U::e_LOWER));
-                LOOP_ASSERT(i, isOdigit(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isOdigit(c)  == Util::isCategory(c,
                                                                U::e_ODIGIT));
-                LOOP_ASSERT(i, isDigit(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isDigit(c)  == Util::isCategory(c,
                                                                U::e_DIGIT));
-                LOOP_ASSERT(i, isXdigit(c) == Util::isCategory(i,
+                LOOP_ASSERT(i, isXdigit(c) == Util::isCategory(c,
                                                                U::e_XDIGIT));
 
-                LOOP_ASSERT(i, isAlpha(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAlpha(c)  == Util::isCategory(c,
                                                                U::e_ALPHA));
-                LOOP_ASSERT(i, isAlnum(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAlnum(c)  == Util::isCategory(c,
                                                                U::e_ALNUM));
-                LOOP_ASSERT(i, isSpace(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isSpace(c)  == Util::isCategory(c,
                                                                U::e_SPACE));
-                LOOP_ASSERT(i, isPrint(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isPrint(c)  == Util::isCategory(c,
                                                                U::e_PRINT));
 
-                LOOP_ASSERT(i, isGraph(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isGraph(c)  == Util::isCategory(c,
                                                                U::e_GRAPH));
-                LOOP_ASSERT(i, isPunct(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isPunct(c)  == Util::isCategory(c,
                                                                U::e_PUNCT));
-                LOOP_ASSERT(i, isCntrl(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isCntrl(c)  == Util::isCategory(c,
                                                                U::e_CNTRL));
-                LOOP_ASSERT(i, isAscii(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAscii(c)  == Util::isCategory(c,
                                                                U::e_ASCII));
 
-                LOOP_ASSERT(i, isIdent(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isIdent(c)  == Util::isCategory(c,
                                                                U::e_IDENT));
-                LOOP_ASSERT(i, isAlund(c)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAlund(c)  == Util::isCategory(c,
                                                                U::e_ALUND));
-                LOOP_ASSERT(i, isAll(c)    == Util::isCategory(i,
+                LOOP_ASSERT(i, isAll(c)    == Util::isCategory(c,
                                                                U::e_ALL));
-                LOOP_ASSERT(i, isNone(c)   == Util::isCategory(i,
+                LOOP_ASSERT(i, isNone(c)   == Util::isCategory(c,
                                                                U::e_NONE));
 
                 LOOP_ASSERT(i, toLower(c)  == Util::toLower(c));
@@ -1049,7 +1050,7 @@ int main(int argc, char *argv[])
                 out1 << INPUT << ends;  // Ensure modifiable
                 out2 << INPUT << ends;  // stream is returned.
 
-                const int SZ = strlen(FMT) + 1;
+                const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 const int REST = SIZE - SZ;
                 const bool failure = 0 != memcmp(out1.str().c_str(), FMT, SZ);
 
