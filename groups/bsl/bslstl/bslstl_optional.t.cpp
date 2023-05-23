@@ -8300,6 +8300,9 @@ void TestDriver<TYPE>::testCase15()
                         bslmf::IsBitwiseCopyable<Obj>::value ==
                         bslmf::IsBitwiseCopyable<ValueType>::value);
             }
+
+            (void) bslmf::IsBitwiseCopyableCheck<ValueType>::value;
+            (void) bslmf::IsBitwiseCopyableCheck<Obj>::value;
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
