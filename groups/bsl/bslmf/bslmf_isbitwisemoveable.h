@@ -595,6 +595,14 @@ namespace bslmf {
 template <class t_TYPE>
 struct IsBitwiseMoveable;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool IsBitwiseMoveable_v =
+                                              IsBitwiseMoveable<t_TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_trivially_moveable' meta-function.
+#endif
+
 template <class t_TYPE,
           bool = bsl::is_reference<t_TYPE>::value ||
                  bsl::is_function<t_TYPE>::value>

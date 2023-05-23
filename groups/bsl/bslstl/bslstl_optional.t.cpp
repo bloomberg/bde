@@ -8248,15 +8248,19 @@ void TestDriver<TYPE>::testCase15()
         if (veryVerbose) {
             P_(valueTypeName);    P_(convObj);    P(convValueType);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            T_ P(std::is_trivially_destructible<Obj>::value);
+            T_ P_(std::is_trivially_destructible<ValueType>::value);
+            P(    std::is_trivially_destructible<Obj>::value);
+            T_ P_(std::is_trivially_copyable<ValueType>::value);
+            P(    std::is_trivially_copyable<Obj>::value);
 #endif
             T_ P_(bslmf::IsBitwiseMoveable<ValueType>::value);
             P(    bslmf::IsBitwiseMoveable<Obj>::value);
             T_ P_(bslmf::IsBitwiseCopyable<ValueType>::value);
             P(    bslmf::IsBitwiseCopyable<Obj>::value);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-            T_ P_(bslmf::IsBitwiseMoveable<std::optional<ValueType>>::value);
-            P(    bslmf::IsBitwiseCopyable<std::optional<ValueType>>::value);
+            T_ P_(bslmf::IsBitwiseMoveable_v<std::optional<ValueType>>);
+            P(    bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>);
+            T_ P( std::is_trivially_copyable_v<std::optional<ValueType>>);
 #endif
             T_ P(usesAllocatorObj);
         }
