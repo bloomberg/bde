@@ -1,6 +1,7 @@
 // bslstl_optional.t.cpp                                              -*-C++-*-
 #include <bslstl_optional.h>
 
+#include <bslstl_compare.h>
 #include <bslstl_string.h>
 
 #include <bsla_maybeunused.h>
@@ -13328,7 +13329,9 @@ int main(int argc, char **argv)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
         BSLMF_ASSERT(( Optional_ConvertibleToBool<bool>));
         BSLMF_ASSERT(( Optional_ConvertibleToBool<int>));
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
         BSLMF_ASSERT((!Optional_ConvertibleToBool<bsl::weak_ordering>));
+# endif
         BSLMF_ASSERT((!Optional_ConvertibleToBool<bsl::nullopt_t>));
 
         class Derived : public bsl::optional<int> {};
