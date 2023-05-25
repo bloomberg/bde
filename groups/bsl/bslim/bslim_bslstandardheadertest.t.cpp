@@ -886,6 +886,684 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'std::ranges' bsl::array container
+        //
+        // Concerns:
+        //: 1 The definitions from '<ranges>' defined by the C++20 Standard are
+        //:   available in C++20 mode in the 'bsl' namespace to users who
+        //:   include 'bsl_ranges.h'.
+        //:
+        //: 2 Constrained versions of algorithms defined by the C++20 Standard
+        //:   are available in C++20 mode in the 'bsl' namespace to users who
+        //:   include 'bsl_algorithm.h' for bsl::array container
+        //
+        // Plan:
+        //: 1 For every type from the 'std::ranges' namespace aliased in the
+        //:   <bsl_ranges.h>, verify that the type exists and is usable.  (C-1)
+        //:
+        //: 2 For every algorithm from the 'std::ranges' namespace aliased in
+        //:   the 'bslstl_algorithm.h', verify that the function exists and is
+        //:   usable by bsl::array.  (C-2)
+        //
+        // Testing
+        //   CONCERN: Entities from 'std::ranges' are available and usable by
+        //   the bsl::array container
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING C++20 'std::ranges' bsl::array container"
+                            "\n====================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        namespace ranges = bsl::ranges;
+
+        // Testing types aliased in the 'bsl_ranges.h'
+
+        using Array = bsl::array<int, 5>;
+
+        Array arr{1, 2, 3, 4, 5};
+
+        auto aBegin   = ranges::begin(arr);
+        auto aEnd     = ranges::end(arr);
+        auto aCBegin  = ranges::cbegin(arr);
+        auto aCEnd    = ranges::cend(arr);
+        auto aRBegin  = ranges::rbegin(arr);
+        auto aREnd    = ranges::rend(arr);
+        auto aCRBegin = ranges::crbegin(arr);
+        auto aCREnd   = ranges::crend(arr);
+        auto aSize    = ranges::size(arr);
+        auto aSSize   = ranges::ssize(arr);
+        bool aEmpty   = ranges::empty(arr);
+        auto aData    = ranges::data(arr);
+        auto aCData   = ranges::cdata(arr);
+
+        ASSERTV(*aBegin,   1        == *aBegin  );
+        ASSERTV(           aBegin   !=  aEnd    );
+        ASSERTV(*aCBegin,  1        == *aCBegin );
+        ASSERTV(           aCBegin  !=  aCEnd   );
+        ASSERTV(*aRBegin,  5        == *aRBegin );
+        ASSERTV(           aRBegin  !=  aREnd   );
+        ASSERTV(*aCRBegin, 5        == *aCRBegin);
+        ASSERTV(           aCRBegin !=  aCREnd  );
+
+        ASSERTV( aSize,    5        ==  aSize   );
+        ASSERTV( aSSize,   5        ==  aSSize  );
+        ASSERTV(           false    ==  aEmpty  );
+        ASSERTV(*aData,    1        == *aData   );
+        ASSERTV(*aCData,   1        == *aCData  );
+
+        // Range primitives
+
+        ranges::iterator_t<Array>         aBeginT = arr.begin();
+        ranges::sentinel_t<Array>         aEndT   = arr.end();
+        ranges::range_size_t<Array>       aSizeT  = arr.size();
+        ranges::range_difference_t<Array> aDiffT =
+                                 bsl::ranges::distance(arr.begin(), arr.end());
+                                              // defined in <bslstl_iterator.h>
+        ranges::range_value_t<Array>            aValueT     = arr[0];
+        ranges::range_reference_t<Array>        aRefT       = arr[0];
+        ranges::range_rvalue_reference_t<Array> aRvalueRefT = 10 * arr[0];
+
+        ASSERTV(*aBeginT,     1    == *aBeginT    );
+        ASSERTV(              aEnd ==  aEndT      );
+        ASSERTV( aSizeT,      5    ==  aSizeT     );
+        ASSERTV( aDiffT,      5    ==  aDiffT     );
+        ASSERTV( aValueT,     1    ==  aValueT    );
+        ASSERTV( aRefT,       1    ==  aRefT      );
+        ASSERTV( aRvalueRefT, 10   ==  aRvalueRefT);
+
+        // Range concepts
+
+        ASSERT(true  == ranges::range<Array>                              );
+        ASSERT(false == ranges::borrowed_range<Array>                     );
+        ASSERT(false == ranges::enable_borrowed_range<Array>              );
+        ASSERT(true  == ranges::sized_range<Array>                        );
+        ASSERT(false == ranges::disable_sized_range<Array>                );
+        ASSERT(false == ranges::view<Array>                               );
+        ASSERT(false == ranges::enable_view<Array>                        );
+
+        ranges::view_base arrbase;
+        static_cast<void>(arrbase);            // suppress compiler warning
+
+        ASSERT( true  == ranges::input_range<Array>                       );
+        ASSERT((false == ranges::output_range<Array,
+                                              ranges::iterator_t<Array> >));
+        ASSERT( true  == ranges::forward_range<Array>                     );
+        ASSERT( true  == ranges::bidirectional_range<Array>               );
+        ASSERT( true  == ranges::random_access_range<Array>               );
+        ASSERT( true  == ranges::contiguous_range<Array>                  );
+        ASSERT( true  == ranges::common_range<Array>                      );
+        ASSERT( true  == ranges::viewable_range<Array>                    );
+
+
+        // Views
+
+        // 'RangesDummyView' is inherited from 'bsl::ranges::view_interface'.
+
+        RangesDummyView dummy;
+        ASSERTV(true == dummy.empty())
+
+        ranges::subrange arrsubrange(arr.begin(), arr.end());
+        ASSERTV(5 == arrsubrange.size())
+
+        // Dangling iterator handling
+
+        const auto arrMaxElement = ranges::max_element(arr);
+                                             // defined in <bslstl_algorithm.h>
+
+        ASSERTV((!bsl::is_same_v<decltype(arrMaxElement), ranges::dangling>));
+
+        ASSERTV((bsl::is_same_v<ranges::borrowed_iterator_t<Array>,
+                                ranges::dangling>));
+        ASSERTV((bsl::is_same_v<ranges::borrowed_subrange_t<Array>,
+                                ranges::dangling>));
+
+        // Factories
+
+        ranges::empty_view<int> emptyView;
+        ASSERTV(!emptyView);
+        ASSERTV(emptyView.empty());
+
+        ranges::single_view<int> singleView(1);
+        ASSERTV(singleView.size(), 1 == singleView.size());
+
+        ranges::iota_view<int, int> iotaView(1, 2);
+        ASSERTV(iotaView.size(), 1 == iotaView.size());
+
+        bsl::istringstream                    iStringStream("1 2 3");
+        ranges::basic_istream_view<int, char> basicIStreamView(iStringStream);
+        auto beginResult = *basicIStreamView.begin();
+        ASSERTV(beginResult, 1 == beginResult);
+
+        ranges::istream_view<int> iStreamView(iStringStream);
+        beginResult = *iStreamView.begin();
+        ASSERTV(beginResult, 2 == beginResult);
+
+        bsl::wstring wString;
+        wString.push_back('1');
+        bsl::wistringstream        wIStringStream(wString);
+        ranges::wistream_view<int> wIStreamView(wIStringStream);
+        beginResult = *wIStreamView.begin();
+        ASSERTV(beginResult, 1 == beginResult);
+
+        auto viewsEmpty = bsl::views::empty<int>;
+        ASSERTV(!viewsEmpty);
+        ASSERTV(viewsEmpty.empty());
+
+        auto viewsSingle = bsl::views::single(1);
+        ASSERTV(viewsSingle.size(), 1 == viewsSingle.size());
+
+        auto viewsIota = bsl::views::iota(1, 2);
+        ASSERTV(viewsIota.size(), 1 == viewsIota.size());
+
+        auto viewsIStream = bsl::views::istream<int>(iStringStream);
+        beginResult       = *viewsIStream.begin();
+        ASSERTV(beginResult, 3 == beginResult);
+
+        // Adaptors
+
+        ranges::ref_view arrRefView = bsl::views::all(arr);
+        ASSERTV(&arr[0] == &arrRefView[0]);
+
+        bsl::views::all_t<decltype((arr))>& arrRefViewRef = arrRefView;
+        static_cast<void>(arrRefViewRef);  // suppress compiler warning
+
+        Array               arrToMove{1, 2, 3, 4, 5};
+        ranges::owning_view arrOwningView =
+                                         bsl::views::all(bsl::move(arrToMove));
+        //ASSERTV(arrToMove.size(),  0 == arrToMove.size());
+        // Works as std::array
+        ASSERTV(arrOwningView.size(), 5 == arrOwningView.size());
+
+        ranges::filter_view arrFilterView =
+                                        bsl::views::filter(arr, [](int value) {
+                                            return value > 3;
+            });
+        ASSERTV(arr.front(), 1 == arr.front());  // 1, 2, 3, 4, 5
+        ASSERTV(arrFilterView.front(), 4 == arrFilterView.front());  // 4, 5
+
+        ranges::transform_view arrTransformView =
+                                     bsl::views::transform(arr, [](int value) {
+                                         return value * 3;
+            });
+        ASSERTV(arr[0], 1 == arr[0]);  // 1, 2, 3, 4, 5
+        ASSERTV(arrTransformView[0],
+                3 == arrTransformView[0]);  // 3, 6, 9, 12, 15
+
+        ranges::take_view arrTakeView = bsl::views::take(arr, 3);
+        ASSERTV(arrTakeView.size(), 3 == arrTakeView.size());  // 1, 2, 3
+
+        ranges::take_while_view arrTakeWhileView =
+                                    bsl::views::take_while(arr, [](int value) {
+                                        return value < 3;
+            });
+        ASSERTV(arrTakeWhileView.front(),
+                1 == arrTakeWhileView.front());  // 1, 2
+
+        ranges::drop_view arrDropView = bsl::views::drop(arr, 3);
+        ASSERTV(arrDropView.size(), 2 == arrDropView.size());  // 4, 5
+
+        ranges::drop_while_view arrDropWhileView =
+                                    bsl::views::drop_while(arr, [](int value) {
+                                        return value < 3;
+            });
+        ASSERTV(arrDropWhileView.size(),
+                3 == arrDropWhileView.size());  // 3, 4, 5
+
+        bsl::array<int, 2>                arr2{4, 5};
+        bsl::array<bsl::array<int, 2>, 3> bigArray = {arr2, arr2, arr2};
+        ranges::join_view                 arrJoinView =
+                               bsl::views::join(bigArray);  // 4, 5, 4, 5, 4, 5
+        ASSERTV(arrJoinView.front(), 4 == arrJoinView.front());
+        ASSERTV(arrJoinView.back(), 5 == arrJoinView.back());
+
+        const auto joinViewCount = bsl::count_if(arrJoinView.begin(),
+                                                 arrJoinView.end(),
+                                                 [](auto const&) {
+                                                     return true;
+                                                 });
+        ASSERT(joinViewCount == 6);
+
+        ranges::lazy_split_view arrLazySplitView = bsl::views::lazy_split(arr,
+                                                                          3);
+        ASSERTV(false == arrLazySplitView.empty());
+
+        ranges::split_view arrSplitView = bsl::views::split(arr, 3);
+        ASSERTV(false == arrSplitView.empty());
+
+        ranges::common_view arrCommonView =
+                                   arr | bsl::views::take_while([](int value) {
+                                       return value < 3;
+            }) |
+            bsl::views::common;
+        ASSERTV(arrCommonView.front(), 1 == arrCommonView.front());  // 1, 2
+
+        ranges::reverse_view arrReverseView = bsl::views::reverse(arr);
+        ASSERTV(arrReverseView.front(), 5 == arrReverseView.front());
+        // 5, 4, 3, 2, 1
+
+        // Enumerations
+
+        ranges::subrange_kind subrangeKind;
+        static_cast<void>(subrangeKind);
+
+        // Testing algorithms aliased in '<bsl_algorithm.h>'
+
+        auto greaterThanTwo = [](int i) {
+            return i > 2;
+        };
+
+        auto multiplyByTwo = [](int& i) {
+            i *= 2;
+            return i;
+        };
+
+        auto generateOne = []() {
+            return 1u;
+        };
+
+        ASSERT(!ranges::all_of(arr, greaterThanTwo));
+        ASSERT(ranges::any_of(arr, greaterThanTwo));
+        ASSERT(!ranges::none_of(arr, greaterThanTwo));
+
+        Array arrToTransform{1, 2, 3, 4, 5};
+
+        ranges::for_each_result arrForEachResult =
+                               ranges::for_each(arrToTransform, multiplyByTwo);
+        ASSERTV(0 == ranges::distance(arrToTransform.end(),
+                                      arrForEachResult.in));
+        ASSERTV(arrToTransform[0], 2 == arrToTransform[0]);  // 2, 4, 6, 8, 10
+
+        ranges::for_each_n_result arrForEachNResult =
+                  ranges::for_each_n(arrToTransform.begin(), 1, multiplyByTwo);
+        // 4, 4, 6, 8, 10
+        ASSERTV(1 == ranges::distance(arrToTransform.begin(),
+                                      arrForEachNResult.in));
+        ASSERTV(arrToTransform[0], 4 == arrToTransform[0]);
+
+        ASSERT(1 == ranges::count(arr, 2));
+        ASSERT(3 == ranges::count_if(arr, greaterThanTwo));
+
+        ranges::mismatch_result arrMismatchResult =
+                                         ranges::mismatch(arr, arrToTransform);
+        ASSERT(0 == ranges::distance(arr.begin(), arrMismatchResult.in1));
+        ASSERT(0 == ranges::distance(arrToTransform.begin(),
+                                     arrMismatchResult.in2));
+
+        ASSERT(true == ranges::equal(arr, arr));
+        ASSERT(false == ranges::lexicographical_compare(arr, arr));
+
+        auto arrFindResult = ranges::find(arr, 1);
+        ASSERT(0 == ranges::distance(arr.begin(), arrFindResult));
+
+        auto arrFindIfResult = ranges::find_if(arr, greaterThanTwo);
+        ASSERT(2 == ranges::distance(arr.begin(), arrFindIfResult));
+
+        auto arrFindIfNotResult = ranges::find_if_not(arr, greaterThanTwo);
+        ASSERT(0 == ranges::distance(arr.begin(), arrFindIfNotResult));
+
+        auto arrFindEndResult = ranges::find_end(arr, arrToTransform);
+        ASSERT(0 == ranges::distance(arr.end(), arrFindEndResult.begin()));
+
+        auto arrFindFirstOfResult = ranges::find_first_of(arr, arr);
+        ASSERT(0 == ranges::distance(arr.begin(), arrFindFirstOfResult));
+
+        auto arrAdjacentFindResult = ranges::adjacent_find(arrToTransform);
+        // 4, 4, 6, 8, 10
+        ASSERT(0 == ranges::distance(arrToTransform.begin(),
+                                     arrAdjacentFindResult));
+
+        auto arrSearchResult = ranges::search(arr, arr);
+        ASSERT(0 == ranges::distance(arr.begin(), arrSearchResult.begin()));
+
+        auto arrSearchNResult = ranges::search_n(arrToTransform, 2, 4);
+        ASSERT(0 == ranges::distance(arrToTransform.begin(),
+                                     arrSearchNResult.begin()));
+
+        Array arrToCopyTo{};
+
+        ranges::copy_result arrCopyResult = ranges::copy(arr,
+                                                         arrToCopyTo.begin());
+        ASSERT(0 == ranges::distance(arr.end(), arrCopyResult.in));
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
+
+        ranges::copy_if_result arrCopyIfResult = ranges::copy_if(
+                                                           arrToTransform,
+                                                           arrToCopyTo.begin(),
+                                                           greaterThanTwo);
+        ASSERT(0 == ranges::distance(arrToTransform.end(),
+                                     arrCopyIfResult.in));
+        ASSERTV(arrToCopyTo[0], 4 == arrToCopyTo[0]);  // 4, 4, 6, 8, 10
+
+        arrToCopyTo = {1, 2, 3, 4, 5};
+        ranges::copy_n_result arrCopyNResult =
+                ranges::copy_n(arrToTransform.begin(), 5, arrToCopyTo.begin());
+        ASSERT(0 == ranges::distance(arrToTransform.begin() + 5,
+                                     arrCopyNResult.in));
+        ASSERTV(arrToCopyTo[0], 4 == arrToCopyTo[0]);  // 4, 4, 6, 8, 10
+
+        ranges::copy_backward_result arrCopyBackResult =
+                                 ranges::copy_backward(arr, arrToCopyTo.end());
+        ASSERT(0 == ranges::distance(arr.end(), arrCopyBackResult.in));
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
+        ASSERTV(arrToCopyTo[4], 5 == arrToCopyTo[4]);  // 1, 2, 3, 4, 5
+
+        Array arrToMoveFrom1 = {5, 4, 3, 2, 1};
+
+        auto arrMoveResult = ranges::move(arrToMoveFrom1, arrToCopyTo.begin());
+        ASSERT(0 == ranges::distance(arrToMoveFrom1.end(), arrMoveResult.in));
+        ASSERTV(arrToCopyTo[0], 5 == arrToCopyTo[0]);  // 5, 4, 3, 2, 1
+
+        Array arrToMoveFrom2 = {5, 4, 3, 2, 1};
+
+        ranges::move_backward_result arrMoveBackResult =
+                    ranges::move_backward(arrToMoveFrom2, arrToCopyTo.begin());
+        ASSERT(0 == ranges::distance(arrToMoveFrom2.end(),
+                                     arrMoveBackResult.in));
+        ASSERTV(arrToCopyTo[0], 5 == arrToCopyTo[0]);  // 5, 4, 3, 2, 1
+
+        ranges::fill(arrToTransform, -1);
+        ASSERTV(arrToTransform[0],
+                -1 == arrToTransform[0]);  // -1, -1, -1, -1, -1
+
+        ranges::fill_n(arrToTransform.begin(), 1, 1);  // 1, -1, -1, -1, -1
+        ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);
+        ASSERTV(arrToTransform[1], -1 == arrToTransform[1]);
+
+        ranges::unary_transform_result uArrTransformResult = ranges::transform(
+                                                        arrToTransform,
+                                                        arrToTransform.begin(),
+                                                        multiplyByTwo);
+        // 2, -2, -2, -2, -2
+        ASSERT(0 == ranges::distance(arrToTransform.end(),
+                                     uArrTransformResult.in));
+        ASSERTV(arrToTransform[0], 2 == arrToTransform[0]);
+        ASSERTV(arrToTransform[1], -2 == arrToTransform[1]);
+
+        ranges::binary_transform_result bArrTransformResult =
+                                     ranges::transform(arr,
+                                                       arrToTransform,
+                                                       arrToTransform.begin(),
+                                                       bsl::multiplies<int>());
+        ASSERT(0 == ranges::distance(arr.end(), bArrTransformResult.in1));
+        ASSERTV(arrToTransform[1], -4 == arrToTransform[1]);
+
+        ranges::generate(arrToTransform, generateOne);  // 1, 1, 1, 1, 1
+        ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);
+
+        arrToTransform[0] = 2;
+
+        ranges::generate_n(arrToTransform.begin(), 1, generateOne);
+        ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);  // 1, 1, 1, 1, 1
+
+        arrToTransform[1] = 2;
+
+        ranges::remove(arrToTransform, 2);
+        ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 1, 1, 1, 1, 1
+
+        arrToTransform[1] = 3;
+
+        ranges::remove_if(arrToTransform, greaterThanTwo);
+        ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 1, 1, 1, 1, 1
+
+        ranges::remove_copy_result arrRemoveCopyResult =
+                              ranges::remove_copy(arr, arrToCopyTo.begin(), 1);
+        ASSERTV(0 == ranges::distance(arr.end(), arrRemoveCopyResult.in));
+        ASSERTV(arrToCopyTo[0], 2 == arrToCopyTo[0]);  // 2, 3, 4, 5, 1
+
+        ranges::remove_copy_if_result arrRemoveCopyIfResult =
+              ranges::remove_copy_if(arr, arrToCopyTo.begin(), greaterThanTwo);
+        ASSERTV(0 == ranges::distance(arr.end(), arrRemoveCopyIfResult.in));
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 4, 5, 1
+
+        ranges::replace(arrToTransform, 1, 3);
+        ASSERTV(arrToTransform[1], 3 == arrToTransform[1]);  // 3, 3, 3, 3, 3
+
+        arrToTransform[0] = 0;
+        ranges::replace_if(arrToTransform, greaterThanTwo, 1);
+        ASSERTV(arrToTransform[0], 0 == arrToTransform[0]);  // 0, 1, 1, 1, 1
+        ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 0, 1, 1, 1, 1
+        arrToTransform[0] = 1;
+
+        ranges::replace_copy_result arrReplaceCopyResult =
+                          ranges::replace_copy(arr, arrToCopyTo.begin(), 1, 3);
+        ASSERTV(0 == ranges::distance(arr.end(), arrReplaceCopyResult.in));
+        ASSERTV(arrToCopyTo[0], 3 == arrToCopyTo[0]);  // 3, 2, 4, 5, 3
+
+        ranges::replace_copy_if_result arrReplaceCopyIfResult =
+                                   ranges::replace_copy_if(arr,
+                                                           arrToCopyTo.begin(),
+                                                           greaterThanTwo,
+                                                           1);
+        ASSERTV(0 == ranges::distance(arr.end(), arrReplaceCopyIfResult.in));
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 1, 1, 1
+
+        Array arrToTransform1{1, 2, 3, 4, 5};
+
+        ranges::swap_ranges_result arrSwapRangesResult =
+                          ranges::swap_ranges(arrToTransform, arrToTransform1);
+        ASSERTV(0 == ranges::distance(arrToTransform.end(),
+                                      arrSwapRangesResult.in1));
+        ASSERTV(arrToTransform[1], 2 == arrToTransform[1]);  // 1, 2, 3, 4, 5
+
+        ranges::reverse(arrToTransform);
+        ASSERTV(arrToTransform[1], 4 == arrToTransform[1]);  // 5, 4, 3, 2, 1
+
+        ranges::reverse_copy_result arrReverseCopyResult =
+                                ranges::reverse_copy(arr, arrToCopyTo.begin());
+        ASSERTV(0 == ranges::distance(arr.end(), arrReverseCopyResult.in));
+        ASSERTV(arr[1], 2 == arr[1]);                  // 1, 2, 3, 4, 5
+        ASSERTV(arrToCopyTo[1], 4 == arrToCopyTo[1]);  // 5, 4, 3, 2, 1
+
+        ranges::rotate(arrToTransform,
+                       arrToTransform.begin() + 1);          // 5, 4, 3, 2, 1
+        ASSERTV(arrToTransform[1], 3 == arrToTransform[1]);  // 4, 3, 2, 1, 5
+
+        ranges::rotate_copy_result arrRotateCopyResult =
+                ranges::rotate_copy(arr, arr.begin() + 2, arrToCopyTo.begin());
+        ASSERTV(0 == ranges::distance(arr.end(), arrRotateCopyResult.in));
+        ASSERTV(arr[1], 2 == arr[1]);                  // 1, 2, 3, 4, 5
+        ASSERTV(arrToCopyTo[1], 4 == arrToCopyTo[1]);  // 3, 4, 5, 1, 2, ...
+
+        ranges::shuffle(arrToTransform, RangesDummyRandomGenerator());
+        ASSERTV(arrToTransform[1],
+                1 <= arrToTransform[1] && 5 >= arrToTransform[1]);
+
+        ranges::sample(arr,
+                       arrToTransform.begin(),
+                       1,
+                       RangesDummyRandomGenerator());
+        ASSERTV(arrToTransform[0],
+                1 <= arrToTransform[0] && 5 >= arrToTransform[0]);
+
+        arrToTransform = Array{1, 1, 1, 2, 2};
+
+        ranges::unique(arrToTransform);
+        ASSERTV(arrToTransform[1], 2 == arrToTransform[1]);  // 1, 2, ?, ?, ?
+
+        arrToTransform = Array{1, 1, 1, 2, 2};
+
+        ranges::unique_copy_result arrUniqueCopyResult =
+                      ranges::unique_copy(arrToTransform, arrToCopyTo.begin());
+        ASSERTV(0 == ranges::distance(arrToTransform.end(),
+                                      arrUniqueCopyResult.in));
+        ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 1, 1, 1, 2, 2
+        ASSERTV(arrToCopyTo[1], 2 == arrToCopyTo[1]);        // 1, 2, 5, 1, 2,
+
+        ASSERTV(false == ranges::is_partitioned(arr, greaterThanTwo));
+
+        arrToTransform = Array{2, 2, 2, 3, 3};
+
+        ranges::partition(arrToTransform, greaterThanTwo);
+        ASSERTV(arrToTransform[1], 3 == arrToTransform[1]);  // 3, 3, 2, 2, 2
+
+        arrToTransform = Array{2, 2, 2, 3, 3};
+
+        ranges::partition_copy_result arrPartitionCopyResult =
+                                ranges::partition_copy(arrToTransform,
+                                                       arrToCopyTo.begin(),
+                                                       arrToCopyTo.begin() + 5,
+                                                       greaterThanTwo);
+        ASSERTV(0 == ranges::distance(arrToTransform.end(),
+                                      arrPartitionCopyResult.in));
+        ASSERTV(arrToTransform[1], 2 == arrToTransform[1]);  // 2, 2, 2, 3, 3
+        ASSERTV(arrToCopyTo[1], 3 == arrToCopyTo[1]);  // 3, 3, 5, 1, 2, 2,
+
+        arrToTransform = Array{2, 2, 2, 3, 4};
+
+        ranges::stable_partition(arrToTransform, greaterThanTwo);
+        ASSERTV(arrToTransform[1], 4 == arrToTransform[1]);  // 3, 4, 2, 2, 2
+
+        auto arrPartitionPoint = ranges::partition_point(arrToTransform,
+                                                         greaterThanTwo);
+        ASSERTV(0 == ranges::distance(arrToTransform.begin() + 2,
+                                      arrPartitionPoint));
+
+        ASSERTV(true == ranges::is_sorted(arr));
+
+        auto isArrSortedUntilResult = ranges::is_sorted_until(arrToTransform);
+        ASSERTV(0 == ranges::distance(arrToTransform.begin() + 2,
+                                      isArrSortedUntilResult));
+
+        ranges::sort(arrToTransform);
+        ASSERTV(arrToTransform[1], 2 == arrToTransform[1]);  // 2, 2, 2, 3, 4
+
+        arrToTransform = Array{5, 4, 3, 2, 1};
+
+        ranges::partial_sort(arrToTransform, arrToTransform.begin() + 1);
+        ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);  // 1, ?, ?, ?, ?
+
+        arrToTransform = Array{5, 4, 3, 2, 1};
+
+        ranges::partial_sort_copy(arrToTransform, arrToCopyTo);
+        ASSERTV(arrToTransform[0], 5 == arrToTransform[0]);  // 5, 4, 3, 2, 1
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);        // 1, 2, 3, 4, 5,
+
+        ranges::stable_sort(arrToTransform);
+        ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);  // 1, 2, 3, 4, 5
+
+        arrToTransform = Array{5, 4, 3, 2, 1};
+
+        ranges::nth_element(arrToTransform, arrToTransform.begin() + 1);
+        ASSERTV(arrToTransform[1], 2 == arrToTransform[1]);  // 1, 2, ?, ?, ?
+
+        const auto arrLowerBoundResult = ranges::lower_bound(arr, 3);
+        ASSERTV(0 == ranges::distance(arr.begin() + 2, arrLowerBoundResult));
+
+        const auto arrUpperBoundResult = ranges::upper_bound(arr, 3);
+        ASSERTV(0 == ranges::distance(arr.begin() + 3, arrUpperBoundResult));
+
+        ASSERTV(true == ranges::binary_search(arr, 3));
+
+        const auto arrEqualRangeResult = ranges::equal_range(arr, 3);
+        ASSERTV(3 == arrEqualRangeResult[0]);
+
+        bsl::array<int, 10>        arrToMergeTo{};
+        const ranges::merge_result arrMergeResult =
+                                 ranges::merge(arr, arr, arrToMergeTo.begin());
+        ASSERTV(0 == ranges::distance(arr.end(), arrMergeResult.in1));
+        ASSERTV(arrToMergeTo[0],
+                1 == arrToMergeTo[0]);  // 1, 1, 2, 2, 3, 3, ...
+        ASSERTV(true == ranges::is_sorted(arrToMergeTo.begin(),
+                                          arrToMergeTo.begin() + 10));
+
+        arrToTransform = Array{4, 5, 1, 2, 3};
+
+        ranges::inplace_merge(arrToTransform, arrToTransform.begin() + 2);
+        ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);  // 1, 2, 3, 4, 5
+
+        ASSERTV(true == ranges::includes(arr, arr));
+
+        const ranges::set_difference_result arrSetDifferenceResult =
+                                   ranges::set_difference(arr.begin(),
+                                                          arr.end(),
+                                                          arr.begin(),
+                                                          arr.begin() + 3,
+                                                          arrToCopyTo.begin());
+        ASSERTV(0 == ranges::distance(arr.end(), arrSetDifferenceResult.in));
+        ASSERTV(arrToCopyTo[0], 4 == arrToCopyTo[0]);  // 4, 5, 3, 4, 5
+
+        const ranges::set_intersection_result arrSetIntersectionResult =
+                       ranges::set_intersection(arr, arr, arrToCopyTo.begin());
+        ASSERTV(0 == ranges::distance(arr.end(),
+                                      arrSetIntersectionResult.in1));
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
+
+        arrToTransform = Array{4, 5, 6, 7, 8};
+
+        const ranges::set_symmetric_difference_result
+            arrSetSymmetricDifferenceResult = ranges::set_symmetric_difference(
+                                                          arr,
+                                                          arrToTransform,
+                                                          arrToCopyTo.begin());
+        ASSERTV(0 == ranges::distance(arr.end(),
+                                      arrSetSymmetricDifferenceResult.in1));
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 6, 7
+
+        const ranges::set_union_result arrSetUnionResult =
+                   ranges::set_union(arr, arrToTransform, arrToCopyTo.begin());
+        ASSERTV(0 == ranges::distance(arr.end(), arrSetUnionResult.in1));
+        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
+
+        ASSERTV(false == ranges::is_heap(arrToTransform));
+
+        ASSERTV(true == ranges::is_heap(arrToTransform.begin(),
+                                        arrToTransform.begin() + 1));
+
+        ranges::make_heap(arrToTransform);
+        ASSERTV(arrToTransform[0], 8 == arrToTransform[0]);  // 8, 7, 6, 4, 5
+
+        arrToTransform.back() = 9;
+        ranges::push_heap(arrToTransform);
+        ASSERTV(arrToTransform[0], 9 == arrToTransform[0]);  // 9, 8, 6, 4, 7
+
+        ranges::pop_heap(arrToTransform);
+        ASSERTV(arrToTransform[0], 8 == arrToTransform[0]);  // 8, 7, 6, 4, 9
+
+        ranges::push_heap(arrToTransform);  // 9, 8, 6, 4, 7
+
+        ranges::sort_heap(arrToTransform);
+        ASSERTV(arrToTransform[0], 4 == arrToTransform[0]);  // 4, 6, 7, 8, 9
+
+        ASSERTV(5 == ranges::max(arr));
+
+        const auto rArrMaxElement = ranges::max_element(arr);
+        ASSERTV(0 == ranges::distance(arr.begin() + 4, rArrMaxElement));
+
+        ASSERTV(1 == ranges::min(arr));
+
+        const auto arrMinElement = ranges::min_element(arr);
+        ASSERTV(0 == ranges::distance(arr.begin(), arrMinElement));
+
+        const ranges::minmax_result arrMinMaxResult = ranges::minmax(arr);
+        ASSERTV(arrMinMaxResult.min, 1 == arrMinMaxResult.min);
+        ASSERTV(arrMinMaxResult.max, 5 == arrMinMaxResult.max);
+
+        const ranges::minmax_element_result arrMinMaxElementResult =
+                                                   ranges::minmax_element(arr);
+        ASSERTV(0 == ranges::distance(arr.begin(),
+                                      arrMinMaxElementResult.min));
+
+        ASSERT(2 == bsl::clamp(1, 2, 3));
+
+        ASSERT(true == ranges::is_permutation(arr, arr));
+
+        arrToTransform = Array{1, 2, 3, 4, 5};
+
+        const ranges::next_permutation_result arrNextPermutationResult =
+                                      ranges::next_permutation(arrToTransform);
+        ASSERTV(0 == ranges::distance(arrToTransform.end(),
+                                      arrNextPermutationResult.in));
+        ASSERTV(arrToTransform[3], 5 == arrToTransform[3]);  // 1, 2, 3, 5, 4
+
+        const ranges::prev_permutation_result arrPrevPermutationResult =
+                                      ranges::prev_permutation(arrToTransform);
+        ASSERTV(0 == ranges::distance(arrToTransform.end(),
+                                      arrPrevPermutationResult.in));
+        ASSERTV(arrToTransform[3], 4 == arrToTransform[3]);  // 1, 2, 3, 4, 5
+
+#endif
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // C++20 '<bsl_coroutine.h>'
