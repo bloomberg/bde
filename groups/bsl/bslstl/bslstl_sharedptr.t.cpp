@@ -64,6 +64,8 @@
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
 
+#include <cstdlib>       // 'rand'
+#include <ctime>         // 'time'
 #include <new>           // 'operator delete'
 #include <stdio.h>
 #include <stdlib.h>      // 'atoi'
@@ -330,6 +332,10 @@ using namespace BloombergLP;
 // [32] shared_ptr<T> make_shared<T>(const A1& a1, ...& a12)
 // [32] shared_ptr<T> make_shared<T>(const A1& a1, ...& a13)
 // [32] shared_ptr<T> make_shared<T>(const A1& a1, ...& a14)
+// [47] shared_ptr<T[N]> make_shared<T[N]>();
+// [47] shared_ptr<T[]>  make_shared<T[]>();
+// [47] shared_ptr<T[N]> allocate_shared<T[N]>();
+// [47] shared_ptr<T[]>  allocate_shared<T[]>();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST (shared_ptr)
 // [ 3] shared_ptr(TYPE *ptr) // synthesized
@@ -2594,6 +2600,78 @@ struct NonNothrowAndNonBitwiseMovableTestType {
                                  const NonNothrowAndNonBitwiseMovableTestType&)
         // Test user defined copy constructor.
     {
+    }
+};
+
+                   // =====================================
+                   // class CountConstructorsAndDestructors
+                   // =====================================
+
+size_t gConstructorToThrowOn;
+size_t gNumConstructors;
+size_t gNumDestructors;
+
+                     // ----------------------------------
+                     // class SometimesThrowOnConstruction
+                     // ----------------------------------
+
+
+struct CountConstructorsAndDestructors {
+    // A struct that records the number of calls to the constructor and
+    // destructor
+  private:
+    // DATA
+
+    // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
+    // to include data to ensure that our tests work as intended.
+    BSLA_MAYBE_UNUSED int d_dummy;
+
+  public:
+    // CREATORS
+    CountConstructorsAndDestructors()
+        // Construct the object. Record the fact in 's_numConstructors'.
+    {
+        ++gNumConstructors;
+    }
+
+    ~CountConstructorsAndDestructors()
+        // Destruct the object. Record the fact in 's_numDestructors'.
+    {
+        ++gNumDestructors;
+    }
+};
+
+                     // ==================================
+                     // class SometimesThrowOnConstruction
+                     // ==================================
+
+struct SometimesThrowOnConstruction {
+    // A struct that occasionally throws from the constructor, and records the
+    // number of successful calls to the constructor and destructor
+    static size_t s_numConstructors;
+    static size_t s_numDestructors;
+  private:
+    // DATA
+
+    // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
+    // to include data to ensure that our tests work as intended.
+    BSLA_MAYBE_UNUSED int d_dummy;
+
+  public:
+    // CREATORS
+    SometimesThrowOnConstruction()
+        // Construct an object.  About 1/gNumConstructors of the time, throw an
+        // error.  If the object was successfully constructed, record the fact
+        // in 's_numConstructors'
+    {
+        if (gNumConstructors == gConstructorToThrowOn) throw 4;
+        ++gNumConstructors;
+    }
+
+    ~SometimesThrowOnConstruction()
+        // Destruct the object. Record the fact in 's_numDestructors'.
+    {
+        ++gNumDestructors;
     }
 };
 
@@ -7974,6 +8052,154 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 47: {
+        // ------------------------------------------------------------------
+        // TESTING ARRAY CONSTRUCTION WITH EXCEPTIONS
+        //
+        // Concern:
+        //: 1 That make_shared<T[N]>() constructs N objects.
+        //: 2 When constructing N elements of an array, if one of the
+        //:   constructors throws, then all of the previously constructed
+        //:   elements are destroyed.
+        //
+        // Plan:
+        //: 1 Create shared_pointers of arrays, counting the constructor and
+        //:   destructor calls.
+        //
+        // Testing:
+        //   shared_ptr<T[N]> make_shared<T[N]>();
+        //   shared_ptr<T[]>  make_shared<T[]>();
+        //   shared_ptr<T[N]> allocate_shared<T[N]>();
+        //   shared_ptr<T[]>  allocate_shared<T[]>();
+        // ------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING ARRAY CONSTRUCTION WITH EXCEPTIONS"
+                   "\n==========================================\n");
+        const size_t SIZE = 10;
+
+        typedef CountConstructorsAndDestructors CCDSZ[SIZE];
+        typedef SometimesThrowOnConstruction    STOCSZ[SIZE];
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        typedef CountConstructorsAndDestructors CCDUSZ[];
+        typedef SometimesThrowOnConstruction    STOCUSZ[];
+#endif
+
+        if (veryVerbose)
+            printf("\tTesting make_shared\n");
+
+        // statically-sized array
+        gNumConstructors = 0;
+        gNumDestructors = 0;
+        {
+            bsl::shared_ptr<CCDSZ> p = bsl::make_shared<CCDSZ>();
+            ASSERT(SIZE == gNumConstructors);
+        }
+        ASSERT(SIZE == gNumConstructors);
+        ASSERT(SIZE == gNumDestructors);
+
+        // dynamically-sized array
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        gNumConstructors = 0;
+        gNumDestructors = 0;
+        {
+            bsl::shared_ptr<CCDUSZ> p = bsl::make_shared<CCDUSZ>(SIZE);
+            ASSERT(SIZE == gNumConstructors);
+        }
+        ASSERT(SIZE == gNumConstructors);
+        ASSERT(SIZE == gNumDestructors);
+#endif
+
+        // statically-sized array, which may throw
+        for (size_t i = 0; i <= SIZE; ++i) {
+            gNumConstructors = 0;
+            gNumDestructors = 0;
+            gConstructorToThrowOn = i;
+            try {
+                bsl::shared_ptr<STOCSZ> p = bsl::make_shared<STOCSZ>();
+                ASSERT(i >= SIZE); // we didn't throw
+            }
+            catch (const int &) {}
+            ASSERT(gNumConstructors == gConstructorToThrowOn);
+            ASSERT(gNumDestructors == gConstructorToThrowOn);
+        }
+
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        // dynamically-sized array, which may throw
+        for (size_t i = 0; i <= SIZE; ++i) {
+            gNumConstructors = 0;
+            gNumDestructors = 0;
+            gConstructorToThrowOn = i;
+            try {
+                bsl::shared_ptr<STOCUSZ> p = bsl::make_shared<STOCUSZ>(SIZE);
+                ASSERT(i >= SIZE); // we didn't throw
+            }
+            catch (const int &) {}
+            ASSERT(gNumConstructors == gConstructorToThrowOn);
+            ASSERT(gNumDestructors == gConstructorToThrowOn);
+        }
+#endif
+
+        if (veryVerbose)
+            printf("\tTesting allocate_shared\n");
+        bslma::TestAllocator ta(veryVerbose);
+
+        // statically-sized array
+        gNumConstructors = 0;
+        gNumDestructors = 0;
+        {
+            bsl::shared_ptr<CCDSZ> p = bsl::allocate_shared<CCDSZ>(&ta);
+            ASSERT(SIZE == gNumConstructors);
+        }
+        ASSERT(SIZE == gNumConstructors);
+        ASSERT(SIZE == gNumDestructors);
+
+        // dynamically-sized array
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        gNumConstructors = 0;
+        gNumDestructors = 0;
+        {
+            bsl::shared_ptr<CCDUSZ> p =
+                                       bsl::allocate_shared<CCDUSZ>(&ta, SIZE);
+            ASSERT(SIZE == gNumConstructors);
+        }
+        ASSERT(SIZE == gNumConstructors);
+        ASSERT(SIZE == gNumDestructors);
+#endif
+
+        // statically-sized array, which may throw
+        for (size_t i = 0; i <= SIZE; ++i) {
+            gNumConstructors = 0;
+            gNumDestructors = 0;
+            gConstructorToThrowOn = i;
+            try {
+                bsl::shared_ptr<STOCSZ> p = bsl::allocate_shared<STOCSZ>(&ta);
+                ASSERT(i >= SIZE); // we didn't throw
+            }
+            catch (const int &) {}
+            ASSERT(gNumConstructors == gConstructorToThrowOn);
+            ASSERT(gNumDestructors == gConstructorToThrowOn);
+        }
+
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        // dynamically-sized array, which may throw
+        for (size_t i = 0; i <= SIZE; ++i) {
+            gNumConstructors = 0;
+            gNumDestructors = 0;
+            gConstructorToThrowOn = i;
+            try {
+                bsl::shared_ptr<STOCUSZ> p =
+                                      bsl::allocate_shared<STOCUSZ>(&ta, SIZE);
+                ASSERT(i >= SIZE); // we didn't throw
+            }
+            catch (const int &) {}
+            ASSERT(gNumConstructors == gConstructorToThrowOn);
+            ASSERT(gNumDestructors == gConstructorToThrowOn);
+        }
+#endif
+
+        ASSERT(ta.numAllocations() == ta.numDeallocations());
+      } break;
       case 46: {
         // ------------------------------------------------------------------
         // TESTING IF 'U_ENABLE_DEPRECATIONS' IS DISABLED
@@ -14081,6 +14307,71 @@ int main(int argc, char *argv[])
         Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
 #endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
+        if (verbose)
+            printf(
+               "\nTesting 'allocate_shared(alloc *)' with sized array type"
+               "\n--------------------------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        {
+            const size_t ARRAY_SIZE = 5;
+            typedef size_t ArrayType[ARRAY_SIZE];
+            typedef bsl::shared_ptr<ArrayType> SP;
+
+            SP        x1 = bsl::allocate_shared<ArrayType>(&ta);
+            SP        x2 = bsl::allocate_shared<ArrayType>(&ta, 7);
+            const SP& X1 = x1;
+            const SP& X2 = x2;
+
+            ASSERT(2 == ta.numAllocations() - numAllocations);
+            ASSERT(X1);
+            ASSERT(X2);
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                x1[i] = i;
+            }
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                ASSERTV(i, X1[i] == i);
+                ASSERTV(i, X2[i] == 7);
+            }
+
+        }
+        ASSERT(ta.numDeallocations() == ta.numAllocations());
+
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        if (verbose)
+            printf(
+             "\nTesting 'allocate_shared(alloc *)' with unsized array type"
+             "\n----------------------------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        {
+            const size_t ARRAY_SIZE = 5;
+            typedef size_t ArrayType[];
+            typedef bsl::shared_ptr<ArrayType> SP;
+
+            SP        x1 = bsl::allocate_shared<ArrayType>(&ta, ARRAY_SIZE);
+            SP        x2 = bsl::allocate_shared<ArrayType>(&ta, ARRAY_SIZE, 7);
+            const SP& X1 = x1;
+            const SP& X2 = x2;
+
+            ASSERT(2 == ta.numAllocations() - numAllocations);
+            ASSERT(X1);
+            ASSERT(X2);
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                x1[i] = i;
+            }
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                ASSERTV(X1[i] == i);
+                ASSERTV(X2[i] == 7);
+            }
+
+        }
+        ASSERT(ta.numDeallocations() == ta.numAllocations());
+#endif
         // TBD: EXCEPTION-SAFETY TESTS (0-14 arguments)
         //      (no negative testing as contract is wide)
 
@@ -14170,6 +14461,74 @@ int main(int argc, char *argv[])
         ALLOC_B allocB(&ta);
         Harness::testCase33(allocB);
 
+        if (verbose)
+            printf(
+                 "\nTesting 'allocate_shared(alloc)' with sized array type"
+                 "\n------------------------------------------------------\n");
+
+        numAllocations   = ta.numAllocations();
+        {
+            const size_t ARRAY_SIZE = 5;
+            typedef size_t ArrayType[ARRAY_SIZE];
+            typedef bsl::shared_ptr<ArrayType> SP;
+
+            SP        x1 = bsl::allocate_shared<ArrayType>(allocA);
+            SP        x2 = bsl::allocate_shared<ArrayType>(allocA, 7);
+            const SP& X1 = x1;
+            const SP& X2 = x2;
+
+            ASSERT(2 == ta.numAllocations() - numAllocations);
+            ASSERT(X1);
+            ASSERT(X2);
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                x1[i] = i;
+            }
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                ASSERTV(i, X1[i] == i);
+                ASSERTV(i, X2[i] == 7);
+            }
+
+        }
+        ASSERT(ta.numDeallocations() == ta.numAllocations());
+
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        if (verbose)
+            printf(
+               "\nTesting 'allocate_shared(alloc)' with unsized array type"
+               "\n--------------------------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        {
+            const size_t ARRAY_SIZE = 5;
+            typedef size_t ArrayType[];
+            typedef bsl::shared_ptr<ArrayType> SP;
+
+            SP        x1 = bsl::allocate_shared<ArrayType>(allocA, ARRAY_SIZE);
+            SP        x2 = bsl::allocate_shared<ArrayType>(allocA,
+                                                           ARRAY_SIZE,
+                                                           7);
+            const SP& X1 = x1;
+            const SP& X2 = x2;
+
+            ASSERT(2 == ta.numAllocations() - numAllocations);
+            ASSERT(X1);
+            ASSERT(X2);
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                x1[i] = i;
+            }
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                ASSERTV(X1[i] == i);
+                ASSERTV(X2[i] == 7);
+            }
+
+        }
+        ASSERT(ta.numDeallocations() == ta.numAllocations());
+#endif
+
 #if defined(BDE_BUILD_TARGET_EXC)
         // Test for no leaks when allocated object's constructor throws..
         int constructCount = 0;
@@ -14189,6 +14548,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
 #endif
+
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -14866,6 +15226,69 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.get()->numAllocations());
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with sized array type"
+                            "\n-------------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        {
+            const size_t ARRAY_SIZE = 5;
+            typedef size_t ArrayType[ARRAY_SIZE];
+            typedef bsl::shared_ptr<ArrayType> SP;
+
+            SP        x1 = bsl::make_shared<ArrayType>();
+            SP        x2 = bsl::make_shared<ArrayType>(7);
+            const SP& X1 = x1;
+            const SP& X2 = x2;
+
+            ASSERT(2 == ta.numAllocations() - numAllocations);
+            ASSERT(X1);
+            ASSERT(X2);
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                x1[i] = i;
+            }
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                ASSERTV(i, X1[i] == i);
+                ASSERTV(i, X2[i] == 7);
+            }
+
+        }
+        ASSERT(ta.numDeallocations() == ta.numAllocations());
+
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        if (verbose)
+            printf("\nTesting 'make_shared' with unsized array type"
+                   "\n---------------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        {
+            const size_t ARRAY_SIZE = 5;
+            typedef size_t ArrayType[];
+            typedef bsl::shared_ptr<ArrayType> SP;
+
+            SP    x1 = bsl::make_shared<ArrayType>(ARRAY_SIZE);
+            SP    x2 = bsl::make_shared<ArrayType>(ARRAY_SIZE, 7);
+            const SP& X1 = x1;
+            const SP& X2 = x2;
+
+            ASSERT(2 == ta.numAllocations() - numAllocations);
+            ASSERT(X1);
+            ASSERT(X2);
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                x1[i] = i;
+            }
+
+            for (size_t i = 0; i < ARRAY_SIZE; ++i) {
+                ASSERTV(X1[i] == i);
+                ASSERTV(X2[i] == 7);
+            }
+
+        }
+        ASSERT(ta.numDeallocations() == ta.numAllocations());
+#endif
 
 #if defined(BDE_BUILD_TARGET_EXC)
         // Test for no leaks when allocated object's constructor throws..

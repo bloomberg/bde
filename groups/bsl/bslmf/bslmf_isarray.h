@@ -125,6 +125,70 @@ BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_array_v =
     // 'bsl::is_array' meta-function.
 #endif
 
+                     // =======================
+                     // struct is_bounded_array
+                     // =======================
+
+template <class t_TYPE>
+struct is_bounded_array : false_type {
+    // This 'struct' template implements the 'is_bounded_array' meta-function
+    // defined in the C++20 standard [meta.unary.cat] to determine if the
+    // (template parameter) 't_TYPE' is an array type of known bound.  This
+    // 'struct' derives from 'bsl::true_type' if the 't_TYPE' is an array type
+    // of known bound, and 'bsl::false_type' otherwise.
+};
+
+template <class t_TYPE, std::size_t t_NUM_ELEMENTS>
+struct is_bounded_array<t_TYPE[t_NUM_ELEMENTS]> : true_type {
+    // This specialization of 'is_bounded_array', for when the (template
+    // parameter) 't_TYPE' is an array type of known bound, derives from
+    // 'bsl::true_type'.
+};
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+template <class t_TYPE>
+struct is_bounded_array<t_TYPE[]> : false_type {
+    // IBM miscomputes the SFINAE condition for arrays of unknown bound, so we
+    // provide an additional partial specialization for this platform.
+};
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_bounded_array_v =
+                                               is_bounded_array<t_TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_bounded_array' meta-function.
+#endif
+
+                    // =========================
+                    // struct is_unbounded_array
+                    // ==============--=========
+
+template <class t_TYPE>
+struct is_unbounded_array : false_type {
+    // This 'struct' template implements the 'is_unbounded_array' meta-function
+    // defined in the C++20 standard [meta.unary.cat] to determine if the
+    // (template parameter) 't_TYPE' is an array type of unknown bound.  This
+    // 'struct' derives from 'bsl::true_type' if the 't_TYPE' is an array type
+    // of unknown bound, and 'bsl::false_type' otherwise.
+};
+
+template <class t_TYPE>
+struct is_unbounded_array<t_TYPE[]> : true_type {
+    // This specialization of 'is_unbounded_array', for when the (template
+    // parameter) 't_TYPE' is an array type of unknown bound, derives from
+    // 'bsl::true_type'.
+};
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_unbounded_array_v =
+                                             is_unbounded_array<t_TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_unbounded_array_v' meta-function.
+#endif
+
 }  // close namespace bsl
 
 namespace BloombergLP {

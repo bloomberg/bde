@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Feb 15 08:05:34 2023
+// Generated on Tue May 23 17:55:38 2023
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -67,21 +67,6 @@
 // "expression-SFINAE", to the extent that it works for this component, unlike
 // earlier versions of that compiler.  We therefore make a special version-test
 // on Microsoft in addition to the feature testing.
-#endif
-
-# if defined(BSLS_PLATFORM_CMP_GNU)
-# define BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER 1
-// If the macro 'BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER' is
-// defined, we recognize that some compilers need an extra hint to disambiguate
-// overload resolution when passed a 'bslma::Allocator *' pointer, that might
-// also deduce (incorrectly) as a C++11-style allocator.  Gcc is known to have
-// this problem, and was tested as recently as gcc 9. This compiler has a
-// problem partially ordering function templates that differ only by the first
-// argument deducing as any object type ('T'), or deducing as the a pointer to
-// something ('T*').  The rules for partial ordering should make the second
-// overload a stronger match when passed a pointer; however, this compiler
-// complains about ambiguities when additional parameters are involved.  This
-// appears to be fixed in gcc 10.
 #endif
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
@@ -405,7 +390,7 @@ class shared_ptr {
         //  shared_ptr(CONVERTIBLE_TYPE *ptr, DELETER * deleter);
         //..
 
-    shared_ptr(ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
+    shared_ptr(element_type *ptr, BloombergLP::bslma::SharedPtrRep *rep);
         // Create a shared pointer that takes ownership of the specified 'rep'
         // and refers to the modifiable object at the specified 'ptr' address.
         // The number of references to 'rep' is *NOT* incremented.  Note that
@@ -2004,6 +1989,10 @@ shared_ptr<TO_TYPE> reinterpret_pointer_cast(
 
 
 // STANDARD FACTORY FUNCTIONS
+                     // ===========================
+                     // allocate_shared(ALLOC, ...)
+                     // ===========================
+
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
@@ -2015,25 +2004,15 @@ shared_ptr<TO_TYPE> reinterpret_pointer_cast(
 #endif
 #if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 0
 template<class ELEMENT_TYPE, class ALLOC>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator);
 #endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 0
 
 #if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 1
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
 #endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 1
@@ -2041,13 +2020,8 @@ allocate_shared(ALLOC basicAllocator,
 #if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 2
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
@@ -2057,13 +2031,8 @@ allocate_shared(ALLOC basicAllocator,
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2075,13 +2044,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
                                           class ARGS_04>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2095,13 +2059,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_03,
                                           class ARGS_04,
                                           class ARGS_05>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2117,13 +2076,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_04,
                                           class ARGS_05,
                                           class ARGS_06>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2141,13 +2095,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_05,
                                           class ARGS_06,
                                           class ARGS_07>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2167,13 +2116,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_06,
                                           class ARGS_07,
                                           class ARGS_08>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2195,13 +2139,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_07,
                                           class ARGS_08,
                                           class ARGS_09>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2225,13 +2164,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_08,
                                           class ARGS_09,
                                           class ARGS_10>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2257,13 +2191,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_09,
                                           class ARGS_10,
                                           class ARGS_11>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2291,13 +2220,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_10,
                                           class ARGS_11,
                                           class ARGS_12>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2327,13 +2251,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_11,
                                           class ARGS_12,
                                           class ARGS_13>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2365,13 +2284,8 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_12,
                                           class ARGS_13,
                                           class ARGS_14>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
                    shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
 allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2389,75 +2303,152 @@ allocate_shared(ALLOC basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14);
 #endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 14
 
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+typename enable_if<!is_array<ELEMENT_TYPE>::value && !is_pointer<ALLOC>::value,
+                   shared_ptr<ELEMENT_TYPE> >::type
+allocate_shared(ALLOC basicAllocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 0
+// }}} END GENERATED CODE
+#endif
+
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_bounded_array<ARRAY_TYPE>::value &&
+                                                     !is_pointer<ALLOC>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(ALLOC basicAllocator);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a bounded array.  The specified
+    // 'basicAllocator' will be used to supply a single contiguous region of
+    // memory holding the returned shared pointer's internal representation and
+    // the new 'ARRAY_TYPE' object, and each element in the array is default
+    // constructed.
+
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_bounded_array<ARRAY_TYPE>::value &&
+                                                     !is_pointer<ALLOC>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(ALLOC                                           basicAllocator,
+                const typename remove_extent<ARRAY_TYPE>::type& value);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a bounded array.  The specified
+    // 'basicAllocator' will be used to supply a single contiguous region of
+    // memory holding the returned shared pointer's internal representation and
+    // the new 'ARRAY_TYPE' object, and each element in the array is
+    // constructed from the specified 'value'.
+
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_unbounded_array<ARRAY_TYPE>::value &&
+                                                     !is_pointer<ALLOC>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(ALLOC basicAllocator, size_t numElements);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a unbounded array.  The
+    // specified 'basicAllocator' will be used to supply a single contiguous
+    // region of memory holding the returned shared pointer's internal
+    // representation and the new 'ARRAY_TYPE' containing the specified
+    // 'numElements' number of elements, and each element in the array is
+    // default constructed.
+
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_unbounded_array<ARRAY_TYPE>::value &&
+                                                     !is_pointer<ALLOC>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(ALLOC                                           basicAllocator,
+                size_t                                          numElements,
+                const typename remove_extent<ARRAY_TYPE>::type& value);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a unbounded array.  The
+    // specified 'basicAllocator' will be used to supply a single contiguous
+    // region of memory holding the returned shared pointer's internal
+    // representation and the new 'ARRAY_TYPE' containing the specified
+    // 'numElements' number of elements, and each element in the array is
+    // constructed from the specified 'value'.
+
+                    // =============================
+                    // allocate_shared(ALLOC *, ...)
+                    // =============================
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_sharedptr.h
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#endif
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 0
 template<class ELEMENT_TYPE, class ALLOC>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 1
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 2
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 3
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 4
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
                                           class ARGS_04>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 5
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
                                           class ARGS_04,
                                           class ARGS_05>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 6
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2465,7 +2456,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_05,
                                           class ARGS_06>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2473,9 +2464,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 7
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2484,7 +2475,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_06,
                                           class ARGS_07>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2493,9 +2484,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 8
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2505,7 +2496,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_07,
                                           class ARGS_08>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2515,9 +2506,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 9
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2528,7 +2519,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_08,
                                           class ARGS_09>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2539,9 +2530,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 10
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2553,7 +2544,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_09,
                                           class ARGS_10>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2565,9 +2556,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 10
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 11
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2580,7 +2571,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_10,
                                           class ARGS_11>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2593,9 +2584,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 11
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 12
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2609,7 +2600,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_11,
                                           class ARGS_12>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2623,9 +2614,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 12
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 13
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2640,7 +2631,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_12,
                                           class ARGS_13>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2655,9 +2646,9 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 13
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 14
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 14
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -2673,7 +2664,7 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_13,
                                           class ARGS_14>
 typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+                    shared_ptr<ELEMENT_TYPE> >::type
 allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -2689,89 +2680,167 @@ allocate_shared(ALLOC *basicAllocator,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 14
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 14
 
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+typename enable_if<!is_array<ELEMENT_TYPE>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+allocate_shared(ALLOC *basicAllocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+// }}} END GENERATED CODE
+#endif
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 0
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_bounded_array<ARRAY_TYPE>::value,
+                    shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(ALLOC *basicAllocator);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a bounded array.  The specified
+    // 'basicAllocator' will be used to supply a single contiguous region of
+    // memory holding the returned shared pointer's internal representation and
+    // the new 'ARRAY_TYPE' object, and each element in the array is default
+    // constructed.  If 'basicAllocator' is 0, then the default allocator will
+    // be used instead.
+
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_bounded_array<ARRAY_TYPE>::value,
+                    shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(
+               ALLOC                                           *basicAllocator,
+               const typename remove_extent<ARRAY_TYPE>::type&  value);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a bounded array.  The specified
+    // 'basicAllocator' will be used to supply a single contiguous region of
+    // memory holding the returned shared pointer's internal representation and
+    // the new 'ARRAY_TYPE' object, and each element in the array is
+    // constructed from the specified 'value'.  If 'basicAllocator' is 0, then
+    // the default allocator will be used instead.
+
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_unbounded_array<ARRAY_TYPE>::value,
+                    shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(ALLOC *basicAllocator, size_t numElements);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a unbounded array.  The
+    // specified 'basicAllocator' will be used to supply a single contiguous
+    // region of memory holding the returned shared pointer's internal
+    // representation and the new 'ARRAY_TYPE' containing the specified
+    // 'numElements' number of elements, and each element in the array is
+    // default constructed.  If 'basicAllocator' is 0, then the default
+    // allocator will be used instead.
+
+template<class ARRAY_TYPE, class ALLOC>
+typename enable_if<is_unbounded_array<ARRAY_TYPE>::value,
+                    shared_ptr<ARRAY_TYPE> >::type
+allocate_shared(
+               ALLOC                                           *basicAllocator,
+               size_t                                           numElements,
+               const typename remove_extent<ARRAY_TYPE>::type&  value);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a unbounded array.  The
+    // specified 'basicAllocator' will be used to supply a single contiguous
+    // region of memory holding the returned shared pointer's internal
+    // representation and the new 'ARRAY_TYPE' containing the specified
+    // 'numElements' number of elements, and each element in the array is
+    // constructed from the specified 'value'.  If 'basicAllocator' is 0, then
+    // the default allocator will be used instead.
+
+                         // ================
+                         // make_shared(...)
+                         // ================
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_sharedptr.h
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#endif
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
 template<class ELEMENT_TYPE>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared();
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
 template<class ELEMENT_TYPE, class ARGS_01>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
                              class ARGS_04>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
                              class ARGS_04,
                              class ARGS_05>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
                              class ARGS_04,
                              class ARGS_05,
                              class ARGS_06>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2779,8 +2848,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_05,
                              class ARGS_06,
                              class ARGS_07>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2788,9 +2857,9 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2799,8 +2868,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_06,
                              class ARGS_07,
                              class ARGS_08>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2809,9 +2878,9 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2821,8 +2890,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_07,
                              class ARGS_08,
                              class ARGS_09>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2832,9 +2901,9 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2845,8 +2914,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_08,
                              class ARGS_09,
                              class ARGS_10>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2857,9 +2926,9 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2871,8 +2940,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_09,
                              class ARGS_10,
                              class ARGS_11>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2884,9 +2953,9 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2899,8 +2968,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_10,
                              class ARGS_11,
                              class ARGS_12>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2913,9 +2982,9 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2929,8 +2998,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_11,
                              class ARGS_12,
                              class ARGS_13>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2944,9 +3013,9 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 14
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -2961,8 +3030,8 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_12,
                              class ARGS_13,
                              class ARGS_14>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -2977,34 +3046,66 @@ make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14);
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_B >= 14
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename enable_if<!is_pointer<ALLOC>::value && !is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-# endif
-allocate_shared(ALLOC basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
-
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
-allocate_shared(ALLOC *basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
-
 template<class ELEMENT_TYPE, class... ARGS>
-typename enable_if<!is_array<ELEMENT_TYPE>::value,
-                   shared_ptr<ELEMENT_TYPE> >::type
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
 // }}} END GENERATED CODE
 #endif
+
+template<class ARRAY_TYPE>
+typename enable_if<is_bounded_array<ARRAY_TYPE>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+make_shared();
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a bounded array.  The default
+    // allocator will be used to supply a single contiguous region of memory
+    // holding the returned shared pointer's internal representation and the
+    // new 'ARRAY_TYPE' object, and each element in the array is default
+    // constructed.
+
+template<class ARRAY_TYPE>
+typename enable_if<is_bounded_array<ARRAY_TYPE>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+make_shared(const typename remove_extent<ARRAY_TYPE>::type& value);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a bounded array.  The default
+    // allocator will be used to supply a single contiguous region of memory
+    // holding the returned shared pointer's internal representation and the
+    // new 'ARRAY_TYPE' object, and each element in the array is constructed
+    // from the specified 'value'.
+
+// unbounded array overloads
+template<class ARRAY_TYPE>
+typename enable_if<is_unbounded_array<ARRAY_TYPE>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+make_shared(size_t numElements);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a unbounded array.  The
+    // specified 'basicAllocator' will be used to supply a single contiguous
+    // region of memory holding the returned shared pointer's internal
+    // representation and the new 'ARRAY_TYPE' containing the specified
+    // 'numElements' number of elements, and each element in the array is
+    // default constructed.
+
+template<class ARRAY_TYPE>
+typename enable_if<is_unbounded_array<ARRAY_TYPE>::value,
+                   shared_ptr<ARRAY_TYPE> >::type
+make_shared(size_t                                          numElements,
+            const typename remove_extent<ARRAY_TYPE>::type& value);
+    // Return a 'shared_ptr' object referring to and managing a new
+    // 'ARRAY_TYPE' object, where ARRAY_TYPE is a unbounded array.  The
+    // specified 'basicAllocator' will be used to supply a single contiguous
+    // region of memory holding the returned shared pointer's internal
+    // representation and the new 'ARRAY_TYPE' containing the specified
+    // 'numElements' number of elements, and each element in the array is
+    // constructed from the specified 'value'.
+
 
                         // ==============
                         // class weak_ptr
@@ -3502,6 +3603,30 @@ struct SharedPtr_ImpUtil {
     // (template parameter) types 'COMPATIBLE_TYPE' or 'ELEMENT_TYPE' have a
     // specialization of 'enable_shared_from_this' as an unambiguous, publicly
     // accessible, base class.
+
+    // PUBLIC TYPES
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class TYPE, unsigned DIM = 0>
+    struct Extent : std::extent<TYPE, DIM> {};
+#else
+    template <class TYPE, unsigned DIM = 0>
+    struct Extent : public bsl::integral_constant<size_t, 0> {};
+
+    template <class TYPE>
+    struct Extent<TYPE[], 0> : public bsl::integral_constant<size_t, 0> {};
+
+    template <class TYPE, unsigned DIM>
+    struct Extent<TYPE[], DIM>
+        : public bsl::integral_constant<size_t, Extent<TYPE, DIM-1>::value> {};
+
+    template <class TYPE, size_t SIZE>
+    struct Extent<TYPE[SIZE], 0>
+                              : public bsl::integral_constant<size_t, SIZE> {};
+
+    template <class TYPE, size_t SIZE, unsigned DIM>
+    struct Extent<TYPE[SIZE], DIM>
+        : public bsl::integral_constant<size_t, Extent<TYPE, DIM-1>::value> {};
+#endif
 
     // CLASS METHODS
     template<class SHARED_TYPE, class ENABLE_TYPE>
@@ -4032,8 +4157,9 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
 template <class ELEMENT_TYPE>
 inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(ELEMENT_TYPE                     *ptr,
-                                     BloombergLP::bslma::SharedPtrRep *rep)
+shared_ptr<ELEMENT_TYPE>::shared_ptr(
+                          typename shared_ptr<ELEMENT_TYPE>::element_type *ptr,
+                          BloombergLP::bslma::SharedPtrRep                *rep)
 : d_ptr_p(ptr)
 , d_rep_p(rep)
 {
@@ -4683,11 +4809,11 @@ shared_ptr<ELEMENT_TYPE>::createInplace()
 #ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT
 #define BSLSTL_SHAREDPTR_VARIADIC_LIMIT 14
 #endif
-#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C
-#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E BSLSTL_SHAREDPTR_VARIADIC_LIMIT
 #endif
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 0
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 0
+template <class    ELEMENT_TYPE>
 void
 shared_ptr<ELEMENT_TYPE>::createInplace(
                                  BloombergLP::bslma::Allocator *basicAllocator)
@@ -4698,10 +4824,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
     Rep *rep = new (*basicAllocator) Rep(basicAllocator);
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 0
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 0
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 1
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 1
+template <class    ELEMENT_TYPE>
 template <class ARGS_01>
 void
 shared_ptr<ELEMENT_TYPE>::createInplace(
@@ -4715,10 +4841,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 1
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 1
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 2
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 2
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02>
 void
@@ -4735,10 +4861,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 2
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 2
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 3
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 3
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03>
@@ -4758,10 +4884,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 3
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 3
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 4
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 4
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -4784,10 +4910,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 4
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 4
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 5
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 5
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -4813,10 +4939,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 5
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 5
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 6
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 6
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -4845,10 +4971,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 6
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 6
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 7
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 7
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -4880,10 +5006,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 7
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 7
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 8
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 8
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -4918,10 +5044,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 8
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 8
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 9
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 9
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -4959,10 +5085,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 9
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 9
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 10
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 10
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -5003,10 +5129,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 10
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 10
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 11
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 11
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -5050,10 +5176,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 11
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 11
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 12
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 12
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -5100,10 +5226,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 12
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 12
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 13
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 13
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -5153,10 +5279,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 13
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 13
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 14
-template <class ELEMENT_TYPE>
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 14
+template <class    ELEMENT_TYPE>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
@@ -5209,12 +5335,12 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                BSLS_COMPILERFEATURES_FORWARD(ARGS_14,args_14));
     SelfType(rep->ptr(), rep).swap(*this);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_C >= 14
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_E >= 14
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-template <class ELEMENT_TYPE>
+template <class    ELEMENT_TYPE>
 template <class... ARGS>
 void
 shared_ptr<ELEMENT_TYPE>::createInplace(
@@ -5298,12 +5424,12 @@ shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE               *ptr,
 // ACCESSORS
 template <class ELEMENT_TYPE>
 inline
-# if defined(BSLS_PLATFORM_CMP_IBM)     // Last tested with xlC 12.1
+#if defined(BSLS_PLATFORM_CMP_IBM)     // Last tested with xlC 12.1
 shared_ptr<ELEMENT_TYPE>::operator typename shared_ptr::BoolType() const
                                                           BSLS_KEYWORD_NOEXCEPT
-# else
+#else
 shared_ptr<ELEMENT_TYPE>::operator BoolType() const BSLS_KEYWORD_NOEXCEPT
-# endif
+#endif
 {
     return BloombergLP::bsls::UnspecifiedBool<shared_ptr>::makeValue(d_ptr_p);
 }
@@ -6151,27 +6277,26 @@ bsl::reinterpret_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 }
 
 // STANDARD FACTORY FUNCTIONS
+
+                     // ===========================
+                     // allocate_shared(ALLOC, ...)
+                     // ===========================
+
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 #ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT
 #define BSLSTL_SHAREDPTR_VARIADIC_LIMIT 14
 #endif
-#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D
-#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F BSLSTL_SHAREDPTR_VARIADIC_LIMIT
 #endif
 
-
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 0
 template<class ELEMENT_TYPE, class ALLOC>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
@@ -6187,18 +6312,13 @@ bsl::allocate_shared(ALLOC basicAllocator)
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 0
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 1
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
@@ -6216,19 +6336,14 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 1
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 2
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
@@ -6248,20 +6363,15 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 2
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 3
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6283,21 +6393,16 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 3
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 4
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
                                           class ARGS_04>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6321,22 +6426,17 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 4
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 5
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
                                           class ARGS_04,
                                           class ARGS_05>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6362,23 +6462,18 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 5
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 6
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
                                           class ARGS_04,
                                           class ARGS_05,
                                           class ARGS_06>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6406,9 +6501,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 6
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 7
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6416,14 +6511,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_05,
                                           class ARGS_06,
                                           class ARGS_07>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6453,9 +6543,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 7
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 8
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6464,14 +6554,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_06,
                                           class ARGS_07,
                                           class ARGS_08>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6503,9 +6588,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 8
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 9
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6515,14 +6600,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_07,
                                           class ARGS_08,
                                           class ARGS_09>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6556,9 +6636,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 9
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 10
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6569,14 +6649,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_08,
                                           class ARGS_09,
                                           class ARGS_10>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6612,9 +6687,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 10
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 11
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6626,14 +6701,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_09,
                                           class ARGS_10,
                                           class ARGS_11>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6671,9 +6741,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 11
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 12
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6686,14 +6756,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_10,
                                           class ARGS_11,
                                           class ARGS_12>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6733,9 +6798,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 12
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 13
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6749,14 +6814,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_11,
                                           class ARGS_12,
                                           class ARGS_13>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6798,9 +6858,9 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 13
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 14
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -6815,14 +6875,9 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_12,
                                           class ARGS_13,
                                           class ARGS_14>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
 bsl::allocate_shared(ALLOC basicAllocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
@@ -6866,15 +6921,166 @@ bsl::allocate_shared(ALLOC basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_F >= 14
 
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC basicAllocator,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ImpUtil::unqualify(rep_p->ptr()),
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+// }}} END GENERATED CODE
+#endif
+
+template<class ARRAY_TYPE, class ALLOC>                   // ARRAY_TYPE is T[N]
+typename bsl::enable_if<bsl::is_bounded_array<ARRAY_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
+                       bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(ALLOC basicAllocator)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil        ImpUtil;
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef typename bsl::allocator_traits<ALLOC>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::
+                       SharedPtrArrayAllocateInplaceRep<ARRAY_TYPE, ALLOC> Rep;
+
+    const size_t   numElements = ImpUtil::Extent<ARRAY_TYPE>::value;
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::defaultConstruct(
+                                    static_cast<Element_type *> (rep_p->ptr()),
+                                    numElements,
+                                    ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE, class ALLOC>                   // ARRAY_TYPE is T[N]
+typename bsl::enable_if<bsl::is_bounded_array<ARRAY_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(
+           ALLOC                                                basicAllocator,
+           const typename bsl::remove_extent<ARRAY_TYPE>::type& value)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil        ImpUtil;
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef typename bsl::allocator_traits<ALLOC>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::
+                       SharedPtrArrayAllocateInplaceRep<ARRAY_TYPE, ALLOC> Rep;
+
+    const size_t   numElements = ImpUtil::Extent<ARRAY_TYPE>::value;
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                    static_cast<Element_type *> (rep_p->ptr()),
+                                    numElements,
+                                    value,
+                                    ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE, class ALLOC>                    // ARRAY_TYPE is T[]
+typename bsl::enable_if<bsl::is_unbounded_array<ARRAY_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(ALLOC basicAllocator, size_t numElements)
+{
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef typename bsl::allocator_traits<ALLOC>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::
+                       SharedPtrArrayAllocateInplaceRep<ARRAY_TYPE, ALLOC> Rep;
+
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::defaultConstruct(
+                                    static_cast<Element_type *> (rep_p->ptr()),
+                                    numElements,
+                                    ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE, class ALLOC>                    // ARRAY_TYPE is T[]
+typename bsl::enable_if<bsl::is_unbounded_array<ARRAY_TYPE>::value &&
+                                                !bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(
+           ALLOC                                                basicAllocator,
+           size_t                                               numElements,
+           const typename bsl::remove_extent<ARRAY_TYPE>::type& value)
+{
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef typename bsl::allocator_traits<ALLOC>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::
+                       SharedPtrArrayAllocateInplaceRep<ARRAY_TYPE, ALLOC> Rep;
+
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                    static_cast<Element_type *> (rep_p->ptr()),
+                                    numElements,
+                                    value,
+                                    ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+                    // =============================
+                    // allocate_shared(ALLOC *, ...)
+                    // =============================
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_sharedptr.h
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#endif
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 0
 template<class ELEMENT_TYPE, class ALLOC>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -6892,15 +7098,15 @@ bsl::allocate_shared(ALLOC *basicAllocator)
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 0
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 1
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -6919,17 +7125,17 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 1
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 2
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -6949,19 +7155,19 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 2
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 3
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -6982,21 +7188,21 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 3
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 4
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
                                           class ARGS_04>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7018,9 +7224,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 4
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 5
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7028,13 +7234,13 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_05>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7057,9 +7263,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 5
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 6
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7068,14 +7274,14 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_06>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7099,9 +7305,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 6
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 7
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7111,15 +7317,15 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_07>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7144,9 +7350,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 7
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 8
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7157,16 +7363,16 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_08>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7192,9 +7398,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 8
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 9
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7206,17 +7412,17 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_09>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7243,9 +7449,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 9
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 10
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7258,18 +7464,18 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_10>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7297,9 +7503,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 10
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 11
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7313,19 +7519,19 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_11>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7354,9 +7560,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 11
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 12
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7371,20 +7577,20 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_12>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7414,9 +7620,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 12
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 13
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7432,21 +7638,21 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_13>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7477,9 +7683,9 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 13
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 14
 template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_02,
                                           class ARGS_03,
@@ -7496,22 +7702,22 @@ template<class ELEMENT_TYPE, class ALLOC, class ARGS_01,
                                           class ARGS_14>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14)
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef bsl::allocator<char>                   AllocatorType;
@@ -7543,15 +7749,162 @@ bsl::allocate_shared(ALLOC *basicAllocator,
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_G >= 14
 
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+inline
+typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+bsl::allocate_shared(ALLOC     *basicAllocator,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+    typedef bsl::allocator<char>                   AllocatorType;
+    typedef bsl::allocator_traits<AllocatorType>   AllocatorTraits;
 
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<
+                                                            ELEMENT_TYPE,
+                                                            AllocatorType> Rep;
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc);
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    AllocatorTraits::construct(alloc,
+                               ImpUtil::unqualify(rep_p->ptr()),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+// }}} END GENERATED CODE
+#endif
+
+template<class ARRAY_TYPE, class ALLOC>                   // ARRAY_TYPE is T[N]
+typename bsl::enable_if<bsl::is_bounded_array<ARRAY_TYPE>::value,
+                         bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(ALLOC *basicAllocator)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil        ImpUtil;
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+
+    const size_t   numElements = ImpUtil::Extent<ARRAY_TYPE>::value;
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::defaultConstruct(rep_p->ptr(),
+                                                           numElements,
+                                                           basicAllocator);
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE, class ALLOC>                   // ARRAY_TYPE is T[N]
+typename bsl::enable_if<bsl::is_bounded_array<ARRAY_TYPE>::value,
+                         bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(
+          ALLOC                                                *basicAllocator,
+          const typename bsl::remove_extent<ARRAY_TYPE>::type&  value)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil        ImpUtil;
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+
+    const size_t   numElements = ImpUtil::Extent<ARRAY_TYPE>::value;
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                    static_cast<Element_type *> (rep_p->ptr()),
+                                    numElements,
+                                    value,
+                                    basicAllocator);
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE, class ALLOC>                    // ARRAY_TYPE is T[]
+typename bsl::enable_if<bsl::is_unbounded_array<ARRAY_TYPE>::value,
+                         bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(ALLOC *basicAllocator, size_t numElements)
+{
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::defaultConstruct(rep_p->ptr(),
+                                                           numElements,
+                                                           basicAllocator);
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE, class ALLOC>                    // ARRAY_TYPE is T[]
+typename bsl::enable_if<bsl::is_unbounded_array<ARRAY_TYPE>::value,
+                         bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::allocate_shared(
+          ALLOC                                                *basicAllocator,
+          size_t                                                numElements,
+          const typename bsl::remove_extent<ARRAY_TYPE>::type&  value)
+{
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+    AllocatorType  alloc(basicAllocator);
+    Rep           *rep_p = Rep::makeRep(alloc, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                    static_cast<Element_type *> (rep_p->ptr()),
+                                    numElements,
+                                    value,
+                                    basicAllocator);
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+                         // ================
+                         // make_shared(...)
+                         // ================
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_sharedptr.h
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H
+#define BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H BSLSTL_SHAREDPTR_VARIADIC_LIMIT
+#endif
+
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 0
 template<class ELEMENT_TYPE>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared()
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
@@ -7571,13 +7924,13 @@ bsl::make_shared()
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 0
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 1
 template<class ELEMENT_TYPE, class ARGS_01>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
@@ -7597,14 +7950,14 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 1
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 2
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
@@ -7626,15 +7979,15 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 2
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 3
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
@@ -7658,16 +8011,16 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 3
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 4
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
                              class ARGS_04>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -7693,9 +8046,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 4
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 5
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -7703,7 +8056,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_05>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -7731,9 +8084,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 5
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 6
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -7742,7 +8095,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_06>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -7772,9 +8125,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 6
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 7
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -7784,7 +8137,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_07>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -7816,9 +8169,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 7
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 8
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -7829,7 +8182,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_08>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -7863,9 +8216,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 8
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 9
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -7877,7 +8230,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_09>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -7913,9 +8266,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 9
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 10
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -7928,7 +8281,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_10>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -7966,9 +8319,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 10
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 11
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -7982,7 +8335,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_11>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -8022,9 +8375,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 11
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 11
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 12
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -8039,7 +8392,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_12>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -8081,9 +8434,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 12
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 12
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 13
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -8099,7 +8452,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_13>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -8143,9 +8496,9 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 13
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 13
 
-#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
+#if BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 14
 template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_02,
                              class ARGS_03,
@@ -8162,7 +8515,7 @@ template<class ELEMENT_TYPE, class ARGS_01,
                              class ARGS_14>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
@@ -8208,70 +8561,16 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
 
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
-#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_D >= 14
+#endif  // BSLSTL_SHAREDPTR_VARIADIC_LIMIT_H >= 14
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-# if defined(BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER)
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value &&
-                                           !bsl::is_array<ELEMENT_TYPE>::value,
-                         bsl::shared_ptr<ELEMENT_TYPE> >::type
-# else
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-# endif
-bsl::allocate_shared(ALLOC basicAllocator,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    bsl::allocator_traits<ALLOC>::construct(
-                                  basicAllocator,
-                                  ImpUtil::unqualify(rep_p->ptr()),
-                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-inline
-typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-bsl::allocate_shared(ALLOC *basicAllocator,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef bsl::allocator<char>                   AllocatorType;
-    typedef bsl::allocator_traits<AllocatorType>   AllocatorTraits;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<
-                                                            ELEMENT_TYPE,
-                                                            AllocatorType> Rep;
-    AllocatorType  alloc(basicAllocator);
-    Rep           *rep_p = Rep::makeRep(alloc);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    AllocatorTraits::construct(alloc,
-                               ImpUtil::unqualify(rep_p->ptr()),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-
 template<class ELEMENT_TYPE, class... ARGS>
 inline
 typename bsl::enable_if<!bsl::is_array<ELEMENT_TYPE>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
 bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
@@ -8293,6 +8592,122 @@ bsl::make_shared(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 }
 // }}} END GENERATED CODE
 #endif
+
+template<class ARRAY_TYPE>                                // ARRAY_TYPE is T[N]
+typename bsl::enable_if<bsl::is_bounded_array<ARRAY_TYPE>::value,
+                        bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::make_shared()
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil        ImpUtil;
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef typename bsl::allocator_traits<AllocatorType>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+
+    const size_t   numElements = ImpUtil::Extent<ARRAY_TYPE>::value;
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::defaultConstruct(
+                                         rep_p->ptr(),
+                                         numElements,
+                                         ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE>                                // ARRAY_TYPE is T[N]
+typename bsl::enable_if<bsl::is_bounded_array<ARRAY_TYPE>::value,
+                        bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::make_shared(const typename bsl::remove_extent<ARRAY_TYPE>::type& value)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil        ImpUtil;
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef typename bsl::allocator_traits<AllocatorType>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+
+    const size_t   numElements = ImpUtil::Extent<ARRAY_TYPE>::value;
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                         rep_p->ptr(),
+                                         numElements,
+                                         value,
+                                         ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE>                                 // ARRAY_TYPE is T[]
+typename bsl::enable_if<bsl::is_unbounded_array<ARRAY_TYPE>::value,
+                        bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::make_shared(size_t numElements)
+{
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef typename bsl::allocator_traits<AllocatorType>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::defaultConstruct(
+                                         rep_p->ptr(),
+                                         numElements,
+                                         ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
+
+template<class ARRAY_TYPE>                                 // ARRAY_TYPE is T[]
+typename bsl::enable_if<bsl::is_unbounded_array<ARRAY_TYPE>::value,
+                        bsl::shared_ptr<ARRAY_TYPE> >::type
+bsl::make_shared(
+              size_t                                               numElements,
+              const typename bsl::remove_extent<ARRAY_TYPE>::type& value)
+{
+    typedef typename bsl::remove_extent<ARRAY_TYPE>::type Element_type;
+    typedef bsl::allocator<char>                          AllocatorType;
+    typedef typename bsl::allocator_traits<AllocatorType>::template
+              rebind_traits<Element_type>::allocator_type ElementAllocatorType;
+    typedef BloombergLP::bslstl::SharedPtrArrayAllocateInplaceRep<
+                                                            ARRAY_TYPE,
+                                                            AllocatorType> Rep;
+
+    AllocatorType  basicAllocator;
+    Rep           *rep_p = Rep::makeRep(basicAllocator, numElements);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                         rep_p->ptr(),
+                                         numElements,
+                                         value,
+                                         ElementAllocatorType(basicAllocator));
+    proctor.release();
+
+    BloombergLP::bslma::SharedPtrRep *upcastRep = rep_p;
+    return shared_ptr<ARRAY_TYPE>(rep_p->ptr(), upcastRep);
+}
 
 // ============================================================================
 //                              TYPE TRAITS

@@ -7,16 +7,25 @@
 #include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_alignmentfromtype.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
 #include <bsltf_stdstatefulallocator.h>
 
+#include <stdint.h>            // 'uintptr_t'
 #include <stdio.h>
 #include <stdlib.h>             // 'atoi'
 
 #include <new>
+
+#if defined(BSLS_PLATFORM_OS_AIX) && BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+#define BSLSTL_SHAREDPTR_REP_DONT_TEST_UNBOUNDED_ARRAYS
+// Some compilers (AIX) do not like unbounded arrays in types in C++03.  Things
+// like 'shared_ptr<int[]>' cause them to complain.
+#endif
 
 using namespace BloombergLP;
 
@@ -37,9 +46,10 @@ using namespace BloombergLP;
 // [ 2] void *originalPtr() const;
 // [ 5] void releaseRef();
 // [ 5] void releaseWeakRef();
+// [ 7] static size_t alloc_size();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -250,6 +260,16 @@ typedef MyTestObject TObj;
 // ============================================================================
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+template <class TYPE>
+bool CheckPointerAlignment(void *ptr)
+    // Check the alignment of the specified pointer 'ptr', and return true if
+    // the pointer is sufficiently aligned to hold objects of the template
+    // parameter 'TYPE'.  Otherwise, return false
+{
+    const uintptr_t ptrValue = reinterpret_cast<uintptr_t>(ptr);
+    return 0 == ptrValue % bsls::AlignmentFromType<TYPE>::VALUE;
+}
 
                              // ==================
                              // class MyTestObject
@@ -712,6 +732,11 @@ struct TestHarness {
     typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
 
     typedef bslstl::SharedPtrAllocateInplaceRep<MyTestObject, Obj_Alloc> Obj;
+    typedef
+           bslstl::SharedPtrArrayAllocateInplaceRep<MyTestObject[1], Obj_Alloc>
+                                                                   SizedArrObj;
+    typedef bslstl::SharedPtrArrayAllocateInplaceRep<MyTestObject[], Obj_Alloc>
+                                                                 UnsizedArrObj;
 
     typedef typename bsl::allocator_traits<ALLOCATOR>::
                  template rebind_traits<MyInplaceTestObject> TCObj_AllocTraits;
@@ -719,6 +744,11 @@ struct TestHarness {
 
     typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject,
                                                     TCObj_ElementAlloc> TCObj;
+
+    typedef bslstl::SharedPtrArrayAllocateInplaceRep<MyInplaceTestObject[1],
+                                             TCObj_ElementAlloc> TCSizedArrObj;
+    typedef bslstl::SharedPtrArrayAllocateInplaceRep<MyInplaceTestObject[],
+                                           TCObj_ElementAlloc> TCUnsizedArrObj;
 
     typedef typename TCObj::ReboundAllocator TCObj_Alloc;
 
@@ -831,6 +861,41 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
         ASSERT(++numDeallocations == ta.numDeallocations());
     }
 
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        // Dynamically allocate object as the destructor is declared as
+        // private.
+
+        TCSizedArrObj  *xPtr = TCSizedArrObj::makeRep(alloc_base, 1);
+        TCSizedArrObj&  x = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
+
+        // Manually deallocate the representation using 'disposeRep'.
+        x.disposeRep();
+
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        // Dynamically allocate object as the destructor is declared as
+        // private.
+
+        TCUnsizedArrObj  *xPtr = TCUnsizedArrObj::makeRep(alloc_base, 1);
+        TCUnsizedArrObj&  x = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
+
+        // Manually deallocate the representation using 'disposeRep'.
+        x.disposeRep();
+
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
 }
 
 template <class ALLOCATOR>
@@ -987,6 +1052,95 @@ void TestHarness<ALLOCATOR>::testCase4(bool verbose,
         x.disposeRep();
         ASSERT(++numDeallocations == ta.numDeallocations());
     }
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        SizedArrObj        *xPtr = SizedArrObj::makeRep(alloc_base, 1);
+        SizedArrObj&        x    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(0 == numDeletes);
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.disposeObject();
+        ASSERT(1 == numDeletes);
+
+        x.disposeRep();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        const size_t       objCount = 23;
+        bsls::Types::Int64 numDeletes = 0;
+
+        SizedArrObj  *xPtr = SizedArrObj::makeRep(alloc_base, objCount);
+        SizedArrObj&  x    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(0 == numDeletes);
+
+        MyTestObject* p = x.ptr();
+        for (size_t i = 0; i < objCount; ++i, ++p) {
+            new(p) MyTestObject(&numDeletes);
+            }
+
+        x.disposeObject();
+        ASSERT(objCount == numDeletes);
+
+        x.disposeRep();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        UnsizedArrObj        *xPtr = UnsizedArrObj::makeRep(alloc_base, 1);
+        UnsizedArrObj&        x    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(0 == numDeletes);
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.disposeObject();
+        ASSERT(1 == numDeletes);
+
+        x.disposeRep();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        const size_t       objCount = 23;
+        bsls::Types::Int64 numDeletes = 0;
+
+        UnsizedArrObj  *xPtr = UnsizedArrObj::makeRep(alloc_base, objCount);
+        UnsizedArrObj&  x    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(0 == numDeletes);
+
+        MyTestObject* p = x.ptr();
+        for (size_t i = 0; i < objCount; ++i, ++p) {
+            new(p) MyTestObject(&numDeletes);
+            }
+
+
+        x.disposeObject();
+        ASSERT(objCount == numDeletes);
+
+        x.disposeRep();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
 }
 
 template <class ALLOCATOR>
@@ -1071,6 +1225,80 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
         ASSERT(++numDeallocations == ta.numDeallocations());
     }
 
+    if (verbose) printf(
+           "\nTesting 'releaseRef' for sized array with no weak reference'"
+           "\n------------------------------------------------------------\n");
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        SizedArrObj        *xPtr = SizedArrObj::makeRep(alloc_base, 1);
+        SizedArrObj&        x    = *xPtr;
+        const SizedArrObj&  X    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.acquireRef();
+        x.releaseRef();
+
+        ASSERT(1 == X.numReferences());
+        ASSERT(0 == X.numWeakReferences());
+        ASSERT(true == X.hasUniqueOwner());
+
+        x.acquireWeakRef();
+        x.releaseWeakRef();
+
+        ASSERT(1 == X.numReferences());
+        ASSERT(0 == X.numWeakReferences());
+        ASSERT(true == X.hasUniqueOwner());
+
+        x.releaseRef();
+
+        ASSERT(1 == numDeletes);
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf(
+         "\nTesting 'releaseRef' for unsized array with no weak reference'"
+         "\n--------------------------------------------------------------\n");
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        UnsizedArrObj        *xPtr = UnsizedArrObj::makeRep(alloc_base, 1);
+        UnsizedArrObj&        x    = *xPtr;
+        const UnsizedArrObj&  X    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.acquireRef();
+        x.releaseRef();
+
+        ASSERT(1 == X.numReferences());
+        ASSERT(0 == X.numWeakReferences());
+        ASSERT(true == X.hasUniqueOwner());
+
+        x.acquireWeakRef();
+        x.releaseWeakRef();
+
+        ASSERT(1 == X.numReferences());
+        ASSERT(0 == X.numWeakReferences());
+        ASSERT(true == X.hasUniqueOwner());
+
+        x.releaseRef();
+
+        ASSERT(1 == numDeletes);
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
     if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
                         "\n-----------------------------------------\n");
     {
@@ -1079,6 +1307,66 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
         Obj        *xPtr = Obj::makeRep(alloc_base);
         Obj&        x    = *xPtr;
         const Obj&  X    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.acquireWeakRef();
+        x.releaseRef();
+
+        ASSERT(0 == X.numReferences());
+        ASSERT(1 == X.numWeakReferences());
+        ASSERT(false == X.hasUniqueOwner());
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations == ta.numDeallocations());
+
+        x.releaseWeakRef();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf(
+              "\nTesting 'releaseRef' for sized array with weak reference'"
+              "\n---------------------------------------------------------\n");
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        SizedArrObj        *xPtr = SizedArrObj::makeRep(alloc_base, 1);
+        SizedArrObj&        x    = *xPtr;
+        const SizedArrObj&  X    = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.acquireWeakRef();
+        x.releaseRef();
+
+        ASSERT(0 == X.numReferences());
+        ASSERT(1 == X.numWeakReferences());
+        ASSERT(false == X.hasUniqueOwner());
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations == ta.numDeallocations());
+
+        x.releaseWeakRef();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf(
+            "\nTesting 'releaseRef' for unsized array with weak reference'"
+            "\n-----------------------------------------------------------\n");
+
+    ASSERT(numAllocations   == ta.numAllocations());
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        UnsizedArrObj        *xPtr = UnsizedArrObj::makeRep(alloc_base, 1);
+        UnsizedArrObj&        x    = *xPtr;
+        const UnsizedArrObj&  X    = *xPtr;
 
         ASSERT(++numAllocations == ta.numAllocations());
 
@@ -1150,6 +1438,44 @@ void TestHarness<ALLOCATOR>::testCase6(bool verbose,
         ASSERT(1 == numDeletes);
         ASSERT(++numDeallocations == ta.numDeallocations());
     }
+
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        SizedArrObj  *xPtr = SizedArrObj::makeRep(alloc_base, 1);
+        SizedArrObj&  x    = *xPtr;
+
+        ASSERT(0 == x.getDeleter(typeid(int)));
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        ASSERT(0 == x.getDeleter(typeid(int)));
+
+        x.releaseRef();
+
+        ASSERT(1 == numDeletes);
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    ASSERT(numDeallocations == ta.numDeallocations());
+    {
+        bsls::Types::Int64 numDeletes = 0;
+
+        UnsizedArrObj  *xPtr = UnsizedArrObj::makeRep(alloc_base, 1);
+        UnsizedArrObj&  x    = *xPtr;
+
+        ASSERT(0 == x.getDeleter(typeid(int)));
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        ASSERT(0 == x.getDeleter(typeid(int)));
+
+        x.releaseRef();
+
+        ASSERT(1 == numDeletes);
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
 }
 
 //=============================================================================
@@ -1186,7 +1512,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
-   case 7: {
+   case 8: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -1224,6 +1550,96 @@ int main(int argc, char *argv[])
         ASSERT(1 == ta.numDeallocations());
       } break;
 #endif
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING ARRAY_SIZING AND ALIGNMENT
+        //
+        // Concerns:
+        //:  1 SharedPtrArrayAllocateInplaceRep::alloc_size returns an amount
+        //:    of space that is sufficient to hold the array that we want.
+        //:  2 SharedPtrArrayAllocateInplaceRep::originalPtr() returns a
+        //:    pointer that is correctly aligned for the type that we are
+        //:    storing.
+        //
+        // Plan:
+        //:  1 Check that the sizes returned by 'alloc_size' increase when the
+        //:    array size increases.
+        //:  2 Create 'SharedPtrArrayAllocateInplaceRep's for various types,
+        //:    and verify that the alignment of the arrays is big enough for
+        //:    the type that is being stored.
+        //
+        // Testing:
+        //   static size_t alloc_size();
+        // --------------------------------------------------------------------
+        if (verbose) printf("TESTING ARRAY_SIZING AND ALIGNMENT\n"
+                            "==================================\n");
+
+        typedef bsl::allocator<char> A;
+        size_t sz1, sz2;
+
+#define ARR_REP bslstl::SharedPtrArrayAllocateInplaceRep
+        sz1 = ARR_REP<char, A>::alloc_size(1);
+        sz2 = ARR_REP<char, A>::alloc_size(2);
+        ASSERT(sz2 > sz1);
+        ASSERT(sz2 - sz1 >= sizeof(char));
+
+        sz1 = ARR_REP<int, A>::alloc_size(1);
+        sz2 = ARR_REP<int, A>::alloc_size(2);
+        ASSERT(sz2 > sz1);
+        ASSERT(sz2 - sz1 >= sizeof(int));
+
+        sz1 = ARR_REP<long long, A>::alloc_size(1);
+        sz2 = ARR_REP<long long, A>::alloc_size(2);
+        ASSERT(sz2 > sz1);
+        ASSERT(sz2 - sz1 >= sizeof(long long));
+
+        sz1 = ARR_REP<long double, A>::alloc_size(1);
+        sz2 = ARR_REP<long double, A>::alloc_size(2);
+        ASSERT(sz2 > sz1);
+        ASSERT(sz2 - sz1 >= sizeof(long double));
+
+        A a;
+        {
+        // test with statically-sized arrays
+        ARR_REP<char[1],   A> *rChar   = ARR_REP<char[1],   A>::makeRep(a, 10);
+        ARR_REP<int[1],    A> *rInt    = ARR_REP<int[1],    A>::makeRep(a, 10);
+        ARR_REP<long[1],   A> *rLong   = ARR_REP<long[1],   A>::makeRep(a, 10);
+        ARR_REP<double[1], A> *rDouble = ARR_REP<double[1], A>::makeRep(a, 10);
+
+        ASSERTV(CheckPointerAlignment<char>  (rChar  ->originalPtr()));
+        ASSERTV(CheckPointerAlignment<int>   (rInt   ->originalPtr()));
+        ASSERTV(CheckPointerAlignment<long>  (rLong  ->originalPtr()));
+        ASSERTV(CheckPointerAlignment<double>(rDouble->originalPtr()));
+
+        rChar->disposeRep ();
+        rInt->disposeRep ();
+        rLong->disposeRep ();
+        rDouble->disposeRep ();
+        }
+
+#ifndef BSLSTL_SHAREDPTR_REP_DONT_TEST_UNBOUNDED_ARRAYS
+        {
+        // test with dynamically-sized arrays
+        ARR_REP<char[],   A> *rChar   = ARR_REP<char[],   A>::makeRep(a, 10);
+        ARR_REP<int[],    A> *rInt    = ARR_REP<int[],    A>::makeRep(a, 10);
+        ARR_REP<long[],   A> *rLong   = ARR_REP<long[],   A>::makeRep(a, 10);
+        ARR_REP<double[], A> *rDouble = ARR_REP<double[], A>::makeRep(a, 10);
+
+        ASSERTV(CheckPointerAlignment<char>  (rChar  ->originalPtr()));
+        ASSERTV(CheckPointerAlignment<int>   (rInt   ->originalPtr()));
+        ASSERTV(CheckPointerAlignment<long>  (rLong  ->originalPtr()));
+        ASSERTV(CheckPointerAlignment<double>(rDouble->originalPtr()));
+
+        rChar->disposeRep ();
+        rInt->disposeRep ();
+        rLong->disposeRep ();
+        rDouble->disposeRep ();
+        }
+#endif
+
+#undef ARR_REP
+      } break;
+
       case 6: {
         // --------------------------------------------------------------------
         // TESTING 'getDeleter'
