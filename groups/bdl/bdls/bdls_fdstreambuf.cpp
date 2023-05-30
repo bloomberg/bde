@@ -322,7 +322,7 @@ int FdStreamBuf_FileHandler::windowsWriteText(const char *buffer, int numChars)
         int bytesWritten = FileUtil::write(d_fileId,
                                            writeOutBuf,
                                            numBytesToWrite);
-        if (0 == bytesWritten) {
+        if (bytesWritten <= 0) {
             // error - write shortfall
 
             return -1;                                                // RETURN
