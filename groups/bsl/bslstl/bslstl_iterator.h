@@ -186,27 +186,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS ||                             \
-         (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900)
-# define BSLSTL_ITERATOR_SIZE_NATIVE 1
-#else
-# define BSLSTL_ITERATOR_SIZE_NATIVE 0
-#endif
-
-#if 201703L < BSLS_COMPILERFEATURES_CPLUSPLUS
-# define BSLSTL_ITERATOR_SSIZE_NATIVE 1
-#else
-# define BSLSTL_ITERATOR_SSIZE_NATIVE 0
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)    &&                    \
-    201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
-# define BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL 1
-#else
-# define BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL 0
-#endif
-
-#if !BSLSTL_ITERATOR_SSIZE_NATIVE && BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #include <type_traits>    // 'common_type', 'make_signed'
 #endif
 
@@ -1179,13 +1159,25 @@ BSLS_KEYWORD_CONSTEXPR bool empty(std::initializer_list<TYPE> initializerList)
                                   // size
                                   // ====
 
-#if BSLSTL_ITERATOR_SIZE_NATIVE
+// If the underlying standard library implements 'std::size', then we need to
+// use it.  Consider the following code:
+//..
+//  bsl::set<int, std::less<int>> s;
+//  if (size(s) == 0) { .. }
+//..
+// Because the set 's' has hooks into both namespace 'bsl' and 'std', an
+// unqualified call to 'size' will find both, and fail to compile.  MSVC
+// provides 'std::size' in all language modes.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) ||               \
+                                                defined(BSLS_PLATFORM_CMP_MSVC)
 
 using std::size;
 
 #else
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+// we need both 'decltype' and trailing return types here
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+                             201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
 
 template <class CONTAINER>
 inline
@@ -1212,7 +1204,8 @@ BSLS_KEYWORD_CONSTEXPR size_t size(const CONTAINER& container)
 
 template <class TYPE, size_t DIMENSION>
 inline
-BSLS_KEYWORD_CONSTEXPR size_t size(const TYPE (&)[DIMENSION])
+BSLS_KEYWORD_CONSTEXPR size_t size(
+                               const TYPE (&)[DIMENSION]) BSLS_KEYWORD_NOEXCEPT
     // Return the dimension of the specified array argument.
 {
     return DIMENSION;
@@ -1224,13 +1217,24 @@ BSLS_KEYWORD_CONSTEXPR size_t size(const TYPE (&)[DIMENSION])
                                     // ssize
                                     // =====
 
-#if BSLSTL_ITERATOR_SSIZE_NATIVE
+// If the underlying standard library implements 'std::ssize', then we need to
+// use it.  Consider the following code:
+//..
+//  bsl::set<int, std::less<int>> s;
+//  if (ssize(s) == 0) { .. }
+//..
+// Because the set 's' has hooks into both namespace 'bsl' and 'std', an
+// unqualified call to 'ssize' will find both, and fail to compile.
+#if 201703L < BSLS_COMPILERFEATURES_CPLUSPLUS &&                              \
+                         defined(__cpp_lib_ssize) && __cpp_lib_ssize >= 201902L
 
 using std::ssize;
 
 #else
 
-# if BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
+// we need both 'decltype' and trailing return types here
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+                             201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
 
 template <class CONTAINER>
 inline
@@ -1259,17 +1263,14 @@ BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const CONTAINER& container)
 
 template <class TYPE, std::ptrdiff_t DIMENSION>
 inline
-BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
+BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(
+                               const TYPE (&)[DIMENSION]) BSLS_KEYWORD_NOEXCEPT
     // Return the dimension of the specified array argument.
 {
     return DIMENSION;
 }
 
 #endif
-
-#undef BSLSTL_ITERATOR_SIZE_NATIVE
-#undef BSLSTL_ITERATOR_SSIZE_NATIVE
-#undef BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
 
 #if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
 
