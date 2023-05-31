@@ -53,6 +53,7 @@
 // [26] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 // [27] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 // [28] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+// [38] BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 // [ 3] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 // [ 4] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
@@ -91,7 +92,7 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [38] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -1412,6 +1413,15 @@ Task<> coroutineRunner(Io& c) {
 }  // close namespace CoroutineTestHelpers
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
 
+namespace test_case_38 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+template <class T, class U>
+concept Addable = requires (T v, U u) {
+        v + u;
+    };
+#endif
+}  // close namespace test_case_38
+
 // ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -1558,6 +1568,13 @@ static void printFlags()
     fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS));
 #else
     puts("UNDEFINED");
 #endif
@@ -1993,6 +2010,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    fputs("\n  __cpp_concepts: ", stdout);
+#ifdef __cpp_concepts
+    puts(STRINGIFY(__cpp_concepts));
+#else
+    puts("UNDEFINED");
+#endif
+
     fputs("\n  __cpp_hex_float: ", stdout);
 #ifdef __cpp_hex_float
     puts(STRINGIFY(__cpp_hex_float));
@@ -2058,7 +2082,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 38: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2139,6 +2163,50 @@ int main(int argc, char *argv[])
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS'
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS' is defined when the
+        //:    concepts feature is fully supported, as defined by ISO C++20.
+        //:
+        //: 2 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS' is defined when
+        //:   '__cpp_concepts' macro is defined and has value at least
+        //:   '202002L'.
+        //
+        // Plan:
+        //: 1 Verify that '__cpp_concepts >= 202002L'.
+        //:
+        //: 2 Verify that concepts can be defined and used.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+        // --------------------------------------------------------------------
+        MACRO_TEST_TITLE("_SUPPORT_CONCEPTS",
+                         "=================");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+        static_assert(__cpp_concepts >= 202002L);
+
+        using namespace test_case_38;
+
+        static_assert( Addable<int,  int>);
+        static_assert( Addable<int*, int>);
+        static_assert(!Addable<int*, int*>);
+        static_assert(!Addable<void, void>);
+#else
+        if (verbose) printf(
+                           "concepts are not supported in this configuration. "
+                           "'__cpp_concepts' macro "
+#ifdef __cpp_concepts
+                           "has value %ld\n", __cpp_concepts
+#else
+                           "is undefined\n"
+#endif
+                     );
+#endif
       } break;
       case 37: {
         // --------------------------------------------------------------------
@@ -2339,9 +2407,9 @@ int main(int argc, char *argv[])
             //   class partial_ordering;
             //   class weak_ordering;
             //   class strong_ordering;
-            bsl::partial_ordering  *pPartialOrdering = nullptr;
-            bsl::weak_ordering     *pWeakOrdering    = nullptr;
-            bsl::strong_ordering   *pStrongOrdering  = nullptr;
+            std::partial_ordering  *pPartialOrdering = nullptr;
+            std::weak_ordering     *pWeakOrdering    = nullptr;
+            std::strong_ordering   *pStrongOrdering  = nullptr;
 
             (void) pPartialOrdering;
             (void) pWeakOrdering;
@@ -2350,14 +2418,14 @@ int main(int argc, char *argv[])
             // 17.11.3, common comparison category type
             //   template<class... Ts>
             //   struct common_comparison_category {using type = see below; };
-            bsl::common_comparison_category<bsl::partial_ordering> *ccc1
+            std::common_comparison_category<std::partial_ordering> *ccc1
                                                                      = nullptr;
-            bsl::common_comparison_category<bsl::partial_ordering,
-                                            bsl::weak_ordering>    *ccc2
+            std::common_comparison_category<std::partial_ordering,
+                                            std::weak_ordering>    *ccc2
                                                                      = nullptr;
-            bsl::common_comparison_category<bsl::partial_ordering,
-                                            bsl::weak_ordering,
-                                            bsl::strong_ordering>  *ccc3
+            std::common_comparison_category<std::partial_ordering,
+                                            std::weak_ordering,
+                                            std::strong_ordering>  *ccc3
                                                                      = nullptr;
             (void) ccc1;
             (void) ccc2;
@@ -2368,18 +2436,17 @@ int main(int argc, char *argv[])
             //   struct compare_three_way_result;
             // 20.14.7.7, class compare_three_way
             //   struct compare_three_way;
-            bsl::compare_three_way                   *pCompareThreeWay
+            std::compare_three_way                   *pCompareThreeWay
                                                                      = nullptr;
-            bsl::compare_three_way_result<int>       *pCompareThreeWayResult1
+            std::compare_three_way_result<int>       *pCompareThreeWayResult1
                                                                      = nullptr;
-            bsl::compare_three_way_result<int, long> *pCompareThreeWayResult2
+            std::compare_three_way_result<int, long> *pCompareThreeWayResult2
                                                                      = nullptr;
 
             (void) pCompareThreeWay;
             (void) pCompareThreeWayResult1;
             (void) pCompareThreeWayResult2;
-
- #else
+#else
         if (verbose) printf("'<=>' IS NOT SUPPORTED IN THIS CONFIGURATION\n");
 #endif
       } break;

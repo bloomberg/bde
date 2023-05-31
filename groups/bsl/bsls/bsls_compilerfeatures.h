@@ -22,6 +22,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: '[[maybe_unused]]'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: '[[nodiscard]]'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
+//  BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS: concepts feature
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: C++14 'constexpr' spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: C++17 'constexpr' spec.
@@ -212,6 +213,10 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN':
 //:     This macro is defined if the '[[noreturn]]' attribute is supported by
 //:     the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS':
+//:     This macro is defined if the concepts feature is supported by the
+//:     current compiler settings for this platform, as defined by ISO C++20.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR':
 //:     This macro is defined if 'constexpr' is supported by the current
@@ -573,6 +578,14 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 4.8
 //:   o Clang 3.3
 //:   o Visual Studio 2017 version 15.3 (_MSC_VER 1911)
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS'
+///- - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the concepts feature is fully supported, as defined
+// by ISO C++20.
+//
+// This macro is defined if the standard '__cpp_concepts' feature-test macro
+// has at least '202002L' value.
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -960,9 +973,21 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_macrorepeat.h>
 
+#ifdef __has_include
+#if __has_include(<version>)
+#include <version>
+#endif
+#endif
+
 // ============================================================================
 //                      UNIVERSAL MACRO DEFINITIONS
 // ============================================================================
+
+#if defined(__cplusplus)
+  #define BSLS_COMPILERFEATURES_CPLUSPLUS __cplusplus
+#else
+  #define BSLS_COMPILERFEATURES_CPLUSPLUS 199711L
+#endif
 
 // First, define feature macros for any C++98 features that should be available
 // on all compilers, until removed by a later standard.  These macros will be
@@ -1004,6 +1029,22 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_SUPPORT_COROUTINE                           1
 #endif
 
+#if defined(__cpp_deduction_guides) && __cpp_deduction_guides >= 201611
+  #define BSLS_COMPILERFEATURES_SUPPORT_CTAD                                  1
+#endif
+
+#if defined(__cpp_concepts) && __cpp_concepts >= 202002L
+  #define BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS                              1
+#endif
+
+#if defined(__cpp_impl_three_way_comparison) &&                               \
+                                    __cpp_impl_three_way_comparison >= 201907L
+# if defined(__cpp_lib_three_way_comparison) &&                               \
+                                      __cpp_lib_three_way_comparison >= 201907L
+  #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                  1
+# endif
+#endif
+
 // ============================================================================
 //                           ATTRIBUTE DETECTION
 // ============================================================================
@@ -1026,24 +1067,6 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED              1
   #endif
 
-#endif
-
-#if defined(__cpp_deduction_guides) && __cpp_deduction_guides >= 201611
-  #define BSLS_COMPILERFEATURES_SUPPORT_CTAD                                  1
-#endif
-
-#if defined(__cpp_impl_three_way_comparison) &&                              \
-                                    __cpp_impl_three_way_comparison >= 201907L
-  #if defined(__cpp_lib_three_way_comparison) &&                             \
-                                     __cpp_lib_three_way_comparison >= 201907L
-    #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                1
-  #endif
-#endif
-
-#if defined(__cplusplus)
-  #define BSLS_COMPILERFEATURES_CPLUSPLUS __cplusplus
-#else
-  #define BSLS_COMPILERFEATURES_CPLUSPLUS 199711L
 #endif
 
 // ============================================================================
@@ -1715,10 +1738,6 @@ BSLS_IDENT("$Id: $")
 // ============================================================================
 //                     STANDARD FEATURE-DETECTION MACROS
 // ============================================================================
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-    #include <version>
-#endif
 
 #if defined(__cpp_lib_is_constant_evaluated)
     #define BSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED               1
