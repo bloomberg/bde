@@ -1436,6 +1436,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslscm_version.h>
 
+#include <bslstl_compare.h>
 #include <bslstl_hash.h>
 #include <bslstl_pair.h>
 #include <bslstl_referencewrapper.h>
@@ -2992,6 +2993,18 @@ bool operator==(const shared_ptr<LHS_TYPE>& lhs,
     // pointers that compare equal do not necessarily manage the same object
     // due to aliasing.
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template<class LHS_TYPE, class RHS_TYPE>
+strong_ordering operator<=>(const shared_ptr<LHS_TYPE>& lhs,
+                            const shared_ptr<RHS_TYPE>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Perform a three-way comparison of the specified 'lhs' and the specified
+    // 'rhs' pointers by using the comparison operators of 'LHS_TYPE *' and
+    // 'RHS_TYPE *'; return the result of that comparison.
+
+#else
+
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const shared_ptr<LHS_TYPE>& lhs,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
@@ -3041,11 +3054,24 @@ bool operator>=(const shared_ptr<LHS_TYPE>& lhs,
     // by 'std::less<T *>', where 'T *' is the composite pointer type of
     // 'LHS_TYPE *' and 'RHS_TYPE *', and 'false' otherwise.
 
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 template <class LHS_TYPE>
 bool operator==(const shared_ptr<LHS_TYPE>& lhs,
                 nullptr_t) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer does not refer to an
     // object, and 'false' otherwise.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template<class TYPE>
+strong_ordering operator<=>(const shared_ptr<TYPE>& ptr,
+                            nullptr_t) BSLS_KEYWORD_NOEXCEPT;
+    // Perform a three-way comparison of the specified 'ptr' and null pointer
+    // by using the comparison operators of 'TYPE *'; return the result of that
+    // comparison.
+
+#else
 
 template <class RHS_TYPE>
 bool operator==(nullptr_t,
@@ -3128,6 +3154,8 @@ bool operator>=(nullptr_t,
     // object, or if the address of the object referred to by 'rhs' is ordered
     // before the null-pointer value under the total ordering supplied by
     // 'std::less<RHS_TYPE *>', and 'false' otherwise.
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template<class CHAR_TYPE, class CHAR_TRAITS, class ELEMENT_TYPE>
 std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
@@ -5830,6 +5858,21 @@ bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs,
     return lhs.get() == rhs.get();
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template<class LHS_TYPE, class RHS_TYPE>
+inline
+bsl::strong_ordering bsl::operator<=>(const shared_ptr<LHS_TYPE>& lhs,
+                                      const shared_ptr<RHS_TYPE>& rhs)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    const void *p1 = lhs.get(),
+               *p2 = rhs.get();
+    return p1 <=> p2;
+}
+
+#else
+
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bsl::operator!=(const shared_ptr<LHS_TYPE>& lhs,
@@ -5870,6 +5913,8 @@ bool bsl::operator>=(const shared_ptr<LHS_TYPE>& lhs,
     return !(lhs < rhs);
 }
 
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 template <class LHS_TYPE>
 inline
 bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
@@ -5877,6 +5922,19 @@ bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 {
     return !lhs;
 }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
+template<class TYPE>
+inline
+bsl::strong_ordering bsl::operator<=>(const shared_ptr<TYPE>& ptr,
+                                      nullptr_t) BSLS_KEYWORD_NOEXCEPT
+{
+    const typename shared_ptr<TYPE>::element_type *null = nullptr;
+    return ptr.get() <=> null;
+}
+
+#else
 
 template <class RHS_TYPE>
 inline
@@ -5965,6 +6023,8 @@ bool bsl::operator>=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 {
     return !std::less<RHS_TYPE *>()(0, rhs.get());
 }
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ELEMENT_TYPE>
 inline

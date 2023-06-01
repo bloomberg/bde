@@ -275,6 +275,8 @@ using namespace BloombergLP;
 // [ 6] bool operator> (const shared_ptr<LHS>&, const shared_ptr<RHS>&)
 // [ 6] bool operator> (const shared_ptr<LHS>&, bsl::nullptr_t)
 // [ 6] bool operator> (bsl::nullptr_t,         const shared_ptr<RHS>&)
+// [ 6] auto operator<=>(const shared_ptr<LHS>&, const shared_ptr<RHS>&)
+// [ 6] auto operator<=>(const shared_ptr<LHS>&, bsl::nullptr_t)
 // [ 5] ostream& operator<<(ostream&, const shared_ptr<TYPE>&)
 // [ 8] void swap(shared_ptr<ELEM_TYPE>& a, shared_ptr<ELEM_TYPE>& b)
 // [15] DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>&)
@@ -20986,6 +20988,8 @@ int main(int argc, char *argv[])
         //   bool operator> (const shared_ptr<LHS>&, const shared_ptr<RHS>&)
         //   bool operator> (const shared_ptr<LHS>&, bsl::nullptr_t)
         //   bool operator> (bsl::nullptr_t,         const shared_ptr<RHS>&)
+        //   auto operator<=>(const shared_ptr<LHS>&, const shared_ptr<RHS>&)
+        //   auto operator<=>(const shared_ptr<LHS>&, bsl::nullptr_t)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING RELATIONAL OPERATORS"
@@ -21034,6 +21038,36 @@ int main(int argc, char *argv[])
         ASSERT(  Y >= Y  );
         ASSERT(!(Y >  Y) );
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        ASSERT(  X <=> X == 0 );
+        ASSERT(!(X <=> X != 0));
+        ASSERT(!(X <=> X <  0));
+        ASSERT(  X <=> X <= 0 );
+        ASSERT(  X <=> X >= 0 );
+        ASSERT(!(X <=> X >  0));
+
+        ASSERT(!(X <=> Y == 0));
+        ASSERT(  X <=> Y != 0 );
+        ASSERT(  X <=> Y <  0 );
+        ASSERT(  X <=> Y <= 0 );
+        ASSERT(!(X <=> Y >= 0));
+        ASSERT(!(X <=> Y >  0));
+
+        ASSERT(!(Y <=> X == 0));
+        ASSERT(  Y <=> X != 0 );
+        ASSERT(!(Y <=> X <  0));
+        ASSERT(!(Y <=> X <= 0));
+        ASSERT(  Y <=> X >= 0);
+        ASSERT(  Y <=> X >  0);
+
+        ASSERT(  Y <=> Y == 0 );
+        ASSERT(!(Y <=> Y != 0));
+        ASSERT(!(Y <=> Y <  0));
+        ASSERT(  Y <=> Y <= 0 );
+        ASSERT(  Y <=> Y >= 0 );
+        ASSERT(!(Y <=> Y >  0));
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
         const IntPtr Z;
         ASSERT(  Z == 0  );
         ASSERT(!(Z != 0) );
@@ -21076,6 +21110,50 @@ int main(int argc, char *argv[])
         ASSERT(  Z <= X  );
         ASSERT(!(Z >= X) );
         ASSERT(!(Z >  X) );
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+        ASSERT(  Z <=> nullptr == 0 );
+        ASSERT(!(Z <=> nullptr != 0));
+        ASSERT(!(Z <=> nullptr <  0));
+        ASSERT(  Z <=> nullptr <= 0 );
+        ASSERT(  Z <=> nullptr >= 0 );
+        ASSERT(!(Z <=> nullptr >  0));
+
+        ASSERT(  nullptr <=> Z == 0 );
+        ASSERT(!(nullptr <=> Z != 0));
+        ASSERT(!(nullptr <=> Z <  0));
+        ASSERT(  nullptr <=> Z <= 0 );
+        ASSERT(  nullptr <=> Z >= 0 );
+        ASSERT(!(nullptr <=> Z >  0));
+
+        ASSERT(!(X <=> nullptr == 0));
+        ASSERT(  X <=> nullptr != 0 );
+        ASSERT(!(X <=> nullptr <  0));
+        ASSERT(!(X <=> nullptr <= 0));
+        ASSERT(  X <=> nullptr >= 0 );
+        ASSERT(  X <=> nullptr >  0 );
+
+        ASSERT(!(nullptr <=> X == 0));
+        ASSERT(  nullptr <=> X != 0 );
+        ASSERT(  nullptr <=> X <  0 );
+        ASSERT(  nullptr <=> X <= 0 );
+        ASSERT(!(nullptr <=> X >= 0));
+        ASSERT(!(nullptr <=> X > 0) );
+
+        ASSERT(!(X <=> Z == 0));
+        ASSERT(  X <=> Z != 0 );
+        ASSERT(!(X <=> Z <  0));
+        ASSERT(!(X <=> Z <= 0));
+        ASSERT(  X <=> Z >= 0 );
+        ASSERT(  X <=> Z >  0 );
+
+        ASSERT(!(Z <=> X == 0));
+        ASSERT(  Z <=> X != 0 );
+        ASSERT(  Z <=> X <  0 );
+        ASSERT(  Z <=> X <= 0 );
+        ASSERT(!(Z <=> X >= 0));
+        ASSERT(!(Z <=> X >  0));
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
       } break;
       case 5: {
         // --------------------------------------------------------------------
