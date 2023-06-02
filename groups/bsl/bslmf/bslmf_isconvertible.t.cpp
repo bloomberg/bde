@@ -35,7 +35,7 @@ using namespace BloombergLP;
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_convertible::value
 // [ 1] bsl::is_convertible_v
-// [ 2] bslmf::IsConvertible::VALUE
+// [ 2] bslmf::IsConvertible::value
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 // [ 3] CONCERN: Warning-free on implicit conversions
@@ -300,12 +300,12 @@ static char C01[1 + bsl::is_convertible<int,   char >::value];     // sz=2
 static char C02[1 + bsl::is_convertible<void*, int  >::value];     // sz=1
 static char C03[1 + bsl::is_convertible<int,   int *>::value];     // sz=1
 
-// Verify that the 'bslmf::IsConvertible::VALUE' is evaluated at compile-time.
+// Verify that the 'bslmf::IsConvertible::value' is evaluated at compile-time.
 
-static char C10[1 + bslmf::IsConvertible<int,   int  >::VALUE];    // sz=2
-static char C11[1 + bslmf::IsConvertible<int,   char >::VALUE];    // sz=2
-static char C12[1 + bslmf::IsConvertible<void*, int  >::VALUE];    // sz=1
-static char C13[1 + bslmf::IsConvertible<int,   int *>::VALUE];    // sz=1
+static char C10[1 + bslmf::IsConvertible<int,   int  >::value];    // sz=2
+static char C11[1 + bslmf::IsConvertible<int,   char >::value];    // sz=2
+static char C12[1 + bslmf::IsConvertible<void*, int  >::value];    // sz=1
+static char C13[1 + bslmf::IsConvertible<int,   int *>::value];    // sz=1
 
 // Support types to demonstrate a convertible bug with Oracle CC 12.4.  The
 // member function are declared, but never defined, as we are testing only
@@ -1092,67 +1092,67 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsConvertible::VALUE'
+        // 'bslmf::IsConvertible::value'
         //
         // Concerns:
-        //: 1 'IsConvertible::VALUE' returns the correct value when both
+        //: 1 'IsConvertible::value' returns the correct value when both
         //:   'FROM_TYPE' and 'TO_TYPE' are basic types.
         //:
-        //: 2 'IsConvertible::VALUE' returns the correct value when one of
+        //: 2 'IsConvertible::value' returns the correct value when one of
         //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' type.
         //:
-        //: 3 'IsConvertible::VALUE' returns the correct value when one of
+        //: 3 'IsConvertible::value' returns the correct value when one of
         //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' pointer or 'const'
         //:   reference type.
         //:
-        //: 4 'IsConvertible::VALUE' returns the correct value when one of
+        //: 4 'IsConvertible::value' returns the correct value when one of
         //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' type.
         //:
-        //: 5 'IsConvertible::VALUE' returns the correct value when 'FROM_TYPE'
+        //: 5 'IsConvertible::value' returns the correct value when 'FROM_TYPE'
         //:   and 'TO_TYPE' are various combinations of (possibly cv-qualified)
         //:   types.
         //:
-        //: 6 'IsConvertible::VALUE' returns the correct value when one of
+        //: 6 'IsConvertible::value' returns the correct value when one of
         //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' pointer or 'volatile'
         //:   reference type.
         //:
-        //: 7 'IsConvertible::VALUE' returns the correct value when 'FROM_TYPE'
+        //: 7 'IsConvertible::value' returns the correct value when 'FROM_TYPE'
         //:   and 'TO_TYPE' are various combinations of different (possibly
         //:   cv-qualified) user-defined types, pointer to user-defined types,
         //:   and reference to user-defined types.
         //:
-        //: 8 'IsConvertible::VALUE' returns the correct value when one or both
+        //: 8 'IsConvertible::value' returns the correct value when one or both
         //:   of 'FROM_TYPE' and 'TO_TYPE' are 'void' types.
         //:
-        //: 9 'IsConvertible::VALUE' returns the correct value when conversion
+        //: 9 'IsConvertible::value' returns the correct value when conversion
         //:   happens between a base class type and a derived class type.
         //:
-        //: 10 'IsConvertible::VALUE' returns the correct value when conversion
+        //: 10 'IsConvertible::value' returns the correct value when conversion
         //:    happens between pointer to base class member object type and
         //:    pointer to derived class member object type.
         //:
-        //: 11 'IsConvertible::VALUE' returns the correct value when conversion
+        //: 11 'IsConvertible::value' returns the correct value when conversion
         //:    happens between pointer to base class member function type and
         //:    pointer to derived class member function type.
         //:
-        //: 12 'IsConvertible::VALUE' returns the correct value when conversion
+        //: 12 'IsConvertible::value' returns the correct value when conversion
         //:    happens between arrays of unknown bound, and other types.
         //:
-        //: 13 'IsConvertible::VALUE' returns the correct value when conversion
+        //: 13 'IsConvertible::value' returns the correct value when conversion
         //:    happens between incomplete types and other types.
         //:
         //: 14 Test function references decay to function pointers
         //
         // Plan:
         //: 1 Instantiate 'bslmf::IsConvertible' with various type combinations
-        //:   and verify that the 'VALUE' member is initialized properly.
+        //:   and verify that the 'value' member is initialized properly.
         //:   (C-1..14)
         //
         // Testing:
-        //   bslmf::IsConvertible::VALUE
+        //   bslmf::IsConvertible::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsConvertible::VALUE'\n"
+        if (verbose) printf("'bslmf::IsConvertible::value'\n"
                             "=============================\n");
 
         ASSERT(2 == sizeof(C10));
@@ -1696,7 +1696,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Instantiate 'bsl::is_convertible' with various type combinations
-        //:   and verify that the 'VALUE' member is initialized properly.
+        //:   and verify that the 'value' member is initialized properly.
         //:   (C-1..11)
         //
         // Testing:

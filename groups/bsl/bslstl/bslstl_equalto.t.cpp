@@ -538,11 +538,11 @@ int main(int argc, char *argv[])
 
         typedef int TYPE;
 
-        ASSERT((bslmf::IsSame<bool, equal_to<TYPE>::result_type>::VALUE));
+        ASSERT((bslmf::IsSame<bool, equal_to<TYPE>::result_type>::value));
         ASSERT((bslmf::IsSame<TYPE,
-                              equal_to<TYPE>::first_argument_type>::VALUE));
+                              equal_to<TYPE>::first_argument_type>::value));
         ASSERT((bslmf::IsSame<TYPE,
-                              equal_to<TYPE>::second_argument_type>::VALUE));
+                              equal_to<TYPE>::second_argument_type>::value));
 
       } break;
       case 3: {

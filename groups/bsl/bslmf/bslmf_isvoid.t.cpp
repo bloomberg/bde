@@ -35,7 +35,7 @@ using namespace BloombergLP;
 // [ 3] bslmf::IsVoid::Type
 // [ 2] bsl::is_void::value
 // [ 2] bsl::is_void_v
-// [ 2] bslmf::IsVoid::VALUE
+// [ 2] bslmf::IsVoid::value
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsVoid::VALUE', 'bsl::is_void::value' and
+        // 'bslmf::IsVoid::value', 'bsl::is_void::value' and
         // 'bsl::is_void::value_v'
         //
         // Concerns:
@@ -396,30 +396,30 @@ int main(int argc, char *argv[])
         //:   a dependent type name in a template.
         //
         // Plan:
-        //   Verify that both 'bsl::is_void::value' and 'bslmf::IsVoid::VALUE'
+        //   Verify that both 'bsl::is_void::value' and 'bslmf::IsVoid::value'
         //   has the correct value for each concern.
         //
         // Testing:
-        //   bslmf::IsVoid::VALUE
+        //   bslmf::IsVoid::value
         //   bsl::is_void::value
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\n'bslmf::IsVoid::VALUE' and 'bsl::is_void::value'"
+            printf("\n'bslmf::IsVoid::value' and 'bsl::is_void::value'"
                    "\n================================================\n");
 
         // Basic test dataset
-        ASSERT( bslmf::IsVoid<void>::VALUE);
-        ASSERT( bslmf::IsVoid<const void>::VALUE);
-        ASSERT( bslmf::IsVoid<volatile void>::VALUE);
-        ASSERT( bslmf::IsVoid<const volatile void>::VALUE);
-        ASSERT(!bslmf::IsVoid<void *>::VALUE);
-        ASSERT(!bslmf::IsVoid<void *&>::VALUE);
-        ASSERT(!bslmf::IsVoid<void()>::VALUE);
-        ASSERT(!bslmf::IsVoid<void(*)()>::VALUE);
-        ASSERT(!bslmf::IsVoid<void *Empty::*>::VALUE);
-        ASSERT(!bslmf::IsVoid<bslmf::IsVoid<void> >::VALUE);
-        ASSERT(!bslmf::IsVoid<Incomplete>::VALUE);
+        ASSERT( bslmf::IsVoid<void>::value);
+        ASSERT( bslmf::IsVoid<const void>::value);
+        ASSERT( bslmf::IsVoid<volatile void>::value);
+        ASSERT( bslmf::IsVoid<const volatile void>::value);
+        ASSERT(!bslmf::IsVoid<void *>::value);
+        ASSERT(!bslmf::IsVoid<void *&>::value);
+        ASSERT(!bslmf::IsVoid<void()>::value);
+        ASSERT(!bslmf::IsVoid<void(*)()>::value);
+        ASSERT(!bslmf::IsVoid<void *Empty::*>::value);
+        ASSERT(!bslmf::IsVoid<bslmf::IsVoid<void> >::value);
+        ASSERT(!bslmf::IsVoid<Incomplete>::value);
 
         ASSERT( bsl::is_void<void>::value);
         ASSERT( bsl::is_void<const void>::value);
@@ -464,8 +464,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        ASSERT( bslmf::IsVoid<void>::VALUE);
-        ASSERT(!bslmf::IsVoid<int>::VALUE);
+        ASSERT( bslmf::IsVoid<void>::value);
+        ASSERT(!bslmf::IsVoid<int>::value);
 
         ASSERT( bsl::is_void<void>::value);
         ASSERT(!bsl::is_void<int>::value);

@@ -713,7 +713,6 @@ int main(int argc, char *argv[])
                              "===================\n";
 
         BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
-        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::VALUE);
       } break;
       case 2: {
         // --------------------------------------------------------------------

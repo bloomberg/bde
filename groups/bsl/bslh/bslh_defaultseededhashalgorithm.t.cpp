@@ -662,7 +662,7 @@ int main(int argc, char *argv[])
         {
             ASSERT((bslmf::IsSame<
                              Obj::result_type,
-                             WyHashIncrementalAlgorithm::result_type>::VALUE));
+                             WyHashIncrementalAlgorithm::result_type>::value));
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
@@ -930,5 +930,3 @@ int main(int argc, char *argv[])
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-
-

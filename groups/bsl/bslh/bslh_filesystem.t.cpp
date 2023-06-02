@@ -479,8 +479,8 @@ int main(int argc, char *argv[])
 
         typedef std::filesystem::path TYPE;
 
-        ASSERT((bslmf::IsSame<size_t, bslh::Hash<TYPE>::result_type>::VALUE));
-        ASSERT((bslmf::IsSame<TYPE, bslh::Hash<TYPE>::argument_type>::VALUE));
+        ASSERT((bslmf::IsSame<size_t, bslh::Hash<TYPE>::result_type>::value));
+        ASSERT((bslmf::IsSame<TYPE, bslh::Hash<TYPE>::argument_type>::value));
       } break;
       case 3: {
         // --------------------------------------------------------------------

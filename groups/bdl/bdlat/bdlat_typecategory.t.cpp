@@ -2199,7 +2199,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2209,7 +2209,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2219,7 +2219,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2229,7 +2229,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2239,7 +2239,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2249,7 +2249,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2259,7 +2259,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2269,7 +2269,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2282,7 +2282,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2295,7 +2295,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2308,7 +2308,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2321,7 +2321,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
         {
@@ -2334,7 +2334,7 @@ int main(int argc, char *argv[])
                    == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::value));
         }
 
       } break;

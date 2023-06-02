@@ -7790,7 +7790,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     // ------------------------------------------------------------------------
     if (verbose) printf("\nTesting '%s'.\n", NameOf<KEY>().name());
 
-    BSLMF_ASSERT((bslmf::IsSame<Iter, CIter>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<Iter, CIter>::value));
 
     typedef bsl::pair<Iter, Iter> Pair;
 

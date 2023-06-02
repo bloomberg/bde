@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Oct 17 10:42:50 2022
+// Generated on Fri Jun  2 06:05:52 2023
 // Command line: sim_cpp11_features.pl bslma_managedptr.h
 
 #ifdef COMPILING_BSLMA_MANAGEDPTR_H
@@ -1485,7 +1485,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
             &ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter,
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
 }
 
 template <class TARGET_TYPE>
@@ -1549,7 +1549,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(bslmf::MovableRef<ManagedPtr> original)
     // compilers (version <= 12.3), so we need the check here.
     #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
         BSLMF_ASSERT((bsl::is_convertible<BDE_OTHER_TYPE *,
-                                          TARGET_TYPE *>::VALUE));
+                                          TARGET_TYPE *>::value));
     #endif
 
     // To deal with the possibility of multiple inheritance, we need to
@@ -1767,7 +1767,7 @@ ManagedPtr<TARGET_TYPE>::operator=(bslmf::MovableRef<ManagedPtr> rhs)
     // need the check here.
     #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
         BSLMF_ASSERT((bsl::is_convertible<BDE_OTHER_TYPE *,
-                                          TARGET_TYPE *>::VALUE));
+                                          TARGET_TYPE *>::value));
     #endif
 
     ManagedPtr<BDE_OTHER_TYPE>& lvalue = rhs;
@@ -1810,7 +1810,7 @@ inline
 ManagedPtr<TARGET_TYPE>::operator ManagedPtr_Ref<REFERENCED_TYPE>()
 {
     BSLMF_ASSERT((bsl::is_convertible<TARGET_TYPE *,
-                                      REFERENCED_TYPE *>::VALUE));
+                                      REFERENCED_TYPE *>::value));
 
     return ManagedPtr_Ref<REFERENCED_TYPE>(&d_members,
                              static_cast<REFERENCED_TYPE *>(
@@ -1894,7 +1894,7 @@ void ManagedPtr<TARGET_TYPE>::load(
                                 void         *cookie,
                                 void        (*deleter)(MANAGED_BASE *, void *))
 {
-    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
     BSLMF_ASSERT((!bsl::is_void<MANAGED_BASE>::value));
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, MANAGED_BASE *>::value));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
@@ -1913,9 +1913,9 @@ void ManagedPtr<TARGET_TYPE>::load(
                          COOKIE_TYPE  *cookie,
                          void        (*deleter)(MANAGED_BASE *, COOKIE_BASE *))
 {
-    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
-    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, MANAGED_BASE *>::VALUE));
-    BSLMF_ASSERT((bsl::is_convertible<COOKIE_TYPE *, COOKIE_BASE *>::VALUE));
+    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
+    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, MANAGED_BASE *>::value));
+    BSLMF_ASSERT((bsl::is_convertible<COOKIE_TYPE *, COOKIE_BASE *>::value));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr,
@@ -3430,7 +3430,7 @@ struct is_nothrow_move_constructible<
 #endif // ! defined(INCLUDED_BSLMA_MANAGEDPTR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

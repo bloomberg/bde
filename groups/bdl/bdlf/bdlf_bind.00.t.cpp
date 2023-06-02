@@ -1170,12 +1170,12 @@ struct TestFunctionsAlloc {
 
 template <class T>
 inline bool TestUtil::isBitwiseMoveableType(const T&) {
-    return bslmf::IsBitwiseMoveable<T>::VALUE;
+    return bslmf::IsBitwiseMoveable<T>::value;
 }
 
 template <class T>
 inline bool TestUtil::isNothrowMoveableType(const T&) {
-    return bsl::is_nothrow_move_constructible<T>::VALUE;
+    return bsl::is_nothrow_move_constructible<T>::value;
 }
 
                             // ---------------
@@ -2189,7 +2189,7 @@ DEFINE_TEST_CASE(18) {
         using namespace bdlf::PlaceHolders;
 
 #define NTM_TEST(R, F, L, EXP)                                                \
-    ASSERT(!(bsl::is_nothrow_move_constructible<bdlf::Bind<R, F, L> >::VALUE));
+    ASSERT(!(bsl::is_nothrow_move_constructible<bdlf::Bind<R, F, L> >::value));
 
         if (veryVerbose) printf("Testing Bind\n");
         //       Return type    Invocable type       Args list       Exp
@@ -2203,7 +2203,7 @@ DEFINE_TEST_CASE(18) {
 
 #define NTM_TEST(R, F, L)                                                     \
     ASSERT((bsl::is_nothrow_move_constructible<                               \
-            bdlf::BindWrapper<R, F, L> >::VALUE));
+            bdlf::BindWrapper<R, F, L> >::value));
 
         if (veryVerbose) printf("Testing BindS\n");
         //       Return type    Invocable type       Args list
@@ -2384,7 +2384,7 @@ DEFINE_TEST_CASE(17) {
         using namespace bdlf::PlaceHolders;
 
 #define BWM_TEST(R,F,L,EXP) \
-        ASSERT(!EXP == !(bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L> >::VALUE));
+        ASSERT(!EXP == !(bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L> >::value));
 
         if (veryVerbose) printf("Testing Bind\n");
         //       Return type    Invocable type       Args list       Exp
@@ -2413,7 +2413,7 @@ DEFINE_TEST_CASE(17) {
 #undef BWM_TEST
 
 #define BWM_TEST(R,F,L) \
-        ASSERT((bslmf::IsBitwiseMoveable<bdlf::BindWrapper<R,F,L> >::VALUE));
+        ASSERT((bslmf::IsBitwiseMoveable<bdlf::BindWrapper<R,F,L> >::value));
 
         if (veryVerbose) printf("Testing BindS\n");
         //       Return type    Invocable type       Args list

@@ -4052,10 +4052,10 @@ int main(int argc, char *argv[])
                                     MyCaseInsensitiveCharComparator>
                                                                    MechGnrlImp;
 
-        ASSERT((bslma::UsesBslmaAllocator<MechChar   >::VALUE));
-        ASSERT((bslma::UsesBslmaAllocator<MechCharImp>::VALUE));
-        ASSERT((bslma::UsesBslmaAllocator<MechGnrl   >::VALUE));
-        ASSERT((bslma::UsesBslmaAllocator<MechGnrlImp>::VALUE));
+        ASSERT((bslma::UsesBslmaAllocator<MechChar   >::value));
+        ASSERT((bslma::UsesBslmaAllocator<MechCharImp>::value));
+        ASSERT((bslma::UsesBslmaAllocator<MechGnrl   >::value));
+        ASSERT((bslma::UsesBslmaAllocator<MechGnrlImp>::value));
 
         ASSERT((bsl::is_same<char,         MechChar::value_type  >()));
         ASSERT((bsl::is_same<DefaultHash,  MechChar::DefaultHash >()));

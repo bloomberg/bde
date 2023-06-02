@@ -1996,7 +1996,7 @@ namespace BloombergLP {
 // is unsigned and the size of 'short', but it is a compiler-defined type
 // considered distinct from 'unsigned short'.
 
-BSLMF_ASSERT(!(bslmf::IsSame<wchar_t, unsigned short>::VALUE));
+BSLMF_ASSERT(!(bslmf::IsSame<wchar_t, unsigned short>::value));
 
 namespace bdlde {
                           // -----------------------

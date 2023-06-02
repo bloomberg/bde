@@ -804,7 +804,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                   *lhs,
                                          bdlat_TypeCategory::Simple  )
 {
     enum {
-        IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
+        IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::value
     };
 
     typedef typename bsl::conditional<IS_CONVERTIBLE,

@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Obj::IsCustomizedType<Cusip>::VALUE);
 
         typedef Obj::BaseType<Cusip>::Type BaseType;
-        ASSERT(1 == (bslmf::IsSame<BaseType, bsl::string>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<BaseType, bsl::string>::value));
 
       } break;
       case 1: {

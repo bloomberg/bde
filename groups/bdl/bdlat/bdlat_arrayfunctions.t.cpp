@@ -1152,11 +1152,11 @@ int main(int argc, char *argv[])
             Obj::ElementType<Test::FixedArray<9, short> >::Type FAElementType;
         ASSERT(1 ==
            (bdlat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::VALUE));
-        ASSERT(1 == (bslmf::IsSame<FAElementType, short>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<FAElementType, short>::value));
 
         typedef Obj::ElementType<bsl::vector<int> >::Type VecElementType;
         ASSERT(1 == bdlat_ArrayFunctions::IsArray<bsl::vector<int> >::VALUE);
-        ASSERT(1 == (bslmf::IsSame<VecElementType, int>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<VecElementType, int>::value));
 
       } break;
       case 1: {

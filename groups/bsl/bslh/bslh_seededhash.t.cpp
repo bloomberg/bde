@@ -473,21 +473,21 @@ int main(int argc, char *argv[])
                             " (C-1,2)\n");
         {
 
-            ASSERT((bslmf::IsSame<size_t, Obj::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t, Obj::result_type>::value));
             ASSERT((bslmf::IsSame<size_t,
                                   SeededHash<SeedGen,
                                              DefaultSeededHashAlgorithm>
-                                                      ::result_type >::VALUE));
+                                                      ::result_type >::value));
             ASSERT((bslmf::IsSame<size_t,
                                   SeededHash<SeedGen, SipHashAlgorithm>
-                                                       ::result_type>::VALUE));
+                                                       ::result_type>::value));
             ASSERT((bslmf::IsSame<size_t,
                                   SeededHash<SeedGen, SpookyHashAlgorithm>
-                                                       ::result_type>::VALUE));
+                                                       ::result_type>::value));
             ASSERT((bslmf::IsSame<
                                 size_t,
                                 SeededHash<SeedGen, WyHashIncrementalAlgorithm>
-                                                       ::result_type>::VALUE));
+                                                       ::result_type>::value));
         }
 
         if (verbose) printf("Invoke 'operator()' and verify the return type is"

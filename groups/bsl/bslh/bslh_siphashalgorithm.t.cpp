@@ -612,7 +612,7 @@ int main(int argc, char *argv[])
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
             ASSERT((bslmf::IsSame<bsls::Types::Uint64,
-                                       SipHashAlgorithm::result_type>::VALUE));
+                                       SipHashAlgorithm::result_type>::value));
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
@@ -976,4 +976,3 @@ int main(int argc, char *argv[])
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

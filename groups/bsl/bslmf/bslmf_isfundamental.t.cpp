@@ -31,7 +31,7 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 2] BloombergLP::bslmf::IsFundamental::VALUE
+// [ 2] BloombergLP::bslmf::IsFundamental::value
 // [ 1] bsl::is_fundamental::value
 // [ 1] bsl::is_fundamental_v
 // ----------------------------------------------------------------------------
@@ -97,13 +97,13 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
     defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 # define LEGACY_ASSERT_REF(META_FUNC, TYPE, result)                           \
-    ASSERT(result == META_FUNC<                          TYPE       >::VALUE);\
-    ASSERT(result == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::VALUE);\
-    ASSERT(false  == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::VALUE);
+    ASSERT(result == META_FUNC<                          TYPE       >::value);\
+    ASSERT(result == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value);\
+    ASSERT(false  == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::value);
 #else
 # define LEGACY_ASSERT_REF(META_FUNC, TYPE, result)                           \
-    ASSERT(result == META_FUNC<                          TYPE       >::VALUE);\
-    ASSERT(result == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::VALUE);
+    ASSERT(result == META_FUNC<                          TYPE       >::value);\
+    ASSERT(result == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value);
 #endif
     // Lvalue-references are deemed to be fundamental, for purposes of a legacy
     // trait, as long as they refer to a fundamental types; this macro tests
@@ -125,10 +125,10 @@ void aSsErT(bool condition, const char *message, int line)
     // type are never fundamental.
 
 # define LEGACY_ASSERT_CVQ_NO_REF(META_FUNC, TYPE, result)                 \
-    ASSERT(result == META_FUNC<                  TYPE       >::VALUE);     \
-    ASSERT(result == META_FUNC<bsl::add_const<   TYPE>::type>::VALUE);     \
-    ASSERT(result == META_FUNC<bsl::add_volatile<TYPE>::type>::VALUE);     \
-    ASSERT(result == META_FUNC<bsl::add_cv<      TYPE>::type>::VALUE);
+    ASSERT(result == META_FUNC<                  TYPE       >::value);     \
+    ASSERT(result == META_FUNC<bsl::add_const<   TYPE>::type>::value);     \
+    ASSERT(result == META_FUNC<bsl::add_volatile<TYPE>::type>::value);     \
+    ASSERT(result == META_FUNC<bsl::add_cv<      TYPE>::type>::value);
     // Test all cv-qualified combinations on a type, but not references to that
     // type.
 
@@ -342,23 +342,23 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsFundamental::VALUE'
-        //   Ensure that the static data member 'VALUE' of
+        // 'bslmf::IsFundamental::value'
+        //   Ensure that the static data member 'value' of
         //   'bslmf::IsFundamental' instantiations having various (template
         //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
-        //: 1 'IsFundamental::VALUE' is 1 when 'TYPE' is a (possibly
+        //: 1 'IsFundamental::value' is 1 when 'TYPE' is a (possibly
         //:   cv-qualified) primitive type or reference to (possibly
         //:   cv-qualified) primitive type.
         //:
-        //: 2 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
+        //: 2 'IsFundamental::value' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
         //:
-        //: 3 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
+        //: 3 'IsFundamental::value' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) pointer to a (possibly cv-qualified) type.
         //:
-        //: 4 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
+        //: 4 'IsFundamental::value' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
         //:
         //: 5 'is_fundamental::value' is '1' when 'TYPE' is a (possibly
@@ -366,14 +366,14 @@ int main(int argc, char *argv[])
         //:   is supported, and '0' otherwise.
         //
         // Plan:
-        //   Verify that 'bslmf::IsFundamental::VALUE' has the correct value
+        //   Verify that 'bslmf::IsFundamental::value' has the correct value
         //   for each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
-        //   bslmf::IsFundamental::VALUE
+        //   bslmf::IsFundamental::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsFundamental::VALUE'\n"
+        if (verbose) printf("'bslmf::IsFundamental::value'\n"
                             "=============================\n");
         // C-1
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, char,                   1);

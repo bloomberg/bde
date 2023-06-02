@@ -173,22 +173,20 @@ struct TestType {
 template <class TRAIT>
 bool eval_dispatch(TRAIT, bsl::true_type)
     // Return 'TRAIT::value', and 'ASSERT' that the deduced type 'TRAIT' has
-    // the same 'value', 'VALUE' and 'type' as the 'bsl::true_type' trait.
+    // the same 'value' and 'type' as the 'bsl::true_type' trait.
 {
     ASSERT((bsl::is_same<typename TRAIT::type, bsl::true_type>::value));
     ASSERT(true == TRAIT::value);
-    ASSERT(true == TRAIT::VALUE);
     return TRAIT::value;
 }
 
 template <class TRAIT>
 bool eval_dispatch(TRAIT, bsl::false_type)
     // Return 'TRAIT::value', and 'ASSERT' that the deduced type 'TRAIT' has
-    // the same 'value', 'VALUE' and 'type' as the 'bsl::false_type' trait.
+    // the same 'value' and 'type' as the 'bsl::false_type' trait.
 {
     ASSERT((bsl::is_same<typename TRAIT::type, bsl::false_type>::value));
     ASSERT(false == TRAIT::value);
-    ASSERT(false == TRAIT::VALUE);
     return TRAIT::value;
 }
 
@@ -563,16 +561,13 @@ int main(int argc, char *argv[])
         //: 2 'is_volatile<T>::value' is 'true' when 'T' is a 'volatile'
         //:   qualified or cv-qualified type.
         //:
-        //: 3 'is_volatile<T>::VALUE' has the same value as
-        //:   'is_volatile<T>::value'.
+        //: 3 'is_volatile_v<T>' has the same value as 'is_volatile<T>::value'.
         //:
-        //: 4 'is_volatile_v<T>' has the same value as 'is_volatile<T>::value'.
-        //:
-        //: 5 'is_volatile<T>' is publicly and unambiguously derived from
+        //: 4 'is_volatile<T>' is publicly and unambiguously derived from
         //:   either 'true_type' or 'false_type', according to concerns 1 and
         //:   2.
         //:
-        //: 6 Objects of type 'is_volatile<T>' can be default constructed and
+        //: 5 Objects of type 'is_volatile<T>' can be default constructed and
         //:   copied, for use in tag-dispatch schemes.
         //
         // Plan:
@@ -581,9 +576,7 @@ int main(int argc, char *argv[])
         //:
         //:  1a) That function shall dispatch to a further overload set that
         //:      tag-dispatches on 'true_type' and 'false_type'.
-        //:  1b) Within the deeper dispatch, confirm that 'value' and 'VALUE'
-        //:      have the same value as the corresponding tag type.
-        //:  1c) Return 'value' to compare with the expected result for the
+        //:  1b) Return 'value' to compare with the expected result for the
         //:      template argument 'T'.
         //
         // Testing:
@@ -696,4 +689,3 @@ int main(int argc, char *argv[])
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

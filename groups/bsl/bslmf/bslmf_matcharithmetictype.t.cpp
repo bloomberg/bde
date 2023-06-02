@@ -786,73 +786,73 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nConfirm Known Supported Conversions"
                             "\n===================================\n");
         {
-  ASSERT(1 == (bslmf::IsConvertible<                    bool  , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<                    bool  , Obj>::value));
 
-  ASSERT(1 == (bslmf::IsConvertible<                    char  , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<                   wchar_t, Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<                    char  , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<                   wchar_t, Obj>::value));
 
-  ASSERT(1 == (bslmf::IsConvertible<  signed            char  , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<  signed      short int   , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<  signed            int   , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<  signed      long  int   , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<  signed long long  int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<  signed            char  , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<  signed      short int   , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<  signed            int   , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<  signed      long  int   , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<  signed long long  int   , Obj>::value));
 
-  ASSERT(1 == (bslmf::IsConvertible<unsigned            char  , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<unsigned      short int   , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<unsigned            int   , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<unsigned      long  int   , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<unsigned long long  int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned            char  , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned      short int   , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned            int   , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned      long  int   , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned long long  int   , Obj>::value));
 
-  ASSERT(1 == (bslmf::IsConvertible<                    float , Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<                    double, Obj>::VALUE));
-  ASSERT(1 == (bslmf::IsConvertible<              long  double, Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<                    float , Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<                    double, Obj>::value));
+  ASSERT(1 == (bslmf::IsConvertible<              long  double, Obj>::value));
 
-  ASSERT(1 == (bslmf::IsConvertible<                    MyEnum, Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<                    MyEnum, Obj>::value));
 
   ASSERT(1 == (bslmf::IsConvertible<MyConvertibleToMatchArithmeticType,
-                                                                Obj>::VALUE));
+                                                                Obj>::value));
         }
 
         if (verbose) printf("\nNon-convertible: 'MyClass'"
                             "\n==========================\n");
         {
-          ASSERT(0 == (bslmf::IsConvertible<MyClass, Obj>::VALUE));
+          ASSERT(0 == (bslmf::IsConvertible<MyClass, Obj>::value));
         }
 
         if (verbose) printf("\nNon-convertible: 'MyConvertibleToInt'"
                             "\n====================================\n");
         {
-          ASSERT(0 == (bslmf::IsConvertible<MyConvertibleToInt, Obj>::VALUE));
+          ASSERT(0 == (bslmf::IsConvertible<MyConvertibleToInt, Obj>::value));
         }
 
         if (verbose) printf("\nNon-convertible: 'int *'"
                             "\n========================\n");
         {
-          ASSERT(0 == (bslmf::IsConvertible<int *, Obj>::VALUE));
+          ASSERT(0 == (bslmf::IsConvertible<int *, Obj>::value));
         }
 
         if (verbose) printf("\nNon-convertible: 'void (*)()'"
                             "\n=============================\n");
         {
-          ASSERT(0 == (bslmf::IsConvertible<void (*)(), Obj>::VALUE));
+          ASSERT(0 == (bslmf::IsConvertible<void (*)(), Obj>::value));
         }
 
         if (verbose) printf("\nNon-convertible: 'int [5]'"
                             "\n==========================\n");
         {
-          ASSERT(0 == (bslmf::IsConvertible<int [5], Obj>::VALUE));
+          ASSERT(0 == (bslmf::IsConvertible<int [5], Obj>::value));
         }
 
         if (verbose) printf("\nNon-convertible: 'MyClass::*'"
                             "\n=============================\n");
         {
-          ASSERT(0 == (bslmf::IsConvertible<int MyClass::*, Obj>::VALUE));
+          ASSERT(0 == (bslmf::IsConvertible<int MyClass::*, Obj>::value));
         }
 
         if (verbose) printf("\nNon-convertible: 'int (MyClass::*)()'"
                             "\n====================================\n");
         {
-          ASSERT(0 == (bslmf::IsConvertible<int (MyClass::*)(), Obj>::VALUE));
+          ASSERT(0 == (bslmf::IsConvertible<int (MyClass::*)(), Obj>::value));
         }
 
       } break;

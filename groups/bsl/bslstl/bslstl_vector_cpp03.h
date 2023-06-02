@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Apr  6 10:41:33 2023
+// Generated on Fri Jun  2 05:39:32 2023
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -152,7 +152,7 @@ struct Vector_RangeCheck {
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
-            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
+            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value, bool>::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR);
         // Return 'false'.  Note that we know of no way to identify an input
         // iterator range that is guaranteed to be invalid.
@@ -160,7 +160,7 @@ struct Vector_RangeCheck {
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
-             Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
+             Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last);
         // Return 'true' if 'last < first', and 'false' otherwise.  The
         // behavior is undefined unless both 'first' and 'last' are valid
@@ -2632,7 +2632,7 @@ void Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::release()
 
 template <class BSLSTL_ITERATOR>
 inline
-typename enable_if<!Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE,
+typename enable_if<!Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value,
                    bool>::type
 Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
 {
@@ -2641,7 +2641,7 @@ Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
 
 template <class BSLSTL_ITERATOR>
 inline
-typename enable_if<Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE,
+typename enable_if<Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value,
                    bool>::type
 Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
 {

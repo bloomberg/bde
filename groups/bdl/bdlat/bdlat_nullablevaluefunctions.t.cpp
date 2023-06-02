@@ -848,7 +848,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Obj::IsNullableValue<bdlb::NullableValue<int> >::VALUE);
 
         typedef Obj::ValueType<bdlb::NullableValue<int> >::Type ValueType;
-        ASSERT(1 == (bslmf::IsSame<ValueType, int>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<ValueType, int>::value));
 
       } break;
       case 1: {

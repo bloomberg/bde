@@ -2148,7 +2148,7 @@ class MyTestDeleter {
         // objects passed to 'operator()'.
 };
 
-BSLMF_ASSERT(!bslma::UsesBslmaAllocator<MyTestDeleter>::VALUE);
+BSLMF_ASSERT(!bslma::UsesBslmaAllocator<MyTestDeleter>::value);
 
                           // ========================
                           // class MyAllocTestDeleter
@@ -17784,7 +17784,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Not convertible to ints.\n");
 
-        ASSERT((0 == bslmf::IsConvertible<bsl::shared_ptr<int>, int>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bsl::shared_ptr<int>, int>::value));
 
         if (verbose) printf("Simple boolean expressions.\n");
 

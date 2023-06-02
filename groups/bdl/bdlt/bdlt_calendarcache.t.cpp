@@ -175,7 +175,7 @@ bdlt::DatetimeInterval                        OneSecond(0, 0, 0, 1);
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslma::UsesBslmaAllocator<Obj>::VALUE));
+BSLMF_ASSERT((bslma::UsesBslmaAllocator<Obj>::value));
 
 // ============================================================================
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING

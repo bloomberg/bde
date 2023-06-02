@@ -16415,7 +16415,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SequenceContext<TestType>     ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef TestSequence1                         TestType;
@@ -16424,7 +16424,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SequenceContext<TestType>     ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef TestSequence2                         TestType;
@@ -16433,7 +16433,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SequenceContext<TestType>     ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
         }
 
@@ -16446,7 +16446,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_ChoiceContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef TestChoice1                           TestType;
@@ -16455,7 +16455,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_ChoiceContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef TestChoice2                       TestType;
@@ -16464,7 +16464,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_ChoiceContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
         }
 
@@ -16477,7 +16477,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SimpleContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef short                                 TestType;
@@ -16486,7 +16486,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SimpleContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef double                                TestType;
@@ -16495,7 +16495,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SimpleContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef float                                 TestType;
@@ -16504,7 +16504,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SimpleContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef long long                             TestType;
@@ -16513,7 +16513,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SimpleContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef DummyEnumeration::Value               TestType;
@@ -16522,7 +16522,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_SimpleContext<TestType>       ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef DummyCustomizedType                   TestType;
@@ -16531,7 +16531,7 @@ int main(int argc, char *argv[])
                 typedef
                 balxml::Decoder_CustomizedContext<TestType>   ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
         }
 
@@ -16546,7 +16546,7 @@ int main(int argc, char *argv[])
                          TestType,
                          balxml::Decoder_ListParser<TestType> > ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef bsl::vector<short>                          TestType;
@@ -16557,7 +16557,7 @@ int main(int argc, char *argv[])
                          TestType,
                          balxml::Decoder_ListParser<TestType> > ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
             {
                 typedef bsl::vector<double>                         TestType;
@@ -16568,7 +16568,7 @@ int main(int argc, char *argv[])
                          TestType,
                          balxml::Decoder_ListParser<TestType> > ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
         }
 
@@ -16580,7 +16580,7 @@ int main(int argc, char *argv[])
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef balxml::Decoder_StdStringContext      ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
         }
 
@@ -16592,7 +16592,7 @@ int main(int argc, char *argv[])
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef balxml::Decoder_StdVectorCharContext  ExpectedResult;
 
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
+                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }
         }
 

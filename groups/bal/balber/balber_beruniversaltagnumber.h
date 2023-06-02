@@ -826,12 +826,12 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(
      const BerUniversalTagNumber_Sel<bdlb::Variant2<TYPE, TYPETZ>, SimpleCat>&)
 {
-    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date,       TYPE  >::VALUE
-               && bslmf::IsSame<bdlt::DateTz,     TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Time,       TYPE  >::VALUE
-               && bslmf::IsSame<bdlt::TimeTz,     TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Datetime,   TYPE  >::VALUE
-               && bslmf::IsSame<bdlt::DatetimeTz, TYPETZ>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date,       TYPE  >::value
+               && bslmf::IsSame<bdlt::DateTz,     TYPETZ>::value)
+              || (bslmf::IsSame<bdlt::Time,       TYPE  >::value
+               && bslmf::IsSame<bdlt::TimeTz,     TYPETZ>::value)
+              || (bslmf::IsSame<bdlt::Datetime,   TYPE  >::value
+               && bslmf::IsSame<bdlt::DatetimeTz, TYPETZ>::value));
 
     return selectForDateAndTimeTypes();
 }

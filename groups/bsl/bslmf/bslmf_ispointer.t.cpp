@@ -23,7 +23,7 @@ using namespace BloombergLP;
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 2] BloombergLP::bslmf::IsPointer:VALUE
+// [ 2] BloombergLP::bslmf::IsPointer::value
 // [ 1] bsl::is_pointer::value
 // [ 1] bsl::is_pointer_v
 //
@@ -215,49 +215,49 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPointer::VALUE'
-        //   Ensure that the static data member 'VALUE' of 'bslmf::IsPointer'
+        // 'bslmf::IsPointer::value'
+        //   Ensure that the static data member 'value' of 'bslmf::IsPointer'
         //   instantiations having various (template parameter) 'TYPES' has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'IsPointer::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 1 'IsPointer::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   primitive type.
         //
-        //: 2 'IsPointer::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 2 'IsPointer::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   user-defined type.
         //:
-        //: 3 'IsPointer::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 3 'IsPointer::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   pointer to a (possibly cv-qualified) non-static member.
         //:
-        //: 4 'IsPointer::VALUE' is 1 when 'TYPE' is a (possibly cv-qualified)
+        //: 4 'IsPointer::value' is 1 when 'TYPE' is a (possibly cv-qualified)
         //:   pointer to a (possibly cv-qualified) type.
         //
         // Plan:
-        //   Verify that 'bsl::IsPointer::VALUE' has the correct value for
+        //   Verify that 'bsl::IsPointer::value' has the correct value for
         //   each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
-        //   bsl::IsPointer::VALUE
+        //   bsl::IsPointer::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbslmf::IsPointer::VALUE\n"
+        if (verbose) printf("\nbslmf::IsPointer::value\n"
                             "\n=======================\n");
 
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, VALUE, int, 0);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, value, int, 0);
 
         // C-2
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, VALUE, TestType, 0);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, value, TestType, 0);
 
         // C-3
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, VALUE, MethodPtrTestType, 0);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, value, MethodPtrTestType, 0);
 
         // C-4
-        TYPE_ASSERT_CVQ(bslmf::IsPointer, VALUE, int *, 1);
-        TYPE_ASSERT_CVQ(bslmf::IsPointer, VALUE, TestType *, 1);
+        TYPE_ASSERT_CVQ(bslmf::IsPointer, value, int *, 1);
+        TYPE_ASSERT_CVQ(bslmf::IsPointer, value, TestType *, 1);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer,
-                               VALUE,
+                               value,
                                FunctionPtrTestType,
                                1);
 

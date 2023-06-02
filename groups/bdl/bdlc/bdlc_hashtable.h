@@ -623,7 +623,7 @@ class HashTable {
 
   private:
     // PRIVATE TYPES
-    typedef typename bsl::conditional<bslmf::IsSame<bslmf::Nil, VALUE>::VALUE,
+    typedef typename bsl::conditional<bslmf::IsSame<bslmf::Nil, VALUE>::value,
                                       KEY,
                                       bsl::pair<KEY, VALUE> >::type Bucket;
         // Type of the element stored in this object.  If the 'VALUE' parameter
@@ -1151,7 +1151,7 @@ bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(Handle     *handle,
 {
     BSLS_ASSERT(handle);
 
-    BSLMF_ASSERT((bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<bslmf::Nil, VALUE>::value));
 
     return insertElement(handle, key);
 }
@@ -1164,7 +1164,7 @@ bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(Handle       *handle,
 {
     BSLS_ASSERT(handle);
 
-    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::value));
 
     return insertElement(handle, bsl::make_pair(key, value));
 }
@@ -1187,7 +1187,7 @@ inline
 VALUE& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(const Handle& handle)
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
-    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::value));
 
     BSLS_ASSERT(!TRAITS::isNull   (d_buckets[(size_type)handle]));
     BSLS_ASSERT(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
@@ -1277,7 +1277,7 @@ const VALUE& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                                                     const Handle& handle) const
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
-    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::value));
 
     BSLS_ASSERT(!TRAITS::isNull   (d_buckets[(size_type)handle]));
     BSLS_ASSERT(!TRAITS::isRemoved(d_buckets[(size_type)handle]));

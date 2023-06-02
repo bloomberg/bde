@@ -4890,9 +4890,9 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    BSLMF_ASSERT(!bsl::Vector_IsRandomAccessIterator<int>::VALUE);
+    BSLMF_ASSERT(!bsl::Vector_IsRandomAccessIterator<int>::value);
     BSLMF_ASSERT(bsl::Vector_IsRandomAccessIterator<
-                                           bsl::vector<int>::iterator>::VALUE);
+                                           bsl::vector<int>::iterator>::value);
 #endif
 
     printf("TEST " __FILE__ " CASE %d\n", test);
