@@ -1,7 +1,31 @@
-bsl-internal (3.118.0.1) unstable; urgency=low
+bsl-internal (3.119.0.0) unstable; urgency=low
 
+  * 3ca46d66b Bumped version to 3.119.0.0
+  * 3cb90957c C++20 work: Add the ‘operator<=>’ to the 'bslstl::shared_ptr' (DRQS 171421925) (#4214)
+  * 1bfe0ad4d Check the feature-test macro before using the native 'ssize()' (#4255)
+  * 92a0f871a C++20 work: create CPP20 COMPILERFEATUES macros (DRQS 172013971) (#4267)
+  * ccdcca2b8 Handle negative result from write (#4280)
+  * c2380444b Implement c++20's make_shared and allocate_shared (#4126)
+  * fce4c0f90 Add bsl::array ranges breathing tests (#4277)
+  * bf8f7ce0c reduce warnings on gcc-10 in bdl; {DRQS 171723333}  (#4273)
+  * 48fc1722d Add <bsl_coroutine.h>. (#4240)
+  * 1c32df6ab Windows fix (#4266)
+  * 63a8758dc Merge pull request #4274 from afeher/restore-style
+  * 9403e0b22 Add construction from bsl::vector for C++03 {DRQS 171346605} (#4254)
+  * 87b1324ba fixes an uninitialized variable found while trying to convert from the bdex library to the bslx library (#4270)
+  * 25f270e44 Fix test for 3way comparisons, and add sanity checking to the tests (#4251)
+  * 50929f18e GCC 13 support (#4262)
+  * 0b693187f Fix Windows test failures in bslh_filesystem (#4263)
+  * 971c36a27 Use correct compiler feature for guaranteed copy elision (#4261)
+  * 72d836628 Merge pull request #4265 from afeher/drqs-172027671-safe2-build-fix
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 11 May 2023 10:30:12 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 2 Jun 2023 13:39:05 -0400
+
+bsl-internal (3.118.0.1) git; urgency=low
+
+  * 77a0f39d5 Changelog for version 3.118.0.1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 11 May 2023 10:38:38 -0400
 
 bsl-internal (3.118.0.0) git; urgency=low
 
