@@ -368,6 +368,20 @@ namespace {
   BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::MovableAllocTestType),              \
   BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::NonTypicalOverloadsTestType)
 
+void myMemcpy(void *dst, const void *src, size_t size)
+    // Functionally equivalent to 'std::memcpy', except avoids warnings on some
+    // compilers when copying objects for which 'std::is_trivially_copyable' is
+    // not true.
+{
+    char              *dstChar = static_cast<char *>(dst);
+    const char        *srcChar = static_cast<const char *>(src);
+    const char * const end     = srcChar + size;
+
+    while (srcChar < end) {
+        *dstChar++ = *srcChar++;
+    }
+}
+
                               // ================
                               // class MyClassDef
                               // ================
@@ -6199,6 +6213,9 @@ class TestDriver {
 
   public:
 
+    static void testCase28();
+        // Bit-wise movable, bit-wise copyable.
+
     static void testCase24();
         // TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
 
@@ -6343,6 +6360,109 @@ void bslstl_optional_value_type_deduce(const bsl::optional<TYPE>&)
 template <class TYPE>
 void bslstl_optional_optional_type_deduce(const TYPE&)
 {
+}
+
+template <class TYPE>
+void TestDriver<TYPE>::testCase28()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'IsBitwiseMoveable' and 'IsBitwiseCopyable'
+    //
+    // Concerns:
+    //: 1 That the 'IsBitwiseMoveable', 'IsBitwiseCopyable', and
+    //:   'UsesBslmaAllocator' traits are as expected.
+    //:
+    //: 2 If 'TEST_TYPE' is movable, we can move 'Obj' with 'memcpy'.
+    //:
+    //: 3 If 'TEST_TYPE' is movable, we can copy 'Obj' with 'memcpy'.
+    //
+    // Plan:
+    //: 1 Check the 3 traits with asserts.
+    //:
+    //: 2 If we expect 'Obj' to be move it, try moving it between two
+    //:
+
+    // ------------------------------------------------------------------------
+
+    const char *type = bsls::NameOf<TYPE>().name();
+
+    if (veryVerbose) {
+        printf("%s: TYPE moves: %s, Obj moves: %s, TYPE copies: %s,"
+                                                     " Obj copies: %s\n", type,
+                    (bslmf::IsBitwiseMoveable<TYPE>::value ? "true" : "false"),
+                    (bslmf::IsBitwiseMoveable<Obj>::value ? "true" : "false"),
+                    (bslmf::IsBitwiseCopyable<TYPE>::value ? "true" : "false"),
+                    (bslmf::IsBitwiseCopyable<Obj>::value ? "true" : "false"));
+    }
+
+    ASSERTV(type, bslmf::IsBitwiseMoveable<TYPE>::value ==
+                                         bslmf::IsBitwiseMoveable<Obj>::value);
+    ASSERTV(type, bslmf::IsBitwiseCopyable<TYPE>::value ==
+                                         bslmf::IsBitwiseCopyable<Obj>::value);
+    ASSERTV(type, bslma::UsesBslmaAllocator<TYPE>::value ==
+                                        bslma::UsesBslmaAllocator<Obj>::value);
+
+    typedef bsls::ObjectBuffer<Obj>              ObjBuffer;    
+    typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;    
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+    bslma::TestAllocator va("values",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const TestValues VALUES(&va);
+
+    if (bslmf::IsBitwiseMoveable<Obj>::value) {
+        ObjWABuffer xBuffer;
+        ObjBuffer   yBuffer;
+
+        Obj& x = xBuffer.object().object();     const Obj& X = x;
+        Obj& y = yBuffer.object();              const Obj& Y = y;
+
+        new (&xBuffer.object()) ObjWithAllocator(VALUES[0], &oa);
+
+        ASSERT(X.has_value());
+        ASSERT(X.value() == VALUES[0]);
+
+        myMemcpy(yBuffer.address(), xBuffer.address(), sizeof(x));
+
+        ASSERT(Y.has_value());
+        ASSERT(Y.value() == VALUES[0]);
+
+        if (!bslmf::IsBitwiseCopyable<Obj>::value) {
+            y.~Obj();
+        }
+    }
+
+    ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+    ASSERT(0 == da.numAllocations());
+
+    if (bslmf::IsBitwiseCopyable<Obj>::value) {
+        ObjWABuffer xBuffer;
+        ObjBuffer   yBuffer;
+
+        Obj& x = xBuffer.object().object();     const Obj& X = x;
+        Obj& y = yBuffer.object();              const Obj& Y = y;
+
+        new (&xBuffer.object()) ObjWithAllocator(VALUES[1], &oa);
+
+        ASSERT(X.has_value());
+        ASSERT(X.value() == VALUES[1]);
+
+        myMemcpy(yBuffer.address(), xBuffer.address(), sizeof(x));
+
+        ASSERT(Y.has_value());
+        ASSERT(Y.value() == VALUES[1]);
+        ASSERT(X.has_value());
+        ASSERT(X.value() == Y.value());
+        ASSERT(X == Y);
+
+        // bitwise copyable, no d'tor
+    }
+
+    ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+    ASSERT(0 == da.numAllocations());
 }
 
 template <class TYPE>
@@ -13306,6 +13426,15 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 28: {
+        //---------------------------------------------------------------------
+        // Testing 'IsBitwiseMoveable' and 'IsBitwiseCopyable'.
+        //---------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase28,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 27: {
         //---------------------------------------------------------------------
         // TESTING CONCEPTS
