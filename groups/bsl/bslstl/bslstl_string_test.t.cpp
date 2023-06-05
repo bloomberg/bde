@@ -49,6 +49,9 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <utility>      // 'move'
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 #include <limits.h>     // 'CHAR_MAX'
 #include <stddef.h>
@@ -394,7 +397,7 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [43] USAGE EXAMPLE
+// [44] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -402,6 +405,7 @@ using bsls::nameOfType;
 // [ 9] basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
 // [36] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [38] CLASS TEMPLATE DEDUCTION GUIDES
+// [43] CONCERN: 'string' IS A C++20 RANGE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -1437,6 +1441,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase43_isRange();
+        // Test whether 'string' is a C++20 range.
+
     static void testCase42();
         // Test 'erase' and 'erase_if'.
 
@@ -1722,6 +1729,20 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase43_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::contiguous_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
@@ -20804,6 +20825,37 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 43: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'string' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'string' models 'ranges::common_range' concept.
+        //:
+        //: 2 'string' models 'ranges::contiguous_range' concept.
+        //:
+        //: 3 'string' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'string' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'string' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'string' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for 'char' and
+        //:   'wchar_t'.
+        //
+        // Testing:
+        //   CONCERN: 'string' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'string' IS A C++20 RANGE"
+                            "\n==================================\n");
+
+        TestDriver< char  >::testCase43_isRange();
+        TestDriver<wchar_t>::testCase43_isRange();
+      } break;
       case 42: {
         // -------------------------------------------------------------------
         // TESTING 'erase' AND 'erase_if'

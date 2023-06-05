@@ -197,7 +197,7 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [36] USAGE EXAMPLE
+// [40] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multiset *object, const char *s, int verbose);
@@ -208,6 +208,7 @@ using bsls::NameOf;
 // [27] CONCERN: The values are spread into different buckets.
 // [35] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [36] CLASS TEMPLATE DEDUCTION GUIDES
+// [39] CONCERN: 'unordered_multiset' IS A C++20 RANGE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -4646,7 +4647,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 37: {
+      case 40: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4799,6 +4800,9 @@ int main(int argc, char *argv[])
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
+      case 39: // falls through
+      case 38: // falls through
+      case 37: // falls through
       case 36: // falls through
       case 35: // falls through
       case 34: // falls through

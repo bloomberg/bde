@@ -212,6 +212,9 @@ struct TestDriver2 : TestSupport<TYPE, ALLOC> {
 
     static void testCase36_erase();
         // Test free functions 'erase' and 'erase_if'
+
+    static void test38_isRange();
+        // Test whether 'list' is a C++20 range.
 };
 
                   // ==================================
@@ -246,6 +249,20 @@ struct EqPred
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver2<TYPE, ALLOC>::test38_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::bidirectional_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
 
 template <class TYPE, class ALLOC>
 void TestDriver2<TYPE, ALLOC>::testCase36_erase()
@@ -8909,6 +8926,37 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 38: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'list' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'list' models 'ranges::common_range' concept.
+        //:
+        //: 2 'list' models 'ranges::bidirectional_range' concept.
+        //:
+        //: 3 'list' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'list' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'list' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'list' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'.
+        //
+        // Testing:
+        //   CONCERN: 'list' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'list' IS A C++20 RANGE"
+                            "\n================================\n");
+
+        RUN_EACH_TYPE(TestDriver2,
+                      test38_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // TESTING INCOMPLETE TYPE SUPPORT

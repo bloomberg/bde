@@ -230,7 +230,7 @@ using bsl::pair;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [41] CLASS TEMPLATE ARGUMENT DEDUCTION
-// [43] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -246,6 +246,7 @@ using bsl::pair;
 // [36] CONCERN: 'unordered_map' supports incomplete types.
 // [38] CONCERN: 'erase' overload is deduced correctly.
 // [39] CONCERN: Simple test case fails to compile on MSVC.
+// [44] CONCERN: 'unordered_map' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -10567,7 +10568,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 43: {
+      case 45: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -10587,6 +10588,8 @@ int main(int argc, char *argv[])
                             "\n=============\n");
         usage();
       } break;
+      case 44: // falls through
+      case 43: // falls through
       case 42: // falls through
       case 41: // falls through
       case 40: // falls through

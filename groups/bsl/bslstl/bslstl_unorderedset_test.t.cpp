@@ -40,6 +40,9 @@
 #include <bsltf_testvaluesarray.h>
 
 #include <utility> // move
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 #include <stddef.h>
 #include <stdio.h>
@@ -206,7 +209,7 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [36] USAGE EXAMPLE
+// [38] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 //*[ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
@@ -222,6 +225,7 @@ using bsls::NameOf;
 // [34] CONCERN: 'count'       properly handles transparent comparators.
 // [34] CONCERN: 'equal_range' properly handles transparent comparators.
 // [35] CLASS TEMPLATE DEDUCTION GUIDES
+// [37] CONCERN: 'unordered_set' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1906,6 +1910,9 @@ class TestDriver {
   public:
     // TEST CASES
 
+    static void testCase37_isRange();
+        // Test whether 'unordered_set' is a C++20 range.
+
     static void testCase36();
         // Test free function 'bsl::erase_if'
 
@@ -2576,6 +2583,20 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31b_RunTest(Obj   *target,
 
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     return result;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase37_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::forward_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -8520,6 +8541,37 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 37: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'unordered_set' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'unordered_set' models 'ranges::common_range' concept.
+        //:
+        //: 2 'unordered_set' models 'ranges::forward_range' concept.
+        //:
+        //: 3 'unordered_set' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'unordered_set' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'unordered_set' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'unordered_set' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'.
+        //
+        // Testing:
+        //   CONCERN: 'unordered_set' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'unordered_set' IS A C++20 RANGE"
+                            "\n=========================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase37_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // TESTING ERASE_IF

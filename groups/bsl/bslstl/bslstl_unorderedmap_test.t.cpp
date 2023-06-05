@@ -53,6 +53,9 @@
 # include <tuple>      // for 'std::forward_as_tuple'
 # include <utility>    // for 'std::piecewise_construct'
 #endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 #include <stddef.h> // for 'NULL'
 #include <stdio.h>
@@ -236,7 +239,7 @@ using bsl::pair;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [41] CLASS TEMPLATE DEDUCTION GUIDES
-// [42] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -255,6 +258,7 @@ using bsl::pair;
 // [40] CONCERN: 'find'        properly handles transparent comparators.
 // [40] CONCERN: 'count'       properly handles transparent comparators.
 // [40] CONCERN: 'equal_range' properly handles transparent comparators.
+// [44] CONCERN: 'unordered_map' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1951,6 +1955,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase44_isRange();
+        // Test whether 'unordered_map' is a C++20 range.
+
     static void testCase43();
         // Test 'try_emplace' and 'insert_or_assign'
 
@@ -2133,6 +2140,20 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
         ASSERTV(v.first, it->second, v.second,
                                  !found || keysOnly || it->second == v.second);
     }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase44_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::forward_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -9382,6 +9403,38 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 44: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'unordered_map' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'unordered_map' models 'ranges::common_range' concept.
+        //:
+        //: 2 'unordered_map' models 'ranges::forward_range' concept.
+        //:
+        //: 3 'unordered_map' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'unordered_map' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'unordered_map' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'unordered_map' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'KEY'
+        //:   and 'VALUE'.
+        //
+        // Testing:
+        //   CONCERN: 'unordered_map' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'unordered_map' IS A C++20 RANGE"
+                            "\n=========================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase44_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 43: {
         // --------------------------------------------------------------------
         // TESTING 'TRY_EMPLACE' AND 'INSERT_OR_ASSIGN'

@@ -11,6 +11,7 @@
 #include <bslma_sequentialallocator.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_movableref.h>
 
 #include <bsltf_movabletesttype.h>
@@ -23,6 +24,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_util.h>
 
@@ -35,6 +37,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <utility>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 using namespace BloombergLP;
 using namespace bslstl;
@@ -133,7 +138,8 @@ using namespace bslstl;
 // [26] array<TYPE, SIZE> to_array(TYPE (&&src)[SIZE]);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [27] USAGE EXAMPLE
+// [28] USAGE EXAMPLE
+// [27] CONCERN: 'array' IS A C++20 RANGE
 // [25] CLASS TEMPLATE DEDUCTION GUIDES
 // [23] CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
 
@@ -2243,6 +2249,9 @@ struct TestDriver {
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
 
+    static void testCase27_isRange();
+        // Test whether 'array' is a C++20 range.
+
     static void testCase26();
         // Test 'to_array'.
 
@@ -2318,6 +2327,9 @@ struct TestDriver {
 
 template<class TYPE>
 struct TestDriverWrapper{
+
+    static void testCase27_isRange();
+        // Test whether 'array' is a C++20 range.
 
     static void testCase26();
         // Test 'to_array'.
@@ -2401,6 +2413,35 @@ struct TestDriverWrapper{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
+
+template<class TYPE>
+void TestDriverWrapper<TYPE>::testCase27_isRange()
+{
+    TestDriver<TYPE,  1>::testCase27_isRange();
+    TestDriver<TYPE,  2>::testCase27_isRange();
+    TestDriver<TYPE,  3>::testCase27_isRange();
+    TestDriver<TYPE,  4>::testCase27_isRange();
+    TestDriver<TYPE,  5>::testCase27_isRange();
+    TestDriver<TYPE, 16>::testCase27_isRange();
+    TestDriver<TYPE, 32>::testCase27_isRange();
+    TestDriver<TYPE, 64>::testCase27_isRange();
+}
+
+template <class TYPE, size_t SIZE>
+void TestDriver<TYPE, SIZE>::testCase27_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#ifndef BSLSTL_ARRAY_IS_ALIASED
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::contiguous_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+#endif
+}
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase26()
@@ -2525,7 +2566,7 @@ void TestDriver<TYPE, SIZE>::testCase26()
 
     std::size_t builtin_size_t_multi_arr[k_ARR_SIZE][k_ARR_SIZE];
 
-    bsl::array<std::size_t[k_ARR_SIZE], k_ARR_SIZE> multi_bsl_arr = 
+    bsl::array<std::size_t[k_ARR_SIZE], k_ARR_SIZE> multi_bsl_arr =
         bsl::to_array(builtin_size_t_multi_arr);
 #endif
 
@@ -4899,7 +4940,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
 
     switch (test) { case 0:
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4920,6 +4961,39 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         UsageExample::usageExample();
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'array' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'array' models 'ranges::common_range' concept.
+        //:
+        //: 2 'array' models 'ranges::contiguous_range' concept.
+        //:
+        //: 3 'array' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'array' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'array' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'array' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'
+        //:   and sizes.
+        //
+        // Testing:
+        //   CONCERN: 'array' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'array' IS A C++20 RANGE"
+                            "\n=================================\n");
+
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                TestDriverWrapper,
+                                testCase27_isRange,
+                                BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 26: {
         //---------------------------------------------------------------------

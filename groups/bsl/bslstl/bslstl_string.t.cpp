@@ -373,7 +373,7 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [43] USAGE EXAMPLE
+// [44] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -381,6 +381,7 @@ using bsls::nameOfType;
 // [ 9] basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
 // [36] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [38] CLASS TEMPLATE DEDUCTION GUIDES
+// [43] CONCERN: 'string' IS A C++20 RANGE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -6047,7 +6048,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 43: {
+      case 44: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6259,6 +6260,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 43:     BSLA_FALLTHROUGH;
       case 42:     BSLA_FALLTHROUGH;
       case 41:     BSLA_FALLTHROUGH;
       case 40:     BSLA_FALLTHROUGH;

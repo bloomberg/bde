@@ -40,6 +40,9 @@
 #include <bsltf_testvaluesarray.h>
 
 #include <utility> // move
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -201,7 +204,7 @@ using bsls::NameOf;
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
 // [36] CLASS TEMPLATE DEDUCTION GUIDES
-// [37] USAGE EXAMPLE
+// [40] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multiset *object, const char *s, int verbose);
@@ -214,6 +217,7 @@ using bsls::NameOf;
 // [36] CONCERN: 'find'        properly handles transparent comparators.
 // [36] CONCERN: 'count'       properly handles transparent comparators.
 // [36] CONCERN: 'equal_range' properly handles transparent comparators.
+// [39] CONCERN: 'unordered_multiset' IS A C++20 RANGE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -1888,6 +1892,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase39_isRange();
+        // Test whether 'unordered_multiset' is a C++20 range.
+
     static void testCase38();
         // Test free function 'bsl::erase_if'
 
@@ -2083,6 +2090,20 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
     ASSERTV(idx == i);
 
     return ret;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase39_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::forward_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -8365,6 +8386,39 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 39: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'unordered_multiset' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'unordered_multiset' models 'ranges::common_range' concept.
+        //:
+        //: 2 'unordered_multiset' models 'ranges::forward_range' concept.
+        //:
+        //: 3 'unordered_multiset' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'unordered_multiset' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'unordered_multiset' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'unordered_multiset' doesn't model 'ranges::borrowed_range'
+        //:   concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'.
+        //
+        // Testing:
+        //   CONCERN: 'unordered_multiset' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                         "\nCONCERN: 'unordered_multiset' IS A C++20 RANGE"
+                         "\n==============================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase39_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 38: {
         // --------------------------------------------------------------------
         // TESTING ERASE_IF

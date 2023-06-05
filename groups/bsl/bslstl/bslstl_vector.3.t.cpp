@@ -1355,6 +1355,9 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
 
     static void testCase24_dispatch();
         // Test move assignment operator.
+
+    static void testCase43_isRange();
+        // Test whether 'vector' is a C++20 range
 };
 
                   // ==================================
@@ -5171,6 +5174,20 @@ void TestDriver3<TYPE, ALLOC>::testCase24_dispatch()
     TestDriver3<TYPE*, ALLOC>::testCase24_move_assignment_noexcept();
 }
 
+template <class TYPE, class ALLOC>
+void TestDriver3<TYPE, ALLOC>::testCase43_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::contiguous_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
+
 template <class TYPE>
 void MetaTestDriver3<TYPE>::testCase24()
 {
@@ -5406,10 +5423,41 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 43: {
+      case 44: {
         if (verbose) printf(
                     "\nUSAGE EXAMPLE TEST CASE IS IN 'bslstl_vector.t.cpp'"
                     "\n===================================================\n");
+      } break;
+      case 43: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'vector' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'vector' models 'ranges::common_range' concept.
+        //:
+        //: 2 'vector' models 'ranges::contiguous_range' concept.
+        //:
+        //: 3 'vector' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'vector' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'vector' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'vector' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'.
+        //
+        // Testing:
+        //   CONCERN: 'vector' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'vector' IS A C++20 RANGE"
+                            "\n==================================\n");
+
+        RUN_EACH_TYPE(TestDriver3,
+                      testCase43_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
       } break;
       case 42: {
         // --------------------------------------------------------------------

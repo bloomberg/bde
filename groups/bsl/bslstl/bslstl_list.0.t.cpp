@@ -55,6 +55,9 @@
 #include <algorithm>  // 'next_permutation'
 #include <functional> // 'less'
 #include <new>        // ::operator new
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 #include <cctype>
 #include <cstdlib>
@@ -251,6 +254,7 @@ using namespace BloombergLP;
 // [34] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [35] CLASS TEMPLATE DEDUCTION GUIDES
 // [37] INCOMPLETE TYPE SUPPORT
+// [38] CONCERN: 'list' IS A C++20 RANGE
 //-----------------------------------------------------------------------------
 
 // ============================================================================

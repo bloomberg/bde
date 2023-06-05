@@ -58,6 +58,9 @@
 #include <new>        // ::operator new
 #include <stdexcept>  // 'length_error', 'out_of_range'
 #include <utility>    // 'move'
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 #include <ctype.h>
 #include <stddef.h>
@@ -243,6 +246,7 @@
 // [39] CLASS TEMPLATE DEDUCTION GUIDES
 // [41] INCOMPLETE TYPE SUPPORT
 // [42] CONCERN: Default constructor is called for default-inserted elems
+// [43] CONCERN: 'vector' IS A C++20 RANGE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION

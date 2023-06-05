@@ -39,6 +39,10 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
+
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -192,7 +196,7 @@ using bsls::NameOf;
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
 // [39] CLASS TEMPLATE DEDUCTION GUIDES
-// [40] USAGE EXAMPLE
+// [41] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multimap *object, const char *s, int verbose);
@@ -208,6 +212,7 @@ using bsls::NameOf;
 // [38] CONCERN: 'find'        properly handles transparent comparators.
 // [38] CONCERN: 'count'       properly handles transparent comparators.
 // [38] CONCERN: 'equal_range' properly handles transparent comparators.
+// [40] CONCERN: 'unordered_multimap' IS A C++20 RANGE
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -1626,6 +1631,9 @@ class TestDriver {
 #endif
   public:
     // TEST CASES
+    static void testCase40_isRange();
+        // Test whether 'unordered_multimap' is a C++20 range.
+
     static void testCase37();
         // Test absence of 'erase' method ambiguity.
 
@@ -2387,6 +2395,20 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
     return result;
 }
 #endif
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase40_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::forward_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
@@ -7795,6 +7817,40 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 40: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'unordered_multimap' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'unordered_multimap' models 'ranges::common_range' concept.
+        //:
+        //: 2 'unordered_multimap' models 'ranges::forward_range' concept.
+        //:
+        //: 3 'unordered_multimap' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'unordered_multimap' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'unordered_multimap' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'unordered_multimap' doesn't model 'ranges::borrowed_range'
+        //:   concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'KEY'
+        //:   and 'VALUE'.
+        //
+        // Testing:
+        //   CONCERN: 'unordered_multimap' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                         "\nCONCERN: 'unordered_multimap' IS A C++20 RANGE"
+                         "\n==============================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase40_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 39: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
