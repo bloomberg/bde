@@ -132,9 +132,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
-#include <bslmf_istriviallycopyable.h>
 #include <bslmf_movableref.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
@@ -152,6 +152,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
+#include <bsl_type_traits.h>
 #include <bsl_utility.h>
 
 namespace BloombergLP {
@@ -700,8 +701,6 @@ struct FlatHashTable_ImplUtil {
 
   private:
     // PRIVATE TYPES
-    typedef bsl::false_type            EntryTypeIsNotTriviallyCopyable;
-    typedef bsl::true_type             EntryTypeIsTriviallyCopyable;
     typedef FlatHashTable_GroupControl GroupControl;
 
     template <class ENTRY_TYPE>
@@ -722,7 +721,7 @@ struct FlatHashTable_ImplUtil {
                       const bsl::uint8_t              *firstSourceControl,
                       const bsl::uint8_t              *lastSourceControl,
                       bslma::Allocator                *entryAllocator,
-                      EntryTypeIsNotTriviallyCopyable  tag);
+                      bsl::false_type                  bitwiseCopyable);
     template <class ENTRY_TYPE>
     static void copyEntryAndControlArrays(
                          ENTRY_TYPE                   *firstDestinationEntry,
@@ -732,7 +731,7 @@ struct FlatHashTable_ImplUtil {
                          const bsl::uint8_t           *firstSourceControl,
                          const bsl::uint8_t           *lastSourceControl,
                          bslma::Allocator             *entryAllocator,
-                         EntryTypeIsTriviallyCopyable  tag);
+                         bsl::true_type                bitwiseCopyable);
         // Copy the specified range '[firstSourceControl, lastSourceControl)'
         // to the array specified by 'firstDestinationControl', and copy each
         // element in the specified range '[firstSourceEntry, lastSourceEntry)'
@@ -746,7 +745,7 @@ struct FlatHashTable_ImplUtil {
         // used.  No exception is thrown if the specified 'ENTRY_TYPE' is
         // nothrow-copyable, otherwise an exception may be thrown.  The
         // behavior is undefined unless
-        // 'bsl::is_trivially_copyable<ENTRY_TYPE>::value' is equal to the
+        // 'bslmf::IsBitwiseCopyable<ENTRY_TYPE>::value' is equal to the
         // 'value' member of the type of the specified 'tag',
         // 'firstDestinationEntry' is a pointer to the first byte of
         // uninitialized and correctly aligned storage for at least
@@ -766,28 +765,28 @@ struct FlatHashTable_ImplUtil {
 
 
     template <class ENTRY_TYPE>
-    static void destroyEntryArray(
-                                 ENTRY_TYPE                      *firstEntry,
-                                 ENTRY_TYPE                      *lastEntry,
-                                 const bsl::uint8_t              *firstControl,
-                                 const bsl::uint8_t              *lastControl,
-                                 EntryTypeIsNotTriviallyCopyable  tag);
+    static void destroyEntryArray(ENTRY_TYPE         *firstEntry,
+                                  ENTRY_TYPE         *lastEntry,
+                                  const bsl::uint8_t *firstControl,
+                                  const bsl::uint8_t *lastControl,
+                                  bsl::false_type     triviallyDestructible);
     template <class ENTRY_TYPE>
-    static void destroyEntryArray(ENTRY_TYPE                   *firstEntry,
-                                  ENTRY_TYPE                   *lastEntry,
-                                  const bsl::uint8_t           *firstControl,
-                                  const bsl::uint8_t           *lastControl,
-                                  EntryTypeIsTriviallyCopyable  tag);
+    static void destroyEntryArray(ENTRY_TYPE         *firstEntry,
+                                  ENTRY_TYPE         *lastEntry,
+                                  const bsl::uint8_t *firstControl,
+                                  const bsl::uint8_t *lastControl,
+                                  bsl::true_type      triviallyDestructible);
         // Destroy each entry object in the storage specified by the range
         // '[firstEntry, lastEntry)' if the most-significant bit is unset in
-        // the corresponding element in the specified range '[firstControl,
-        // lastControl)' (i.e., the most-significant bit of the element in the
-        // "control" array that has the same index as the element in the
-        // "entry" array is unset).  No exception is thrown.  The behavior is
-        // undefined unless 'bsl::is_trivially_copyable<ENTRY_TYPE>::value' is
-        // equal to the 'value' member of the type of the specified 'tag', the
-        // range '[firstEntry, lastEntry)' denotes a contiguous array of
-        // storage for optionally-constructed 'ENTRY_TYPE' objects, the range
+        // the corresponding element in the specified range
+        // '[firstControl, lastControl)' (i.e., the most-significant bit of the
+        // element in the "control" array that has the same index as the
+        // element in the "entry" array is unset).  No exception is thrown.
+        // The behavior is undefined unless
+        // 'bslmf::IsTriviallyDestructible<ENTRY_TYPE>::value' is equal to the
+        // 'value' member of the type of the specified 'tag', the range
+        // '[firstEntry, lastEntry)' denotes a contiguous array of storage for
+        // optionally-constructed 'ENTRY_TYPE' objects, the range
         // '[firstControl, lastControl)' denotes a contiguous array of
         // 'bsl::uint8_t' objects, the two arrays have the same number of
         // elements, and an 'ENTRY_TYPE' object exists at the same index in the
@@ -2024,16 +2023,18 @@ namespace bdlc {
 template <class ENTRY_TYPE>
 inline
 void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
-                      ENTRY_TYPE                      *firstDestinationEntry,
-                      bsl::uint8_t                    *firstDestinationControl,
-                      const ENTRY_TYPE                *firstSourceEntry,
-                      const ENTRY_TYPE                *lastSourceEntry,
-                      const bsl::uint8_t              *firstSourceControl,
-                      const bsl::uint8_t              *lastSourceControl,
-                      bslma::Allocator                *entryAllocator,
-                      EntryTypeIsNotTriviallyCopyable)
+                                   ENTRY_TYPE         *firstDestinationEntry,
+                                   bsl::uint8_t       *firstDestinationControl,
+                                   const ENTRY_TYPE   *firstSourceEntry,
+                                   const ENTRY_TYPE   *lastSourceEntry,
+                                   const bsl::uint8_t *firstSourceControl,
+                                   const bsl::uint8_t *lastSourceControl,
+                                   bslma::Allocator   *entryAllocator,
+                                   bsl::false_type     isBitwiseCopyable)
 {
-    BSLMF_ASSERT((! bsl::is_trivially_copyable<ENTRY_TYPE>::value));
+    (void) isBitwiseCopyable;
+
+    BSLMF_ASSERT((! bslmf::IsBitwiseCopyable<ENTRY_TYPE>::value));
 
     bsl::memcpy(firstDestinationControl,
                 firstSourceControl,
@@ -2068,16 +2069,18 @@ void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
 template <class ENTRY_TYPE>
 inline
 void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
-                   ENTRY_TYPE                   *firstDestinationEntry,
-                   bsl::uint8_t                 *firstDestinationControl,
-                   const ENTRY_TYPE             *firstSourceEntry,
-                   const ENTRY_TYPE             *lastSourceEntry,
-                   const bsl::uint8_t           *firstSourceControl,
-                   const bsl::uint8_t           *lastSourceControl,
-                   bslma::Allocator             *,
-                   EntryTypeIsTriviallyCopyable)
+                         ENTRY_TYPE                   *firstDestinationEntry,
+                         bsl::uint8_t                 *firstDestinationControl,
+                         const ENTRY_TYPE             *firstSourceEntry,
+                         const ENTRY_TYPE             *lastSourceEntry,
+                         const bsl::uint8_t           *firstSourceControl,
+                         const bsl::uint8_t           *lastSourceControl,
+                         bslma::Allocator             *,
+                         bsl::true_type                isBitwiseCopyable)
 {
-    BSLMF_ASSERT((bsl::is_trivially_copyable<ENTRY_TYPE>::value));
+    (void) isBitwiseCopyable;
+
+    BSLMF_ASSERT((bslmf::IsBitwiseCopyable<ENTRY_TYPE>::value));
 
     bsl::memcpy(firstDestinationControl,
                 firstSourceControl,
@@ -2102,12 +2105,14 @@ void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
 template <class ENTRY_TYPE>
 inline
 void FlatHashTable_ImplUtil::destroyEntryArray(
-                                 ENTRY_TYPE                      *firstEntry,
-                                 ENTRY_TYPE                      *lastEntry,
-                                 const bsl::uint8_t              *firstControl,
-                                 const bsl::uint8_t              *lastControl,
-                                 EntryTypeIsNotTriviallyCopyable)
+                                     ENTRY_TYPE         *firstEntry,
+                                     ENTRY_TYPE         *lastEntry,
+                                     const bsl::uint8_t *firstControl,
+                                     const bsl::uint8_t *lastControl,
+                                     bsl::false_type     triviallyDestructible)
 {
+    (void) triviallyDestructible;
+
     ///Implementation Note
     ///-------------------
     // The implementation of this function uses the
@@ -2157,12 +2162,15 @@ void FlatHashTable_ImplUtil::destroyEntryArray(
 
 template <class ENTRY_TYPE>
 inline
-void FlatHashTable_ImplUtil::destroyEntryArray(ENTRY_TYPE                   *,
-                                               ENTRY_TYPE                   *,
-                                               const bsl::uint8_t           *,
-                                               const bsl::uint8_t           *,
-                                               EntryTypeIsTriviallyCopyable)
+void FlatHashTable_ImplUtil::destroyEntryArray(
+                                     ENTRY_TYPE         *,
+                                     ENTRY_TYPE         *,
+                                     const bsl::uint8_t *,
+                                     const bsl::uint8_t *,
+                                     bsl::true_type      triviallyDestructible)
 {
+    (void) triviallyDestructible;
+
     // Do nothing, in just the right way.
 }
 
@@ -2181,18 +2189,15 @@ void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
     BSLS_ASSERT_SAFE(bsl::distance(firstSourceEntry, lastSourceEntry) ==
                      bsl::distance(firstSourceControl, lastSourceControl));
 
-    typedef bsl::is_trivially_copyable<ENTRY_TYPE>
-        IsEntryTypeTriviallyCopyable;
-
     FlatHashTable_ImplUtil::copyEntryAndControlArrays(
-                                               firstDestinationEntry,
-                                               firstDestinationControl,
-                                               firstSourceEntry,
-                                               lastSourceEntry,
-                                               firstSourceControl,
-                                               lastSourceControl,
-                                               entryAllocator,
-                                               IsEntryTypeTriviallyCopyable());
+                                       firstDestinationEntry,
+                                       firstDestinationControl,
+                                       firstSourceEntry,
+                                       lastSourceEntry,
+                                       firstSourceControl,
+                                       lastSourceControl,
+                                       entryAllocator,
+                                       bslmf::IsBitwiseCopyable<ENTRY_TYPE>());
 }
 
 template <class ENTRY_TYPE>
@@ -2209,20 +2214,22 @@ void FlatHashTable_ImplUtil::destroyEntryArray(
     ///Implementation Note
     ///-------------------
     // If a type is trivially copyable then it is also trivially destructible.
-    // The type trait 'bsl::is_trivially_copyable' is available in C++03 mode
-    // and later, however 'bsl::is_trivially_destructible' is only available in
-    // C++11 and later.  So, this utility 'struct' uses trivial copyability as
-    // a stand-in for trivial destructibility in order to provide certain
-    // optimizations uniformly across all C++ versions.
+    // The type trait 'bslmf::IsTriviallyDestructible' is available in C++03
+    // mode and later, however 'bsl::is_trivially_destructible' is only
+    // available in C++11 and later and not always on clang.  So, this utility
+    // 'struct' uses trivial copyability as a stand-in for trivial
+    // destructibility in order to provide certain optimizations uniformly
+    // across all C++ versions.
 
-    typedef bsl::is_trivially_copyable<ENTRY_TYPE>
-        IsEntryTypeTriviallyCopyable;
+    typedef bslmf::IsBitwiseCopyable<ENTRY_TYPE>
+                                              IsEntryTypeTriviallyDestructible;
 
-    FlatHashTable_ImplUtil::destroyEntryArray(firstEntry,
-                                              lastEntry,
-                                              firstControl,
-                                              lastControl,
-                                              IsEntryTypeTriviallyCopyable());
+    FlatHashTable_ImplUtil::destroyEntryArray(
+                                           firstEntry,
+                                           lastEntry,
+                                           firstControl,
+                                           lastControl,
+                                           IsEntryTypeTriviallyDestructible());
 }
 
            // ------------------------------------------------------

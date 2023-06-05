@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 #include <bslh_hash.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
@@ -563,18 +563,17 @@ void bdlt::hashAppend(HASHALG& hashAlg, const TimeTz& object)
     hashAppend(hashAlg, object.offset());
 }
 
-}  // close enterprise namespace
-
-namespace bsl {
+namespace bslmf {
 
 // TRAITS
 template <>
-struct is_trivially_copyable<BloombergLP::bdlt::TimeTz> : bsl::true_type {
+struct IsBitwiseCopyable<BloombergLP::bdlt::TimeTz> : bsl::true_type {
     // This template specialization for 'is_trivially_copyable' indicates that
     // 'bdlt::TimeTz' is a trivially copyable type.
 };
 
-}  // close namespace bsl
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 #endif
 

@@ -146,10 +146,10 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 #include <bsl_sstream.h>
 #include <bsl_utility.h>
 
-namespace BloombergLP {
-namespace bdld {
-
 namespace {
+
+using namespace BloombergLP;
+using namespace bdld;
 
 bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs);
     // Return 'true' if key in the specified 'lhs' is less than key in the
@@ -821,11 +821,8 @@ const Datum *findElementLinear(const bslstl::StringRef& key,
 
 }  // close unnamed namespace
 
-BSLMF_ASSERT(bsl::is_trivially_copyable<Datum>::value);
-BSLMF_ASSERT(bsl::is_trivially_default_constructible<Datum>::value);
-BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Datum>::value);
-BSLMF_ASSERT(!(bslma::UsesBslmaAllocator<Datum>::value));
-BSLMF_ASSERT(!(bslmf::IsBitwiseEqualityComparable<Datum>::value));
+namespace BloombergLP {
+namespace bdld {
 
                                 // -----------
                                 // class Datum

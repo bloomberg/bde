@@ -321,6 +321,20 @@ bsl::ostream& operator<<(bsl::ostream& stream, bsltf::MoveState::Enum value)
     return stream;
 }
 
+void myMemcpy(void *dst, const void *src, size_t size)
+    // Functionally equivalent to 'std::memcpy', except avoids warnings on some
+    // compilers when copying objects for which 'std::is_trivially_copyable' is
+    // not true.
+{
+    char              *dstChar = static_cast<char *>(dst);
+    const char        *srcChar = static_cast<const char *>(src);
+    const char * const end     = srcChar + size;
+
+    while (srcChar < end) {
+        *dstChar++ = *srcChar++;
+    }
+}
+
 template <class FIRST_TYPE, class SECOND_TYPE, class INIT_TYPE>
 void testRelationalOperationsNonNull(const INIT_TYPE& lesserVal,
                                      const INIT_TYPE& greaterVal)
@@ -3042,6 +3056,9 @@ class TestDriver {
 
     static void testCase29();
         // Test 'noexcept'.
+
+    static void testCase38();
+        // Test 'IsBitwiseMoveable' and 'IsBitwiseCopyable'.
 };
 
 // PRIVATE CLASS METHODS
@@ -5420,6 +5437,110 @@ void TestDriver<TEST_TYPE>::testCase16()
 }
 
 template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase38()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'IsBitwiseMoveable' and 'IsBitwiseCopyable'
+    //
+    // Concerns:
+    //: 1 That the 'IsBitwiseMoveable', 'IsBitwiseCopyable', and
+    //:   'UsesBslmaAllocator' traits are as expected.
+    //:
+    //: 2 If 'TEST_TYPE' is movable, we can move 'Obj' with 'memcpy'.
+    //:
+    //: 3 If 'TEST_TYPE' is copyable, we can copy 'Obj' with 'memcpy'.
+    //
+    // Plan:
+    //: 1 Check the 3 traits with asserts.
+    //:
+    //: 2 If we expect 'Obj' to be movable, try moving it between two object
+    //:   buffers.
+    //:
+    //: 3 If we expect 'Obj' to be copyable, try moving it between two object
+    //:   buffers.
+    // ------------------------------------------------------------------------
+
+    const char *type = bsls::NameOf<TEST_TYPE>().name();
+
+    if (veryVerbose) {
+        cout << type << ": Obj moves: " <<
+                   (bslmf::IsBitwiseMoveable<Obj>::value ? "true" : "false") <<
+                        ", Obj copies: " <<
+                   (bslmf::IsBitwiseCopyable<Obj>::value ? "true" : "false") <<
+                                                                          endl;
+    }
+
+    ASSERTV(type, bslmf::IsBitwiseMoveable<TEST_TYPE>::value ==
+                                         bslmf::IsBitwiseMoveable<Obj>::value);
+    ASSERTV(type, bslmf::IsBitwiseCopyableCheck<TEST_TYPE>::value ==
+                                    bslmf::IsBitwiseCopyableCheck<Obj>::value);
+    ASSERTV(type, bslma::UsesBslmaAllocator<TEST_TYPE>::value ==
+                                        bslma::UsesBslmaAllocator<Obj>::value);
+
+    typedef bsls::ObjectBuffer<Obj>              ObjBuffer;    
+    typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;    
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+    bslma::TestAllocator va("values",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const TestValues VALUES(&va);
+
+    if (bslmf::IsBitwiseMoveable<Obj>::value) {
+        ObjWABuffer xBuffer;
+        ObjBuffer   yBuffer;
+
+        Obj& x = xBuffer.object().object();     const Obj& X = x;
+        Obj& y = yBuffer.object();              const Obj& Y = y;
+
+        new (&xBuffer.object()) ObjWithAllocator(VALUES[0], &oa);
+
+        ASSERT(X.has_value());
+        ASSERT(X.value() == VALUES[0]);
+
+        myMemcpy(yBuffer.address(), xBuffer.address(), sizeof(x));
+
+        ASSERT(Y.has_value());
+        ASSERT(Y.value() == VALUES[0]);
+
+        if (!bslmf::IsBitwiseCopyable<Obj>::value) {
+            y.~Obj();
+        }
+    }
+
+    ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+    ASSERT(0 == da.numAllocations());
+
+    if (bslmf::IsBitwiseCopyableCheck<Obj>::value) {
+        ObjWABuffer xBuffer;
+        ObjBuffer   yBuffer;
+
+        Obj& x = xBuffer.object().object();     const Obj& X = x;
+        Obj& y = yBuffer.object();              const Obj& Y = y;
+
+        new (&xBuffer.object()) ObjWithAllocator(VALUES[1], &oa);
+
+        ASSERT(X.has_value());
+        ASSERT(X.value() == VALUES[1]);
+
+        myMemcpy(yBuffer.address(), xBuffer.address(), sizeof(x));
+
+        ASSERT(Y.has_value());
+        ASSERT(Y.value() == VALUES[1]);
+        ASSERT(X.has_value());
+        ASSERT(X.value() == Y.value());
+        ASSERT(X == Y);
+
+        // bitwise copyable, no d'tor
+    }
+
+    ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+    ASSERT(0 == da.numAllocations());
+}
+
+template <class TEST_TYPE>
 void TestDriver<TEST_TYPE>::testCase29()
 {
     // ------------------------------------------------------------------------
@@ -6314,6 +6435,15 @@ void runTestCase29()
     RUN_EACH_TYPE(TestDriver, testCase29, TEST_TYPES);
 }
 
+void runTestCase38()
+{
+    if (veryVerbose) {
+        cout << "Test 'IsBitwiseMoveable' and 'IsBitwiseCopyable'\n";
+    }
+
+    RUN_EACH_TYPE(TestDriver, testCase38, TEST_TYPES);
+}
+
 namespace MoveFromAllocTypeSpace {
 
 // Needed types with 3 requirments:
@@ -6629,7 +6759,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 38: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6672,6 +6802,13 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // Testing 'IsBitwiseMoveable' and 'IsBitwiseCopyable'.
+        // --------------------------------------------------------------------
+
+        runTestCase38();
       } break;
       case 37: {
         // --------------------------------------------------------------------

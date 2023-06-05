@@ -18,10 +18,9 @@ namespace BloombergLP {
 namespace bdlt {
 
 // 'TimeTz' is trivially copyable only if 'Time' is also trivially copyable.
-// In the header we have stated unconditionally that 'TimeTz' is trivially
-// copyable, so we assert our assumption about 'Time', as a sanity check.
 
-BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<TimeTz>::value);
 
                              // ------------
                              // class TimeTz

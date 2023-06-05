@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -15,6 +17,8 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlt {
+
+BSLMF_ASSERT(true == bslmf::IsBitwiseCopyableCheck<Date>::value);
 
 static const char *const months[] = {
     0,

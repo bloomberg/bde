@@ -18,7 +18,8 @@ namespace bdlt {
 // In the header we have stated unconditionally that 'DateTz' is trivially
 // copyable, so we assert our assumption about 'Date', as a sanity check.
 
-BSLMF_ASSERT(bsl::is_trivially_copyable<Date>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<Date>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<DateTz>::value);
 
                              // ------------
                              // class DateTz

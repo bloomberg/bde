@@ -327,6 +327,8 @@ int main(int argc, char *argv[])
         typedef bsl::is_same<void, Obj::result_type> IsSame;
         BSLMF_ASSERT(IsSame::value == true);
         BSLMF_ASSERT(bsl::is_trivially_copyable<Obj>::value == true);
+        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value == true);
+        BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<Obj>::value == true);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         BSLMF_ASSERT(std::is_trivially_copyable<Obj>::value == true);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

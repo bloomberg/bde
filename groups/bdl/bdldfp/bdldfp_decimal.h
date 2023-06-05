@@ -675,8 +675,8 @@ class Decimal_Type32 {
         // containers.
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type32, bsl::is_trivially_copyable);
-
+    BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type32,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     Decimal_Type32();
@@ -1910,8 +1910,8 @@ class Decimal_Type64 {
         // containers.
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type64, bsl::is_trivially_copyable);
-
+    BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type64,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     Decimal_Type64();

@@ -605,8 +605,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_algorithm.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
-#include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
@@ -3237,7 +3237,7 @@ Datum Datum::createDate(const bdlt::Date& value)
     Datum result;
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     BSLMF_ASSERT(sizeof(value) == sizeof(result.d_as.d_int));
-    BSLMF_ASSERT(bsl::is_trivially_copyable<bdlt::Date>::value);
+    BSLMF_ASSERT(bslmf::IsBitwiseCopyable<bdlt::Date>::value);
 
     result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_DATE)
                             << k_TYPE_MASK_BITS;
@@ -3475,7 +3475,7 @@ Datum Datum::createTime(const bdlt::Time& value)
     result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_TIME)
                             << k_TYPE_MASK_BITS;
     bsls::Types::Int64 rawTime;
-    BSLMF_ASSERT(bsl::is_trivially_copyable<bdlt::Time>::value);
+    BSLMF_ASSERT(bslmf::IsBitwiseCopyable<bdlt::Time>::value);
     *reinterpret_cast<bdlt::Time*>(&rawTime) = value;
     const bool rc = Datum_Helpers32::storeInt48(rawTime,
                                                 &result.d_as.d_short,
@@ -4042,7 +4042,7 @@ bdlt::Time Datum::theTime() const
     BSLS_ASSERT_SAFE(isTime());
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    BSLMF_ASSERT(bsl::is_trivially_copyable<bdlt::Time>::value);
+    BSLMF_ASSERT(bslmf::IsBitwiseCopyable<bdlt::Time>::value);
     bsls::Types::Int64 rawTime;
     rawTime = Datum_Helpers32::loadInt48(d_as.d_short, d_as.d_int);
     return *reinterpret_cast<bdlt::Time*>(&rawTime);

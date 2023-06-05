@@ -14,6 +14,9 @@
 
 #include <bslim_testutil.h>
 
+#include <bslmf_isbitwisecopyable.h>
+#include <bslmf_isbitwisemoveable.h>
+
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -931,6 +934,10 @@ if (verbose) {
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
+        ASSERT(bsl::is_trivially_copyable<bdlde::Base64DecoderOptions>::value);
+        ASSERT(bslmf::IsBitwiseCopyableCheck<
+                                          bdlde::Base64DecoderOptions>::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bdlde::Base64DecoderOptions>::value);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

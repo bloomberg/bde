@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bdld_manageddatum_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 namespace BloombergLP {
 namespace bdld {
@@ -17,6 +17,7 @@ namespace bdld {
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<ManagedDatum>::value);
 BSLMF_ASSERT(bslmf::IsBitwiseMoveable<ManagedDatum>::value);
 BSLMF_ASSERT(!bsl::is_trivially_copyable<ManagedDatum>::value);
+BSLMF_ASSERT(!bslmf::IsBitwiseCopyable<ManagedDatum>::value);
 
 }  // close package namespace
 }  // close enterprise namespace
