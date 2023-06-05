@@ -119,9 +119,8 @@ class IsBitwiseCopyableCheck : public IsBitwiseCopyable<t_TYPE> {
     // for checking 'IsBitwiseCopyable' in such a way that the following
     // static assert always occurs, even if 'IsBitwiseCopyable' is specialized.
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    // TBD: remove or comment out this check before merging to 'main'.
-
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
+    defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
     // Note that 'std::is_trivially_copyable' is 'false' on Windows for types
     // with copy c'tors declared as 'deleted', but 'true' on other platforms.
 
