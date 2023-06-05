@@ -222,7 +222,7 @@ using bsls::NameOf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [40] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -247,6 +247,7 @@ using bsls::NameOf;
 // [40] CONCERN: 'lower_bound' properly handles multi-value comparators.
 // [40] CONCERN: 'upper_bound' properly handles multi-value comparators.
 // [40] CONCERN: 'equal_range' properly handles multi-value comparators.
+// [44] CONCERN: 'map' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -5444,11 +5445,11 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 41: {
-        if (verbose) printf(
-                  "\nUSAGE EXAMPLE TEST IS HANDLED BY PRIMARY TEST DRIVER'"
-                  "\n=====================================================\n");
-      } break;
+      case 45: // falls through
+      case 44: // falls through
+      case 43: // falls through
+      case 42: // falls through
+      case 41: // falls through
       case 40: // falls through
       case 39: // falls through
       case 38: // falls through

@@ -248,6 +248,9 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
 
                                // TEST CASES
 
+    static void testCase34_isRange();
+        // Test whether 'deque' is a C++20 range.
+
     static void testCase33();
         // test 'bsl::erase' and 'bsl::erase_if' with 'bsl::deque'.
 
@@ -364,6 +367,20 @@ class StdBslmaTestDriver3 : public StdBslmaTestDriverHelper<TestDriver3, TYPE>
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver3<TYPE, ALLOC>::testCase34_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::random_access_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
 
 template <class TYPE, class ALLOC>
 void TestDriver3<TYPE, ALLOC>::testCase33()
@@ -4780,6 +4797,37 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 34: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'deque' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'deque' models 'ranges::common_range' concept.
+        //:
+        //: 2 'deque' models 'ranges::random_access_range' concept.
+        //:
+        //: 3 'deque' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'deque' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'deque' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'deque' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'.
+        //
+        // Testing:
+        //   CONCERN: 'deque' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'deque' IS A C++20 RANGE"
+                            "\n=================================\n");
+
+        RUN_EACH_TYPE(TestDriver3,
+                      testCase34_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // TESTING FREE FUNCTIONS 'BSL::ERASE' AND 'BSL::ERASE_IF'

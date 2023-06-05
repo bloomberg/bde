@@ -25,6 +25,7 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -61,6 +62,9 @@
 #include <new>         // placement 'new'
 #include <stdexcept>
 #include <utility>     // move
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
 
 #include <ctype.h>
 #include <stddef.h>
@@ -246,6 +250,7 @@
 // ----------------------------------------------------------------------------
 // [31] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [32] CLASS TEMPLATE DEDUCTION GUIDES
+// [34] CONCERN: 'deque' IS A C++20 RANGE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION

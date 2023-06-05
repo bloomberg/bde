@@ -71,6 +71,10 @@
 #include <initializer_list>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
+
 #include <ctype.h>   // 'isalpha', 'tolower', 'toupper'
 #include <limits.h>  // 'INT_MIN', 'INT_MAX'
 #include <stddef.h>
@@ -229,7 +233,7 @@ using bsls::NameOf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [44] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -255,6 +259,7 @@ using bsls::NameOf;
 // [40] CONCERN: 'upper_bound' properly handles multi-value comparators.
 // [40] CONCERN: 'equal_range' properly handles multi-value comparators.
 // [41] CLASS TEMPLATE DEDUCTION GUIDES
+// [44] CONCERN: 'map' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1597,6 +1602,9 @@ class TestDriver {
   public:
     // TEST CASES
 
+    static void testCase44_isRange();
+        // Test whether 'map' is a C++20 range.
+
     static void testCase43();
         // Test 'try_emplace' and 'insert_or_assign'
 
@@ -1717,6 +1725,20 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::primaryManipulator(Obj   *container,
     bslma::DestructorGuard<TValueType> guard(buffer.address());
 
     return container->insert(MoveUtil::move(buffer.object()));
+}
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase44_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::bidirectional_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
 }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
@@ -5700,10 +5722,42 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 44: {
+      case 45: {
         if (verbose) printf(
                   "\nUSAGE EXAMPLE TEST IS HANDLED BY PRIMARY TEST DRIVER'"
                   "\n=====================================================\n");
+      } break;
+      case 44: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'map' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'map' models 'ranges::common_range' concept.
+        //:
+        //: 2 'map' models 'ranges::bidirectional_range' concept.
+        //:
+        //: 3 'map' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'map' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'map' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'map' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'KEY'
+        //:   and 'VALUE'.
+        //
+        // Testing:
+        //   CONCERN: 'map' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'map' IS A C++20 RANGE"
+                            "\n===============================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase44_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
       } break;
       case 43: {
         // --------------------------------------------------------------------

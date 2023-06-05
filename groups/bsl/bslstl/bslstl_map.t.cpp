@@ -238,7 +238,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [44] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -258,6 +258,7 @@
 // [39] CONCERN: 'lower_bound' properly handles transparent comparators.
 // [39] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [39] CONCERN: 'equal_range' properly handles transparent comparators.
+// [44] CONCERN: 'map' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS

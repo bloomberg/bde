@@ -179,7 +179,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [38] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(set<T,A> *object, const char *spec, int verbose = 1);
@@ -195,6 +195,7 @@
 // [34] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [34] CONCERN: 'equal_range' properly handles transparent comparators.
 // [36] CLASS TEMPLATE DEDUCTION GUIDES
+// [38] CONCERN: 'set' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -4348,7 +4349,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 37: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4399,6 +4400,8 @@ int main(int argc, char *argv[])
         }
 
       } break;
+      case 38: // falls through
+      case 37: // falls through
       case 36: // falls through
       case 35: // falls through
       case 34: // falls through

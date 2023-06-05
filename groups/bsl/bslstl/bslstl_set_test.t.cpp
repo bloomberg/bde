@@ -50,6 +50,10 @@
 #include <initializer_list>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
+
 #include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -177,7 +181,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [35] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(set<T,A> *object, const char *spec, int verbose = 1);
@@ -198,6 +202,7 @@
 // [35] CONCERN: 'upper_bound' properly handles multi-value comparators.
 // [35] CONCERN: 'equal_range' properly handles multi-value comparators.
 // [36] CLASS TEMPLATE DEDUCTION GUIDES
+// [38] CONCERN: 'set' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1565,6 +1570,9 @@ class TestDriver {
   public:
     // TEST CASES
 
+    static void testCase38_isRange();
+        // Test whether 'set' is a C++20 range.
+
     static void testCase37();
         // Test free function 'bsl::erase_if'
 
@@ -1693,6 +1701,20 @@ bsl::set<KEY, COMP, ALLOC>& TestDriver<KEY, COMP, ALLOC>::gg(
 {
     ASSERTV(ggg(object, spec) < 0);
     return *object;
+}
+
+template <class KEY, class COMP, class ALLOC>
+void TestDriver<KEY, COMP, ALLOC>::testCase38_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::bidirectional_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
 }
 
 template <class KEY, class COMP, class ALLOC>
@@ -8134,6 +8156,37 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 38: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'set' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'set' models 'ranges::common_range' concept.
+        //:
+        //: 2 'set' models 'ranges::bidirectional_range' concept.
+        //:
+        //: 3 'set' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'set' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'set' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'set' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'.
+        //
+        // Testing:
+        //   CONCERN: 'set' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'set' IS A C++20 RANGE"
+                            "\n===============================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase38_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // TESTING ERASE_IF

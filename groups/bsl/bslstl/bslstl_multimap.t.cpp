@@ -178,7 +178,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [37] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(multimap *object, const char *spec, int verbose = 1);
@@ -196,6 +196,7 @@
 // [36] CONCERN: 'lower_bound' properly handles transparent comparators.
 // [36] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [36] CONCERN: 'equal_range' properly handles transparent comparators.
+// [38] CONCERN: 'multimap' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -3970,7 +3971,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 37: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4045,6 +4046,8 @@ int main(int argc, char *argv[])
         }
 
       } break;
+      case 38: // falls through
+      case 37: // falls through
       case 36: // falls through
       case 35: // falls through
       case 34: // falls through

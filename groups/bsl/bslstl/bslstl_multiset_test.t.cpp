@@ -49,6 +49,10 @@
 #include <initializer_list>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <ranges>
+#endif
+
 #include <stdlib.h>      // atoi
 
 // ============================================================================
@@ -171,7 +175,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [37] USAGE EXAMPLE
+// [38] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(multiset *object, const char *spec, int verbose = 1);
@@ -187,6 +191,7 @@
 // [34] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [34] CONCERN: 'equal_range' properly handles transparent comparators.
 // [35] CLASS TEMPLATE DEDUCTION GUIDES
+// [37] CONCERN: 'multiset' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1508,6 +1513,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase37_isRange();
+        // Test whether 'multiset' is a C++20 range.
+
     static void testCase36();
         // Test free function 'bsl::erase_if'
 
@@ -1641,6 +1649,20 @@ bsl::multiset<KEY, COMP, ALLOC>& TestDriver<KEY, COMP, ALLOC>::gg(
 {
     ASSERTV(ggg(object, spec) < 0);
     return *object;
+}
+
+template <class KEY, class COMP, class ALLOC>
+void TestDriver<KEY, COMP, ALLOC>::testCase37_isRange()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    BSLMF_ASSERT((std::ranges::common_range<Obj>));
+    BSLMF_ASSERT((std::ranges::bidirectional_range<Obj>));
+    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
+    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+
+    BSLMF_ASSERT((!std::ranges::view<Obj>));
+    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
 }
 
 template <class KEY, class COMP, class ALLOC>
@@ -8326,6 +8348,37 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 37: {
+        // --------------------------------------------------------------------
+        // CONCERN: 'multiset' IS A C++20 RANGE
+        //
+        // Concerns:
+        //: 1 'multiset' models 'ranges::common_range' concept.
+        //:
+        //: 2 'multiset' models 'ranges::bidirectional_range' concept.
+        //:
+        //: 3 'multiset' models 'ranges::sized_range' concept.
+        //:
+        //: 4 'multiset' models 'ranges::viewable_range' concept.
+        //:
+        //: 5 'multiset' doesn't model 'ranges::view' concept.
+        //:
+        //: 6 'multiset' doesn't model 'ranges::borrowed_range' concept.
+        //
+        // Plan:
+        //: 1 'static_assert' every above-mentioned concept for different 'T'.
+        //
+        // Testing:
+        //   CONCERN: 'multiset' IS A C++20 RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: 'multiset' IS A C++20 RANGE"
+                            "\n====================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase37_isRange,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // TESTING ERASE_IF

@@ -173,7 +173,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [37] USAGE EXAMPLE
+// [38] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(multiset *object, const char *spec, int verbose = 1);
@@ -189,6 +189,7 @@
 // [34] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [34] CONCERN: 'equal_range' properly handles transparent comparators.
 // [35] CLASS TEMPLATE DEDUCTION GUIDES
+// [37] CONCERN: 'multiset' IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -3840,7 +3841,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3886,6 +3887,7 @@ int main(int argc, char *argv[])
             ASSERT(0 < objectAllocator.numBytesInUse());
         }
       } break;
+      case 37: // falls through
       case 36: // falls through
       case 35: // falls through
       case 34: // falls through
