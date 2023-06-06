@@ -9,14 +9,20 @@
 
 #include <balm_metricid.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_metricid_cpp,"$Id$ $CSID$")
 
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace balm {
+
+BSLMF_ASSERT(bsl::is_trivially_copyable<MetricId>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<MetricId>::value);
+
                                // --------------
                                // class MetricId
                                // --------------

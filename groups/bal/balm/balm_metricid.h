@@ -97,7 +97,6 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 #include <balm_category.h>
 #include <balm_metricdescription.h>
 
-#include <bslmf_assert.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
