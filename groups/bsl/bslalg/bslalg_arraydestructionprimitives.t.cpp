@@ -912,7 +912,11 @@ int main(int argc, char *argv[])
                 bsl::allocator_traits<A>::construct(sta, buffer + i, VALUE);
             }
 
+            numDestructorCalls = 0;
+
             Obj::destroy(buffer, buffer + NUM_OBJECTS, sta);
+
+            ASSERT(0 == numDestructorCalls);
         }
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());

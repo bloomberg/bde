@@ -160,7 +160,7 @@ namespace bslmf {
 template <class t_TYPE>
 struct IsCopyConstructible_Imp
 : bsl::integral_constant<bool,
-                         bslmf::IsBitwiseCopyableCheck<t_TYPE>::value ||
+                         bslmf::IsBitwiseCopyable<t_TYPE>::value ||
                              bsl::is_reference<t_TYPE>::value ||
                              !(bsl::is_volatile<t_TYPE>::value ||
                                bsl::is_function<t_TYPE>::value)> {

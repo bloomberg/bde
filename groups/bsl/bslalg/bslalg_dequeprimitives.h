@@ -1056,7 +1056,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(Iterator   begin,
                                                          ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -1106,7 +1106,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(Iterator  *toBegin,
                                                  ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -1211,7 +1211,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                                ALLOCATOR          allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -1476,7 +1476,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
                                       ALLOCATOR                      allocator)
 {
     enum {
-        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -1620,7 +1620,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                     ALLOCATOR          allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -1867,7 +1867,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
                                       ALLOCATOR                      allocator)
 {
     enum {
-        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -2007,7 +2007,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                                                           Args&&...  arguments)
 {
     enum {
-        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -2167,7 +2167,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                                                           Args&&...  arguments)
 {
     enum {
-        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3047,7 +3047,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -3126,7 +3126,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -3203,7 +3203,7 @@ DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyableCheck<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS

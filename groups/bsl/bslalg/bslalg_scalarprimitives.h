@@ -1567,7 +1567,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
               ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-              : bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
+              : bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -1585,7 +1585,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
     BSLS_ASSERT_SAFE(address);
 
     enum {
-        k_VALUE = bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : Imp::e_NIL_TRAITS
     };
@@ -1610,7 +1610,7 @@ ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
               ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-              : bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
+              : bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -1628,7 +1628,7 @@ ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
     BSLS_ASSERT_SAFE(address);
 
     enum {
-        k_VALUE = bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : Imp::e_NIL_TRAITS
     };
@@ -1708,7 +1708,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
               : bsl::is_same<ARG1, TARGET_TYPE>::value
-                && bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::value
+                && bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };

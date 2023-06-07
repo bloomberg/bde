@@ -197,7 +197,7 @@ void DestructionUtil::destroy(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-    destroy(object, typename bslmf::IsBitwiseCopyableCheck<TYPE>::type());
+    destroy(object, typename bslmf::IsBitwiseCopyable<TYPE>::type());
 }
 
 }  // close package namespace

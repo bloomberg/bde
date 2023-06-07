@@ -957,7 +957,7 @@ class BoyerMooreHorspoolSearcher {
     enum { k_CAN_OPTIMIZE_FOR_CHAR = (
                              1 == sizeof(value_type)
                        && bslmf::IsBitwiseEqualityComparable<value_type>::value
-                       && bslmf::IsBitwiseCopyableCheck<difference_type>::value
+                       && bslmf::IsBitwiseCopyable<difference_type>::value
                        && bsl::is_same<HASH,  DefaultHash >::value
                        && bsl::is_same<EQUAL, DefaultEqual>::value)
     };

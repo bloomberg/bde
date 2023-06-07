@@ -1796,7 +1796,7 @@ struct ArrayPrimitives_CanBitwiseCopy
                                    typename bsl::remove_const<FROM_TYPE>::type,
                                    typename bsl::remove_const<TO_TYPE  >::type>
                                                                         ::value
-                          && bslmf::IsBitwiseCopyableCheck<
+                          && bslmf::IsBitwiseCopyable<
                                    typename bsl::remove_const<TO_TYPE  >::type>
                                                                         ::value
                             > {
@@ -1833,8 +1833,7 @@ void ArrayPrimitives::uninitializedFillN(
         k_IS_FUNDAMENTAL_OR_POINTER = k_IS_FUNDAMENTAL ||
                                      (k_IS_POINTER && !k_IS_FUNCTION_POINTER),
 
-        k_IS_BITWISECOPYABLE =
-                              bslmf::IsBitwiseCopyableCheck<TargetType>::value,
+        k_IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<TargetType>::value,
 
         k_VALUE =
                  k_IS_FUNDAMENTAL_OR_POINTER ? Imp::e_IS_FUNDAMENTAL_OR_POINTER
@@ -1984,7 +1983,7 @@ void ArrayPrimitives::defaultConstruct(
                || bsl::is_member_pointer<TargetType>::value
 #endif
               ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : bslmf::IsBitwiseCopyableCheck<TargetType>::value &&
+              : bslmf::IsBitwiseCopyable<TargetType>::value &&
                 bsl::is_trivially_default_constructible<TargetType>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
@@ -2504,7 +2503,7 @@ void ArrayPrimitives::emplace(
     typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bslmf::IsBitwiseCopyableCheck<TargetType>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
@@ -2598,7 +2597,7 @@ void ArrayPrimitives::insert(
         // operator throw.
 
         enum {
-            k_VALUE = bslmf::IsBitwiseCopyableCheck<TargetType>::value
+            k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : bslmf::IsBitwiseMoveable<TargetType>::value
                     ? Imp::e_BITWISE_MOVEABLE_TRAITS
@@ -2648,7 +2647,7 @@ void ArrayPrimitives::insert(
     }
 
     enum {
-        k_VALUE = bslmf::IsBitwiseCopyableCheck<TargetType>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
@@ -2814,7 +2813,7 @@ void ArrayPrimitives::moveConstruct(
     typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bslmf::IsBitwiseCopyableCheck<TargetType>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };

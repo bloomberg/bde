@@ -632,7 +632,7 @@ struct IsBitwiseMoveable_Imp<t_TYPE, false> {
                            DetectNestedTrait<t_TYPE, IsBitwiseMoveable>::value;
 
   public:
-    static const bool value = IsBitwiseCopyableCheck<t_TYPE>::value
+    static const bool value = IsBitwiseCopyable<t_TYPE>::value
                                                 || k_NestedBitwiseMoveableTrait
                                                 || sizeof(t_TYPE) == 1;
 

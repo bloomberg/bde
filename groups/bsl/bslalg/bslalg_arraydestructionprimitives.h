@@ -253,7 +253,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     destroy(begin,
             end,
             allocator,
-            typename bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::type());
+            typename bslmf::IsBitwiseCopyable<TARGET_TYPE>::type());
 }
 
 template <class TARGET_TYPE>
@@ -267,7 +267,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
 
     destroy(begin,
             end,
-            typename bslmf::IsBitwiseCopyableCheck<TARGET_TYPE>::type());
+            typename bslmf::IsBitwiseCopyable<TARGET_TYPE>::type());
 }
 
 }  // close package namespace

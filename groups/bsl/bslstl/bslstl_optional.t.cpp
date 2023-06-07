@@ -8422,6 +8422,9 @@ void TestDriver<TYPE>::testCase15()
                         bslmf::IsBitwiseCopyable<ValueType>::value);
             }
 
+            // check that 'bsl::is_trivially_copyable' and the native
+            // 'std::is_trivially_copyable' are consistent.
+
             (void) bslmf::IsBitwiseCopyableCheck<ValueType>::value;
             (void) bslmf::IsBitwiseCopyableCheck<Obj>::value;
         }

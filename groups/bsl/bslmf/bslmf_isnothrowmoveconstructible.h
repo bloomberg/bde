@@ -133,7 +133,7 @@ struct IsNothrowMoveConstructible_Impl<
 : bsl::integral_constant<
       bool,
       STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(t_TYPE) ||
-          bslmf::IsBitwiseCopyableCheck<t_TYPE>::value ||
+          bslmf::IsBitwiseCopyable<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE,
                             bsl::is_nothrow_move_constructible>::value> {
     // This 'struct' template implements a metafunction to determine whether
@@ -153,7 +153,7 @@ struct IsNothrowMoveConstructible_Impl<
 : bsl::integral_constant<
       bool,
       STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(const t_TYPE) ||
-          bslmf::IsBitwiseCopyableCheck<t_TYPE>::value> {
+          bslmf::IsBitwiseCopyable<t_TYPE>::value> {
     enum { k_CHECK_COMPLETE = sizeof(t_TYPE) };  // Diagnose incomplete types
 };
 
@@ -189,7 +189,7 @@ struct IsNothrowMoveConstructible_Impl<
 #else
 template <class t_TYPE, class = void>
 struct IsNothrowMoveConstructible_Impl
-: bslmf::IsBitwiseCopyableCheck<t_TYPE>::type {
+: bslmf::IsBitwiseCopyable<t_TYPE>::type {
     // This 'struct' template implements a metafunction to determine whether
     // the (non-cv-qualified) (template parameter) 't_TYPE' has a no-throw move
     // constructor.  For C++03, the set of types known to be no-throw move
@@ -205,7 +205,7 @@ struct IsNothrowMoveConstructible_Impl<
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(t_TYPE)>
 : bsl::integral_constant<
       bool,
-      bslmf::IsBitwiseCopyableCheck<t_TYPE>::value ||
+      bslmf::IsBitwiseCopyable<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE,
                             bsl::is_nothrow_move_constructible>::value> {
     // This 'struct' template implements a metafunction to determine whether
@@ -222,7 +222,7 @@ template <class t_TYPE>
 struct IsNothrowMoveConstructible_Impl<
     const t_TYPE,
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(t_TYPE)>
-: bslmf::IsBitwiseCopyableCheck<t_TYPE>::type {
+: bslmf::IsBitwiseCopyable<t_TYPE>::type {
     enum { k_CHECK_COMPLETE = sizeof(t_TYPE) };  // Diagnose incomplete types
 };
 
