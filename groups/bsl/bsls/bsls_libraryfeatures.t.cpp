@@ -649,23 +649,29 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_defined =
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS) || \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS_FORCE)
 
-    #include <atomic>
+    // We have already included '<atomic>' since C++11 baseline is present.
 
     static void useCpp11PreciseBitwidthAtomics()
-        // Declare variables with each of the 'typedef's associated with the
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' flag as a
-        // compile-time test that these 'typedef's are available.
+        // Attempt to use all standard names that exist for the feature flag
+        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' as a
+        // compile-time test that these specializations are available.  In
+        // addition, verify at run-time that these precise bit-size atomics
+        // have the expected (standard-mandated) 'value_type'.
     {
-        ASSERT(0 < sizeof(std::atomic_int8_t));
-        ASSERT(0 < sizeof(std::atomic_int16_t));
-        ASSERT(0 < sizeof(std::atomic_int32_t));
-        ASSERT(0 < sizeof(std::atomic_int64_t));
-        ASSERT(0 < sizeof(std::atomic_uint8_t));
-        ASSERT(0 < sizeof(std::atomic_uint16_t));
-        ASSERT(0 < sizeof(std::atomic_uint32_t));
-        ASSERT(0 < sizeof(std::atomic_uint64_t));
-        ASSERT(0 < sizeof(std::atomic_intptr_t));
-        ASSERT(0 < sizeof(std::atomic_uintptr_t));
+#define ASSERT_TYPEMATCH(type1, type2)       \
+    ASSERT((std::is_same<type1, type2>::value))
+
+        ASSERT_TYPEMATCH(std::atomic_int8_t::value_type,    std::int8_t   );
+        ASSERT_TYPEMATCH(std::atomic_int16_t::value_type,   std::int16_t  );
+        ASSERT_TYPEMATCH(std::atomic_int32_t::value_type,   std::int32_t  );
+        ASSERT_TYPEMATCH(std::atomic_int64_t::value_type,   std::int64_t  );
+        ASSERT_TYPEMATCH(std::atomic_uint8_t::value_type,   std::uint8_t  );
+        ASSERT_TYPEMATCH(std::atomic_uint16_t::value_type,  std::uint16_t );
+        ASSERT_TYPEMATCH(std::atomic_uint32_t::value_type,  std::uint32_t );
+        ASSERT_TYPEMATCH(std::atomic_uint64_t::value_type,  std::uint64_t );
+        ASSERT_TYPEMATCH(std::atomic_intptr_t::value_type,  std::intptr_t );
+        ASSERT_TYPEMATCH(std::atomic_uintptr_t::value_type, std::uintptr_t);
+#undef ASSERT_TYPEMATCH
     }
 #endif
 
