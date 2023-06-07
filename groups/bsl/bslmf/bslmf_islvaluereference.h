@@ -65,12 +65,26 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits> // 'std::is_lvalue_reference' and
+                       // 'std::is_lvalue_reference_v' (C++17)
+#endif
 
 namespace bsl {
-
                           // ==========================
                           // struct is_lvalue_reference
                           // ==========================
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class t_TYPE>
+struct is_lvalue_reference : bsl::integral_constant<
+                                       bool,
+                                       std::is_lvalue_reference<t_TYPE>::value>
+{};
+
+#else
 
 template <class t_TYPE>
 struct is_lvalue_reference : false_type {
@@ -87,7 +101,11 @@ struct is_lvalue_reference<t_TYPE&> : true_type {
     // 'bsl::true_type' for when the (template parameter) 't_TYPE' is an lvalue
     // reference type.
 };
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+using std::is_lvalue_reference_v;
+#else
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_lvalue_reference_v =
@@ -95,6 +113,7 @@ BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_lvalue_reference_v =
     // This template variable represents the result value of the
     // 'bsl::is_lvalue_reference' meta-function.
 #endif
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 }  // close namespace bsl
 

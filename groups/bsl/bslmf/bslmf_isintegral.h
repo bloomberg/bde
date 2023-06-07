@@ -69,16 +69,27 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_removecv.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits> // 'std::is_integral', 'std::is_integral_v'
+#endif
 namespace bsl {
-
                          // ==================
                          // struct is_integral
                          // ==================
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class t_TYPE>
+struct is_integral : bsl::integral_constant<bool,
+                                            std::is_integral<t_TYPE>::value>
+{};
+
+#else
 
 template <class t_TYPE>
 struct is_integral : bsl::false_type {
@@ -134,7 +145,7 @@ struct is_integral<char8_t> : bsl::true_type {
      // This explicit specialization of 'is_integral', for when the (template
      // parameter) 'TYPE' is 'wchar_t', derives from 'bsl::true_type'.
 };
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 template <>
@@ -211,14 +222,19 @@ struct is_integral<unsigned long long int> : bsl::true_type {
     // parameter) 't_TYPE' is 'unsigned long long int', derives from
     // 'bsl::true_type'.
 };
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+using std::is_integral_v;
+#else
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_integral_v =
-                                                    is_integral<t_TYPE>::value;
+                                            is_integral<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_integral' meta-function.
 #endif
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 }  // close namespace bsl
 

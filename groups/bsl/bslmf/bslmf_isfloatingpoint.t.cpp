@@ -1,7 +1,17 @@
 // bslmf_isfloatingpoint.t.cpp                                        -*-C++-*-
 #include <bslmf_isfloatingpoint.h>
 
+#include <bslmf_issame.h>
+#include <bslmf_isaccessiblebaseof.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits>  // 'std::is_floating_point' and
+                        // 'std::is_floating_point_v' (C++17)
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +35,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_floating_point_v
 //
 // ----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
+// [ 2] CONCERN: Conforms to implementation constraints.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -91,9 +102,8 @@ typedef float (TestType::*RetFloatingPointMethodPtrType) ();
     // used for testing.
 
 typedef double (*RetFloatingPointFunctionPtrType) ();
-    // This pointer to function type that returns an floating-point type
-    // is used for testing.
-
+    // This pointer to function type that returns a floating-point type is used
+    // for testing.
 
 }  // close unnamed namespace
 
@@ -143,7 +153,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -160,7 +170,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE\n"
+        if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
 ///Usage
@@ -194,6 +204,75 @@ int main(int argc, char *argv[])
 #endif
 //..
 
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING IMPLEMENTATION
+        //
+        // Concerns:
+        //: 1 The 'bsl::is_floating_point' meta function is *never* implemented
+        //:   as an alias to the 'std::is_floating_point' Standard meta
+        //:   function.
+        //:
+        //: 2 The 'bsl::is_floating_point' meta function is *always* based on
+        //:   either 'bsl::true_type' or 'bsl::false_type'.
+        //:
+        //: 3 The 'bsl::is_floating_point_v' variable template *is* implemented
+        //:   using the 'std::is_floating_point_v' Standard variable template.
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
+        //:   defined, use 'bsl::is_same' to compare 'bsl::is_floating_point'
+        //:   to 'std::is_floating_point' using a representative type.  (C-1)
+        //:
+        //: 2 For all C++ versions, use 'bslmf::IsAccessibleBaseOf' to confirm
+        //:   that the 'bsl::is_floating_point' meta function has
+        //:   'bsl::true_type' or 'bsl::false_type', as appropriate, as a base
+        //:   class.  (C-2)
+        //:
+        //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
+        //:   'std::is_floating_point_v')
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' are defined,
+        //:   compare for equality the addresses of 'bsl::is_floating_point_v'
+        //:   and 'std::is_floating_point_v' using a representative type.
+        //:   (C-3)
+        //
+        // Testing:
+        //   CONCERN: Conforms to implementation constraints.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING IMPLEMENTATION"
+                            "\n======================\n");
+
+        if (veryVerbose) printf(
+                            "\nTesting 'is_floating_point' using 'double'.\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                                                // for 'std::is_floating_point'
+        ASSERT((false == bsl::is_same<
+                                     bsl::is_floating_point<double>,
+                                     std::is_floating_point<double> >::value));
+#endif
+
+        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<
+                                                 bsl::true_type,
+                                                 bsl::is_floating_point<double>
+                                                      >::value));
+
+        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<
+                                                 bsl::false_type,
+                                                 bsl::is_floating_point<int>
+                                                      >::value));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        if (veryVerbose) printf(
+                          "\nTesting 'is_floating_point_v' using 'double'.\n");
+
+        typedef double T;
+
+        ASSERT((&bsl::is_floating_point_v<T> == &std::is_floating_point_v<T>));
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -231,16 +310,16 @@ int main(int argc, char *argv[])
         //:    types.
         //
         // Plan:
-        //   Verify that 'bsl::is_floating_point::value' has the correct value
-        //   for each concern.
+        //: 1 Verify that 'bsl::is_floating_point::value' has the correct value
+        //:   for each concern.
         //
         // Testing:
         //   bsl::is_floating_point::value
         //   bsl::is_floating_point_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbsl::is_floating_point::value\n"
-                            "\n=============================\n");
+        if (verbose) printf("\n'bsl::is_floating_point::value'"
+                            "\n===============================\n");
 
         // C-1
         TYPE_ASSERT_CVQ(bsl::is_floating_point, value, int, false);

@@ -63,8 +63,17 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#include <type_traits> // 'std::remove_cvref', 'std::remove_cvref_t'
+#endif
 
 namespace bsl {
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+using std::remove_cvref;
+#else
 
                          // ===================
                          // struct remove_cvref
@@ -85,9 +94,13 @@ struct remove_cvref {
         // parameter) 't_TYPE' except that its reference-ness has been stripped
         // and any top-level cv-qualifier has been removed.
 };
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+using std::remove_cvref_t;
+
+#else
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-
 // ALIASES
 template <class t_TYPE>
 using remove_cvref_t = typename remove_cvref<t_TYPE>::type;
@@ -95,6 +108,8 @@ using remove_cvref_t = typename remove_cvref<t_TYPE>::type;
     // 'bsl::remove_cvref' meta-function.  Note, that the 'remove_cvref_t'
     // avoids the '::type' suffix and 'typename' prefix when we want to use the
     // result of the meta-function in templates.
+
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 

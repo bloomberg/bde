@@ -70,16 +70,30 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_removecv.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-namespace bsl {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits> // 'std::is_floating_point' and
+                       // 'std::is_floating_point_v' (C++17)
+#endif
 
                          // ========================
                          // struct is_floating_point
                          // ========================
+
+namespace bsl {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class t_TYPE>
+struct is_floating_point : bsl::integral_constant<
+                                         bool,
+                                         std::is_floating_point<t_TYPE>::value>
+{};
+
+#else
 
 template <class t_TYPE>
 struct is_floating_point : bsl::false_type {
@@ -131,15 +145,19 @@ struct is_floating_point<const volatile t_TYPE>
     // (template parameter) 't_TYPE' is 'const volatile'-qualified delegates to
     // the non-cv-qualified primary template.
 };
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+using std::is_floating_point_v;
+#else
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_floating_point_v =
-                                              is_floating_point<t_TYPE>::value;
+                                            is_floating_point<t_TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_floating_point' meta-function.
 #endif
-
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 }  // close namespace bsl
 
 #endif

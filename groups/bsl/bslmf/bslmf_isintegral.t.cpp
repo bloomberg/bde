@@ -4,10 +4,18 @@
 #include <bslmf_addconst.h>
 #include <bslmf_addcv.h>
 #include <bslmf_addvolatile.h>
+#include <bslmf_isaccessiblebaseof.h>
+#include <bslmf_integralconstant.h> // for 'bsl::true_type', 'bsl::false_type'
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nullptr.h>
 #include <bsls_types.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits>  // 'std::is_integral' and 'std::is_integral_v' (C++17)
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +39,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_integral_v
 //
 // ----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
+// [ 2] CONCERN: Conforms to implementation constraints.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -76,7 +85,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
- //=============================================================================
+//=============================================================================
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -158,7 +167,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -208,6 +217,66 @@ int main(int argc, char *argv[])
 #endif
 //..
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING IMPLEMENTATION
+        //
+        // Concerns:
+        //: 1 The 'bsl::is_integral' meta function is *never* implemented as an
+        //:   alias to the 'std::is_integral' Standard meta function.
+        //:
+        //: 2 The 'bsl::is_integral' meta function is *always* based on either
+        //:   'bsl::true_type' or 'bsl::false_type'.
+        //:
+        //: 3 The 'bsl::is_integral_v' variable template *is* implemented using
+        //:   the 'std::is_integral_v' Standard variable template.
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
+        //:   defined, use 'bsl::is_same' to compare 'bsl::is_integral' to
+        //:   'std::is_integral' using a representative type.  (C-1)
+        //:
+        //: 2 For all C++ versions, use 'bslmf::IsAccessibleBaseOf' to confirm
+        //:   that the 'bsl::is_integral' meta function has 'bsl::true_type' or
+        //:   'bsl::false_type', as appropriate, as a base class.  (C-2)
+        //:
+        //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
+        //:   'std::is_integral_v')
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' are defined,
+        //:   compare for equality the addresses of 'bsl::is_integral_v' and
+        //:   'std::is_integral_v' using a representative type.  (C-3)
+        //
+        // Testing:
+        //   CONCERN: Conforms to implementation constraints.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING IMPLEMENTATION"
+                            "\n======================\n");
+
+        if (veryVerbose) printf("\nTesting 'is_integral' using 'int'.\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY // 'std::is_integral'
+        ASSERT((false == bsl::is_same<bsl::is_integral<int>,
+                                      std::is_integral<int> >::value));
+#endif
+
+        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<bsl::true_type,
+                                                       bsl::is_integral<int>
+                                                      >::value));
+
+        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<bsl::false_type,
+                                                       bsl::is_integral<double>
+                                                      >::value));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        if (veryVerbose) printf("\nTesting 'is_integral_v' using 'int'.\n");
+
+        typedef int T;
+
+        ASSERT((&bsl::is_integral_v<T> == &std::is_integral_v<T>));
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_integral::value'
@@ -236,8 +305,8 @@ int main(int argc, char *argv[])
         //:  7 'is_integral::value' is 'false' when 'TYPE' is a function type
         //:    returning an integral type.
         //:
-        //:  8 'is_integral::value' is 'false' when 'TYPE' is a pointer-to-data-
-        //:    member returning an integral type.
+        //:  8 'is_integral::value' is 'false' when 'TYPE' is a
+        //:    pointer-to-data-member returning an integral type.
         //:
         //:  9 'is_integral::value' is 'true' when 'TYPE' is a (possibly
         //:    cv-qualified) integral type.

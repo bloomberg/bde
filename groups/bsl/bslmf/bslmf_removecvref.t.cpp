@@ -9,6 +9,10 @@
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#include <type_traits> // 'std::remove_cvref', 'std::remove_cvref_t'
+#endif
+
 using namespace bsl;
 using namespace BloombergLP;
 
@@ -21,7 +25,9 @@ using namespace BloombergLP;
 // 'bsl::remove_cvref_t', that strip reference-ness and remove any top-level
 // cv-qualifiers from a template parameter type.  Thus, we need to ensure that
 // the values returned by the meta-function are correct for each possible
-// category of types.
+// category of types.  When 'std::remove_cvref' is available in the native
+// standard library, 'bsl::remove_cvref' and 'bsl::remove_cvref_t' must be
+// aliases to the native meta functions.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -29,7 +35,8 @@ using namespace BloombergLP;
 // [ 1] bsl::remove_cvref_t
 //
 // ----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
+// [ 2] CONCERN: Aliased to standard types when available.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -111,7 +118,6 @@ typedef int TestType::* Pm;
 typedef int (TestType::*Pmf)();
 typedef int (TestType::*Pmq)() const;
 
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #define ASSERT_SAME(X, Y)                                                     \
     ASSERTV(bsls::NameOf<bsl::remove_cvref<  X>::type>(),                     \
@@ -174,7 +180,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -228,6 +234,46 @@ int main(int argc, char *argv[])
 #endif
 //..
 
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // ALIASED TO STANDARD META FUNCTIONS
+        //
+        // Concerns:
+        //: 1 The meta functions 'bsl::remove_cvref' and 'bsl::remove_cvref_v'
+        //:   should be aliased to their standard library analogs when the
+        //:   latter is available from the native library.
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is
+        //:   defined, use 'bsl::is_same' to compare the two meta functions
+        //:   using a representative type.
+        //
+        // Testing:
+        //   CONCERN: Aliased to standard types when available.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nALIASED TO STANDARD META FUNCTIONS"
+                            "\n==================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        typedef int T;
+
+        if (veryVerbose) printf(
+                              "\nTesting 'remove_cvref' alias using 'int'.\n");
+
+        ASSERT((bsl::is_same<bsl::remove_cvref<T>,
+                             std::remove_cvref<T> >::value));
+
+        if (veryVerbose) printf(
+                            "\nTesting 'remove_cvref_t' alias using 'int'.\n");
+
+        ASSERT((bsl::is_same<bsl::remove_cvref_t<T>,
+                             std::remove_cvref_t<T> >::value));
+#else
+        if (veryVerbose) printf(
+                            "\nSkipped: neither standard type is available\n");
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

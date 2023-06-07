@@ -6,6 +6,11 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#include <type_traits> // 'std::type_identity', 'std::type_identity_t'
+#endif
 
 #include <cstdio>   // 'printf'
 #include <cstdlib>  // 'atoi'
@@ -27,15 +32,20 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-//
 // This component is a metafunction that takes a type argument and returns a
 // type that is the same as that argument.  Testing consists of invoking the
 // metafunction with different kinds of arguments and verifying that the
 // returned type is the same.  There are two abbreviated forms of the
-// metafunction that are tested the same way.
+// metafunction that are tested the same way.  When 'std::type_identity' and
+// 'std::type_identify_t' are available from the native library,
+// 'bsl::type_identity' and 'bsl::type_identity_t' must be aliased to those
+// standard meta functions.
+//
 // ----------------------------------------------------------------------------
 // [ 1] FULL TEST
-// [ 2] USAGE EXAMPLES
+// ----------------------------------------------------------------------------
+// [ 3] USAGE EXAMPLES
+// [ 2] CONCERN: Aliased to standard types when available.
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -267,7 +277,6 @@ struct FullTest<TestTmplt<T1, T2> > {
     }
 //..
 
-
 }  // close unnamed namespace
 
 // ============================================================================
@@ -285,7 +294,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -308,7 +317,45 @@ int main(int argc, char *argv[])
         usageExample2();
 
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // ALIASED TO STANDARD META FUNCTIONS
+        //
+        // Concerns:
+        //: 1 The meta functions 'bsl::type_identity' and
+        //:   'bsl::type_identity_v' should be aliased to their standard
+        //:   library analogs when the latter is available from the native
+        //:   library.
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is
+        //:   defined, use 'bsl::is_same' to compare the two meta functions
+        //:   using a representative type.
+        //
+        // Testing:
+        //   CONCERN: Aliased to standard types when available.
+        // --------------------------------------------------------------------
 
+        if (verbose) printf("\nALIASED TO STANDARD META FUNCTIONS"
+                            "\n==================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        typedef int T;
+
+        if (veryVerbose) printf("\nTesting 'type_identity' using 'int'.\n");
+
+        ASSERT((bsl::is_same<bsl::type_identity<T>,
+                             std::type_identity<T> >::value));
+
+        if (veryVerbose) printf("\nTesting 'type_identity_t' using 'int'.\n");
+
+        ASSERT((bsl::is_same<bsl::type_identity_t<T>,
+                             std::type_identity_t<T> >::value));
+#else
+        if (veryVerbose) printf(
+                            "\nSkipped: neither standard type is available\n");
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // FULL TEST

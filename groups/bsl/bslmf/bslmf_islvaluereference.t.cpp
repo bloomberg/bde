@@ -1,7 +1,17 @@
 // bslmf_islvaluereference.t.cpp                                      -*-C++-*-
 #include <bslmf_islvaluereference.h>
 
+#include <bslmf_issame.h>
+#include <bslmf_isaccessiblebaseof.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits>  // 'std::is_lvalue_reference' and
+                        // 'std::is_lvalue_reference_v' (C++17)
+#endif
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -26,7 +36,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_lvalue_reference_v
 //
 // ----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
+// [ 2] CONCERN: Conforms to implementation constraints.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -204,7 +215,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -249,7 +260,76 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_lvalue_reference_v<int&>);
 #endif
 //..
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING IMPLEMENTATION
+        //
+        // Concerns:
+        //: 1 The 'bsl::is_lvalue_reference' meta function is *never*
+        //:   implemented as an alias to the 'std::is_lvalue_reference'
+        //:   Standard meta function.
+        //:
+        //: 2 The 'bsl::is_lvalue_reference' meta function is *always* based on
+        //:   either 'bsl::true_type' or 'bsl::false_type'.
+        //:
+        //: 3 The 'bsl::is_lvalue_reference_v' variable template *is*
+        //:   implemented using the 'std::is_lvalue_reference_v' Standard
+        //:   variable template.
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
+        //:   defined, use 'bsl::is_same' to compare 'bsl::is_lvalue_reference'
+        //:   to 'std::is_lvalue_reference' using a representative type.  (C-1)
+        //:
+        //: 2 For all C++ versions, use 'bslmf::IsAccessibleBaseOf' to confirm
+        //:   that the 'bsl::is_lvalue_reference' meta function has
+        //:   'bsl::true_type' or 'bsl::false_type', as appropriate, as a base
+        //:   class.  (C-2)
+        //:
+        //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
+        //:   'std::is_lvalue_reference_v')
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' are defined,
+        //:   compare for equality the addresses of
+        //:   'bsl::is_lvalue_reference_v' and 'std::is_lvalue_reference_v'
+        //:   using a representative type.  (C-3)
+        //
+        // Testing:
+        //   CONCERN: Conforms to implementation constraints.
+        // --------------------------------------------------------------------
 
+        if (verbose) printf("\nTESTING IMPLEMENTATION"
+                            "\n======================\n");
+
+        if (veryVerbose) printf(
+                             "\nTesting 'is_lvalue_reference' using 'int'.\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                                                  // 'std::is_lvalue_reference'
+        ASSERT((false == bsl::is_same<bsl::is_lvalue_reference<int>,
+                                      std::is_lvalue_reference<int> >::value));
+#endif
+
+        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<
+                                                 bsl::true_type,
+                                                 bsl::is_lvalue_reference<int&>
+                                                      >::value));
+
+        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<
+                                                 bsl::false_type,
+                                                 bsl::is_lvalue_reference<int >
+                                                      >::value));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
+ && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        if (veryVerbose) printf(
+                           "\nTesting 'is_lvalue_reference_v' using 'int'.\n");
+
+        typedef int T;
+
+        ASSERT((&bsl::is_lvalue_reference_v<T>
+             == &std::is_lvalue_reference_v<T>));
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -279,8 +359,8 @@ int main(int argc, char *argv[])
         //:   types.
         //
         // Plan:
-        //   Verify that 'bsl::is_lvalue_reference::value' has the correct
-        //   value for each (template parameter) 'TYPE' in the concerns.
+        //: 1 Verify that 'bsl::is_lvalue_reference::value' has the correct
+        //:   value for each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
         //   bsl::is_lvalue_reference::value

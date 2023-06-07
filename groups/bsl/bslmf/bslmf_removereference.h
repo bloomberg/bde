@@ -82,12 +82,21 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
+
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits> // 'std::remove_reference', 'std_remove_reference_t'
+#endif
 
                          // =======================
                          // struct remove_reference
                          // =======================
 
 namespace bsl {
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+using std::remove_reference;
+#else
 
 template <class t_TYPE>
 struct remove_reference {
@@ -129,9 +138,12 @@ struct remove_reference<t_TYPE&&> {
 };
 
 #endif
+#endif //  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+using std::remove_reference_t;
+#else
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-
 // ALIASES
 template <class t_TYPE>
 using remove_reference_t = typename remove_reference<t_TYPE>::type;
@@ -139,7 +151,9 @@ using remove_reference_t = typename remove_reference<t_TYPE>::type;
     // 'bsl::remove_reference' meta-function.  Note, that the
     // 'remove_reference_t' avoids the '::type' suffix and 'typename' prefix
     // when we want to use the result of the meta-function in templates.
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
 }  // close namespace bsl
 

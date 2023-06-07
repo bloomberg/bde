@@ -2010,12 +2010,14 @@ int main(int argc, char *argv[])
         //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is defined only
         //:   when the native standard library provides a baseline of C++20
         //:   library features, including:
-        //:       o 'span'
-        //:       o 'barrier'
-        //:       o 'latch'
-        //:       o 'countingSemaphore'
-        //:       o 'nostopstate'
-        //:       o 'to_array'
+        //:   o 'span'
+        //:   o 'barrier'
+        //:   o 'latch'
+        //:   o 'countingSemaphore'
+        //:   o 'nostopstate'
+        //:   o 'to_array'
+        //:   o 'remove_cvref'
+        //:   o 'type_identity'
         //
         // Plan:
         //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is
@@ -2089,7 +2091,30 @@ int main(int argc, char *argv[])
                 }
             }
         }
-#endif
+
+        {
+            typedef int T;
+
+            // Types defined in '<type_traits>'
+            typedef std::remove_cvref  <T>::type TypeSansCvref;
+            typedef std::remove_cvref_t<T>       TypeSansCvref_t;
+
+            TypeSansCvref   x; (void)x;
+            TypeSansCvref_t y; (void)y;
+        }
+        {
+            typedef int T;
+
+            // Types defined in '<type_traits>'
+            typedef std::type_identity  <T>::type TypeIdentity;
+            typedef std::type_identity_t<T>       TypeIdentity_t;
+
+            TypeIdentity   x; (void)x;
+            TypeIdentity_t y; (void)y;
+        }
+
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
       } break;
       case 16: {

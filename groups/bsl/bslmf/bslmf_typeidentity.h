@@ -148,8 +148,17 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#include <type_traits> // 'std::type_identity', 'std::type_identity_t'
+#endif
 
 namespace bsl {
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+using std::type_identity;
+#else
 
                     // ============================
                     // class template type_identity
@@ -162,6 +171,7 @@ struct type_identity {
     // TYPES
     typedef t_TYPE type;
 };
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
                     // ==============================
                     // alias template type_identity_t
@@ -169,13 +179,17 @@ struct type_identity {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+using std::type_identity_t;
+#else
 template <class t_TYPE>
 using type_identity_t = typename type_identity<t_TYPE>::type;
     // Metafunction returning 't_TYPE' unchanged.  Shorthand alias for
     // 'type_identity<t_TYPE>::type'.
 
-#endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
+#endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 }  // close namespace bsl
 
                     // ==========================
