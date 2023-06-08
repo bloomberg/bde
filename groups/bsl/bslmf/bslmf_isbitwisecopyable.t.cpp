@@ -251,40 +251,58 @@ enum class EnumClassType {
 };
 #endif
 
-class MyTriviallyCopyableType {
-};
-
-struct MyNonTriviallyCopyableType {
-    MyNonTriviallyCopyableType() {}
-    MyNonTriviallyCopyableType(const MyNonTriviallyCopyableType&) {}
-        // Explicitly supply constructors that do nothing, to ensure that this
-        // class has no trivial traits detected with a conforming C++11 library
-        // implementation.
-};
-
-typedef int MyTriviallyCopyableType::*DataMemberPtrTestType;
-    // This pointer to instance data member type is used for testing.
-
-typedef int (MyTriviallyCopyableType::*MethodPtrTestType)();
-    // This pointer to non-static function member type is used for testing.
-
 struct MyNonTrivialDestructorType {
     ~MyNonTrivialDestructorType() {}
 };
 
 }  // close unnamed namespace
 
-namespace BloombergLP {
-namespace bslmf {
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Whether Types are Trivially Copyable
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a type is trivially copyable.
+//
+// First, we define a set of types to evaluate:
+//..
+    typedef int  MyFundamentalType;
+    typedef int& MyFundamentalTypeReference;
+//
+    class MyTriviallyCopyableType {
+    };
 
-template <>
-struct IsBitwiseCopyable<MyTriviallyCopyableType> : bsl::true_type {
-    // This template specialization for 'IsBitwiseCopyable' indicates that
-    // 'MyTriviallyCopyableType' is a trivially copyable.
-};
+    struct MyNonTriviallyCopyableType {
+        MyNonTriviallyCopyableType() {}
+        MyNonTriviallyCopyableType(const MyNonTriviallyCopyableType&) {}
+            // Explicitly supply constructors that do nothing, to ensure that
+            // this class has no trivial traits detected with a conforming
+            // C++11 library implementation.
+    };
+//..
+// Then, since user-defined types cannot be automatically evaluated by
+// 'is_trivially_copyable', we define a template specialization to specify that
+// 'MyTriviallyCopyableType' is trivially copyable:
+//..
+    namespace BloombergLP {
+    namespace bslmf {
 
-}  // close namespace bslmf
-}  // close namespace BloombergLP
+    template <>
+    struct IsBitwiseCopyable<MyTriviallyCopyableType> : bsl::true_type {
+        // This template specialization for 'IsBitwiseCopyable' indicates that
+        // 'MyTriviallyCopyableType' is a trivially copyable.
+    };
+
+    }  // close namespace bslmf
+    }  // close namespace BloombergLP
+//..
+
+typedef int MyTriviallyCopyableType::*DataMemberPtrTestType;
+    // This pointer to instance data member type is used for testing.
+
+typedef int (MyTriviallyCopyableType::*MethodPtrTestType)();
+    // This pointer to non-static function member type is used for testing.
 
 namespace bsl {
 
@@ -432,61 +450,24 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-///Usage
-///-----
-// In this section we show intended use of this component.
-//
-///Example 1: Verify Whether Types are Trivially Copyable
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a type is trivially copyable.
-//
-// First, we define a set of types to evaluate:
-//..
-        typedef int  MyFundamentalType;
-        typedef int& MyFundamentalTypeReference;
-//
-//  class MyTriviallyCopyableType {
-//  };
-//
-//  struct MyNonTriviallyCopyableType {
-//      //...
-//  };
-//..
-// Then, since user-defined types cannot be automatically evaluated by
-// 'is_trivially_copyable', we define a template specialization to specify that
-// 'MyTriviallyCopyableType' is trivially copyable:
-//..
-//  namespace bsl {
-//
-//  template <>
-//  struct is_trivially_copyable<MyTriviallyCopyableType> : bsl::true_type {
-//      // This template specialization for 'is_trivially_copyable' indicates
-//      // that 'MyTriviallyCopyableType' is a trivially copyable type.
-//  };
-//
-//  }  // close namespace bsl
-//..
 // Now, we verify whether each type is trivially copyable using
 // 'bslmf::IsBitwiseCopyable':
 //..
-        ASSERT(true  == bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyable<
-                                           MyFundamentalTypeReference>::value);
-        ASSERT(true  == bslmf::IsBitwiseCopyable<
-                                              MyTriviallyCopyableType>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyable<
-                                           MyNonTriviallyCopyableType>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
+    ASSERT(!bslmf::IsBitwiseCopyable<MyFundamentalTypeReference>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<MyTriviallyCopyableType>::value);
+    ASSERT(!bslmf::IsBitwiseCopyable<MyNonTriviallyCopyableType>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above as follows:
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+// Finally, note that if the current compiler supports the variable templates
+// C++14 feature, then we can re-write the snippet of code above as follows:
+//..
+    #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
         ASSERT( bslmf::IsBitwiseCopyable_v<MyFundamentalType>);
         ASSERT(!bslmf::IsBitwiseCopyable_v<MyFundamentalTypeReference>);
         ASSERT( bslmf::IsBitwiseCopyable_v<MyTriviallyCopyableType>);
         ASSERT(!bslmf::IsBitwiseCopyable_v<MyNonTriviallyCopyableType>);
-#endif
+    #endif
 //..
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -510,15 +491,13 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
-        //
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf(
-              "\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
-              "153975424})\n"
-              "\n====================================================="
-              "===========\n");
+            printf("\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
+                     "153975424})\n"
+                     "====================================================="
+                     "===========\n");
 
         // P-1
         ASSERTV(!bslmf::IsBitwiseCopyable<StructWithCtor>::value,
@@ -572,8 +551,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                      "\nTESTING: 'bslmf::IsBitwiseCopyable<bslmf::Nil>'"
-                      "\n=================================================\n");
+                        "\nTESTING: 'bslmf::IsBitwiseCopyable<bslmf::Nil>'"
+                        "\n===============================================\n");
 
         // C-1
         ASSERT(bslmf::IsBitwiseCopyable<bslmf::Nil>::value);
@@ -597,8 +576,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-              "\nTESTING: 'bslmf::IsBitwiseCopyable<bsls::TimeInterval>'"
-              "\n=========================================================\n");
+                "\nTESTING: 'bslmf::IsBitwiseCopyable<bsls::TimeInterval>'"
+                "\n=======================================================\n");
 
         // C-1
         ASSERT(bslmf::IsBitwiseCopyable<bsls::TimeInterval>::value);
@@ -645,7 +624,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             printf("\nEXTENDING 'bslmf::IsBitwiseCopyable'"
-                   "\n======================================\n");
+                   "\n====================================\n");
 
         // C-1
         ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(UserDefinedNonBcTestType,
@@ -707,7 +686,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             printf("\n'bslmf::IsBitwiseCopyable::value'"
-                   "\n===================================\n");
+                   "\n=================================\n");
 
         // C-1, (partial 6, 7, 8, 9)
         ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(bool, true);

@@ -6380,8 +6380,6 @@ void TestDriver<TYPE>::testCase28()
     //: 1 Check the 3 traits with asserts.
     //:
     //: 2 If we expect 'Obj' to be move it, try moving it between two
-    //:
-
     // ------------------------------------------------------------------------
 
     const char *type = bsls::NameOf<TYPE>().name();

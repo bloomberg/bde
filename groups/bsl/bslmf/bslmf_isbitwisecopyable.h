@@ -57,8 +57,61 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: 
+///Example 1: Verify Whether Types are Trivially Copyable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a type is trivially copyable.
+//
+// First, we define a set of types to evaluate:
+//..
+//  typedef int  MyFundamentalType;
+//  typedef int& MyFundamentalTypeReference;
+//
+//  class MyTriviallyCopyableType {
+//  };
+//
+//  struct MyNonTriviallyCopyableType {
+//      MyNonTriviallyCopyableType() {}
+//      MyNonTriviallyCopyableType(const MyNonTriviallyCopyableType&) {}
+//          // Explicitly supply constructors that do nothing, to ensure that
+//          // this class has no trivial traits detected with a conforming
+//          // C++11 library implementation.
+//  };
+//..
+// Then, since user-defined types cannot be automatically evaluated by
+// 'is_trivially_copyable', we define a template specialization to specify that
+// 'MyTriviallyCopyableType' is trivially copyable:
+//..
+//  namespace BloombergLP {
+//  namespace bslmf {
+//
+//  template <>
+//  struct IsBitwiseCopyable<MyTriviallyCopyableType> : bsl::true_type {
+//      // This template specialization for 'IsBitwiseCopyable' indicates that
+//      // 'MyTriviallyCopyableType' is a trivially copyable.
+//  };
+//
+//  }  // close namespace bslmf
+//  }  // close namespace BloombergLP
+//..
+// Now, we verify whether each type is trivially copyable using
+// 'bslmf::IsBitwiseCopyable':
+//..
+//  assert(true  == bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
+//  assert(false == bslmf::IsBitwiseCopyable<
+//                                         MyFundamentalTypeReference>::value);
+//  assert(true  == bslmf::IsBitwiseCopyable<MyTriviallyCopyableType>::value);
+//  assert(false == bslmf::IsBitwiseCopyable<
+//                                         MyNonTriviallyCopyableType>::value);
+//..
+// Finally, note that if the current compiler supports the variable templates
+// C++14 feature, then we can re-write the snippet of code above as follows:
+//..
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//      assert( bslmf::IsBitwiseCopyable_v<MyFundamentalType>);
+//      assert(!bslmf::IsBitwiseCopyable_v<MyFundamentalTypeReference>);
+//      assert( bslmf::IsBitwiseCopyable_v<MyTriviallyCopyableType>);
+//      assert(!bslmf::IsBitwiseCopyable_v<MyNonTriviallyCopyableType>);
+//  #endif
 //..
 
 #include <bslscm_version.h>
