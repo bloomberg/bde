@@ -679,9 +679,6 @@ struct Iso8601Util {
     // a 'bdlt' object from the result of parsing an ISO 8601 representation.
 
   private:
-    // PRIVATE TYPES
-    typedef bsl::ptrdiff_t ssize_t;
-
     // PRIVATE CLASS METHODS
     static Iso8601UtilConfiguration defaultConfiguration();
         // Return a default configured configuration object.
@@ -726,6 +723,8 @@ struct Iso8601Util {
       , MAX_DATETIME_STRLEN       = k_MAX_STRLEN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
+
+    typedef bsl::ptrdiff_t                ssize_t;
 
     typedef Iso8601UtilConfiguration      Configuration;
     typedef Iso8601UtilConfiguration      GenerateConfiguration;
@@ -1156,9 +1155,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' value, and load the value into the
-        // specified 'result', using the specified 'configuration'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.
-        // 'string' is assumed to be of the form:
+        // specified 'result', using the optionally specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDD{(+|-)hh{:}mm|Z}
@@ -1175,9 +1174,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' value, and load the value into the
-        // specified 'result', using the specified 'configuration'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.
-        // 'string' is assumed to be of the form:
+        // specified 'result', using the optionally specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1203,9 +1202,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' value, and load the value into the
-        // specified 'result', using the specified 'configuration'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.
-        // 'string' is assumed to be of the form:
+        // specified 'result', using the optionally specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1231,9 +1230,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DateTz' value, and load the value into the
-        // specified 'result', using the specified 'configuration'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.
-        // 'string' is assumed to be of the form:
+        // specified 'result', using the optionally specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDD{(+|-)hh{:}mm|Z}
@@ -1250,9 +1249,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'TimeTz' value, and load the value into the
-        // specified 'result', using the specified 'configuration'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.
-        // 'string' is assumed to be of the form:
+        // specified 'result', using the optionally specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1276,9 +1275,9 @@ struct Iso8601Util {
                      ParseConfiguration  configuration = ParseConfiguration());
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'DatetimeTz' value, and load the value into the
-        // specified 'result', using the specified 'configuration'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.
-        // 'string' is assumed to be of the form:
+        // specified 'result', using the optionally specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1303,9 +1302,9 @@ struct Iso8601Util {
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Date' or 'DateTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
-        // 'result', using the specified 'configuration'.  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // 'result', using the optionally specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  Default: YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDD{(+|-)hh{:}mm|Z}
@@ -1324,9 +1323,9 @@ struct Iso8601Util {
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Time' or 'TimeTz' value, depending on the
         // presence of a zone designator, and load the value into the specified
-        // 'result', using the specified 'configuration'.  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  'string' is
-        // assumed to be of the form:
+        // 'result', using the optionally specified 'configuration'.  Return 0
+        // on success, and a non-zero value (with no effect) otherwise.
+        // 'string' is assumed to be of the form:
         //..
         //  Default: hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1353,9 +1352,9 @@ struct Iso8601Util {
         // Parse the specified initial 'length' characters of the specified ISO
         // 8601 'string' as a 'Datetime' or  'DatetimeTz' value, depending on
         // the presence of a zone designator, and load the value into the
-        // specified 'result', using the specified 'configuration'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.
-        // 'string' is assumed to be of the form:
+        // specified 'result', using the optionally specified 'configuration'.
+        // Return 0 on success, and a non-zero value (with no effect)
+        // otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1398,9 +1397,10 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Date' value, and load
-        // the value into the specified 'result', using the specified
-        // 'configuration'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // the value into the specified 'result', using the optionally
+        // specified 'configuration'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  Default: YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDD{(+|-)hh{:}mm|Z}
@@ -1416,9 +1416,10 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Time' value, and load
-        // the value into the specified 'result', using the specified
-        // 'configuration'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // the value into the specified 'result', using the optionally
+        // specified 'configuration'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  Default: hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1444,9 +1445,10 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Datetime' value, and
-        // load the value into the specified 'result', using the specified
-        // 'configuration'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // load the value into the specified 'result', using the optionally
+        // specified 'configuration'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  Default: YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1472,9 +1474,10 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'DateTz' value, and load
-        // the value into the specified 'result', using the specified
-        // 'configuration'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // the value into the specified 'result', using the optionally
+        // specified 'configuration'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  Default: YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDD{(+|-)hh{:}mm|Z}
@@ -1490,9 +1493,10 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'TimeTz' value, and load
-        // the value into the specified 'result', using the specified
-        // 'configuration'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // the value into the specified 'result', using the optionally
+        // specified 'configuration'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  Default: hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1516,9 +1520,10 @@ struct Iso8601Util {
                      ParseConfiguration       configuration =
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'DatetimeTz' value, and
-        // load the value into the specified 'result', using the specified
-        // 'configuration'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // load the value into the specified 'result', using the optionally
+        // specified 'configuration'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  Default: YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1543,9 +1548,9 @@ struct Iso8601Util {
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Date' or 'DateTz' value,
         // depending on the presence of a zone designator, and load the value
-        // into the specified 'result', using the specified 'configuration'.
-        // Return 0 on success, and a non-zero value (with no effect)
-        // otherwise.  'string' is assumed to be of the form:
+        // into the specified 'result', using the optionally specified
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: YYYY-MM-DD{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDD{(+|-)hh{:}mm|Z}
@@ -1563,9 +1568,9 @@ struct Iso8601Util {
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Time' or 'TimeTz' value,
         // depending on the presence of a zone designator, and load the value
-        // into the specified 'result', using the specified 'configuration'.
-        // Return 0 on success, and a non-zero value (with no effect)
-        // otherwise.  'string' is assumed to be of the form:
+        // into the specified 'result', using the optionally specified
+        // 'configuration'.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.  'string' is assumed to be of the form:
         //..
         //  Default: hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   hhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
@@ -1591,9 +1596,10 @@ struct Iso8601Util {
                                                          ParseConfiguration());
         // Parse the specified ISO 8601 'string' as a 'Datetime' or
         // 'DatetimeTz' value, depending on the presence of a zone designator,
-        // and load the value into the specified 'result', using the specified
-        // 'configuration'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  'string' is assumed to be of the form:
+        // and load the value into the specified 'result', using the optionally
+        // specified 'configuration'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
         //..
         //  Default: YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //  Basic:   YYYYMMDDThhmmss{(.|,)s+}{(+|-)hh{:}mm|Z}
