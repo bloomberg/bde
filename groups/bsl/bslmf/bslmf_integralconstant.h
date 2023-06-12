@@ -146,6 +146,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
@@ -156,6 +157,10 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#define BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE \
+    BSLS_DEPRECATE_FEATURE("bsl", "legacy_true_and_false_VALUE", \
+                                   "use standard, lower-case, 'value' instead")
 
 namespace BloombergLP {
 namespace bslmf {
@@ -182,6 +187,8 @@ struct integral_constant<bool, false> : ::std::false_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<false> Type;
+
+    BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE
     static const bool VALUE = false;
 };
 
@@ -192,6 +199,8 @@ struct integral_constant<bool, true> : ::std::true_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<true> Type;
+
+    BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE
     static const bool VALUE = true;
 };
 
@@ -243,6 +252,8 @@ struct integral_constant<bool, t_VAL> {
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<t_VAL> Type;
+
+    BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE
     static const bool  VALUE = t_VAL;
 };
 #endif //   defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
@@ -307,6 +318,8 @@ BSLS_KEYWORD_CONSTEXPR bsl::integral_constant<bool, t_VAL>::operator bool()
     return t_VAL;
 }
 #endif // ! defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+
+#undef BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE
 
 #endif // ! defined(INCLUDED_BSLMF_INTEGRALCONSTANT)
 
