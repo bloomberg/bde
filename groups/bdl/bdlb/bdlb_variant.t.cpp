@@ -172,7 +172,7 @@ using bsls::NameOf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [29] USAGE EXAMPLE
+// [30] USAGE EXAMPLE
 // [18] CLASSES: 'bdlb::VariantN' and 'bdlb::Variant' (copy semantics)
 // [ 3] int ggg(Variant *, const char *, bool = true);
 // [ 3] VariantImp& gg(VariantImp *, const char *);
@@ -184,6 +184,7 @@ using bsls::NameOf;
 // [20] CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload.
 // [27] CONCERN: Moving an object containing a 'const' variant compiles.
 // [28] CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+// [29] CONCERN: 'operator<<' is used by GoogleTest v1.10 and below
 // [10] Reserved for BDEX streaming.
 
 // ============================================================================
@@ -28805,6 +28806,18 @@ void TestUtil::testCase12()
     }
 }
 
+namespace poisoned_inserter {
+
+template <class CHAR, class TRAITS, class VALUE>
+void operator<<(bsl::basic_ostream<CHAR, TRAITS>& , const VALUE& )
+    // For test case 29. This function must never be chosen and called as a
+    // better match when 'bdlb::Variant' value is inserted to 'ostream'.
+{
+    ASSERT(false);
+}
+
+}  // close namespace poisoned_inserter
+
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -28883,7 +28896,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // zero is always the leading case.
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -29293,6 +29306,44 @@ int main(int argc, char *argv[])
 //..
         }
 
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TEST GOOGLETEST MISBEHAVIOR (DRQS 159303038)
+        //
+        // Concerns:
+        //: 1 GoogleTest v1.10 and below prints the variant value not its dump.
+        //
+        // Plan:
+        //: 1 Don't use GoogleTest directly but reproduce the mechanism used
+        //:   inside instead.
+        //:
+        //: 2 Define a template 'operator<<(ostream&, const T&)' in namespace
+        //:   'poisoned_inserter'.
+        //:
+        //: 3 Construct a variant value and try to insert it to some 'ostream',
+        //:   but insert 'using namespace ::poisoned_inserter' line before.
+        //:   'poisoned_inserter::operator<<' will be a better match if only
+        //:   'operator<<(ostream, VariantImpl)' is defined (because type
+        //:   conversion 'const Variant &' -> 'const VariantImp &' is
+        //:   required).
+        //:
+        //: 4 Verify that 'poisoned_inserter::operator<<' wasn't used.
+        //
+        // Testing:
+        //   CONCERN: 'operator<<' is used by GoogleTest v1.10 and below
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TEST GOOGLETEST MISBEHAVIOR (DRQS 159303038)\n"
+                          << "============================================\n";
+
+        bsl::ostringstream os;
+        bdlb::Variant<int, char> v(1);
+
+        using namespace ::poisoned_inserter;
+        os << v;  // 'poisoned_inserter::operator<<' must not be called here!
+
+        ASSERT(os.str() == "1");
       } break;
       case 28: {
         // --------------------------------------------------------------------
