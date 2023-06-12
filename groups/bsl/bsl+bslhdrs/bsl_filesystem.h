@@ -43,6 +43,7 @@ namespace filesystem {
 
     // FUNCTIONS
     using std::filesystem::absolute;
+    using std::filesystem::begin;
     using std::filesystem::canonical;
     using std::filesystem::weakly_canonical;
     using std::filesystem::relative;
@@ -56,6 +57,7 @@ namespace filesystem {
     using std::filesystem::create_symlink;
     using std::filesystem::create_directory_symlink;
     using std::filesystem::current_path;
+    using std::filesystem::end;
     using std::filesystem::exists;
     using std::filesystem::equivalent;
     using std::filesystem::file_size;
