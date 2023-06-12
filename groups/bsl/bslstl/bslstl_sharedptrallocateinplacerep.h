@@ -10,6 +10,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslstl::SharedPtrAllocateInplaceRep: in-place 'shared_ptr' implementation
 //
+//@CANONICAL_HEADER: bsl_memory.h
+//
 //@SEE_ALSO: bslma_sharedptrrep, bslma_sharedptrinplacerep, bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides a class template,

@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::bad_function_call: exception type thrown by 'bsl::function'
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@SEE_ALSO: bslstl_function, bslstl_stdexceptionutil
 //
 //@DESCRIPTION: This component provides a 'bsl::bad_function_call' exception

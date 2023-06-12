@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::span: C++03-compliant implementation of 'std::span'.
 //
-//@CANONICAL_HEADER: bslstl_span.h
+//@CANONICAL_HEADER: bsl_span.h
 //
 //@SEE_ALSO: ISO C++ Standard
 //

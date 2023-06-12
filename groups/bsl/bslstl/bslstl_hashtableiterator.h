@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::HashTableIterator: an STL compliant forward iterator
 //
+//@CANONICAL_HEADER: bsl_unordered_map.h, bsl_unordered_set.h
+//
 //@SEE_ALSO: bslalg_bidirectionallink, bslstl_unorderedmap, bslstl_unorderedset
 //
 //@DESCRIPTION: This component provides a standard-conforming forward iterator,

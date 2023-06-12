@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::StringRefData: intermediate class providing StringRef compatibility
 //
+//@CANONICAL_HEADER: bsl_string.h
+//
 //@DESCRIPTION: Initially, this component provided a complex-constrained,
 // in-core (value-semantic) attribute class, 'bslstl::StringRefData', that
 // represented a reference to character string data.  Note that

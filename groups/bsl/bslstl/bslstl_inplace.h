@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::in_place_t: tag type for in-place construction
 //
+//@CANONICAL_HEADER: bsl_utility.h
+//
 //@DESCRIPTION: This component provides an implementation of a standard
 // compliant tag type for in-place construction, 'bsl::in_place_t'.  This tag
 // type is used in constructors of 'bsl::optional' to indicate that the

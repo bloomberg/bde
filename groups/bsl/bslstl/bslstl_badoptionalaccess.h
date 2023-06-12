@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::bad_optional_access: exception type thrown by 'bsl::optional'
 //
+//@CANONICAL_HEADER: bsl_optional.h
+//
 //@SEE_ALSO: bslstl_optional, bslstl_stdexceptionutil
 //
 //@DESCRIPTION: This component provides a 'bsl::bad_optional_access' exception
