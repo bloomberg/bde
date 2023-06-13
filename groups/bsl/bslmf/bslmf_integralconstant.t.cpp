@@ -64,7 +64,6 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
-// [ 4] CONCERN: `{true|false}_type::VALUE` is deprecated
 // [ 3] CONCERN: The template can be instantiated with different integer types.
 // [ 3] CONCERN: The template can be instantiated with different integer
 //      values, including min and max values for the instance type.
@@ -381,25 +380,17 @@ int main(int argc, char *argv[])
         // TESTING `false_type` AND `true_type`
         //
         // Concerns:
-        // 1. `false_type` is identical to `integral_constant<bool, false>`.
-        //
-        // 2. `true_type` is identical to `integral_constant<bool, true>`.
-        //
-        // 3. `{true|false}_type::VALUE` is deprecated
+        //: 1 'false_type' is identical to 'integral_constant<bool, false>'.
+        //:
+        //: 2 'true_type' is identical to 'integral_constant<bool, true>'.
         //
         // Plan:
-        // 1. Use `IsSameType` to verify the type of `false_type` and
-        //    `true_type`.  (C-1..2)
-        //
-        // 2. The compiler should produce deprecation warnings when
-        //    `BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING`
-        //    macro is defined and `{true|false}_type::VALUE` is used.  THIS IS
-        //    A COMPILE-TIME NONAUTOMATIC TEST!
+        //: 1 Use 'IsSameType' to verify the type of 'false_type' and
+        //:   'true_type'.  (C-1..2)
         //
         // Testing:
         //   bsl::false_type
         //   bsl::true_type
-        //   CONCERN: `{true|false}_type::VALUE` is deprecated
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING `false_type` AND `true_type`"
@@ -409,9 +400,6 @@ int main(int argc, char *argv[])
                            bsl::integral_constant<bool, false> >::VALUE));
         ASSERT((IsSameType<bsl::true_type,
                            bsl::integral_constant<bool, true> >::VALUE));
-
-        (void) bsl::false_type::VALUE; // deprecation warning here
-        (void) bsl:: true_type::VALUE; // deprecation warning here
       } break;
       case 3: {
         // --------------------------------------------------------------------
