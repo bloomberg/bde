@@ -14,6 +14,7 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <initializer_list>
@@ -26,7 +27,13 @@ namespace bsl {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 using std::initializer_list;
-#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using std::begin;
+    using std::end;
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
 }  // close namespace bsl
 

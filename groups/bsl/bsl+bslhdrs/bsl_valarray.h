@@ -15,9 +15,12 @@ BSLS_IDENT("$Id: $")
 
 #include <valarray>
 
+#include <bsls_libraryfeatures.h>
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 
 namespace bsl {
     // Import selected symbols into bsl namespace
@@ -44,6 +47,12 @@ namespace bsl {
     using std::tan;
     using std::tanh;
     using std::valarray;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using std::begin;
+    using std::end;
+#endif
+
 }  // close package namespace
 
 #endif
