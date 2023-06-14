@@ -245,8 +245,7 @@ BSLS_IDENT("$Id: $")
 //              break;
 //          }
 //
-//          // Find and update the old values once per minute.
-//          // bslmt::ThreadUtil::microSleep(0, 60);
+//          // Find and update the old values once per five seconds.
 //          bslmt::ThreadUtil::microSleep(0, 5);
 //          MyVisitor visitor;
 //          cache->visit(visitor);
