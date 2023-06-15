@@ -5477,8 +5477,8 @@ void TestDriver<TEST_TYPE>::testCase38()
     ASSERTV(type, bslma::UsesBslmaAllocator<TEST_TYPE>::value ==
                                         bslma::UsesBslmaAllocator<Obj>::value);
 
-    typedef bsls::ObjectBuffer<Obj>              ObjBuffer;    
-    typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;    
+    typedef bsls::ObjectBuffer<Obj>              ObjBuffer;
+    typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
