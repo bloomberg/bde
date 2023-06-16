@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balb_ratelimiter
 //
-//@DESCRIPTION This component provides a mechanism, 'balb::LeakyBucket', that
+//@DESCRIPTION: This component provides a mechanism, 'balb::LeakyBucket', that
 // implements a leaky bucket algorithm that allows clients to monitor whether a
 // resource is being consumed at a particular rate.
 //
