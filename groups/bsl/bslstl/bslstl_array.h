@@ -32,11 +32,11 @@ BSLS_IDENT("$Id: $")
 // iterators in the C++ standard [array].  The 'array' implemented here follows
 // the C++11 standard when compiled with a C++11 compiler and follows the C++03
 // standard otherwise.
-
+//
 // An array lacks certain requirements of a sequential container.  Array lacks
 // 'insert', 'erase', 'emplace', and 'clear', as these functions would require
 // modifying the size of the array.
-
+//
 // An array also meets the requirements of an aggregate.  This means that an
 // array has: no user-declared constructors, no private or protected non-static
 // data members, no base classes, and no virtual functions.  An array can be
