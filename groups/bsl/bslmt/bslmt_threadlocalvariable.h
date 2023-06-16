@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a macro to declare a thread-local variable.
 //
-//@CLASSES:
-//   BSLMT_THREAD_LOCAL_VARIABLE: macro to declare a thread-local variable
+//@MACROS:
+//  BSLMT_THREAD_LOCAL_VARIABLE: macro to declare a thread-local variable
 //
 //@SEE_ALSO:
 //
@@ -53,10 +53,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Platform Notes
 ///--------------
-// Since the C++ standard does not define a thread-local storage specifier,
-// support varies between platforms and compilers.  Moreover, thread-local
-// variables are *not* supported on (1) Solaris with gcc or (2) Windows due to
-// compiler or runtime limitations.  See the following table for details.
+// Since the C++ standard prior to C++11 does not define a thread-local storage
+// specifier, support varies between platforms and compilers.  Moreover,
+// thread-local variables are *not* supported on (1) Solaris with gcc or (2)
+// AIX due to compiler or runtime limitations.  See the following table for
+// details.
 //..
 // +----------+----------------------------------------------------------------
 // | Platform |  Note
@@ -73,13 +74,6 @@ BSLS_IDENT("$Id: $")
 // |          |    thread-local variables.  Note that both the Solaris native
 // |          |    compiler, and gcc on Linux do support thread-local
 // |          |    variables.
-// +----------+----------------------------------------------------------------
-// | Windows/ |  o Thread local variables cause run-time errors when used
-// | MSVC     |    inside a dynamic-library (.dll) that is loaded at runtime
-// |          |    using 'LoadLibrary' or 'LoadLibraryEx' on versions of
-// |          |    Windows prior to Vista (e.g., XP).  The problem is noted
-// |          |    here:
-// |          |    http://support.microsoft.com/kb/118816
 // +----------+----------------------------------------------------------------
 //..
 //
@@ -197,6 +191,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <bslmf_assert.h>
@@ -206,9 +201,8 @@ BSLS_IDENT("$Id: $")
                             // Macro Definitions
                             // =================
 
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
+#if !(defined(BSLS_PLATFORM_OS_AIX)     && defined(BSLS_PLATFORM_CMP_IBM))    \
+ && !(defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GCC))
 #define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
 static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // This macro should *not* be used by clients outside of the 'bslmt'
@@ -219,9 +213,9 @@ static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // described in DRQS 16438026.  Therefore, even though thread-local storage
     // is supported by xlC10, it is explicitly not used here.
     //
-    // On Windows/MSVC, compiler-based thread-local storage may cause a crash
-    // at runtime when used from a DLL on Windows versions below Vista.
-    // Therefore, it is explicitly not used here.
+    // On Solaris, only native Sun C++ compiler correctly supports this
+    // feature.  GCC causes run-time failure on thread-exit when thread-local
+    // variables are used.
     //
     // Define, at function or namespace scope, a thread-local 'static' variable
     // having the specified 'VARIABLE_NAME' of the specified 'BASIC_TYPE',
@@ -230,12 +224,12 @@ static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // type 'BASIC_TYPE', the instantiation of this macro will result in a
     // compile time error.  The behavior is undefined unless 'INITIAL_VALUE' is
     // a *compile* *time* constant value.
-#endif
 
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+#define BSLMT_THREAD_LOCAL_KEYWORD thread_local
+#else
 #define BSLMT_THREAD_LOCAL_KEYWORD __thread
+#endif
 #endif
 
 #endif

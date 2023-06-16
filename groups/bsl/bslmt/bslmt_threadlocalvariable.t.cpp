@@ -442,9 +442,8 @@ void my_Barrier::wait()
 // ----------------------------------------------------------------------------
 
 // Verify that the macro is defined on supported platforms.
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
+#if !(defined(BSLS_PLATFORM_OS_AIX)     && defined(BSLS_PLATFORM_CMP_IBM))    \
+ && !(defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GCC))
 #ifndef BSLMT_THREAD_LOCAL_VARIABLE
 #error "'BSLMT_THREAD_LOCAL_VARIABLE' macro undefined for a supported platform"
 #endif
