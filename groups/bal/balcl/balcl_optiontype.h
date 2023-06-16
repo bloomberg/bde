@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balcl::OptionType: command-line option types 'enum' and utilities
 //
-//@SEE ALSO: balcl_optionvalue, balcl_commandline
+//@SEE_ALSO: balcl_optionvalue, balcl_commandline
 //
 //@DESCRIPTION: This component provides a 'struct', 'balcl::OptionType',
 // that is a namespace for:
