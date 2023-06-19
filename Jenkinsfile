@@ -9,12 +9,12 @@ pipeline {
         disableConcurrentBuilds()               //this job never build concurrently
         buildDiscarder(logRotator(numToKeepStr: '15'))  //log rotation, keep 15 builds
         skipDefaultCheckout()                   //skips default checkout of this repo
-        timeout(time: 10, unit: 'MINUTES')      //set timeout for this job
+        timeout(time: 120, unit: 'MINUTES')      //set timeout for this job
     }
     stages {                                    //stages
         stage('Print environment') {            //define a stage
              steps {
-                             echo 'checking out important environments'
+                             echo "checking out important environments "
                              //tells you which user are you running this job as
                              //what is the current directory this job is running at
                              //on which host
@@ -25,26 +25,15 @@ pipeline {
                              '''
                   }
              }
-        stage('Create or update phabricator'){
+        stage('Run BDE CI Bot'){
             when {
                 branch "PR-*"               // a stage only runs for pull requests
             }
             steps{
                 echo 'Running arc diff with --nolint (in case there is a bde_verify error)'
                 sh """             
-		        /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --nolint --create-checkout ${WORKSPACE} --url ${CHANGE_URL}
-                """             
-            }
-        }
-        stage('Update phabricator with lint'){
-            when {
-                branch "PR-*"               // a stage only runs for pull requests
-            }
-            steps{
-                echo 'running arc diff on pull request (w/ lint)'
-                sh """             
-		        /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/phabricatorbot.py --verbose --create-checkout ${WORKSPACE} --url ${CHANGE_URL}
-                """    
+		PATH=/bb/bde/bbshr/bin/:$PATH /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/bdecibot.py --verbose --nolint --url ${CHANGE_URL} --create-checkout ${WORKSPACE}
+                """                
             }
         }
     }
