@@ -128,4 +128,5 @@ bsl_semaphore.h
 bsl_source_location.h
 bsl_span.h
 bsl_stop_token.h
+bsl_syncstream.h
 bsl_version.h

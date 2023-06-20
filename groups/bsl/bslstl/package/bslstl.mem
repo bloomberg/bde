@@ -60,7 +60,9 @@ bslstl_multiset_cpp03
 bslstl_multiset_test
 bslstl_optional
 bslstl_optional_cpp03
+bslstl_ostream
 bslstl_ostringstream
+bslstl_osyncstream
 bslstl_ownerless
 bslstl_pair
 bslstl_priorityqueue
@@ -90,6 +92,7 @@ bslstl_stringref
 bslstl_stringrefdata
 bslstl_stringstream
 bslstl_stringview
+bslstl_syncbuf
 bslstl_systemerror
 bslstl_treeiterator
 bslstl_treenode

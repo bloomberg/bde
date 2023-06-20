@@ -69,6 +69,23 @@ typedef basic_ostringstream<wchar_t, char_traits<wchar_t>,
 typedef basic_stringstream <wchar_t, char_traits<wchar_t>,
                                            allocator<wchar_t> >  wstringstream;
 
+template <class CHAR_TYPE, class CHAR_TRAITS>
+class syncbuf_Base;  // internal type
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR   = allocator<CHAR_TYPE> >
+class basic_syncbuf;
+typedef basic_syncbuf<char>     syncbuf;
+typedef basic_syncbuf<wchar_t> wsyncbuf;
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR   = allocator<CHAR_TYPE> >
+class basic_osyncstream;
+typedef basic_osyncstream<char>     osyncstream;
+typedef basic_osyncstream<wchar_t> wosyncstream;
+
 }  // close namespace bsl
 
 #endif

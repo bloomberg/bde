@@ -1,6 +1,6 @@
-// bsl_ostream.h                                                      -*-C++-*-
-#ifndef INCLUDED_BSL_OSTREAM
-#define INCLUDED_BSL_OSTREAM
+// bsl_syncstream.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSL_SYNCSTREAM
+#define INCLUDED_BSL_SYNCSTREAM
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -15,15 +15,16 @@ BSLS_IDENT("$Id: $")
 
 // Include Bloomberg's implementation.
 #include <bslstl_ostream.h>
+#include <bslstl_syncbuf.h>
+#include <bslstl_osyncstream.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -41,11 +41,14 @@
    7. bslstl_boyermoorehorspoolsearcher
       bslstl_istringstream
       bslstl_mapcomparator
+      bslstl_ostream
       bslstl_ostringstream
+      bslstl_osyncstream
       bslstl_queue
       bslstl_setcomparator
       bslstl_stack
       bslstl_stringstream
+      bslstl_syncbuf
       bslstl_treenodepool
       bslstl_unorderedmap_test                                        !PRIVATE!
       bslstl_unorderedmultimap_test                                   !PRIVATE!

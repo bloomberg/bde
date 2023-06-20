@@ -18,6 +18,7 @@
      bsl_ostream.h
      bsl_streambuf.h
      bsl_strstream.h
+     bsl_syncstream.h
 
   1. bsl_algorithm.h
      bsl_barrier.h
