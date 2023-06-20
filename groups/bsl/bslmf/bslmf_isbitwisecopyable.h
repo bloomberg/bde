@@ -154,35 +154,6 @@ struct IsBitwiseCopyable :
                            bool,
                            DetectNestedTrait<t_TYPE, IsBitwiseCopyable>::value
                           || bsl::is_trivially_copyable<t_TYPE>::value>::type {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
-    defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
-    // TBD: remove or comment out this check before merging to 'main'.
-
-    static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
-                                 || std::is_trivially_copyable<t_TYPE>::value,
-                  "Types with copy constructors or destructors defined "
-                  "should be declared 'bslmf::IsBitwiseCopyable', not "
-                  "'bsl::is_trivially_copyable'");
-#endif
-};
-
-template <class t_TYPE>
-class IsBitwiseCopyableCheck : public IsBitwiseCopyable<t_TYPE> {
-    // This 'class' is never to be specialized -- it is to be used exclusively
-    // for checking 'IsBitwiseCopyable' in such a way that the following
-    // static assert always occurs, even if 'IsBitwiseCopyable' is specialized.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
-    defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
-    // Note that 'std::is_trivially_copyable' is 'false' on Windows for types
-    // with copy c'tors declared as 'deleted', but 'true' on other platforms.
-
-    static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
-                                 || std::is_trivially_copyable<t_TYPE>::value,
-                  "Types with copy constructors or destructors defined "
-                  "should be declared 'bslmf::IsBitwiseCopyable', not "
-                  "'bsl::is_trivially_copyable'");
-#endif
 };
 
 template <class t_TYPE>

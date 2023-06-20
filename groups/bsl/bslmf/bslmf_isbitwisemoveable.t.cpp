@@ -1038,16 +1038,6 @@ int main(int argc, char *argv[])
         ASSERT(!bslmf::IsBitwiseMoveable<int(float, double...)>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<void(&)()>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<int(&)(float, double...)>::value);
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        // TBD: remove this before release, and also remove the check from
-        // the .h file.
-
-       ASSERT(!bsl::is_trivially_copyable<
-                             UserDefinedFakeTriviallyCopyableTestType>::value
-               || std::is_trivially_copyable<
-                             UserDefinedFakeTriviallyCopyableTestType>::value);
-#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
