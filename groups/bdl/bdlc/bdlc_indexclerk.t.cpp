@@ -3272,10 +3272,9 @@ int main(int argc, char *argv[])
         ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
 
-        BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<Iter>::value);
-        BSLMF_ASSERT(! bsl::is_trivially_copyable<Iter>::value);
+        BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Iter>::value);
+        BSLMF_ASSERT(! bslmf::IsTriviallyCopyableCheck<Iter>::value);
         BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

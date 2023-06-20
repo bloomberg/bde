@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
         ASSERT(bsl::is_trivially_copyable<Obj>::value);
-        ASSERT(bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(bslmf::IsTriviallyCopyableCheck<Obj>::value);
         ASSERT(bdlb::HasPrintMethod<Obj>::value);
       } break;
 

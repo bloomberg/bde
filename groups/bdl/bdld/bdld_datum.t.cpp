@@ -489,8 +489,7 @@ const char *UNKNOWN_FORMAT = "(* UNKNOWN *)";
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 # define U_ASSERT_EXPECTED_PROPERTIES_BASIC(TYPE)                             \
-    BSLMF_ASSERT(bsl::is_trivially_copyable<TYPE>::value);                    \
-    BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<TYPE>::value);                 \
+    BSLMF_ASSERT(bslmf::IsTriviallyCopyableCheck<TYPE>::value);               \
     BSLMF_ASSERT(bslmf::IsBitwiseMoveable<TYPE>::value);                      \
     BSLMF_ASSERT(!(bslma::UsesBslmaAllocator<TYPE>::value));                  \
     BSLMF_ASSERT(!(bslmf::IsBitwiseEqualityComparable<TYPE>::value))

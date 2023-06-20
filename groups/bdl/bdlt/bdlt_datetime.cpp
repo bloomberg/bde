@@ -126,9 +126,13 @@ namespace bdlt {
 // trivially copyable, so we assert our assumption about 'Date' and 'Time', as
 // a sanity check.
 
-BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<Date>::value);
-BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<Time>::value);
-BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<Datetime>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Date>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Datetime>::value);
+
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Date>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Time>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Datetime>::value);
 
                               // --------------
                               // class Datetime

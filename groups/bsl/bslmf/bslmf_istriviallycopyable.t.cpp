@@ -387,6 +387,19 @@ struct UserDefinedNonTcTestType {
     UserDefinedNonTcTestType(const UserDefinedNonTcTestType&) {}
 };
 
+struct UserDefinedWrongTcTestType {
+    // This user-defined type, which is marked to be trivially copyable, is not
+    // trivially copyable according to 'std::is_trivially_copyable'.
+    // used for testing.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedWrongTcTestType,
+                                   bsl::is_trivially_copyable);
+
+    UserDefinedWrongTcTestType() {}
+    UserDefinedWrongTcTestType(const UserDefinedWrongTcTestType&) {}
+    ~UserDefinedWrongTcTestType() {}
+};
+
 }  // close unnamed namespace
 
 namespace {
@@ -464,7 +477,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -539,6 +552,31 @@ int main(int argc, char *argv[])
 #endif
 //..
 
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING: bslmf::IsTriviallyCopyableCheck
+        // --------------------------------------------------------------------
+
+        ASSERT(!bslmf::IsTriviallyCopyableCheck<
+                                           UserDefinedNonTcTestType>::value);
+        ASSERT( bslmf::IsTriviallyCopyableCheck<
+                                           UserDefinedTcTestType>::value);
+
+        // 'UserDefinedWrongTestType' is trivially copyable according to 'bsl'
+        // but not according to 'std', so if it is evaluated with
+        // 'IsTriviallyCopyableCheck' on C++11 or beyond, it will result in a
+        // compilation error.
+
+        ASSERT( bsl::is_trivially_copyable<UserDefinedWrongTcTestType>::value);
+#if defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
+        ASSERT(!std::is_trivially_copyable<UserDefinedWrongTcTestType>::value);
+#endif
+
+//      Deliberately fails to compile:
+//
+//      ASSERT( bslmf::IsTriviallyCopyableCheck<
+//                                         UserDefinedWrongTcTestType>::value);
       } break;
       case 5: {
         // --------------------------------------------------------------------

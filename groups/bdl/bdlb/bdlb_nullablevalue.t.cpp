@@ -5472,10 +5472,11 @@ void TestDriver<TEST_TYPE>::testCase38()
 
     ASSERTV(type, bslmf::IsBitwiseMoveable<TEST_TYPE>::value ==
                                          bslmf::IsBitwiseMoveable<Obj>::value);
-    ASSERTV(type, bslmf::IsBitwiseCopyableCheck<TEST_TYPE>::value ==
-                                    bslmf::IsBitwiseCopyableCheck<Obj>::value);
+    ASSERTV(type, bslmf::IsBitwiseCopyable<TEST_TYPE>::value ==
+                                         bslmf::IsBitwiseCopyable<Obj>::value);
     ASSERTV(type, bslma::UsesBslmaAllocator<TEST_TYPE>::value ==
                                         bslma::UsesBslmaAllocator<Obj>::value);
+    (void) bslmf::IsTriviallyCopyableCheck<Obj>::value;
 
     typedef bsls::ObjectBuffer<Obj>              ObjBuffer;
     typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;
@@ -5513,7 +5514,7 @@ void TestDriver<TEST_TYPE>::testCase38()
     ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
     ASSERT(0 == da.numAllocations());
 
-    if (bslmf::IsBitwiseCopyableCheck<Obj>::value) {
+    if (bslmf::IsBitwiseCopyable<Obj>::value) {
         ObjWABuffer xBuffer;
         ObjBuffer   yBuffer;
 

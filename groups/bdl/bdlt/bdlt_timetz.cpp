@@ -22,6 +22,9 @@ namespace bdlt {
 BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
 BSLMF_ASSERT(bslmf::IsBitwiseCopyable<TimeTz>::value);
 
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Time>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<TimeTz>::value);
+
                              // ------------
                              // class TimeTz
                              // ------------

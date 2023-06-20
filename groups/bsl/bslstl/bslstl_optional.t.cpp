@@ -6400,8 +6400,8 @@ void TestDriver<TYPE>::testCase28()
     ASSERTV(type, bslma::UsesBslmaAllocator<TYPE>::value ==
                                         bslma::UsesBslmaAllocator<Obj>::value);
 
-    typedef bsls::ObjectBuffer<Obj>              ObjBuffer;    
-    typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;    
+    typedef bsls::ObjectBuffer<Obj>              ObjBuffer;
+    typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
@@ -8423,8 +8423,8 @@ void TestDriver<TYPE>::testCase15()
             // check that 'bsl::is_trivially_copyable' and the native
             // 'std::is_trivially_copyable' are consistent.
 
-            (void) bslmf::IsBitwiseCopyableCheck<ValueType>::value;
-            (void) bslmf::IsBitwiseCopyableCheck<Obj>::value;
+            (void) bslmf::IsTriviallyCopyableCheck<ValueType>::value;
+            (void) bslmf::IsTriviallyCopyableCheck<Obj>::value;
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY

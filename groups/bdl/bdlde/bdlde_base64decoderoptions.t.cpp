@@ -934,8 +934,7 @@ if (verbose) {
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        ASSERT(bsl::is_trivially_copyable<bdlde::Base64DecoderOptions>::value);
-        ASSERT(bslmf::IsBitwiseCopyableCheck<
+        ASSERT(bslmf::IsTriviallyCopyableCheck<
                                           bdlde::Base64DecoderOptions>::value);
         ASSERT(bslmf::IsBitwiseMoveable<bdlde::Base64DecoderOptions>::value);
       } break;

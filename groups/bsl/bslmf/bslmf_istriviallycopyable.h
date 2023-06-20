@@ -437,6 +437,28 @@ struct is_trivially_copyable<BloombergLP::bslmf::Nil> : bsl::true_type {
 #endif
 }  // close namespace bsl
 
+namespace BloombergLP {
+namespace bslmf {
+
+template <class t_TYPE>
+struct IsTriviallyCopyableCheck : bsl::is_trivially_copyable<t_TYPE> {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
+    defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
+    // Note that 'std::is_trivially_copyable' is 'false' on Windows for types
+    // with copy c'tors declared as 'deleted', but 'true' on other platforms.
+
+    static_assert(!bsl::is_trivially_copyable<t_TYPE>::value
+                                 || std::is_trivially_copyable<t_TYPE>::value,
+                  "Types with copy constructors or destructors defined "
+                  "or deleted should be declared 'bslmf::IsBitwiseCopyable', "
+                  "not 'bsl::is_trivially_copyable'");
+#endif
+};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+
 #endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
 
 // ----------------------------------------------------------------------------

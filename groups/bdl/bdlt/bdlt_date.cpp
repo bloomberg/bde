@@ -18,7 +18,8 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-BSLMF_ASSERT(true == bslmf::IsBitwiseCopyableCheck<Date>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Date>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Date>::value);
 
 static const char *const months[] = {
     0,

@@ -33,7 +33,9 @@ BSLS_IDENT_RCSID(bdlt_time_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-BSLMF_ASSERT(true == bslmf::IsBitwiseCopyableCheck<Time>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
+
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Time>::value);
 
 // STATIC HELPER FUNCTIONS
 static

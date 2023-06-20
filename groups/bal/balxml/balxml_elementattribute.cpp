@@ -23,8 +23,7 @@ BSLS_IDENT_RCSID(balxml_elementattribute_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace balxml {
 
-BSLMF_ASSERT(bsl::is_trivially_copyable<ElementAttribute>::value);
-BSLMF_ASSERT(bslmf::IsBitwiseCopyableCheck<ElementAttribute>::value);
+BSLMF_ASSERT(bslmf::IsTriviallyCopyableCheck<ElementAttribute>::value);
 
 ElementAttribute::ElementAttribute()
 : d_prefixStack(0)

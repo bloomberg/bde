@@ -609,13 +609,12 @@ DEFINE_TEST_CASE(10) {
             f1(x,10);
 
             ASSERT(true  == bslmf::IsBitwiseMoveable<Prototype>::value);
-            ASSERT(true  == bslmf::IsBitwiseCopyableCheck<Prototype>::value);
-            ASSERT(true  == bsl::is_trivially_copyable<Prototype>::value);
+            ASSERT(true  == bslmf::IsTriviallyCopyableCheck<Prototype>::value);
             ASSERT(false == bslma::UsesBslmaAllocator<Prototype>::value);
 
             ASSERT(true  == bslmf::IsBitwiseMoveable<MF>::value);
-            ASSERT(true  == bslmf::IsBitwiseCopyableCheck<MF>::value);
-            ASSERT(false == bsl::is_trivially_copyable<MF>::value);
+            ASSERT(true  == bslmf::IsBitwiseCopyable<MF>::value);
+            ASSERT(false == bslmf::IsTriviallyCopyableCheck<MF>::value);
             ASSERT(false == bslma::UsesBslmaAllocator<MF>::value);
         }
 
@@ -627,14 +626,13 @@ DEFINE_TEST_CASE(10) {
                                   ConstructibleFromPointerToSelf *>  MFIType;
 
             ASSERT(true  == bslmf::IsBitwiseMoveable<Prototype>::value);
-            ASSERT(true  == bslmf::IsBitwiseCopyableCheck<Prototype>::value);
-            ASSERT(true  == bsl::is_trivially_copyable<Prototype>::value);
+            ASSERT(true  == bslmf::IsTriviallyCopyableCheck<Prototype>::value);
             ASSERT(false == bslma::UsesBslmaAllocator<Prototype>::value);
 
             ASSERT(true  == bslma::UsesBslmaAllocator<MFIType>::value);
             ASSERT(true  == bslmf::IsBitwiseMoveable<MFIType>::value);
-            ASSERT(false == bslmf::IsBitwiseCopyableCheck<MFIType>::value);
-            ASSERT(false == bsl::is_trivially_copyable<MFIType>::value);
+            ASSERT(false == bslmf::IsBitwiseCopyable<MFIType>::value);
+            ASSERT(false == bslmf::IsTriviallyCopyableCheck<MFIType>::value);
 
             ConstructibleFromPointerToSelf mX(0); mX.d_instance_p = &mX;
             MFIType func(&ConstructibleFromPointerToSelf::memberFunction,
@@ -650,14 +648,13 @@ DEFINE_TEST_CASE(10) {
                                         NotBitwiseMoveable> MFITypeB;
 
             ASSERT(true  == bslmf::IsBitwiseMoveable<Prototype>::value);
-            ASSERT(true  == bslmf::IsBitwiseCopyableCheck<Prototype>::value);
-            ASSERT(true  == bsl::is_trivially_copyable<Prototype>::value);
+            ASSERT(true  == bslmf::IsTriviallyCopyableCheck<Prototype>::value);
             ASSERT(false == bslma::UsesBslmaAllocator<Prototype>::value);
 
             ASSERT(true  == bslma::UsesBslmaAllocator<MFITypeB>::value);
             ASSERT(false == bslmf::IsBitwiseMoveable<MFITypeB>::value);
-            ASSERT(false == bslmf::IsBitwiseCopyableCheck<MFITypeB>::value);
-            ASSERT(false == bsl::is_trivially_copyable<MFITypeB>::value);
+            ASSERT(false == bslmf::IsBitwiseCopyable<MFITypeB>::value);
+            ASSERT(false == bslmf::IsTriviallyCopyableCheck<MFITypeB>::value);
 
             NotBitwiseMoveable nbm;    nbm.d_data = 0;
             MFITypeB func(&NotBitwiseMoveable::memberFunction, nbm);
@@ -1788,8 +1785,8 @@ DEFINE_TEST_CASE(1) {
         f1(x,10);
 
         ASSERT(true  == bslmf::IsBitwiseMoveable<MF>::value);
-        ASSERT(true  == bslmf::IsBitwiseCopyableCheck<MF>::value);
-        ASSERT(false == bsl::is_trivially_copyable<MF>::value);
+        ASSERT(true  == bslmf::IsBitwiseCopyable<MF>::value);
+        ASSERT(false == bslmf::IsTriviallyCopyableCheck<MF>::value);
         ASSERT(false == bslma::UsesBslmaAllocator<MF>::value);
 
         typedef bslmf::MemberFunctionPointerTraits<int (TestObject::*)(int)>

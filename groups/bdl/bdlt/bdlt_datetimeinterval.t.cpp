@@ -3146,7 +3146,7 @@ if (veryVerbose)
                 ASSERT_PASS(mYY.setTotalSecondsFromDouble(minSecs));
                 ASSERT_PASS(mYY.setTotalSecondsFromDouble(maxSecs+.5));
                 ASSERT_PASS(mYY.setTotalSecondsFromDouble(minSecs-.5));
-            }                
+            }
 
 
             {

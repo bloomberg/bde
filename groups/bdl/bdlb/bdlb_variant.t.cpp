@@ -179,7 +179,7 @@ using bsls::NameOf;
 // [ 8] VariantImp   g(const char *spec);
 // [19] CONCERN: No allocator pointer in object if not necessary.
 // [19] CONCERN: No 'bslma::UsesBslmaAllocator' trait when no allocator.
-// [19] CONCERN: 'bslmf::IsBitwiseCopyableCheck' trait
+// [19] CONCERN: 'bslmf::IsBitwiseCopyable' trait
 // [19] CONCERN: 'bslmf::IsBitwiseMoveable' trait
 // [20] CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload.
 // [27] CONCERN: Moving an object containing a 'const' variant compiles.
@@ -21224,9 +21224,13 @@ void TestUtil::testCase19()
     ASSERT(false == bslma::UsesBslmaAllocator<NT10>::value);
     ASSERT(false == bslma::UsesBslmaAllocator<NT20>::value);
 
-    ASSERT(false == bslmf::IsBitwiseCopyableCheck<NT1>::value);
-    ASSERT(false == bslmf::IsBitwiseCopyableCheck<NT10>::value);
-    ASSERT(false == bslmf::IsBitwiseCopyableCheck<NT20>::value);
+    ASSERT(false == bslmf::IsBitwiseCopyable<NT1>::value);
+    ASSERT(false == bslmf::IsBitwiseCopyable<NT10>::value);
+    ASSERT(false == bslmf::IsBitwiseCopyable<NT20>::value);
+
+    (void) bslmf::IsTriviallyCopyableCheck<NT1>();
+    (void) bslmf::IsTriviallyCopyableCheck<NT10>();
+    (void) bslmf::IsTriviallyCopyableCheck<NT20>();
 
     ASSERT(false == bslmf::IsBitwiseMoveable<NT1>::value);
     ASSERT(false == bslmf::IsBitwiseMoveable<NT10>::value);
@@ -21236,9 +21240,13 @@ void TestUtil::testCase19()
     ASSERT(true  == bslma::UsesBslmaAllocator<UA10>::value);
     ASSERT(true  == bslma::UsesBslmaAllocator<UA20>::value);
 
-    ASSERT(true  == bslmf::IsBitwiseCopyableCheck<BC1>::value);
-    ASSERT(true  == bslmf::IsBitwiseCopyableCheck<BC10>::value);
-    ASSERT(true  == bslmf::IsBitwiseCopyableCheck<BC20>::value);
+    ASSERT(true  == bslmf::IsBitwiseCopyable<BC1>::value);
+    ASSERT(true  == bslmf::IsBitwiseCopyable<BC10>::value);
+    ASSERT(true  == bslmf::IsBitwiseCopyable<BC20>::value);
+
+    (void) bslmf::IsTriviallyCopyableCheck<BC1>();
+    (void) bslmf::IsTriviallyCopyableCheck<BC10>();
+    (void) bslmf::IsTriviallyCopyableCheck<BC20>();
 
     ASSERT(true  == bslmf::IsBitwiseMoveable<BM1>::value);
     ASSERT(true  == bslmf::IsBitwiseMoveable<BM10>::value);
@@ -21360,8 +21368,9 @@ void TestUtil::testCase19()
     {
         typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, NT3> > Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -21371,8 +21380,9 @@ void TestUtil::testCase19()
                                  BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
                                  BC15, BC16, BC17, BC18, BC19, BC20> > Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -21402,12 +21412,19 @@ void TestUtil::testCase19()
                                  NT13, NT14, NT15, BC16,
                                  NT17, NT18, NT19, NT20> > Obj20;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj1>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj2>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj3>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj18>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj19>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj20>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj1>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj2>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj3>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj18>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj19>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj20>::value);
+
+        (void) bslmf::IsTriviallyCopyableCheck<Obj1>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj2>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj3>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj18>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj19>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj20>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -21527,8 +21544,9 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -21537,8 +21555,9 @@ void TestUtil::testCase19()
                               BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
                               BC15, BC16, BC17, BC18, BC19, BC20> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -21565,12 +21584,19 @@ void TestUtil::testCase19()
                               NT13, NT14, NT15, NT16,
                               NT17, NT18, NT19, BC20> Obj20;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj1>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj2>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj3>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj18>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj19>::value);
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj20>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj1>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj2>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj3>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj18>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj19>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj20>::value);
+
+        (void) bslmf::IsTriviallyCopyableCheck<Obj1>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj2>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj3>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj18>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj19>();
+        (void) bslmf::IsTriviallyCopyableCheck<Obj20>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -21659,23 +21685,26 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant2<NT1, NT2> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
     {
         typedef bdlb::Variant2<BC1, BC2> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
     {
         typedef bdlb::Variant2<BC1, NT2> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -21737,23 +21766,26 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant3<NT1, NT2, NT3> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
     {
         typedef bdlb::Variant3<BC1, BC2, BC3> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
     {
         typedef bdlb::Variant3<NT1, BC2, NT3> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -21815,23 +21847,26 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant4<NT1, NT2, NT3, NT4> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
     {
         typedef bdlb::Variant4<BC1, BC2, BC3, BC4> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
     {
         typedef bdlb::Variant4<NT1, NT2, BC3, NT4> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -21893,23 +21928,26 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant5<NT1, NT2, NT3, NT4, NT5> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
     {
         typedef bdlb::Variant5<BC1, BC2, BC3, BC4, BC5> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
     {
         typedef bdlb::Variant5<NT1, NT2, NT3, BC4, NT5> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -21971,23 +22009,26 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant6<NT1, NT2, NT3, NT4, NT5, NT6> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
     {
         typedef bdlb::Variant6<BC1, BC2, BC3, BC4, BC5, BC6> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
     {
         typedef bdlb::Variant6<NT1, NT2, NT3, NT4, BC5, NT6> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22049,23 +22090,26 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, NT6, NT7> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
     {
         typedef bdlb::Variant7<BC1, BC2, BC3, BC4, BC5, BC6, BC7> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
     {
         typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, BC6, NT7> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22127,23 +22171,26 @@ void TestUtil::testCase19()
     {
         typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
     {
         typedef bdlb::Variant8<BC1, BC2, BC3, BC4, BC5, BC6, BC7, BC8> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
     {
         typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, BC7, NT8> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22209,8 +22256,9 @@ void TestUtil::testCase19()
         typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8,
                                NT9> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22218,8 +22266,9 @@ void TestUtil::testCase19()
         typedef bdlb::Variant9<BC1, BC2, BC3, BC4, BC5, BC6, BC7, BC8,
                                BC9> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22227,7 +22276,8 @@ void TestUtil::testCase19()
         typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, BC8,
                                NT9> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22299,8 +22349,9 @@ void TestUtil::testCase19()
                                 NT5,  NT6,  NT7,  NT8,
                                 NT9,  NT10> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22308,8 +22359,9 @@ void TestUtil::testCase19()
         typedef bdlb::Variant10<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
                                 BC7,  BC8,  BC9,  BC10> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22318,7 +22370,8 @@ void TestUtil::testCase19()
                                 NT5,  NT6,  NT7,  NT8,
                                 BC9,  NT10> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22392,8 +22445,9 @@ void TestUtil::testCase19()
                                 NT5,  NT6,  NT7,  NT8,
                                 NT9,  NT10, NT11> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22401,8 +22455,9 @@ void TestUtil::testCase19()
         typedef bdlb::Variant11<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
                                 BC7,  BC8,  BC9,  BC10, BC11> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22411,7 +22466,8 @@ void TestUtil::testCase19()
                                 NT5,  NT6,  NT7,  NT8,
                                 NT9,  BC10, NT11> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22485,8 +22541,9 @@ void TestUtil::testCase19()
                                 NT5,  NT6,  NT7,  NT8,
                                 NT9,  NT10, NT11, NT12> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22494,8 +22551,9 @@ void TestUtil::testCase19()
         typedef bdlb::Variant12<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
                                 BC7,  BC8,  BC9,  BC10, BC11, BC12> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22504,7 +22562,8 @@ void TestUtil::testCase19()
                                 NT5,  NT6,  NT7,  NT8,
                                 NT9,  NT10, BC11, NT12> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22582,8 +22641,9 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, NT12,
                                 NT13> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22592,8 +22652,9 @@ void TestUtil::testCase19()
                                 BC7,  BC8,  BC9,  BC10, BC11, BC12,
                                 BC13> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22603,7 +22664,8 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, BC12,
                                 NT13> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22684,8 +22746,9 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, NT12,
                                 NT13, NT14> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22694,8 +22757,9 @@ void TestUtil::testCase19()
                                 BC7,  BC8,  BC9,  BC10, BC11, BC12,
                                 BC13, BC14> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22705,7 +22769,8 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, NT12,
                                 BC13, NT14> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22786,8 +22851,9 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, NT12,
                                 NT13, NT14, NT15> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22796,8 +22862,9 @@ void TestUtil::testCase19()
                                 BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
                                 BC15> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22807,7 +22874,8 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, NT12,
                                 NT13, BC14, NT15> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22888,8 +22956,9 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, NT12,
                                 NT13, NT14, NT15, NT16> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -22898,8 +22967,9 @@ void TestUtil::testCase19()
                                 BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
                                 BC15, BC16> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -22909,7 +22979,8 @@ void TestUtil::testCase19()
                                 NT9,  NT10, NT11, NT12,
                                 NT13, NT14, BC15, NT16> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -22993,8 +23064,9 @@ void TestUtil::testCase19()
                                 NT13, NT14, NT15, NT16,
                                 NT17> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -23003,8 +23075,9 @@ void TestUtil::testCase19()
                                 BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
                                 BC15, BC16, BC17> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -23015,7 +23088,8 @@ void TestUtil::testCase19()
                                 NT13, NT14, NT15, BC16,
                                 NT17> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -23101,8 +23175,9 @@ void TestUtil::testCase19()
                                 NT13, NT14, NT15, NT16,
                                 NT17, NT18> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -23111,8 +23186,9 @@ void TestUtil::testCase19()
                                 BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
                                 BC15, BC16, BC17, BC18> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -23123,7 +23199,8 @@ void TestUtil::testCase19()
                                 NT13, NT14, NT15, NT16,
                                 BC17, NT18> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -23209,8 +23286,9 @@ void TestUtil::testCase19()
                                 NT13, NT14, NT15, NT16,
                                 NT17, NT18, NT19> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -23219,8 +23297,9 @@ void TestUtil::testCase19()
                                 BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
                                 BC15, BC16, BC17, BC18, BC19> Obj;
 
-        ASSERT(true == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(true == bslmf::IsBitwiseCopyable<Obj>::value);
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -23231,7 +23310,8 @@ void TestUtil::testCase19()
                                 NT13, NT14, NT15, NT16,
                                 NT17, BC18, NT19> Obj;
 
-        ASSERT(false == bslmf::IsBitwiseCopyableCheck<Obj>::value);
+        ASSERT(false == bslmf::IsBitwiseCopyable<Obj>::value);
+        (void) bslmf::IsTriviallyCopyableCheck<Obj>();
     }
 
     if (verbose) cout << "\nTesting bitwise moveable trait." << endl;

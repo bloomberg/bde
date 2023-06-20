@@ -248,7 +248,7 @@ void noop() {
 }
 
 void checkThreadName()
-    // Check that the name of the thread is one of the acceptable values.    
+    // Check that the name of the thread is one of the acceptable values.
 {
     bsl::string threadName;
     bslmt::ThreadUtil::getThreadName(&threadName);

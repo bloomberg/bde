@@ -3235,22 +3235,13 @@ int main(int argc, char *argv[])
         ASSERT(0 == X.numElements());
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-        ASSERT((bsl::is_trivially_copyable<
+        ASSERT((bslmf::IsTriviallyCopyableCheck<
                                bdlcc::BoundedQueue_Node<int, true> >::value));
-        ASSERT((bsl::is_trivially_copyable<
+        ASSERT((bslmf::IsTriviallyCopyableCheck<
                                bdlcc::BoundedQueue_Node<int, false> >::value));
-        ASSERT((bsl::is_trivially_copyable<
+        ASSERT((bslmf::IsTriviallyCopyableCheck<
                        bdlcc::BoundedQueue_Node<bsl::string, true> >::value));
-        ASSERT((bsl::is_trivially_copyable<
-                       bdlcc::BoundedQueue_Node<bsl::string, false> >::value));
-
-        ASSERT((bslmf::IsBitwiseCopyableCheck<
-                               bdlcc::BoundedQueue_Node<int, true> >::value));
-        ASSERT((bslmf::IsBitwiseCopyableCheck<
-                               bdlcc::BoundedQueue_Node<int, false> >::value));
-        ASSERT((bslmf::IsBitwiseCopyableCheck<
-                       bdlcc::BoundedQueue_Node<bsl::string, true> >::value));
-        ASSERT((bslmf::IsBitwiseCopyableCheck<
+        ASSERT((bslmf::IsTriviallyCopyableCheck<
                        bdlcc::BoundedQueue_Node<bsl::string, false> >::value));
 #endif
       } break;
