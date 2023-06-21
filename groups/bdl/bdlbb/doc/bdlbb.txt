@@ -1,4 +1,4 @@
- bdlbb.h
+ bdlbb.txt
 
 @PURPOSE: Provide flexible, efficient management of message buffers.
 

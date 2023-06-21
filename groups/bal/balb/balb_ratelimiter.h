@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balb::RateLimiter: mechanism to monitor resource consumption rates
 //
-//@SEE ALSO balb_leakybucket
+//@SEE_ALSO: balb_leakybucket
 //
 //@DESCRIPTION: This component provides a mechanism, 'balb::RateLimiter', that
 // enables clients to monitor and control the use of a resource such that the
