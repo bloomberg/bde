@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD: searcher object overload
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: 'ptr_fun' et al. gone
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV: '<charconv>' for integers only
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV: full '<charconv'> support
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV: full '<charconv'> support w floats
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM: '<filesystem>'
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: '<version>'
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS: '<execution>'
@@ -148,9 +148,11 @@ BSLS_IDENT("$Id: $")
 //: o Functions defined in '<cctype>'
 //:   o 'isblank'
 //:
-//: o Functions defined in '<cmath>'
+//: o Types defined in     '<cmath>'
 //:   o 'double_t'
 //:   o 'float_t'
+//:
+//: o Functions defined in '<cmath>'
 //:   o 'acosh'
 //:   o 'asinh'
 //:   o 'atanh'
@@ -774,18 +776,22 @@ BSLS_IDENT("$Id: $")
 //
 //..
 //  template <class C> auto cbegin(const C& c) -> decltype(std::begin(c));
-//  template <class C> auto cend(const C& c) -> decltype(std::end(c));
-//  template <class C> auto rbegin(C& c) -> decltype(c.rbegin());
+//  template <class C> auto cend(  const C& c) -> decltype(std::end(c));
+//
+//  template <class C> auto rbegin(      C& c) -> decltype(c.rbegin());
 //  template <class C> auto rbegin(const C& c) -> decltype(c.rbegin());
-//  template <class C> auto rend(C& c) -> decltype(c.rend());
-//  template <class C> auto rend(const C& c) -> decltype(c.rend());
+//
+//  template <class C> auto rend(      C& c)   -> decltype(c.rend());
+//  template <class C> auto rend(const C& c)   -> decltype(c.rend());
+//
 //  template <class T, size_t N> reverse_iterator<T*> rbegin(T (&array)[N]);
-//  template <class T, size_t N> reverse_iterator<T*> rend(T (&array)[N]);
-//  template <class E> reverse_iterator<const E*> rbegin(
-//                                                     initializer_list<E> il);
-//  template <class E> reverse_iterator<const E*> rend(initializer_list<E> il);
+//  template <class T, size_t N> reverse_iterator<T*> rend(  T (&array)[N]);
+//
+//  template <class E> reverse_iterator<const E*> rbegin(initializer_list<E>);
+//  template <class E> reverse_iterator<const E*> rend(  initializer_list<E>);
+//
 //  template <class C> auto crbegin(const C& c) -> decltype(std::rbegin(c));
-//  template <class C> auto crend(const C& c) -> decltype(std::rend(c));
+//  template <class C> auto crend(  const C& c) -> decltype(std::rend(c));
 //..
 //
 // This macro is defined first for the following compiler versions:
@@ -875,8 +881,8 @@ BSLS_IDENT("$Id: $")
 //
 //..
 //  template <class C> auto empty(const C& c) -> decltype(c.empty());
-//  template <class C> auto  data(const C& c) -> decltype(c.data());
-//  template <class C> auto  size(const C& c) -> decltype(c.size());
+//  template <class C> auto data( const C& c) -> decltype(c.data());
+//  template <class C> auto size( const C& c) -> decltype(c.size());
 //..
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC'
@@ -945,34 +951,6 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 9
 //:   o clang 14, or clang using at least GCC 9 GNU C++ Library
 //:   o Microsoft Visual Studio 2017 15.7 / MSVC 19.14
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV'
-///-----------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV' macro is defined if the native
-// standard library provides the '<charconv>' header and implements all
-// required content with no major issues.  This macro is defined in addition to
-// the 'BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV' macro when the native
-// standard library also implements the 'std::chars_format' enumeration, and
-// both 'std::from_chars' and 'std::to_chars' functions for all 3 standard
-// floating point types ('float', 'double', 'long double').
-//
-// This macro is defined first for the following compiler versions:
-//
-//: o GCC 12 and later
-//: o clang using at least GCC 12 GNU C++ Library
-//: o Microsoft Visual Studio 2017 / MSVC 19.10 and later
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM'
-///-------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM' macro is defined if the
-// native standard library provides the '<filesystem>' header and implements
-// all required content with no major issues.
-//
-// This macro is defined first for the following compiler versions:
-//
-//: o GCC 9 and later
-//: o clang 14 and later, or clang using at least GCC 9 GNU C++ Library
-//: o Microsoft Visual Studio 2017 15.7 / MSVC 19.14 and later
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION'
 ///----------------------------------------
@@ -1127,10 +1105,10 @@ BSLS_IDENT("$Id: $")
 // interface that returns a 'std::tuple'.
 //..
 //  #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-//  # ifndef INCLUDED_TUPLE
-//  # include <tuple>
-//  # define INCLUDED_TUPLE
-//  # endif
+//    #ifndef INCLUDED_TUPLE
+//      #include <tuple>
+//      #define INCLUDED_TUPLE
+//    #endif
 //  #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 //..
 // Then, we declare the methods that will be unconditionally provided by our
@@ -1171,7 +1149,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_linkcoercion.h>
 
 // ============================================================================
-//                     STANDARD LIBRARY DETECTION
+//                        STANDARD LIBRARY DETECTION
 // ----------------------------------------------------------------------------
 
 #define BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS
@@ -1320,7 +1298,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ============================================================================
-//                     UNIVERSAL FEATURE SUPPORT
+//                  UNIVERSAL FEATURE SUPPORT DEFINITIONS
 // ----------------------------------------------------------------------------
 
 // Define macros for C++98 features that may be detected as absent from later
@@ -1357,7 +1335,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ============================================================================
-//                     PLATFORM SPECIFIC FEATURE DETECTION
+//                   PLATFORM SPECIFIC FEATURE DETECTION
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
@@ -1414,7 +1392,7 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS            1
         #endif
     #endif
-    #if __cplusplus >= 201703L
+    #if __cplusplus >= 201703L  // At least C++17
         #if BSLS_PLATFORM_CMP_VERSION >= 70000
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
@@ -1425,11 +1403,11 @@ BSLS_IDENT("$Id: $")
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM                 1
             #ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-            # if __has_include(<tbb/blocked-range.h>)
+              #if __has_include(<tbb/blocked-range.h>)
                 // GCC 9 needs at least 2018 Intel Thread Building Blocks (TBB)
                 // installed for full C++17 parallel algorithm support.
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS    1
-            # endif
+              #endif
             #endif
             #if defined(_GLIBCXX_USE_CXX11_ABI) && 1 == _GLIBCXX_USE_CXX11_ABI
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                    1
@@ -1447,13 +1425,23 @@ BSLS_IDENT("$Id: $")
         #endif
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS         1
     #endif
-    #if __cplusplus >= 202002L
+    #if __cplusplus >= 202002L  // At least C++20
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION                    1
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 110100
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY           1
         #endif
+    #endif
+
+    // '__cpp_lib_atomic_is_always_lock_free' is defined in the '<version>'
+    // header, and the '<atomic>' header.  We prefer to include the '<version>'
+    // header if it exists as it's not only a lot smaller and less complicated,
+    // but also very likely to (already) be included anyway.
+    #if __has_include(<version>)
+      #include <version>
+    #elif __has_include(<atomic>)
+      #include <atomic>
     #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
@@ -1466,7 +1454,7 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS       1
     #endif
     #if _GLIBCXX_USE_DEPRECATED
-        # undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     #endif
 #endif
 
@@ -1642,6 +1630,16 @@ BSLS_IDENT("$Id: $")
             #endif
         #endif
 
+
+        // '__cpp_lib_atomic_is_always_lock_free' is defined in the '<version>'
+        // header, and the '<atomic>' header.  We prefer to include the
+        // '<version>' header if it exists as it is not just a lot smaller and
+        // less complicated, but also very likely to be included anyway.
+        #if __has_include(<version>)
+          #include <version>
+        #elif __has_include(<atomic>)
+          #include <atomic>
+        #endif
         #if defined(__cpp_lib_atomic_is_always_lock_free)
             // There is no pre-processor define declared in libstdc++ to
             // indicate that precise bitwidth atomics exist, but the libstdc++
@@ -1825,7 +1823,7 @@ BSLS_IDENT("$Id: $")
     // whether the C++17 deprecated names are gone.
     #if defined _HAS_AUTO_PTR_ETC
         #if _HAS_AUTO_PTR_ETC
-          # undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+          #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
         #else
           #define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED           1
         #endif
@@ -1833,15 +1831,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ============================================================================
-//                     POST-DETECTION FIXUPS
+//                          POST-DETECTION FIXUPS
 // ----------------------------------------------------------------------------
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)  && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-
-    #define BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE                   1
-#endif
 
 // Now, after detecting support, unconditionally undefine macros for features
 // that have been removed from later standards.
@@ -1868,8 +1859,34 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ============================================================================
-//                    STANDARD FEATURE-DETECTION MACROS
+//                           CONJUNCTION FEATURES
 // ----------------------------------------------------------------------------
+
+// Now that we have detected and fixed up all features we may determine the
+// presence of those that we know exist when their required features exist.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+
+    #define BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE                   1
+#endif
+
+// ============================================================================
+//             STANDARD FEATURE-DETECTION-MACRO-BASED PROCESSING
+// ----------------------------------------------------------------------------
+
+// Starting with C++20 '__cpp_lib_*' macros indicating the presence of C++
+// Standard library features is guaranteed by the ISO standard.  All such
+// macros for the supported library features are guaranteed to be defined in
+// the '<version>' standard header, and in additional headers related to the
+// feature.  This section defines our C++20 or later feature macros that are
+// based on the standard feature macros.  Note that one-to-one mapping is not
+// guaranteed as we do not report any C++20 library functionality supported
+// unless a minimum baseline of features are present.  It may also be necessary
+// for us to consider a feature not supported, despite the standard macro being
+// set, if there are issues in a certain implementation that prevent effective
+// and/or safe use within the BDE libraries.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
   #include <version>
@@ -1931,7 +1948,7 @@ BSLS_IDENT("$Id: $")
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
 
 // ============================================================================
-//                         DEFINE LINK-COERCION SYMBOL
+//                       DEFINE LINK-COERCION SYMBOL
 // ----------------------------------------------------------------------------
 
 // Catch attempts to link C++14 objects with C++17 objects (for example).
