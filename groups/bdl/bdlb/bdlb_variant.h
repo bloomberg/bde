@@ -2535,26 +2535,6 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // in a valid but unspecified state.
 };
 
-// FREE OPERATORS
-#ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-template <class... TYPES>
-bsl::ostream& operator<<(bsl::ostream&            stream,
-                         const Variant<TYPES...>& object);
-#else
-template <class A1,  class A2,  class A3,  class A4,  class A5,
-          class A6,  class A7,  class A8,  class A9,  class A10,
-          class A11, class A12, class A13, class A14, class A15,
-          class A16, class A17, class A18, class A19, class A20>
-bsl::ostream& operator<<(bsl::ostream&                           stream,
-                         const Variant<A1,  A2,  A3,  A4,  A5,
-                                       A6,  A7,  A8,  A9,  A10,
-                                       A11, A12, A13, A14, A15,
-                                       A16, A17, A18, A19, A20>& object);
-#endif
-    // Write the specified variant 'object' to the specified output 'stream' in
-    // a single-line (human-readable) format, and return a reference to
-    // 'stream'.
-
                        // ===================
                        // class Variant2<...>
                        // ===================
@@ -8504,28 +8484,6 @@ operator=(bslmf::MovableRef<Variant> rhs)
 }
 
 #endif  // BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-
-// FREE OPERATORS
-#ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-template <class... TYPES>
-inline
-bsl::ostream& operator<<(bsl::ostream&            stream,
-                         const Variant<TYPES...>& object)
-#else
-template <class A1,  class A2,  class A3,  class A4,  class A5,
-          class A6,  class A7,  class A8,  class A9,  class A10,
-          class A11, class A12, class A13, class A14, class A15,
-          class A16, class A17, class A18, class A19, class A20>
-inline
-bsl::ostream& operator<<(bsl::ostream&                           stream,
-                         const Variant<A1,  A2,  A3,  A4,  A5,
-                                       A6,  A7,  A8,  A9,  A10,
-                                       A11, A12, A13, A14, A15,
-                                       A16, A17, A18, A19, A20>& object)
-#endif
-{
-    return object.print(stream, 0, -1);
-}
 
 #ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
 #undef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
