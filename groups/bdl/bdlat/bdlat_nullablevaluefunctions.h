@@ -85,11 +85,11 @@ BSLS_IDENT("$Id: $")
 // overloads of the required functions and meta-function specializations.
 //
 ///Usage
-//------
+///-----
 // The following code illustrate the usage of this component.
 //
 ///Example 1: Defining a "Nullable" Type
-// - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - -
 // Suppose you had a type whose value could be in a "null" state.
 //
 //..
