@@ -165,7 +165,7 @@ struct RemovePointer_Aix<t_TYPE, true> {
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-template <class t_TYPE, bool isFunctionPtr = IsFunctionPointer<t_TYPE>::VALUE>
+template <class t_TYPE, bool isFunctionPtr = IsFunctionPointer<t_TYPE>::value>
 struct RemovePointer_Msvc : RemovePointer_Imp<t_TYPE> {
     // The implementation of the 'RemovePointer_Imp' for the Microsoft Visual
     // C++ compiler which has a bug matching a 'T * const' template parameter
@@ -212,7 +212,7 @@ struct remove_pointer {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     typedef typename BloombergLP::bslmf::RemovePointer_Aix<
         t_TYPE,
-        BloombergLP::bslmf::IsFunctionPointer<t_TYPE>::VALUE>::Type type;
+        BloombergLP::bslmf::IsFunctionPointer<t_TYPE>::value>::Type type;
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     typedef typename BloombergLP::bslmf::RemovePointer_Msvc<t_TYPE>::Type type;
 #else
