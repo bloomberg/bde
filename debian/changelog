@@ -1,5 +1,28 @@
-bsl-internal (3.119.0.0) unstable; urgency=low
+bsl-internal (3.120.0.0) unstable; urgency=low
 
+  * 28407a5fb Bumped version to 3.120.0.0
+  * e94874ece Merge pull request #4068 from bchapman/bdlf_bind-make-movable-drqs-170369702
+  * 05ede4e9c VALUE in platform-specific code (#4312)
+  * 520a80f28 Revert "bdlb::Variant << operator (DRQS 159303038) (#4271)" (#4310)
+  * 17d75a37c Merge pull request #4294 from afeher/drqs-172235880-libraryfeatures-minor-fixes
+  * fcb541e96 Merge pull request #4286 from afeher/drqs-172190619-fix-comilerfeatures-formatting-again
+  * 381786509 <bsl_syncstream.h> (DRQS 171318626 + DRQS 171318635) (#4269)
+  * dcc119a00 Use thread_local keyword in bslmt_threadlocalvariable (DRQS 172151400) (#4284)
+  * d10046f89 correct comments (#4303)
+  * c1e5af8c8 drqs-172269944: Initial: Concomitant 'bsl::begin' and 'bsl::end'. (#4302)
+  * 45a90b0ad Add begin/end to bsl::filesystem (#4301)
+  * dc35fe96f bdlb::Variant << operator (DRQS 159303038) (#4271)
+  * 290f4844d The 'CANONICAL HEADER' field has been added to several 'bslstl' components (#4292)
+  * c04601b06 Deprecate the type alias Value on 'true_type' and 'false_type' (DRQS 172174176) (#4282)
+  * 9a496caa9 drqs-171318748: CPP20: Implement 'bsl' traits via 'std' as appropriate. (#4167)
+  * cb6bed4b7 C++20 work: Verify that bsl containers model the appropriate C++20 concepts for ranges - Part 2 (DRQS 171318823) (#4287)
+  * efd6960ac C++20 work: Verify that bsl containers model the appropriate C++20 concepts for ranges - Part 1 (DRQS 171318823) (#4279)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 23 Jun 2023 12:49:50 -0400
+
+bsl-internal (3.119.0.0) git; urgency=low
+
+  * 01f072f15 Changelog for version 3.119.0.0
   * 3ca46d66b Bumped version to 3.119.0.0
   * 3cb90957c C++20 work: Add the ‘operator<=>’ to the 'bslstl::shared_ptr' (DRQS 171421925) (#4214)
   * 1bfe0ad4d Check the feature-test macro before using the native 'ssize()' (#4255)
@@ -19,7 +42,7 @@ bsl-internal (3.119.0.0) unstable; urgency=low
   * 971c36a27 Use correct compiler feature for guaranteed copy elision (#4261)
   * 72d836628 Merge pull request #4265 from afeher/drqs-172027671-safe2-build-fix
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 2 Jun 2023 13:39:05 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 2 Jun 2023 13:44:49 -0400
 
 bsl-internal (3.118.0.1) git; urgency=low
 
