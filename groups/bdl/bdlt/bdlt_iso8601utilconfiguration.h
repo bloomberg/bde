@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::Iso8601UtilConfiguration: configuration for ISO 8601 strings
 //
-//@SEE_ALSO: bdlt_iso8601util
+//@SEE_ALSO: bdlt_iso8601util, bdlt_iso8601utilparseconfiguration
 //
 //@DESCRIPTION: This component provides an unconstrained (value-semantic)
 // attribute class, 'bdlt::Iso8601UtilConfiguration', that may be used to

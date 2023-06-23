@@ -25,6 +25,7 @@ bdlt_fuzzutil
 bdlt_intervalconversionutil
 bdlt_iso8601util
 bdlt_iso8601utilconfiguration
+bdlt_iso8601utilparseconfiguration
 bdlt_localtimeoffset
 bdlt_monthofyear
 bdlt_packedcalendar
