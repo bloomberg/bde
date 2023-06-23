@@ -39,9 +39,12 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
   #include <bsl_cerrno.h>       // 'errno', 'ERANGE'
 #endif  // no float 'from_chars'
 
-// Solaris 'strtod' linked by us does not parse hexadecimal floats.
-#if !(defined(BSLS_PLATFORM_OS_SUNOS) && defined(BSLS_PLATFORM_OS_SOLARIS)) ||\
-    defined(BSLS_PLATFORM_CMP_GNU)
+// Solaris 'strtod' linked by us somehow does not parse hexadecimal floats, but
+// the one we link when using gcc on Solaris does.
+#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+  #define BDLB_NUMERICPARSEUTIL_ON_SUN                                        1
+#endif
+#if !defined(BDLB_NUMERICPARSEUTIL_ON_SUN) || defined(BSLS_PLATFORM_CMP_GNU)
   #define BDLB_NUMERICPARSEUTIL_PARSES_HEXFLOAT                               1
 #endif
 
@@ -617,16 +620,21 @@ int NumericParseUtil::parseDouble(double                  *result,
         *remainder = inputString.substr(parsedLen + skipped);
     }
 
+#ifndef BDLB_NUMERICPARSEUTIL_PARSES_HEXFLOAT
+    if (endPtr == buffer + 1 && 0.0 == rv && 'X' == CharType::toUpper(*endPtr))
+    {
+        BSLS_REVIEW_OPT(!"Possible hexfloat parsed on SunOS.  "
+                         "Please route this issue to BDE (Group 101).");
+    }
+#endif
+
     if (endPtr != buffer) {
 #ifdef BDLB_NUMERICPARSEUTIL_PARSES_HEXFLOAT
-        BSLS_REVIEW_OPT("Valid hexfloat parsed by strtod, "
+        BSLS_REVIEW_OPT("Valid hexfloat parsed by strtod.  "
                         "Please route this issue to BDE (Group 101)."
                         && !u::couldBeHexFloat(stdlibInput));
-#else
-        BSLS_REVIEW_OPT("Possible hexfloat parsed on SunOS, "
-                        "Please route this issue to BDE (Group 101)."
-                        && 0.0 != rv || !u::couldBeHexFloat(stdlibInput));
 #endif
+
         *result = (isNegative ? -rv : rv);
 
         return 0;                                                     // RETURN
