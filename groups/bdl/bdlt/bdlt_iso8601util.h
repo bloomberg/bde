@@ -195,7 +195,7 @@ BSLS_IDENT("$Id: $")
 // There is also the 'basic' format, which may be specified when parsing by
 // using the 'bdlt::Iso8601UtilParseConfiguration' type, in which case there
 // are to be no '-'s in the 'Date' and no ':'s in the 'Time'.  The ':' in the
-// time zone is always optionsl, whether in basic or default format.
+// time zone is always optional, whether in basic or default format.
 //..
 //  +------------------------------------+-----------------------------------+
 //  |   Parsed Basic ISO 8601 String     |        Result Object Value        |
