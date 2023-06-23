@@ -75,47 +75,67 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Using 'bslmf::Util::forwardAsReference'
 ///--------------------------------------------------
-// Suppose we had a template facility, 'MyBindUtil::bind' that does not support
-// 'bslmf::MovableRef', but will accept true r-value references (on supported
-// compilers).  Here we use 'forwardAsReference' to forward a supplied
-// 'bslmf::MovableRef' as a true r-value reference (on supporting compilers),
-// and a const reference otherwise.  Note that the definitions of 'MyFunction'
-// and 'MyBindUtil' are elided and meant to represent 'bsl::function' and
-// 'bdlf::BindUtil::bind' respectively:
+// Suppose we have a class 'S1' that has a regular copy constructor, and only
+// if the compiler supports rvalue references has to move constructor.  We want
+// to construct it with the move constructor if moves are supported and as a
+// copy otherwise.  Then we use 'bslmf::Util::forwardAsReference':
 //..
-//  void doSomething(bslmf::MovableRef<Foo> value)
-//  {
-//    MyFunction f = MyBindUtil::bind(
-//                                bslmf::Util::forwardAsReference<Foo>(value));
+//  struct S {
+//      S();
+//      S(const S&);
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+//      S(S&&);
+//  #endif
+//  };
 //
-//    //...
+//  S::S() {}
+//
+//  S::S(const S&)
+//  {
+//      printf("S copy c'tor\n");
+//  }
+//
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+//  S::S(S&&)
+//  {
+//      printf("S move c'tor\n");
+//  }
+//  #endif
+//
+//  void doThis2(S s)
+//  {
+//      // ...
+//  }
+//
+//  void doThat2(bslmf::MovableRef<S> value)
+//  {
+//      doThis2(bslmf::Util::forwardAsReference<S>(value));
 //  }
 //..
-// Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
-// 'forwardAsReference' the call to 'bind' might either fail to compile, or
-// worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
-// new object moved-from 'value') on C++03 platforms.
 //
 ///Example 3: Using 'bslmf::Util::moveIfSupported'
 ///-----------------------------------------------
-// Suppose we had a template facility, 'MyBindUtil::bind' that does not support
-// 'bslmf::MovableRef', but will accept true r-value references (on supported
-// compilers).  Here we use 'moveIfSupported' to move a supplied 'value' if
-// the compiler suppots r-value references, and copy it otherwise.  Note that
-// the definitions of 'MyFunction' and 'MyBindUtil' are elided and meant to
-// represent 'bsl::function' and 'bdlf::BindUtil::bind' respectively:
+// Suppose we had a function that takes a non-const lvalue-ref, and only when
+// the compiler supports rvalue references also has an overload that takes
+// rvalue references:
 //..
-//  void doSomething2(Foo value)
+//  void doSomething(S&)
 //  {
-//      MyFunction f = MyBindUtil::bind(bslmf::Util::moveIfSupported(value));
+//      printf("doSomething lvalue-ref\n");
+//  }
 //
-//      //...
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+//  void doSomething(S&&)
+//  {
+//      printf("doSomething rvalue-ref\n");
+//  }
+//  #endif
+//
+//  void doSomethingElse(S value)
+//  {
+//      doSomething(bslmf::Util::moveIfSupported(value));
 //  }
 //..
-// Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
-// 'moveIfSupported' the call to 'bind' might either fail to compile, or
-// worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
-// new object moved-from 'value') on C++03 platforms.
 
 #include <bslscm_version.h>
 

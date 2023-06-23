@@ -141,35 +141,6 @@ class Obj {
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-
-class Foo {};
-
-template <class TYPE>
-class Binder {
-    TYPE d_value;
-
-  public:
-    Binder(const TYPE& value) : d_value(value) {}
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    Binder(const TYPE&& value) : d_value(value) {}
-#endif
-    const TYPE& value() const { return d_value; }
-};
-
-struct MyBindUtil {
-    template <class ARG_TYPE>
-    static Binder<typename bsl::remove_reference<ARG_TYPE>::type> bind(
-                                                                  ARG_TYPE arg)
-    {
-        return Binder<typename bsl::remove_reference<ARG_TYPE>::type>(arg);
-    }
-};
-
-struct  MyFunction {
-  template <class ARG_TYPE>
-  MyFunction(const ARG_TYPE &) {}
-};
-
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -200,51 +171,68 @@ struct  MyFunction {
 //
 ///Example 2: Using 'bslmf::Util::forwardAsReference'
 ///--------------------------------------------------
-// Suppose we had a template facility, 'MyBindUtil::bind' that does not support
-// 'bslmf::MovableRef', but will accept true r-value references (on supported
-// compilers).  Here we use 'forwardAsReference' to forward a supplied
-// 'bslmf::MovableRef' as a true r-value reference (on supporting compilers),
-// and a const reference otherwise.  Note that the definitions of 'MyFunction'
-// and 'MyBindUtil' are elided and meant to represent 'bsl::function' and
-// 'bdlf::BindUtil::bind' respectively:
+// Suppose we have a class 'S1' that has a regular copy constructor, and only
+// if the compiler supports rvalue references has to move constructor.  We want
+// to construct it with the move constructor if moves are supported and as a
+// copy otherwise.  Then we use 'bslmf::Util::forwardAsReference':
 //..
-    void doSomething(bslmf::MovableRef<Foo> value)
-    {
-      MyFunction f = MyBindUtil::bind(
-                                 bslmf::Util::forwardAsReference<Foo>(value));
+    struct S {
+        S();
+        S(const S&);
+    #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        S(S&&);
+    #endif
+    };
 
-      // ...
-      (void)f;
+    S::S() {}
+
+    S::S(const S&)
+    {
+        printf("S copy c'tor\n");
+    }
+
+    #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    S::S(S&&)
+    {
+        printf("S move c'tor\n");
+    }
+    #endif
+
+    void doThis2(S s)
+    {
+        // ...
+(void) s;
+    }
+
+    void doThat2(bslmf::MovableRef<S> value)
+    {
+        doThis2(bslmf::Util::forwardAsReference<S>(value));
     }
 //..
-// Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
-// 'forwardAsReferene' the call to 'bind' might either fail to compile, or
-// worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
-// new object moved-from 'value') on C++03 platforms.
 //
 ///Example 3: Using 'bslmf::Util::moveIfSupported'
 ///-----------------------------------------------
-// Suppose we had a template facility, 'MyBindUtil::bind' that does not support
-// 'bslmf::MovableRef', but will accept true r-value references (on supported
-// compilers).  Here we use 'moveIfSupported' to move a supplied 'value' if
-// the compiler suppots r-value references, and copy it otherwise.  Note that
-// the definitions of 'MyFunction' and 'MyBindUtil' are elided and meant to
-// represent 'bsl::function' and 'bdlf::BindUtil::bind' respectively:
+// Suppose we had a function that takes a non-const lvalue-ref, and only when
+// the compiler supports rvalue references also has an overload that takes
+// rvalue references:
 //..
-    void doSomething2(Foo value)
+    void doSomething(S&)
     {
-        MyFunction f = MyBindUtil::bind(bslmf::Util::moveIfSupported(value));
+        printf("doSomething lvalue-ref\n");
+    }
 
-        // ...
-        (void)f;
+    #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    void doSomething(S&&)
+    {
+        printf("doSomething rvalue-ref\n");
+    }
+    #endif
+
+    void doSomethingElse(S value)
+    {
+        doSomething(bslmf::Util::moveIfSupported(value));
     }
 //..
-// Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
-// 'moveIfSupported' the call to 'bind' might either fail to compile, or
-// worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
-// new object moved-from 'value') on C++03 platforms.
-//..
-
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -263,6 +251,59 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the usage of this component, and ensure that usage
+        //:   examples in the header file are syntactically correct and work
+        //:   properly, giving the output they are represent as giving.
+        //
+        // Plan:
+        //: 1 Reproduce the code in the usage examples.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+// Then, in 'main':
+//..
+{
+    S s;
+
+    doThat2(bslmf::MovableRefUtil::move(s));
+}
+//..
+// output in C++03:
+//..
+//    S copy c'tor
+//..
+// output in C++11:
+//..
+//    S move c'tor
+//..
+
+// Then, in 'main':
+{
+    S s;
+
+    doSomethingElse(s);
+}
+//..
+// output in C++03:
+//..
+//    S copy c'tor
+//    doSomething lvalue-ref
+//..
+// output in C++11:
+//    S copy c'tor
+//    doSomething rvalue-ref
+//..
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

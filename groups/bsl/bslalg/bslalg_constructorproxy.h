@@ -356,9 +356,9 @@ class ConstructorProxy {
             const ConstructorProxy<SOURCE_TYPE>&               original,
             bslma::Allocator                                  *basicAllocator);
     template <class SOURCE_TYPE>
-    ConstructorProxy(
-            bslmf::MovableRef<ConstructorProxy<SOURCE_TYPE> >  original,
-            bslma::Allocator                                  *basicAllocator);
+    ConstructorProxy(BSLMF_MOVABLEREF_DEDUCE(ConstructorProxy<SOURCE_TYPE>)
+                         original,
+                     bslma::Allocator *basicAllocator);
         // Construct a proxy, and a proxied object of the parameterized
         // 'OBJECT_TYPE' having the value of the object of the parameterized
         // 'SOURCE_TYPE' held by the specified 'original' proxy.  Use the
@@ -578,8 +578,8 @@ template <class OBJECT_TYPE>
 template <class SOURCE_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-             bslmf::MovableRef<ConstructorProxy<SOURCE_TYPE> >  original,
-             bslma::Allocator                                  *basicAllocator)
+               BSLMF_MOVABLEREF_DEDUCE(ConstructorProxy<SOURCE_TYPE>) original,
+               bslma::Allocator *basicAllocator)
 {
     bslma::ConstructionUtil::construct(
                         d_objectBuffer.address(),

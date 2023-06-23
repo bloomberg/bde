@@ -403,6 +403,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Inferring the Signature of the Bound Functor
 /// - - - - - - - - - - - - - - - - - - - - - -
+// When binding a function pointer or class method pointer, the pointer passed
+// must unambiguously refer to a a single overload.  When binding a functor
+// object, it is possible for the choice of method overload called to be
+// deferred until invocation.
+//
 // A 'bdlf::Bind' object will strive to properly and automatically resolve the
 // signature of its bound functor between different overloads of that
 // invocable.  The signature of the bound functor is inferred from that of the
@@ -882,6 +887,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_memberfunctionpointertraits.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
+#include <bslmf_removecv.h>
 #include <bslmf_resulttype.h>
 #include <bslmf_tag.h>
 #include <bslmf_typelist.h>
@@ -1013,11 +1019,10 @@ class Bind_BoundTupleValue {
     // passed to the creators is passed through to the value if it uses an
     // allocator, using the 'bslalg::ConstructorProxy' mechanism.
 
-    // PRIVATE TYPES
-    typedef typename bslmf::ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
+    BSLMF_ASSERT(!bslmf::MovableRefUtil::IsReference<TYPE>::value);
 
     // PRIVATE INSTANCE DATA
-    bslalg::ConstructorProxy<STORAGE_TYPE> d_value;
+    bslalg::ConstructorProxy<TYPE> d_value;
 
   public:
     // CREATORS
@@ -1030,6 +1035,18 @@ class Bind_BoundTupleValue {
     {
     }
 
+    Bind_BoundTupleValue(
+                bslmf::MovableRef<Bind_BoundTupleValue<TYPE> >  original,
+                bslma::Allocator                               *basicAllocator)
+        // Create a 'Bind_BoundTupleValue' object holding the moved value of
+        // the specified 'original' value, using 'basicAllocator' to supply any
+        // memory.
+    : d_value(bslmf::MovableRefUtil::move(
+                              bslmf::MovableRefUtil::access(original).d_value),
+              basicAllocator)
+    {
+    }
+
     Bind_BoundTupleValue(const TYPE&       value,
                          bslma::Allocator *basicAllocator)
         // Create a 'Bind_BoundTupleValue' object holding a copy of the
@@ -1038,21 +1055,20 @@ class Bind_BoundTupleValue {
     {
     }
 
-    template <class BDE_OTHER_TYPE>
-    Bind_BoundTupleValue(const BDE_OTHER_TYPE&  value,
-                         bslma::Allocator      *basicAllocator)
+    Bind_BoundTupleValue(bslmf::MovableRef<TYPE>  value,
+                         bslma::Allocator        *basicAllocator)
         // Create a 'Bind_BoundTupleValue' object holding a copy of the
         // specified 'value', using 'basicAllocator' to supply any memory.
-    : d_value(value, basicAllocator)
+    : d_value(bslmf::MovableRefUtil::move(value), basicAllocator)
     {
     }
 
     // MANIPULATORS
-    STORAGE_TYPE& value() { return d_value.object(); }
+    TYPE& value() { return d_value.object(); }
         // Return a reference to the modifiable object held by this proxy.
 
     // ACCESSORS
-    const STORAGE_TYPE& value() const { return d_value.object(); }
+    const TYPE& value() const { return d_value.object(); }
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
@@ -1099,8 +1115,22 @@ struct Bind_BoundTuple1 : bslmf::TypeList1<A1>
     {
     }
 
+    Bind_BoundTuple1(bslmf::MovableRef<Bind_BoundTuple1<A1> >  orig,
+                     bslma::Allocator                         *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                                     bslmf::MovableRefUtil::access(orig).d_a1),
+           allocator)
+    {
+    }
+
     explicit Bind_BoundTuple1(A1 const& a1, bslma::Allocator *allocator = 0)
     : d_a1(a1, allocator)
+    {
+    }
+
+    explicit Bind_BoundTuple1(bslmf::MovableRef<A1>  a1,
+                              bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
     {
     }
 };
@@ -1130,10 +1160,22 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
          LIST  const&                                list,
          bslma::Allocator                           *allocator = 0)
         // Create a 'Bind' object that is bound to the specified 'func'
-        // invocable object.  Optionally specify an 'allocator' used to supply
+        // invocable object with the specified argument list 'list'.
+        // Optionally specify an 'allocator' used to supply memory.  If
+        // 'allocator' is 0, the currently installed default allocator is used.
+    : Base(func, list, allocator)
+    {
+    }
+
+    Bind(typename bslmf::ForwardingType<FUNC>::Type  func,
+         bslmf::MovableRef<LIST>                     list,
+         bslma::Allocator                           *allocator = 0)
+        // Create a 'Bind' object that is bound to the specified 'func'
+        // invocable object with the specified argument list 'list' moved into
+        // the object.  Optionally specify an 'allocator' used to supply
         // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
-    : Base(func, list, allocator)
+    : Base(func, bslmf::MovableRefUtil::move(list), allocator)
     {
     }
 
@@ -1143,6 +1185,19 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
         // specify an 'allocator' used to supply memory.  If 'allocator' is 0,
         // the currently installed default allocator is used.
     : Base(other, allocator)
+    {
+    }
+
+    // NOTE: This should probably be conditionally noexcept based on
+    // bsl::is_nothrow_move_constructible for FUNC and LIST.  Not sure if
+    // Bind_BoundTupleValue could be made conditionally nothrow move
+    // constructible though due to its use of ConstructorProxy
+    Bind(bslmf::MovableRef<Bind> other, bslma::Allocator *allocator = 0)
+        // Create a 'Bind' object that is bound to the same invocable object
+        // with the same bound parameters as the specified 'other'.  Optionally
+        // specify an 'allocator' used to supply memory.  If 'allocator' is 0,
+        // the currently installed default allocator is used.
+    : Base(bslmf::MovableRefUtil::move(other), allocator)
     {
     }
 };
@@ -1196,6 +1251,19 @@ class BindWrapper {
         // 'tuple' bound arguments.  Optionally specify the 'allocator'.
     {
         this->d_impl.createInplace(allocator, func, tuple, allocator);
+    }
+
+    BindWrapper(typename bslmf::ForwardingType<FUNC>::Type  func,
+                bslmf::MovableRef<TUPLE>                    tuple,
+                bslma::Allocator                           *allocator = 0)
+        // Create a wrapper with shared pointer semantics around a binder
+        // constructed with the specified 'func' invocable and specified
+        // 'tuple' bound arguments.  Optionally specify the 'allocator'.
+    {
+        this->d_impl.createInplace(allocator,
+                                   func,
+                                   bslmf::MovableRefUtil::move(tuple),
+                                   allocator);
     }
 
     BindWrapper(const BindWrapper<RET,FUNC,TUPLE>&  original)
@@ -1604,7 +1672,7 @@ class BindWrapper {
                                // class BindUtil
                                // ==============
 
-struct BindUtil {
+class BindUtil {
     // This 'struct' provides a namespace for utility functions used to
     // construct 'Bind' and 'BindWrapper' objects.  Four families of factory
     // methods are provided: 'bind', 'bindR', 'bindS', and 'bindSR'.
@@ -1627,6 +1695,29 @@ struct BindUtil {
     // The 'bindR' and 'bindSR' variations must be used when binding to an
     // object for which a result type cannot be automatically determined.
 
+    // PRIVATE TYPES
+    template <class TYPE>
+    class Storage_Type {
+        // Decay the type of the argument to the 'bind*' function into the type
+        // of storage needed to store in in the 'Bind_BoundTuple'.  We cannot
+        // just use 'bslmf::MovableRefUtil::Decay' because it will turn
+        // 'const Type(&)[]' into 'Type *' which cannot be constructed from
+        // 'const Type(&)[]', so we use 'ArrayToConstPointer' to turn such
+        // arrays into 'const Type *'.
+
+        // PRIVATE TYPES
+        typedef typename bslmf::MovableRefUtil::RemoveReference<TYPE>::type
+                                                                         TypeA;
+        typedef typename bslmf::ArrayToConstPointer<TypeA>::Type TypeB;
+
+      public:
+        // PUBLIC TYPES
+        typedef typename bsl::remove_cv<TypeB>::type type;
+    };
+
+    typedef bslmf::MovableRefUtil    MoveUtil;
+
+  public:
     // CLASS METHODS
 
                         // - - - - 'bind' methods - - - -
@@ -1644,206 +1735,603 @@ struct BindUtil {
 
     template <class FUNC, class P1>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
-    bind(FUNC func, P1 const&p1)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple1<typename Storage_Type<P1>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with one parameter.
     {
-        return Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
-                   (func, Bind_BoundTuple1<P1>(p1));
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1));
+
+        return Bind<bslmf::Nil,
+                    FUNC,
+                    ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple2<P1, P2> >
-    bind(FUNC func, P1 const&p1, P2 const&p2)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with two parameters.
     {
-        typedef Bind_BoundTuple2<P1, P2> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1, p2));
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple3<P1,P2,P3> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with three parameters.
     {
-        typedef Bind_BoundTuple3<P1,P2,P3> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3));
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple4<P1,P2,P3,P4> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with four parameters.
     {
-        typedef Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4));
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with five parameters.
     {
-        typedef Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5));
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with six parameters.
     {
-        typedef Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6));
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with seven parameters.
     {
-        typedef Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,p7));
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8>
     static
-    Bind<bslmf::Nil, FUNC,
-              Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with eight parameters.
     {
-        typedef Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8));
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9>
     static
-    Bind<bslmf::Nil, FUNC,
-              Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type,
+                          typename Storage_Type<P9>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P9) p9)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with nine parameters.
     {
-        typedef Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9));
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9, p9));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-         P10 const&p10)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with ten parameters.
     {
-        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10));
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple11<
-                                          P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-         P10 const&p10, P11 const&p11)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with eleven parameters.
     {
-        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11));
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple12<
-                                      P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-         P10 const&p10, P11 const&p11, P12 const&p12)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with twelve parameters.
     {
-        typedef Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
-            ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12));
+        typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple13<
-                                  P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-         P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with thirteen parameters.
     {
-        typedef Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13));
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13, class P14>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
-                                              P8,P9,P10,P11,P12,P13,P14> >
-    bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-         P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-         P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13,
-         P14 const&p14)
+    Bind<bslmf::Nil,
+         FUNC,
+         Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type,
+                           typename Storage_Type<P14>::type> >
+    bind(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(P14) p14)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with fourteen parameters.
     {
-        typedef Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13,P14> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13),
+                      BSLS_COMPILERFEATURES_FORWARD(P14, p14));
+
+        return Bind<bslmf::Nil, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
                         // - - - - 'bindR' methods - - - -
@@ -1862,692 +2350,1972 @@ struct BindUtil {
 
     template <class RET, class FUNC, class P1>
     static
-    Bind<RET, FUNC, Bind_BoundTuple1<P1> >
-    bindR(FUNC func, P1 const&p1)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple1<typename Storage_Type<P1>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with one parameter and returns a
         // value of type 'RET'.
     {
-        return Bind<RET, FUNC, Bind_BoundTuple1<P1> >
-            (func, Bind_BoundTuple1<P1>(p1));
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2>
     static
-    Bind<RET, FUNC, Bind_BoundTuple2<P1,P2> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                                      BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with two parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple2<P1,P2> ListType;
-        return Bind<RET, FUNC, ListType>(func, ListType(p1,p2));
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3>
     static
-    Bind<RET, FUNC, Bind_BoundTuple3<P1,P2,P3> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with three parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple3<P1,P2,P3> ListType;
-        return Bind<RET, FUNC, ListType>(func, ListType(p1,p2,p3));
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4>
     static
-    Bind<RET, FUNC, Bind_BoundTuple4<P1,P2,P3,P4> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with four parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return Bind<RET,FUNC,ListType>(func,ListType(p1,p2,p3,p4));
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5>
     static
-    Bind<RET, FUNC, Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with five parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return Bind<RET,FUNC,ListType>(func, ListType(p1,p2,p3,p4,p5));
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6>
     static
-    Bind<RET, FUNC, Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with six parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return Bind<RET, FUNC, ListType>(func, ListType(p1,p2,p3,p4,p5,p6));
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7>
     static
-    Bind<RET, FUNC, Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with seven parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return Bind<RET, FUNC, ListType>(func, ListType(p1,p2,p3,p4,p5,p6,p7));
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8>
     static
-    Bind<RET, FUNC, Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with eight parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return Bind<RET, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8));
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9>
     static
-    Bind<RET, FUNC, Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                          typename Storage_Type<P2>::type,
+                          typename Storage_Type<P3>::type,
+                          typename Storage_Type<P4>::type,
+                          typename Storage_Type<P5>::type,
+                          typename Storage_Type<P6>::type,
+                          typename Storage_Type<P7>::type,
+                          typename Storage_Type<P8>::type,
+                          typename Storage_Type<P9>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P9) p9)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with nine parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return Bind<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9));
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9, p9));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10>
     static
-    Bind<RET, FUNC,
-              Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-          P10 const&p10)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with ten parameters and returns
         // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> ListType;
-        return Bind<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10));
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11>
     static
-    Bind<RET, FUNC, Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-          P10 const&p10, P11 const&p11)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with eleven parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> ListType;
-        return Bind<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11));
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12>
     static
-    Bind<RET, FUNC, Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-          P10 const&p10, P11 const&p11, P12 const&p12)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with twelve parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
-            ListType;
-        return Bind<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12));
+        typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12, class P13>
     static
-    Bind<RET, FUNC, Bind_BoundTuple13<
-                                  P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-          P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with thirteen parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                  P13> ListType;
-        return Bind<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13));
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12, class P13, class P14>
     static
-    Bind<RET, FUNC, Bind_BoundTuple14<
-                              P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14> >
-    bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
-          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
-          P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13,
-          P14 const&p14)
+    Bind<RET,
+         FUNC,
+         Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                           typename Storage_Type<P2>::type,
+                           typename Storage_Type<P3>::type,
+                           typename Storage_Type<P4>::type,
+                           typename Storage_Type<P5>::type,
+                           typename Storage_Type<P6>::type,
+                           typename Storage_Type<P7>::type,
+                           typename Storage_Type<P8>::type,
+                           typename Storage_Type<P9>::type,
+                           typename Storage_Type<P10>::type,
+                           typename Storage_Type<P11>::type,
+                           typename Storage_Type<P12>::type,
+                           typename Storage_Type<P13>::type,
+                           typename Storage_Type<P14>::type> >
+    bindR(FUNC func, BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(P14) p14)
         // Return a 'Bind' object that is bound to the specified invocable
         // object 'func', which can be invoked with fourteen parameters and
         // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                  P13,P14> ListType;
-        return Bind<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13),
+                      BSLS_COMPILERFEATURES_FORWARD(P14, p14));
+
+        return Bind<RET, FUNC, ListType>(func, MoveUtil::move(list));
     }
 
                         // - - - - 'bindS' methods - - - -
 
     template <class FUNC>
-    static inline BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0 >
+    static
+    BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0 >
     bindS(bslma::Allocator *allocator, FUNC func)
         // Return a 'bdlf::Bind' object that is bound to the specified 'func'
         // invocable object which can be invoked with no parameters.
     {
         return BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0>
-                   (func, bdlf::Bind_BoundTuple0(),allocator);
+                                    (func, bdlf::Bind_BoundTuple0(),allocator);
     }
 
     template <class FUNC, class P1>
-    static inline BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple1<P1> >
-    bindS(bslma::Allocator *allocator, FUNC func,P1 const&p1)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple1<typename Storage_Type<P1>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameters.
     {
-        return BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple1<P1> >
-                   (func, bdlf::Bind_BoundTuple1<P1>(p1,allocator), allocator);
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1), allocator);
+
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2>
-    static inline BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple2<P1,P2> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const &p1, P2 const &p2)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters.
     {
-        typedef bdlf::Bind_BoundTuple2<P1,P2> ListType;
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple3<P1,P2,P3> >
-    bindS(bslma::Allocator *allocator, FUNC  func, P1 const&p1, P2 const&p2,
-          P3 const&p3)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> >
+    bindS(bslma::Allocator                      *allocator,
+          FUNC                                   func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three parameters.
     {
-        typedef bdlf::Bind_BoundTuple3<P1,P2,P3> ListType;
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple4<P1,P2,P3,P4> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters.
     {
-        typedef bdlf::Bind_BoundTuple4<P1,P2,P3,P4> ListType;
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters.
     {
-        typedef bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC             func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters.
     {
-        typedef bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7>
-    static inline BindWrapper<bslmf::Nil,
-                              FUNC,
-                              bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with seven parameters.
     {
-        typedef bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
-                                                     P8> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with eight parameters.
     {
-        typedef bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-                (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
-                                                     P8,P9> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4,P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8, P9 const&p9)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P9) p9)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with nine parameters.
     {
-        typedef bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9, p9),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8, P9 const&p9, P10 const&p10)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with ten parameters.
     {
-        typedef bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
-                                                                      ListType;
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
-             allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with eleven
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
-            ListType;
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
-             allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11,P12> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-          P12 const&p12)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with twelve
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
-            ListType;
+        typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
-             allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11,P12,P13> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-          P12 const&p12, P13 const&p13)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with thirteen
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                        P13> ListType;
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
-                            allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13, class P14>
-    static inline BindWrapper<bslmf::Nil, FUNC,
-                              bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11,P12,P13,
-                                                      P14> >
-    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-          P12 const&p12, P13 const&p13, P14 const&p14)
+    static
+    BindWrapper<bslmf::Nil,
+                FUNC,
+                Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> >
+    bindS(bslma::Allocator *allocator,
+          FUNC              func,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13,
+          BSLS_COMPILERFEATURES_FORWARD_REF(P14) p14)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with fourteen
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                        P13,P14> ListType;
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13),
+                      BSLS_COMPILERFEATURES_FORWARD(P14, p14),
+                      allocator);
+
         return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
-                            allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
                         // - - - - 'bindSR' methods - - - -
 
     template <class RET, class FUNC>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0 >
+    static
+    BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0 >
     bindSR(bslma::Allocator *allocator, FUNC func)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with no parameters and
         // returns a value of type 'RET'.
     {
         return BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0>
-                   (func, bdlf::Bind_BoundTuple0(), allocator);
+                                   (func, bdlf::Bind_BoundTuple0(), allocator);
     }
 
     template <class RET, class FUNC, class P1>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple1<P1> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple1<typename Storage_Type<P1>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameter and
         // returns a value of type 'RET'.
     {
-        return BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple1<P1> >
-                  (func, bdlf::Bind_BoundTuple1<P1>(p1, allocator), allocator);
+        typedef Bind_BoundTuple1<typename Storage_Type<P1>::type> ListType;
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1), allocator);
+
+        return BindWrapper<RET, FUNC, ListType>
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple2<P1,P2> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple2<P1,P2> ListType;
-        return BindWrapper<RET,FUNC,ListType>
-                   (func, ListType(p1,p2,allocator), allocator);
+        typedef Bind_BoundTuple2<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      allocator);
+
+        return BindWrapper<RET, FUNC, ListType>
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple3<P1,P2,P3> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> >
+    bindSR(bslma::Allocator                      *allocator,
+           FUNC                                   func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple3<P1,P2,P3> ListType;
-        return BindWrapper<RET,FUNC,ListType>
-                   (func, ListType(p1,p2,p3,allocator), allocator);
+        typedef Bind_BoundTuple3<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      allocator);
+
+        return BindWrapper<RET, FUNC, ListType>
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple4<P1,P2,P3,P4> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return BindWrapper<RET,FUNC,ListType>
-                   (func, ListType(p1,p2,p3,p4,allocator), allocator);
+        typedef Bind_BoundTuple4<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      allocator);
+
+        return BindWrapper<RET, FUNC, ListType>
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return BindWrapper<RET,FUNC,ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,allocator), allocator);
+        typedef Bind_BoundTuple5<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      allocator);
+
+        return BindWrapper<RET, FUNC, ListType>
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC             func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
+        typedef Bind_BoundTuple6<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6, P7> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with seven parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
+        typedef Bind_BoundTuple7<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
-                                                     P8> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-           P8 const&p8)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with eight parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
+        typedef Bind_BoundTuple8<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
-                                                     P8,P9> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-           P8 const&p8, P9 const&p9)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1) p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2) p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3) p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4) p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5) p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6) p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7) p7,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P8) p8,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P9) p9)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with nine parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
+        typedef Bind_BoundTuple9<typename Storage_Type<P1>::type,
+                                 typename Storage_Type<P2>::type,
+                                 typename Storage_Type<P3>::type,
+                                 typename Storage_Type<P4>::type,
+                                 typename Storage_Type<P5>::type,
+                                 typename Storage_Type<P6>::type,
+                                 typename Storage_Type<P7>::type,
+                                 typename Storage_Type<P8>::type,
+                                 typename Storage_Type<P9>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1, p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2, p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3, p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4, p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5, p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6, p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7, p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8, p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9, p9),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-           P8 const&p8, P9 const&p9, P10 const&p10)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with ten parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
-                                                                      ListType;
+        typedef Bind_BoundTuple10<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
-             allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with eleven parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
-            ListType;
+        typedef Bind_BoundTuple11<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
-             allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11,P12> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-           P12 const&p12)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with twelve parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
-            ListType;
+         typedef Bind_BoundTuple12<typename Storage_Type<P1>::type,
+                                   typename Storage_Type<P2>::type,
+                                   typename Storage_Type<P3>::type,
+                                   typename Storage_Type<P4>::type,
+                                   typename Storage_Type<P5>::type,
+                                   typename Storage_Type<P6>::type,
+                                   typename Storage_Type<P7>::type,
+                                   typename Storage_Type<P8>::type,
+                                   typename Storage_Type<P9>::type,
+                                   typename Storage_Type<P10>::type,
+                                   typename Storage_Type<P11>::type,
+                                   typename Storage_Type<P12>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
-             allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12, class P13>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11,P12,P13> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-           P12 const&p12, P13 const&p13)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with thirteen
         // parameters and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                        P13> ListType;
+        typedef Bind_BoundTuple13<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
-                            allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12, class P13, class P14>
-    static inline BindWrapper<RET, FUNC,
-                              bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
-                                                      P8,P9,P10,P11,P12,P13,
-                                                      P14> >
-    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
-           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-           P12 const&p12, P13 const&p13, P14 const&p14)
+    static
+    BindWrapper<RET,
+                FUNC,
+                Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> >
+    bindSR(bslma::Allocator *allocator,
+           FUNC              func,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P1)  p1,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P2)  p2,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P3)  p3,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P4)  p4,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P5)  p5,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P6)  p6,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P7)  p7,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P8)  p8,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P9)  p9,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P10) p10,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P11) p11,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P12) p12,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P13) p13,
+           BSLS_COMPILERFEATURES_FORWARD_REF(P14) p14)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with fourteen
         // parameters and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                        P13,P14> ListType;
+        typedef Bind_BoundTuple14<typename Storage_Type<P1>::type,
+                                  typename Storage_Type<P2>::type,
+                                  typename Storage_Type<P3>::type,
+                                  typename Storage_Type<P4>::type,
+                                  typename Storage_Type<P5>::type,
+                                  typename Storage_Type<P6>::type,
+                                  typename Storage_Type<P7>::type,
+                                  typename Storage_Type<P8>::type,
+                                  typename Storage_Type<P9>::type,
+                                  typename Storage_Type<P10>::type,
+                                  typename Storage_Type<P11>::type,
+                                  typename Storage_Type<P12>::type,
+                                  typename Storage_Type<P13>::type,
+                                  typename Storage_Type<P14>::type> ListType;
+
+        ListType list(BSLS_COMPILERFEATURES_FORWARD(P1,  p1),
+                      BSLS_COMPILERFEATURES_FORWARD(P2,  p2),
+                      BSLS_COMPILERFEATURES_FORWARD(P3,  p3),
+                      BSLS_COMPILERFEATURES_FORWARD(P4,  p4),
+                      BSLS_COMPILERFEATURES_FORWARD(P5,  p5),
+                      BSLS_COMPILERFEATURES_FORWARD(P6,  p6),
+                      BSLS_COMPILERFEATURES_FORWARD(P7,  p7),
+                      BSLS_COMPILERFEATURES_FORWARD(P8,  p8),
+                      BSLS_COMPILERFEATURES_FORWARD(P9,  p9),
+                      BSLS_COMPILERFEATURES_FORWARD(P10, p10),
+                      BSLS_COMPILERFEATURES_FORWARD(P11, p11),
+                      BSLS_COMPILERFEATURES_FORWARD(P12, p12),
+                      BSLS_COMPILERFEATURES_FORWARD(P13, p13),
+                      BSLS_COMPILERFEATURES_FORWARD(P14, p14),
+                      allocator);
+
         return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
-                            allocator), allocator);
+                                       (func, MoveUtil::move(list), allocator);
     }
 
 };
@@ -3475,6 +5243,19 @@ class Bind_Impl {
     {
     }
 
+    Bind_Impl(typename bslmf::ForwardingType<FUNC>::Type  func,
+              bslmf::MovableRef<LIST>                     list,
+              bslma::Allocator                           *basicAllocator = 0)
+    // Construct a 'Bind_Impl' object bound to the specified invocable
+    // object 'func' using the moved invocation parameters specified in 'list'.
+    // Optionally specify a 'basicAllocator' used to supply memory.  If
+    // 'basicAllocator' is 0, the currently installed default allocator is
+    // used.
+    : d_func(func, basicAllocator)
+    , d_list(bslmf::MovableRefUtil::move(list), basicAllocator)
+    {
+    }
+
     Bind_Impl(const Bind_Impl& other, bslma::Allocator *basicAllocator = 0)
         // Construct a 'Bind_Impl' object bound to the same invocable object
         // 'func' and using the same invocation parameters as the specified
@@ -3483,6 +5264,22 @@ class Bind_Impl {
         // default allocator is used.
     : d_func(other.d_func, basicAllocator)
     , d_list(other.d_list, basicAllocator)
+    {
+    }
+
+    Bind_Impl(bslmf::MovableRef<Bind_Impl>  other,
+              bslma::Allocator             *basicAllocator = 0)
+        // Construct a 'Bind_Impl' object bound to the same invocable object
+        // 'func' and using the invocation parameters moved from the specified
+        // 'other' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+    : d_func(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_func)),
+             basicAllocator)
+    , d_list(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_list)),
+             basicAllocator)
     {
     }
 
@@ -4054,10 +5851,31 @@ class Bind_ImplExplicit {
     {
     }
 
+    Bind_ImplExplicit(typename bslmf::ForwardingType<FUNC>::Type  func,
+                      bslmf::MovableRef<LIST>                     list,
+                      bslma::Allocator                           *allocator)
+        // Construct a 'Bind_Impl' object bound to the specified invocable
+        // object 'func' using the invocation parameters specified in 'list'.
+    : d_func(func, allocator)
+    , d_list(bslmf::MovableRefUtil::move(list), allocator)
+    {
+    }
+
     Bind_ImplExplicit(const Bind_ImplExplicit&  other,
                       bslma::Allocator         *allocator)
     : d_func(other.d_func, allocator)
     , d_list(other.d_list, allocator)
+    {
+    }
+
+    Bind_ImplExplicit(bslmf::MovableRef<Bind_ImplExplicit>  other,
+                      bslma::Allocator                     *basicAllocator = 0)
+    : d_func(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_func)),
+             basicAllocator)
+    , d_list(bslmf::MovableRefUtil::move(
+                                  bslmf::MovableRefUtil::access(other.d_list)),
+             basicAllocator)
     {
     }
 
@@ -5167,11 +6985,29 @@ struct Bind_BoundTuple2 : bslmf::TypeList2<A1,A2>
     {
     }
 
+    Bind_BoundTuple2(
+                   bslmf::MovableRef<Bind_BoundTuple2<A1,A2> >   orig,
+                   bslma::Allocator                             *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    {
+    }
+
     Bind_BoundTuple2(A1 const&         a1,
                      A2 const&         a2,
                      bslma::Allocator *allocator = 0)
     : d_a1(a1, allocator)
     , d_a2(a2, allocator)
+    {
+    }
+
+    Bind_BoundTuple2(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
     {
     }
 };
@@ -5204,6 +7040,18 @@ struct Bind_BoundTuple3 : bslmf::TypeList3<A1,A2,A3>
     {
     }
 
+    Bind_BoundTuple3(
+                 bslmf::MovableRef<Bind_BoundTuple3<A1,A2,A3> >  orig,
+                 bslma::Allocator                               *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    {
+    }
+
     Bind_BoundTuple3(A1 const&         a1,
                      A2 const&         a2,
                      A3 const&         a3,
@@ -5211,6 +7059,16 @@ struct Bind_BoundTuple3 : bslmf::TypeList3<A1,A2,A3>
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
+    {
+    }
+
+    Bind_BoundTuple3(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslmf::MovableRef<A3>  a3,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(a3), allocator)
     {
     }
 };
@@ -5246,6 +7104,20 @@ struct Bind_BoundTuple4 : bslmf::TypeList4<A1,A2,A3,A4>
     {
     }
 
+    Bind_BoundTuple4(
+              bslmf::MovableRef<Bind_BoundTuple4<A1,A2,A3,A4> >  orig,
+              bslma::Allocator                                  *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    {
+    }
+
     Bind_BoundTuple4(A1 const&         a1,
                      A2 const&         a2,
                      A3 const&         a3,
@@ -5255,6 +7127,18 @@ struct Bind_BoundTuple4 : bslmf::TypeList4<A1,A2,A3,A4>
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
     , d_a4(a4,allocator)
+    {
+    }
+
+    Bind_BoundTuple4(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslmf::MovableRef<A3>  a3,
+                     bslmf::MovableRef<A4>  a4,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(a4), allocator)
     {
     }
 };
@@ -5293,6 +7177,22 @@ struct Bind_BoundTuple5 : bslmf::TypeList5<A1,A2,A3,A4,A5>
     {
     }
 
+    Bind_BoundTuple5(
+           bslmf::MovableRef<Bind_BoundTuple5<A1,A2,A3,A4,A5> >  orig,
+           bslma::Allocator                                     *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    {
+    }
+
     Bind_BoundTuple5(A1 const&         a1,
                      A2 const&         a2,
                      A3 const&         a3,
@@ -5304,6 +7204,20 @@ struct Bind_BoundTuple5 : bslmf::TypeList5<A1,A2,A3,A4,A5>
     , d_a3(a3,allocator)
     , d_a4(a4,allocator)
     , d_a5(a5,allocator)
+    {
+    }
+
+    Bind_BoundTuple5(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslmf::MovableRef<A3>  a3,
+                     bslmf::MovableRef<A4>  a4,
+                     bslmf::MovableRef<A5>  a5,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(a5), allocator)
     {
     }
 };
@@ -5345,6 +7259,25 @@ struct Bind_BoundTuple6 : bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
     {
     }
 
+    Bind_BoundTuple6(
+              bslmf::MovableRef<
+                          Bind_BoundTuple6<A1,A2,A3,A4,A5,A6> >  orig,
+              bslma::Allocator                                  *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    {
+    }
+
     Bind_BoundTuple6(A1 const&         a1,
                      A2 const&         a2,
                      A3 const&         a3,
@@ -5358,6 +7291,22 @@ struct Bind_BoundTuple6 : bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
     , d_a4(a4,allocator)
     , d_a5(a5,allocator)
     , d_a6(a6,allocator)
+    {
+    }
+
+    Bind_BoundTuple6(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslmf::MovableRef<A3>  a3,
+                     bslmf::MovableRef<A4>  a4,
+                     bslmf::MovableRef<A5>  a5,
+                     bslmf::MovableRef<A6>  a6,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(a6), allocator)
     {
     }
 };
@@ -5403,6 +7352,27 @@ struct Bind_BoundTuple7 : bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
     {
     }
 
+    Bind_BoundTuple7(
+              bslmf::MovableRef<
+                       Bind_BoundTuple7<A1,A2,A3,A4,A5,A6,A7> >  orig,
+              bslma::Allocator                                  *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    {
+    }
+
     Bind_BoundTuple7(A1 const&         a1,
                      A2 const&         a2,
                      A3 const&         a3,
@@ -5418,6 +7388,24 @@ struct Bind_BoundTuple7 : bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
     , d_a5(a5,allocator)
     , d_a6(a6,allocator)
     , d_a7(a7,allocator)
+    {
+    }
+
+    Bind_BoundTuple7(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslmf::MovableRef<A3>  a3,
+                     bslmf::MovableRef<A4>  a4,
+                     bslmf::MovableRef<A5>  a5,
+                     bslmf::MovableRef<A6>  a6,
+                     bslmf::MovableRef<A7>  a7,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(a7), allocator)
     {
     }
 };
@@ -5467,6 +7455,29 @@ struct Bind_BoundTuple8 : bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     {
     }
 
+    Bind_BoundTuple8(
+              bslmf::MovableRef<
+                    Bind_BoundTuple8<A1,A2,A3,A4,A5,A6,A7,A8> >  orig,
+              bslma::Allocator                                  *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a8), allocator)
+    {
+    }
+
     Bind_BoundTuple8(A1 const&         a1,
                      A2 const&         a2,
                      A3 const&         a3,
@@ -5484,6 +7495,26 @@ struct Bind_BoundTuple8 : bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     , d_a6(a6,allocator)
     , d_a7(a7,allocator)
     , d_a8(a8,allocator)
+    {
+    }
+
+    Bind_BoundTuple8(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslmf::MovableRef<A3>  a3,
+                     bslmf::MovableRef<A4>  a4,
+                     bslmf::MovableRef<A5>  a5,
+                     bslmf::MovableRef<A6>  a6,
+                     bslmf::MovableRef<A7>  a7,
+                     bslmf::MovableRef<A8>  a8,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(a8), allocator)
     {
     }
 };
@@ -5536,6 +7567,31 @@ struct Bind_BoundTuple9 : bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
     {
     }
 
+    Bind_BoundTuple9(
+          bslmf::MovableRef<
+             Bind_BoundTuple9<A1,A2,A3,A4,A5,A6,A7,A8,A9> >      orig,
+          bslma::Allocator                                      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a8), allocator)
+    , d_a9(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a9), allocator)
+    {
+    }
+
     Bind_BoundTuple9(A1 const&         a1,
                      A2 const&         a2,
                      A3 const&         a3,
@@ -5555,6 +7611,28 @@ struct Bind_BoundTuple9 : bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
     , d_a7(a7,allocator)
     , d_a8(a8,allocator)
     , d_a9(a9,allocator)
+    {
+    }
+
+    Bind_BoundTuple9(bslmf::MovableRef<A1>  a1,
+                     bslmf::MovableRef<A2>  a2,
+                     bslmf::MovableRef<A3>  a3,
+                     bslmf::MovableRef<A4>  a4,
+                     bslmf::MovableRef<A5>  a5,
+                     bslmf::MovableRef<A6>  a6,
+                     bslmf::MovableRef<A7>  a7,
+                     bslmf::MovableRef<A8>  a8,
+                     bslmf::MovableRef<A9>  a9,
+                     bslma::Allocator      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(a8), allocator)
+    , d_a9(bslmf::MovableRefUtil::move(a9), allocator)
     {
     }
 };
@@ -5610,6 +7688,33 @@ struct Bind_BoundTuple10 : bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
     {
     }
 
+    Bind_BoundTuple10(
+          bslmf::MovableRef<
+            Bind_BoundTuple10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> >  orig,
+          bslma::Allocator                                      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a8), allocator)
+    , d_a9(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a9), allocator)
+    , d_a10(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a10),allocator)
+    {
+    }
+
     Bind_BoundTuple10(A1 const&         a1,
                       A2 const&         a2,
                       A3 const&         a3,
@@ -5631,6 +7736,30 @@ struct Bind_BoundTuple10 : bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
     , d_a8(a8,allocator)
     , d_a9(a9,allocator)
     , d_a10(a10,allocator)
+    {
+    }
+
+    Bind_BoundTuple10(bslmf::MovableRef<A1>  a1,
+                      bslmf::MovableRef<A2>  a2,
+                      bslmf::MovableRef<A3>  a3,
+                      bslmf::MovableRef<A4>  a4,
+                      bslmf::MovableRef<A5>  a5,
+                      bslmf::MovableRef<A6>  a6,
+                      bslmf::MovableRef<A7>  a7,
+                      bslmf::MovableRef<A8>  a8,
+                      bslmf::MovableRef<A9>  a9,
+                      bslmf::MovableRef<A10> a10,
+                      bslma::Allocator      *allocator = 0)
+    : d_a1( bslmf::MovableRefUtil::move(a1),  allocator)
+    , d_a2( bslmf::MovableRefUtil::move(a2),  allocator)
+    , d_a3( bslmf::MovableRefUtil::move(a3),  allocator)
+    , d_a4( bslmf::MovableRefUtil::move(a4),  allocator)
+    , d_a5( bslmf::MovableRefUtil::move(a5),  allocator)
+    , d_a6( bslmf::MovableRefUtil::move(a6),  allocator)
+    , d_a7( bslmf::MovableRefUtil::move(a7),  allocator)
+    , d_a8( bslmf::MovableRefUtil::move(a8),  allocator)
+    , d_a9( bslmf::MovableRefUtil::move(a9),  allocator)
+    , d_a10(bslmf::MovableRefUtil::move(a10), allocator)
     {
     }
 };
@@ -5689,6 +7818,35 @@ struct Bind_BoundTuple11
     {
     }
 
+    Bind_BoundTuple11(
+          bslmf::MovableRef<Bind_BoundTuple11<
+                          A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11> >  orig,
+          bslma::Allocator                                      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a8), allocator)
+    , d_a9(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a9), allocator)
+    , d_a10(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a10),allocator)
+    , d_a11(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a11),allocator)
+    {
+    }
+
     Bind_BoundTuple11(A1 const&         a1,
                       A2 const&         a2,
                       A3 const&         a3,
@@ -5712,6 +7870,32 @@ struct Bind_BoundTuple11
     , d_a9(a9,allocator)
     , d_a10(a10,allocator)
     , d_a11(a11,allocator)
+    {
+    }
+
+    Bind_BoundTuple11(bslmf::MovableRef<A1>  a1,
+                      bslmf::MovableRef<A2>  a2,
+                      bslmf::MovableRef<A3>  a3,
+                      bslmf::MovableRef<A4>  a4,
+                      bslmf::MovableRef<A5>  a5,
+                      bslmf::MovableRef<A6>  a6,
+                      bslmf::MovableRef<A7>  a7,
+                      bslmf::MovableRef<A8>  a8,
+                      bslmf::MovableRef<A9>  a9,
+                      bslmf::MovableRef<A10> a10,
+                      bslmf::MovableRef<A11> a11,
+                      bslma::Allocator      *allocator = 0)
+    : d_a1( bslmf::MovableRefUtil::move(a1),  allocator)
+    , d_a2( bslmf::MovableRefUtil::move(a2),  allocator)
+    , d_a3( bslmf::MovableRefUtil::move(a3),  allocator)
+    , d_a4( bslmf::MovableRefUtil::move(a4),  allocator)
+    , d_a5( bslmf::MovableRefUtil::move(a5),  allocator)
+    , d_a6( bslmf::MovableRefUtil::move(a6),  allocator)
+    , d_a7( bslmf::MovableRefUtil::move(a7),  allocator)
+    , d_a8( bslmf::MovableRefUtil::move(a8),  allocator)
+    , d_a9( bslmf::MovableRefUtil::move(a9),  allocator)
+    , d_a10(bslmf::MovableRefUtil::move(a10), allocator)
+    , d_a11(bslmf::MovableRefUtil::move(a11), allocator)
     {
     }
 };
@@ -5773,6 +7957,37 @@ struct Bind_BoundTuple12
     {
     }
 
+    Bind_BoundTuple12(
+          bslmf::MovableRef<Bind_BoundTuple12<
+                      A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12> >  orig,
+          bslma::Allocator                                      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a8), allocator)
+    , d_a9(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a9), allocator)
+    , d_a10(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a10),allocator)
+    , d_a11(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a11),allocator)
+    , d_a12(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a12),allocator)
+    {
+    }
+
     Bind_BoundTuple12(A1 const&         a1,
                       A2 const&         a2,
                       A3 const&         a3,
@@ -5798,6 +8013,34 @@ struct Bind_BoundTuple12
     , d_a10(a10,allocator)
     , d_a11(a11,allocator)
     , d_a12(a12,allocator)
+    {
+    }
+
+    Bind_BoundTuple12(bslmf::MovableRef<A1>  a1,
+                      bslmf::MovableRef<A2>  a2,
+                      bslmf::MovableRef<A3>  a3,
+                      bslmf::MovableRef<A4>  a4,
+                      bslmf::MovableRef<A5>  a5,
+                      bslmf::MovableRef<A6>  a6,
+                      bslmf::MovableRef<A7>  a7,
+                      bslmf::MovableRef<A8>  a8,
+                      bslmf::MovableRef<A9>  a9,
+                      bslmf::MovableRef<A10> a10,
+                      bslmf::MovableRef<A11> a11,
+                      bslmf::MovableRef<A12> a12,
+                      bslma::Allocator      *allocator = 0)
+    : d_a1( bslmf::MovableRefUtil::move(a1),  allocator)
+    , d_a2( bslmf::MovableRefUtil::move(a2),  allocator)
+    , d_a3( bslmf::MovableRefUtil::move(a3),  allocator)
+    , d_a4( bslmf::MovableRefUtil::move(a4),  allocator)
+    , d_a5( bslmf::MovableRefUtil::move(a5),  allocator)
+    , d_a6( bslmf::MovableRefUtil::move(a6),  allocator)
+    , d_a7( bslmf::MovableRefUtil::move(a7),  allocator)
+    , d_a8( bslmf::MovableRefUtil::move(a8),  allocator)
+    , d_a9( bslmf::MovableRefUtil::move(a9),  allocator)
+    , d_a10(bslmf::MovableRefUtil::move(a10), allocator)
+    , d_a11(bslmf::MovableRefUtil::move(a11), allocator)
+    , d_a12(bslmf::MovableRefUtil::move(a12), allocator)
     {
     }
 };
@@ -5863,6 +8106,39 @@ struct Bind_BoundTuple13
     {
     }
 
+    Bind_BoundTuple13(
+          bslmf::MovableRef<Bind_BoundTuple13<
+                  A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13> >  orig,
+          bslma::Allocator                                      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a8), allocator)
+    , d_a9(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a9), allocator)
+    , d_a10(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a10),allocator)
+    , d_a11(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a11),allocator)
+    , d_a12(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a12),allocator)
+    , d_a13(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a13),allocator)
+    {
+    }
+
     Bind_BoundTuple13(A1 const&         a1,
                       A2 const&         a2,
                       A3 const&         a3,
@@ -5890,6 +8166,36 @@ struct Bind_BoundTuple13
     , d_a11(a11,allocator)
     , d_a12(a12,allocator)
     , d_a13(a13,allocator)
+    {
+    }
+
+    Bind_BoundTuple13(bslmf::MovableRef<A1>  a1,
+                      bslmf::MovableRef<A2>  a2,
+                      bslmf::MovableRef<A3>  a3,
+                      bslmf::MovableRef<A4>  a4,
+                      bslmf::MovableRef<A5>  a5,
+                      bslmf::MovableRef<A6>  a6,
+                      bslmf::MovableRef<A7>  a7,
+                      bslmf::MovableRef<A8>  a8,
+                      bslmf::MovableRef<A9>  a9,
+                      bslmf::MovableRef<A10> a10,
+                      bslmf::MovableRef<A11> a11,
+                      bslmf::MovableRef<A12> a12,
+                      bslmf::MovableRef<A13> a13,
+                      bslma::Allocator      *allocator = 0)
+    : d_a1( bslmf::MovableRefUtil::move(a1),  allocator)
+    , d_a2( bslmf::MovableRefUtil::move(a2),  allocator)
+    , d_a3( bslmf::MovableRefUtil::move(a3),  allocator)
+    , d_a4( bslmf::MovableRefUtil::move(a4),  allocator)
+    , d_a5( bslmf::MovableRefUtil::move(a5),  allocator)
+    , d_a6( bslmf::MovableRefUtil::move(a6),  allocator)
+    , d_a7( bslmf::MovableRefUtil::move(a7),  allocator)
+    , d_a8( bslmf::MovableRefUtil::move(a8),  allocator)
+    , d_a9( bslmf::MovableRefUtil::move(a9),  allocator)
+    , d_a10(bslmf::MovableRefUtil::move(a10), allocator)
+    , d_a11(bslmf::MovableRefUtil::move(a11), allocator)
+    , d_a12(bslmf::MovableRefUtil::move(a12), allocator)
+    , d_a13(bslmf::MovableRefUtil::move(a13), allocator)
     {
     }
 };
@@ -5958,6 +8264,41 @@ struct Bind_BoundTuple14
     {
     }
 
+    Bind_BoundTuple14(
+          bslmf::MovableRef<Bind_BoundTuple14<
+              A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14> >  orig,
+          bslma::Allocator                                      *allocator = 0)
+    : d_a1(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a1), allocator)
+    , d_a2(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a2), allocator)
+    , d_a3(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a3), allocator)
+    , d_a4(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a4), allocator)
+    , d_a5(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a5), allocator)
+    , d_a6(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a6), allocator)
+    , d_a7(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a7), allocator)
+    , d_a8(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a8), allocator)
+    , d_a9(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a9), allocator)
+    , d_a10(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a10),allocator)
+    , d_a11(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a11),allocator)
+    , d_a12(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a12),allocator)
+    , d_a13(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a13),allocator)
+    , d_a14(bslmf::MovableRefUtil::move(
+                          bslmf::MovableRefUtil::access(orig).d_a14),allocator)
+    {
+    }
+
     Bind_BoundTuple14(A1 const&         a1,
                       A2 const&         a2,
                       A3 const&         a3,
@@ -5989,6 +8330,38 @@ struct Bind_BoundTuple14
     , d_a14(a14,allocator)
     {
     }
+
+    Bind_BoundTuple14(bslmf::MovableRef<A1>  a1,
+                      bslmf::MovableRef<A2>  a2,
+                      bslmf::MovableRef<A3>  a3,
+                      bslmf::MovableRef<A4>  a4,
+                      bslmf::MovableRef<A5>  a5,
+                      bslmf::MovableRef<A6>  a6,
+                      bslmf::MovableRef<A7>  a7,
+                      bslmf::MovableRef<A8>  a8,
+                      bslmf::MovableRef<A9>  a9,
+                      bslmf::MovableRef<A10> a10,
+                      bslmf::MovableRef<A11> a11,
+                      bslmf::MovableRef<A12> a12,
+                      bslmf::MovableRef<A13> a13,
+                      bslmf::MovableRef<A14> a14,
+                      bslma::Allocator      *allocator = 0)
+    : d_a1( bslmf::MovableRefUtil::move(a1),  allocator)
+    , d_a2( bslmf::MovableRefUtil::move(a2),  allocator)
+    , d_a3( bslmf::MovableRefUtil::move(a3),  allocator)
+    , d_a4( bslmf::MovableRefUtil::move(a4),  allocator)
+    , d_a5( bslmf::MovableRefUtil::move(a5),  allocator)
+    , d_a6( bslmf::MovableRefUtil::move(a6),  allocator)
+    , d_a7( bslmf::MovableRefUtil::move(a7),  allocator)
+    , d_a8( bslmf::MovableRefUtil::move(a8),  allocator)
+    , d_a9( bslmf::MovableRefUtil::move(a9),  allocator)
+    , d_a10(bslmf::MovableRefUtil::move(a10), allocator)
+    , d_a11(bslmf::MovableRefUtil::move(a11), allocator)
+    , d_a12(bslmf::MovableRefUtil::move(a12), allocator)
+    , d_a13(bslmf::MovableRefUtil::move(a13), allocator)
+    , d_a14(bslmf::MovableRefUtil::move(a14), allocator)
+    {
+    }
 };
 }  // close package namespace
 
@@ -5996,9 +8369,9 @@ struct Bind_BoundTuple14
                           // class bdlf::Bind_Invoker
                           // ========================
 
-#define BDLF_BIND_EVAL(N) \
-    bdlf::Bind_Evaluator<typename bslmf::TypeListTypeOf<N,LIST>::Type, ARGS>\
-           ::eval(args, (list->d_a##N).value())
+#define BDLF_BIND_EVAL(N)                                                     \
+    bdlf::Bind_Evaluator<typename bslmf::TypeListTypeOf<N,LIST>::Type,        \
+                         ARGS>::eval(args, (list->d_a##N).value())
 
 namespace bdlf {
 template <class RET>
