@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 115 components having 10 levels of physical
+ The 'bslstl' package currently has 118 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -36,14 +36,13 @@
    8. bslstl_map
       bslstl_multimap
       bslstl_multiset
+      bslstl_osyncstream
       bslstl_set
 
    7. bslstl_boyermoorehorspoolsearcher
       bslstl_istringstream
       bslstl_mapcomparator
-      bslstl_ostream
       bslstl_ostringstream
-      bslstl_osyncstream
       bslstl_queue
       bslstl_setcomparator
       bslstl_stack
@@ -89,6 +88,7 @@
       bslstl_hashtablebucketiterator
       bslstl_hashtableiterator
       bslstl_iteratorutil
+      bslstl_ostream
       bslstl_stringrefdata
 
    3. bslstl_bidirectionalnodepool
@@ -339,8 +339,14 @@
 : 'bslstl_optional_cpp03':                                            !PRIVATE!
 :      Provide C++03 implementation for bslstl_optional.h
 :
+: 'bslstl_ostream':
+:      Provide functionality of the corresponding C++ Standard header.
+:
 : 'bslstl_ostringstream':
 :      Provide a C++03-compatible 'ostringstream' class.
+:
+: 'bslstl_osyncstream':
+:      Provide a C++20-compatible 'basic_osyncstream' class template.
 :
 : 'bslstl_ownerless':
 :      Provide an ordering for shared and weak pointers.
@@ -428,6 +434,9 @@
 :
 : 'bslstl_stringview':
 :      Provide a standard-compliant 'basic_string_view' class template.
+:
+: 'bslstl_syncbuf':
+:      Provide a C++20-compatible 'basic_syncbuf' class template.
 :
 : 'bslstl_systemerror':
 :      Provide a standard compliant 'system_error' class.
