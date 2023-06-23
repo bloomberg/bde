@@ -13,14 +13,13 @@ BSLS_IDENT_RCSID(bdlt_iso8601util_cpp,"$Id$ $CSID$")
 namespace {
 namespace u {
 
-typedef bsl::ptrdiff_t ssize_t;
-
 using namespace BloombergLP;
 using namespace BloombergLP::bdlt;
 
-typedef bdlt::Iso8601Util                   Util;
-typedef bdlt::Iso8601UtilConfiguration      GenerateConfiguration;
-typedef bdlt::Iso8601UtilParseConfiguration ParseConfiguration;
+typedef Iso8601Util                   Util;
+typedef Iso8601UtilConfiguration      GenerateConfiguration;
+typedef Iso8601UtilParseConfiguration ParseConfiguration;
+typedef Util::ssize_t                 ssize_t;
 
                           // ======================
                           // class Iso8601Util_Impl

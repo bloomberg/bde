@@ -6,11 +6,6 @@
 // instantiations) ends up needing too much resources during compilation,
 // making it impossible to compile the code, or extremely slow.
 //
-// Please consult the test plan to see which test driver executable (part) runs
-// which test cases.  Note that this test driver is special in that it has a
-// "part 10", which is self contained (not included here) with a test case that
-// must be compiled separately to work (due to compiler issues).
-//
 // This test driver file contains all the 'bdlt_iso8601util' test code and it
 // is split into parts using conditional compilation.  It is '#include'd in the
 // individual test parts (01-02) after defining the
@@ -84,6 +79,9 @@ Sun_Studio_only_gives_a_warning_for_pound_error;
 # define U_TEST_PART_02
 #endif
 
+#define U_TEST_CASE_SKIPPED                                                   \
+    cout << "Test case " << test << " is skipped in this executable.\n";
+
 #ifdef U_TEST_COMPILING_A_PART
 
 #include <bdlt_date.h>
@@ -126,30 +124,28 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // NOTICE: To reduce the compilation time and enable compiling by certain
 // compilers (that easily run out of resources), the test driver has been
-// split into parts.  Note that because this is one of the most complicated
-// templated constructs in our library certain test cases also had to be split
-// up to achieve reasonable compilation times:
+// split into parts.
 //
-// 'bslstl_function.00.t.cpp': (this file, does not execute code)
-// 'bslstl_function.01.t.cpp':  1: BREATHING TEST
-//                              2: GENERATE 'Date'
-//                              3: GENERATE 'Time'
-//                              4: GENERATE 'Datetime'
-//                              5: GENERATE 'DateTz'
-//                              6: GENERATE 'TimeTz'
-//                              7: GENERATE 'DatetimeTz'
-//                              8: PARSE: DATE & DATETZ
-//                              9: PARSE: bsls::TimeInterval
-//                             10: PARSE: TIME & TIMETZ
-// 'bslstl_function.02.t.cpp': 11: PARSE: DATETIME & DATETIMETZ
-//                             12: GENERATE 'DateOrDateTz'
-//                             13: GENERATE 'TimeTz'
-//                             14: GENERATE 'DatetimeTz'
-//                             15: PARSE 'DateOrDateTz'
-//                             16: PARSE 'TimeOrTimeTz'
-//                             17: PARSE 'DatetimeOrDatetimeTz'
-//                             18: PARSE 'Datetime's WITH TIME ZONES
-//                             19: USAGE EXAMPLE
+// 'bdlt_iso8601util.00.t.cpp': (this file, does not execute code)
+// 'bdlt_iso8601util.01.t.cpp':  1: BREATHING TEST
+//                               2: GENERATE 'Date'
+//                               3: GENERATE 'Time'
+//                               4: GENERATE 'Datetime'
+//                               5: GENERATE 'DateTz'
+//                               6: GENERATE 'TimeTz'
+//                               7: GENERATE 'DatetimeTz'
+//                               8: PARSE: DATE & DATETZ
+//                               9: PARSE: bsls::TimeInterval
+//                              10: PARSE: TIME & TIMETZ
+// 'bdlt_iso8601util.02.t.cpp': 11: PARSE: DATETIME & DATETIMETZ
+//                              12: GENERATE 'DateOrDateTz'
+//                              13: GENERATE 'TimeTz'
+//                              14: GENERATE 'DatetimeTz'
+//                              15: PARSE 'DateOrDateTz'
+//                              16: PARSE 'TimeOrTimeTz'
+//                              17: PARSE 'DatetimeOrDatetimeTz'
+//                              18: PARSE 'Datetime's WITH TIME ZONES
+//                              19: USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 //
 //                              Overview
@@ -7065,9 +7061,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
@@ -7245,6 +7239,8 @@ if (veryVerbose)
     ASSERT(BUFLEN - 9 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
 //..
+#else
+    U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 18: {
@@ -7252,10 +7248,10 @@ if (veryVerbose)
         // PARSE 'Datetime's FROM STRINGS WITH TIME ZONES
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         testCase18(verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 17: {
@@ -7340,10 +7336,10 @@ if (veryVerbose)
         //   int parseRelaxed(DatetimeOrDatetimeTz *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         testCase17(verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 16: {
@@ -7418,10 +7414,10 @@ if (veryVerbose)
         //   int parse(TimeOrTimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         testCase16(verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose);
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 15: {
@@ -7486,9 +7482,7 @@ if (veryVerbose)
         //   int parse(DateOrDateTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         if (verbose) cout << endl
                           << "PARSE 'DateOrDateTz'" << endl
                           << "====================" << endl;
@@ -8605,6 +8599,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::parse(&mX, INPUTB,      -1, u::BASIC));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 14: {
@@ -8686,9 +8682,7 @@ if (veryVerbose)
         //   int generateRaw(char*,const DatetimeOrDatetimeTz&, const Config&);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         if (verbose) cout << endl
                           << "GENERATE 'DatetimeTz'" << endl
                           << "=====================" << endl;
@@ -9193,6 +9187,8 @@ if (veryVerbose)
                 ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 13: {
@@ -9271,9 +9267,7 @@ if (veryVerbose)
         //   int generateRaw(char *, const TimeOrTimeTzTz&, const Config&);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         if (verbose) cout << endl
                           << "GENERATE 'TimeOrTimeTz'" << endl
                           << "=======================" << endl;
@@ -9704,6 +9698,8 @@ if (veryVerbose)
                 ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 12: {
@@ -9782,9 +9778,7 @@ if (veryVerbose)
         //   int generateRaw(char *, const DateOrDateTz&, const Config&);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         if (verbose) cout << endl
                           << "GENERATE 'DateOrDateTz'" << endl
                           << "=======================" << endl;
@@ -10210,6 +10204,8 @@ if (veryVerbose)
                 ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 11: {
@@ -10298,9 +10294,7 @@ if (veryVerbose)
         //   int parseRelaxed(DatetimeTz *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_02
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_02
         if (verbose) cout << endl
                           << "PARSE: DATETIME & DATETIMETZ" << endl
                           << "============================" << endl;
@@ -12820,6 +12814,8 @@ if (veryVerbose)
             bdlt::DatetimeTz resultTz;
 
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 10: {
@@ -12896,9 +12892,7 @@ if (veryVerbose)
         //   int parse(TimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "PARSE: TIME & TIMETZ" << endl
                           << "====================" << endl;
@@ -13697,6 +13691,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::parse(&resultTz, INPUT,     -1));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 9: {
@@ -13758,9 +13754,7 @@ if (veryVerbose)
         //   int parse(TimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "PARSE: bsls::TimeInterval" << endl
                           << "=========================" << endl;
@@ -13842,6 +13836,8 @@ if (veryVerbose)
                 ASSERTV(LINE, XX, X, XX == X);
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 8: {
@@ -13908,9 +13904,7 @@ if (veryVerbose)
         //   int parse(DateTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "PARSE: DATE & DATETZ" << endl
                           << "====================" << endl;
@@ -14488,6 +14482,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::parse(&resultTz, INPUT,     -1));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 7: {
@@ -14557,9 +14553,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "GENERATE 'DatetimeTz'" << endl
                           << "=====================" << endl;
@@ -15104,6 +15098,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 6: {
@@ -15170,9 +15166,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "GENERATE 'TimeTz'" << endl
                           << "=================" << endl;
@@ -15676,6 +15670,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 5: {
@@ -15742,9 +15738,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "GENERATE 'DateTz'" << endl
                           << "=================" << endl;
@@ -16242,6 +16236,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 4: {
@@ -16305,9 +16301,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "GENERATE 'Datetime'" << endl
                           << "===================" << endl;
@@ -16719,6 +16713,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 3: {
@@ -16778,9 +16774,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "GENERATE 'Time'" << endl
                           << "===============" << endl;
@@ -17158,6 +17152,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 2: {
@@ -17217,9 +17213,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "GENERATE 'Date'" << endl
                           << "===============" << endl;
@@ -17594,6 +17588,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       case 1: {
@@ -17650,9 +17646,7 @@ if (veryVerbose)
         //   int generateRaw(char *, const TimeInterval&, const Config&);
         // --------------------------------------------------------------------
 
-#ifndef U_TEST_PART_01
-        cout << "Test case " << test << " skipped\n";
-#else
+#ifdef U_TEST_PART_01
         if (verbose) cout << endl
                           << "GENERATE 'TimeInterval'" << endl
                           << "=======================" << endl;
@@ -18008,6 +18002,8 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
+#else
+        U_TEST_CASE_SKIPPED
 #endif
       } break;
       default: {
