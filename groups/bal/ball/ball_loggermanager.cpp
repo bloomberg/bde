@@ -190,8 +190,8 @@ RecordSharedPtrUtil::reassembleSharedPtr(Record *record)
 {
     BSLS_ASSERT(0 != s_sharedObjectOffset);
 
-    RepType *rep = reinterpret_cast<RepType *>(
-                      reinterpret_cast<char *>(record) - s_sharedObjectOffset);
+    RepType *rep = reinterpret_cast<RepType *>(reinterpret_cast<void *>(
+                     reinterpret_cast<char *>(record) - s_sharedObjectOffset));
 
     return bsl::shared_ptr<Record>(rep->ptr(), rep);
 }

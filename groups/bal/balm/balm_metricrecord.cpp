@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_metricrecord_cpp,"$Id$ $CSID$")
 
+#include <bsls_platform.h>
+
 #include <bsl_cfloat.h>  // DBL_MAX
 #include <bsl_ostream.h>
 
@@ -31,6 +33,10 @@ namespace BloombergLP {
 // Note that no solution to this problem is explicitly allowed by the standard,
 // so we are necessarily relying on observing that this strategy happens to
 // work on all of our supported platforms.
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+    #pragma error_messages (off, mulfovfl)
+#endif
 
 const double balm::MetricRecord::k_DEFAULT_MIN = DBL_MAX * 2;
 const double balm::MetricRecord::k_DEFAULT_MAX = DBL_MAX * -2;
