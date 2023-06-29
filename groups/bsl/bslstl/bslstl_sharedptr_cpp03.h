@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed May 31 10:33:45 2023
+// Generated on Wed Jun 28 07:38:47 2023
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -3746,6 +3746,19 @@ class SharedPtr_RepProctor {
 namespace BloombergLP {
 namespace bslstl {
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+    defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
+    BSLS_PLATFORM_CMP_VERSION >= 1936 && BSLS_PLATFORM_CMP_VERSION <= 1937
+// Microsoft needs a workaround to correctly handle calling 'sizeof' on an
+// unevaluated expression.  This compiler bug was introduced in Visual Studio
+// 2022 version 17.6 (cl 19.36, released May 2022).  The report to Microsoft is
+// https://developercommunity.visualstudio.com/t/C-templates:-new-compiler-error-in-MSV/10381900
+
+# define BSLSTL_SHAREDPTR_MSVC_DECLTYPE_WORKAROUND(...) decltype(__VA_ARGS__)
+#else
+# define BSLSTL_SHAREDPTR_MSVC_DECLTYPE_WORKAROUND(...) (__VA_ARGS__)
+#endif
+
 template <class FUNCTOR>
 struct SharedPtr_TestIsCallable {
   private:
@@ -3770,21 +3783,25 @@ struct SharedPtr_TestIsCallable {
     static FalseType test(...);
     template <class ARG>
     static TrueType
-    test(typename bsl::enable_if<static_cast<bool>(
-                    sizeof(BSLSTL_SHAREDPTR_SFINAE_DISCARD(
+    test(typename bsl::enable_if<
+             static_cast<bool>(
+                 sizeof(BSLSTL_SHAREDPTR_MSVC_DECLTYPE_WORKAROUND(
+                     BSLSTL_SHAREDPTR_SFINAE_DISCARD(
                                Util::declval<FUNCTOR>()(Util::declval<ARG>())),
-                           0))>::type *);
+                     0)))>::type *);
         // This function is never defined.  It provides a property-checker that
         // an entity of (template parameter) type 'FACTORY' can be called like
         // a function with a single argument, which is a pointer to an object
-        // of (template parameter) type 'ARG'.  The 'sizeof' expression
+        // of (template parameter) type 'ARG'.  The 'sizeof()' expression
         // provides an unevaluated context to check the validity of the
         // enclosed expression, and the ', 0' ensures that the 'sizeof' check
         // remains valid, even if the expression returns 'void'.  Similarly,
         // the cast to 'void' ensures that there are no surprises with types
         // that overload the comma operator.  Note that the cast to 'void' is
-        // elided for Clang compilers using versions of LLVM prior to 12, which
-        // fail to evaluate the trait properly.
+        // elided for Clang compilers using versions of LLVM prior to
+        // 12, which fail to evaluate the trait properly.  Note that
+        // 'sizeof(decltype())' is required for MSVC due to a compiler bug in
+        // MSVC 17.6 and later (at least including 17.7.0 Preview 2.0).
 };
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1920
@@ -8831,6 +8848,8 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 
 #undef BSLSTL_SHAREDPTR_DECLARE_IF_NULLPTR_DELETER
 #undef BSLSTL_SHAREDPTR_DEFINE_IF_NULLPTR_DELETER
+
+#undef BSLSTL_SHAREDPTR_MSVC_DECLTYPE_WORKAROUND
 
 #undef BSLSTL_SHAREDPTR_SFINAE_DISCARD
 
