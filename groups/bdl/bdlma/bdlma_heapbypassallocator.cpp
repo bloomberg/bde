@@ -12,14 +12,20 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_heapbypassallocator_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
-#include <bsls_alignmentutil.h>
+#include <bslmt_lockguard.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
 
-#include <bsl_algorithm.h>
+#include <bsl_new.h>
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 
 #elif defined(BSLS_PLATFORM_OS_UNIX)
@@ -27,187 +33,157 @@ BSLS_IDENT_RCSID(bdlma_heapbypassallocator_cpp,"$Id$ $CSID$")
 #include <unistd.h>
 #include <sys/mman.h>
 
+#else
+
+#error Unsupported platform
+
 #endif
 
 namespace BloombergLP {
 namespace bdlma {
 
-                 // ========================================
-                 // struct HeapBypassAllocator::BufferHeader
-                 // ========================================
+namespace {
 
-struct HeapBypassAllocator::BufferHeader {
-    // This struct defines a link in a linked list of buffers allocated by
-    // 'class HeapBypassAllocator'.  Each buffer header is located at the
-    // beginning of the buffer it describes, and contains the size (in bytes)
-    // of the buffer.
-
-    BufferHeader           *d_nextBuffer;  // pointer to linked list of buffers
-                                           // allocated after this one
-
-    bsls::Types::size_type  d_size;        // size (in bytes) of this buffer
+enum {
+    k_MAX_CHUNK_SIZE = 1u << 30,     // 1 GiB
+    k_MIN_CHUNK_SIZE = 1u << 12,     // 4 KiB
+    k_DEFAULT_CHUNK_SIZE = 1u << 22, // 4 MiB
 };
-}  // close package namespace
 
-                        // --------------------------
-                        // bdlma::HeapBypassAllocator
-                        // --------------------------
+}  // close unnamed namespace
+
+                         // -------------------------
+                         // class HeapBypassAllocator
+                         // -------------------------
 
 // PRIVATE CLASS METHODS
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
-namespace bdlma {
-
-char *HeapBypassAllocator::map(bsls::Types::size_type size)
+void *HeapBypassAllocator::systemAllocate(size_type size)
 {
-    // Note that passing 'MAP_ANONYMOUS' and a null file descriptor tells
-    // 'mmap' to use a special system file to map to.
-
-    char *address = (char *)mmap(0,     // 'mmap' chooses what address to which
-                                        // to map the memory
-                                 size,
-                                 PROT_READ | PROT_WRITE,
-#ifdef BSLS_PLATFORM_OS_DARWIN
-                                 MAP_ANON | MAP_PRIVATE,
+    void *raw = mmap(0,
+                     static_cast<size_t>(size),
+                     PROT_READ | PROT_WRITE,
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+                     MAP_ANON | MAP_PRIVATE,
 #else
-                                 MAP_ANONYMOUS | MAP_PRIVATE,
+                     MAP_ANONYMOUS | MAP_PRIVATE,
 #endif
-                                 -1,    // null file descriptor
-                                 0);
-    return (MAP_FAILED == address ? 0 : address);
+                     -1,
+                     0);
+    return raw == MAP_FAILED ? 0 : raw;
 }
 
-void HeapBypassAllocator::unmap(void *address, bsls::Types::size_type size) {
-    // On some platforms, munmap takes a 'char *', on others, a 'void *'.
-
-    munmap((char *)address, size);
+void HeapBypassAllocator::systemFree(void *chunk, size_type size)
+{
+    // On some platforms, munmap takes a 'char *', on others, a 'void *'
+    munmap(reinterpret_cast<char *>(chunk), static_cast<size_t>(size));
 }
-}  // close package namespace
+
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-namespace bdlma {
-
-char *HeapBypassAllocator::map(bsls::Types::size_type size)
+void *HeapBypassAllocator::systemAllocate(size_type size)
 {
-    char *address =
-           (char *)VirtualAlloc(0,  // 'VirtualAlloc' chooses what address to
-                                    // which to map the memory
-                                size,
-                                MEM_COMMIT | MEM_RESERVE,
-                                PAGE_READWRITE);
-    return NULL == address ? 0 : address;
+    void *raw = VirtualAlloc(0,
+                             static_cast<SIZE_T>(size),
+                             MEM_COMMIT | MEM_RESERVE,
+                             PAGE_READWRITE);
+    return raw == NULL ? 0 : raw;
 }
 
-void HeapBypassAllocator::unmap(void *address, bsls::Types::size_type size)
+void HeapBypassAllocator::systemFree(void *chunk, size_type size)
 {
-    VirtualFree(address, 0, MEM_RELEASE);
+    VirtualFree(chunk, 0, MEM_RELEASE);
 }
-}  // close package namespace
-#else
-#error unsupported platform
+
 #endif
 
-namespace bdlma {
-
 // PRIVATE MANIPULATORS
-int HeapBypassAllocator::replenish(bsls::Types::size_type size)
+void HeapBypassAllocator::init()
 {
-    // round size up to a multiple of page size
+    // Configure initial empty chunk placeholder
+    d_initialChunk.d_size = 0;
 
-    const bsls::Types::size_type pageMask = d_pageSize - 1;
+    // Determine page size
+    size_type pageSize = 0;
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    pageSize = static_cast<size_type>(si.dwAllocationGranularity);
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+    long ps = sysconf(_SC_PAGESIZE);
+    pageSize = ps == -1 ? 0u : static_cast<size_type>(ps);
+#endif
+    if (pageSize) {
+        // Round up chunk size to multiple of page size
+        d_chunkSize += (pageSize - 1u);
+        d_chunkSize = d_chunkSize / pageSize * pageSize;
+    }
+}
 
-    // '%' can be very slow -- if 'd_pageSize' is a power of 2, use '&'
-
-    const bsls::Types::size_type mod =
-                                 !(d_pageSize & pageMask) ? (size & pageMask)
-                                                          :  size % d_pageSize;
-    if (0 != mod) {
-        size += d_pageSize - mod;
+HeapBypassAllocator::Chunk *HeapBypassAllocator::replenish(size_type size)
+{
+    // Handle case where requested size (plus the chunk header itself) is
+    // larger than the usual chunk size
+    const size_type chunkHeaderSize =
+                 bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Chunk));
+    size_type       chunkSize = d_chunkSize;
+    while (chunkSize < size + chunkHeaderSize) {
+        chunkSize *= 2;
     }
 
-    BufferHeader *newBuffer = (BufferHeader *)(void *)map(size);
-    if (0 == newBuffer) {
-        return -1;                                                    // RETURN
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_replenishMutex);
+
+    Chunk *chunk = d_current.loadRelaxed();
+    if (chunk->d_offset.loadAcquire() + size <= chunk->d_size) {
+        // Double-checked locking pattern; another thread must have replenished
+        // already
+        return chunk;                                                 // RETURN
     }
 
-    if (d_currentBuffer_p) {
-        d_currentBuffer_p->d_nextBuffer = newBuffer;
+    char *raw = reinterpret_cast<char *>(systemAllocate(chunkSize));
+    if (!raw) {  // failed to allocate
+        bsls::BslExceptionUtil::throwBadAlloc();
+        return 0;                                                     // RETURN
     }
-    else {
-        d_firstBuffer_p = newBuffer;
-    }
-    d_currentBuffer_p = newBuffer;
-
-    d_endOfBuffer_p = (char *)newBuffer + size;
-    newBuffer->d_nextBuffer = 0;
-    newBuffer->d_size = size;
-    d_cursor_p = (char *)(newBuffer + 1);
-
-    return 0;
+    Chunk *newChunk = new (raw) Chunk;
+    newChunk->d_offset.storeRelaxed(chunkHeaderSize);
+    newChunk->d_size = chunkSize;
+    newChunk->d_nextChunk_p = chunk;
+    d_current.storeRelease(newChunk);
+    return newChunk;
 }
 
 // CREATORS
 HeapBypassAllocator::HeapBypassAllocator()
-: d_firstBuffer_p(0)
-, d_currentBuffer_p(0)
-, d_cursor_p(0)
-, d_endOfBuffer_p(0)
-, d_alignment(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT)
+: d_current(&d_initialChunk)
+, d_chunkSize(k_DEFAULT_CHUNK_SIZE)
 {
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    d_pageSize = ::sysconf(_SC_PAGESIZE);
-#else // Windows
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-    d_pageSize = si.dwAllocationGranularity;
-#endif
+    init();
+}
 
-    BSLS_ASSERT(d_alignment >= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT(0 == (d_alignment & (d_alignment - 1)));  // is power of 2
+HeapBypassAllocator::HeapBypassAllocator(size_type replenishHint)
+: d_current(&d_initialChunk)
+{
+    // Round up to next power of 2
+    d_chunkSize = k_MIN_CHUNK_SIZE;
+    while (d_chunkSize < replenishHint && d_chunkSize < k_MAX_CHUNK_SIZE) {
+        d_chunkSize <<= 1;
+    }
+    init();
 }
 
 HeapBypassAllocator::~HeapBypassAllocator()
 {
-    BufferHeader *buffer = d_firstBuffer_p;
-    while (buffer) {
-        BufferHeader *nextBuffer = buffer->d_nextBuffer;
-        unmap(buffer, buffer->d_size);
-        buffer = nextBuffer;
+    Chunk *chunk = d_current.loadRelaxed();
+    while (chunk != &d_initialChunk) {
+        Chunk *next = chunk->d_nextChunk_p;
+        systemFree(chunk, chunk->d_size);
+        chunk = next;
     }
 }
 
-// MANIPULATORS
-void *HeapBypassAllocator::allocate(bsls::Types::size_type size)
-{
-    d_cursor_p = d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
-                                    d_cursor_p, static_cast<int>(d_alignment));
-    if (d_endOfBuffer_p < d_cursor_p + size) {
-        bsls::Types::size_type blockSize =
-                                     size + d_alignment + sizeof(BufferHeader);
-        int sts = replenish(blockSize);    // 'replenish' will round up to
-                                           // multiple of 'd_pageSize'
-        if (0 != sts) {
-            return 0;                                                 // RETURN
-        }
-
-        d_cursor_p = d_cursor_p
-                   + bsls::AlignmentUtil::calculateAlignmentOffset(
-                                    d_cursor_p, static_cast<int>(d_alignment));
-    }
-
-    BSLS_ASSERT(d_endOfBuffer_p >= d_cursor_p + size);
-
-    char *address = d_cursor_p;
-    d_cursor_p += size;
-    return address;
-}
-
-void HeapBypassAllocator::deallocate(void *)
-{
-    // no-op
-}
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
