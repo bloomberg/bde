@@ -149,24 +149,44 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is an array type.
 //
-// First, we create two 'typedef's -- an array type and a non-array type:
+// First, we create three 'typedef's -- a non-array type, an array type with a
+// known bound, and an array type and an array type with an unknown bound:
 //..
-    typedef int MyType;
-    typedef int MyArrayType[];
+    typedef int MyNonArrayType;
+    typedef int MySizedArrayType[12];
+    typedef int MyUnsizedArrayType[];
 //..
-// Now, we instantiate the 'bsl::is_array' template for each of the 'typedef's
-// and assert the 'value' static data member of each instantiation:
+// Now, we instantiate each of the the meta-functions for each of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-    ASSERT(false == bsl::is_array<MyType>::value);
-    ASSERT(true  == bsl::is_array<MyArrayType>::value);
+    ASSERT(false == bsl::is_array<MyNonArrayType>::value);
+    ASSERT(true  == bsl::is_array<MySizedArrayType>::value);
+    ASSERT(true  == bsl::is_array<MyUnsizedArrayType>::value);
+
+    ASSERT(false == bsl::is_bounded_array<MyNonArrayType>::value);
+    ASSERT(true  == bsl::is_bounded_array<MySizedArrayType>::value);
+    ASSERT(false == bsl::is_bounded_array<MyUnsizedArrayType>::value);
+
+    ASSERT(false == bsl::is_unbounded_array<MyNonArrayType>::value);
+    ASSERT(false == bsl::is_unbounded_array<MySizedArrayType>::value);
+    ASSERT(true  == bsl::is_unbounded_array<MyUnsizedArrayType>::value);
 //..
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
 // 'bsl::is_array_v' variable as follows:
 //..
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_array_v<MyType>);
-    ASSERT(true  == bsl::is_array_v<MyArrayType>);
+    ASSERT(false == bsl::is_array_v<MyNonArrayType>);
+    ASSERT(true  == bsl::is_array_v<MySizedArrayType>);
+    ASSERT(true  == bsl::is_array_v<MyUnsizedArrayType>);
+
+    ASSERT(false == bsl::is_bounded_array_v<MyNonArrayType>);
+    ASSERT(true  == bsl::is_bounded_array_v<MySizedArrayType>);
+    ASSERT(false == bsl::is_bounded_array_v<MyUnsizedArrayType>);
+
+    ASSERT(false == bsl::is_unbounded_array_v<MyNonArrayType>);
+    ASSERT(false == bsl::is_unbounded_array_v<MySizedArrayType>);
+    ASSERT(true  == bsl::is_unbounded_array_v<MyUnsizedArrayType>);
 #endif
 //..
 
