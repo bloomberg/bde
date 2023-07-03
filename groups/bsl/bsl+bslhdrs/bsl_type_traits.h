@@ -534,6 +534,37 @@ constexpr std::size_t is_nothrow_swappable_with_v =
 #endif
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+// 20.15.6, type relations
+using std::is_nothrow_convertible;
+using std::is_nothrow_convertible_v;
+
+// 20.15.7.6, other transformations
+using std::common_reference;
+using std::common_reference_t;
+using std::basic_common_reference;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
+// 20.15.6, type relations
+using std::is_layout_compatible;
+using std::is_layout_compatible_v;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
+// 20.15.6, type relations
+using std::is_pointer_interconvertible_base_of;
+using std::is_pointer_interconvertible_base_of_v;
+
+// 20.15.9, member relationships
+using std::is_pointer_interconvertible_with_class;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
+// 20.15.9, member relationships
+using std::is_corresponding_member;
+#endif
+
 #if 0
     // These traits are provided by BDE, and have additional members for
     // Bloomberg legacy code still using the pre-standard interface.
@@ -552,6 +583,8 @@ using std::integral_constant;
 using std::invoke_result;
 using std::is_arithmetic;
 using std::is_array;
+using std::is_bounded_array;
+using std::is_bounded_array_v;
 using std::is_class;
 using std::is_const;
 using std::is_convertible;
@@ -574,6 +607,8 @@ using std::is_rvalue_reference;
 using std::is_same;
 using std::is_trivially_copyable;
 using std::is_trivially_default_constructible;
+using std::is_unbounded_array;
+using std::is_unbounded_array_v;
 using std::is_void;
 using std::is_volatile;
 using std::remove_const;

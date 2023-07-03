@@ -231,6 +231,8 @@ using namespace BloombergLP;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [36] C++20 'bsl_type_traits.h' HEADER ADDITIONS
+// [35] CONCERN: Entities from 'std::ranges' compatible with 'bsl::array'.
 // [34] bsl::coroutine_traits<>
 // [34] bsl::coroutine_handle<>
 // [34] bsl::noop_coroutine()
@@ -865,6 +867,18 @@ class RangesDummyRandomGenerator{
 };
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+
+// case 34: 'basic_common_reference'
+
+template <class X> struct TQual { };
+template <class X> struct UQual { };
+
+struct U { };
+struct T { };
+
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -886,6 +900,217 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_type_traits.h' HEADER ADDITIONS
+        //
+        // Concerns:
+        //: 1 The following names are available in 'bsl' to users who include
+        //:   'bsl_type_traits.h':
+        //:   o 'bsl::is_bounded_array'
+        //:   o 'bsl::is_unbounded_array'
+        //:   o 'bsl::is_nothrow_convertible'
+        //:   o 'bsl::is_layout_compatible'
+        //:   o 'bsl::is_pointer_interconvertible_base_of'
+        //:   o 'bsl::common_reference'
+        //:   o 'bsl::basic_common_reference
+        //:   o 'bsl::is_pointer_interconvertible_with_class'
+        //:   o 'bsl::is_corresponding_member'
+        //:
+        //: 2 When the trait has a '*_v' form, that trait has the same value
+        //:  as the  non-'*_v' form.
+        //:
+        //: 3 The feature test macros defined in '<version>' for the imported
+        //:   features are available and have appropriate values.
+        //
+        // Plan:
+        //: 1 Verify that:
+        //:    o '__cpp_lib_is_layout_compatible        >= 201907L'
+        //:    o '__cpp_lib_is_pointer_interconvertible >= 201907L'
+        //:
+        //: 2 Verify that '__cpp_lib_is_layout_compatible' also also determines
+        //:   the availability of
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER', per the
+        //:   final sentence of 'p0466r5.pdf'.
+        //:
+        //: 2 Form some syntactically valid expressions for each added trait.
+        //
+        // Testing
+        //   C++20 'bsl_type_traits.h' HEADER ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                     "\nTESTING C++20 'bsl_type_traits.h' HEADER ADDITIONS"
+                     "\n==================================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        if (veryVerbose) {
+            Q('bsl::is_bounded_array');
+            Q('bsl::is_unbounded_array');
+        }
+        {
+            bool resultBA   = bsl::is_bounded_array  <int[10]>::value;
+            bool resultBA_v = bsl::is_bounded_array_v<int[10]>;
+
+            ASSERT(true == resultBA  );
+            ASSERT(true == resultBA_v);
+
+            bool resultUA   = bsl::is_unbounded_array  <int[  ]>::value;
+            bool resultUA_v = bsl::is_unbounded_array_v<int[  ]>;
+
+            ASSERT(true == resultUA  );
+            ASSERT(true == resultUA_v);
+        }
+
+        if (veryVerbose) {
+            Q('bsl::is_nothrow_convertible');
+        }
+        {
+            const bool result   = bsl::is_nothrow_convertible  <short, int>
+                                                                       ::value;
+            const bool result_v = bsl::is_nothrow_convertible_v<short, int>;
+
+            ASSERT(true == result);
+            ASSERT(true == result_v)
+
+            BSLMF_ASSERT(__cpp_lib_is_nothrow_convertible >=201806L);
+        }
+
+        if (veryVerbose) {
+            Q('bsl::common_reference');
+            Q('bsl::basic_common_reference');
+        }
+        {
+            using CR   = bsl::common_reference  <short, int>::type;
+
+            const bool isCrInt = bsl::is_same<CR, int>::value;
+
+            ASSERT(true == isCrInt);
+
+            using TU = bsl::basic_common_reference<T, U, TQual, UQual>;
+            using UT = bsl::basic_common_reference<U, T, UQual, TQual>;
+
+            bool result = bsl::is_same<TU, UT>:: value;
+            ASSERT(false == result);
+        }
+#else
+        if (veryVerbose) {
+            printf("SKIPPED: "
+                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' "
+                   "undefined.\n");
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
+        if (veryVerbose) {
+            Q('bsl::is_layout_compatible');
+        }
+        {
+            ASSERTV("__cpp_lib_is_layout_compatible >= 201907L check",
+                     __cpp_lib_is_layout_compatible,
+                     __cpp_lib_is_layout_compatible >= 201907L);
+
+            struct Foo{
+                int x;
+                char y;
+            };
+
+            class Bar
+            {
+                const int u = 42;
+                volatile char v = '*';
+            };
+
+            const bool result   = bsl::is_layout_compatible  <Foo, Bar>::value;
+            const bool result_v = bsl::is_layout_compatible_v<Foo, Bar>;
+
+            ASSERTV(result,   true == result);
+            ASSERTV(result_v, true == result_v);
+        }
+#else
+        if (veryVerbose) {
+            printf(
+         "SKIPPED: "
+         "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' undefined.\n");
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
+        if (veryVerbose) {
+            Q('bsl::is_corresponding_member');
+        }
+        {
+            // Note that the '_cpp_lib_is_layout' flag *also* controls
+            // 'bsl::is_corresponding_member'.
+
+            ASSERTV("__cpp_lib_is_layout_compatible >= 201907L check",
+                     __cpp_lib_is_layout_compatible,
+                     __cpp_lib_is_layout_compatible >= 201907L);
+         
+            struct Foo { int x; };
+            struct Bar { int y; double z; };
+
+            const bool result = bsl::is_corresponding_member(&Foo::x, &Bar::y);
+            ASSERT(true == result);
+        }
+#else
+        if (veryVerbose) {
+            printf("SKIPPED: "
+                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' "
+                   "undefined.\n");
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
+        if (veryVerbose) {
+            Q('bsl::is_pointer_interconvertible_base_of');
+            Q('bsl::is_pointer_interconvertible_with_class');
+        }
+        {
+            ASSERTV("__cpp_lib_is_pointer_interconvertible >= 201907L check",
+                     __cpp_lib_is_pointer_interconvertible,
+                     __cpp_lib_is_pointer_interconvertible >= 201907L);
+            {
+                struct Foo {};
+                struct Bar {};
+                class Baz : Foo, public Bar {
+                    int x;
+                };
+
+                const bool res   = bsl::is_pointer_interconvertible_base_of
+                                                            < Bar, Baz>::value;
+                const bool res_v = bsl::is_pointer_interconvertible_base_of_v
+                                                            < Bar, Baz>;
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1937
+                // Known Windows bug.   Hopefully fixed in future release.
+
+                const bool expected = false;
+#else
+                const bool expected = true;
+#endif
+                ASSERT(expected == res);
+                ASSERT(expected == res_v);
+            }
+            {
+                struct Foo { int x; };
+                struct Bar { int y; };
+                struct Baz : Foo, Bar {}; // not standard-layout
+
+                const bool res = bsl::is_pointer_interconvertible_with_class(
+                                                                      &Baz::x);
+                ASSERT(true == res);
+            }
+        }
+#else
+        if (veryVerbose) {
+            printf(
+                "SKIPPED: "
+                "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE' "
+                "undefined.\n");
+        }
+#endif
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // TESTING C++20 'std::ranges' bsl::array container
@@ -907,9 +1132,8 @@ int main(int argc, char *argv[])
         //:   the 'bslstl_algorithm.h', verify that the function exists and is
         //:   usable by bsl::array.  (C-2)
         //
-        // Testing
-        //   CONCERN: Entities from 'std::ranges' are available and usable by
-        //   the bsl::array container
+        // Testing:
+        //   CONCERN: Entities from 'std::ranges' compatible with 'bsl::array'.
         // --------------------------------------------------------------------
         if (verbose) printf("\nTESTING C++20 'std::ranges' bsl::array container"
                             "\n====================================\n");

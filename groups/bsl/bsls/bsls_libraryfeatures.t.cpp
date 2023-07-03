@@ -213,6 +213,10 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
+// [20] BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
+// [21] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
+// [23] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
+// [22] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -223,7 +227,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [20] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -1624,7 +1628,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 20: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1644,6 +1648,231 @@ int main(int argc, char *argv[])
 
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER'
+        //
+        // Concerns:
+        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' is
+        //:   defined, the 'std::is_corresponding_member' meta function is
+        //:   available.
+        //:
+        //: 2 The corresponding standard feature test macro is defined and has
+        //:   a value in the expected range.
+        //
+        // Plan:
+        //: 1 Make simple use of the 'std::is_corresponding_member' function
+        //:   template to verify its availability when
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' is
+        //:   defined.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf(
+         "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER'\n"
+         "================================================================\n");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER)
+
+        ASSERTV("__cpp_lib_is_layout_compatible >= 201907L check",
+                 __cpp_lib_is_layout_compatible,
+                 __cpp_lib_is_layout_compatible >= 201907L);
+
+        struct Foo { int x; };
+        struct Bar { int y; double z; };
+
+        const bool result = std::is_corresponding_member(&Foo::x, &Bar::y);
+        ASSERT(true == result);
+#else
+        if (veryVerbose) {
+            printf("SKIPPED: "
+                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' "
+                   "undefined.\n");
+        }
+#endif
+        }
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'
+        //
+        // Concerns:
+        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'
+        //:   is defined, the 'std::is_pointer_interconvertible_base_of' and
+        //:   'std::is_pointer_interconvertible_with_class' function templates
+        //:   are available.
+        //
+        // Plan:
+        //: 1 Make simple use of the 'std::is_pointer_interconvertible_base_of'
+        //:   and 'std::is_pointer_interconvertible_with_class' function
+        //:   templates to verify their availability when
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE' is
+        //:   defined.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf(
+     "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'\n"
+     "====================================================================\n");
+        }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE)
+
+        ASSERTV("__cpp_lib_is_pointer_interconvertible >= 201907L check",
+                 __cpp_lib_is_pointer_interconvertible,
+                 __cpp_lib_is_pointer_interconvertible >= 201907L);
+        {
+            struct Foo {};
+            struct Bar {};
+            class Baz : Foo, public Bar {
+                int x;
+            };
+
+            const bool result   = std::is_pointer_interconvertible_base_of  <
+                                                              Bar, Baz>::value;
+            const bool result_v = std::is_pointer_interconvertible_base_of_v<
+                                                              Bar, Baz>;
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1937
+            // Known Windows bug.  Hopefully fixed in future release.
+
+            const bool expected = false;
+#else
+            const bool expected = true;
+#endif
+            ASSERT(expected == result);
+            ASSERT(expected == result_v);
+        }
+        {
+            struct Foo { int x; };
+            struct Bar { int y; };
+            struct Baz : Foo, Bar {}; // not standard-layout
+
+            const bool result = std::is_pointer_interconvertible_with_class(
+                                                                      &Baz::x);
+            ASSERT(true == result);
+        }
+#else
+        if (veryVerbose) {
+            printf(
+                 "SKIPPED: "
+                 "BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE' "
+                 "undefined.\n");
+        }
+#endif
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'
+        //
+        // Concerns:
+        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'
+        //:   is defined, the 'std::is_layout_compatible'
+        //:   function template is available.
+        //:
+        //: 2 The corresponding standard feature test macro is defined and has
+        //:   a value in the expected range.
+        //
+        // Plan:
+        //: 1 Make simple use of the 'std::is_layout_compatible' function
+        //:   template to verify its availability when
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' is defined.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf(
+            "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'\n"
+            "=============================================================\n");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE)
+
+        ASSERTV("__cpp_lib_is_layout_compatible >= 201907L check",
+                 __cpp_lib_is_layout_compatible,
+                 __cpp_lib_is_layout_compatible >= 201907L);
+
+        struct Foo{
+            int x;
+            char y;
+        };
+
+        class Bar
+        {
+            const int u = 42;
+            volatile char v = '*';
+        };
+
+        const bool result   = std::is_layout_compatible  <Foo, Bar>::value;
+        const bool result_v = std::is_layout_compatible_v<Foo, Bar>;
+
+        ASSERTV(result,   true == result);
+        ASSERTV(result_v, true == result_v);
+#else
+        if (veryVerbose) {
+            printf(
+         "SKIPPED: "
+         "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' undefined.\n");
+        }
+#endif
+        }
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'
+        //
+        // Concerns:
+        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined,
+        //:   'std::to_array' is available.
+        //
+        // Plan:
+        //: 1 Make simple use of 'std::to_array' to verify its availability
+        //:   if 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'\n"
+                   "=================================================\n");
+        }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY)
+        // String is there since the macro will get replaced by value.
+        ASSERTV("__cpp_lib_to_array >= 201907L check",
+                __cpp_lib_to_array,
+                __cpp_lib_to_array >= 201907L);
+
+
+        if (veryVerbose) printf("... testing to_array(T&[N])\n");
+        {
+            int src[5] = {1, 2, 3, 4, 5};
+            std::array<int, 5> dest = std::to_array(src);
+            for (std::size_t i = 0; i < sizeof(src)/sizeof(*src); ++i) {
+                ASSERTV(i, src[i], dest[i], src[i] == dest[i]);
+            }
+        }
+
+
+        if (veryVerbose) printf("... testing to_array(T&&[N])\n");
+        {
+            int src[5] = {1, 2, 3, 4, 5};
+            int check[5] = {1, 2, 3, 4, 5};
+            std::array<int, 5> dest = std::to_array(std::move(src));
+            for (std::size_t i = 0; i < sizeof(check)/sizeof(*check); ++i) {
+                ASSERTV(i, dest[i], check[i], dest[i] == check[i]);
+            }
+        }
+#endif
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -2938,7 +3167,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
         //:   conditionally compile code that includes '<typeindex>' and verify
-        //:   the 'hash_code' method is availble in both 'type_info' and
+        //:   the 'hash_code' method is available in both 'type_info' and
         //:   'type_index'.
         //
         // Testing:

@@ -57,6 +57,9 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: '*_for_overwrite'
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR: '<chrono>' Calendar/TZ additions
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV: 'mbrtoc8' & 'c8rtomb'
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE: type trait
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER: type trait
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE: type traits
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -988,15 +991,6 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_ranges' feature-test macro
 // is defined and '__cpp_lib_ranges >= 202110L'.
 //
-///'BSLS_LIBRARYFEATURES_HAS_CPP20_REMOVE_CVREF'
-///---------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_REMOVE_CVREF' macro is defined if the
-// native standard library provides the '<type_traits>' header and implements
-// the 'std::remove_cvref' and 'std::remove_cvref_t' meta functions.
-//
-// This macro is defined if the standard '__cpp_lib_remove_cvref' macro is
-// defined.
-//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES'
 ///--------------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' macro is
@@ -1044,6 +1038,34 @@ BSLS_IDENT("$Id: $")
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' macro is defined if the
 // 'bsl::mbrtoc8' and 'bsl::c8rtomb' functions are available with C++20
 // semantics.
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'
+///-----------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' is defined if the
+// 'bsl::is_layout_compatible' meta function is available.
+//
+// Note that the standard feature test macro '__cpp_lib_is_layout_compatible'
+// is also defined and has a value of at least '201907L'.
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER'
+///--------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' is defined if
+// the 'bsl::is_corresponding_member' meta function is available.
+//
+// Note that the standard feature test macro '__cpp_lib_is_layout_compatible',
+// the macro that informs
+// 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE', is also defined.  See
+// the last sentence of 'P0466R5'.
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'
+///------------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE' is defined
+// if the 'bsl::is_pointer_interconvertible_base_of' and
+// 'bsl::is_pointer_interconvertible_with_class' meta functions are available.
+//
+// Note that the standard feature test macro
+// '__cpp_lib_is_pointer_interconvertible' is also defined and has a value of
+// at least '201907L'.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
@@ -1946,6 +1968,24 @@ BSLS_IDENT("$Id: $")
   //#define BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
+
+#if defined(__cpp_lib_is_layout_compatible) &&                                \
+    __cpp_lib_is_layout_compatible >= 201907L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE                   1
+#endif
+
+// Per the final sentence of 'P0466R5', the availability of
+// 'std::is_corresponding_member' is linked to the availability of
+// 'std::is_layout_compatible.
+#if defined(__cpp_lib_is_layout_compatible) &&                                \
+    __cpp_lib_is_layout_compatible >= 201907L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
+#endif
+
+#if defined(__cpp_lib_is_layout_compatible) &&                                \
+    __cpp_lib_is_pointer_interconvertible >= 201907L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE            1
+#endif
 
 // ============================================================================
 //                       DEFINE LINK-COERCION SYMBOL
