@@ -65,6 +65,7 @@
 #include <bslstl_vector.h>
 
 #include <cstdlib>       // 'rand'
+#include <cstring>       // 'memset'
 #include <ctime>         // 'time'
 #include <new>           // 'operator delete'
 #include <stdio.h>
@@ -338,6 +339,15 @@ using namespace BloombergLP;
 // [47] shared_ptr<T[]>  make_shared<T[]>();
 // [47] shared_ptr<T[N]> allocate_shared<T[N]>();
 // [47] shared_ptr<T[]>  allocate_shared<T[]>();
+// [48] shared_ptr<T>    make_shared_for_overwrite<T>();
+// [48] shared_ptr<T[N]> make_shared_for_overwrite<T[N]>();
+// [48] shared_ptr<T[]>  make_shared_for_overwrite<T[]>(size);
+// [48] shared_ptr<T>    allocate_shared_for_overwrite<T>(ALLOC);
+// [48] shared_ptr<T[N]> allocate_shared_for_overwrite<T[N]>(ALLOC);
+// [48] shared_ptr<T[]>  allocate_shared_for_overwrite<T[]>(ALLOC, size);
+// [48] shared_ptr<T>    allocate_shared_for_overwrite<T>(ALLOC*);
+// [48] shared_ptr<T[N]> allocate_shared_for_overwrite<T[N]>(ALLOC*);
+// [48] shared_ptr<T[]>  allocate_shared_for_overwrite<T[]>(ALLOC*, size);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST (shared_ptr)
 // [ 3] shared_ptr(TYPE *ptr) // synthesized
@@ -2676,6 +2686,91 @@ struct SometimesThrowOnConstruction {
         ++gNumDestructors;
     }
 };
+
+                     // =========================
+                     // class ScribblingAllocator
+                     // =========================
+
+struct ScribblingAllocator : public bslma::Allocator {
+  private:
+    // DATA
+    bslma::Allocator *d_allocator_p;
+    int               d_scribbleValue;
+
+  public:
+    // CREATORS
+    ScribblingAllocator(bslma::Allocator *basicAllocator, int scribble)
+    : d_allocator_p(basicAllocator)
+    , d_scribbleValue(scribble)
+        // Construct an object.  Use the specified 'basicAllocator' for all
+        // allocations and deallocations, and fill each allocation with the
+        // specified 'scribble'.
+    {
+    }
+
+     // MANIPULATORS
+     virtual void *allocate(size_type size)
+         // Return a newly allocated block of memory of (at least) the
+         // specified positive 'size' (in bytes).  If 'size' is 0, a null
+         // pointer is returned with no other effect.  If this allocator
+         // cannot return the requested number of bytes, then it will throw a
+         // 'std::bad_alloc' exception in an exception-enabled build, or else
+         // will abort the program in a non-exception build.  The behavior is
+         // undefined unless '0 <= size'.  After allocation, fill the allocated
+         // memory with the value of 'd_scribbleValue'
+    {
+        void *address = d_allocator_p->allocate (size);
+        if (0 != address) {
+            std::memset(address, d_scribbleValue, size);
+        }
+        return address;
+    }
+
+     virtual void deallocate(void *address)
+         // Return the memory block at the specified 'address' back to this
+         // allocator.  If 'address' is 0, this function has no effect.  The
+         // behavior is undefined unless 'address' was allocated using this
+         // allocator object and has not already been deallocated.
+    {
+        d_allocator_p->deallocate(address);
+    }
+
+
+    ~ScribblingAllocator()
+        // Destruct the object.
+    {
+    }
+
+};
+
+                     // =================
+                     // class ArrayStruct
+                     // =================
+
+template <class TYPE, size_t SIZE>
+struct ArrayStruct {
+    // A POD struct that contains an array; used for testing
+    // make_shared_for_overwrite.
+    TYPE d_array[SIZE];
+};
+
+                // ================================
+                // class PartiallyInitializedStruct
+                // ================================
+
+template <class TYPE>
+struct PartiallyInitializedStruct {
+    // A POD that only initializes one of it's two fields. Used for testing
+    // make_shared_for_overwrite.
+    // DATA
+    TYPE d_initialized;
+    TYPE d_not_initialized;
+
+    PartiallyInitializedStruct()
+        // Construct a PartiallyInitializedStruct.
+    : d_initialized() {}
+};
+
 
 // Traits for test types:
 namespace BloombergLP {
@@ -8054,6 +8149,247 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 48: {
+        // ------------------------------------------------------------------
+        // TESTING MAKE_SHARED_FOR_OVERWRITE
+        //
+        // Concern:
+        //: 1 That make_shared<T[N]>() constructs N objects.
+        //
+        // Plan:
+        //: 1 Create shared_pointers of arrays, counting the constructor and
+        //:   destructor calls.
+        //
+        // Testing:
+        //   shared_ptr<T>    make_shared_for_overwrite<T>();
+        //   shared_ptr<T[N]> make_shared_for_overwrite<T[N]>();
+        //   shared_ptr<T[]>  make_shared_for_overwrite<T[]>(size);
+        //   shared_ptr<T>    allocate_shared_for_overwrite<T>(ALLOC);
+        //   shared_ptr<T[N]> allocate_shared_for_overwrite<T[N]>(ALLOC);
+        //   shared_ptr<T[]>  allocate_shared_for_overwrite<T[]>(ALLOC, size);
+        //   shared_ptr<T>    allocate_shared_for_overwrite<T>(ALLOC*);
+        //   shared_ptr<T[N]> allocate_shared_for_overwrite<T[N]>(ALLOC*);
+        //   shared_ptr<T[]>  allocate_shared_for_overwrite<T[]>(ALLOC*, size);
+        // ------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING MAKE_SHARED_FOR_OVERWRITE"
+                   "\n=================================\n");
+
+        using BloombergLP::bsltf::StdStatefulAllocator;
+        typedef StdStatefulAllocator<int, true,  true,  true,  true > AllocA;
+
+        const size_t SIZE = 10;
+        const int    SCRIBBLEVAL = 0xA5;
+
+        typedef long                                 TestType;
+        typedef ArrayStruct<TestType, SIZE>          TestStruct;
+        typedef PartiallyInitializedStruct<TestType> Partial;
+
+        ScribblingAllocator sa(&ta, SCRIBBLEVAL);
+        TestType           scribbleValue;
+
+        // This is the bit pattern set by the allocator
+        std::memset(&scribbleValue, SCRIBBLEVAL, sizeof(scribbleValue));
+
+        if (veryVerbose)
+            printf("\tTesting make_shared_for_overwrite\n");
+        // The non-array case
+        {
+            bsl::shared_ptr<TestStruct> p =
+                                  bsl::make_shared_for_overwrite<TestStruct>();
+            // No known bit pattern from make_shared, so we just try to write
+            // to each element in the struct's array.
+            for (size_t i = 0; i < SIZE; ++i) {
+                p->d_array[i] = scribbleValue + i;
+            }
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p->d_array[i], scribbleValue + i,
+                                 p->d_array[i] == TestType(scribbleValue + i));
+            }
+
+            bsl::shared_ptr<Partial> p1 =
+                                     bsl::make_shared_for_overwrite<Partial>();
+            ASSERT(0 == p1->d_initialized);
+            // No known bit pattern from make_shared, so we can't test
+            // 'd_not_initialized' here           .
+        }
+
+        // statically-sized array
+        {
+            bsl::shared_ptr<TestType[SIZE]> p =
+                              bsl::make_shared_for_overwrite<TestType[SIZE]>();
+            // No known bit pattern from make_shared, so we just try to write
+            // to each element in the array.
+            for (size_t i = 0; i < SIZE; ++i) {
+                p[i] = scribbleValue + i;
+            }
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p[i], scribbleValue + i, p[i] ==
+                                                  TestType(scribbleValue + i));
+            }
+
+            bsl::shared_ptr<Partial[SIZE]> p1 =
+                               bsl::make_shared_for_overwrite<Partial[SIZE]>();
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERT(0 == p1[i].d_initialized);
+            // No known bit pattern from make_shared, so we can't test
+            // 'd_not_initialized' here           .
+            }
+        }
+
+        // dynamically-sized array
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        {
+            bsl::shared_ptr<TestType[]> p =
+                              bsl::make_shared_for_overwrite<TestType[]>(SIZE);
+            // No known bit pattern from make_shared, so we just try to write
+            // to each element in the array.
+            for (size_t i = 0; i < SIZE; ++i) {
+                p[i] = scribbleValue + i;
+            }
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p[i], scribbleValue + i, p[i] ==
+                                                  TestType(scribbleValue + i));
+            }
+
+            bsl::shared_ptr<Partial[]> p1 =
+                               bsl::make_shared_for_overwrite<Partial[]>(SIZE);
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERT(0 == p1[i].d_initialized);
+            // No known bit pattern from make_shared, so we can't test
+            // 'd_not_initialized' here           .
+            }
+        }
+#endif
+
+        if (veryVerbose)
+            printf("\tTesting allocate_shared_for_overwrite(ALLOC)\n");
+
+        AllocA allocA(&sa);
+        // The non-array case
+        {
+            bsl::shared_ptr<TestStruct> p =
+                        bsl::allocate_shared_for_overwrite<TestStruct>(allocA);
+            // The values of the struct's array are supposed to be left in an
+            // 'indeterminate state'.  Check and make sure the bit pattern
+            // written by the allocator is still there.
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p->d_array[i],
+                        scribbleValue,
+                        p->d_array[i] == scribbleValue);
+            }
+
+            bsl::shared_ptr<Partial> p1 =
+                           bsl::allocate_shared_for_overwrite<Partial>(allocA);
+            ASSERT(0             == p1->d_initialized);
+            ASSERT(scribbleValue == p1->d_not_initialized);
+        }
+
+        // statically-sized array
+        {
+            bsl::shared_ptr<TestType[SIZE]> p =
+                    bsl::allocate_shared_for_overwrite<TestType[SIZE]>(allocA);
+            // The values of the array are supposed to be left in an
+            // 'indeterminate state'.  Check and make sure the bit pattern
+            // written by the allocator is still there.
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p[i], scribbleValue, p[i] == scribbleValue);
+            }
+
+            bsl::shared_ptr<Partial[SIZE]> p1 =
+                     bsl::allocate_shared_for_overwrite<Partial[SIZE]>(allocA);
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERT(0             == p1[i].d_initialized);
+                ASSERT(scribbleValue == p1[i].d_not_initialized);
+            }
+        }
+
+        // dynamically-sized array
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        {
+            bsl::shared_ptr<TestType[]> p =
+                  bsl::allocate_shared_for_overwrite<TestType[]>(allocA, SIZE);
+            // The values of the array are supposed to be left in an
+            // 'indeterminate state'.  Check and make sure the bit pattern
+            // written by the allocator is still there.
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p[i], scribbleValue, p[i] == scribbleValue);
+            }
+
+            bsl::shared_ptr<Partial[]> p1 =
+                   bsl::allocate_shared_for_overwrite<Partial[]>(allocA, SIZE);
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERT(0             == p1[i].d_initialized);
+                ASSERT(scribbleValue == p1[i].d_not_initialized);
+            }
+        }
+#endif
+
+        if (veryVerbose)
+            printf("\tTesting allocate_shared_for_overwrite(ALLOC*)\n");
+
+        // The non-array case
+        {
+            bsl::shared_ptr<TestStruct> p =
+                           bsl::allocate_shared_for_overwrite<TestStruct>(&sa);
+            // The values of the struct's array are supposed to be left in an
+            // 'indeterminate state'.  Check and make sure the bit pattern
+            // written by the allocator is still there.
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p->d_array[i],
+                        scribbleValue,
+                        p->d_array[i] == scribbleValue);
+            }
+
+            bsl::shared_ptr<Partial> p1 =
+                              bsl::allocate_shared_for_overwrite<Partial>(&sa);
+            ASSERT(0              == p1->d_initialized);
+            ASSERT(scribbleValue  == p1->d_not_initialized);
+        }
+
+        // statically-sized array
+        {
+            bsl::shared_ptr<TestType[SIZE]> p =
+                       bsl::allocate_shared_for_overwrite<TestType[SIZE]>(&sa);
+            // The values of the array are supposed to be left in an
+            // 'indeterminate state'.  Check and make sure the bit pattern
+            // written by the allocator is still there.
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p[i], scribbleValue, p[i] == scribbleValue);
+            }
+
+            bsl::shared_ptr<Partial[SIZE]> p1 =
+                        bsl::allocate_shared_for_overwrite<Partial[SIZE]>(&sa);
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERT(0             == p1[i].d_initialized);
+                ASSERT(scribbleValue == p1[i].d_not_initialized);
+            }
+        }
+
+        // dynamically-sized array
+#ifndef BSLSTL_SHAREDPTR_DONT_TEST_UNBOUNDED_ARRAYS
+        {
+            bsl::shared_ptr<TestType[]> p =
+                     bsl::allocate_shared_for_overwrite<TestType[]>(&sa, SIZE);
+            // The values of the array are supposed to be left in an
+            // 'indeterminate state'.  Check and make sure the bit pattern
+            // written by the allocator is still there.
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(p[i], scribbleValue, p[i] == scribbleValue);
+            }
+
+            bsl::shared_ptr<Partial[]> p1 =
+                      bsl::allocate_shared_for_overwrite<Partial[]>(&sa, SIZE);
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERT(0             == p1[i].d_initialized);
+                ASSERT(scribbleValue == p1[i].d_not_initialized);
+            }
+        }
+#endif
+
+      } break;
+
       case 47: {
         // ------------------------------------------------------------------
         // TESTING ARRAY CONSTRUCTION WITH EXCEPTIONS
