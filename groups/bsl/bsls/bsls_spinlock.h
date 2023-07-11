@@ -17,8 +17,8 @@ BSLS_IDENT("$: $")
 // to block the thread of execution, it is unsuited for use cases involving
 // high contention or long critical regions.  Additionally, this component does
 // not provide any guarantee of fairness when multiple threads are contending
-// for the same lock.  Use 'SpinLockGuard' for automatic locking-unlocking in a
-// scope.
+// for the same lock.  Use 'bsls::SpinLockGuard' for automatic
+// locking-unlocking in a scope.
 //
 // *WARNING*: A 'bsls::SpinLock' *must* be aggregate initialized to
 // 'BSLS_SPINLOCK_UNLOCKED'.  For example:
@@ -263,11 +263,20 @@ BSLS_IDENT("$: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_performancehint.h>
 
+#if (BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L)
+#define BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
+#endif
+
+#ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
 #define BSLS_SPINLOCK_UNLOCKED  { {0} }
+#else
+#define BSLS_SPINLOCK_UNLOCKED (::BloombergLP::bsls::SpinLock::s_unlocked)
+#endif
     // Use this macro as the value for initializing an object of type
     // 'SpinLock'.  For example:
     //..
@@ -295,9 +304,21 @@ extern "C" {
 namespace BloombergLP {
 namespace bsls {
 
+                   // ================================
+                   // class SpinLock_MemberInitializer
+                   // ================================
+
+class SpinLock_MemberInitializer {
+    // This component-private class is an empty type to work around legacy
+    // initialization syntax.  The only object of this type should be
+    // 'Spinlock::s_unlocked', which should only ever be used to initialize
+    // member variables of type 'SpinLock'.
+};
+
                              // ==============
                              // class SpinLock
                              // ==============
+
 struct SpinLock {
     // A statically-initializable synchronization primitive that "spins" (i.e.,
     // executes user instructions in a tight loop) rather than blocking waiting
@@ -314,12 +335,17 @@ struct SpinLock {
 
   private:
     // NOT IMPLEMENTED
+#ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
     SpinLock& operator=(const SpinLock&) BSLS_KEYWORD_DELETED;
 
-    // We would like to prohibit copy construction, but then this class would
-    // not be a POD and could not be initialized statically:
-    //
-    // SpinLock(const SpinLock&);
+    //! SpinLock(const SpinLock&) = delete;
+        // Note that we would like to prohibit copy construction, but then this
+        // class would not be an aggregate and could not be initialized
+        // statically in C++03 mode.
+#else
+    SpinLock& operator=(const SpinLock&) = delete;
+    SpinLock(const SpinLock&) = delete;
+#endif
 
     // PRIVATE TYPES
     enum {
@@ -349,16 +375,40 @@ struct SpinLock {
         // note that this reimplements 'bslmt::ThreadUtil::yield()' locally, as
         // 'bslmt' is above 'bsls'.
 
+#ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
   public:
-    // PUBLIC CLASS DATA
-    static const SpinLock s_unlocked;
-        // This constant SpinLock is always unlocked.  It is suitable for use
-        // initializing class members of SpinLock type.
-
     // PUBLIC DATA
     AtomicOperations::AtomicTypes::Int d_state;
-        // Public to allow this type to be a statically-initializable POD.  Do
-        // not use directly.
+        // 0 when unlocked.  'd_state is public to allow aggregate
+        // initialization where constexpr constructors are not available.  It
+        // is semantically private, and should not be used directly.
+#else
+  private:
+    // DATA
+    AtomicOperations::AtomicTypes::Int d_state;
+        // 0 when unlocked.
+#endif
+
+  public:
+    // CREATORS
+#ifndef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
+    constexpr SpinLock();
+        // Create a 'SpinLock' object in the unlocked state.
+
+    constexpr SpinLock(const SpinLock_MemberInitializer&);          // IMPLICIT
+        // Create a 'SpinLock' object in the unlocked state.  Note that this is
+        // provided to allow for a syntax that was necessary in C++03, but is
+        // no longer necessary.
+#endif
+
+    // PUBLIC CLASS DATA
+#ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
+    static const SpinLock s_unlocked;
+#else
+    static constexpr SpinLock_MemberInitializer s_unlocked = {};
+#endif
+        // This constant SpinLock is always unlocked.  It is suitable for use
+        // initializing class members of SpinLock type.
 
     // MANIPULATORS
     void lock();
@@ -431,6 +481,19 @@ class SpinLockGuard {
                              // --------------
                              // class SpinLock
                              // --------------
+// CREATORS
+#ifndef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
+constexpr SpinLock::SpinLock()
+: d_state()
+{
+}
+
+constexpr SpinLock::SpinLock(const SpinLock_MemberInitializer&)
+: d_state()
+{
+}
+#endif
+
 // PRIVATE CLASS METHODS
 inline
 void SpinLock::doBackoff(int *count) {
@@ -557,6 +620,8 @@ SpinLock *SpinLockGuard::release() {
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#undef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
 
 #endif
 
