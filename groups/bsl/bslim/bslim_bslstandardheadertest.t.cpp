@@ -1143,7 +1143,8 @@ int main(int argc, char *argv[])
 
         // Testing types aliased in the 'bsl_ranges.h'
 
-        using Array = bsl::array<int, 5>;
+        using Array     = bsl::array<int, 5>;
+        using ArrayLong = bsl::array<int, 8>;
 
         Array arr{1, 2, 3, 4, 5};
 
@@ -1444,12 +1445,15 @@ int main(int argc, char *argv[])
         ASSERT(0 == ranges::distance(arrToTransform.begin(),
                                      arrSearchNResult.begin()));
 
-        Array arrToCopyTo{};
+        Array     arrToCopyTo {};
+        ArrayLong arrToCopyToLong {};
 
         ranges::copy_result arrCopyResult = ranges::copy(arr,
                                                          arrToCopyTo.begin());
         ASSERT(0 == ranges::distance(arr.end(), arrCopyResult.in));
         ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
+
+        arrToCopyTo = Array {};
 
         ranges::copy_if_result arrCopyIfResult = ranges::copy_if(
                                                            arrToTransform,
@@ -1459,12 +1463,16 @@ int main(int argc, char *argv[])
                                      arrCopyIfResult.in));
         ASSERTV(arrToCopyTo[0], 4 == arrToCopyTo[0]);  // 4, 4, 6, 8, 10
 
+        arrToCopyTo = Array {};
+
         arrToCopyTo = {1, 2, 3, 4, 5};
         ranges::copy_n_result arrCopyNResult =
                 ranges::copy_n(arrToTransform.begin(), 5, arrToCopyTo.begin());
         ASSERT(0 == ranges::distance(arrToTransform.begin() + 5,
                                      arrCopyNResult.in));
         ASSERTV(arrToCopyTo[0], 4 == arrToCopyTo[0]);  // 4, 4, 6, 8, 10
+
+        arrToCopyTo = Array {};
 
         ranges::copy_backward_result arrCopyBackResult =
                                  ranges::copy_backward(arr, arrToCopyTo.end());
@@ -1474,14 +1482,18 @@ int main(int argc, char *argv[])
 
         Array arrToMoveFrom1 = {5, 4, 3, 2, 1};
 
+        arrToCopyTo = Array {};
+
         auto arrMoveResult = ranges::move(arrToMoveFrom1, arrToCopyTo.begin());
         ASSERT(0 == ranges::distance(arrToMoveFrom1.end(), arrMoveResult.in));
         ASSERTV(arrToCopyTo[0], 5 == arrToCopyTo[0]);  // 5, 4, 3, 2, 1
 
         Array arrToMoveFrom2 = {5, 4, 3, 2, 1};
 
+        arrToCopyTo          = Array {};
+
         ranges::move_backward_result arrMoveBackResult =
-                    ranges::move_backward(arrToMoveFrom2, arrToCopyTo.begin());
+                    ranges::move_backward(arrToMoveFrom2, arrToCopyTo.end());
         ASSERT(0 == ranges::distance(arrToMoveFrom2.end(),
                                      arrMoveBackResult.in));
         ASSERTV(arrToCopyTo[0], 5 == arrToCopyTo[0]);  // 5, 4, 3, 2, 1
@@ -1530,10 +1542,14 @@ int main(int argc, char *argv[])
         ranges::remove_if(arrToTransform, greaterThanTwo);
         ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 1, 1, 1, 1, 1
 
+        arrToCopyTo = Array {};
+
         ranges::remove_copy_result arrRemoveCopyResult =
                               ranges::remove_copy(arr, arrToCopyTo.begin(), 1);
         ASSERTV(0 == ranges::distance(arr.end(), arrRemoveCopyResult.in));
         ASSERTV(arrToCopyTo[0], 2 == arrToCopyTo[0]);  // 2, 3, 4, 5, 1
+
+        arrToCopyTo = Array {};
 
         ranges::remove_copy_if_result arrRemoveCopyIfResult =
               ranges::remove_copy_if(arr, arrToCopyTo.begin(), greaterThanTwo);
@@ -1549,10 +1565,14 @@ int main(int argc, char *argv[])
         ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 0, 1, 1, 1, 1
         arrToTransform[0] = 1;
 
+        arrToCopyTo = Array {};
+
         ranges::replace_copy_result arrReplaceCopyResult =
                           ranges::replace_copy(arr, arrToCopyTo.begin(), 1, 3);
         ASSERTV(0 == ranges::distance(arr.end(), arrReplaceCopyResult.in));
         ASSERTV(arrToCopyTo[0], 3 == arrToCopyTo[0]);  // 3, 2, 4, 5, 3
+
+        arrToCopyTo = Array {};
 
         ranges::replace_copy_if_result arrReplaceCopyIfResult =
                                    ranges::replace_copy_if(arr,
@@ -1573,6 +1593,8 @@ int main(int argc, char *argv[])
         ranges::reverse(arrToTransform);
         ASSERTV(arrToTransform[1], 4 == arrToTransform[1]);  // 5, 4, 3, 2, 1
 
+        arrToCopyTo = Array {};
+
         ranges::reverse_copy_result arrReverseCopyResult =
                                 ranges::reverse_copy(arr, arrToCopyTo.begin());
         ASSERTV(0 == ranges::distance(arr.end(), arrReverseCopyResult.in));
@@ -1582,6 +1604,8 @@ int main(int argc, char *argv[])
         ranges::rotate(arrToTransform,
                        arrToTransform.begin() + 1);          // 5, 4, 3, 2, 1
         ASSERTV(arrToTransform[1], 3 == arrToTransform[1]);  // 4, 3, 2, 1, 5
+
+        arrToCopyTo = Array {};
 
         ranges::rotate_copy_result arrRotateCopyResult =
                 ranges::rotate_copy(arr, arr.begin() + 2, arrToCopyTo.begin());
@@ -1607,6 +1631,8 @@ int main(int argc, char *argv[])
 
         arrToTransform = Array{1, 1, 1, 2, 2};
 
+        arrToCopyTo = Array {};
+
         ranges::unique_copy_result arrUniqueCopyResult =
                       ranges::unique_copy(arrToTransform, arrToCopyTo.begin());
         ASSERTV(0 == ranges::distance(arrToTransform.end(),
@@ -1623,15 +1649,18 @@ int main(int argc, char *argv[])
 
         arrToTransform = Array{2, 2, 2, 3, 3};
 
+        arrToCopyTo = Array {};
+
         ranges::partition_copy_result arrPartitionCopyResult =
                                 ranges::partition_copy(arrToTransform,
                                                        arrToCopyTo.begin(),
-                                                       arrToCopyTo.begin() + 5,
+                                                       arrToCopyTo.begin() + 2,
                                                        greaterThanTwo);
         ASSERTV(0 == ranges::distance(arrToTransform.end(),
                                       arrPartitionCopyResult.in));
         ASSERTV(arrToTransform[1], 2 == arrToTransform[1]);  // 2, 2, 2, 3, 3
-        ASSERTV(arrToCopyTo[1], 3 == arrToCopyTo[1]);  // 3, 3, 5, 1, 2, 2,
+        ASSERTV(arrToCopyTo[1], 3 == arrToCopyTo[1]);  // 3, 3, 2, 2, 2,
+        ASSERTV(arrToCopyTo[2], 2 == arrToCopyTo[2]);  // 3, 3, 2, 2, 2,
 
         arrToTransform = Array{2, 2, 2, 3, 4};
 
@@ -1658,6 +1687,8 @@ int main(int argc, char *argv[])
         ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);  // 1, ?, ?, ?, ?
 
         arrToTransform = Array{5, 4, 3, 2, 1};
+
+        arrToCopyTo = Array {};
 
         ranges::partial_sort_copy(arrToTransform, arrToCopyTo);
         ASSERTV(arrToTransform[0], 5 == arrToTransform[0]);  // 5, 4, 3, 2, 1
@@ -1698,6 +1729,8 @@ int main(int argc, char *argv[])
 
         ASSERTV(true == ranges::includes(arr, arr));
 
+        arrToCopyTo = Array {};
+
         const ranges::set_difference_result arrSetDifferenceResult =
                                    ranges::set_difference(arr.begin(),
                                                           arr.end(),
@@ -1707,27 +1740,38 @@ int main(int argc, char *argv[])
         ASSERTV(0 == ranges::distance(arr.end(), arrSetDifferenceResult.in));
         ASSERTV(arrToCopyTo[0], 4 == arrToCopyTo[0]);  // 4, 5, 3, 4, 5
 
+        arrToCopyTo = Array {};
+
         const ranges::set_intersection_result arrSetIntersectionResult =
                        ranges::set_intersection(arr, arr, arrToCopyTo.begin());
         ASSERTV(0 == ranges::distance(arr.end(),
                                       arrSetIntersectionResult.in1));
         ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
 
-        arrToTransform = Array{4, 5, 6, 7, 8};
+        arrToTransform  = Array{4, 5, 6, 7, 8};
+        arrToCopyToLong = ArrayLong{};
 
         const ranges::set_symmetric_difference_result
             arrSetSymmetricDifferenceResult = ranges::set_symmetric_difference(
-                                                          arr,
-                                                          arrToTransform,
-                                                          arrToCopyTo.begin());
+                                                      arr,
+                                                      arrToTransform,
+                                                      arrToCopyToLong.begin());
         ASSERTV(0 == ranges::distance(arr.end(),
                                       arrSetSymmetricDifferenceResult.in1));
-        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 6, 7
+        ASSERTV(arrToCopyToLong[0],
+                1 == arrToCopyToLong[0]);  // 1, 2, 3, 6, 7, 8
+        ASSERTV(arrToCopyToLong[5],
+                8 == arrToCopyToLong[5]);  // 1, 2, 3, 6, 7, 8
+
+        arrToCopyToLong = ArrayLong{};
 
         const ranges::set_union_result arrSetUnionResult =
-                   ranges::set_union(arr, arrToTransform, arrToCopyTo.begin());
+               ranges::set_union(arr, arrToTransform, arrToCopyToLong.begin());
         ASSERTV(0 == ranges::distance(arr.end(), arrSetUnionResult.in1));
-        ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
+        ASSERTV(arrToCopyToLong[0],
+                1 == arrToCopyToLong[0]);  // 1, 2, 3, 4, 5, 6, 7, 8
+        ASSERTV(arrToCopyToLong[5],
+                6 == arrToCopyToLong[5]);  // 1, 2, 3, 4, 5, 6, 7, 8
 
         ASSERTV(false == ranges::is_heap(arrToTransform));
 
