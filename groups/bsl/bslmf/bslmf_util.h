@@ -144,7 +144,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #include <bslmf_removereference.h>
 
+#include <bsla_nodiscard.h>
+
 #include <bsls_compilerfeatures.h>
+#include <bsls_cpp11.h>
 #include <bsls_keyword.h>
 
 namespace BloombergLP {
@@ -180,6 +183,148 @@ struct Util {
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Correctly forward the specified 't' argument based on the current
         // compilation environment.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    const typename bsl::remove_reference<t_TYPE>::type&
+    forward_like(
+        t_TYPE&& t,
+        typename bsl::enable_if<
+          bsl::is_lvalue_reference<t_MODEL>::value &&
+          bsl::is_const<
+            typename bsl::remove_reference<t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    t_TYPE&
+    forward_like(
+        t_TYPE&& t,
+        typename bsl::enable_if<
+          bsl::is_lvalue_reference<t_MODEL>::value &&
+          !bsl::is_const<
+            typename bsl::remove_reference<t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    const typename bsl::remove_reference<t_TYPE>::type&&
+    forward_like(
+        t_TYPE&& t,
+        typename bsl::enable_if<
+          !bsl::is_lvalue_reference<t_MODEL>::value &&
+          bsl::is_const<
+            typename bsl::remove_reference<t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    typename bsl::remove_reference<t_TYPE>::type&&
+    forward_like(
+        t_TYPE&& t,
+        typename bsl::enable_if<
+          !bsl::is_lvalue_reference<t_MODEL>::value &&
+          !bsl::is_const<
+            typename bsl::remove_reference<t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+#else
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    const t_TYPE&
+    forward_like(
+        bslmf::MovableRef<t_TYPE> t,
+        typename bsl::enable_if<
+            bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    const t_TYPE&
+    forward_like(
+        t_TYPE& t,
+        typename bsl::enable_if<
+            bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    t_TYPE&
+    forward_like(
+        bslmf::MovableRef<t_TYPE> t,
+        typename bsl::enable_if<
+            bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            !bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    t_TYPE&
+    forward_like(
+        t_TYPE& t,
+        typename bsl::enable_if<
+            bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            !bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    MovableRef<const t_TYPE>
+    forward_like(
+        bslmf::MovableRef<t_TYPE> t,
+        typename bsl::enable_if<
+            !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    MovableRef<const t_TYPE>
+    forward_like(
+        t_TYPE& t,
+        typename bsl::enable_if<
+            !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    MovableRef<t_TYPE>
+    forward_like(
+        bslmf::MovableRef<t_TYPE> t,
+        typename bsl::enable_if<
+            !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            !bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    template <class t_MODEL, class t_TYPE>
+    BSLA_NODISCARD
+    static BSLS_KEYWORD_CONSTEXPR
+    MovableRef<t_TYPE>
+    forward_like(
+        t_TYPE& t,
+        typename bsl::enable_if<
+            !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+            !bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                           t_MODEL>::type>::value>::type * = 0)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Return an lvalue reference to the specified 't' if the (template
+        // parameter) 't_MODEL' is an lvalue reference; otherwise, return
+        // either an rvalue reference or a 'bslmf::MovableRef' referring to
+        // 't', depending on the current compilation environment.  The const
+        // type qualifier is added to the result referenced type if 't_MODEL'
+        // is a const-qualified type or reference thereof.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class t_TYPE>
@@ -237,6 +382,9 @@ struct Util {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                      // -----------
+                      // struct Util
+                      // -----------
 // CLASS METHODS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class t_TYPE>
@@ -270,6 +418,177 @@ bslmf::MovableRef<t_TYPE> Util::forward(
                              bslmf::MovableRef<t_TYPE> t) BSLS_KEYWORD_NOEXCEPT
 {
     return t;
+}
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+const typename bsl::remove_reference<t_TYPE>::type&
+Util::forward_like(
+    t_TYPE&& t,
+    typename bsl::enable_if<
+        bsl::is_lvalue_reference<t_MODEL>::value &&
+        bsl::is_const<
+            typename bsl::remove_reference<t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return t;
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+t_TYPE&
+Util::forward_like(
+    t_TYPE&& t,
+    typename bsl::enable_if<
+        bsl::is_lvalue_reference<t_MODEL>::value &&
+        !bsl::is_const<
+            typename bsl::remove_reference<t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<t_TYPE&>(t);
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+const typename bsl::remove_reference<t_TYPE>::type&&
+Util::forward_like(
+    t_TYPE&& t,
+    typename bsl::enable_if<
+       !bsl::is_lvalue_reference<t_MODEL>::value &&
+       bsl::is_const<
+           typename bsl::remove_reference<t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<typename bsl::remove_reference<t_TYPE>::type&&>(t);
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+typename bsl::remove_reference<t_TYPE>::type&&
+Util::forward_like(
+    t_TYPE&& t,
+    typename bsl::enable_if<
+        !bsl::is_lvalue_reference<t_MODEL>::value &&
+        !bsl::is_const<
+            typename bsl::remove_reference<t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<typename bsl::remove_reference<t_TYPE>::type&&>(t);
+}
+#else
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+const t_TYPE&
+Util::forward_like(
+    bslmf::MovableRef<t_TYPE> t,
+    typename bsl::enable_if<
+        bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<const t_TYPE&>(t);
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+const t_TYPE&
+Util::forward_like(
+    t_TYPE& t,
+    typename bsl::enable_if<
+        bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<const t_TYPE&>(t);
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+t_TYPE&
+Util::forward_like(
+    bslmf::MovableRef<t_TYPE> t,
+    typename bsl::enable_if<
+        bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        !bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<t_TYPE&>(t);
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+t_TYPE&
+Util::forward_like(
+    t_TYPE& t,
+    typename bsl::enable_if<
+        bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        !bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return t;
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+MovableRef<const t_TYPE>
+Util::forward_like(
+    bslmf::MovableRef<t_TYPE> t,
+    typename bsl::enable_if<
+        !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return bslmf::MovableRefUtil::move(static_cast<const t_TYPE&>(t));
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+MovableRef<const t_TYPE>
+Util::forward_like(
+    t_TYPE& t,
+    typename bsl::enable_if<
+        !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return bslmf::MovableRefUtil::move(static_cast<const t_TYPE&>(t));
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+MovableRef<t_TYPE>
+Util::forward_like(
+    bslmf::MovableRef<t_TYPE> t,
+    typename bsl::enable_if<
+        !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        !bsl::is_const<
+            typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return t;
+}
+
+template <class t_MODEL, class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR inline
+MovableRef<t_TYPE>
+Util::forward_like(
+    t_TYPE& t,
+    typename bsl::enable_if<
+        !bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value &&
+        !bsl::is_const<typename bslmf::MovableRefUtil::RemoveReference<
+                                               t_MODEL>::type>::value>::type *)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return bslmf::MovableRefUtil::move(t);
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 

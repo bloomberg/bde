@@ -1,8 +1,13 @@
 // bslmf_util.t.cpp                                                   -*-C++-*-
 #include <bslmf_util.h>
 
+#include <bslmf_issame.h>
+#include <bslmf_removeconst.h>
+#include <bslmf_removereference.h>
+
 #include <bsls_objectbuffer.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +25,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ ] template <class T> forward(T&& value)
+// [2] template <class T, class U> forward_like(U&& value)
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [ ] USAGE EXAMPLE
@@ -72,6 +78,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#define DECLTYPE_AND_RVALUE_REFERENCES_ARE_SUPPORTED
+#endif
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -110,32 +121,374 @@ struct CUtil {
 #endif
 };
 
+namespace {
+
+enum ParameterTypes {
+    e_CONST_LVALUE_REF                     = 0,
+    e_RVALUE_REF                           = 1,
+    e_CONST_RVALUE_REF                     = 2,
+    e_NONE                                 = 3
+};
+
 class Obj {
-    bool d_copied;
-    bool d_moved;
+    // DATA
+    ParameterTypes d_type;
 
   public:
+    // CREATORS
     Obj()
-    : d_copied(false)
-    , d_moved(false)
+    : d_type(e_NONE)
+    {
+    }
+
+    Obj(int)
+    : d_type(e_NONE)
     {
     }
 
     Obj(const Obj&)
-    : d_copied(true)
-    , d_moved(false)
+    : d_type(e_CONST_LVALUE_REF)
     {
     }
-
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    Obj(Obj&&)
+    : d_type(e_RVALUE_REF)
+    {
+    }
+#else
     Obj(bslmf::MovableRef<Obj>)
-    : d_copied(false)
-    , d_moved(true)
+    : d_type(e_RVALUE_REF)
     {
     }
+#endif
 
-    bool copied() const { return d_copied; }
-    bool moved() const { return d_moved; }
+    // ACCESSORS
+    ParameterTypes type()  const
+    {
+        return d_type;
+    }
 };
+
+//=============================================================================
+//                            TEST DRIVER TEMPLATE
+//-----------------------------------------------------------------------------
+
+template <class t_TYPE>
+struct TestDriver {
+    // This struct provide a namespace for testing the 'bslmf::Util' functions
+    // parameterized with the (template parameter) unqualified non-reference
+    // 't_TYPE'.
+
+  private:
+    // PRIVATE CLASS METHODS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class t_MODEL, class t_ARG, class t_RESULT>
+    static void testSingleCase(const volatile void *expectedAddress,
+                               t_RESULT&&           result);
+#else
+    template <class t_MODEL, class t_ARG, class t_RESULT>
+    static void testSingleCase(const volatile void *expectedAddress,
+                               t_RESULT&            result);
+
+    template <class t_MODEL, class t_ARG, class t_RESULT>
+    static void testSingleCase(const volatile void         *expectedAddress,
+                               bslmf::MovableRef<t_RESULT>  result);
+#endif
+        // Verify the correctness of the 'forward_like' for a single case when
+        // it is parameterized by the (template parameter) 't_MODEL' type and
+        // an object of the (template parameter) 't_ARG' type is passed.
+        // Verify that the address of the specified 'result' (the value
+        // returned by the 'forward_like') is equal to the specified
+        // 'expectedAddress'.  Note that the 't_MODEL' is the first template
+        // argument of the invoked 'forward_like', the 't_ARG' is the second
+        // one that deduced from the type of the passed argument and the
+        // (template parameter) 't_RESULT' is the type deduced from the
+        // returned value.
+
+    template <class t_MODEL>
+    static void testSingleModelType();
+        // Verify the correctness of the 'forward_like' for a single (template
+        // parameter) 't_MODEL' type.  Note that the 't_MODEL' is the first
+        // template argument of the 'forward_like'.
+
+  public:
+    // TEST CASES
+    static void testCase2();
+        // Test 'forward_like' function.
+};
+
+                               // -----------------
+                               // struct TestDriver
+                               // -----------------
+
+// PRIVATE CLASS METHODS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class t_TYPE>
+template <class t_MODEL, class t_ARG, class t_RESULT>
+void TestDriver<t_TYPE>::testSingleCase(const volatile void *expectedAddress,
+                                        t_RESULT&&           result)
+{
+    using bsls::NameOf;
+
+    typedef typename bsl::remove_reference<t_MODEL>::type     UnRefModelType;
+    typedef typename bsl::remove_reference<t_ARG>::type       UnRefArgType;
+    typedef typename bsl::remove_reference<t_RESULT>::type    UnRefResultType;
+
+    typedef typename bsl::remove_const<UnRefArgType>::type    UnCRefArgType;
+    typedef typename bsl::remove_const<UnRefResultType>::type UnCRefResultType;
+
+    // Check that the reference, returned by the 'forward_like' points to the
+    // same object that has been passed as a parameter to this function.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            expectedAddress == &result);
+
+    // Check the identity of the stripped types.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            NameOf<UnCRefArgType>(), NameOf<UnCRefResultType>(),
+            (bsl::is_same<UnCRefArgType, UnCRefResultType>::value));
+
+    bool expectedConst     = bsl::is_const<UnRefModelType>::value ||
+                             bsl::is_const<UnRefArgType>::value;
+    bool expectedLvalueRef =
+                      bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value;
+    bool expectedVolatile  = bsl::is_volatile<UnRefArgType>::value;
+
+    // Check if lvalue reference-ness has been added.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            expectedLvalueRef == bsl::is_lvalue_reference<t_RESULT>::value);
+
+    // Check if constancy has been added.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            NameOf<UnRefResultType>(), expectedConst,
+            expectedConst == bsl::is_const<UnRefResultType>::value);
+
+    // Check if volatile-ness has been preserved.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            NameOf<UnRefResultType>(), expectedVolatile,
+            expectedVolatile == bsl::is_volatile<UnRefResultType>::value);
+}
+#else
+template <class TYPE>
+template <class t_MODEL, class t_ARG, class t_RESULT>
+void TestDriver<TYPE>::testSingleCase(const volatile void *expectedAddress,
+                                      t_RESULT&            result)
+{
+    using bsls::NameOf;
+
+    typedef typename bslmf::MovableRefUtil::RemoveReference<t_MODEL>::type
+                                                              UnRefModelType;
+    typedef typename bslmf::MovableRefUtil::RemoveReference<t_ARG>::type
+                                                              UnRefArgType;
+    typedef typename bslmf::MovableRefUtil::RemoveReference<t_RESULT>::type
+                                                              UnRefResultType;
+
+    typedef typename bsl::remove_const<UnRefArgType>::type    UnCRefArgType;
+    typedef typename bsl::remove_const<UnRefResultType>::type UnCRefResultType;
+
+    // Check that the reference, returned by the 'forward_like' points to the
+    // same object that has been passed as a parameter to this function.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            expectedAddress == &result);
+
+    // Check the identity of the stripped types.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            NameOf<UnCRefArgType>(), NameOf<UnCRefResultType>(),
+            (bsl::is_same<UnCRefArgType, UnCRefResultType>::value));
+
+    bool expectedConst     = bsl::is_const<UnRefModelType>::value ||
+                             bsl::is_const<UnRefArgType>::value;
+    bool expectedLvalueRef =
+                      bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value;
+    bool expectedVolatile  = bsl::is_volatile<UnRefArgType>::value;
+
+    // Check if lvalue reference-ness has not been added by mistake.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            true == expectedLvalueRef);
+
+    // Check if constancy has been added.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            expectedConst == bsl::is_const<t_RESULT>::value);
+
+    // Check if volatile-ness has been preserved.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            NameOf<UnRefResultType>(), expectedVolatile,
+            expectedVolatile == bsl::is_volatile<UnRefResultType>::value);
+}
+
+template <class TYPE>
+template <class t_MODEL, class t_ARG, class t_RESULT>
+void TestDriver<TYPE>::testSingleCase(
+                                  const volatile void         *expectedAddress,
+                                  bslmf::MovableRef<t_RESULT>  result)
+{
+    using bsls::NameOf;
+
+    typedef typename bslmf::MovableRefUtil::RemoveReference<t_MODEL>::type
+                                                              UnRefModelType;
+    typedef typename bslmf::MovableRefUtil::RemoveReference<t_ARG>::type
+                                                              UnRefArgType;
+    typedef typename bslmf::MovableRefUtil::RemoveReference<t_RESULT>::type
+                                                              UnRefResultType;
+
+    typedef typename bsl::remove_const<UnRefArgType>::type    UnCRefArgType;
+    typedef typename bsl::remove_const<UnRefResultType>::type UnCRefResultType;
+
+    // Check that the reference, returned by the 'forward_like' points to the
+    // same object that has been passed as a parameter to this function.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            expectedAddress == &static_cast<t_RESULT&>(result));
+
+    // Check the identity of the stripped types.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            NameOf<UnCRefArgType>(), NameOf<UnCRefResultType>(),
+            (bsl::is_same<UnCRefArgType, UnCRefResultType>::value));
+
+    bool expectedConst     = bsl::is_const<UnRefModelType>::value ||
+                             bsl::is_const<UnRefArgType>::value;
+    bool expectedLvalueRef =
+                      bslmf::MovableRefUtil::IsLvalueReference<t_MODEL>::value;
+    bool expectedVolatile  = bsl::is_volatile<UnRefArgType>::value;
+
+    // Check if lvalue reference-ness has not been expected.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            false == expectedLvalueRef);
+
+    // Check if constancy has been added.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            expectedConst == bsl::is_const<t_RESULT>::value);
+
+    // Check if volatile-ness has been preserved.
+
+    ASSERTV(NameOf<t_MODEL>(), NameOf<t_ARG>(), NameOf<t_RESULT>(),
+            NameOf<UnRefResultType>(), expectedVolatile,
+            expectedVolatile == bsl::is_volatile<UnRefResultType>::value);
+}
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class t_TYPE>
+template <class t_MODEL>
+void TestDriver<t_TYPE>::testSingleModelType()
+{
+    typedef bslmf::Util                     U;
+    typedef bslmf::MovableRefUtil           MU;
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    typedef bslmf::MovableRef<t_TYPE>       MovableRef;
+    typedef bslmf::MovableRef<const t_TYPE> MovableRefConst;
+#endif
+
+    t_TYPE obj;
+
+    testSingleCase<t_MODEL, t_TYPE>(&obj, U::forward_like<t_MODEL>(obj));
+
+    testSingleCase<t_MODEL, t_TYPE&>(
+                          &obj,
+                          U::forward_like<t_MODEL>(static_cast<t_TYPE&>(obj)));
+
+    testSingleCase<t_MODEL, const t_TYPE>(
+                    &obj,
+                    U::forward_like<t_MODEL>(static_cast<const t_TYPE&>(obj)));
+
+    testSingleCase<t_MODEL, const t_TYPE&>(
+                    &obj,
+                    U::forward_like<t_MODEL>(static_cast<const t_TYPE&>(obj)));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    testSingleCase<t_MODEL, t_TYPE&&>(&obj,
+                                      U::forward_like<t_MODEL>(MU::move(obj)));
+
+    testSingleCase<t_MODEL, const t_TYPE&&>(
+          &obj,
+          U::forward_like<t_MODEL>(MU::move(static_cast<const t_TYPE&>(obj))));
+#else
+    testSingleCase<t_MODEL, MovableRef>(
+                                      &obj,
+                                      U::forward_like<t_MODEL>(MU::move(obj)));
+
+    testSingleCase<t_MODEL, MovableRefConst>(
+          &obj,
+          U::forward_like<t_MODEL>(MU::move(static_cast<const t_TYPE&>(obj))));
+#endif
+
+    testSingleCase<t_MODEL, volatile t_TYPE>(
+                 &obj,
+                 U::forward_like<t_MODEL>(static_cast<volatile t_TYPE&>(obj)));
+
+    testSingleCase<t_MODEL, const volatile t_TYPE>(
+           &obj,
+           U::forward_like<t_MODEL>(static_cast<const volatile t_TYPE&>(obj)));
+
+    testSingleCase<t_MODEL, volatile t_TYPE&>(
+                 &obj,
+                 U::forward_like<t_MODEL>(static_cast<volatile t_TYPE&>(obj)));
+
+    testSingleCase<t_MODEL, const volatile t_TYPE&>(
+           &obj,
+           U::forward_like<t_MODEL>(static_cast<const volatile t_TYPE&>(obj)));
+}
+
+// TEST CASES
+template <class TYPE>
+void TestDriver<TYPE>::testCase2()
+    // ------------------------------------------------------------------------
+    // TESTING 'forward_like'
+    //
+    // Concerns:
+    //: 1 The 'forward_like' function template accepts arguments of any type.
+    //:
+    //: 2 The return value of the 'forward_like' has expected type and its
+    //:   address is the same as the address of function argument.
+    //:
+    //: 3 'volatile' qualifier is ignored during result type deducing.
+    //
+    // Plan:
+    //: 1 Exercise function parameterized with different 'model' types passing
+    //:   arguments of various types and verify the results.  The results are
+    //:   verified by
+    //:   o comparing the stripped (with removed reference-ness and
+    //:     constant-ness) types of passed object and result object
+    //:   o checking if the resulting type is const if the 'model' type is
+    //:     const or if the function argument type was const
+    //:   o check if the resulting type is lvalue reference if the 'model' type
+    //:     is lvalue reference  (C-1..3)
+    //
+    // Testing:
+    //   template <class T, class U> forward_like(U&& value)
+    // ------------------------------------------------------------------------
+{
+    testSingleModelType<                        TYPE  >();
+    testSingleModelType<                        TYPE& >();
+    testSingleModelType<                  const TYPE  >();
+    testSingleModelType<                  const TYPE& >();
+    testSingleModelType<                        TYPE *>();
+    testSingleModelType<                  const TYPE *>();
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    testSingleModelType<                        TYPE&&>();
+    testSingleModelType<                  const TYPE&&>();
+#else
+    testSingleModelType<bslmf::MovableRef<      TYPE> >();
+    testSingleModelType<bslmf::MovableRef<const TYPE> >();
+#endif
+    testSingleModelType<         volatile       TYPE  >();
+    testSingleModelType<         volatile       TYPE& >();
+    testSingleModelType<         volatile const TYPE  >();
+    testSingleModelType<         volatile const TYPE& >();
+}
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -251,7 +604,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -304,6 +657,45 @@ int main(int argc, char *argv[])
 //    doSomething rvalue-ref
 //..
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'forward_like'
+        //
+        // Concerns:
+        //: 1 The 'forward_like' function template accepts arguments of any
+        //:   type.
+        //:
+        //: 2 The return value of the 'forward_like' has expected type and its
+        //:   address is the same as the address of function argument.
+        //:
+        //: 3 'volatile' qualifier is ignored during result type deducing.
+        //
+        // Plan:
+        //: 1 Exercise function parameterized with different 'model' types
+        //:   passing arguments of various types and verify the results.  The
+        //:   results are verified by
+        //:   o comparing the stripped (with removed reference-ness and
+        //:     constant-ness) types of passed object and result object
+        //:   o checking if the resulting type is const if the 'model' type is
+        //:     const or if the function argument type was const
+        //:   o check if the resulting type is lvalue reference if the 'model'
+        //:     type is lvalue reference  (C-1..3)
+        //
+        // Testing:
+        //   template <class T, class U> forward_like(U&& value)
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'forward_like'"
+                            "\n======================\n");
+
+        TestDriver<int   >::testCase2();
+        TestDriver<int  *>::testCase2();
+        TestDriver<int **>::testCase2();
+        TestDriver<Obj   >::testCase2();
+        TestDriver<Obj  *>::testCase2();
+        TestDriver<Obj **>::testCase2();
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -330,32 +722,28 @@ int main(int argc, char *argv[])
         {
             Obj        mA;
             const Obj& A = mA;
-            ASSERT(false == A.copied());
-            ASSERT(false == A.moved());
+            ASSERT(e_NONE == A.type());
 
             bsls::ObjectBuffer<Obj> buf;
             Obj&                    mX = buf.object();
             const Obj&              X  = mX;
 
             CUtil::construct(buf.address(), A);
-            ASSERT(true == X.copied());
-            ASSERT(false == X.moved());
+            ASSERT(e_CONST_LVALUE_REF == X.type());
 
             CUtil::construct(buf.address(), mA);
-            ASSERT(true == X.copied());
-            ASSERT(false == X.moved());
+            ASSERT(e_CONST_LVALUE_REF == X.type());
 
             CUtil::construct(buf.address(), bslmf::MovableRefUtil::move(mA));
-            ASSERT(false == X.copied());
-            ASSERT(true == X.moved());
+            ASSERT(e_RVALUE_REF == X.type());
         }
 
         if (verbose) {
             printf("\tTest Util::declval\n");
         }
         {
-            ASSERT(sizeof(bool) ==
-                   sizeof(bslmf::Util::declval<Obj>().copied()));
+            ASSERT(sizeof(ParameterTypes) ==
+                   sizeof(bslmf::Util::declval<Obj>().type()));
         }
 
         if (verbose) {
@@ -364,8 +752,7 @@ int main(int argc, char *argv[])
         {
             Obj        mA;
             const Obj& A = mA;
-            ASSERT(false == A.copied());
-            ASSERT(false == A.moved());
+            ASSERT(e_NONE == A.type());
 
             bsls::ObjectBuffer<Obj> buf;
             Obj&                    mX = buf.object();
@@ -375,11 +762,9 @@ int main(int argc, char *argv[])
                              bslmf::Util::forwardAsReference<Obj>(mA));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            ASSERT(false == X.copied());
-            ASSERT(true == X.moved());
+            ASSERT(e_RVALUE_REF == X.type());
 #else
-            ASSERT(true == X.copied());
-            ASSERT(false == X.moved());
+            ASSERT(e_CONST_LVALUE_REF  == X.type());
 #endif
 
             CUtil::construct(buf.address(),
@@ -387,11 +772,9 @@ int main(int argc, char *argv[])
                                  bslmf::MovableRefUtil::move(mA)));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            ASSERT(false == X.copied());
-            ASSERT(true == X.moved());
+            ASSERT(e_RVALUE_REF == X.type());
 #else
-            ASSERT(true == X.copied());
-            ASSERT(false == X.moved());
+            ASSERT(e_CONST_LVALUE_REF  == X.type());
 #endif
         }
 
@@ -403,11 +786,9 @@ int main(int argc, char *argv[])
             Obj movedTo(bslmf::Util::moveIfSupported(movedFrom));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            ASSERT(false == movedTo.copied());
-            ASSERT(true  == movedTo.moved());
+            ASSERT(e_RVALUE_REF == movedTo.type());
 #else
-            ASSERT(true  == movedTo.copied());
-            ASSERT(false == movedTo.moved());
+            ASSERT(e_CONST_LVALUE_REF  == movedTo.type());
 #endif
         }
       } break;
