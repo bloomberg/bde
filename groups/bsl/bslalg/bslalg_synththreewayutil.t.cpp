@@ -3,6 +3,8 @@
 
 #include <bslmf_issame.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
@@ -37,7 +39,7 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool condition, const char *message, int line)
+BSLA_MAYBE_UNUSED void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);

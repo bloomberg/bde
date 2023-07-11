@@ -13,6 +13,8 @@
 #include <bslmt_readerwritermutex.h>
 #include <bslmt_threadutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>
@@ -250,7 +252,7 @@ int veryVeryVerbose;
         result->resize(size);
         int *begin = result->begin();
         for (int index = 0; index < size; ++index) {
-            int rc = popImp(&begin[index]);
+            BSLA_MAYBE_UNUSED int rc = popImp(&begin[index]);
             BSLS_ASSERT(0 == rc);
         }
     }

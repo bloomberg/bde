@@ -1,6 +1,8 @@
 // bslmf_booleantestable.t.cpp                                        -*-C++-*-
 #include <bslmf_booleantestable.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_asserttest.h>
@@ -25,7 +27,7 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool condition, const char *message, int line)
+BSLA_MAYBE_UNUSED void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);

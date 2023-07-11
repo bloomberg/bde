@@ -417,7 +417,7 @@ HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
         const TYPE& value = d_values[i];
         size_t idx;
         bool result = lookup(&idx, value, d_hasher(value));
-        BSLS_ASSERT_OPT(!result);
+        BSLS_ASSERT_OPT(!result);  (void)result;
         d_bucketArray[idx] = &d_values[i];
     }
 }
@@ -704,7 +704,7 @@ int main(int argc, char *argv[])
 
                 for (int jj = 0; jj < 5; ++jj) {
                     Obj contiguousHasher;
-                    size_t idx = 0, deltaIdx;
+                    size_t idx = 0, deltaIdx = 0;
                     for (; idx < LEN; idx += deltaIdx) {
                         rand.randVal(&deltaIdx);
                         deltaIdx %= 1 + LEN - idx;

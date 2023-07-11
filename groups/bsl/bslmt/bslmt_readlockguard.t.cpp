@@ -379,6 +379,7 @@ int main(int argc, char *argv[])
             }
         }
 
+        safeAtomicUpdateFunc(&obj, &rwlock);
       } break;
       case 6: {
         // --------------------------------------------------------------------

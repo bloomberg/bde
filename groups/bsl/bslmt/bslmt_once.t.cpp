@@ -834,11 +834,7 @@ int main(int argc, char *argv[])
         }
 
         // Start all threads
-        Int64 startTime;
         for (int i = 0; i < numThreads; ++i) {
-            if (i == numThreads - 1) {
-                startTime = bsls::TimeUtil::getTimer();
-            }
             LOOP2_ASSERT(i, numThreads,
                          0 == TU::create(&threads[i], attr,
                                          &macroCancelTest,
@@ -946,11 +942,7 @@ int main(int argc, char *argv[])
         }
 
         // Start all threads
-        Int64 startTime;
         for (int i = 0; i < numThreads; ++i) {
-            if (i == numThreads - 1) {
-                startTime = bsls::TimeUtil::getTimer();
-            }
             LOOP2_ASSERT(i, numThreads,
                          0 == TU::create(&threads[i], attr,
                                          &macroTest,
@@ -990,9 +982,6 @@ int main(int argc, char *argv[])
 
         // Start all threads again
         for (int i = 0; i < numThreads; ++i) {
-            if (i == numThreads - 1) {
-                startTime = bsls::TimeUtil::getTimer();
-            }
             LOOP2_ASSERT(i, numThreads,
                          0 == TU::create(&threads[i], attr,
                                          &macroTest,
@@ -1248,11 +1237,7 @@ int main(int argc, char *argv[])
             }
 
             // Start all threads
-            Int64 startTime;
             for (int i = 0; i < numThreads; ++i) {
-                if (i == numThreads - 1) {
-                    startTime = bsls::TimeUtil::getTimer();
-                }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
                                              &guardCancelTest,
@@ -1370,11 +1355,7 @@ int main(int argc, char *argv[])
             }
 
             // Start all threads
-            Int64 startTime;
             for (int i = 0; i < numThreads; ++i) {
-                if (i == numThreads - 1) {
-                    startTime = bsls::TimeUtil::getTimer();
-                }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
                                              &guardTest,
@@ -1415,9 +1396,6 @@ int main(int argc, char *argv[])
 
             // Start all threads again
             for (int i = 0; i < numThreads; ++i) {
-                if (i == numThreads - 1) {
-                    startTime = bsls::TimeUtil::getTimer();
-                }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
                                              &guardTest,
@@ -1469,11 +1447,7 @@ int main(int argc, char *argv[])
             }
 
             // Start all threads
-            Int64 startTime;
             for (int i = 0; i < numThreads; ++i) {
-                if (i == numThreads - 1) {
-                    startTime = bsls::TimeUtil::getTimer();
-                }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
                                              guardTest,
@@ -1537,9 +1511,6 @@ int main(int argc, char *argv[])
 
             // Start all threads again
             for (int i = 0; i < numThreads; ++i) {
-                if (i == numThreads - 1) {
-                    startTime = bsls::TimeUtil::getTimer();
-                }
                 LOOP2_ASSERT(i, numThreads,
                              0 == TU::create(&threads[i], attr,
                                              &guardTest,
@@ -1647,7 +1618,7 @@ int main(int argc, char *argv[])
             }
 
             // Start all threads
-            Int64 startTime;
+            Int64 startTime = 0;
             for (int i = 0; i < numThreads; ++i) {
                 if (i == numThreads - 1) {
                     startTime = bsls::TimeUtil::getTimer();
@@ -1678,8 +1649,8 @@ int main(int argc, char *argv[])
 
             // Get winner's elapsed times in milliseconds and verify that it is
             // within the expected range.
-            int winnerElapsed = (testRecords[winners[0]].d_endTime -
-                                 startTime) / 1000000;
+            Int64 winnerElapsed = (testRecords[winners[0]].d_endTime -
+                                   startTime) / 1000000;
             if (verbose) {
                 LOOP2_ASSERT(winners[0], winnerElapsed,
                              MIN_ELAPSED <= winnerElapsed &&
@@ -1709,8 +1680,8 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(i, numThreads, testRecords[i].d_foundWinner,
                              testRecords[i].d_foundWinner == winners[1]);
 
-                int elapsedTime = (testRecords[i].d_endTime -
-                                   startTime) / 1000000;
+                Int64 elapsedTime = (testRecords[i].d_endTime -
+                                     startTime) / 1000000;
                 if (verbose) {
                     // Verify that measured elapsed time is no less than winner
                     // elapsed time and no more than specified delay above
@@ -1831,7 +1802,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Start all threads
-                Int64 startTime;
+                Int64 startTime = 0;
                 for (int i = 0; i < numThreads; ++i) {
                     if (i == numThreads - 1) {
                         startTime = bsls::TimeUtil::getTimer();
@@ -1854,8 +1825,8 @@ int main(int argc, char *argv[])
 
                 // Get winner's elapsed time in milliseconds and verify that it
                 // is within the expected range.
-                int winnerElapsed = (testRecords[winner].d_endTime -
-                                     startTime) / 1000000;
+                Int64 winnerElapsed = (testRecords[winner].d_endTime -
+                                       startTime) / 1000000;
                 if (verbose) {
                     LOOP3_ASSERT(winner, numThreads, winnerElapsed,
                                  MIN_ELAPSED <= winnerElapsed &&
@@ -1875,8 +1846,8 @@ int main(int argc, char *argv[])
                                  testRecords[i].d_foundWinner == winner);
 
                     if (verbose) {
-                        int elapsedTime = (testRecords[i].d_endTime -
-                                           startTime) / 1000000;
+                        Int64 elapsedTime = (testRecords[i].d_endTime -
+                                             startTime) / 1000000;
                         // Verify that measured elapsed time is no less than
                         // winner elapsed time and no more than specified delay
                         // above winner elapsed time.
@@ -1921,8 +1892,8 @@ int main(int argc, char *argv[])
                     ASSERT(-1 == testRecords[i].d_foundWinner);
                     // Verify that elapsed time is no more than specified delay
                     if (verbose) {
-                        int elapsedTime = (testRecords[i].d_endTime -
-                                           startTime) / 1000000;
+                        Int64 elapsedTime = (testRecords[i].d_endTime -
+                                             startTime) / 1000000;
                         LOOP3_ASSERT(i, numThreads, elapsedTime,
                                      elapsedTime < MAX_NOOP_DELAY);
                     }
@@ -1973,7 +1944,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Start all threads
-                Int64 startTime;
+                Int64 startTime = 0;
                 for (int i = 0; i < numThreads; ++i) {
                     if (i == numThreads - 1) {
                         startTime = bsls::TimeUtil::getTimer();
@@ -1998,8 +1969,8 @@ int main(int argc, char *argv[])
 
                 // Get winner's elapsed time in milliseconds and verify that it
                 // is within the expected range.
-                int winnerElapsed = (testRecords[winner1].d_endTime -
-                                     startTime) / 1000000;
+                Int64 winnerElapsed = (testRecords[winner1].d_endTime -
+                                       startTime) / 1000000;
                 if (verbose) {
                     LOOP3_ASSERT(winner1, numThreads, winnerElapsed,
                                  MIN_ELAPSED <= winnerElapsed &&
@@ -2019,8 +1990,8 @@ int main(int argc, char *argv[])
                                  testRecords[i].d_foundWinner == winner1);
 
                     if (verbose) {
-                        int elapsedTime = (testRecords[i].d_endTime -
-                                           startTime) / 1000000;
+                        Int64 elapsedTime = (testRecords[i].d_endTime -
+                                             startTime) / 1000000;
                         // Verify that measured elapsed time is no less than
                         // winner elapsed time and no more than specified delay
                         // above winner elapsed time.
@@ -2062,8 +2033,8 @@ int main(int argc, char *argv[])
                                  testRecords[i].d_foundWinner == winner2);
 
                     if (verbose) {
-                        int elapsedTime = (testRecords[i].d_endTime -
-                                           startTime) / 1000000;
+                        Int64 elapsedTime = (testRecords[i].d_endTime -
+                                             startTime) / 1000000;
 
                         // Verify that measured elapsed time is no less than
                         // winner elapsed time and no more than specified delay
@@ -2111,8 +2082,8 @@ int main(int argc, char *argv[])
                     ASSERT(-1 == testRecords[i].d_foundWinner);
                     if (verbose) {
                     // Verify that elapsed time is no more than specified delay
-                        int elapsedTime = (testRecords[i].d_endTime -
-                                           startTime) / 1000000;
+                        Int64 elapsedTime = (testRecords[i].d_endTime -
+                                             startTime) / 1000000;
                         LOOP3_ASSERT(i, numThreads, elapsedTime,
                                      elapsedTime < MAX_NOOP_DELAY);
                     }

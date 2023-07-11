@@ -570,7 +570,7 @@ MyBslAllocArgTestDeleter::~MyBslAllocArgTestDeleter()
 
 // MANIPULATORS
 MyBslAllocArgTestDeleter& MyBslAllocArgTestDeleter::operator=(
-                                           const MyBslAllocArgTestDeleter& rhs)
+                                               const MyBslAllocArgTestDeleter&)
 {
     ASSERT(!"'MyBslAllocArgTestDeleter::operator=' should not be used.");
     return *this;

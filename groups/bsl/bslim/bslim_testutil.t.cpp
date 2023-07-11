@@ -377,7 +377,7 @@ bool tempFileName(char *result)
 #else
     char *fn = tempnam(0, "bslim");
     if (fn) {
-        strncpy(result, fn, PATH_BUFFER_SIZE);
+        strncpy(result, fn, PATH_BUFFER_SIZE - 1);
         result[PATH_BUFFER_SIZE - 1] = '\0';
         free(fn);
     } else {

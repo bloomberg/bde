@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
         void *p = adaptor.allocate(sizeof(TestObj));
         ASSERT(1 == ta.numBlocksInUse());
         ASSERT(sizeof(TestObj) <= static_cast<size_t>(ta.numBytesInUse()));
-        ASSERT(ta.numBytesInUse() <=
+        ASSERT(static_cast<size_t>(ta.numBytesInUse()) <=
                sizeof(TestObj) + sizeof(bsls::AlignmentUtil::MaxAlignedType));
         TestObj *tp = ::new(p) TestObj;
         tp->~TestObj();

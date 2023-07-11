@@ -130,7 +130,7 @@ typedef HashTableImpUtil          Obj;
 typedef BidirectionalLink         Link;
 typedef BidirectionalLinkListUtil Util;
 
-template <int N>
+template <size_t N>
 struct ArrayLength_Imp {
     char d_array[N];
 };
@@ -916,7 +916,6 @@ int main(int argc, char *argv[])
 // types:
 
         typedef bslalg::HashTableImpUtil       Obj;
-        typedef bslalg::BidirectionalNode<int> IntNode;
         typedef TestSetKeyPolicy<int>          TestPolicy;
         typedef NodeUtil<int>                  IntNodeUtil;
 

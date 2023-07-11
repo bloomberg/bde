@@ -419,7 +419,8 @@ void *testCase7(int threadNum, const MyTask& task)
 
         // if other owner is valid, mark it visible in this context
         if (otherOwner != -1) {
-            ASSERT(otherOwner < data->d_myContext->d_slots.size());
+            ASSERT(otherOwner <
+                          static_cast<int>(data->d_myContext->d_slots.size()));
             data->d_myContext->d_slots[otherOwner] = otherOwner;
         }
 
@@ -617,8 +618,7 @@ void *testCase5_fn2(int threadNum, const MyTask& task)
 //        post/signal/notify that synchronization object.
 //
 // ----------------------------------------------------------------------------
-static Semaphore *const dummySemaphorePtr =
-      reinterpret_cast<Semaphore *const> (-1L);
+static Semaphore *const dummySemaphorePtr = reinterpret_cast<Semaphore *>(-1L);
 
 struct DataCase4 {
     bsls::AtomicPointer<Semaphore>  d_event1;
@@ -678,7 +678,7 @@ void waitOnFlag(bsls::AtomicPointer<Semaphore> *flag, int spinCount)
     ASSERT(event == dummySemaphorePtr);
 }
 
-void *testCase4_fn3(int threadNum, const MyTask& task)
+void *testCase4_fn3(int , const MyTask& task)
 {
     DataCase4 *data = reinterpret_cast<DataCase4 *> (task.arg());
 
@@ -697,7 +697,7 @@ void *testCase4_fn3(int threadNum, const MyTask& task)
     return 0;
 }
 
-void *testCase4_fn4(int threadNum, const MyTask& task)
+void *testCase4_fn4(int , const MyTask& task)
 {
     DataCase4 *data = reinterpret_cast<DataCase4 *> (task.arg());
 
@@ -715,7 +715,7 @@ void *testCase4_fn4(int threadNum, const MyTask& task)
     return 0;
 }
 
-void *testCase4_fn1(int threadNum, const MyTask& task)
+void *testCase4_fn1(int , const MyTask& task)
 {
     DataCase4 *data = reinterpret_cast<DataCase4 *> (task.arg());
 
@@ -743,7 +743,7 @@ void *testCase4_fn1(int threadNum, const MyTask& task)
     return 0;
 }
 
-void *testCase4_fn2(int threadNum, const MyTask& task)
+void *testCase4_fn2(int , const MyTask& task)
 {
     DataCase4 *data = reinterpret_cast<DataCase4 *> (task.arg());
 
@@ -985,7 +985,7 @@ extern "C" void *testCase2(void *)
 //   region is protected by global QLock.
 // ----------------------------------------------------------------------------
 static bslmt::QLock qMutex1  = BSLMT_QLOCK_INITIALIZER;
-void *testCase1(int threadNum, const MyTask& task)
+void *testCase1(int , const MyTask& task)
 {
     int *count = (int*)(task.arg());
 
@@ -1094,10 +1094,10 @@ int main(int argc, char *argv[])
             ASSERT(context2.d_owner == -1);
 
             context1.d_slots.assign(i, -1);
-            ASSERT(context1.d_slots.size()== i);
+            ASSERT(static_cast<int>(context1.d_slots.size()) == i);
 
             context2.d_slots.assign(i, -1);
-            ASSERT(context2.d_slots.size()== i);
+            ASSERT(static_cast<int>(context2.d_slots.size()) == i);
 
             ASSERT(0 == task71.start(i));
             ASSERT(0 == task72.start(i));

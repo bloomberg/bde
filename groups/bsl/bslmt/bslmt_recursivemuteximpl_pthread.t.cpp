@@ -9,6 +9,8 @@
 
 #include <bslmt_recursivemuteximpl_pthread.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bsls_atomic.h>
@@ -102,7 +104,10 @@ void My_CreateDetachedThread(ThreadFunction function, void *userData)
     pthread_attr_setdetachstate(&attr,
                                 PTHREAD_CREATE_DETACHED);
     pthread_t handle;
-    int rc = pthread_create(&handle, &attr, function, userData);
+    BSLA_MAYBE_UNUSED int rc = pthread_create(&handle,
+                                              &attr,
+                                              function,
+                                              userData);
     BSLS_ASSERT(0 == rc); // test invariant
 
 }

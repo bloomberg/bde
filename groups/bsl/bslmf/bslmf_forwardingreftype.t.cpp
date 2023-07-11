@@ -9,6 +9,8 @@
 #include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
@@ -397,31 +399,31 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
     void usageExample1()
         // Usage example.
     {
-        typedef int                     T1;
-        typedef int&                    T2;
-        typedef const volatile double&  T3;
-        typedef const double &          T4;
-        typedef const float * &         T5;
-        typedef const float * const &   T6;
-        typedef MyType                  T7;
-        typedef const MyType&           T8;
-        typedef MyType&                 T9;
-        typedef MyType                 *T10;
-        typedef int                     T11[];
-        typedef int                     T12[3];
+        BSLA_MAYBE_UNUSED typedef int                     T1;
+        BSLA_MAYBE_UNUSED typedef int&                    T2;
+        BSLA_MAYBE_UNUSED typedef const volatile double&  T3;
+        BSLA_MAYBE_UNUSED typedef const double &          T4;
+        BSLA_MAYBE_UNUSED typedef const float * &         T5;
+        BSLA_MAYBE_UNUSED typedef const float * const &   T6;
+        BSLA_MAYBE_UNUSED typedef MyType                  T7;
+        BSLA_MAYBE_UNUSED typedef const MyType&           T8;
+        BSLA_MAYBE_UNUSED typedef MyType&                 T9;
+        BSLA_MAYBE_UNUSED typedef MyType                 *T10;
+        BSLA_MAYBE_UNUSED typedef int                     T11[];
+        BSLA_MAYBE_UNUSED typedef int                     T12[3];
 
-        typedef const int&              EXP1;
-        typedef int&                    EXP2;
-        typedef const volatile double&  EXP3;
-        typedef const double &          EXP4;
-        typedef const float * &         EXP5;
-        typedef const float * const &   EXP6;
-        typedef const MyType&           EXP7;
-        typedef const MyType&           EXP8;
-        typedef MyType&                 EXP9;
-        typedef MyType * const &        EXP10;
-        typedef int * const &           EXP11;
-        typedef int * const &           EXP12;
+        BSLA_MAYBE_UNUSED typedef const int&              EXP1;
+        BSLA_MAYBE_UNUSED typedef int&                    EXP2;
+        BSLA_MAYBE_UNUSED typedef const volatile double&  EXP3;
+        BSLA_MAYBE_UNUSED typedef const double &          EXP4;
+        BSLA_MAYBE_UNUSED typedef const float * &         EXP5;
+        BSLA_MAYBE_UNUSED typedef const float * const &   EXP6;
+        BSLA_MAYBE_UNUSED typedef const MyType&           EXP7;
+        BSLA_MAYBE_UNUSED typedef const MyType&           EXP8;
+        BSLA_MAYBE_UNUSED typedef MyType&                 EXP9;
+        BSLA_MAYBE_UNUSED typedef MyType * const &        EXP10;
+        BSLA_MAYBE_UNUSED typedef int * const &           EXP11;
+        BSLA_MAYBE_UNUSED typedef int * const &           EXP12;
 
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS>=201703L // 'using' for readibility

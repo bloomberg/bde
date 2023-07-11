@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class ARRAY_TYPE>
 //  class Traverser {
-//  public:
+//    public:
 //
 //#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 //..
@@ -47,9 +47,12 @@ BSLS_IDENT("$Id: $")
 //      typedef typename bsl::remove_extent<ARRAY_TYPE>::type RowType;
 //#endif
 //
-//  private:
+//    private:
 //      RowType d_row;  // Might be scalar
 //      // ...
+//
+//      // CREATORS
+//      Traverser() : d_row() {}
 //  };
 //..
 // Now we can see that the row type is the type of the array after having

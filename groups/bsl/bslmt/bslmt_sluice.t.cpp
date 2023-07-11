@@ -15,15 +15,17 @@
 #include <bslmt_threadgroup.h>  // for testing only
 #include <bslmt_threadutil.h>   // for testing only
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
+
+#include <bslma_testallocator.h>
 
 #include <bsls_atomic.h>
 #include <bsls_timeinterval.h>
-
 #include <bsls_systemtime.h>
-
-#include <bslma_testallocator.h>
 #include <bsls_stopwatch.h>
+
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 
@@ -160,11 +162,11 @@ class My_TestAllocator : public bslma::Allocator{
     }
 
     int numAllocations() {
-        return d_allocator.numAllocations();
+        return static_cast<int>(d_allocator.numAllocations());
     }
 
     int numBytesInUse() {
-        return d_allocator.numBytesInUse();
+        return static_cast<int>(d_allocator.numBytesInUse());
     }
 };
 
@@ -476,7 +478,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::Handle h;
 
             EnterPostSleepAndWaitJob job(&mX, &readySem);
-            int rc = bslmt::ThreadUtil::create(&h, job);
+            BSLA_MAYBE_UNUSED int rc = bslmt::ThreadUtil::create(&h, job);
             BSLS_ASSERT(0 == rc); // test invariant
 
             readySem.wait();

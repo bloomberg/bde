@@ -13,6 +13,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <algorithm>
 
@@ -809,7 +810,8 @@ const char *tempFileName(bool verboseFlag)
     GetTempFileName(tmpPathBuf, "bael", 0, result);
 #else
     char *temp = tempnam(0, "bael");
-    strncpy(result, temp, MAX_LENGTH);
+    strncpy(result, temp, MAX_LENGTH - 1);
+    result[MAX_LENGTH - 1] = '\0';
     free(temp);
 #endif
 
@@ -3343,7 +3345,18 @@ void TestDriver<VALUE>::testCase9()
         enum {
             NUM_VALUES = 50000
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         int VALUES[NUM_VALUES];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             VALUES[i] = i;
         }
@@ -3589,7 +3602,18 @@ void TestDriver<VALUE>::testCase10()
         enum {
             NUM_VALUES = 50000
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         int VALUES[NUM_VALUES];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             VALUES[i] = rand() % NUM_VALUES;
         }
@@ -3784,7 +3808,18 @@ void TestDriver<VALUE>::testCase11()
         enum {
             NUM_VALUES = 50000
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         int VALUES[NUM_VALUES];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             VALUES[i] = rand() % NUM_VALUES;
         }
@@ -3992,7 +4027,18 @@ void TestDriver<VALUE>::testCase12()
         enum {
             NUM_VALUES = 50000
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         int VALUES[NUM_VALUES];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             VALUES[i] = rand() % NUM_VALUES;
         }
@@ -4190,7 +4236,18 @@ void TestDriver<VALUE>::testCase13()
         enum {
             NUM_VALUES = 50000
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         int VALUES[NUM_VALUES];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             VALUES[i] = rand() % NUM_VALUES;
         }
@@ -4631,7 +4688,18 @@ void TestDriver<VALUE>::testCase15()
         enum {
             NUM_VALUES = 50000
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         int VALUES[NUM_VALUES];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             VALUES[i] = rand() % NUM_VALUES;
         }
@@ -5979,7 +6047,7 @@ int main(int argc, char *argv[])
 
             memset(buffer, 0, BUFFER_SIZE);
             while (0 != fgets(line, LINE_SIZE, input)) {
-                strncat(buffer, line, BUFFER_SIZE);
+                strncat(buffer, line, LINE_SIZE);
             }
             fclose(input);
 

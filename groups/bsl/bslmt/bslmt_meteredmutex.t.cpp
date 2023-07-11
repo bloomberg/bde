@@ -149,7 +149,10 @@ bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
         ASSERT(threads);
 
         for (int i = 0; i < numThreads; ++i) {
-            bslmt::ThreadUtil::create(&threads[i], function, (void*)i);
+            bslmt::ThreadUtil::create(&threads[i],
+                                      function,
+                                      reinterpret_cast<void *>(
+                                         static_cast<bsls::Types::IntPtr>(i)));
         }
         for (int i = 0; i < numThreads; ++i) {
             bslmt::ThreadUtil::join(threads[i]);
@@ -210,7 +213,7 @@ enum { k_NUM_THREADS4 = 4, k_NUM_ITERATION = 10000000 };
 bslmt::Barrier barrier4(k_NUM_THREADS4);
 Obj mutex4;
 extern "C" {
-  void *resetTest(void *arg)
+  void *resetTest(void *)
     {
         bsls::Types::Int64 previous, current;
 
@@ -246,7 +249,7 @@ Obj mutex3;
 bslmt::Barrier barrier3(k_NUM_THREADS3);
 
 extern "C" {
-    void *timesTest(void *arg)
+    void *timesTest(void *)
     {
         for (int i = 0; i < k_NUM_ACQUIRE; ++i) {
             barrier3.wait();
@@ -419,8 +422,8 @@ int main(int argc, char *argv[])
                                        *  k_NUM_THREADS3
                                        *  k_SLEEP_TIME3
                                        *  NANOSECONDS_IN_ONE_MICRO_SECOND;
-        ASSERT(mutex3.holdTime() >= (bsls::Types::Int64)(holdTime * 50.0/100));
-                                                         // error margin = 50%
+        ASSERT(mutex3.holdTime() >= holdTime * 50/100);  // error margin = 50%
+
         // In an iteration, after the barrier, the first thread to acquire the
         //  lock waits for no time, the second thread to acquire the lock waits
         // for 'k_SLEEP_TIME3' time, the third thread to acquire the lock waits
@@ -430,12 +433,11 @@ int main(int argc, char *argv[])
         // ((k_NUM_THREADS3-1)*k_NUM_THREADS3)/2.0 * k_SLEEP_TIME3.  We have
         // k_NUM_ACQUIRE such iteration.
 
-        bsls::Types::Int64 waitTime =
-              (bsls::Types::Int64) (k_NUM_ACQUIRE
-                                    * ((k_NUM_THREADS3-1) * k_NUM_THREADS3)/2.0
+        bsls::Types::Int64 waitTime = k_NUM_ACQUIRE
+                                    * ((k_NUM_THREADS3-1) * k_NUM_THREADS3)/2
                                     * k_SLEEP_TIME3
                                     * NANOSECONDS_IN_ONE_MICRO_SECOND
-                                    * 50.0/100);      // error margin = 50%
+                                    * 50/100;      // error margin = 50%
         ASSERT(mutex3.waitTime() > waitTime);
         if (veryVerbose) {
             P(mutex3.holdTime()) ;
@@ -533,7 +535,7 @@ int main(int argc, char *argv[])
             k_SLEEP_TIME   = 100000 // in microseconds
         };
 
-        const float ERROR_MARGIN = .6;      // 40 % error margin
+        const double ERROR_MARGIN = .6;      // 40 % error margin
         mutex.lock();
         bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
         mutex.unlock();

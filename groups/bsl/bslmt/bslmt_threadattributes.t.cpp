@@ -19,6 +19,7 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -127,7 +128,16 @@ typedef bslmt::ThreadAttributes Obj;
 
     void myThreadFunction()
     {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         int bufferLocal[k_BUFFER_SIZE];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         // Perform some calculation that involves no subroutine calls or
         // additional automatic variables.
