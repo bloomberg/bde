@@ -337,7 +337,7 @@ int bdlat_arrayAccessElement(const DynamicTypeElement&, ACCESSOR&, int)
     return -1;
 }
 
-bsl::size_t bdlat_arraySize(const DynamicTypeElement&)
+BSLA_MAYBE_UNUSED bsl::size_t bdlat_arraySize(const DynamicTypeElement&)
 {
     return 0;
 }

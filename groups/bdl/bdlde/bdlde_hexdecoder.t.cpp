@@ -119,7 +119,7 @@ typedef bdlde::HexDecoder Obj;
 // The following is a very long text to use in the usage example as a stress
 // test.
 
-const char BLOOMBERG_NEWS[] =
+const char *BLOOMBERG_NEWS =
 "        (Commentary.  Chet Currier is a Bloomberg News  \n"
 "columnist.  The opinions expressed are his own.)  \n"
 " \n"
@@ -503,11 +503,11 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 
 // Next, to demonstrate how our function works we need to create a stream with
-// encoded data.  Assume that we have some character buffer, 'BLOOMBERG_NEWS',
+// encoded data.  Assume that we have some character string, 'BLOOMBERG_NEWS',
 // and a function, 'streamEncoder' mirroring the work of the 'streamDecoder':
 //..
     bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
-                                            sizeof(BLOOMBERG_NEWS)));
+                                            strlen(BLOOMBERG_NEWS)));
     bsl::stringstream  outStream;
     bsl::stringstream  backInStream;
 

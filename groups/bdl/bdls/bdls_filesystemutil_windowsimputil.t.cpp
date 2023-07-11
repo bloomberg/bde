@@ -1241,7 +1241,7 @@ int main(int argc, char *argv[])
             bdlt::Datetime time;
             const int result = Obj::convertFileTimeToDatetime(&time,
                                                               &unixEpoch);
-            BSLS_ASSERT(0 == result);
+            BSLS_ASSERT(0 == result);  (void)result;
             InterfaceUtil::setInterface(0);
 
             ASSERT(time == bdlt::EpochUtil::epoch());

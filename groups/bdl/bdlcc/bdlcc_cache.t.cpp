@@ -1071,7 +1071,7 @@ int CachePerformance::testReadWrite(CachePerformance *cacheperf_p,
     int threadIdx = args[1];
 
     bool isWThread = threadIdx < numWThreads ? true : false;
-    char buf[12];
+    char buf[16];
     srand(threadIdx);
     bsl::shared_ptr<bsl::string> valuePtr;
     for (int i = 0; i < numCalcs; ++i) {

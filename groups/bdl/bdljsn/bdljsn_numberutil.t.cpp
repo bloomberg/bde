@@ -615,7 +615,7 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
     // 0s, an ridiculously high value should not be possible.  Note we negate
     // 'exponentBias' below.
 
-    BSLS_ASSERT(exponentBias != INT_MIN_VALUE);
+    BSLS_ASSERT(exponentBias != INT_MIN_VALUE);  (void)INT_MIN_VALUE;
 
     // Determine the maximum valid exponent that the arithmetic below can
     // support (because 'uExponent' is converted to a signed integer).

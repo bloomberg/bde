@@ -1736,12 +1736,12 @@ int main(int argc, char *argv[])
         // objects in the 'e_CMD_NEXT_PERMIT == cmd' case.
 
         int          maxSimultaneousActions;
-        double       secondsPerAction;
+        double       secondsPerAction = 0.0;
         TimeInterval initTimeInterval;
 
-        bool         allowAll;      // 'e_CMD_NEXT_PERMIT == cmd' needs to know
-                                    // if, on the last initialization, the
-                                    // throttle was set to 'allow all'.
+        bool         allowAll = false;  // 'e_CMD_NEXT_PERMIT == cmd' needs to
+                                        // know if, on the last initialization,
+                                        // the throttle was set to 'allow all'.
 
         for (int ti = 0; ti < k_NUM_DATA; ++ti) {
             const Data&         data         = DATA[ti];
@@ -2187,7 +2187,7 @@ int main(int argc, char *argv[])
             }
 
             Int64  nanosecondsPerAction;
-            double secondsPerAction;
+            double secondsPerAction = 0.0;
             double start = 0, scheduledTime = 0, actualTime = 0, overshoot = 0;
             int retries = 0;
             for (int ti = 0; !quit && ti< k_NUM_DATA; ++ti) {
@@ -2883,8 +2883,18 @@ int main(int argc, char *argv[])
             const ClockType ctr   = CT::e_REALTIME;
             const ClockType ctMin = (ClockType) bsl::min(ctm, ctr);
             const ClockType ctMax = (ClockType) bsl::max(ctm, ctr);
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
             const ClockType ctLo  = (ClockType) (ctMin - 1);    (void) ctLo;
             const ClockType ctHi  = (ClockType) (ctMax + 1);    (void) ctHi;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
             for (int ti = 0; ti < 2; ++ti) {
                 const ClockType ctValid = ti ? ctm : ctr;

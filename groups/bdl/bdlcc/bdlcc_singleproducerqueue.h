@@ -96,6 +96,9 @@ BSLS_IDENT("$Id: $")
 //      RequestType d_type;
 //      my_WorkData d_data;
 //      // Work data...
+//
+//      // CREATORS
+//      my_WorkRequest() : d_type(), d_data() {}
 //  };
 //..
 // Next, we provide a simple function to service an individual work item.  The

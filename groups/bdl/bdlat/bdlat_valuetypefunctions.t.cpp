@@ -534,6 +534,7 @@ class Choice_Point {
                               const RHS_TYPE&  rhs)
     {
         BSLS_ASSERT(lhs);
+        (void)lhs;
         (void)rhs;
 
         return -999;  // Pick a distinctive non-negative value.

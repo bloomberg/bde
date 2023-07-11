@@ -358,7 +358,7 @@ BSLS_IDENT("$Id: $")
 //      while (0 == getNextHoliday(input, &holiday, &numCodes)) {
 //          calendar->addHoliday(holiday);                       // add date
 //          for (int i = 0; i < numCodes; ++i) {
-//              int holidayCode;
+//              int holidayCode = 0;
 //              getNextHolidayCode(input, &holidayCode);
 //              if (input.good()) {
 //                  // add codes

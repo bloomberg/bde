@@ -147,10 +147,19 @@ EarlyEpochCopier::EarlyEpochCopier()
     // this test could ever fail - compilers may even elide it.  It should work
     // with the naive implementation of doing what the code says, though.
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress"
+#endif
+
     if (0 != &epoch) {
         epochAddressIsNotZero = 1;
         new(epochBuffer) bdlt::Datetime(bdlt::EpochUtil::epoch());
     }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 }
 
 const bdlt::Datetime &EarlyEpochCopier::copiedValue()
@@ -247,7 +256,7 @@ int main(int argc, char *argv[])
 //..
 // Then, we set up a set of output variables to receive converted values:
 //..
-    bsl::time_t            outputTime;
+    bsl::time_t            outputTime = 0;
     bsls::TimeInterval     outputTimeInterval;
     bdlt::DatetimeInterval outputDatetimeInterval;
     bdlt::Datetime         outputDatetime;

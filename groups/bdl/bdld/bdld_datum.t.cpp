@@ -1336,6 +1336,7 @@ void BenchmarkSuite::run(int   iterations,
 
     {
         unsigned char buffer[8]; // big enough fox max encoding size
+        (void)buffer;
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
         Decimal64      aSmallDecimal64(BDLDFP_DECIMAL_DD(1.));

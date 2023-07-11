@@ -1312,7 +1312,7 @@ static void test6_signaler_disconnectGroupAndWait()
 
         // start the thread pool
         int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
 
         // connect a couple of no-op slots to group '1'
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp(), 1);
@@ -1555,7 +1555,7 @@ static void test8_signaler_disconnectAllSlotsAndWait()
 
         // start the thread pool
         int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
 
         for (int i = 0; i < 10; ++i) {
             // Repeat 10 times.
@@ -2068,7 +2068,7 @@ static void test13_connection_disconnectAndWait()
 
         // start the thread pool
         int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
 
         // connect a couple of no-op slots
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
@@ -3490,7 +3490,7 @@ static void test24_destroyGuardAndWait()
 
         // start the thread pool
         int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
 
         // connect a couple of no-op slots to group '1'
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp(), 1);

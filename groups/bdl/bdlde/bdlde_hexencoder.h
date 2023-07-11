@@ -263,12 +263,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next, to demonstrate how our function works we need to create a stream with
-// data to encode.  Assume that we have some character buffer,
+// data to encode.  Assume that we have some character string,
 // 'BLOOMBERG_NEWS', and a function, 'streamDecoder' mirroring the work of the
 // 'streamEncoder':
 //..
 //  bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
-//                                          sizeof(BLOOMBERG_NEWS)));
+//                                          strlen(BLOOMBERG_NEWS)));
 //  bsl::stringstream  outStream;
 //  bsl::stringstream  backInStream;
 //..

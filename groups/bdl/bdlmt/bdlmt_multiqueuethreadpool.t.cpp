@@ -2492,7 +2492,7 @@ int main(int argc, char *argv[]) {
             bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
 
             int rc = pool.start();
-            BSLS_ASSERT_OPT(rc == 0);
+            BSLS_ASSERT_OPT(rc == 0);  (void)rc;
 
             const int queueId = pool.createQueue();
             BSLS_ASSERT_OPT(queueId);
@@ -2532,7 +2532,7 @@ int main(int argc, char *argv[]) {
         bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
 
         int rc = pool.start();
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
 
         const int queueId = pool.createQueue();
         BSLS_ASSERT_OPT(queueId);

@@ -371,7 +371,7 @@ void verifyMatch(Obj          *o1,
     // Verify that the specified 'o1' is correct by comparing it with the
     // specified 'o2'.
 {
-    int v1, v2;
+    int v1 = 0, v2 = 0;
     ASSERT(o1->length() == o2->length());
 
     ASSERT(o1->find(-1) != 0);
@@ -413,7 +413,7 @@ void ggInt(bdlcc::ObjectCatalog<TYPE> *o1,
     // the entry 'gens' times to bring the generation numbers to 'gens' for the
     // entries still present, and to 'gens + 1' for freed entries.
 
-    int v1, v2;
+    int v1 = 0, v2 = 0;
     int len = static_cast<int>(strlen(spec));
     for (int i=0 ;i < len; ++i) {
         if (veryVerbose) {
@@ -1903,7 +1903,7 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyable()
     ASSERT(!usesAllocatorOrNoAllocator(VA, &tb) || !k_IS_ALLOCATING);
 
     Obj x1(&ta);                const Obj &X1=x1;
-    ELEMENT vbuffer;
+    ELEMENT vbuffer = VG;
 
     if (verbose) cout << "testing add(value), length(), and find(h,buffer)\n";
 
@@ -2278,7 +2278,7 @@ void *testAddFindReplaceRemove(void *arg)
 {
     barrier.wait();
     int id = static_cast<int>(reinterpret_cast<bsls::Types::IntPtr>(arg));
-    int v;
+    int v  = 0;
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int h = catalog.add(id);
         ASSERTV(i, catalog.find(h) == 0);
@@ -2509,7 +2509,7 @@ void verifyAccessors(Obj          *o1,
     // Verify the catalog accessors (including iterator) by comparing with
     // alternate implementation.
 {
-    int v1, v2, v;
+    int v1 = 0, v2 = 0, v = 0;
 
     if (veryVerbose) { cout << "\tverifying 'length'\n"; }
     ASSERT(o1->length() == o2->length());
@@ -3468,7 +3468,7 @@ int main(int argc, char *argv[])
                     ASSERT(r1 != 0);
                 }
                 else {
-                    int v1, v2;
+                    int v1 = 0, v2 = 0;
                     ASSERT(r1 == 0);
                     r1 = o1.find(handles1[j], &v1);
                     r2 = o2.find(handles2[j], &v2);

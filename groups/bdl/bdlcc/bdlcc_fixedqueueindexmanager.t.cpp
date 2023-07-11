@@ -1395,14 +1395,14 @@ int main(int argc, char *argv[])
                                              &x,
                                              &state,
                                              DELAY));
-                    BSLS_ASSERT_OPT(0 == rc); // test invariant
+                    BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                     ++thread;
                 }
                 for (int i = 0; i < NUM_READERS; ++i) {
                     int rc = bslmt::ThreadUtil::create(
                      &handles[thread],
                      bdlf::BindUtil::bind(&readerThread, &x, &state, DELAY));
-                    BSLS_ASSERT_OPT(0 == rc); // test invariant
+                    BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                     ++thread;
                 }
                 for (int i = 0; i < NUM_EXCEPTIONS; ++i) {
@@ -1412,7 +1412,7 @@ int main(int argc, char *argv[])
                                              &x,
                                              &state,
                                              DELAY));
-                    BSLS_ASSERT_OPT(0 == rc); // test invariant
+                    BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                     ++thread;
                 }
 
@@ -1544,14 +1544,14 @@ int main(int argc, char *argv[])
                 int rc = bslmt::ThreadUtil::create(
                      &handles[thread],
                      bdlf::BindUtil::bind(&writerThread, &x, &state, DELAY));
-                BSLS_ASSERT_OPT(0 == rc); // test invariant
+                BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                 ++thread;
             }
             for (int i = 0; i < NUM_READERS; ++i) {
                 int rc = bslmt::ThreadUtil::create(
                      &handles[thread],
                      bdlf::BindUtil::bind(&readerThread, &x, &state, DELAY));
-                BSLS_ASSERT_OPT(0 == rc); // test invariant
+                BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                 ++thread;
             }
             for (int i = 0; i < NUM_EXCEPTIONS; ++i) {
@@ -1561,7 +1561,7 @@ int main(int argc, char *argv[])
                                           &x,
                                           &state,
                                           DELAY));
-                BSLS_ASSERT_OPT(0 == rc); // test invariant
+                BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                 ++thread;
             }
 
@@ -3322,14 +3322,14 @@ int main(int argc, char *argv[])
                                        &x,
                                        &writeCount,
                                        &state));
-                BSLS_ASSERT_OPT(0 == rc); // test invariant
+                BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                 ++thread;
             }
             for (int i = 0; i < NUM_READERS; ++i) {
                 int rc = bslmt::ThreadUtil::create(
                   &handles[thread],
                   bdlf::BindUtil::bind(&readerThread, &x, &readCount, &state));
-                BSLS_ASSERT_OPT(0 == rc); // test invariant
+                BSLS_ASSERT_OPT(0 == rc);  (void)rc;  // test invariant
                 ++thread;
             }
 

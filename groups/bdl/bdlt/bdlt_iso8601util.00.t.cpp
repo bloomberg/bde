@@ -1062,6 +1062,8 @@ bool containsOnlyDigits(const char *string)
     return true;
 }
 
+#ifdef U_TEST_PART_02
+
 static
 bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
     // Return copy of the specified string with all 'T' & 't' characters
@@ -1073,6 +1075,8 @@ bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
     }
     return s;
 }
+
+#endif
 
 namespace {
 namespace u {
@@ -7032,7 +7036,10 @@ int main(int argc, char *argv[])
     const bool     veryVeryVerbose = argc > 4;
     const bool veryVeryVeryVerbose = argc > 5;
 
-    (void)veryVeryVerbose;  // eliminate unused variable warning
+    // eliminate unused variable warning
+    (void)verbose;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
     (void)veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;

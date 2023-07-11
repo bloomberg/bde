@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
             char *segment = segments[i];
             for (int j = 0; j < k_LENGTH; ++j) {
                 c = (c + 1) & 0x7f;
-                BSLS_ASSERT(segment[j] == c);
+                BSLS_ASSERT(segment[j] == c);  (void)segment;
             }
         }
 //..

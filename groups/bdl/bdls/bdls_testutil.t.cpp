@@ -352,7 +352,7 @@ bool tempFileName(char *result)
 #else
     char *fn = tempnam(0, "bsls");
     if (fn) {
-        strncpy(result, fn, k_PATH_BUFFER_SIZE);
+        strncpy(result, fn, k_PATH_BUFFER_SIZE - 1);
         result[k_PATH_BUFFER_SIZE - 1] = '\0';
         free(fn);
     } else {

@@ -117,7 +117,7 @@ bool isInf(double number)
 }
 
 #define u_OUT_OF_RANGE_REVIEW(number, isNegative) do {                        \
-    const bool isInfinity = u::isInf((number));                               \
+    const bool isInfinity = u::isInf((number));  (void)isInfinity;            \
     BSLS_REVIEW_OPT(("'parseDouble' overflow: -Infinity, "                    \
                      "Please route this issue to BDE (Group 101)."            \
                     && !isInfinity) || !isNegative);                          \
@@ -630,9 +630,11 @@ int NumericParseUtil::parseDouble(double                  *result,
 
     if (endPtr != buffer) {
 #ifdef BDLB_NUMERICPARSEUTIL_PARSES_HEXFLOAT
+        bool couldBeHexFloat = u::couldBeHexFloat(stdlibInput);
+        (void)couldBeHexFloat;
         BSLS_REVIEW_OPT("Valid hexfloat parsed by strtod.  "
                         "Please route this issue to BDE (Group 101)."
-                        && !u::couldBeHexFloat(stdlibInput));
+                        && !couldBeHexFloat);
 #endif
 
         *result = (isNegative ? -rv : rv);

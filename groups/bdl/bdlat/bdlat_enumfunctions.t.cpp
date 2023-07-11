@@ -252,9 +252,9 @@ void testToAndFrom(const test::EnumeratorInfo<ENUM> (&info)[NUM_ENUMERATORS])
     for (int i = 0; i < NUM_ENUMERATORS; i++) {
         if (veryVerbose) { T_ P(i) }
 
-        ENUM               mX;  const ENUM&        X = mX;
-        int                mN;  const int&         N = mN;
-        bsl::string        mS;  const bsl::string& S = mS;
+        ENUM               mX;      const ENUM&        X = mX;
+        int                mN = 0;  const int&         N = mN;
+        bsl::string        mS;      const bsl::string& S = mS;
 
         mX = info[i].d_enumerator;
 

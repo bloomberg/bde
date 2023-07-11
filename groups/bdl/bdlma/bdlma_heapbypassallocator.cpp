@@ -47,7 +47,7 @@ namespace {
 enum {
     k_MAX_CHUNK_SIZE = 1u << 30,     // 1 GiB
     k_MIN_CHUNK_SIZE = 1u << 12,     // 4 KiB
-    k_DEFAULT_CHUNK_SIZE = 1u << 22, // 4 MiB
+    k_DEFAULT_CHUNK_SIZE = 1u << 22  // 4 MiB
 };
 
 }  // close unnamed namespace

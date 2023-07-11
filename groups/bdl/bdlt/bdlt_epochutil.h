@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we set up a set of output variables to receive converted values:
 //..
-//  bsl::time_t            outputTime;
+//  bsl::time_t            outputTime = 0;
 //  bsls::TimeInterval     outputTimeInterval;
 //  bdlt::DatetimeInterval outputDatetimeInterval;
 //  bdlt::Datetime         outputDatetime;

@@ -314,7 +314,7 @@ bdlat_TypeCategory::Value bdlat_typeCategorySelect(
     return object.d_category;
 }
 
-bool bdlat_nullableValueIsNull(const u::TestDynamicType&)
+BSLA_MAYBE_UNUSED bool bdlat_nullableValueIsNull(const u::TestDynamicType&)
 {
     return true;
 }
