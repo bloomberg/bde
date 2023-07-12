@@ -254,7 +254,7 @@ IsNoThrowSwappable_Impl<
 {
     return noexcept(swap(BloombergLP::bslmf::Util::declval<TYPE&>(),
                          BloombergLP::bslmf::Util::declval<TYPE&>()));
-};
+}
 
 }  // close namespace bslmf_is_nothrow_swappable_impl_ns
 }  // close package namespace
