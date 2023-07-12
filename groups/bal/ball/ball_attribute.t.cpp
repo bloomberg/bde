@@ -534,7 +534,7 @@ Obj::Value createValue(const VALUE *values, int size, int i)
     // the specified 'values' array of the specified 'size'.
 {
     BSLS_ASSERT(0 <= i);
-    BSLS_ASSERT(i <  size);
+    BSLS_ASSERT(i <  size);  (void)size;
 
     Obj::Value variant;
     switch (values[i].d_type) {

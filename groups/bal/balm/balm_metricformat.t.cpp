@@ -282,7 +282,7 @@ void gg(balm::MetricFormat *format, const bsl::vector<Type::Value>& types)
 {
     bsl::vector<Type::Value>::const_iterator tIt = types.begin();
     for ( ; tIt != types.end(); ++tIt) {
-        format->setFormatSpec(*tIt, Spec((int)*tIt, "%x"));
+        format->setFormatSpec(*tIt, Spec(static_cast<float>(*tIt), "%x"));
     }
 }
 
@@ -421,7 +421,8 @@ int main(int argc, char *argv[])
             // Test clearFormatSpec.
             for (int i = 0; i < Type::k_LENGTH; ++i) {
                 if (iter.includesElement(i)) {
-                    ASSERT(Spec(i, "%x") == *MX.formatSpec((Type::Value)i));
+                    ASSERT(Spec(static_cast<float>(i), "%x") ==
+                                               *MX.formatSpec((Type::Value)i));
                     mX.clearFormatSpec((Type::Value)i);
                 }
                 ASSERT(0 == MX.formatSpec((Type::Value)i));
@@ -432,8 +433,8 @@ int main(int argc, char *argv[])
                         ASSERT(0 == MX.formatSpec((Type::Value)j));
                     }
                     else {
-                        ASSERT(Spec(j, "%x") ==
-                               *MX.formatSpec((Type::Value)j));
+                        ASSERT(Spec(static_cast<float>(j), "%x") ==
+                                               *MX.formatSpec((Type::Value)j));
                     }
                 }
             }
@@ -441,8 +442,10 @@ int main(int argc, char *argv[])
             // Re-add format specs.
             for (int i = 0; i < Type::k_LENGTH; ++i) {
                 ASSERT(0 == MX.formatSpec((Type::Value)i));
-                mX.setFormatSpec((Type::Value)i, Spec(i, "%x"));
-                ASSERT(Spec(i, "%x") == *MX.formatSpec((Type::Value)i));
+                mX.setFormatSpec((Type::Value)i,
+                                 Spec(static_cast<float>(i), "%x"));
+                ASSERT(Spec(static_cast<float>(i), "%x") ==
+                                               *MX.formatSpec((Type::Value)i));
             }
         } while (iter.next());
       } break;
@@ -485,8 +488,10 @@ int main(int argc, char *argv[])
             mX.clearFormatSpecs();
             for (int i = 0; i < Type::k_LENGTH; ++i) {
                 ASSERT(0 == MX.formatSpec((Type::Value)i));
-                mX.setFormatSpec((Type::Value)i, Spec(i, "%x"));
-                ASSERT(Spec(i, "%x") == *MX.formatSpec((Type::Value)i));
+                mX.setFormatSpec((Type::Value)i,
+                                 Spec(static_cast<float>(i), "%x"));
+                ASSERT(Spec(static_cast<float>(i), "%x") ==
+                                               *MX.formatSpec((Type::Value)i));
             }
         } while (iter.next());
       } break;
@@ -717,7 +722,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i < Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 if (cIter.includesElement(i)) {
-                    ASSERT(Spec(i, "%x") == *MX.formatSpec(type));
+                    ASSERT(Spec(static_cast<float>(i), "%x") ==
+                                                         *MX.formatSpec(type));
                 }
                 else {
                     ASSERT(0 == MX.formatSpec(type));
@@ -780,14 +786,16 @@ int main(int argc, char *argv[])
                 const bsl::vector<Type::Value>& types = cIter.current();
                 bsl::vector<Type::Value>::const_iterator tIt = types.begin();
                 for ( ; tIt != types.end(); ++tIt) {
-                    mX.setFormatSpec(*tIt, Spec((int)*tIt, "%x"));
+                    mX.setFormatSpec(*tIt,
+                                     Spec(static_cast<float>(*tIt), "%x"));
                 }
 
                 // Verify the format spec has been added.
                 for (int i = 0; i < Type::k_LENGTH; ++i) {
                     Type::Value type = (Type::Value)i;
                     if (cIter.includesElement(i)) {
-                        ASSERT(Spec(i, "%x") == *MX.formatSpec(type));
+                        ASSERT(Spec(static_cast<float>(i), "%x") ==
+                                                         *MX.formatSpec(type));
                     }
                     else {
                         ASSERT(0 == MX.formatSpec(type));
@@ -1262,7 +1270,7 @@ int main(int argc, char *argv[])
                 }
 
                 for (bsl::size_t j = 0; j < bsl::strlen(VALUES); ++j) {
-                    if (iter.includesElement(j)) {
+                    if (iter.includesElement(static_cast<int>(j))) {
                         result2 += VALUES[j];
                     }
                 }

@@ -11,13 +11,12 @@
 
 #include <baltzo_localdatetime.h>
 
-
-#include <bsl_memory.h>
-
 #include <bdlt_iso8601util.h>
 #include <bdlt_epochutil.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
+
+#include <bsla_maybeunused.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -31,6 +30,8 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+
+#include <bsl_memory.h>
 
 #undef DS
 
@@ -847,7 +848,8 @@ static bdlt::Datetime fromIso8601 (const char *iso8601TimeString)
     // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
-    int rc = bdlt::Iso8601Util::parse(&time,
+    BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(
+                            &time,
                             iso8601TimeString,
                             static_cast<int>(bsl::strlen (iso8601TimeString)));
     BSLS_ASSERT (0 == rc);

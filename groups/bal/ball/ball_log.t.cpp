@@ -4701,7 +4701,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             TC::CatHolder catHolderX;
 
-            bsl::memcpy(&catHolderX,
+            bsl::memcpy(static_cast<void *>(&catHolderX),
                         RET(woof_b).d_holder_p,
                         sizeof(catHolderX));
             CALL(woof_b, MLEVELS, RET(woof_a).d_holder_p);
@@ -4710,7 +4710,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                 ret_p->d_holder_p,
                                 sizeof(*ret_p->d_holder_p)));
 
-            bsl::memcpy(&catHolderX,
+            bsl::memcpy(static_cast<void *>(&catHolderX),
                         RET(meowBark).d_holder_p,
                         sizeof(catHolderX));
             CALL(meowBark, JLEVELS, 0);
@@ -4719,7 +4719,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                 ret_p->d_holder_p,
                                 sizeof(*ret_p->d_holder_p)));
 
-            bsl::memcpy(&catHolderX,
+            bsl::memcpy(static_cast<void *>(&catHolderX),
                         RET(meow).d_holder_p,
                         sizeof(catHolderX));
             CALL(meow, CLEVELS, 0);

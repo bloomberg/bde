@@ -6,6 +6,8 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_iostream.h>

@@ -23,6 +23,8 @@
 #include <bdlt_epochutil.h>
 #include <bdlt_localtimeoffset.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -340,7 +342,9 @@ bsl::string readPartialFile(bsl::string&   fileName,
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
 
-    int rc = fseek(fp, static_cast<long>(startOffset), SEEK_SET);
+    BSLA_MAYBE_UNUSED int rc = fseek(fp,
+                                     static_cast<long>(startOffset),
+                                     SEEK_SET);
     BSLS_ASSERT_OPT(0 == rc);
 
     int c;

@@ -3,9 +3,13 @@
 #include <baltzo_dstpolicy.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bsla_maybeunused.h>
+
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>       // 'atoi'
 #include <bsl_cstring.h>       // 'strcmp', 'memcmp', 'memcpy'
@@ -236,6 +240,11 @@ if (veryVerbose)
         if (verbose) cout << endl << "Testing 'print'" << endl
                                   << "===============" << endl;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             int         d_level;    // level
@@ -267,6 +276,10 @@ if (veryVerbose)
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         const int   SIZE = 128;         // big enough to hold output string
         const char  XX   = (char)0xFF;  // value of an unset 'char'
@@ -394,6 +407,11 @@ if (veryVerbose)
         if (verbose) cout << endl << "Testing '<<' operator" << endl
                                   << "=====================" << endl;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -411,6 +429,10 @@ if (veryVerbose)
             { L_,     (Enum)99,                   UNKNOWN_FORMAT     },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         const int   SIZE = 128;         // big enough to hold output string
         const char  XX   = (char)0xFF;  // value of an unset 'char'
@@ -507,6 +529,11 @@ if (veryVerbose)
         if (verbose) cout << endl << "Testing 'enum' and 'toAscii'" << endl
                                   << "============================" << endl;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -524,6 +551,10 @@ if (veryVerbose)
             {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         if (verbose) cout << "\nVerify enumerator values are sequential."
                           << endl;

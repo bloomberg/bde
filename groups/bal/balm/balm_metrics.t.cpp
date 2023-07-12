@@ -336,9 +336,11 @@ void LogTestMessageHandler::testMessageHandler(Severity::Enum  severity,
 
     s_hasBeenCalled = true;
     s_severity = severity;
-    strncpy(s_file, file, k_BUFFER_SIZE);
+    strncpy(s_file, file, k_BUFFER_SIZE - 1);
+    s_file[k_BUFFER_SIZE - 1] = '\0';
     s_line = line;
-    strncpy(s_message, message, k_BUFFER_SIZE);
+    strncpy(s_message, message, k_BUFFER_SIZE - 1);
+    s_message[k_BUFFER_SIZE - 1] = '\0';
 
 
     // Just to be safe.

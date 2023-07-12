@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
                        sizeof(buffer1) / sizeof(*buffer1),
                        bsls::TimeInterval(1.0));
     sample.appendGroup(buffer2.data(),
-                       buffer2.size(),
+                       static_cast<int>(buffer2.size()),
                        bsls::TimeInterval(2.0));
 //..
 // We can verify the basic properties of our sample:
@@ -509,9 +509,9 @@ int main(int argc, char *argv[])
             }
 
             // Test the sample.
-            ASSERT(timeStamp      == MX.timeStamp());
-            ASSERT(groups.size()  == MX.numGroups());
-            ASSERT(size           == MX.numRecords());
+            ASSERT(timeStamp                        == MX.timeStamp());
+            ASSERT(static_cast<int>(groups.size())  == MX.numGroups());
+            ASSERT(size                             == MX.numRecords());
             for (int j = 0; j < MX.numGroups(); ++j) {
                 ASSERT(groups[j] == MX.sampleGroup(j));
             }
@@ -558,7 +558,7 @@ int main(int argc, char *argv[])
             bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                             VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
-            int size = gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
+            gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
             // Create the sample.
             Obj mX(Z); const Obj& MX = mX;
@@ -627,9 +627,9 @@ int main(int argc, char *argv[])
                 mX.appendGroup(groups[j]);
             }
 
-            ASSERT(size          == MX.numRecords());
-            ASSERT(groups.size() == MX.numGroups());
-            ASSERT(timeStamp     == MX.timeStamp());
+            ASSERT(size                            == MX.numRecords());
+            ASSERT(static_cast<int>(groups.size()) == MX.numGroups());
+            ASSERT(timeStamp                       == MX.timeStamp());
 
             mX.removeAllRecords();
 
@@ -661,8 +661,12 @@ int main(int argc, char *argv[])
 
         Obj mX(Z); const Obj& MX = mX;
         mX.setTimeStamp(timeStamp);
-        mX.appendGroup(RV1.data(), RV1.size(), bsls::TimeInterval(1,0));
-        mX.appendGroup(RV2.data(), RV2.size(), bsls::TimeInterval(2,0));
+        mX.appendGroup(RV1.data(),
+                       static_cast<int>(RV1.size()),
+                       bsls::TimeInterval(1,0));
+        mX.appendGroup(RV2.data(),
+                       static_cast<int>(RV2.size()),
+                       bsls::TimeInterval(2,0));
 
         bsl::ostringstream buf1, buf2;
 
@@ -1046,9 +1050,9 @@ int main(int argc, char *argv[])
             }
 
             // Test the sample.
-            ASSERT(timeStamp      == MX.timeStamp());
-            ASSERT(groups.size()  == MX.numGroups());
-            ASSERT(size           == MX.numRecords());
+            ASSERT(timeStamp                       == MX.timeStamp());
+            ASSERT(static_cast<int>(groups.size()) == MX.numGroups());
+            ASSERT(size                            == MX.numRecords());
             for (int j = 0; j < MX.numGroups(); ++j) {
                 ASSERT(groups[j] == MX.sampleGroup(j));
             }
@@ -1179,7 +1183,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == MX.end());
         for (int i = 0; i < NUM_VALUES; ++i) {
             Group mX(VALUES[i].d_records->data(),
-                     VALUES[i].d_records->size(),
+                     static_cast<int>(VALUES[i].d_records->size()),
                      bsls::TimeInterval(VALUES[i].d_time, 0));
             const Group& MX = mX;
 
@@ -1205,7 +1209,9 @@ int main(int argc, char *argv[])
                               << endl;
         bsl::ostringstream buf1, buf2;
 
-        Group mX(RV1.data(), RV1.size(), bsls::TimeInterval(1, 0));
+        Group mX(RV1.data(),
+                 static_cast<int>(RV1.size()),
+                 bsls::TimeInterval(1, 0));
         const Group& MX = mX;
 
         const char *EXP_1 =
@@ -1275,11 +1281,11 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             for (int j = 0; j < NUM_VALUES; ++j) {
                 Group u(VALUES[i].d_records->data(),
-                        VALUES[i].d_records->size(),
+                        static_cast<int>(VALUES[i].d_records->size()),
                         bsls::TimeInterval(VALUES[i].d_time, 0));
                 const Group& U = u;
                 Group v(VALUES[j].d_records->data(),
-                        VALUES[j].d_records->size(),
+                        static_cast<int>(VALUES[j].d_records->size()),
                         bsls::TimeInterval(VALUES[j].d_time, 0));
                 const Group& V = v;
 
@@ -1296,7 +1302,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             Group u(VALUES[i].d_records->data(),
-                    VALUES[i].d_records->size(),
+                    static_cast<int>(VALUES[i].d_records->size()),
                     bsls::TimeInterval(VALUES[i].d_time, 0));
             const Group& U = u;
             Group w(U);  const Group& W = w;              // control
@@ -1340,12 +1346,12 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             Group x(VALUES[i].d_records->data(),
-                    VALUES[i].d_records->size(),
+                    static_cast<int>(VALUES[i].d_records->size()),
                     bsls::TimeInterval(VALUES[i].d_time, 0));
             const Group& X = x;
 
             Group w(VALUES[i].d_records->data(),
-                    VALUES[i].d_records->size(),
+                    static_cast<int>(VALUES[i].d_records->size()),
                     bsls::TimeInterval(VALUES[i].d_time, 0));
             const Group& W = w;
 
@@ -1395,14 +1401,14 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsls::TimeInterval interval(VALUES[i].d_time, 0);
             Group u(VALUES[i].d_records->data(),
-                    VALUES[i].d_records->size(),
+                    static_cast<int>(VALUES[i].d_records->size()),
                     interval);
             const Group& U = u;
 
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bsls::TimeInterval interval(VALUES[j].d_time, 0);
                 Group v(VALUES[j].d_records->data(),
-                        VALUES[j].d_records->size(),
+                        static_cast<int>(VALUES[j].d_records->size()),
                         interval);
                 const Group& V = v;
 
@@ -1446,13 +1452,16 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsls::TimeInterval interval(VALUES[i].d_time, 0);
             Group mX(VALUES[i].d_records->data(),
-                     VALUES[i].d_records->size(),
+                     static_cast<int>(VALUES[i].d_records->size()),
                      interval);
             const Group& MX = mX;
 
             ASSERT(interval                    == MX.elapsedTime());
             ASSERT(VALUES[i].d_records->data() == MX.records());
-            ASSERT(VALUES[i].d_records->size() == MX.numRecords());
+
+            ASSERT(static_cast<int>(VALUES[i].d_records->size()) ==
+                                                              MX.numRecords());
+
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1523,11 +1532,14 @@ int main(int argc, char *argv[])
             Group mX; const Group& MX = mX;
             mX.setElapsedTime(interval);
             mX.setRecords(VALUES[i].d_records->data(),
-                          VALUES[i].d_records->size());
+                          static_cast<int>(VALUES[i].d_records->size()));
 
             ASSERT(interval                    == MX.elapsedTime());
             ASSERT(VALUES[i].d_records->data() == MX.records());
-            ASSERT(VALUES[i].d_records->size() == MX.numRecords());
+
+            ASSERT(static_cast<int>(VALUES[i].d_records->size()) ==
+                                                              MX.numRecords());
+
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1599,8 +1611,8 @@ int main(int argc, char *argv[])
         Obj mX1(Z); const Obj& X1 = mX1;
 
         mX1.setTimeStamp(timeStamp1);
-        mX1.appendGroup(RV1.data(), RV1.size(), interval1);
-        mX1.appendGroup(RV2.data(), RV2.size(), interval2);
+        mX1.appendGroup(RV1.data(), static_cast<int>(RV1.size()), interval1);
+        mX1.appendGroup(RV2.data(), static_cast<int>(RV2.size()), interval2);
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check initial state of x1." << endl;
@@ -1647,7 +1659,7 @@ int main(int argc, char *argv[])
 
         mX1.setTimeStamp(timeStamp2);
         mX1.removeAllRecords();
-        mX1.appendGroup(RV3.data(), RV3.size(), interval3);
+        mX1.appendGroup(RV3.data(), static_cast<int>(RV3.size()), interval3);
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
@@ -1706,9 +1718,9 @@ int main(int argc, char *argv[])
 
         mX3.removeAllRecords();
         mX3.setTimeStamp(timeStamp3);
-        mX3.appendGroup(RV3.data(), RV3.size(), interval3);
-        mX3.appendGroup(RV2.data(), RV2.size(), interval2);
-        mX3.appendGroup(RV1.data(), RV1.size(), interval1);
+        mX3.appendGroup(RV3.data(), static_cast<int>(RV3.size()), interval3);
+        mX3.appendGroup(RV2.data(), static_cast<int>(RV2.size()), interval2);
+        mX3.appendGroup(RV1.data(), static_cast<int>(RV1.size()), interval1);
 
         if (veryVerbose) { cout << '\t';  P(X3); }
 
@@ -1872,7 +1884,7 @@ int main(int argc, char *argv[])
         Group mX1; const Group& X1 = mX1;
 
         mX1.setElapsedTime(interval1);
-        mX1.setRecords(RV1.data(), RV1.size());
+        mX1.setRecords(RV1.data(), static_cast<int>(RV1.size()));
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check initial state of x1." << endl;
@@ -1907,7 +1919,7 @@ int main(int argc, char *argv[])
                              "\t\t\t{ x1:VB x2:VA }" << endl;
 
         mX1.setElapsedTime(interval2);
-        mX1.setRecords(RV2.data(), RV2.size());
+        mX1.setRecords(RV2.data(), static_cast<int>(RV2.size()));
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
@@ -1962,7 +1974,7 @@ int main(int argc, char *argv[])
                              "\t\t\t{ x1:VB x2:VA x3:VC x4:U }" << endl;
 
         mX3.setElapsedTime(interval3);
-        mX3.setRecords(RV3.data(), RV3.size());
+        mX3.setRecords(RV3.data(), static_cast<int>(RV3.size()));
 
         if (veryVerbose) { cout << '\t';  P(X3); }
 

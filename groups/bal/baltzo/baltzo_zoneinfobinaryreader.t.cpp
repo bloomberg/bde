@@ -1321,10 +1321,9 @@ class RawHeader {
     // The byte sequence of the header of a Zoneinfo binary data format.
 
     // DATA
-    char d_headerId[4];                    // must be 'EXPECTED_HEADER_ID'
-    char d_version[1];                     // must be '\0' or '2' (as of 2005)
-    BSLA_MAYBE_UNUSED char d_reserved[15]; // unused
-
+    char d_headerId[4];          // must be 'EXPECTED_HEADER_ID'
+    char d_version[1];           // must be '\0' or '2' (as of 2005)
+    char d_reserved[15];         // unused
     char d_numIsGmt[4];          // number of encoded UTC/local indicators
     char d_numIsStd[4];          // number of encoded standard/wall indicators
     char d_numLeaps[4];          // number of leap info's encoded in the file

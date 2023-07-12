@@ -1328,6 +1328,7 @@ void myVisitorTest(const ball::Attribute& attribute)
     BSLS_ASSERT(0 == invocationCount);
     ++invocationCount;
 
+    (void)attribute;
     BSLS_ASSERT(0    == bsl::strcmp("testAttribute", attribute.name()));
     BSLS_ASSERT(true == attribute.value().is<int>());
     BSLS_ASSERT(1234 == attribute.value().the<int>());

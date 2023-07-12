@@ -14,6 +14,8 @@
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -163,9 +165,9 @@ void ConcurrencyTest::execute()
         balm::MetricRecord  result;
         balm::MetricRecord *rec = (0 == i % 2) ? &r1 : &r2;
         mX->setCountTotalMinMax(rec->count(),
-                                rec->total(),
-                                rec->min(),
-                                rec->max());
+                                static_cast<int>(rec->total()),
+                                static_cast<int>(rec->min()),
+                                static_cast<int>(rec->max()));
         MX->load(&result);
         ASSERT(r1 == result || r2 == result);
 
@@ -198,7 +200,10 @@ void ConcurrencyTest::execute()
     d_barrier.wait();
     for(int i = 0; i < 10; ++i) {
         balm::MetricRecord  result;
-        mX->setCountTotalMinMax(r1.count(), r1.total(), r1.min(), r1.max());
+        mX->setCountTotalMinMax(r1.count(),
+                                static_cast<int>(r1.total()),
+                                static_cast<int>(r1.min()),
+                                static_cast<int>(r1.max()));
         mX->loadAndReset(&result);
 
         ASSERT(result == r1 || result == empty);
@@ -228,9 +233,10 @@ void ConcurrencyTest::runTest()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+
+    BSLA_MAYBE_UNUSED int verbose = argc > 2;
+    BSLA_MAYBE_UNUSED int veryVerbose = argc > 3;
+    BSLA_MAYBE_UNUSED int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -243,9 +249,6 @@ int main(int argc, char *argv[])
 
     Id metric_A(DESC_A); const Id& METRIC_A = metric_A;
     Id metric_B(DESC_B); const Id& METRIC_B = metric_B;
-    Id metric_C(DESC_C); const Id& METRIC_C = metric_C;
-    Id metric_D(DESC_D); const Id& METRIC_D = metric_D;
-    Id metric_E(DESC_E); const Id& METRIC_E = metric_E;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
@@ -509,7 +512,7 @@ int main(int argc, char *argv[])
                 MX.load(&r);
                 ASSERT(0     == r.metricId());
                 ASSERT(count == r.count());
-                ASSERT(total == r.total());
+                ASSERT(total == static_cast<bsls::Types::Int64>(r.total()));
                 ASSERT(min   == r.min());
                 ASSERT(max   == r.max());
             }
@@ -621,7 +624,8 @@ int main(int argc, char *argv[])
         const int NUM_UPDATES = sizeof(UPDATES)/sizeof(*UPDATES);
 
         for (int i = 0; i < NUM_UPDATES; ++i) {
-            const Desc *METRIC = (const Desc *)(i + 1);
+            const Desc *METRIC = reinterpret_cast<const Desc *>(
+                                      static_cast<bsls::Types::IntPtr>(i + 1));
             Obj mX(METRIC); const Obj& MX = mX;
 
 
@@ -647,7 +651,7 @@ int main(int argc, char *argv[])
                 MX.load(&r1);
                 ASSERT(METRIC == r1.metricId().description());
                 ASSERT(j + 1  == r1.count());
-                ASSERT(total  == r1.total());
+                ASSERT(total  == static_cast<bsls::Types::Int64>(r1.total()));
                 ASSERT(min    == r1.min());
                 LOOP2_ASSERT(max, r1.max(), max    == r1.max());
 

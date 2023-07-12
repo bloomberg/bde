@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //                     sizeof(buffer1) / sizeof(*buffer1),
 //                     bsls::TimeInterval(1.0));
 //  sample.appendGroup(buffer2.data(),
-//                     buffer2.size(),
+//                     static_cast<int>(buffer2.size()),
 //                     bsls::TimeInterval(2.0));
 //..
 // We can verify the basic properties of our sample:

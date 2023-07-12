@@ -1107,9 +1107,10 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
     // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
-    int rc = bdlt::Iso8601Util::parse(&time,
-                            iso8601TimeString,
-                            static_cast<int>(bsl::strlen(iso8601TimeString)));
+    BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(
+                             &time,
+                             iso8601TimeString,
+                             static_cast<int>(bsl::strlen(iso8601TimeString)));
     BSLS_ASSERT(0 == rc);
     return time;
 }

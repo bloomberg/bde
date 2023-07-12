@@ -24,6 +24,7 @@
 
 #include <bslmt_barrier.h>
 
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_c_stdio.h>
@@ -1277,7 +1278,17 @@ int main(int argc, char *argv[])
             P(SINGLE_LINE);
             P(singleline.str());
         }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstring-compare"
+#endif
+
         ASSERT(0 == bsl::strcmp(SINGLE_LINE, singleline.str().c_str()));
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         bsl::ostringstream multiline;
         const char *MULTI_LINE =
@@ -1298,7 +1309,17 @@ int main(int argc, char *argv[])
             P(MULTI_LINE);
             P(multiline.str());
         }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstring-compare"
+#endif
+
         ASSERT(0 == bsl::strcmp(MULTI_LINE, multiline.str().c_str()));
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
     } break;
     case 6: {
         // --------------------------------------------------------------------

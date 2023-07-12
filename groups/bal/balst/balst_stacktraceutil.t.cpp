@@ -17,8 +17,11 @@
 #include <bdlb_stringrefutil.h>
 
 #include <bdlma_sequentialallocator.h>
+
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+
+#include <bsla_maybeunused.h>
 
 #include <bslim_testutil.h>
 
@@ -1945,7 +1948,7 @@ int main(int argc, char *argv[])
 
     // make sure the shared lib containing 'malloc' is loaded
 
-    (void) bsl::malloc(100);
+    BSLA_MAYBE_UNUSED void *sharedLibMalloc = bsl::malloc(100);
 
     // see if we can avoid calling 'malloc' from here on out
 

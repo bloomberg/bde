@@ -14,6 +14,8 @@
 #include <bdlt_datetimetz.h>
 #include <bdlt_iso8601util.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_fuzzdataview.h>
 #include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
@@ -848,9 +850,9 @@ static bdlt::DatetimeTz toDatetimeTz(const char *iso8601TimeString)
 {
     const int len = static_cast<int>(bsl::strlen(iso8601TimeString));
     bdlt::DatetimeTz time;
-    int rc = bdlt::Iso8601Util::parse(&time,
-                                  iso8601TimeString,
-                                  len);
+    BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(&time,
+                                                        iso8601TimeString,
+                                                        len);
     BSLS_ASSERT(0 == rc);
     return time;
 }
@@ -863,9 +865,9 @@ static bdlt::Datetime toDatetime(const char *iso8601TimeString)
 {
     const int len = static_cast<int>(bsl::strlen(iso8601TimeString));
     bdlt::Datetime time;
-    int rc = bdlt::Iso8601Util::parse(&time,
-                                  iso8601TimeString,
-                                  len);
+    BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(&time,
+                                                        iso8601TimeString,
+                                                        len);
     BSLS_ASSERT(0 == rc);
     return time;
 }

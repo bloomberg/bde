@@ -516,11 +516,12 @@ int main(int argc, char *argv[])
         // 's_baltst::BasicSchema', which provides a rough, structural
         // representation of an XML Schema Definition.  Note that
         // 's_baltst::BasicSchema' is not sufficient to represent an XML Schema
-        // Defition in a production environment.
+        // Definition in a production environment.
 
         s_baltst::BasicSchema configSchema;
+
         int rc = decoder.decode(&configSchemaStreamBuf, &configSchema);
-        BSLS_ASSERT(0 == rc);
+        BSLS_ASSERT(0 == rc);  (void)rc;
 
         // Next, load the content that we expect the parsed schema to have into
         // another schema, so that we can compare the two for structural

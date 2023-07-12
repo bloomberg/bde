@@ -347,7 +347,7 @@ BSLS_IDENT("$Id: $")
 // Next we set a format specification to the newly created 'formatter':
 //..
 //  int rc = formatter.setFormat("[\"tid\",\"message\"]");
-//  assert(0 == rc);
+//  assert(0 == rc);  (void)rc;
 //..
 // The chosen format specification indicates that, when a record is formatted
 // using 'formatter', the thread Id attribute of the record will be output

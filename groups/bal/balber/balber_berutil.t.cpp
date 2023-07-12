@@ -11,6 +11,8 @@
 
 #include <balber_berconstants.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_typetraits.h>
 
 #include <bdlat_attributeinfo.h>
@@ -3644,7 +3646,7 @@ void Md5StateUtil::digest(Md5Fingerprint *fingerprint, const Md5Block& block)
     fingerprint->setTheUintAt(3, d + dd);
 }
 
-Md5Fingerprint Md5StateUtil::digest(const Md5State& state)
+BSLA_MAYBE_UNUSED Md5Fingerprint Md5StateUtil::digest(const Md5State& state)
 {
     return digest(state.fingerprint(), state.block());
 }
@@ -4918,7 +4920,10 @@ void GetValueFingerprint_ImplUtil::getRandomValue(
     RandomValueUtil::load(&originalValue, loader);
 
     bdlsb::MemOutStreamBuf outStreamBuf;
-    int rc = Util::putValue(&outStreamBuf, originalValue, &options);
+
+    BSLA_MAYBE_UNUSED int rc = Util::putValue(&outStreamBuf,
+                                              originalValue,
+                                              &options);
     BSLS_ASSERT(0 == rc);
 
     bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
@@ -5960,7 +5965,8 @@ int main(int argc, char *argv[])
                         continue;  // CONTINUE
                   } break;
                   case TXT: {
-                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bsl::strncpy(buffer, EXP, sizeof(buffer) - 1);
+                    buffer[sizeof(buffer) - 1] = '\0';
                     bufferSize = static_cast<int>(bsl::strlen(buffer));
                   } break;
                 }
@@ -6266,7 +6272,8 @@ int main(int argc, char *argv[])
                         continue;  // CONTINUE
                   } break;
                   case TXT: {
-                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bsl::strncpy(buffer, EXP, sizeof(buffer) - 1);
+                    buffer[sizeof(buffer) - 1] = '\0';
                     bufferSize = static_cast<int>(bsl::strlen(buffer));
                   } break;
                 }
@@ -6768,7 +6775,8 @@ int main(int argc, char *argv[])
                         continue;  // CONTINUE
                   } break;
                   case TXT: {
-                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bsl::strncpy(buffer, EXP, sizeof(buffer) - 1);
+                    buffer[sizeof(buffer) - 1] = '\0';
                     bufferSize = static_cast<int>(bsl::strlen(buffer));
                   } break;
                 }
@@ -7386,7 +7394,8 @@ int main(int argc, char *argv[])
                         continue;  // CONTINUE
                   } break;
                   case TXT: {
-                    bsl::strncpy(buffer, EXP, sizeof(buffer));
+                    bsl::strncpy(buffer, EXP, sizeof(buffer) - 1);
+                    buffer[sizeof(buffer) - 1] = '\0';
                     bufferSize = static_cast<int>(bsl::strlen(buffer));
                   } break;
                 }

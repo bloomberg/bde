@@ -181,12 +181,12 @@ int compareBuffers(const char *stream, const char *buffer)
     return 0;
 }
 
-void printBuffer(const char *buffer, int length)
+void printBuffer(const char *buffer, std::size_t length)
     // Print the specified 'buffer' of the specified 'length' in hex form.
 {
     bsl::cout << bsl::hex;
     int numOutput = 0;
-    for (int i = 0; i < length; ++i) {
+    for (std::size_t i = 0; i < length; ++i) {
         if ((unsigned char) buffer[i] < 16) {
             bsl::cout << '0';
         }
@@ -3805,7 +3805,7 @@ int main(int argc, char *argv[])
 
         // Create request object:
         test::TimingRequest request;
-        int minOutputSize;
+        bsl::size_t         minOutputSize;
         switch (requestType) {
           case 's': {
               bsl::cout << "sqrt request" << bsl::endl;
@@ -3839,7 +3839,7 @@ int main(int argc, char *argv[])
                   bdlt::Datetime(bdlt::Date(2007, 9, 3),
                                 bdlt::Time(16, 30)), 0);
               basicRec.s() = "The quick brown fox jumped over the lazy dog.";
-              int minBasicRecSize =
+              bsl::size_t minBasicRecSize =
                   minOutputSize = 3 * sizeof(int) + basicRec.s().length();
 
               test::BigRecord   bigRec;
@@ -3878,7 +3878,7 @@ int main(int argc, char *argv[])
         }
         stopwatch.stop();
 
-        ASSERT(minOutputSize     <= (int)osb.length());
+        ASSERT(minOutputSize     <= osb.length());
         ASSERT((int)osb.length() <= MAX_BUF_SIZE);
         elapsed = stopwatch.elapsedTime();
         ASSERT(elapsed > 0);

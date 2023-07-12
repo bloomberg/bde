@@ -11,6 +11,8 @@
 #include <bdlt_dateutil.h>
 #include <bdlt_epochutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
@@ -149,7 +151,9 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
 {
     bdlt::Datetime time;
     int len = static_cast<int>(bsl::strlen(iso8601TimeString));
-    int rc = bdlt::Iso8601Util::parse(&time, iso8601TimeString, len);
+    BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(&time,
+                                                        iso8601TimeString,
+                                                        len);
     BSLS_ASSERT(0 == rc);
     return time;
 }
@@ -175,9 +179,12 @@ int toOffsetInMilliseconds(const char *iso8601Value)
     int length = static_cast<int>(strlen(iso8601Value));
 
     bdlt::Time time;
-    int rc = bdlt::Iso8601Util::parse(&time, iso8601Value, length);
 
+    BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(&time,
+                                                        iso8601Value,
+                                                        length);
     BSLS_ASSERT(0 == rc);
+
     return sign * (
            (1000 * 60 * 60 * time.hour()) +
            (1000 * 60 * time.minute()) +

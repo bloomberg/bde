@@ -17,8 +17,11 @@
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
+
 #include <bdlt_dateutil.h>
 #include <bdlt_currenttime.h>
+
+#include <bsla_maybeunused.h>
 
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>
@@ -225,7 +228,7 @@ const typename VECTOR::value_type *vDataEnd(const VECTOR& v)
 
 }  // close namespace u
 
-bsl::ostream& operator<<(bsl::ostream& stream, u::LibType lt)
+BSLA_MAYBE_UNUSED bsl::ostream& operator<<(bsl::ostream& stream, u::LibType lt)
 {
     stream << (u::e_BSL == lt ? "BSL"
              : u::e_STD == lt ? "STD"

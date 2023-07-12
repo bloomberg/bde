@@ -19,13 +19,19 @@
 #include <bdlt_currenttime.h>
 #include <bdlt_localtimeoffset.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -349,7 +355,9 @@ bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
 
-    int rc = fseek(fp, static_cast<long>(startOffset), SEEK_SET);
+    BSLA_MAYBE_UNUSED int rc = fseek(fp,
+                                     static_cast<long>(startOffset),
+                                     SEEK_SET);
     BSLS_ASSERT_OPT(0 == rc);
 
     int c;
