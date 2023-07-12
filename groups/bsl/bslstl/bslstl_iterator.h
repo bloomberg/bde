@@ -223,6 +223,116 @@ using std::front_inserter;
 using std::insert_iterator;
 using std::inserter;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+// 23.2
+// 23.3.2.1, incrementable traits
+using std::incrementable;
+using std::incrementable_traits;
+using std::iter_difference_t;
+
+// 23.3.2.2, indirectly readable traits
+using std::indirectly_readable_traits;
+using std::iter_value_t;
+
+// 23.3.2.3, iterator traits
+using std::iter_reference_t;
+
+// 23.3.3.2, ranges::iter_swap
+using std::iter_rvalue_reference_t;
+using std::iter_swap;
+
+// 23.3.4.2, concept indirectly_readable
+using std::iter_common_reference_t;
+
+// 23.3.4.3, concept indirectly_writable
+using std::indirectly_readable;
+using std::indirectly_writable;
+
+// 23.3.4.4, concept weakly_incrementable
+using std::weakly_incrementable;
+
+// 23.3.4.6, concept input_or_output_iterator
+using std::input_or_output_iterator;
+
+// 23.3.4.7, concept sentinel_for
+using std::sentinel_for;
+
+// 23.3.4.8, concept sized_sentinel_for
+using std::sized_sentinel_for;
+
+// 23.3.4.9, concept input_iterator
+using std::input_iterator;
+
+// 23.3.4.10, concept output_iterator
+using std::output_iterator;
+
+// 23.3.4.11, concept forward_iterator
+using std::forward_iterator;
+
+// 23.3.4.12, concept bidirectional_iterator
+using std::bidirectional_iterator;
+
+// 23.3.4.13, concept random_access_iterator
+using std::random_access_iterator;
+
+// 23.3.4.14, concept contiguous_iterator
+using std::contiguous_iterator;
+
+// 23.3.6.2, indirect callables
+using std::indirect_binary_predicate;
+using std::indirect_equivalence_relation;
+using std::indirect_result_t;
+using std::indirect_strict_weak_order;
+using std::indirect_unary_predicate;
+using std::indirectly_regular_unary_invocable;
+using std::indirectly_unary_invocable;
+
+// 23.3.6.3, projected
+using std::projected;
+
+// 23.3.7.2, concept indirectly_movable
+using std::indirectly_movable;
+using std::indirectly_movable_storable;
+
+// 23.3.7.3, concept indirectly_copyable
+using std::indirectly_copyable;
+using std::indirectly_copyable_storable;
+
+// 23.3.7.4, concept indirectly_swappable
+using std::indirectly_swappable;
+
+// 23.3.7.5, concept indirectly_comparable
+using std::indirectly_comparable;
+
+// 23.3.7.6, concept permutable
+using std::permutable;
+
+// 23.3.7.7, concept mergeable
+using std::mergeable;
+
+// 23.3.7.8, concept sortable
+using std::sortable;
+
+// 23.4.2, iterator tags
+using std::contiguous_iterator_tag;
+
+// 23.5.3, move iterators and sentinels
+using std::move_sentinel;
+
+// 23.5.4, common iterators
+using std::common_iterator;
+
+// 23.5.5, default sentinel
+using std::default_sentinel_t;
+
+// 23.5.6, counted iterators
+using std::counted_iterator;
+
+// 23.5.7, unreachable sentinel
+using std::unreachable_sentinel_t;
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 // 24.5 predefined iterators (C++14)
 using std::make_reverse_iterator;
@@ -235,8 +345,10 @@ using std::istreambuf_iterator;
 using std::ostreambuf_iterator;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// 23.5.3, move iterators and sentinels
 using std::move_iterator;
 using std::make_move_iterator;
+// 23.4.3, iterator operations
 using std::next;
 using std::prev;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

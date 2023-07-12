@@ -19,16 +19,17 @@
     #undef __DEPRECATED
 #endif
 
+#include <bslh_defaulthashalgorithm.h>
+#include <bslh_hashpair.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_constructionutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bslh_hashpair.h>
-#include <bslh_defaulthashalgorithm.h>
-
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_compilerfeatures.h>
@@ -231,16 +232,17 @@ using namespace BloombergLP;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
-// [36] C++20 'bsl_type_traits.h' HEADER ADDITIONS
-// [35] CONCERN: Entities from 'std::ranges' compatible with 'bsl::array'.
-// [34] bsl::coroutine_traits<>
-// [34] bsl::coroutine_handle<>
-// [34] bsl::noop_coroutine()
-// [34] bsl::noop_coroutine_promise
-// [34] bsl::noop_coroutine_handle
-// [34] bsl::suspend_never
-// [34] bsl::suspend_always
-// [33] C++20 'bsl_concepts.h' HEADER
+// [37] C++20 'bsl_type_traits.h' HEADER ADDITIONS
+// [36] C++20 'std::ranges' interop with 'bsl::array' CONTAINER
+// [35] bsl::coroutine_traits<>
+// [35] bsl::coroutine_handle<>
+// [35] bsl::noop_coroutine()
+// [35] bsl::noop_coroutine_promise
+// [35] bsl::noop_coroutine_handle
+// [35] bsl::suspend_never
+// [35] bsl::suspend_always
+// [34] C++20 'bsl_concepts.h' HEADER ADDITIONS
+// [33] C++20 'bsl_iterator.h' HEADER ADDITIONS
 // [32] bsl::cmp_equal();
 // [32] bsl::cmp_not_equal();
 // [32] bsl::cmp_less();
@@ -493,7 +495,7 @@ void MapTestDriver<CONTAINER>::testCase1()
     //: 2 Verify that the container inserts the reference and does not make a
     //:   copy of the referenced object.  (C-2)
     //:
-    //: 3 Assign diffenent value to the mapped value and verify that the
+    //: 3 Assign different value to the mapped value and verify that the
     //:   referenced object is changed.  (C-3)
     //:
     //: 4 Copy-construct new container and verify that the mapped value in the
@@ -900,7 +902,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // TESTING C++20 'bsl_type_traits.h' HEADER ADDITIONS
         //
@@ -1029,9 +1031,9 @@ int main(int argc, char *argv[])
         }
 #else
         if (veryVerbose) {
-            printf(
-         "SKIPPED: "
-         "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' undefined.\n");
+            printf("SKIPPED: "
+                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' "
+                   "undefined.\n");
         }
 #endif
 
@@ -1046,7 +1048,7 @@ int main(int argc, char *argv[])
             ASSERTV("__cpp_lib_is_layout_compatible >= 201907L check",
                      __cpp_lib_is_layout_compatible,
                      __cpp_lib_is_layout_compatible >= 201907L);
-         
+
             struct Foo { int x; };
             struct Bar { int y; double z; };
 
@@ -1111,9 +1113,9 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'std::ranges' bsl::array container
+        // TESTING C++20 'std::ranges' INTEROP WITH 'bsl::array' CONTAINER
         //
         // Concerns:
         //: 1 The definitions from '<ranges>' defined by the C++20 Standard are
@@ -1133,10 +1135,13 @@ int main(int argc, char *argv[])
         //:   usable by bsl::array.  (C-2)
         //
         // Testing:
-        //   CONCERN: Entities from 'std::ranges' compatible with 'bsl::array'.
+        //   C++20 'std::ranges' interop with 'bsl::array' CONTAINER
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING C++20 'std::ranges' bsl::array container"
-                            "\n====================================\n");
+        if (verbose)
+            printf("\nTESTING C++20 'std::ranges' INTEROP WITH 'bsl::array' "
+                   "CONTAINER"
+                   "\n========================================================"
+                   "=======\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         namespace ranges = bsl::ranges;
@@ -1832,7 +1837,7 @@ int main(int argc, char *argv[])
 
 #endif
       } break;
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // C++20 '<bsl_coroutine.h>'
         //
@@ -1887,9 +1892,9 @@ int main(int argc, char *argv[])
         if (verbose) puts("SKIP: '<bsl_coroutine.h>' is not supported.");
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
       } break;
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'bsl_concepts.h' HEADER
+        // TESTING C++20 'bsl_concepts.h' HEADER ADDITIONS
         //
         // Concerns:
         //: 1 The definitions from '<concepts>' defined by the C++20 Standard
@@ -1900,10 +1905,11 @@ int main(int argc, char *argv[])
         //: 1 Form some valid expressions with every name with 'bsl' prefix.
         //
         // Testing
-        //   C++20 'bsl_concepts.h' HEADER
+        //   C++20 'bsl_concepts.h' HEADER ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING C++20 'bsl_concepts.h' HEADER"
-                            "\n=====================================\n");
+        if (verbose)
+            printf("\nTESTING C++20 'bsl_concepts.h' HEADER ADDITIONS"
+                   "\n===============================================\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
         BSLMF_ASSERT(( bsl::same_as<int, int >));
@@ -1988,6 +1994,235 @@ int main(int argc, char *argv[])
 #else
         if (verbose) puts("SKIP: '<bsl_concepts.h>' is not supported.");
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING C++20 'bsl_iterator.h' HEADER ADDITIONS
+        //
+        // Concerns:
+        //: 1 The C++20 special iterator traits, concepts, and tags all exist
+        //:   in namespace 'bsl'.
+        //:
+        //
+        // Plan:
+        //: 2 Create simple examples that use these entities.  Compilation of
+        //:   the example demonstrates that the calls can be found in 'bsl'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   C++20 'bsl_iterator.h' HEADER ADDITIONS
+        // --------------------------------------------------------------------
+        if (verbose)
+            printf("\nTESTING C++20 'bsl_iterator.h' HEADER ADDITIONS"
+                   "\n===============================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        typedef bsl::vector<int>                     Vector;
+
+        // 23.3.2.1, incrementable traits
+        ASSERT(true == bsl::incrementable<Vector::iterator>);
+
+        bsl::incrementable_traits<Vector::iterator> trait1; (void) trait1;
+
+        ASSERTV((bsl::is_same_v<bsl::iter_difference_t<Vector>,
+                                Vector::difference_type>));
+
+        // 23.3.2.2, indirectly readable traits
+        bsl::indirectly_readable_traits<Vector::iterator> trait2; (void)trait2;
+
+        ASSERT(
+              (bsl::is_same_v<bsl::iter_value_t<Vector>, Vector::value_type>));
+
+        // 23.3.2.3, iterator traits
+        ASSERTV((bsl::is_same_v<bsl::iter_reference_t<Vector::iterator>,
+                                Vector::reference>));
+
+        // 23.3.3.2, ranges::iter_swap
+        Vector v;
+        v.push_back(1);
+        v.push_back(2);
+        Vector::iterator i1 = v.begin();
+        Vector::iterator i2 = i1;
+        ++i2;
+        ASSERTV(v[0], 1, 1==v[0]);
+        ASSERTV(v[1], 2, 2==v[1]);
+        bsl::iter_swap(i1, i2);
+        ASSERTV(v[0], 2, 2==v[0]);
+        ASSERTV(v[1], 1, 1==v[1]);
+
+        // 23.3.4.2, concept indirectly_readable
+        ASSERT(true == bsl::indirectly_readable<Vector::iterator>);
+
+        // 23.3.4.3, concept indirectly_writable
+        ASSERT(true == (bsl::indirectly_writable<Vector::iterator, int>));
+
+        // 23.3.4.4, concept weakly_incrementable
+        ASSERT(true == bsl::weakly_incrementable<std::istream_iterator<int> >);
+
+        // 23.3.4.6, concept input_or_output_iterator
+        ASSERT(true ==
+               bsl::input_or_output_iterator<std::istream_iterator<int> >);
+
+        // 23.3.4.7, concept sentinel_for
+        ASSERT(true ==
+               (bsl::sentinel_for<Vector::iterator, Vector::iterator>));
+
+        // 23.3.4.8, concept sized_sentinel_for
+        ASSERT(true ==
+               (bsl::sized_sentinel_for<Vector::iterator, Vector::iterator>));
+
+        // 23.3.4.9, concept input_iterator
+        ASSERT(true == bsl::input_iterator<std::istream_iterator<int> >);
+
+        // 23.3.4.10, concept output_iterator
+        ASSERT(true ==
+               (bsl::output_iterator<std::ostream_iterator<int>, int>));
+
+        // 23.3.4.11, concept forward_iterator
+        ASSERT(true == bsl::forward_iterator<Vector::iterator>);
+
+        // 23.3.4.12, concept bidirectional_iterator
+        ASSERT(true == bsl::bidirectional_iterator<Vector::iterator>);
+
+        // 23.3.4.13, concept random_access_iterator
+        ASSERT(true == bsl::random_access_iterator<Vector::iterator>);
+
+        // 23.3.4.14, concept contiguous_iterator
+        ASSERT(true == bsl::contiguous_iterator<Vector::iterator>);
+
+        // 23.3.6.2, indirect callables
+        // std::indirect_binary_predicate
+        struct IndirectBinaryPredicate {
+            bool operator()(int, int);
+        };
+        ASSERT(true == (bsl::indirect_binary_predicate<IndirectBinaryPredicate,
+                                                       Vector::iterator,
+                                                       Vector::iterator>));
+
+        // std::indirect_equivalence_relation
+        struct DirectEquivalenceRelation {
+            bool operator()(int, int);
+        };
+        ASSERT(true ==
+               (bsl::indirect_equivalence_relation<DirectEquivalenceRelation,
+                                                   Vector::iterator,
+                                                   Vector::iterator>));
+
+        // std::indirect_result_t
+        ASSERT(
+             (bsl::is_same<bool,
+                           bsl::indirect_result_t<DirectEquivalenceRelation,
+                                                  Vector::iterator,
+                                                  Vector::iterator> >::value));
+
+        // std::indirect_strict_weak_order
+        ASSERT(true ==
+               (bsl::indirect_strict_weak_order<DirectEquivalenceRelation,
+                                                Vector::iterator,
+                                                Vector::iterator>));
+
+        // std::indirect_unary_predicate
+        struct DirectUnaryPredicate {
+            bool operator()(int);
+        };
+        ASSERT(true == (bsl::indirect_unary_predicate<DirectUnaryPredicate,
+                                                      Vector::iterator>));
+
+        // std::indirectly_regular_unary_invocable
+        ASSERT(true ==
+               (bsl::indirectly_regular_unary_invocable<DirectUnaryPredicate,
+                                                        Vector::iterator>));
+
+        // std::indirectly_unary_invocable
+        ASSERT(true == (bsl::indirectly_unary_invocable<DirectUnaryPredicate,
+                                                        Vector::iterator>));
+
+        // 23.3.6.3, projected
+        // std::projected
+        ASSERT((bsl::is_same<
+                bool,
+                bsl::projected<Vector::iterator,
+                               DirectUnaryPredicate>::value_type>::value));
+
+        // 23.3.7.2, concept indirectly_movable
+        // std::indirectly_movable
+        ASSERT(true ==
+               (bsl::indirectly_movable<Vector::iterator, Vector::iterator>));
+
+        // std::indirectly_movable_storable
+        ASSERT(true == (bsl::indirectly_movable_storable<Vector::iterator,
+                                                         Vector::iterator>));
+
+        // 23.3.7.3, concept indirectly_copyable
+        // std::indirectly_copyable
+        ASSERT(true ==
+               (bsl::indirectly_copyable<Vector::iterator, Vector::iterator>));
+
+        // std::indirectly_copyable_storable
+        ASSERT(true == (bsl::indirectly_copyable_storable<Vector::iterator,
+                                                          Vector::iterator>));
+
+        // 23.3.7.4, concept indirectly_swappable
+        ASSERT(
+              true ==
+              (bsl::indirectly_swappable<Vector::iterator, Vector::iterator>));
+
+        // 23.3.7.5, concept indirectly_comparable
+        ASSERT(false ==
+               (bsl::indirectly_comparable<int, int, bsl::less<int>()>));
+
+        // 23.3.7.6, concept permutable
+        ASSERT(true == bsl::permutable<Vector::iterator>);
+
+        // 23.3.7.7, concept mergeable
+        ASSERT(true == (bsl::mergeable<Vector::iterator,
+                                       Vector::iterator,
+                                       Vector::iterator>));
+
+        // 23.3.7.8, concept sortable
+        ASSERT(true == bsl::sortable<Vector::iterator>);
+
+        // 23.4.2, iterator tags
+        {
+            bsl::contiguous_iterator_tag cit;
+            (void) cit;
+        }
+
+        // 23.5.3, move iterators and sentinels
+        {
+            bsl::move_sentinel<int*> ms;
+            (void) ms;
+        }
+
+        // 23.5.4, common iterators
+#ifdef BSLS_LIBRARY_FEATURES_HASS_CPP20_RANGES
+        {
+            bsl::common_iterator<bsl::ranges::iterator_t<Vector::iterator>,
+                                 bsl::ranges::sentinel_t<Vector::iterator> >
+                ci;
+            (void)ci;
+        }
+#endif
+
+        // 23.5.5, default sentinel
+        {
+            bsl::default_sentinel_t dst;
+            (void) dst;
+        }
+
+        // 23.5.6, counted iterators
+        {
+            bsl::counted_iterator<Vector::iterator> ci;
+            (void) ci;
+        }
+
+        // 23.5.7, unreachable sentinel
+        // using std::unreachable_sentinel_t;
+        {
+            bsl::unreachable_sentinel_t ust;
+            (void) ust;
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -4369,8 +4604,8 @@ int main(int argc, char *argv[])
         //   CONCERN: 'forward_list' is available in C++11 builds
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'forward_lst'"
-                            "\n=====================\n");
+        if (verbose) printf("\nTESTING 'forward_list'"
+                            "\n======================\n");
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
         if (verbose) printf("\n'bsl::forward_list' is not supported"
@@ -4587,12 +4822,14 @@ int main(int argc, char *argv[])
                       << "=========================================\n";
         }
         {
-              if (verbose) { bsl::cout << "Testing C99 as aliases.\n"; }
+            if (verbose) {
+                bsl::cout << "Testing C99 as aliases.\n";
+            }
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
-              typedef int (*FuncPtrType)(double);
+            typedef int (*FuncPtrType)(double);
 
-              FuncPtrType funcPtr = &bsl::fpclassify;
-              (void)funcPtr;
+            FuncPtrType funcPtr = &bsl::fpclassify;
+            (void)funcPtr;
 #endif
         }
       } break;
