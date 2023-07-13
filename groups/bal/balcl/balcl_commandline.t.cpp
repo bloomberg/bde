@@ -187,7 +187,9 @@ using namespace bsl;
 // [ 9] const vector<Time>& theTimeArray(const string& name) const;
 //
 // [18] void printUsage() const;
+// [18] void printUsage(const string& pName);
 // [18] void printUsage(bsl::ostream& stream) const;
+// [18] void printUsage(bsl::ostream& stream, const string& pName) const;
 //
 // [ 3] bslma::Allocator *allocator() const;
 // [ 4] ostream& print(ostream& stream, int level = 0, int spl = 4) const;
@@ -2694,7 +2696,13 @@ int main(int argc, const char *argv[])
         //:
         //: 9 Multiple description lines are indented equally.
         //:
-        //:10 The no-argument overload writes to 'bsl::cerr'.
+        //:10 Overloads that do not accept a 'stream' argument write to
+        //:   'bsl::cerr'.
+        //:
+        //:11 After 'parse' returns successfully, 'argv[0]' is used in lieu of
+        //:   the default "programName" but the value supplied to the
+        //:   'printUsage" overloads that accept 'programName' always has
+        //:   precedence.
         //
         // Plan:
         //: 1 Set up a variety of variables and options and verify that
@@ -2702,10 +2710,16 @@ int main(int argc, const char *argv[])
         //:
         //: 2 Configure 'bsl::cerr' to write to a 'bsl::ostringstream' and
         //:   confirm the expected results.  (C-10)
+        //:
+        //: 3 Invoke 'printUsage' both before and after 'parse' and via
+        //:   overloads that take a user-supplied value, and not.  Confirm
+        //:   expected result in each case.  (C-11)
         //
         // Testing:
         //   void printUsage() const;
+        //   void printUsage(const string& pName);
         //   void printUsage(bsl::ostream& stream) const;
+        //   void printUsage(bsl::ostream& stream, const string& pName) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING 'printUsage'" << endl
@@ -2762,12 +2776,12 @@ int main(int argc, const char *argv[])
             balcl::CommandLine cmdLine(specTable);
 
             bsl::stringstream ss;
-            cmdLine.printUsage(ss);
+            cmdLine.printUsage(ss);                                     // TEST
 
             bsl::streambuf     *errorStreambuf = bsl::cerr.rdbuf();
             bsl::ostringstream  es;
             bsl::cerr.rdbuf(es.rdbuf());
-            cmdLine.printUsage();
+            cmdLine.printUsage();                                       // TEST
 
             if (veryVerbose) cout << ss.str() << endl;
 
@@ -2790,8 +2804,105 @@ int main(int argc, const char *argv[])
 "                            <fileList>\n"
 "          files to be sorted\n";
 
-            ASSERTV(ss.str(), EXPECTED == ss.str());
-            ASSERTV(es.str(), EXPECTED == es.str());
+            ASSERTV(ss.str(), EXPECTED, EXPECTED == ss.str());
+            ASSERTV(es.str(), EXPECTED, EXPECTED == es.str());
+
+            if (veryVerbose) {
+                cout << "User-supplied name has precedence over default."
+                     << endl;
+            }
+
+            const char *EXPECTED_USER_SUPPLIED = "\n"
+"Usage: KilroyWasHere [-r|reverse] [-i|insensitivetocase] [-u|uniq]\n"
+"                     [-a|algorithm <sortAlgo>] -o|outputfile <outputFile>\n"
+"                     [<fileList>]+\n"
+"Where:\n"
+"  -r | --reverse\n"
+"          sort in reverse order\n"
+"  -i | --insensitivetocase\n"
+"          be case insensitive while sorting\n"
+"  -u | --uniq\n"
+"          discard duplicate lines\n"
+"  -a | --algorithm          <sortAlgo>\n"
+"          sorting algorithm (default: quickSort)\n"
+"  -o | --outputfile         <outputFile>\n"
+"          output file with a very long option description so we can see the\n"
+"          line wrapping behavior\n"
+"                            <fileList>\n"
+"          files to be sorted\n";
+
+            ss.str(""); ss.clear();
+            es.str(""); es.clear();
+
+            cmdLine.printUsage(ss, "KilroyWasHere");                    // TEST
+            cmdLine.printUsage(    "KilroyWasHere");                    // TEST
+
+            ASSERTV(ss.str(), EXPECTED_USER_SUPPLIED == ss.str());
+            ASSERTV(es.str(), EXPECTED_USER_SUPPLIED == es.str());
+
+            if (veryVerbose) {
+                cout
+                    << "After successful 'parse', 'argv[0]' is has precedence."
+                    << endl;
+            }
+
+            const char *pName  = "myProgram";
+            const char *argv[] = { pName
+                                 , "--outputfile"
+                                 , "myOutputfile"
+                                 , "myInputfile1"
+                                 , "myInputfile2"
+                                 };
+            const int   argc   = 5;
+
+            bsl::ostringstream parseErrors;
+            int                rc = cmdLine.parse(argc, argv, parseErrors);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(parseErrors.str(),
+                    parseErrors.str().empty());
+
+            const char *EXPECTED_POST_PARSE = "\n"
+"Usage: myProgram [-r|reverse] [-i|insensitivetocase] [-u|uniq]\n"
+"                 [-a|algorithm <sortAlgo>] -o|outputfile <outputFile>\n"
+"                 [<fileList>]+\n"
+"Where:\n"
+"  -r | --reverse\n"
+"          sort in reverse order\n"
+"  -i | --insensitivetocase\n"
+"          be case insensitive while sorting\n"
+"  -u | --uniq\n"
+"          discard duplicate lines\n"
+"  -a | --algorithm          <sortAlgo>\n"
+"          sorting algorithm (default: quickSort)\n"
+"  -o | --outputfile         <outputFile>\n"
+"          output file with a very long option description so we can see the\n"
+"          line wrapping behavior\n"
+"                            <fileList>\n"
+"          files to be sorted\n";
+
+            ss.str(""); ss.clear();
+            es.str(""); es.clear();
+
+            cmdLine.printUsage(ss);                                     // TEST
+            cmdLine.printUsage();                                       // TEST
+
+            ASSERTV(ss.str(), EXPECTED_POST_PARSE == ss.str());
+            ASSERTV(es.str(), EXPECTED_POST_PARSE == es.str());
+
+            if (veryVerbose) {
+                cout <<
+                "After successful 'parse', supplied name still has precedence."
+                     << endl;
+            }
+
+            ss.str(""); ss.clear();
+            es.str(""); es.clear();
+
+            cmdLine.printUsage(ss, "KilroyWasHere");                    // TEST
+            cmdLine.printUsage(    "KilroyWasHere");                    // TEST
+
+            ASSERTV(ss.str(), EXPECTED_USER_SUPPLIED == ss.str());
+            ASSERTV(es.str(), EXPECTED_USER_SUPPLIED == es.str());
 
             bsl::cerr.rdbuf(errorStreambuf);
         }

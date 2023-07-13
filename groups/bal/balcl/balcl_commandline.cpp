@@ -1307,7 +1307,17 @@ const bsl::vector<int>& CommandLine::positions(
 
 void CommandLine::printUsage() const
 {
-    printUsage(bsl::cerr);
+    printUsage(bsl::cerr, bsl::string_view());
+}
+
+void CommandLine::printUsage(const bsl::string_view& programName) const
+{
+    printUsage(bsl::cerr, programName);
+}
+
+void CommandLine::printUsage(bsl::ostream& stream) const
+{
+    printUsage(stream, bsl::string_view());
 }
 
 CommandLineOptionsHandle CommandLine::specifiedOptions() const
@@ -1528,6 +1538,7 @@ CommandLine::theTimeArray(const bsl::string_view& name) const
     return options().the<OptionType::TimeArray>(name);
 }
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
+
                                   // Aspects
 
 bslma::Allocator *CommandLine::allocator() const
@@ -1535,10 +1546,17 @@ bslma::Allocator *CommandLine::allocator() const
     return d_options.get_allocator().mechanism();
 }
 
-void CommandLine::printUsage(bsl::ostream& stream) const
+void CommandLine::printUsage(bsl::ostream&           stream,
+                             const bsl::string_view& programName) const
 {
     bsl::string usage("Usage: ");
-    usage.append(d_arguments.size() ? d_arguments[0] : "programName");
+    if (programName.size()) {
+        usage.append(programName.data(), programName.size());
+    } else if (d_arguments.size()) {
+        usage.append(d_arguments[0]);
+    } else {
+        usage.append("programName");
+    }
     usage.append(1, ' ');
 
     // Prepare array of options, formatted, with optional flags grouped in

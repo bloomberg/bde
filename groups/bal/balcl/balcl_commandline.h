@@ -918,6 +918,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #include <bsl_sstream.h>    // 'bsl::ostringstream'
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 #include <bdlt_date.h>
@@ -925,7 +926,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_time.h>
 
 namespace BloombergLP {
-
 
 namespace balcl {
 
@@ -1342,11 +1342,18 @@ class CommandLine {
         // positions, the command line must be successfully parsed.
 
     void printUsage() const;
+    void printUsage(const bsl::string_view& programName) const;
     void printUsage(bsl::ostream& stream) const;
+    void printUsage(bsl::ostream&           stream,
+                    const bsl::string_view& programName) const;
         // Print usage to the specified output 'stream', describing what the
         // command line should look like.  If 'stream' is not specified, print
-        // usage to 'stderr'.  This method can be invoked at any time, even
-        // before 'parse' has been invoked on this object.
+        // usage to 'stderr'.  Optionally specify 'programName' to use as the
+        // name of the program in the printed usage.  If 'programName' is not
+        // specified and if 'parse' has been previously called successfully,
+        // use the first element of the 'argv' argument; otherwise, use a
+        // default name.  This method can be invoked at any time, even before
+        // 'parse' has been invoked on this object.
 
     CommandLineOptionsHandle specifiedOptions() const;
         // Return the command-line options and their values.  If an option was
