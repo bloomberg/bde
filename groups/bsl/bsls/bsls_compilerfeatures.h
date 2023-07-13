@@ -1621,9 +1621,9 @@ BSLS_IDENT("$Id: $")
   // Not yet enabling C++17 support, but pro-active test drivers may want to
   // add coverage.
   //
-  // #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
-  // #define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
   // #define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+  // #define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+  // #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
 
   // IBM Visual Age Suite does not yet follow WG14 N2322 Recommended practice
   // #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
@@ -1648,6 +1648,7 @@ BSLS_IDENT("$Id: $")
     // Oracle Developer Studio 12.4 (CC version 5.13) or newer
     #if BSLS_PLATFORM_CMP_VERSION >= 0x5130
       #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES                   1
+      #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN                1
       #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE                          1
       #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS               1
       #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS                 1
@@ -1661,7 +1662,6 @@ BSLS_IDENT("$Id: $")
       #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE                          1
       #define BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS                       1
       #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT                     1
-      #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN                1
     #endif  // at least version 5.13
 
     // Oracle Developer Studio 12.5 (CC version 5.14) or newer
@@ -1691,19 +1691,14 @@ BSLS_IDENT("$Id: $")
         // CC 12.4 has problems partially ordering template parameter packs
         // that typically result in failing to compile with ambiguity errors.
 
+      #define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES                1
+
       #define BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS             1
         // https://docs.oracle.com/cd/E60778_01/html/E60742/gkeza.html
     #endif  // at least version 5.14
 
-    // Exactly Oracle Developer Studio 12.6 (CC version 5.15)
-    #if BSLS_PLATFORM_CMP_VERSION == 0x5150
-      #undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // CC 12.6 (beta) has a nasty bug with reference collapsing rvalue and
-        // lvalue references that crashes the compiler.
-    #endif  // exactly version 5.15
-
     // Newer than Oracle Developer Studio 12.6 (CC version 5.15)
-    #if BSLS_PLATFORM_CMP_VERSION > 0x5150
+    #if BSLS_PLATFORM_CMP_VERSION >= 0x5150
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR                         1
         // CC 12.4 'constexpr' implementation almost satisfies our testing, but
         // the compiler crashes when for some rare-but-reasonable data
@@ -1750,6 +1745,7 @@ BSLS_IDENT("$Id: $")
   // No C++17 features
   // #define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
   // #define BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
+  // #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
 
   // Oracle Solaris Studio does not yet follow WG14 N2322 Recommended practice
   // #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST

@@ -1832,10 +1832,17 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
     // MANIPULATORS
     vector& operator=(const vector& rhs);
+
     vector& operator=(
           BloombergLP::bslmf::MovableRef<vector<VALUE_TYPE *, ALLOCATOR> > rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
-                       d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl)));
+                       d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl)))
+        // NOTE: This function has been implemented inline due to an issue with
+        // the Sun compiler.
+    {
+        d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl);
+        return *this;
+    }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     vector& operator=(std::initializer_list<VALUE_TYPE *> values);
@@ -4109,18 +4116,6 @@ vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
                                                              const vector& rhs)
 {
     d_impl = rhs.d_impl;
-    return *this;
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE *, ALLOCATOR>&
-vector<VALUE_TYPE *, ALLOCATOR>::operator=(
-          BloombergLP::bslmf::MovableRef<vector<VALUE_TYPE *, ALLOCATOR> > rhs)
-    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
-                        d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl)))
-{
-    d_impl = MoveUtil::move(MoveUtil::access(rhs).d_impl);
     return *this;
 }
 
