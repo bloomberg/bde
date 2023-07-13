@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balber_berutil_cpp, "$Id$ $CSID$")
 
+#include <bdlf_memfn.h>
+
 #include <bdlt_prolepticdateimputil.h>
 
 #include <bdlt_iso8601util.h>
@@ -1082,11 +1084,11 @@ int BerUtil_StringImpUtil::getStringValue(bsl::string              *value,
         return -1;                                                    // RETURN
     }
 
-    value->resize(length);
+    value->resize_and_overwrite(
+        length,
+        bdlf::MemFnUtil::memFn(&bsl::streambuf::sgetn, streamBuf));
 
-    const bsl::streamsize bytesConsumed =
-                                        streamBuf->sgetn(&(*value)[0], length);
-    if (length != bytesConsumed) {
+    if (static_cast<bsl::string::size_type>(length) != value->size()) {
         return -1;                                                    // RETURN
     }
 

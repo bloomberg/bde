@@ -167,6 +167,7 @@ using bsls::nameOfType;
 // [16] reverse_iterator rend();
 // [14] void resize(size_type n);
 // [14] void resize(size_type n, CHAR_TYPE c);
+// [44] void resize_and_overwrite(size_type n, OPERATION op);
 // [14] void reserve(size_type n);
 // [ 2] void clear();
 // [15] reference operator[](size_type pos);
@@ -373,7 +374,7 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [44] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -6048,7 +6049,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 44: {
+      case 45: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6260,6 +6261,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 44:     BSLA_FALLTHROUGH;
       case 43:     BSLA_FALLTHROUGH;
       case 42:     BSLA_FALLTHROUGH;
       case 41:     BSLA_FALLTHROUGH;

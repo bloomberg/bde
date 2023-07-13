@@ -176,6 +176,7 @@ using bsls::nameOfType;
 // [16] reverse_iterator rend();
 // [14] void resize(size_type n);
 // [14] void resize(size_type n, CHAR_TYPE c);
+// [44] void resize_and_overwrite(size_type n, OPERATION op);
 // [14] void reserve(size_type n);
 // [ 2] void clear();
 // [15] reference operator[](size_type pos);
@@ -397,7 +398,7 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [44] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -1272,6 +1273,55 @@ class CharacterSearchPredicate
         // this object's constructor.
 };
 
+template <class TYPE>
+class FillN
+{
+    // DATA
+    TYPE d_chr;
+
+public:
+    // CREATORS
+    explicit FillN(const TYPE chr)
+    : d_chr(chr)
+    {
+    }
+
+    // ACCESSORS
+    size_t operator()(TYPE *str, size_t length) const
+    {
+        for (size_t i = 0; i != length; ++i) {
+            str[i] = d_chr;
+        }
+        return length;
+    }
+};
+
+template <class TYPE>
+class FillNCut
+{
+    // DATA
+    TYPE   d_chr;
+    size_t d_len;
+
+public:
+    // CREATORS
+    FillNCut(const TYPE chr, const size_t len)
+    : d_chr(chr)
+    , d_len(len)
+    {
+    }
+
+    // ACCESSORS
+    size_t operator()(TYPE *str, size_t length) const
+    {
+        length = length < d_len ? length : d_len;
+        for (size_t i = 0; i != length; ++i) {
+            str[i] = d_chr;
+        }
+        return d_len;
+    }
+};
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -1441,6 +1491,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase44();
+        // Test 'resize_and_overwrite'.
+
     static void testCase43_isRange();
         // Test whether 'string' is a C++20 range.
 
@@ -1729,6 +1782,197 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase44()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'resize_and_overwrite'
+    //
+    // Concerns:
+    //: 1 The 'resize_and_overwrite' method can be invoked for object of
+    //:   any size and capacity.
+    //:
+    //: 2 The 'resize_and_overwrite' method correctly handles 'count'
+    //:   argument that is less than object's size.
+    //:
+    //: 3 The 'resize_and_overwrite' method correctly handles 'count'
+    //:   argument that exceeds object's size.
+    //:
+    //: 4 The 'resize_and_overwrite' method shrink the object in accordance
+    //:   with the value returned from the 'operation'.
+    //:
+    //: 5 Additional memory is allocated only if the requested size exceeds
+    //:   current capacity.
+    //:
+    //: 6 Memory allocation comes from the allocator supplied on object
+    //:   construction.
+    //:
+    //: 7 QoI: Asserted precondition violations are detected when enabled.
+    //
+    // Plan:
+    //: 1 Call 'resize_and_overwrite' with a variety of sizes, both larger
+    //:   and smaller than the initial size. (C-1, 2, 3, 5, 6)
+    //:
+    //: 2 Call 'resize_and_overwrite' with an 'op' returning a variety of
+    //:   sizes, both smaller and larger than the initial size. (C-4)
+    //:
+    //: 3 Verify value passed to 'op' versus the resulting string. (C-1)
+    //:
+    //: 4 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered when an attempt is made to perform operations that
+    //:   would return a value greater than the resize length (using the
+    //:   'BSLS_ASSERTTEST_*' macros).  (C-7)
+    //
+    // Testing:
+    //   void resize_and_overwrite(size_type n, OPERATION op);
+    // --------------------------------------------------------------------
+
+    bslma::TestAllocator ta("test",  veryVeryVeryVerbose);
+    ASSERT(0 == ta.numBytesInUse());
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    static const size_t INITIAL_SIZE[] = {
+        0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
+    };
+    enum { NUM_INITIAL_SIZE = sizeof INITIAL_SIZE / sizeof *INITIAL_SIZE };
+
+    static const size_t NEW_SIZE[] = {
+        0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
+    };
+    enum { NUM_NEW_SIZE = sizeof NEW_SIZE / sizeof *NEW_SIZE };
+
+    if (verbose) printf("\tTesting 'resize_and_overwrite'.\n");
+
+    if (veryVerbose) printf("\t... with non-cutting operation.\n");
+
+    for (int ti = 0; ti < NUM_NEW_SIZE; ++ti) {
+        const size_t NS = NEW_SIZE[ti];
+
+        for (int ei = 0; ei < NUM_INITIAL_SIZE; ++ei) {
+            const size_t SIZE  = INITIAL_SIZE[ei];
+
+            if (veryVerbose)
+                printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
+              const Int64 AL = ta.allocationLimit();
+              ta.setAllocationLimit(-1);
+
+              Obj mX(&ta);  const Obj& X = mX;
+
+              stretch(&mX, SIZE);
+              LOOP_ASSERT(ti, SIZE == X.size());
+              LOOP_ASSERT(ti, SIZE <= X.capacity());
+
+              ta.setAllocationLimit(AL);
+              const Int64 NUM_ALLOC_BEFORE = ta.numAllocations();
+              const size_t CAPACITY        = X.capacity();
+
+              ExceptionGuard<Obj> guard(X, L_);
+
+              FillN<TYPE> filler(VALUES[ti % NUM_VALUES]);
+              mX.resize_and_overwrite(NS, filler);  // test here
+
+              LOOP_ASSERT(ti, NS == X.size());
+              LOOP_ASSERT(ti, NS <= X.capacity());
+              LOOP_ASSERT(ti, X.c_str()[X.size()] == TYPE());
+              const Int64 NUM_ALLOC_AFTER = ta.numAllocations();
+
+              LOOP_ASSERT(ti, (NS <= CAPACITY) ==
+                                        (NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER));
+              for (size_t j = 0; j < NS; ++j) {
+                  LOOP2_ASSERT(ti, j, VALUES[ti % NUM_VALUES] == X[j]);
+              }
+              guard.release();
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERT(0 == ta.numMismatches());
+            ASSERT(0 == ta.numBlocksInUse());
+        }
+    }
+
+    if (veryVerbose) printf("\t... with cutting operation.\n");
+
+    for (int ti = 0; ti < NUM_NEW_SIZE; ++ti) {
+        const size_t NS = NEW_SIZE[ti];
+
+        for (int ei = 0; ei < NUM_INITIAL_SIZE; ++ei) {
+            const size_t INITIAL_CAPACITY = INITIAL_SIZE[ei];
+            const size_t MID   = NS / 2;
+
+            if (veryVeryVerbose)
+                printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
+              const Int64 AL = ta.allocationLimit();
+              ta.setAllocationLimit(-1);
+
+              Obj mX(&ta);  const Obj& X = mX;
+
+              mX.reserve(INITIAL_CAPACITY);
+              LOOP_ASSERT(ti, X.empty());
+              LOOP_ASSERT(ti, INITIAL_CAPACITY <= X.capacity());
+
+              const Int64 NUM_ALLOC_BEFORE = ta.numAllocations();
+              const size_t CAPACITY        = X.capacity();
+
+              ExceptionGuard<Obj> guard(X, L_);
+
+              ta.setAllocationLimit(AL);
+
+              FillN<TYPE> filler(VALUES[ti % NUM_VALUES]);
+              mX.resize_and_overwrite(NS, filler);  // test here
+
+              LOOP_ASSERT(ti, NS == X.size());
+              LOOP_ASSERT(ti, NS <= X.capacity());
+              const Int64 NUM_ALLOC_AFTER = ta.numAllocations();
+
+              LOOP_ASSERT(ti, (NS <= CAPACITY) ==
+                                        (NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER));
+              for (size_t j = 0; j < NS; ++j) {
+                  LOOP2_ASSERT(ti, j, VALUES[ti % NUM_VALUES] == X[j]);
+              }
+
+              FillNCut<TYPE> downsize(VALUES[(ti + 1) % NUM_VALUES], MID);
+              mX.resize_and_overwrite(NS, downsize);  // test here
+
+              LOOP_ASSERT(ti, MID == X.size());
+              LOOP_ASSERT(ti, MID <= X.capacity());
+              LOOP_ASSERT(ti, X.c_str()[X.size()] == TYPE());
+
+              LOOP_ASSERT(ti,
+                            NUM_ALLOC_AFTER == ta.numAllocations());
+              for (size_t j = 0; j < MID; ++j) {
+                  LOOP2_ASSERT(ti, j, VALUES[(ti + 1) % NUM_VALUES] == X[j]);
+              }
+              guard.release();
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERT(0 == ta.numMismatches());
+            ASSERT(0 == ta.numBlocksInUse());
+        }
+    }
+
+    if (verbose) printf("\tNegative Testing.\n");
+
+    if (veryVerbose) printf("\t...with illegal final length\n");
+
+    {
+        bsls::AssertTestHandlerGuard guard;
+
+        Obj mX(g("ABCDE"));
+
+        ASSERT_FAIL(mX.resize_and_overwrite(1, FillNCut<TYPE>('Z', 2)));
+        ASSERT_PASS(mX.resize_and_overwrite(2, FillNCut<TYPE>('Z', 2)));
+        ASSERT_PASS(mX.resize_and_overwrite(2, FillNCut<TYPE>('Z', 1)));
+        ASSERT_PASS(mX.resize_and_overwrite(2, FillNCut<TYPE>('Z', 0)));
+    }
+}
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase43_isRange()
@@ -5241,8 +5485,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     //
     // Concerns:
     //   1) That any call to a constructor, 'append', 'assign', 'insert',
-    //      'operator+=', or 'replace' which would result in a value exceeding
-    //      'max_size()' throws 'std::length_error'.
+    //      'operator+=', 'replace', 'resize', or 'resize_and_overwrite'
+    //      which would result in a value exceeding 'max_size()' throws
+    //      'std::length_error'.
     //   2) That the 'max_size()' taken into consideration is that of the
     //      allocator, and not an absolute constant.
     //   3) That the value of the string is unchanged if an exception is
@@ -5261,10 +5506,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     //   'limit <= length'.
     //
     //   Construct objects with value large enough that the constructor throws.
-    //   For 'append', 'assign', 'insert', 'operator+=', or 'replace', we
-    //   construct a small (non-empty) object, and use the corresponding
-    //   function to request an increase in size that is guaranteed to result
-    //   in a value exceeding 'max_size()'.
+    //   For 'append', 'assign', 'insert', 'operator+=', 'resize',
+    //   'resize_and_overwrite', or 'replace', we construct a small (non-empty)
+    //   object, and use the corresponding function to request an increase in
+    //   size that is guaranteed to result in a value exceeding 'max_size()'.
     //
     // Testing:
     //   Proper use of 'std::length_error'
@@ -5273,6 +5518,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     typedef bslstl::StringRefImp<TYPE>            StringRefImp;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
+    typedef ::FillN<TYPE>                         FillN;
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
@@ -5489,6 +5735,47 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 mX.resize(LENGTH, DEFAULT_VALUE);
+            }
+            catch (const std::length_error& e) {
+                if (veryVerbose) {
+                    printf("\t\tCaught std::length_error(\"%s\").\n",
+                           e.what());
+                }
+                exceptionCaught = true;
+            }
+            catch (const std::exception& e) {
+                ASSERT(0);
+                if (veryVerbose) {
+                    printf("\t\tCaught std::exception(%s).\n", e.what());
+                }
+            }
+            catch (...) {
+                ASSERT(0);
+                if (veryVerbose) {
+                    printf("\t\tCaught unknown exception.\n");
+                }
+            }
+            ASSERTV(limit,
+                    exceptionCaught,
+                    (limit <= LENGTH) == exceptionCaught);
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBytesInUse());
+
+    if (verbose) printf("\nWith 'resize_and_overwrite'.\n");
+    {
+        for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
+            bool exceptionCaught = false;
+            a.setMaxSize(limit);
+
+            if (veryVerbose)
+                printf("\tWith max_size() equal to limit = " ZU "\n", limit);
+
+            try {
+                LimitObj mX(a);
+
+                mX.resize_and_overwrite(LENGTH, FillN(DEFAULT_VALUE));
             }
             catch (const std::length_error& e) {
                 if (veryVerbose) {
@@ -6107,13 +6394,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     if (verbose) printf("\nWith 'reserve/resize' and"
                         " 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
 
-    for (int capacityMethod = 0; capacityMethod < 3; ++capacityMethod)
+    for (int capacityMethod = 0; capacityMethod < 4; ++capacityMethod)
     {
         if (verbose) {
             switch (capacityMethod) {
-              case 0: printf("\tWith reserve(n).\n");        break;
-              case 1: printf("\tWith resize(n).\n");         break;
-              case 2: printf("\tWith resize(n, C c).\n");    break;
+              case 0: printf("\tWith reserve(n).\n");                  break;
+              case 1: printf("\tWith resize(n).\n");                   break;
+              case 2: printf("\tWith resize(n, C c).\n");              break;
+              case 3: printf("\tWith resize_and_overwrite(n, op).\n"); break;
               default: ASSERT(0);
             }
         }
@@ -6128,9 +6416,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 Obj mX;
 
                 switch (capacityMethod) {
-                  case 0:  mX.reserve(DATA[i]);                  break;
-                  case 1:  mX.resize(DATA[i]);                   break;
-                  case 2:  mX.resize(DATA[i], DEFAULT_VALUE);    break;
+                  case 0:  mX.reserve(DATA[i]);                          break;
+                  case 1:  mX.resize(DATA[i]);                           break;
+                  case 2:  mX.resize(DATA[i], DEFAULT_VALUE);            break;
+                  case 3:  mX.resize_and_overwrite(
+                                                  DATA[i],
+                                                  FillN(DEFAULT_VALUE)); break;
                   default: ASSERT(0);
                 }
             }
@@ -20825,6 +21116,59 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 45:
+        if (verbose) printf(
+                 "\nTEST CASE %d IS DELEGATED TO 'bslstl_string.t.cpp'"
+                 "\n=======================================================\n",
+                 test);
+        break;
+      case 44: {
+        // --------------------------------------------------------------------
+        // TESTING 'resize_and_overwrite'
+        //
+        // Concerns:
+        //: 1 The 'resize_and_overwrite' method can be invoked for object of
+        //:   any size and capacity.
+        //:
+        //: 2 The 'resize_and_overwrite' method correctly handles 'count'
+        //:   argument that is less than object's size.
+        //:
+        //: 3 The 'resize_and_overwrite' method correctly handles 'count'
+        //:   argument that exceeds object's size.
+        //:
+        //: 4 The 'resize_and_overwrite' method shrink the object in accordance
+        //:   with the value returned from the 'operation'.
+        //:
+        //: 5 Additional memory is allocated only if the requested size exceeds
+        //:   current capacity.
+        //:
+        //: 6 Memory allocation comes from the allocator supplied on object
+        //:   construction.
+        //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Call 'resize_and_overwrite' with a variety of sizes, both larger
+        //:   and smaller than the initial size. (C-1, 2, 3, 5, 6)
+        //:
+        //: 2 Call 'resize_and_overwrite' with an 'op' returning a variety of
+        //:   sizes, both smaller and larger than the initial size. (C-4)
+        //:
+        //: 3 Verify value passed to 'op' versus the resulting string. (C-1)
+        //:
+        //: 4 Call 'resize_and_overwrite' with an 'op' which returns a length
+        //:   greater than the resize length. (C-7)
+        //
+        // Testing:
+        //   void resize_and_overwrite(size_type n, OPERATION op);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'resize_and_overwrite'"
+                            "\n==============================\n");
+
+        TestDriver< char  >::testCase44();
+        TestDriver<wchar_t>::testCase44();
+      } break;
       case 43: {
         // --------------------------------------------------------------------
         // CONCERN: 'string' IS A C++20 RANGE

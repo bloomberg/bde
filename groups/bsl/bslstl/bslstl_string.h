@@ -127,6 +127,8 @@ BSLS_IDENT("$Id: $")
 //  | a.resize(k)                             | O[k]                          |
 //  | a.resize(k, v)                          |                               |
 //  |-----------------------------------------+-------------------------------|
+//  | a.resize_and_overwrite(k, op)           | O[k]                          |
+//  |-----------------------------------------+-------------------------------|
 //  | a.empty()                               | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
 //  | a.reserve(k)                            | O[1]                          |
@@ -1825,6 +1827,19 @@ class basic_string
         // erasing characters at the end if 'newLength < length()' or appending
         // the appropriate number of copies of 'CHAR_TYPE()' at the end if
         // 'length() < newLength'.
+
+    template <class OPERATION>
+    void resize_and_overwrite(size_type newLength, OPERATION operation);
+        // Change the length of this string to the specified 'newLength',
+        // erasing characters at the end if 'newLength < length()' or appending
+        // the appropriate number of characters at the end if
+        // 'length() < newLength'.  Subsequently, invoke the specified
+        // 'operation' passing the address of the null-terminated buffer and
+        // the adjusted length of this string as parameters.  Finally, change
+        // the length of this string to the value returned by the 'operation'.
+        // Throw 'length_error' if 'newLength > max_size()'.  The behavior is
+        // undefined unless the value returned by the 'operation' is less than
+        // or equal to 'newLength'.
 
     void reserve(size_type newCapacity = 0);
         // Change the capacity of this string to the specified 'newCapacity'.
@@ -5225,6 +5240,30 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength)
     privateThrowLengthError(newLength > max_size(),
                             "string<...>::resize(n): string too long");
     privateResizeRaw(newLength, CHAR_TYPE());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class OPERATION>
+void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize_and_overwrite(
+                                                           size_type newLength,
+                                                           OPERATION operation)
+{
+    privateThrowLengthError(newLength > max_size(),
+                  "string<...>::resize_and_overwrite(n, op): string too long");
+
+    privateReserveRaw(newLength);
+    this->d_length = newLength;
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    size_type finalLength = static_cast<size_type>(
+                        MoveUtil::move(operation)(this->dataPtr(), newLength));
+#else
+    size_type finalLength = static_cast<size_type>(
+                                        operation(this->dataPtr(), newLength));
+#endif
+    BSLS_ASSERT(finalLength <= newLength);
+    this->d_length = finalLength;
+    CHAR_TRAITS::assign(*(this->dataPtr() + this->d_length), CHAR_TYPE());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
