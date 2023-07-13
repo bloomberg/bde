@@ -9,24 +9,31 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::in_place_t: tag type for in-place construction
+//  bsl::in_place_type_t: tag type for in-place construction of a given type
+//  bsl::in_place_index_t: tag type for in-place construction at a given index
 //
 //@CANONICAL_HEADER: bsl_utility.h
 //
-//@DESCRIPTION: This component provides an implementation of a standard
-// compliant tag type for in-place construction, 'bsl::in_place_t'.  This tag
-// type is used in constructors of 'bsl::optional' to indicate that the
-// contained object should be constructed in-place.  Note that the standard
-// currently has two other in-place construction tag types,
-// 'std::in_place_type_t' and 'std::in_place_index_t'. There is currently no
-// need to provide the equivalent tag types in bsl, but if such need arises,
-// the name of this header has been chosen for the purpose of being the
-// designated place for all in-place construction tags.
+//@DESCRIPTION: This component provides an implementation of standard
+// compliant tag types for in-place construction: 'bsl::in_place_t',
+// 'bsl::in_place_type_t', and 'bsl::in_place_index_t'.  Tag type
+// 'bsl::in_place_t' is used in constructors of 'bsl::optional' to indicate
+// that the contained object should be constructed in-place.  Tag type
+// 'bsl::in_place_type_t<TYPE>' is used in constructors of 'bsl::variant' to
+// indicate that the object of type 'TYPE' should be constructed in-place.  Tag
+// type 'bsl::in_place_index_t<INDEX>' is used in constructors of
+// 'bsl::variant' to indicate that the alternative with index 'INDEX' should
+// be constructed in-place.
+//
+//@SEE_ALSO: bslstl_optional, bslstl_variant
 
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+
+#include <stddef.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #include <utility>  // for std::in_place_t
@@ -36,9 +43,14 @@ namespace bsl {
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-using in_place_t = std::in_place_t;
+using std::in_place_t;
 using std::in_place;
 
+using std::in_place_type_t;
+using std::in_place_type;
+
+using std::in_place_index_t;
+using std::in_place_index;
 #else
 
                               // ================
@@ -58,7 +70,7 @@ struct in_place_t {
 inline
 BSLS_KEYWORD_CONSTEXPR in_place_t::in_place_t() BSLS_KEYWORD_NOEXCEPT
 {
-    // This 'constexpr' function has to be defined before initialializing the
+    // This 'constexpr' function has to be defined before initializing the
     // 'constexpr' value, 'in_place', below.
 }
 
@@ -69,6 +81,78 @@ extern const in_place_t in_place;
 #endif
     // Value of type 'in_place_t' used as an argument to functions that take an
     // 'in_place_t' argument.
+
+                           // =====================
+                           // class in_place_type_t
+                           // =====================
+template <class TYPE>
+struct in_place_type_t {
+    // This trivial tag type is passed to the constructors of types that can
+    // contain objects of multiple types to indicate the type of contained
+    // object to create.
+
+    // CREATORS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    explicit BSLS_KEYWORD_CONSTEXPR in_place_type_t() = default;
+#else
+    explicit BSLS_KEYWORD_CONSTEXPR in_place_type_t() BSLS_KEYWORD_NOEXCEPT;
+#endif  // defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+        // Create an 'in_place_type_t' value.  On platforms that allow for
+        // defaulted special member functions, we opt for the compiler provided
+        // one too keep the type trivial.
+};
+
+// CREATORS
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+template <class TYPE>
+inline
+BSLS_KEYWORD_CONSTEXPR
+in_place_type_t<TYPE>::in_place_type_t() BSLS_KEYWORD_NOEXCEPT
+{
+}
+#endif  // !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr in_place_type_t<TYPE> in_place_type;
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+    // Value of type 'in_place_type_t<TYPE>' used as an argument to functions
+    // that take an 'in_place_type_t' argument.
+
+                           // ======================
+                           // class in_place_index_t
+                           // ======================
+template <size_t INDEX>
+struct in_place_index_t {
+    // This trivial tag type is passed to the constructors of 'bsl::variant' to
+    // indicate the index of the alternative to create.
+
+// CREATORS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    explicit BSLS_KEYWORD_CONSTEXPR in_place_index_t() = default;
+#else
+    explicit BSLS_KEYWORD_CONSTEXPR in_place_index_t() BSLS_KEYWORD_NOEXCEPT;
+#endif  // defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+        // Create an 'in_place_index_t' object.  This constructor is trivial if
+        // the platform supports defaulted special member functions.
+};
+
+// CREATORS
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+template <size_t INDEX>
+inline
+BSLS_KEYWORD_CONSTEXPR
+in_place_index_t<INDEX>::in_place_index_t() BSLS_KEYWORD_NOEXCEPT
+{
+}
+#endif  //!defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <size_t INDEX>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr in_place_index_t<INDEX> in_place_index;
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+    // Value of type 'in_place_index_t<INDEX>' used as an argument to functions
+    // that take an 'in_place_index_t' argument.
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 

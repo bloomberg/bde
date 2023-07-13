@@ -2,6 +2,7 @@
 
 #include <bslstl_inplace.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
@@ -18,17 +19,20 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under test is 'bsl::in_place_t', a trivial tag type whose interface
-// and contract is dictated by the C++ standard.  If 'std::in_place_t' is
-// available, we need to check that 'bsl::in_place_t' is a typedef to the
-// standard's tag type.  If 'std::in_place_t' isn't available, we need to check
-// that 'bsl::in_place_t' satisfies the interface and contract of
-// 'std::in_place_t'.
+// The types under test are 'bsl::in_place_t', 'in_place_type_t', and
+// 'in_place_index_t, trivial tag types whose interface and contract is
+// dictated by the C++ standard.  For each type, if  'std::tag_name' is
+// available, we need to check that 'bsl::tag_name' is a typedef to the
+// standard's tag type.  If 'std::tag_name' isn't available, we need to check
+// that 'bsl::tag_name' satisfies the interface and contract of
+// 'std::tag_name'.
 //
 //
 // ----------------------------------------------------------------------------
-// typedef:
-// [ 2] typedef bsl::in_place_t
+// TYPES:
+// [ 2] bsl::in_place_t
+// [ 2] bsl::in_place_type_t
+// [ 2] bsl::in_place_index_t
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -92,6 +96,32 @@ void aSsErT(bool condition, const char *message, int line)
 //                         GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+// Return 'true' if invoked with an object of type 'bsl::in_place_type_t' that
+// matches the expected deduced type, and 'false' otherwise.
+template <class EXPECTED, class TYPE>
+bool isInplaceTypeTagType(const bsl::in_place_type_t<TYPE>&)
+{
+    return bsl::is_same<EXPECTED, TYPE>::value;
+}
+template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR bool isInplaceTypeTagType(const TYPE&)
+{
+    return false;
+}
+
+// Return 'true' if invoked with an object of type 'bsl::in_place_index_t' that
+// matches the expected index, and 'false' otherwise.
+template <size_t EXPECTED, size_t INDEX>
+bool isInplaceIndexTagType(const bsl::in_place_index_t<INDEX>&)
+{
+    return EXPECTED == INDEX;
+}
+template <class TYPE>
+bool isInplaceIndexTagType(const TYPE&)
+{
+    return false;
+}
+
 // Return 'true' if invoked with an object of type 'bsl::in_place_t', and
 // 'false' otherwise.
 bool isInplaceTagType(const bsl::in_place_t&)
@@ -130,20 +160,38 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'bsl::in_place_t' is a typedef for 'std::in_place_t' if
         //:   'std::in_place_t' is available.
+        //: 2 'bsl::in_place_type_t<TYPE>' is an alias for
+        //:   'std::in_place_type_t<TYPE>' if 'std::in_place_type_t<TYPE>' is
+        //:    available.
+        //: 3 'bsl::in_place_index<INDEX>' is an alias for
+        //:   'std::in_place_index_t<INDEX>' if 'std::in_place_index_t<INDEX>'
+        //:    is available.
         //
         // Plan:
         //: 1 Check that 'bsl::in_place_t' is the same type as
         //:   'std::in_place_t' using 'bsl::is_same' if CPP17 library is
         //:   available (C-1).
+        //: 2 Check that 'bsl::in_place_type_t<int>' is the same type as
+        //:   'std::in_place_type<int>' using 'bsl::is_same' if CPP17 library
+        //:   is available (C-2).
+        //: 3 Check that 'bsl::in_place_index_t<1>' is the same type as
+        //:   'std::in_place_index_t<1>' using 'bsl::is_same' if CPP17 library
+        //:   is available (C-3).
         //
         // Testing:
-        //   typedef bsl::in_place_t
+        //   bsl::in_place_t
+        //   bsl::in_place_type_t
+        //   bsl::in_place_index_t
         // --------------------------------------------------------------------
-        if (verbose) printf("\n'bsl::in_place_t' TYPEDEF"
-                            "\n=========================\n");
+        if (verbose) printf("\n'bsl::in_placeX' TYPEDEF"
+                            "\n========================\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        ASSERT((bsl::is_same<bsl::in_place_t, std::in_place_t>::value));
+        BSLMF_ASSERT((bsl::is_same<bsl::in_place_t, std::in_place_t>::value));
+        BSLMF_ASSERT((bsl::is_same<bsl::in_place_type_t<int>,
+                                   std::in_place_type_t<int> >::value));
+        BSLMF_ASSERT((bsl::is_same<bsl::in_place_index_t<1>,
+                                   std::in_place_index_t<1> >::value));
 #endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
       case 1: {
@@ -152,8 +200,14 @@ int main(int argc, char *argv[])
         //   This case exercises basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional and 'bsl::in_place' variable
-        //:   exists.
+        //: 1 The class 'bsl::in_place_t' is sufficiently functional and
+        //:   'bsl::in_place' variable exists.
+        //: 2 The class 'bsl::in_place_type_t' is sufficiently functional.
+        //: 3 The class 'bsl::in_place_index_t' is sufficiently functional.
+        //: 4 If variable templates are supported, that
+        //:   bsl::in_place_type<TYPE> template variable exists.
+        //: 5 If variable templates are supported, that
+        //:   bsl::in_place_index<INDEX> template variable exists.
         //
         // Plan:
         //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
@@ -169,6 +223,18 @@ int main(int argc, char *argv[])
 
         ASSERT(isInplaceTagType(b));
         ASSERT(isInplaceTagType(bsl::in_place));
+
+        bsl::in_place_type_t<int> bt;
+        ASSERT(isInplaceTypeTagType<int>(bt));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        ASSERT(isInplaceTypeTagType<int>(bsl::in_place_type<int>));
+#endif  //BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+
+        bsl::in_place_index_t<1> bi;
+        ASSERT(isInplaceIndexTagType<1>(bi));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        ASSERT(isInplaceIndexTagType<1>(bsl::in_place_index<1>));
+#endif  //BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 
       } break;
       default: {
