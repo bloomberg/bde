@@ -113,6 +113,7 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 struct ObserverTest : bsls::ProtocolTestImp<ball::Observer> {
+    using Observer::publish;  // avoid hiding base class method
     void publish(const ball::Record&, const ball::Context&)  { markDone(); }
     void releaseRecords() { markDone(); }
 };
@@ -129,6 +130,7 @@ class my_OstreamObserver : public ball::Observer {
   public:
     my_OstreamObserver(ostream& stream) : d_stream(stream) { }
     virtual ~my_OstreamObserver();
+    using Observer::publish;  // avoid hiding base class method
     virtual void publish(const ball::Record&  record,
                          const ball::Context& context);
 };

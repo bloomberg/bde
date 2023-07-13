@@ -51,6 +51,7 @@ BSLS_IDENT("$Id: $")
 //  public:
 //    explicit MyOstreamObserver(bsl::ostream *stream) : d_stream(stream) { }
 //    virtual ~MyOstreamObserver();
+//    using Observer::publish;  // avoid hiding base class method
 //    virtual void publish(const ball::Record&  record,
 //                         const ball::Context& context);
 //  };

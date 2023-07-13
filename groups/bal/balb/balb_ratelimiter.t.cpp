@@ -209,7 +209,7 @@ typedef unsigned int        uint;
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:
 //..
-bool sendData(size_t dataSize)
+bool sendData(bsl::size_t dataSize)
       // Send a specified 'dataSize' amount of data over the network.
       // Return 'true' if data was sent successfully and 'false' otherwise.
 {
@@ -280,9 +280,9 @@ int main(int argc, char *argv[])
 // Then, we define the size of data to be send, the size of each data chunk,
 // and a counter of data actually sent:
 //..
-   bsls::Types::Uint64 sizeOfData = 10 * 1024; // in bytes
-   bsls::Types::Uint64 chunkSize  = 64;        // in bytes
-   bsls::Types::Uint64 bytesSent  = 0;
+   bsl::size_t sizeOfData = 10 * 1024; // in bytes
+   bsl::size_t chunkSize  = 64;        // in bytes
+   bsl::size_t bytesSent  = 0;
 //..
 // Now, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would exceed the rate limiter's bandwidth

@@ -398,25 +398,6 @@ int main(int argc, char *argv[])
 // First, we specify the result that we are expecting to get:
 //..
 {
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-            const bsl::string EXPECTED =
-                R"JSON({
-  "Stocks" : [
-    {
-      "Name" : "International Business Machines Corp",
-      "Ticker" : "IBM US Equity",
-      "Last Price" : 149.3,
-      "Dividend Yield" : 3.95
-    },
-    {
-      "Name" : "Apple Inc",
-      "Ticker" : "AAPL US Equity",
-      "Last Price" : 205.8,
-      "Dividend Yield" : 1.4
-    }
-  ]
-})JSON";
-#else
     const bsl::string EXPECTED =
         "{\n"
         "  \"Stocks\" : [\n"
@@ -434,7 +415,6 @@ int main(int argc, char *argv[])
         "    }\n"
         "  ]\n"
         "}";
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 //..
 // Then, to encode this JSON document we create a 'baljsn::SimpleFormatter'
 // object.  Since we want the document to be written in a pretty, easy to

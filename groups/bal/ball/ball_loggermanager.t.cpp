@@ -1257,6 +1257,8 @@ class MyObserver : public ball::Observer {
     }
 
     // MANIPULATORS
+    using Observer::publish;  // avoid hiding base class method
+
     void publish(const ball::Record& record, const ball::Context& context)
     {
         ++d_publishCount;
@@ -1315,7 +1317,7 @@ class PerformanceObserver : public ball::Observer {
     {
     }
 
-    using Observer::publish;   // Avoid hiding base class method;
+    using Observer::publish;  // avoid hiding base class method
 
     virtual void publish(const bsl::shared_ptr<const ball::Record>& record,
                          const ball::Context&                       context)
@@ -1539,6 +1541,8 @@ class PublishCountingObserver : public ball::Observer {
     }
 
     // MANIPULATORS
+    using Observer::publish;  // avoid hiding base class method
+
     void publish(const ball::Record&, const ball::Context&)
         // Increment the count maintained by this observer by 1.
     {

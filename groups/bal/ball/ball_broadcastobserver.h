@@ -77,6 +77,8 @@ BSLS_IDENT("$Id: $")
 //          d_configureFlag = true;
 //      }
 //
+//      using Observer::publish;  // avoid hiding base class method
+//
 //      void publish(const bsl::shared_ptr<ball::Record>& record,
 //                   const ball::Context&                 context)
 //          // Publish the specified 'record' with the specified 'context'.

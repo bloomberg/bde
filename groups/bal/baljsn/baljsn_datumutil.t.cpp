@@ -1301,18 +1301,6 @@ int main(int argc, char *argv[])
 //..
 // Next, we compare the result to the JSON we expect:
 //..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    const bsl::string EXPECTED_BOOKS_JSON = R"JSON([
-    {
-        "Author" : "Ann Leckie",
-        "Title" : "Ancillary Justice"
-    },
-    {
-        "Author" : "John Scalzi",
-        "Title" : "Redshirts"
-    }
-])JSON";
-#else
     const bsl::string EXPECTED_BOOKS_JSON = "[\n"
         "    {\n"
         "        \"Author\" : \"Ann Leckie\",\n"
@@ -1323,7 +1311,6 @@ int main(int argc, char *argv[])
         "        \"Title\" : \"Redshirts\"\n"
         "    }\n"
         "]";
-#endif
 
     ASSERTV(EXPECTED_BOOKS_JSON, booksJSON, EXPECTED_BOOKS_JSON == booksJSON);
 //..
@@ -1360,30 +1347,6 @@ int main(int argc, char *argv[])
     // Note that whitespace formatting is unimportant as long as the result is
     // legal JSON.  This will generate the same 'Datum' as the single-line form
     // above.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    const bsl::string formattedFamilyJSON = R"JSON([
-    {
-        "firstName" : "Homer",
-        "age" : 34
-    },
-    {
-        "firstName" : "Marge",
-        "age" : 34
-    },
-    {
-        "firstName" : "Bart",
-        "age" : 10
-    },
-    {
-        "firstName" : "Lisa",
-        "age" : 8
-    },
-    {
-        "firstName" : "Maggie",
-        "age" : 1
-    }
-])JSON";
-#else
     const bsl::string formattedFamilyJSON =
                                         "[\n"
                                         "    {\n"
@@ -1407,7 +1370,6 @@ int main(int argc, char *argv[])
                                         "        \"age\" : 1\n"
                                         "    }\n"
                                         "]";
-#endif // def BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 //..
 // Then, we convert the single-line 'string' to a 'Datum':
 //..

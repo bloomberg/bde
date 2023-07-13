@@ -690,8 +690,8 @@ class MyAttributeValue {
             d_llValue = rhs.d_llValue;
           } break;
           case k_STRING: {
-            const bsl::string *string_p =
-                       reinterpret_cast<const bsl::string*>(rhs.d_stringValue);
+            const bsl::string *string_p = static_cast<const bsl::string *>(
+                            reinterpret_cast<const void *>(rhs.d_stringValue));
             new (d_stringValue) bsl::string(*string_p, d_allocator_p);
           } break;
           case k_UNSIGNED_LONG_LONG: {
@@ -707,7 +707,8 @@ class MyAttributeValue {
     {
         using bsl::string;
         if (k_STRING == d_type) {
-            reinterpret_cast<string*>(d_stringValue)->~string();
+            static_cast<bsl::string *>(
+                           reinterpret_cast<void *>(d_stringValue))->~string();
         }
     }
 
@@ -722,10 +723,10 @@ class MyAttributeValue {
                 d_llValue = rhs.d_llValue;
               } break;
               case k_STRING: {
-                bsl::string *string_p =
-                       reinterpret_cast<bsl::string*>(d_stringValue);
-                *string_p =
-                      *reinterpret_cast<const bsl::string*>(rhs.d_stringValue);
+                bsl::string *string_p = static_cast<bsl::string *>(
+                                      reinterpret_cast<void *>(d_stringValue));
+                *string_p = *static_cast<const bsl::string *>(
+                            reinterpret_cast<const void *>(rhs.d_stringValue));
               } break;
               case k_UNSIGNED_LONG_LONG: {
                 d_ullValue = rhs.d_ullValue;
@@ -760,7 +761,8 @@ class MyAttributeValue {
 
     const char *stringValue() const
     {
-        return reinterpret_cast<const bsl::string*>(d_stringValue)->c_str();
+        return static_cast<const bsl::string *>(
+                       reinterpret_cast<const void *>(d_stringValue))->c_str();
     }
 
     bool operator==(const MyAttributeValue& rhs) const
@@ -776,8 +778,10 @@ class MyAttributeValue {
             return d_llValue == rhs.d_llValue;                        // RETURN
           }
           case k_STRING: {
-            return *reinterpret_cast<const bsl::string*>(d_stringValue)
-                == *reinterpret_cast<const bsl::string*>(rhs.d_stringValue);
+            return *static_cast<const bsl::string *>(
+                                 reinterpret_cast<const void *>(d_stringValue))
+                == *static_cast<const bsl::string *>(
+                            reinterpret_cast<const void *>(rhs.d_stringValue));
                                                                       // RETURN
           }
           case k_UNSIGNED_LONG_LONG: {
@@ -802,7 +806,8 @@ class MyAttributeValue {
             stream << d_llValue;
           } break;
           case k_STRING: {
-            stream << *reinterpret_cast<const bsl::string*>(d_stringValue);
+            stream << *static_cast<const bsl::string *>(
+                                reinterpret_cast<const void *>(d_stringValue));
           } break;
           case k_UNSIGNED_LONG_LONG: {
             stream << d_ullValue;
@@ -1288,9 +1293,9 @@ int main(int argc, char *argv[])
             }
 
             cout << "int attribute - average creation time: "
-                 << totalCreationTime / 1000.0 / numTrials
+                 << totalCreationTime / numTrials / 1000
                  << " us,  average copy time: "
-                 << totalCopyTime / 1000.0 / numTrials
+                 << totalCopyTime / numTrials / 1000
                  << " us" << endl;
 
             totalCreationTime = totalCopyTime = 0;
@@ -1309,9 +1314,9 @@ int main(int argc, char *argv[])
             }
 
             cout << "string attribute - average creation time: "
-                 << totalCreationTime / 1000.0 / numTrials
+                 << totalCreationTime / numTrials / 1000
                  << " us,  average copy time: "
-                 << totalCopyTime / 1000.0 / numTrials
+                 << totalCopyTime / numTrials / 1000
                  << " us" << endl;
         }
 
@@ -1335,9 +1340,9 @@ int main(int argc, char *argv[])
             }
 
             cout << "int attribute - average creation time: "
-                 << totalCreationTime / 1000.0 / numTrials
+                 << totalCreationTime / numTrials / 1000
                  << " us,  average copy time: "
-                 << totalCopyTime / 1000.0 / numTrials
+                 << totalCopyTime / numTrials / 1000
                  << " us" << endl;
 
             totalCreationTime = totalCopyTime = 0;
@@ -1356,9 +1361,9 @@ int main(int argc, char *argv[])
             }
 
             cout << "string attribute - average creation time: "
-                 << totalCreationTime / 1000.0 / numTrials
+                 << totalCreationTime / numTrials / 1000
                  << " us,  average copy time: "
-                 << totalCopyTime / 1000.0 / numTrials
+                 << totalCopyTime / numTrials / 1000
                  << " us" << endl;
         }
 

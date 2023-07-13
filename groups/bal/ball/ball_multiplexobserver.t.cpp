@@ -121,6 +121,9 @@ class my_OstreamObserver : public ball::Observer {
   public:
     explicit my_OstreamObserver(ostream& stream) : d_stream(stream) { }
     ~my_OstreamObserver() { }
+
+    using Observer::publish;  // avoid hiding base class method
+
     void publish(const ball::Record&  record,
                  const ball::Context& context);
 };

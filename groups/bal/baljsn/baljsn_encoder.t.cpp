@@ -566,8 +566,9 @@ class AssertEncodingOverflowIsDetectedFunction {
         const bsl::streampos streamBufPosition =
             streamBuf->pubseekoff(0, bsl::ios_base::cur);
 
-        const bsl::string_view jsonString(streamBuf->data(),
-                                          streamBufPosition);
+        const bsl::string_view jsonString(
+                                  streamBuf->data(),
+                                  static_cast<bsl::size_t>(streamBufPosition));
 
         LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonString);
 

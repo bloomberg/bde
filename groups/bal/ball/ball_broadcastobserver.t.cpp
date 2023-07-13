@@ -133,6 +133,8 @@ class my_OstreamObserver : public ball::Observer {
     {
     }
 
+    using Observer::publish;  // avoid hiding base class method
+
     void publish(const bsl::shared_ptr<const ball::Record>& record,
                  const ball::Context&                       context);
 };
@@ -293,6 +295,8 @@ namespace UsageExample {
         {
             d_configureFlag = true;
         }
+
+        using Observer::publish;  // avoid hiding base class method
 
         void publish(const bsl::shared_ptr<ball::Record>& record,
                      const ball::Context&                 context)

@@ -159,16 +159,16 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Next, we compare the result to the JSON we expect:
 //..
-//  const bsl::string EXPECTED_BOOKS_JSON = R"JSON([
-//    {
-//        "Author" : "Ann Leckie",
-//        "Title" : "Ancillary Justice"
-//    },
-//    {
-//        "Author" : "John Scalzi",
-//        "Title" : "Redshirts"
-//    }
-//  ])JSON";
+//  const bsl::string EXPECTED_BOOKS_JSON = "[\n"
+//      "    {\n"
+//      "        \"Author\" : \"Ann Leckie\",\n"
+//      "        \"Title\" : \"Ancillary Justice\"\n"
+//      "    },\n"
+//      "    {\n"
+//      "        \"Author\" : \"John Scalzi\",\n"
+//      "        \"Title\" : \"Redshirts\"\n"
+//      "    }\n"
+//      "]";
 //
 //  assert(EXPECTED_BOOKS_JSON == booksJSON);
 //..
@@ -204,28 +204,29 @@ BSLS_IDENT("$Id$ $CSID$")
 //  // Note that whitespace formatting is unimportant as long as the result is
 //  // legal JSON.  This will generate the same 'Datum' as the single-line form
 //  // above.
-//  const bsl::string formattedFamilyJSON = R"JSON([
-//      {
-//          "firstName" : "Homer",
-//          "age" : 34
-//      },
-//      {
-//          "firstName" : "Marge",
-//          "age" : 34
-//      },
-//      {
-//          "firstName" : "Bart",
-//          "age" : 10
-//      },
-//      {
-//          "firstName" : "Lisa",
-//          "age" : 8
-//      },
-//      {
-//          "firstName" : "Maggie",
-//          "age" : 1
-//      }
-//  ])JSON";
+//  const bsl::string formattedFamilyJSON =
+//                                      "[\n"
+//                                      "    {\n"
+//                                      "        \"firstName\" : \"Homer\",\n"
+//                                      "        \"age\" : 34\n"
+//                                      "    },\n"
+//                                      "    {\n"
+//                                      "        \"firstName\" : \"Marge\",\n"
+//                                      "        \"age\" : 34\n"
+//                                      "    },\n"
+//                                      "    {\n"
+//                                      "        \"firstName\" : \"Bart\",\n"
+//                                      "        \"age\" : 10\n"
+//                                      "    },\n"
+//                                      "    {\n"
+//                                      "        \"firstName\" : \"Lisa\",\n"
+//                                      "        \"age\" : 8\n"
+//                                      "    },\n"
+//                                      "    {\n"
+//                                      "        \"firstName\" : \"Maggie\",\n"
+//                                      "        \"age\" : 1\n"
+//                                      "    }\n"
+//                                      "]";
 //..
 // Then, we convert the single-line 'string' to a 'Datum':
 //..

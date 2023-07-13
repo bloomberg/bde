@@ -2772,7 +2772,7 @@ struct ThreadFunctor {
 
         const Uint64 id = BloombergLP::bslmt::ThreadUtil::selfIdAsUint64();
 
-        while (true) {
+        for (unsigned i = 0; i < 4000000000U; ++i) {
             BALL_LOG_ERROR << "ERROR " << id;
         }
     }
