@@ -62,17 +62,23 @@ struct in_place_t {
     // constructed in-place.
 
     // CREATORS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    explicit BSLS_KEYWORD_CONSTEXPR in_place_t() = default;
+#else
     explicit BSLS_KEYWORD_CONSTEXPR in_place_t() BSLS_KEYWORD_NOEXCEPT;
+#endif
         // Create an 'in_place_t' value.
 };
 
 // CREATORS
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
 inline
 BSLS_KEYWORD_CONSTEXPR in_place_t::in_place_t() BSLS_KEYWORD_NOEXCEPT
 {
     // This 'constexpr' function has to be defined before initializing the
     // 'constexpr' value, 'in_place', below.
 }
+#endif  // !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 inline constexpr in_place_t in_place = in_place_t();
@@ -96,7 +102,7 @@ struct in_place_type_t {
     explicit BSLS_KEYWORD_CONSTEXPR in_place_type_t() = default;
 #else
     explicit BSLS_KEYWORD_CONSTEXPR in_place_type_t() BSLS_KEYWORD_NOEXCEPT;
-#endif  // defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+#endif  
         // Create an 'in_place_type_t' value.  On platforms that allow for
         // defaulted special member functions, we opt for the compiler provided
         // one too keep the type trivial.
@@ -115,9 +121,9 @@ in_place_type_t<TYPE>::in_place_type_t() BSLS_KEYWORD_NOEXCEPT
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr in_place_type_t<TYPE> in_place_type;
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     // Value of type 'in_place_type_t<TYPE>' used as an argument to functions
     // that take an 'in_place_type_t' argument.
+#endif
 
                            // ======================
                            // class in_place_index_t
@@ -132,7 +138,7 @@ struct in_place_index_t {
     explicit BSLS_KEYWORD_CONSTEXPR in_place_index_t() = default;
 #else
     explicit BSLS_KEYWORD_CONSTEXPR in_place_index_t() BSLS_KEYWORD_NOEXCEPT;
-#endif  // defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+#endif
         // Create an 'in_place_index_t' object.  This constructor is trivial if
         // the platform supports defaulted special member functions.
 };
@@ -150,9 +156,9 @@ in_place_index_t<INDEX>::in_place_index_t() BSLS_KEYWORD_NOEXCEPT
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <size_t INDEX>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr in_place_index_t<INDEX> in_place_index;
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     // Value of type 'in_place_index_t<INDEX>' used as an argument to functions
     // that take an 'in_place_index_t' argument.
+#endif
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
