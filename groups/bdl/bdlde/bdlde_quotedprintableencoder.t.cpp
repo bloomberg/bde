@@ -1495,7 +1495,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "RESET" << endl
-                          << "===========" << endl;
+                          << "=====" << endl;
 
         if (verbose) cout << "\nVerify 'reset'." << endl;
 
@@ -4914,7 +4914,7 @@ encoded.");
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             static const char INPUT[] = "ABCDEF";
-            char b[4];
+            char b[5];
             int nOut;
             int nIn;
             const char *const B = INPUT;
@@ -4959,6 +4959,7 @@ encoded.");
                 LOOP_ASSERT(LINE, RTN == obj.convert(b, &nOut, &nIn, B, E));
 
                 LOOP_ASSERT(LINE, isState(&obj, END));
+                LOOP_ASSERT(nOut, (unsigned)nOut <= sizeof b);
 
                 // Verify amount of input consumed: all or none.
                 const bool VALID = START != DONE_STATE && START != ERROR_STATE;
