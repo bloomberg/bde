@@ -1049,7 +1049,8 @@ int main(int argc, char *argv[])
 
     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
-    int expectedDefaultAllocations = 0;
+    // 'volatile' avoids clobbered warning
+    volatile int expectedDefaultAllocations = 0;
 
     idxVoidFuncRecurser   = 0;
     idxVoidFuncLeakTwiceA = 1;
@@ -1782,17 +1783,22 @@ int main(int argc, char *argv[])
         // those chars.
 
         const unsigned char fillChars[] = { 0, 1, 0xff };
-        const unsigned char *end = fillChars + sizeof(fillChars);
+
+        // 'volatile' avoids clobbered warning        
+        volatile const unsigned char * volatile end =
+                                                 fillChars + sizeof(fillChars);
+
         Obj ta;
         ta.setName("alpha");
         ta.setOstream(&ss);
 
         if (verbose) Q(Coninuous Underruns);
         {
-            for (int a = 0; a < ABORT_LIMIT; ++a) {
+            // 'volatile' avoids clobbered warning        
+            for (volatile int a = 0; a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
-                for (unsigned int u = 1; u <= 4 * sizeof(void *); ++u) {
+                for (volatile unsigned u = 1; u <= 4 * sizeof(void *); ++u) {
                     for (const unsigned char *pu = fillChars; pu < end; ++pu) {
                         if (veryVerbose) {
                             cout << "Continuous:   ";
@@ -1849,11 +1855,15 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Single-byte Underruns);
         {
-            for (int a = 0; a < ABORT_LIMIT; ++a) {
+            // 'volatile' avoids clobbered warning        
+            for (volatile int a = 0; a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
-                for (int i = 1; i <= (int) sizeof(void *); ++i) {
-                    for (const unsigned char *pu = fillChars; pu < end; ++pu) {
+                for (volatile int i = 1; i <= (int) sizeof(void *); ++i) {
+                    for (volatile const unsigned char * volatile pu =
+                                                                     fillChars;
+                         pu < end;
+                         ++pu) {
                         if (veryVerbose) {
                             cout << "Single-byte:   ";
                             P_(ABORT);   P_(i);    P((int) *pu);
@@ -1974,7 +1984,8 @@ int main(int argc, char *argv[])
         Obj ta2;
         ta2.setOstream(&oss2);
 
-        for (int i = 0; i < ABORT_LIMIT; ++i) {
+        // 'volatile' avoids clobbered warning        
+        for (volatile int i = 0; i < ABORT_LIMIT; ++i) {
             const bool ABORT = i;
 
             ASSERT(oss.str().empty());
@@ -1995,7 +2006,8 @@ int main(int argc, char *argv[])
                 tba.setName("beta");
                 tba.setOstream(&oss);
 
-                unsigned int tbaBlocks;
+                // 'volatile' avoids clobbered warning        
+                volatile unsigned int tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating same block twice);
 
@@ -2041,8 +2053,9 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing by wrong allocator of right type)
             {
-                void *ptr;
-                unsigned int taBlocks;
+                // 'volatile' avoids clobbered warning        
+                volatile void * volatile ptr;
+                volatile unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating by wrong alloc);
 
@@ -2061,7 +2074,7 @@ int main(int argc, char *argv[])
 
                     my_failureHandlerFlag = false;
 
-                    ta.deallocate(ptr);
+                    ta.deallocate(const_cast<void *>(ptr));
 
                     if (veryVerbose) Q(NoAbort: deallocating by wrong alloc);
 
@@ -2088,14 +2101,15 @@ int main(int argc, char *argv[])
                         " allocator '<unnamed>'\n    Attempted to free by"
                         " allocator 'alpha'"));
                 oss.str("");
-                ta2.deallocate(ptr);
+                ta2.deallocate(const_cast<void *>(ptr));
             }
 
             if (verbose) Q(Check freeing of block allocated with malloc);
             {
-                void *ptr;
+                // 'volatile' avoids clobbered warning        
+                volatile void * volatile ptr;
 
-                unsigned int taBlocks;
+                volatile unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing malloced);
 
@@ -2112,7 +2126,7 @@ int main(int argc, char *argv[])
                     taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
-                    ta.deallocate(ptr);
+                    ta.deallocate(const_cast<void *>(ptr));
 
                     if (veryVerbose) Q(NoAbort: freeing malloced);
 
@@ -2131,14 +2145,15 @@ int main(int argc, char *argv[])
                                " attempted to be freed by allocator 'alpha'"));
 
                 oss.str("");
-                bsl::free(ptr);
+                bsl::free(const_cast<void *>(ptr));
             }
 
             if (verbose) Q(Check freeing of array alloced with new[]);
             {
-                char *ptr;
+                // 'volatile' avoids clobbered warning        
+                volatile char * volatile ptr;
 
-                unsigned int taBlocks;
+                volatile unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing newed);
 
@@ -2155,7 +2170,7 @@ int main(int argc, char *argv[])
                     taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
-                    ta.deallocate(ptr);
+                    ta.deallocate(const_cast<char *>(ptr));
 
                     if (veryVerbose) Q(NoAbort: freeing newed);
 
@@ -2179,9 +2194,10 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of array alloced with new);
             {
-                int *ptr;
+                // 'volatile' avoids clobbered warning        
+                volatile int * volatile ptr;
 
-                unsigned int taBlocks;
+                volatile unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing newed);
 
@@ -2198,7 +2214,7 @@ int main(int argc, char *argv[])
                     taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
-                    ta.deallocate(ptr);
+                    ta.deallocate(const_cast<int *>(ptr));
 
                     if (veryVerbose) Q(NoAbort: freeing newed);
 
@@ -2222,9 +2238,11 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of seg alloced with bslma::TA);
             {
-                bslma::TestAllocator taBsl;
-                void *ptr;
-                unsigned int numBlocks;
+                bslma::TestAllocator     taBsl;
+
+                // 'volatile' avoids clobbered warning        
+                volatile void * volatile ptr;
+                volatile unsigned int    numBlocks;
 
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing bslma TAed);
@@ -2242,7 +2260,7 @@ int main(int argc, char *argv[])
                     numBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
-                    ta.deallocate(ptr);
+                    ta.deallocate(const_cast<void *>(ptr));
 
                     if (veryVerbose) Q(NoAbort: freeing bslma TAed);
 
@@ -2261,14 +2279,16 @@ int main(int argc, char *argv[])
                                " attempted to be freed by allocator 'alpha'"));
 
                 oss.str("");
-                taBsl.deallocate(ptr);
+                taBsl.deallocate(const_cast<void *>(ptr));
             }
 
             if (verbose) Q(Check freeing of seg alloced with bcema::TA);
             {
-                bslma::TestAllocator taBce;
-                void *ptr;
-                unsigned int numBlocks;
+                bslma::TestAllocator     taBce;
+
+                // 'volatile' avoids clobbered warning        
+                volatile void * volatile ptr;
+                volatile unsigned int    numBlocks;
 
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing bcema TAed);
@@ -2286,7 +2306,7 @@ int main(int argc, char *argv[])
                     numBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
-                    ta.deallocate(ptr);
+                    ta.deallocate(const_cast<void *>(ptr));
 
                     if (veryVerbose) Q(NoAbort: freeing bcema TAed);
 
@@ -2305,16 +2325,19 @@ int main(int argc, char *argv[])
                                " attempted to be freed by allocator 'alpha'"));
 
                 oss.str("");
-                taBce.deallocate(ptr);
+                taBce.deallocate(const_cast<void *>(ptr));
             }
 
             if (verbose) Q(Check freeing of misaligned block);
             {
                 char *cPtr = (char *) ta.allocate(100);
-                unsigned int numBlocks;
 
-                for (unsigned int offset = 1; offset < sizeof(void *);
-                                                                    ++offset) {
+                // 'volatile' avoids clobbered warning        
+                volatile unsigned int numBlocks;
+
+                for (volatile unsigned int offset = 1;
+                     offset < sizeof(void *);
+                     ++offset) {
                     ASSERT(oss.str().empty());
 
                     if (setjmp(my_setJmpBuf)) {
@@ -2501,7 +2524,10 @@ int main(int argc, char *argv[])
         {
             bsl::stringstream ss;
 
-            for (unsigned int numAllocs = 1; numAllocs <= 100; ++numAllocs) {
+            // 'volatile' avoids clobbered warning        
+            for (volatile unsigned int numAllocs = 1;
+                 numAllocs <= 100;
+                 ++numAllocs) {
                 bslma::TestAllocator sta("sta");
                 Obj *pta = new(sta) Obj(8, &sta);
                 pta->setName("ta");
@@ -3101,17 +3127,19 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ssTa;
 
         if (verbose) Q("Loop to exercise all c'tors");
-        for (int i = 0; i < 2 * ABORT_LIMIT; ++i) {
+
+        // 'volatile' avoids clobbered warning        
+        for (volatile int i = 0; i < 2 * ABORT_LIMIT; ++i) {
             const bool CLEAN_DESTROY   = i %  2;
             const bool FAILURE_LONGJMP = i >= 2;
 
-            bool done = false;
-            for (char c = 'a'; !done; ++c) {
+            volatile bool done = false;
+            for (volatile char c = 'a'; !done; ++c) {
                 if (veryVerbose) {
                     P_(CLEAN_DESTROY);    P_(FAILURE_LONGJMP);    P(c);
                 }
 
-                Obj *pta = 0;
+                volatile Obj * volatile pta = 0;
 
                 bsl::stringstream oss(&ssTa);
 
@@ -3138,7 +3166,7 @@ int main(int argc, char *argv[])
                 }
 
                 ASSERT(0 != pta);
-                Obj& ta = *pta;        const Obj& TA = ta;
+                Obj& ta = *const_cast<Obj *>(pta);  const Obj& TA = ta;
 
                 ta.setName("my_allocator");
                 ta.setOstream(&oss);
@@ -3210,7 +3238,7 @@ int main(int argc, char *argv[])
                     }
 
                     my_failureHandlerFlag = false;
-                    ota.deleteObject(pta);
+                    ota.deleteObject(const_cast<Obj *>(pta));
 
                     LOOP2_ASSERT(i, c, CLEAN_DESTROY || !FAILURE_LONGJMP);
                     ASSERT(my_failureHandlerFlag == (!CLEAN_DESTROY &&
@@ -3239,7 +3267,7 @@ int main(int argc, char *argv[])
                     // the failure handler:
 
                     ta.release();
-                    ota.deleteObject(pta);
+                    ota.deleteObject(const_cast<Obj *>(pta));
                 }
             }
         }

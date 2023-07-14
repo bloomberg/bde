@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 
             c.setEnabled(false);
 
-            ASSERT(false == *enabled_p);
+            ASSERT(0 == *enabled_p);
             ASSERT(&c.isEnabledRaw() == enabled_p);
 
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 
             c.setEnabled(true);
 
-            ASSERT(true == *enabled_p);
+            ASSERT(0 != *enabled_p);
             ASSERT(&c.isEnabledRaw() == enabled_p);
 
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
@@ -395,8 +395,8 @@ int main(int argc, char *argv[])
 
               ASSERT(MX.enabled());
               ASSERT(MY.enabled());
-              ASSERT(true == MX.isEnabledRaw());
-              ASSERT(true == MY.isEnabledRaw());
+              ASSERT(0 != MX.isEnabledRaw());
+              ASSERT(0 != MY.isEnabledRaw());
               ASSERT(&MX.isEnabledRaw() != &MY.isEnabledRaw());
           }
           {
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
 
                   ASSERT(DATA[i].d_name    == MX.name());
                   ASSERT(DATA[i].d_enabled == MX.enabled());
-                  ASSERT(DATA[i].d_enabled == MX.isEnabledRaw());
+                  ASSERT(DATA[i].d_enabled == !!MX.isEnabledRaw());
                   ASSERT(0 == defaultAllocator.numBytesInUse());
                   ASSERT(0 == testAlloc.numBytesInUse());
               }
@@ -555,21 +555,21 @@ int main(int argc, char *argv[])
         ASSERT(VAL_B == MB.name());
         ASSERT(VAL_C == MC.name());
         ASSERT(true  == MA.enabled());
-        ASSERT(true  == MA.isEnabledRaw());
+        ASSERT(0     != MA.isEnabledRaw());
         ASSERT(true  == MB.enabled());
-        ASSERT(true  == MB.isEnabledRaw());
+        ASSERT(0     != MB.isEnabledRaw());
         ASSERT(false == MC.enabled());
         ASSERT(false == MC.isEnabledRaw());
 
         Obj mX(VAL_A);  const Obj& MX = mX;
         ASSERT(VAL_A == MX.name());
         ASSERT(true  == MX.enabled());
-        ASSERT(true  == MX.isEnabledRaw());
+        ASSERT(0     != MX.isEnabledRaw());
 
         mX.setName(VAL_B);
         ASSERT(VAL_B == MX.name());
         ASSERT(true  == MX.enabled());
-        ASSERT(true  == MX.isEnabledRaw());
+        ASSERT(0     != MX.isEnabledRaw());
 
         mX.setEnabled(false);
         ASSERT(VAL_B == MX.name());
@@ -579,7 +579,7 @@ int main(int argc, char *argv[])
         mX.setEnabled(true);
         ASSERT(VAL_B == MX.name());
         ASSERT(true  == MX.enabled());
-        ASSERT(true  == MX.isEnabledRaw());
+        ASSERT(0     != MX.isEnabledRaw());
 
       } break;
       default: {

@@ -6365,17 +6365,17 @@ int main(int argc, char *argv[])
                 TLN(  "214748364.700e1",              2147483647, true ),
                 TLN( "2147483647.00e0",               2147483647, true ),
 
-                TLN(         "-0.214748364800e10",   -2147483648, true ),
-                TLN(         "-2.14748364800e9",     -2147483648, true ),
-                TLN(        "-21.4748364800e8",      -2147483648, true ),
-                TLN(       "-214.748364800e7",       -2147483648, true ),
-                TLN(      "-2147.48364800e6",        -2147483648, true ),
-                TLN(     "-21474.8364800e5",         -2147483648, true ),
-                TLN(    "-214748.364800e4",          -2147483648, true ),
-                TLN(   "-2147483.64800e3",           -2147483648, true ),
-                TLN(  "-21474836.4800e2",            -2147483648, true ),
-                TLN( "-214748364.800e1",             -2147483648, true ),
-                TLN("-2147483648.00e0",              -2147483648, true ),
+                TLN(         "-0.214748364800e10", -2147483647-1, true ),
+                TLN(         "-2.14748364800e9",   -2147483647-1, true ),
+                TLN(        "-21.4748364800e8",    -2147483647-1, true ),
+                TLN(       "-214.748364800e7",     -2147483647-1, true ),
+                TLN(      "-2147.48364800e6",      -2147483647-1, true ),
+                TLN(     "-21474.8364800e5",       -2147483647-1, true ),
+                TLN(    "-214748.364800e4",        -2147483647-1, true ),
+                TLN(   "-2147483.64800e3",         -2147483647-1, true ),
+                TLN(  "-21474836.4800e2",          -2147483647-1, true ),
+                TLN( "-214748364.800e1",           -2147483647-1, true ),
+                TLN("-2147483648.00e0",            -2147483647-1, true ),
 
                 TLN(  "214748364700000e-5",           2147483647, true ),
                 TLN(  "214748364700000.00000e-5",     2147483647, true ),
@@ -6385,13 +6385,13 @@ int main(int argc, char *argv[])
                 TLN(      "21474836470e-1",           2147483647, true ),
                 TLN(       "2147483647e-0",           2147483647, true ),
 
-                TLN( "-214748364800000e-5",          -2147483648, true ),
-                TLN( "-214748364800000.00000e-5",    -2147483648, true ),
-                TLN(  "-21474836480000e-4",          -2147483648, true ),
-                TLN(   "-2147483648000e-3",          -2147483648, true ),
-                TLN(    "-214748364800e-2",          -2147483648, true ),
-                TLN(     "-21474836480e-1",          -2147483648, true ),
-                TLN(      "-2147483648e-0",          -2147483648, true ),
+                TLN( "-214748364800000e-5",        -2147483647-1, true ),
+                TLN( "-214748364800000.00000e-5",  -2147483647-1, true ),
+                TLN(  "-21474836480000e-4",        -2147483647-1, true ),
+                TLN(   "-2147483648000e-3",        -2147483647-1, true ),
+                TLN(    "-214748364800e-2",        -2147483647-1, true ),
+                TLN(     "-21474836480e-1",        -2147483647-1, true ),
+                TLN(      "-2147483648e-0",        -2147483647-1, true ),
 
                 TLN(          "1.0e0",                     1,     true ),
                 TLN(          "2.000e0",                   2,     true ),
@@ -6560,6 +6560,11 @@ int main(int argc, char *argv[])
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#endif
 
             static const struct {
                 int         d_line;    // line number
@@ -6732,6 +6737,10 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
                 const string INPUT    = DATA[i].d_input_p;
@@ -6798,6 +6807,11 @@ int main(int argc, char *argv[])
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#endif
 
             static const struct {
                 int         d_line;    // line number
@@ -7009,6 +7023,10 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
                 const string INPUT    = DATA[i].d_input_p;
@@ -7075,6 +7093,11 @@ int main(int argc, char *argv[])
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#endif
 
             static const struct {
                 int         d_line;    // line number
@@ -7219,6 +7242,10 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
                 const string INPUT    = DATA[i].d_input_p;
@@ -7284,6 +7311,11 @@ int main(int argc, char *argv[])
             const char ERROR_VALUE = 'X';
             const char MAX         = bsl::numeric_limits<signed char>::max();
             const char MIN         = bsl::numeric_limits<signed char>::min();
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#endif
 
             static const struct {
                 int          d_line;    // line number
@@ -7431,6 +7463,10 @@ int main(int argc, char *argv[])
     {  L_,       "\"AB\"",          ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int            LINE     = DATA[i].d_line;

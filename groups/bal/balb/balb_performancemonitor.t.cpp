@@ -452,7 +452,7 @@ class MmapAllocator : public bslma::Allocator {
 
         bsl::size_t size = it->second;
 
-        int rc = munmap(static_cast<char*>(address), size);
+        BSLA_MAYBE_UNUSED int rc = munmap(static_cast<char*>(address), size);
         BSLS_ASSERT(-1 != rc);
 #endif
     }

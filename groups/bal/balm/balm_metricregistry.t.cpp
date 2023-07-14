@@ -407,11 +407,11 @@ void ConcurrencyTest::execute()
         // End test iteration.
         d_barrier.wait();
 
-        ASSERT(!(i % 2) == U_CAT->enabled());
-        ASSERT( (i % 2) == CAT_A_1->enabled());
-        ASSERT( (i % 2) == CAT_A_2->enabled());
-        ASSERT( (i % 2) == CAT_B_1->enabled());
-        ASSERT( (i % 2) == CAT_B_2->enabled());
+        ASSERT( !(i % 2) == U_CAT->enabled());
+        ASSERT(!!(i % 2) == CAT_A_1->enabled());
+        ASSERT(!!(i % 2) == CAT_A_2->enabled());
+        ASSERT(!!(i % 2) == CAT_B_1->enabled());
+        ASSERT(!!(i % 2) == CAT_B_2->enabled());
 
         ASSERT((Type::Value)NUM_TYPES - 1 ==
                U_METRIC_11.description()->preferredPublicationType());

@@ -2209,6 +2209,8 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
     }
 
     // MANIPULATORS
+    using Observer::publish;  // avoid hiding base class method
+
     void publish(const BloombergLP::ball::Record&,
                  const BloombergLP::ball::Context&)
         // Increment the count maintained by this observer by 1, and ignore any
@@ -2561,6 +2563,8 @@ class my_Observer : public BloombergLP::ball::Observer {
     ~my_Observer() {}
 
     // MANIPULATORS
+    using Observer::publish;  // avoid hiding base class method
+
     void publish(const BloombergLP::ball::Record&  record,
                  const BloombergLP::ball::Context&)
     {
