@@ -28,13 +28,11 @@ BSLS_IDENT("$Id: $")
 // instantiated.  However, the template parameter 'TYPE' must be complete when
 // *methods* of the class (and free operators) are instantiated.
 //
-// Note that, as a consequence, the object of template parameter 'TYPE' that
-// is managed by a 'bdlb::NullableAllocatedValue<TYPE>' object is necessarily
-// allocated out-of-place.  This implies that an allocator is in effect for
-// *any* 'bdlb::NullableAllocatedValue<TYPE>' object, regardless of the 'TYPE'.
-// In particular, a 'bdlb::NullableAllocatedValue<int>' object, for example,
-// incurs use of the default allocator (in effect at the time of creation of
-// the object) unless an alternative allocator is supplied at construction.
+// For small types (no larger than a pointer) with simple alignment needs, the
+// object is embedded into the NullableAllocatedValue object.  For types that
+// do not fit these requirements, the object of template parameter 'TYPE' that
+// is managed by a 'bdlb::NullableAllocatedValue<TYPE>' object is allocated
+// out-of-place.
 //
 ///Usage
 ///-----
@@ -68,6 +66,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include "bdlb_nullableallocatedvalue_pointerbitspair.h"
 #include <bdlb_printmethods.h>
 
 #include <bslalg_scalarprimitives.h>
@@ -81,6 +80,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bslx_instreamfunctions.h>
@@ -88,11 +88,14 @@ BSLS_IDENT("$Id: $")
 #include <bslx_versionfunctions.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdint.h>    // uintptr_t
 #include <bsl_iosfwd.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#include <stddef.h>   // NULL
 
 namespace BloombergLP {
 namespace bdlb {
@@ -117,9 +120,56 @@ class NullableAllocatedValue {
     // type, but it cannot be instantiated on a type that overloads
     // 'operator&'.
 
+    enum { k_HAS_VALUE = 0 };
+    // flag for checking if the value is present
+
     // DATA
-    TYPE             *d_value_p;      // managed out-of-place 'TYPE' object
-    bslma::Allocator *d_allocator_p;  // held, not owned
+    NullableAllocatedValue_PointerBitsPair<bslma::Allocator, 1>  d_allocator;
+    union {
+        TYPE                               *d_pointer_p;
+        char                                d_buffer[sizeof(TYPE *)];
+        } d_storage;
+
+    // PRIVATE CLASS METHODS
+    static bool isLocal() BSLS_KEYWORD_NOEXCEPT;
+        // Returns 'true' if an object of the template parameter 'TYPE' can be
+        // stored locally, instead of being allocated on the heap.
+
+    // PRIVATE ACCESSORS
+    TYPE *getAddress();
+    const TYPE *getAddress() const;
+        // return a pointer to the held value.  If the value does not exist and
+        // the storage is local, then return a pointer to storage suitable for
+        // constructing the held value.  If the value does not exist and the
+        // storage is not local, return NULL.
+
+    // PRIVATE MANIPULATORS
+    void clearHasValueFlag() BSLS_KEYWORD_NOEXCEPT;
+        // Clear the flag in the 'd_allocator' field that indicates that this
+        // object does not hold a value.
+
+    void setHasValueFlag() BSLS_KEYWORD_NOEXCEPT;
+        // Set the flag in the 'd_allocator' field that indicates that this
+        // object holds a value.
+
+    void setRemoteAddress(TYPE *newPtr);
+        // Set the value of the pointer to the held value to the specified
+        // 'newPtr'.  The behavior is undefined if the storage is local.
+
+    void swapLocal(NullableAllocatedValue& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  At least one of 'this' or 'other' is not
+        // empty, and the values are stored locally.  This method provides the
+        // no-throw exception-safety guarantee.  The behavior is undefined
+        // unless this object was created with the same allocator as 'other'.
+
+    void swapRemote(NullableAllocatedValue& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  At least one of 'this' or 'other' is not
+        // empty, and the values are stored remotely.  This method provides the
+        // no-throw exception-safety guarantee.  The behavior is undefined
+        // unless this object was created with the same allocator as 'other'.
+
 
   public:
     // TYPES
@@ -169,21 +219,6 @@ class NullableAllocatedValue {
         // reference providing modifiable access to the underlying 'TYPE'
         // object.
 
-    void swap(NullableAllocatedValue& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
-
-    TYPE& makeValue(const TYPE& value);
-        // Assign to this object the specified 'value', and return a reference
-        // providing modifiable access to the underlying 'TYPE' object.
-
-    TYPE& makeValue();
-        // Assign to this object the default value for 'TYPE', and return a
-        // reference providing modifiable access to the underlying 'TYPE'
-        // object.
-
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
@@ -197,9 +232,24 @@ class NullableAllocatedValue {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
+    TYPE& makeValue(const TYPE& val);
+        // Assign to this object the specified 'val', and return a reference
+        // providing modifiable access to the underlying 'TYPE' object.
+
+    TYPE& makeValue();
+        // Assign to this object the default value for 'TYPE', and return a
+        // reference providing modifiable access to the underlying 'TYPE'
+        // object.
+
     void reset();
         // Reset this object to the default constructed state (i.e., to have
         // the null value).
+
+    void swap(NullableAllocatedValue& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
 
     TYPE& value();
         // Return a reference providing modifiable access to the underlying
@@ -446,8 +496,8 @@ template <class TYPE>
 inline
 NullableAllocatedValue<TYPE>
 ::NullableAllocatedValue(bslma::Allocator *basicAllocator)
-: d_value_p(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+: d_allocator(bslma::Default::allocator(basicAllocator))
+// , d_value_p(0)
 {
 }
 
@@ -456,8 +506,8 @@ inline
 NullableAllocatedValue<TYPE>
 ::NullableAllocatedValue(const NullableAllocatedValue<TYPE>&  original,
                          bslma::Allocator                    *basicAllocator)
-: d_value_p(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+: d_allocator(bslma::Default::allocator(basicAllocator))
+// , d_value_p(0)
 {
     if (!original.isNull()) {
         makeValue(original.value());
@@ -469,8 +519,8 @@ inline
 NullableAllocatedValue<TYPE>::NullableAllocatedValue(
                                               const TYPE&       value,
                                               bslma::Allocator *basicAllocator)
-: d_value_p(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+: d_allocator(bslma::Default::allocator(basicAllocator))
+// , d_value_p(0)
 {
     makeValue(value);
 }
@@ -480,6 +530,18 @@ inline
 NullableAllocatedValue<TYPE>::~NullableAllocatedValue()
 {
     reset();
+}
+
+// PRIVATE CLASS METHODS
+template <class TYPE>
+bool NullableAllocatedValue<TYPE>::isLocal() BSLS_KEYWORD_NOEXCEPT
+{
+//  we can store it locally if it will fit into a pointer, and it doesn't have
+//  an exceptionally large alignment requirement.
+    return (sizeof(TYPE) <= sizeof(TYPE *)) &&
+                                    bslmf::IsBitwiseMoveable<TYPE>::value &&
+                                    (bsls::AlignmentFromType<TYPE  >::VALUE <=
+                                      bsls::AlignmentFromType<TYPE *>::VALUE);
 }
 
 // MANIPULATORS
@@ -507,80 +569,17 @@ TYPE& NullableAllocatedValue<TYPE>::operator=(const TYPE& rhs)
 }
 
 template <class TYPE>
-void NullableAllocatedValue<TYPE>::swap(NullableAllocatedValue& other)
-{
-    // Member 'swap' is undefined for non-equal allocators.
-
-    BSLS_ASSERT(allocator() == other.allocator());
-
-    // Nothing to do if both objects are null.
-
-    if (isNull() && other.isNull()) {
-        return;                                                       // RETURN
-    }
-
-    // Otherwise, simply swap the pointers to the out-of-place objects.
-
-    bslalg::SwapUtil::swap(&d_value_p, &other.d_value_p);
-}
-
-template <class TYPE>
-inline
-TYPE& NullableAllocatedValue<TYPE>::makeValue(const TYPE& value)
-{
-    if (d_value_p) {
-        *d_value_p = value;
-        return *d_value_p;                                            // RETURN
-    }
-
-    TYPE *tmpPtr = reinterpret_cast<TYPE *>(
-                                        d_allocator_p->allocate(sizeof(TYPE)));
-    bslma::DeallocatorProctor<bslma::Allocator> proctor(tmpPtr, d_allocator_p);
-    bslalg::ScalarPrimitives::copyConstruct(tmpPtr, value, d_allocator_p);
-    proctor.release();
-    d_value_p = tmpPtr;
-
-    return *d_value_p;
-}
-
-template <class TYPE>
-inline
-TYPE& NullableAllocatedValue<TYPE>::makeValue()
-{
-    reset();
-
-    // Note that this alternative implementation, instead of 'reset()',
-    // provides stronger exception-safety, but it breaks some client code that
-    // uses 'NullableAllocatedValue' with a non-value-semantic 'TYPE'.
-    //..
-    //  if (d_value_p) {
-    //      *d_value_p = TYPE(d_allocator_p);
-    //      return *d_value_p;                                        // RETURN
-    //  }
-    //..
-
-    TYPE *value = reinterpret_cast<TYPE *>(
-                                        d_allocator_p->allocate(sizeof(TYPE)));
-    bslma::DeallocatorProctor<bslma::Allocator> proctor(value, d_allocator_p);
-    bslalg::ScalarPrimitives::defaultConstruct(value, d_allocator_p);
-    proctor.release();
-    d_value_p = value;
-
-    return *d_value_p;
-}
-
-template <class TYPE>
 template <class STREAM>
 STREAM& NullableAllocatedValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
-    char isNull = 0; // Redundant initialization to suppress -Werror.
+    char isNullFlag = 0; // Redundant initialization to suppress -Werror.
 
-    stream.getInt8(isNull);
+    stream.getInt8(isNullFlag);
 
     if (stream) {
-        if (!isNull) {
+        if (!isNullFlag) {
             makeValue();
             bdexStreamIn(stream, value(), version);
         }
@@ -594,12 +593,97 @@ STREAM& NullableAllocatedValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 
 template <class TYPE>
 inline
+TYPE& NullableAllocatedValue<TYPE>::makeValue(const TYPE& val)
+{
+    if (!isNull()) {
+        TYPE &v = value();
+        v = val;
+        return v;                                                     // RETURN
+    }
+
+    bslma::Allocator *alloc = allocator();
+    if (isLocal()) {
+        bslalg::ScalarPrimitives::copyConstruct(getAddress(), val, alloc);
+        }
+    else {
+        TYPE *tmpPtr = reinterpret_cast<TYPE *>(alloc->allocate(sizeof(TYPE)));
+
+        bslma::DeallocatorProctor<bslma::Allocator> proctor(tmpPtr, alloc);
+        bslalg::ScalarPrimitives::copyConstruct(tmpPtr, val, alloc);
+        proctor.release();
+        setRemoteAddress(tmpPtr);
+        }
+
+    setHasValueFlag();
+    return value();
+}
+
+template <class TYPE>
+inline
+TYPE& NullableAllocatedValue<TYPE>::makeValue()
+{
+    reset();
+
+    // Note that this alternative implementation, instead of 'reset()',
+    // provides stronger exception-safety, but it breaks some client code that
+    // uses 'NullableAllocatedValue' with a non-value-semantic 'TYPE'.
+    //..
+    //  if (d_value_p) {
+    //      *d_value_p = TYPE(allocator());
+    //      return *d_value_p;                                        // RETURN
+    //  }
+    //..
+
+    bslma::Allocator *alloc = allocator();
+    if (isLocal()) {
+        bslalg::ScalarPrimitives::defaultConstruct(getAddress(), alloc);
+        }
+    else {
+        TYPE *tmpPtr = reinterpret_cast<TYPE *>(alloc->allocate(sizeof(TYPE)));
+
+        bslma::DeallocatorProctor<bslma::Allocator> proctor(tmpPtr, alloc);
+        bslalg::ScalarPrimitives::defaultConstruct(tmpPtr, alloc);
+        proctor.release();
+        setRemoteAddress(tmpPtr);
+        }
+
+    setHasValueFlag();
+
+    return value();
+}
+
+template <class TYPE>
+inline
 void NullableAllocatedValue<TYPE>::reset()
 {
-    if (d_value_p) {
-        d_value_p->~TYPE();
-        d_allocator_p->deallocate(d_value_p);
-        d_value_p = 0;
+    if (!isNull()) {
+        TYPE *p = getAddress();
+        BSLS_ASSERT(p);
+        p->~TYPE();
+        if (!isLocal()) {
+            allocator()->deallocate(p);
+        }
+        clearHasValueFlag();
+    }
+}
+
+template <class TYPE>
+void NullableAllocatedValue<TYPE>::swap(NullableAllocatedValue& other)
+{
+    // Member 'swap' is undefined for non-equal allocators.
+
+    BSLS_ASSERT(allocator() == other.allocator());
+
+    // Nothing to do if both objects are null.
+    if (isNull() && other.isNull()) {
+        return;                                                       // RETURN
+    }
+
+    if (isLocal()) {
+        swapLocal(other);
+    }
+    else {
+        swapRemote(other);
     }
 }
 
@@ -608,8 +692,80 @@ inline
 TYPE& NullableAllocatedValue<TYPE>::value()
 {
     BSLS_ASSERT(!isNull());
+    return *getAddress();
+}
 
-    return *d_value_p;
+// PRIVATE ACCESSORS
+template <class TYPE>
+inline
+TYPE *NullableAllocatedValue<TYPE>::getAddress() {
+    if (isLocal()) {
+        return reinterpret_cast<TYPE *> (d_storage.d_buffer);         // RETURN
+        }
+    else {
+        return d_storage.d_pointer_p;                                 // RETURN
+    }
+}
+
+template <class TYPE>
+inline
+const TYPE *NullableAllocatedValue<TYPE>::getAddress() const {
+    if (isLocal()) {
+        return reinterpret_cast<const TYPE *> (d_storage.d_buffer);   // RETURN
+        }
+    else {
+        return d_storage.d_pointer_p;                                 // RETURN
+    }
+}
+
+// PRIVATE MANIPULATORS
+template <class TYPE>
+inline
+void NullableAllocatedValue<TYPE>::clearHasValueFlag() BSLS_KEYWORD_NOEXCEPT
+{
+    d_allocator.clearFlag(k_HAS_VALUE);
+}
+
+template <class TYPE>
+inline
+void NullableAllocatedValue<TYPE>::setHasValueFlag() BSLS_KEYWORD_NOEXCEPT
+{
+    d_allocator.setFlag(k_HAS_VALUE);
+}
+
+template <class TYPE>
+inline
+void NullableAllocatedValue<TYPE>::setRemoteAddress(TYPE *newPtr) {
+    BSLS_ASSERT(!isLocal());
+    d_storage.d_pointer_p = newPtr;
+}
+
+template <class TYPE>
+inline
+void NullableAllocatedValue<TYPE>::swapLocal(NullableAllocatedValue& other)
+{
+//  At most one of 'isNull()' and 'other.isNull()' is true
+//  Swapping the 'd_allocator's would be wrong here.
+    if (isNull()) {
+        makeValue(other.value());
+        other.reset();
+    }
+    else if (other.isNull()) {
+        other.makeValue(value());
+        reset();
+    }
+    else {
+        bslalg::SwapUtil::swap(getAddress(), other.getAddress());
+    }
+}
+
+template <class TYPE>
+inline
+void NullableAllocatedValue<TYPE>::swapRemote(NullableAllocatedValue& other)
+{
+    bslalg::SwapUtil::swap(&d_allocator, &other.d_allocator);
+    bslalg::SwapUtil::swap(&      d_storage.d_pointer_p,
+                           &other.d_storage.d_pointer_p);
 }
 
 // ACCESSORS
@@ -633,7 +789,7 @@ template <class TYPE>
 inline
 bool NullableAllocatedValue<TYPE>::isNull() const
 {
-    return 0 == d_value_p;
+    return !d_allocator.readFlag(k_HAS_VALUE);
 }
 
 template <class TYPE>
@@ -666,7 +822,7 @@ template <class TYPE>
 inline
 bslma::Allocator *NullableAllocatedValue<TYPE>::allocator() const
 {
-    return d_allocator_p;
+    return d_allocator.getPointer();
 }
 
 template <class TYPE>
@@ -701,7 +857,7 @@ const TYPE& NullableAllocatedValue<TYPE>::value() const
     BSLS_ASSERT(!isNull());
 #endif
 
-    return *d_value_p;
+    return *getAddress();
 }
 
 }  // close package namespace

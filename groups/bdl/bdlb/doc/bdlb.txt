@@ -53,6 +53,7 @@
      bdlb_literalutil
      bdlb_nullopt
      bdlb_nulloutputiterator
+     bdlb_nullableallocatedvalue_pointerbitspair                      !PRIVATE!
      bdlb_pairutil
      bdlb_pcgrandomgenerator
      bdlb_print
@@ -143,6 +144,9 @@
 :
 : 'bdlb_nullableallocatedvalue':
 :      Provide a template for nullable allocated (out-of-place) objects.
+:
+: 'bdlb_nullableallocatedvalue_pointerbitspair':
+:      Provide a template for using the unused bits in a pointer to object.
 :
 : 'bdlb_nullablevalue':
 :      Provide a template for nullable (in-place) objects.
