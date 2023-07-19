@@ -1640,7 +1640,7 @@ void resizeToZeroTerminate(
                          || bsl::is_same<CONTAINER, bsl::wstring>::value
                          || bsl::is_same<CONTAINER, std::string>::value
                          || bsl::is_same<CONTAINER, std::wstring>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES                        
                          || bsl::is_same<CONTAINER, bsl::u16string>::value
                          || bsl::is_same<CONTAINER, std::u16string>::value
 #endif
