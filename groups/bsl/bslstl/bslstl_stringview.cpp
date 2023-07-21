@@ -54,8 +54,6 @@ namespace bsl {
     BSLMF_ASSERT(BloombergLP::bslmf::IsBitwiseMoveable<string_view>::value);
 }  // close namespace bsl
 
-
-
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) && \
     defined (BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)
 namespace bsl {

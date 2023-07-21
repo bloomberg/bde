@@ -17,11 +17,15 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
 
-#include <cstring>     // memcpy(), memcmp()
+#include <cstddef>     // 'std::ptrdiff'
+#include <cstring>     // 'std::memcpy', 'std::memcmp'
 #include <iostream>
-#include <stdexcept>   // std::out_of_range
-#include <string>
 #include <sstream>
+#include <stdexcept>   // 'std::out_of_range'
+#include <string>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits> // 'std::is_convertible', 'std::is_pointer'
+#endif
 
 //=============================================================================
 //                             TEST PLAN
@@ -44,6 +48,7 @@
 // [ 2] basic_string_view(const CHAR_TYPE *str, size_type numChars);
 // [ 5] basic_string_view(const basic_string_view& original);
 // [ 8] basic_string_view();
+// [ 2] basic_string_view(CONTG_ITER first, SENTINEL last);
 // [ 8] basic_string_view(const CHAR_TYPE *str);
 //
 // MANIPULATORS
@@ -125,6 +130,7 @@
 // [ 6] swap(basic_string_view& lhs, basic_string_view& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 2] CONCERN: HELPER CLASSES FOR ITERATOR INTEFACES WORK AS EXPECTED
 // [25] USAGE EXAMPLE
 // [24] TRAITS
 
@@ -646,6 +652,165 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
     return findLastNotOf(stringView, &character, position, 1);
 }
 
+// ============================================================================
+//              HELPER CLASSES FOR TESTING ITERATOR INTERFACES
+// ----------------------------------------------------------------------------
+
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+
+                        // ==================
+                        // class TestIterator
+                        // ==================
+
+template <class CHAR_TYPE>
+class TestIterator {
+    // This class is used to test the constructor that accepts an iterator type
+    // (and a sentinel type).
+
+  public:
+    typedef const CHAR_TYPE (*Position);
+
+  private:
+    Position d_position;
+
+  public:
+    // CREATORS
+    TestIterator(const CHAR_TYPE *position);
+        // Create a 'TestIterator' object that refers to the specified
+        // 'position' (address) of a 'CHAR_TYPE'.
+
+    // MANIPULATORS
+    void operator++();
+        // Increment the position of this object to refer to the next higher
+        // position (address) of a 'CHAR_TYPE'.
+
+    // ACCESSORS
+    const CHAR_TYPE& operator*() const;
+        // Return the value at the current position of this object.
+
+    operator Position() const;
+        // Return the position (address) referenced by this object.
+
+    const CHAR_TYPE *addr() const;
+        // Return the position (address) referenced by this object.
+};
+
+                        // ------------------
+                        // class TestIterator
+                        // ------------------
+
+// CREATORS
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE>::TestIterator(const CHAR_TYPE *position)
+: d_position(position)
+{
+}
+
+// MANIPULATORS
+template <class CHAR_TYPE>
+void TestIterator<CHAR_TYPE>::operator++()
+{
+    ++d_position;
+}
+
+// ACCESSORS
+template <class CHAR_TYPE>
+const CHAR_TYPE& TestIterator<CHAR_TYPE>::operator*() const
+{
+    return *d_position;
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE>::operator Position() const
+{
+    return  d_position;
+}
+
+template <class CHAR_TYPE>
+const CHAR_TYPE *TestIterator<CHAR_TYPE>::addr() const
+{
+    return  d_position;
+}
+
+                        // ==================
+                        // class TestSentinel
+                        // ==================
+
+template <class CHAR_TYPE>
+class TestSentinel {
+
+    const CHAR_TYPE *d_end_p;
+
+  public:
+    // CREATORS
+    TestSentinel(const CHAR_TYPE *end);
+        // Create a 'TestSentinel' object that refers the specified 'end'
+        // position (address).  Note that no ay is provided to change the
+        // position of a 'TestSentinel' object.
+
+    // ACCESSORS
+    const CHAR_TYPE *addr() const;
+        // Return the position (address) referenced by this object.
+};
+
+                        // ------------------
+                        // class TestSentinel
+                        // ------------------
+
+// CREATORS
+template <class CHAR_TYPE>
+TestSentinel<CHAR_TYPE>::TestSentinel(const CHAR_TYPE *end)
+: d_end_p(end)
+{
+}
+
+// ACCESSORS
+template <class CHAR_TYPE>
+const CHAR_TYPE *TestSentinel<CHAR_TYPE>::addr() const
+{
+    return d_end_p;
+}
+
+// FREE OPERATORS
+template <class CHAR_TYPE>
+std::ptrdiff_t operator-(const TestSentinel<CHAR_TYPE>& lhs,
+                         const TestIterator<CHAR_TYPE>& rhs)
+    // Return the difference between the specified 'lhs' and 'rhs'.  Note that
+    // the two operands have different types.
+{
+    return lhs.addr() - rhs.addr();
+}
+
+template <class CHAR_TYPE>
+std::ptrdiff_t operator-(const TestIterator<CHAR_TYPE>& lhs,
+                         const TestSentinel<CHAR_TYPE>& rhs)
+    // Return the difference between the specified 'lhs' and 'rhs'.  Note that
+    // the two operands have different types.
+{
+    return lhs.addr() - rhs.addr();
+}
+
+template <class CHAR_TYPE>
+bool operator==(const TestSentinel<CHAR_TYPE>& lhs,
+                const TestIterator<CHAR_TYPE>& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same
+    // position (address), and 'false' otherwise.  Note that the two operands
+    // have different types.
+{
+    return lhs.addr() == rhs.addr();
+}
+
+template <class CHAR_TYPE>
+bool operator==(const TestIterator<CHAR_TYPE>& lhs,
+                const TestSentinel<CHAR_TYPE>& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same
+    // position (address), and 'false' otherwise.  Note that the two operands
+{
+    return lhs.addr() == rhs.addr();
+}
+
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -683,7 +848,7 @@ struct TestDriver {
 #if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     static void testCase21();
         // Test 'starts_with' and 'ends_with'.
-#endif
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
     static void testCase20();
         // Test comparison operators.
@@ -1317,8 +1482,9 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
 
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    // Testing empty object, zero-length object and null pointer.
-
+    if (veryVerbose) {
+        Q("Testing empty object, zero-length object, and null pointer.")
+    }
     {
         Obj        mXEmpty(NULL_PTR, 0);
         const Obj& XEmpty = mXEmpty;
@@ -1336,6 +1502,10 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
             const int          LINE   = DATA[i].d_lineNum;
             const TYPE * const STR    = DATA[i].d_string;
             const size_type    LENGTH = DATA[i].d_length;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(LENGTH) P(STR)
+            }
 
             Obj        mX(STR, LENGTH);
             const Obj& X = mX;
@@ -1376,12 +1546,18 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
         }
     }
 
-    // Testing non-empty objects.
+    if (veryVerbose) {
+        Q(Testing non-empty objects.)
+    }
 
     for (size_type i = 0; i < NUM_DATA; ++i) {
         const int          LINE1   = DATA[i].d_lineNum;
         const TYPE * const STR1    = DATA[i].d_string;
         const size_type    LENGTH1 = DATA[i].d_length;
+
+        if (veryVerbose) {
+            T_ P_(LINE1) P_(LENGTH1) P(STR1)
+        }
 
         Obj        mX1(STR1, LENGTH1);
         const Obj& X1 = mX1;
@@ -1390,6 +1566,10 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
             const int          LINE2   = DATA[j].d_lineNum;
             const TYPE * const STR2    = DATA[j].d_string;
             const size_type    LENGTH2 = DATA[j].d_length;
+
+            if (veryVerbose) {
+                T_ T_ P_(LINE2) P_(LENGTH2) P(STR2)
+            }
 
             Obj        mX2(STR2, LENGTH2);
             const Obj& X2 = mX2;
@@ -1458,7 +1638,7 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
     }
 #endif
 }
-#endif
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase20()
@@ -5958,9 +6138,9 @@ void TestDriver<TYPE, TRAITS>::testCase5()
         Obj        mXEmptySource(0, 0);
         const Obj& XEmptySource = mXEmptySource;
 
-        Obj        *objPtr = new(fa) Obj(XEmptySource);
+        Obj        *objPtr        = new (fa) Obj(XEmptySource);
         Obj         mXEmptyTarget = *objPtr;
-        const Obj&  XEmptyTarget = mXEmptyTarget;
+        const Obj&  XEmptyTarget  = mXEmptyTarget;
 
         ASSERTV(fa.numBytesInUse(), sizeof(Obj) == fa.numBytesInUse());
 
@@ -5968,7 +6148,6 @@ void TestDriver<TYPE, TRAITS>::testCase5()
         ASSERTV(XEmptyTarget.length(), 0 == XEmptyTarget.length());
 
         fa.deleteObject(objPtr);
-
     }
 
     // Testing non-empty objects copy construction.
@@ -6015,7 +6194,7 @@ void TestDriver<TYPE, TRAITS>::testCase5()
                 ASSERTV(Y2.length(), LENGTH == Y2.length());
             }
 
-            // Check, that source/target object destruction doesn't affect the
+            // Check, that source/target object destruction does not affect the
             // target/source object.
 
             const Obj& Y2 = *pY2;
@@ -6151,7 +6330,7 @@ void TestDriver<TYPE, TRAITS>::testCase4()
         Obj        mXEmpty2(0, 0);
         const Obj& XEmpty2 = mXEmpty2;
 
-        ASSERTV(  XEmpty1 == XEmpty2 );
+        ASSERTV(  XEmpty1 == XEmpty2);
         ASSERTV(!(XEmpty1 != XEmpty2));
     }
 
@@ -6403,7 +6582,13 @@ void TestDriver<TYPE, TRAITS>::testCase2()
     //:
     //: 5 Each accessor method is declared 'const'.
     //:
-    //: 6 QoI: Asserted precondition violations are detected when enabled.
+    //: 6 The constructor that takes a pair of iterators creates objects that
+    //:   are equivalent to the constructor that takes an address and length.
+    //:
+    //: 7 QoI: Asserted precondition violations are detected when enabled.
+    //:
+    //: 8 The helper classes 'TestIterator' and 'TestSentinel' have the
+    //:   features required for testing the "iterator" constructor.
     //
     // Plan:
     //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
@@ -6429,67 +6614,189 @@ void TestDriver<TYPE, TRAITS>::testCase2()
     //: 4 Verify that, in appropriate build modes, defensive checks are
     //:   triggered for invalid attribute values, but not triggered for
     //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-    //:   (C-6)
+    //:   (C-7)
+    //:
+    //: 5 For each object created using an address and length create a second
+    //:   object using the constructor that takes a pair of iterators.  Confirm
+    //;   that each second object passes the same test as the first.  (C-6)
     //:
     //: 6 Use the test allocator from P-1 to verify that no memory is ever
     //:   allocated from the default allocator.  (C-3)
+    //:
+    //: 7 Create 'TestIterator' and 'TestSentinel' objects and confirm the
+    //:   required featurees in a series of ad hoc tests.  (C-8)
     //
     // Testing:
     //   basic_string_view(const CHAR_TYPE *str, size_type numChars);
+    //   basic_string_view(CONTG_ITER first, SENTINEL last);
     //   size_type length() const;
     //   const_pointer data() const;
+    //   CONCERN: HELPER CLASSES FOR ITERATOR INTEFACES WORK AS EXPECTED
     // ------------------------------------------------------------------------
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
+    bslma::TestAllocator          da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
     const TYPE      *STRING        = s_testString;
     const size_type  STRING_LENGTH = s_testStringLength;
 
-    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+    if (verbose) printf("Validate 'TestIterator' and 'TestSentinel'.\n");
 
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    if (verbose) printf("\tTesting basic behavior.\n");
-
-    // Testing empty object construction.
-
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
     {
-        bslma::TestAllocator  efa("empty footprint", veryVeryVeryVerbose);
-        Obj                  *emptyObjPtr = new (efa) Obj(0, 0);
-        Obj&                  mXEmpty     = *emptyObjPtr;
-        const Obj&            XEmpty      = mXEmpty;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        ASSERT((true  == std::is_convertible<
+                                 TestIterator<TYPE>,
+                                 typename std::add_pointer<
+                                 typename std::add_const<TYPE>::type>::type
+                                 >::value));
 
-        ASSERTV(0 == XEmpty.data()    );
-        ASSERTV(0 == bsl::data(XEmpty));
-        ASSERTV(0 == XEmpty.length()  );
+        ASSERT((false == std::is_convertible<TestSentinel<TYPE>,
+                                             std::size_t
+                                             >::value));
 
-        ASSERTV(efa.numBytesInUse(), sizeof(Obj) == efa.numBytesInUse());
+        ASSERT(false == std::is_pointer<TestIterator<TYPE> >::value);
+        ASSERT(false == std::is_pointer<TestSentinel<TYPE> >::value);
+#endif
 
-        efa.deleteObject(emptyObjPtr);
+        ASSERT((bsl::BasicStringView_IsCompatibleIterator<TYPE,
+                                                         TestIterator<TYPE> >
+                                                                     ::value));
+        ASSERT( bsl::BasicStringView_IsCompatibleSentinel<TestSentinel<TYPE> >
+                                                                     ::value );
+
+        TestIterator<TYPE> iter (STRING);
+        TestSentinel<TYPE> sentl_0(STRING);
+
+        ASSERT(iter   .addr());
+        ASSERT(sentl_0.addr());
+
+        ASSERT(sentl_0 == iter);
+        ASSERT(iter    == sentl_0);
+
+        TestSentinel<TYPE> sntl_6(STRING + 6);
+
+        ASSERT(6 == sntl_6 - iter);
+
+        const TYPE valueFirst = *iter;
+        ASSERTV(valueFirst,  0 == valueFirst);
+
+        std::ptrdiff_t  len = sntl_6 - iter;
+        std::ptrdiff_t rlen = iter - sntl_6;
+        ASSERTV( len,  6 ==  len);
+        ASSERTV(rlen, -6 == rlen);
+
+        ++iter;
+
+        const TYPE valueNext = *iter;
+        ASSERTV(valueNext, 48 == valueNext);
+
+    }
+#else
+        if (verbose) printf(
+                          "SKIP Test::Methods not available prior to C++20\n");
+#endif
+
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+    const char CFG_LIMIT = 'c';
+#else
+    const char CFG_LIMIT = 'a';
+#endif
+
+    if (veryVerbose) { printf("Testing construction of empty objects.\n"); }
+    {
+        for (char cfg = 'a'; cfg <= CFG_LIMIT; ++cfg) {
+
+            const char CONFIG = cfg;
+
+            if (veryVerbose) P(CONFIG);
+
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+
+            Obj        *objPtr              = 0;
+            const TYPE *expectedDataAddress = 0;
+
+            switch (CONFIG) {
+              case 'a': { // pointer and length
+                objPtr              = new (fa) Obj(0, 0);
+                expectedDataAddress = 0;
+              } break;
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+              case 'b': { // two pointers
+                objPtr              = new (fa) Obj(STRING, STRING);
+                expectedDataAddress = STRING;
+              } break;
+              case 'c': { // user-defined iterator/sentinel
+                objPtr              = new (fa) Obj(TestIterator<TYPE>(STRING),
+                                                   TestSentinel<TYPE>(STRING));
+                expectedDataAddress = STRING;
+              } break;
+#endif
+              default: {
+                    BSLS_ASSERT_OPT(!"Expected configuration.");
+              } break;
+            }
+            ASSERTV(fa.numBytesInUse(), sizeof(Obj) == fa.numBytesInUse());
+
+            Obj& mX = *objPtr; const Obj& X = mX;
+
+            ASSERT(0 == X.length());
+
+            ASSERT(expectedDataAddress == X.data());
+            ASSERT(expectedDataAddress == bsl::data(X));
+
+            fa.deleteObject(objPtr);
+        }
     }
 
-    // Testing non-empty object construction.
-
-    for (size_type i = 0; i < STRING_LENGTH; ++i) {
+    if (veryVerbose) { printf("Testing construction of non-empty objects.\n");
+                     }
+    {
+        for (size_type i = 0; i <  STRING_LENGTH    ; ++i) {
         for (size_type j = 0; j <= STRING_LENGTH - i; ++j) {
+
             const size_type  OFFSET = i;
             const size_type  LENGTH = j;
             const TYPE      *START  = STRING + OFFSET;
 
-            Obj        *objPtr = new (fa) Obj(START, LENGTH);
-            Obj&        mX     = *objPtr;
-            const Obj&  X      = mX;
+            if (veryVerbose) {
+                P_(OFFSET) P(LENGTH)
+            }
 
-            ASSERTV(i, j, START,  X.data(),     START  == X.data()    );
-            ASSERTV(i, j, START,  bsl::data(X), START  == bsl::data(X));
-            ASSERTV(i, j, LENGTH, X.length(),   LENGTH == X.length()  );
+            for (char cfg = 'a'; cfg <= CFG_LIMIT; ++cfg) {
+                const char CONFIG = cfg;
 
-            ASSERTV(i, j, fa.numBytesInUse(),
-                    sizeof(Obj) == fa.numBytesInUse());
+                if (veryVerbose) P(CONFIG);
 
-            fa.deleteObject(objPtr);
-        };
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+
+                Obj *objPtr = 'a' == CONFIG ? new (fa) Obj(START, LENGTH)
+
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+                            : 'b' == CONFIG ? new (fa) Obj(START,
+                                                           START + LENGTH)
+
+                            : 'c' == CONFIG ? new (fa) Obj(
+                                            TestIterator<TYPE>(START),
+                                            TestSentinel<TYPE>(START + LENGTH))
+#endif
+                            :  /*default */   0;
+
+                ASSERT(objPtr);
+                ASSERTV(fa.numBytesInUse(), sizeof(Obj) == fa.numBytesInUse());
+
+                Obj& mX = *objPtr; const Obj& X = mX;
+
+                ASSERTV(i, j, START,  X.data(),     START  == X.data()    );
+                ASSERTV(i, j, START,  bsl::data(X), START  == bsl::data(X));
+                ASSERTV(i, j, LENGTH, X.length(),   LENGTH == X.length()  );
+
+                fa.deleteObject(objPtr);
+            }
+        }
+        }
     }
 
 #if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
@@ -6504,6 +6811,36 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 
         ASSERT_SAFE_PASS((Obj(STRING, (Obj::npos - 1) / sizeof(TYPE))));
         ASSERT_SAFE_FAIL((Obj(STRING, Obj::npos    )));
+
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+        const TYPE *FIRST = STRING;
+        const TYPE *LAST  = STRING + STRING_LENGTH;
+
+        ASSERT_SAFE_PASS(Obj(0,     0    ));
+        ASSERT_SAFE_FAIL(Obj(0,     1    ));
+
+        ASSERT_SAFE_PASS(Obj(FIRST, LAST ));
+        ASSERT_SAFE_PASS(Obj(FIRST, FIRST));
+        ASSERT_SAFE_PASS(Obj(LAST,  LAST ));
+        ASSERT_SAFE_FAIL(Obj(LAST,  FIRST));
+
+        // User-defined Iterartator/Sentinel
+        TestIterator<TYPE> UI_ZERO(0);
+        TestSentinel<TYPE> US_ZERO(0);
+
+        TestIterator<TYPE> UI_FIRST(FIRST);
+        TestIterator<TYPE> UI_LAST (LAST);
+
+        TestSentinel<TYPE> US_FIRST(FIRST);
+        TestSentinel<TYPE> US_LAST (LAST);
+
+        ASSERT_SAFE_PASS(Obj(UI_FIRST, US_LAST ));
+        ASSERT_SAFE_PASS(Obj(UI_FIRST, US_FIRST));
+        ASSERT_SAFE_PASS(Obj(UI_LAST,  US_LAST ));
+        ASSERT_SAFE_FAIL(Obj(UI_LAST,  US_FIRST));
+#else
+        if (verbose) printf("Methods not available prior to C++20\n");
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
     }
 #endif
 
@@ -6694,12 +7031,17 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCase21();
         TestDriver<wchar_t>::testCase21();
 
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         TestDriver<char8_t>::testCase21();
+    #endif
+
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         TestDriver<char16_t>::testCase21();
         TestDriver<char32_t>::testCase21();
+    #endif
 #else
         if (verbose) printf ("Methods not available prior to C++20\n");
-#endif
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
       } break;
       case 20: {
 
@@ -7122,7 +7464,6 @@ int main(int argc, char *argv[])
         ASSERTV(X1.compare("klm")         , 0 >  X1.compare("klm")         );
         ASSERTV(X1.compare(3, 3, "klm", 3), 0 >  X1.compare(3, 3, "klm", 3));
         ASSERTV(X1.compare(3, 3, "klm")   , 0 >  X1.compare(3, 3, "klm")   );
-
 
 #if defined (BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
         // Testing u8string_view

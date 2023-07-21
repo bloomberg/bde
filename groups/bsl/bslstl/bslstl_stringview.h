@@ -199,10 +199,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bslh_hash.h>
 
+#include <bslmf_addconst.h>
+#include <bslmf_addpointer.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_switch.h>
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -211,8 +214,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-#include <string>      // for 'std::char_traits'
+#include <cstddef>     // for 'std::size_t'
 #include <functional>  // for 'std::less', 'std::greater_equal'
+#include <string>      // for 'std::char_traits'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 # include <bsls_nativestd.h>
@@ -277,6 +281,7 @@ struct StringView_Identity {
 #if BSLSTL_STRINGVIEW_IDENTITY_USE_WRAPPER
     // See 'Implementation Notes' in the implementation .cpp file.
 
+    // TYPES
     struct type {
         // DATA
         TYPE d_value;
@@ -311,6 +316,7 @@ struct StringView_Identity {
             // object.
     };
 #else
+    // TYPES
     typedef TYPE type;
 #endif
 };
@@ -319,6 +325,39 @@ struct StringView_Identity {
 }  // close enterprise namespace
 
 namespace bsl {
+
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+
+            // ===========================================
+            // struct BasicStringView_IsCompatibleIterator
+            // ===========================================
+
+template <class CHAR_TYPE, class CONTG_ITER>
+struct BasicStringView_IsCompatibleIterator : bsl::is_convertible<
+                                      CONTG_ITER,
+                                      typename bsl::add_pointer<
+                                      typename bsl::add_const<CHAR_TYPE>::type
+                                                                       >::type>
+    // 'value' is 1 if (template parameter) type 'CONTG_ITER' is convertible to
+    // 'const CHAR_TYPE *' (i.e., convertible to 'd_start_p' of
+    // 'basic_string_view'); otherwise, 'value' is 0.
+{
+};
+
+            // ===========================================
+            // struct BasicStringView_IsCompatibleSentinel
+            // ===========================================
+
+template <class SENTINEL>
+struct BasicStringView_IsCompatibleSentinel :
+    bsl::integral_constant<bool,
+                           ! bsl::is_convertible<SENTINEL, std::size_t>::value>
+    // 'value' is 1 if (template parameter) type 'SENTINEL> is *not*
+    // convertible to 'size_type', and 0 otherwise.
+{
+};
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
+
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
 // and 'char_traits' are always in the same namespace.
 
@@ -365,6 +404,7 @@ class basic_string_view {
     typedef std::size_t                            size_type;
     typedef std::ptrdiff_t                         difference_type;
 
+  public:
     // CLASS DATA
     static const size_type npos = ~size_type(0);
         // Value used to denote "not-a-position", guaranteed to be outside the
@@ -417,10 +457,35 @@ class basic_string_view {
         // the specified 'characterString'.  The behavior is undefined unless
         // 'characterString || (numChars == 0)' and 'numChars <= max_size()'.
 
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+    template <class CONTG_ITER, class SENTINEL>
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    basic_string_view(CONTG_ITER first,
+                      SENTINEL   last,
+                      typename
+                      bsl::enable_if<
+                      BasicStringView_IsCompatibleIterator<CHAR_TYPE,
+                                                           CONTG_ITER>::value
+                   && BasicStringView_IsCompatibleSentinel<SENTINEL  >::value
+                      >::type * = 0);
+        // Create a view from of characters in the range starting at the
+        // specified 'first', a contiguous iterator, to the position
+        // immediately before the specified 'end', a sentinel type.  The
+        // behavior is undefined unless:
+        //: o '[first, last)' is a contiguous valid range,
+        //: o if 'first' is 0, then '0 == last - first', and
+        //: o the 'SENTINEL' type is *not* convertible to 'std::size_t'.
+        // Note that contiguous iterator types also provide random access.
+        // Also note that pointers to 'CHAR_TYPE' can be used as iterator and
+        // sentinel types.
+
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+
     template <class ALLOCATOR>
     BSLS_KEYWORD_CONSTEXPR_CPP14
     basic_string_view(
               const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
+                                                                    // IMPLICIT
         // Create a view of the specified 'string'.
 
     //! ~basic_string_view() = default;
@@ -603,8 +668,8 @@ class basic_string_view {
         // the indicated subview of 'other', a positive value if it is greater
         // than the indicated subview of 'other', and 0 in case of equality.
         // Throw 'std::out_of_range' if 'lhsPosition > length()' or
-        // 'otherPosition > other.length()'.  See
-        // {Lexicographical Comparisons}.
+        // 'otherPosition > other.length()'.  See {Lexicographical
+        // Comparisons}.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     int compare(const CHAR_TYPE *other) const;
@@ -649,7 +714,7 @@ class basic_string_view {
     BSLS_KEYWORD_CONSTEXPR_CPP14
     bool starts_with(basic_string_view subview) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this view starts with the specified 'subview', and
-        // 'false' otherwise.
+        // 'false' otherwise.  See {Lexicographical Comparisons}.
 
     BSLS_KEYWORD_CONSTEXPR
     bool starts_with(CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT;
@@ -664,7 +729,7 @@ class basic_string_view {
     BSLS_KEYWORD_CONSTEXPR_CPP14
     bool ends_with(basic_string_view subview) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this view ends with the specified 'subview', and
-        // 'false' otherwise.
+        // 'false' otherwise.  See {Lexicographical Comparisons}.
 
     BSLS_KEYWORD_CONSTEXPR
     bool ends_with(CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT;
@@ -675,7 +740,7 @@ class basic_string_view {
     bool ends_with(const CHAR_TYPE* characterString) const;
         // Return 'true' if this view ends with the specified
         // 'characterString', and 'false' otherwise.
-#endif
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     size_type find(basic_string_view subview,
@@ -918,8 +983,8 @@ class basic_string_view {
         // this object and will have a default-constructed allocator.
     {
         // See {DRQS 131792157} for why this is inline.
-        return std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
-            d_start_p, d_length);
+        return std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(d_start_p,
+                                                                    d_length);
     }
 };
 
@@ -963,8 +1028,10 @@ struct StringView_CompareUtil {
     // overloads stems from a bug in xlC 12 on AIX leading to incorrect
     // overload resolution and infinite recursion.
 
+    // TYPES
     typedef bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> StringView;
 
+    // CLASS METHODS
     static
     BSLS_KEYWORD_CONSTEXPR
     bool equals(StringView lhs, StringView rhs) BSLS_KEYWORD_NOEXCEPT;
@@ -1118,7 +1185,7 @@ BSLS_KEYWORD_NOEXCEPT;
     // See {Lexicographical Comparisons}.
 
 }  // close namespace bslstl_stringview_relops
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -1192,12 +1259,13 @@ struct hash<wstring_view> : ::BloombergLP::bslh::Hash<>
 
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
-
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) && \
     defined (BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)
 namespace bsl {
 inline namespace literals {
 inline namespace string_view_literals {
+
+// FREE OPERATORS
  string_view operator ""_sv(const char    *characterString,
                             std::size_t    length);
 wstring_view operator ""_sv(const wchar_t *characterString,
@@ -1251,8 +1319,6 @@ void hashAppend(HASHALG&                                              hashAlg,
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
@@ -1376,6 +1442,29 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     d_start_p = characterString;
     d_length  = numChars;
 }
+
+#if defined(BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS)
+template <class CHAR_TYPE, class CHAR_TRAITS>
+template <class CONTG_ITER,  class SENTINEL>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+                      CONTG_ITER first,
+                      SENTINEL   last,
+                      typename
+                      bsl::enable_if<
+                      BasicStringView_IsCompatibleIterator<CHAR_TYPE,
+                                                           CONTG_ITER>::value
+                   && BasicStringView_IsCompatibleSentinel<SENTINEL  >::value
+                      >::type *)
+{
+    BSLS_ASSERT_SAFE(first || last - first == 0);
+    BSLS_ASSERT_SAFE(         last - first >= 0);
+
+    d_start_p = first;
+    d_length  = last - first;
+}
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 template <class ALLOCATOR>
@@ -1811,7 +1900,6 @@ bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::starts_with(
     return (!empty() && CHAR_TRAITS::eq(front(), character));
 }
 
-
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
@@ -1852,7 +1940,6 @@ bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::ends_with(
     return (!empty() && CHAR_TRAITS::eq(back(), character));
 }
 
-
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
@@ -1861,7 +1948,7 @@ bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::ends_with(
 {
     return ends_with(basic_string_view(characterString));
 }
-#endif
+#endif // BSLSTL_STRINGVIEW_ENABLE_CPP20_METHODS
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -2597,7 +2684,7 @@ using BloombergLP::bslstl_stringview_relops::operator>;
 using BloombergLP::bslstl_stringview_relops::operator<=;
 using BloombergLP::bslstl_stringview_relops::operator>=;
 
-}
+}  // close namespace bsl
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 std::basic_ostream<CHAR_TYPE>&
