@@ -8,8 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a macro to suppress "unused" warnings.
 //
 //@MACROS:
-//  BSLA_MAYBE_UNUSED: suppress compiler warnings on unused entities
-//  BSLA_MAYBE_UNUSED_IS_ACTIVE: 1 if 'BSLA_MAYBE_UNUSED' is active, else 0
+//  BSLA_MAYBE_UNUSED:           suppress compiler warnings on unused entities
+//  BSLA_MAYBE_UNUSED_IS_ACTIVE: defined if 'BSLA_MAYBE_UNUSED' is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -19,14 +19,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_MAYBE_UNUSED'
+//: 'BSLA_MAYBE_UNUSED':
 //:    This annotation indicates that the so-annotated function, variable, or
 //:    type is possibly unused and the compiler should not generate a warning
 //:    for the unused identifier.
-//
-//: 'BSLA_MAYBE_UNUSED_IS_ACTIVE'
-//:     The macro 'BSLA_MAYBE_UNUSED_IS_ACTIVE' is defined to 0 if
-//:     'BSLA_MAYBE_UNUSED' expands to nothing and 1 otherwise.
+//:
+//: 'BSLA_MAYBE_UNUSED_IS_ACTIVE':
+//:     The macro 'BSLA_MAYBE_UNUSED_IS_ACTIVE' is defined if
+//:     'BSLA_MAYBE_UNUSED' expands to something with the desired effect;
+//:      otherwise 'BSLA_MAYBE_UNUSED_IS_ACTIVE' is not defined and
+//:     'BSLA_MAYBE_UNUSED' expands to nothing.
 //
 ///Usage
 ///-----
@@ -167,6 +169,22 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_MAYBE_USED)
+#error BSLA_MAYBE_USED is already defined!
+#endif
+
+#if defined(BSLA_MAYBE_USED_IS_ACTIVE)
+#error BSLA_MAYBE_USED_IS_ACTIVE is already defined!
+#endif
+
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED)
     #define BSLA_MAYBE_UNUSED [[ maybe_unused ]]
 
@@ -177,8 +195,6 @@ BSLS_IDENT("$Id: $")
     #define BSLA_MAYBE_UNUSED_IS_ACTIVE 1
 #else
     #define BSLA_MAYBE_UNUSED
-
-    #define BSLA_MAYBE_UNUSED_IS_ACTIVE 0
 #endif
 
 #endif

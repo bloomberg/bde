@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_PRINTF(FMTIDX, STARTIDX): validate 'printf' format and arguments
-//  BSLA_PRINTF_IS_ACTIVE: 1 if 'BSLA_PRINTF' is active and 0 otherwise
+//  BSLA_PRINTF_IS_ACTIVE:         defined if 'BSLA_PRINTF' is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,21 +20,23 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_PRINTF(FMTIDX, STARTIDX)'
+//: 'BSLA_PRINTF(FMTIDX, STARTIDX)':
 //:     This annotation instructs the compiler to perform additional
 //:     compile-time checks on so-annotated functions that take 'printf'-style
-//:     arguments, which should be type-checked against a format string.  The
-//:     'FMTIDX' parameter is the one-based index to the 'const char *' format
-//:     string.  The 'STARTIDX' parameter is the one-based index to the first
-//:     variable argument to type-check against that format string.  For
-//:     example:
+//:     arguments, which should be type-checked against a format string.
+//:
+//:     o The 'FMTIDX' parameter is the one-based index to the 'const char *'
+//:       format string.  The 'STARTIDX' parameter is the one-based index to
+//:       the first variable argument to type-check against that format string.
+//:       For example:
 //..
 //  extern int my_printf(void *obj, const char *format, ...) BSLA_PRINTF(2, 3);
 //..
-//
-//: 'BSLA_PRINTF_IS_ACTIVE'
-//:     The macro 'BSLA_PRINTF_IS_ACTIVE' is defined to 0 for compilers where
-//:     'BSLA_PRINTF' expands to nothing, and 1 otherwise.
+//:
+//: 'BSLA_PRINTF_IS_ACTIVE':
+//:     The macro 'BSLA_PRINTF_IS_ACTIVE' is defined if 'BSLA_PRINTF' expands
+//:     to something with the desired effect; otherwise 'BSLA_PRINTF_IS_ACTIVE'
+//:     is not defined and 'BSLA_PRINTF' expands to nothing.
 //
 ///Usage
 ///-----
@@ -126,6 +128,22 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_PRINTF)
+#error BSLA_PRINTF is already defined!
+#endif
+
+#if defined(BSLA_PRINTF_IS_ACTIVE)
+#error BSLA_PRINTF_IS_ACTIVE is already defined!
+#endif
+
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
     defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
     defined(BSLS_PLATFORM_CMP_HP)    ||                                      \
@@ -135,8 +153,6 @@ BSLS_IDENT("$Id: $")
     #define BSLA_PRINTF_IS_ACTIVE 1
 #else
     #define BSLA_PRINTF(fmt, arg)
-
-    #define BSLA_PRINTF_IS_ACTIVE 0
 #endif
 
 #endif

@@ -8,8 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a macro to prevent elision of unused entities.
 //
 //@MACROS:
-//  BSLA_USED: emit annotated entity even if not referenced
-//  BSLA_USED_IS_ACTIVE: 0 if 'BSLA_USED' expands to nothing and 1 otherwise
+//  BSLA_USED:           emit annotated entity even if not referenced
+//  BSLA_USED_IS_ACTIVE: defined if 'BSLA_USED' is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,12 +20,13 @@ BSLS_IDENT("$Id: $")
 ///Macro Reference
 ///---------------
 //: 'BSLA_USED':
-//:    This annotation indicates that the so-annotated function, variable, or
-//:    type must be emitted even if it appears that it is not referenced.
+//:      This annotation indicates that the so-annotated function, variable, or
+//:      type must be emitted even if it appears that it is not referenced.
 //:
 //: 'BSLA_USED_IS_ACTIVE':
-//:    The macro 'BSLA_USED_IS_ACTIVE' is defined to 0 if 'BSLA_USED' expands
-//:    to nothing and 1 otherwise.
+//:     The macro 'BSLA_USED_IS_ACTIVE' is defined if 'BSLA_USED' expands to
+//:     something with the desired effect; otherwise 'BSLA_USED_IS_ACTIVE' is
+//:     not defined and 'BSLA_USED' expands to nothing.
 //
 ///Usage
 ///-----
@@ -33,8 +34,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Unused Variables
 ///- - - - - - - - - - - - - -
-// First, we declare two unused static variables, one marked 'BSLA_UNUSED'
-// and the other marked 'BSLA_USED':
+// First, we declare two unused static variables, one marked 'BSLA_UNUSED' and
+// the other marked 'BSLA_USED':
 //..
 //  static
 //  int usage_UNUSED_variable_no_warning BSLA_UNUSED;
@@ -70,9 +71,9 @@ BSLS_IDENT("$Id: $")
 //      printf("%d\n", woof);
 //  }
 //..
-// Finally, if we compile with clang and go into the debugger, we find that
-// we can put a breakpoint in the function marked 'BSLA_USED', but not in
-// the function marked 'BSLA_UNUSED'.
+// Finally, if we compile with clang and go into the debugger, we find that we
+// can put a breakpoint in the function marked 'BSLA_USED', but not in the
+// function marked 'BSLA_UNUSED'.
 
 #include <bsls_platform.h>
 
@@ -80,14 +81,28 @@ BSLS_IDENT("$Id: $")
 // available, but that has more specific constraints over where it can be
 // syntactically placed than the older vendor annotations.
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_USED)
+#error BSLA_USED is already defined!
+#endif
+
+#if defined(BSLA_USED_IS_ACTIVE)
+#error BSLA_USED_IS_ACTIVE is already defined!
+#endif
+
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLA_USED       __attribute__((__used__))
 
     #define BSLA_USED_IS_ACTIVE 1
 #else
     #define BSLA_USED
-
-    #define BSLA_USED_IS_ACTIVE 0
 #endif
 
 #endif

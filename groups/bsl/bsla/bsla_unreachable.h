@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_UNREACHABLE: indicate that a statement is intended to be not reached
-//  BSLA_UNREACHABLE_IS_ACTIVE: 1 if 'BSLA_UNREACHABLE' is active, 0 otherwise
+//  BSLA_UNREACHABLE_IS_ACTIVE: defined if 'BSLA_UNREACHABLE' is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,17 +20,19 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_UNREACHABLE'
+//: 'BSLA_UNREACHABLE':
 //:     This macro will, when used and followed by a semicolon, create a
 //:     statement that emits no code, but that is indicated to be unreachable,
 //:     causing compilers, where supported, to issue warnings if there is
 //:     actually a way that the statement can be reached.  Note that the
 //:     behavior is undefined if control actually reaches a 'BSLA_UNREACHABLE'
 //:     statement.
-//
-//: 'BSLA_UNREACHABLE_IS_ACTIVE'
-//:     The macro 'BSLA_UNREACHABLE_IS_ACTIVE' is defined to 0 if
-//:     'BSLA_UNREACHABLE' expands to nothing and 1 otherwise.
+//:
+//: 'BSLA_UNREACHABLE_IS_ACTIVE':
+//:     The macro 'BSLA_UNREACHABLE_IS_ACTIVE' is defined if 'BSLA_UNREACHABLE'
+//:     expands to something with the desired effect; otherwise
+//:     'BSLA_UNREACHABLE_IS_ACTIVE' is not defined and 'BSLA_UNREACHABLE'
+//:     expands to nothing.
 //
 ///Usage
 ///-----
@@ -58,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we observe a compile error because the compiler expects the
 // 'BSLA_ASSERT_OPT' to return and the function to run off the end and return
-// 'void', while the function is declated to return 'int'.
+// 'void', while the function is declared to return 'int'.
 //..
 //  .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
 //  control paths return a value
@@ -87,6 +89,22 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_UNREACHABLE)
+#error BSLA_UNREACHABLE is already defined!
+#endif
+
+#if defined(BSLA_UNREACHABLE_IS_ACTIVE)
+#error BSLA_UNREACHABLE_IS_ACTIVE is already defined!
+#endif
+
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLA_UNREACHABLE __builtin_unreachable()
 
@@ -97,8 +115,6 @@ BSLS_IDENT("$Id: $")
     #define BSLA_UNREACHABLE_IS_ACTIVE 1
 #else
     #define BSLA_UNREACHABLE
-
-    #define BSLA_UNREACHABLE_IS_ACTIVE 0
 #endif
 
 #endif

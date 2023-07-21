@@ -8,9 +8,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide compiler-hint macros to indicate deprecated entities.
 //
 //@MACROS:
-//  BSLA_DEPRECATED: warn if annotated (deprecated) entity is used
-//  BSLA_DEPRECATED_MESSAGE: warn with message if annotated entity is used
-//  BSLA_DEPRECATED_IS_ACTIVE: 1 if both macros are active, 0 if both inactive
+//  BSLA_DEPRECATED:           warn if annotated (deprecated) entity is used
+//  BSLA_DEPRECATED_MESSAGE:   warn with message if annotated entity is used
+//  BSLA_DEPRECATED_IS_ACTIVE: if defined both macros are active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -42,10 +42,10 @@ BSLS_IDENT("$Id: $")
 //:    compilers 'QUOTED_MESSAGE' is ignored.
 //:
 //: 'BSLA_DEPRECATED_IS_ACTIVE':
-//:    The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined to 0 if
-//:    'BSLA_DEPRECATED' and 'BSLA_DEPRECATED_MESSAGE' both expand to nothing
-//:    and 1 if they are both enabled and have the desired effect.  Either
-//:    both of them work or neither works.
+//:   The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined if 'BSLA_DEPRECATED' and
+//:   'BSLA_DEPRECATED_MESSAGE' are both active and have the desired effect;
+//:   otherwise, 'BSLA_DEPRECATED_IS_ACTIVE' is not defined and both other
+//:   macros expand to nothing.
 //
 ///Usage
 ///-----
@@ -227,7 +227,29 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
-#define BSLA_DEPRECATED_IS_ACTIVE 0
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_DEPRECATED)
+#error BSLA_DEPRECATED is already defined!
+#endif
+
+#if defined(BSLA_DEPRECATED_MESSAGE)
+#error BSLA_DEPRECATED_MESSAGE is already defined!
+#endif
+
+#if defined(BSLA_DEPRECATED_IS_ACTIVE)
+#error BSLA_DEPRECATED_IS_ACTIVE is already defined!
+#endif
+
+#if defined(BSLA_DEPRECATED_MESSAGE_IS_ACTIVE)
+#error BSLA_DEPRECATED_MESSAGE_IS_ACTIVE is already defined!
+#endif
+
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)) &&   \
                                                    defined(__has_cpp_attribute)
@@ -241,14 +263,14 @@ BSLS_IDENT("$Id: $")
 #     define BSLA_DEPRECATED_MESSAGE(message) __attribute__((__deprecated__))
 #   endif
 
-#   undef  BSLA_DEPRECATED_IS_ACTIVE
 #   define BSLA_DEPRECATED_IS_ACTIVE 1
-# endif
-#endif
 
-#if BSLA_DEPRECATED_IS_ACTIVE == 0
-# define BSLA_DEPRECATED
-# define BSLA_DEPRECATED_MESSAGE(message)
+#else
+
+#   define BSLA_DEPRECATED
+#   define BSLA_DEPRECATED_MESSAGE(message)
+
+# endif
 #endif
 
 #endif

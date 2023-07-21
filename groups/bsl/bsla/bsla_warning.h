@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_WARNING(QUOTED_MESSAGE): emit warning message during compilation
-//  BSLA_WARNING_IS_ACTIVE: 0 if 'BSLA_WARNING' expands to nothing, else 1
+//  BSLA_WARNING_IS_ACTIVE:       defined if 'BSLA_WARNING' is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_WARNING(QUOTED_MESSAGE)'
+//: 'BSLA_WARNING(QUOTED_MESSAGE)':
 //:     This annotation, when used, will cause a compile-time warning
 //:     containing the specified 'QUOTED_MESSAGE', which must be a string
 //:     contained in double quotes, when a call to the so-annotated function is
@@ -27,10 +27,12 @@ BSLS_IDENT("$Id: $")
 //:     link-time failure, with the use of this macro the invalid call will be
 //:     diagnosed earlier (i.e., at compile time), and the diagnostic will
 //:     include the location of the function call.
-//
-//: 'BSLA_WARNING_IS_ACTIVE'
-//:     The macro 'BSLA_WARNING_IS_ACTIVE' is defined to 0 if 'BSLA_WARNING'
-//:     expands to nothing and 1 otherwise.
+//:
+//: 'BSLA_WARNING_IS_ACTIVE':
+//:     The macro 'BSLA_WARNING_IS_ACTIVE' is defined if 'BSLA_WARNING' expands
+//:     to something with the desired effect; otherwise
+//:     'BSLA_WARNING_IS_ACTIVE' is not defined and 'BSLA_WARNING' expands to
+//:     nothing.
 //
 ///Usage
 ///-----
@@ -63,6 +65,22 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_WARNING)
+#error BSLA_WARNING is already defined!
+#endif
+
+#if defined(BSLA_WARNING_IS_ACTIVE)
+#error BSLA_WARNING_IS_ACTIVE is already defined!
+#endif
+
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if defined(BSLS_PLATFORM_CMP_GNU)
     // The '__warning__' attribute is not supported by clang as of version
     // 8.0.0.
@@ -72,8 +90,6 @@ BSLS_IDENT("$Id: $")
     #define BSLA_WARNING_IS_ACTIVE 1
 #else
     #define BSLA_WARNING(x)
-
-    #define BSLA_WARNING_IS_ACTIVE 0
 #endif
 
 #endif

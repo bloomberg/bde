@@ -9,9 +9,9 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_NODISCARD: warn if annotated function result is not used
-//  BSLA_NODISCARD_IS_ACTIVE: 1 if 'BSLA_NODISCARD' is active and 0 otherwise
+//  BSLA_NODISCARD_IS_ACTIVE: defined if 'BSLA_NODISCARD' is active
 //  BSLA_NODISCARD_CPP17: insert C++17 '[[nodiscard]]' if available
-//  BSLA_NODISCARD_CPP17_IS_ACTIVE: 1 if 'BSLA_NODISCARD_CPP17' is active, or 0
+//  BSLA_NODISCARD_CPP17_IS_ACTIVE: defined if 'BSLA_NODISCARD_CPP17' is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_NODISCARD'
+//: 'BSLA_NODISCARD':
 //:     This annotation causes a warning to be emitted if the caller of a
 //:     so-annotated function does not use its return value.  This is useful
 //:     for functions where not checking the result is either a security
@@ -34,41 +34,48 @@ BSLS_IDENT("$Id: $")
 //:     implementation for compatibility and that does not understand that
 //:     constructors.  Attempt to apply 'BSLA_NODISCARD' to a constructor will
 //:     result in a warning from gcc:
+//..
 //:     warning: 'warn_unused_result' attribute ignored [-Wattributes]
 //:          4 |     BSLA_NODISCARD Type() {}
-//:            |                         ^
-//
-//: 'BSLA_NODISCARD_IS_ACTIVE'
-//:     The macro 'BSLA_NODISCARD_IS_ACTIVE' is defined to 0 if
-//:     'BSLA_NODISCARD' expands to nothing and 1 otherwise.
+//..
 //:
-//: 'BSLA_NODISCARD_CPP17'
+//: 'BSLA_NODISCARD_IS_ACTIVE':
+//:     The macro 'BSLA_NODISCARD_IS_ACTIVE' is defined if 'BSLA_NODISCARD'
+//:     expands to something with the desired effect; otherwise
+//:     'BSLA_NODISCARD_IS_ACTIVE' is not defined and 'BSLA_NODISCARD' expands
+//:     to nothing.
+//:
+//: 'BSLA_NODISCARD_CPP17':
 //:     This annotation can be used on both types and functions.  Due to
 //:     differences in compiler parser implementations this macro must be
 //:     placed *after* the 'class' (or 'struct') keyword and before the name of
 //:     the type; otherwise it might not compile.
 //:
-//:     GNU gcc-9 does not fully implement this C++17 standard attribute as it
-//:     is ignored on constructors and warns:
+//:     o GNU gcc-9 does not fully implement this C++17 standard attribute as
+//:       it is ignored on constructors and warns:
+//..
 //:     warning: 'nodiscard' attribute applied to 'Type::Type()' with void
 //:                                                  return type [-Wattributes]
 //:     4 | BSLA_NODISCARD Type() {}
 //:                      | ^ ~~~
-//:     There is no known use case for marking individual constructors
-//:     '[[ nodiscard ]]' instead of the whole type, so it is easy to avoid
-//:     portability issues by marking the type itself nodiscard.
+//..
+//:     o There is no known use case for marking individual constructors
+//:       '[[ nodiscard ]]' instead of the whole type, so it is easy to avoid
+//:       portability issues by marking the type itself nodiscard.
 //:
-//:     Marking a type with 'BSLA_NODISCARD_CPP17' in effect makes any function
-//:     (including constructors) that return such a type by value or create an
-//:     object of that type (in case of constructors) behave as if they were
-//:     all (individually) marked by 'BSLA_NODISCARD_CPP17'.  This ability is
-//:     very useful for guards or any other RAII types where using the object
-//:     as part of a discarded-value expression has completely different
-//:     behavior than using a (named) variable of it.
-//
-//: 'BSLA_NODISCARD_CPP17_IS_ACTIVE'
-//:     The macro 'BSLA_NODISCARD_CPP17_IS_ACTIVE' is defined to 0 if
-//:     'BSLA_NODISCARD_CPP17' expands to nothing and 1 otherwise.
+//:     o Marking a type with 'BSLA_NODISCARD_CPP17' in effect makes any
+//:       function (including constructors) that return such a type by value or
+//:       create an object of that type (in case of constructors) behave as if
+//:       they were all (individually) marked by 'BSLA_NODISCARD_CPP17'.  This
+//:       ability is very useful for guards or any other RAII types where using
+//:       the object as part of a discarded-value expression has completely
+//:       different behavior than using a (named) variable of it.
+//:
+//: 'BSLA_NODISCARD_CPP17_IS_ACTIVE':
+//:     The macro 'BSLA_NODISCARD_CPP17_IS_ACTIVE' is defined if
+//:     'BSLA_NODISCARD_CPP17' expands to something with the desired effect;
+//:     otherwise 'BSLA_NODISCARD_CPP17_IS_ACTIVE' is not defined and
+//:     'BSLA_NODISCARD_CPP17' expands to nothing.
 //
 ///Usage Examples
 ///--------------
@@ -216,6 +223,30 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_NODISCARD)
+#error BSLA_NODISCARD is already defined!
+#endif
+
+#if defined(BSLA_NODISCARD_CPP17)
+#error BSLA_NODISCARD_CPP17 is already defined!
+#endif
+
+#if defined(BSLA_NODISCARD_IS_ACTIVE)
+#error BSLA_NODISCARD_IS_ACTIVE is already defined!
+#endif
+
+#if defined(BSLA_NODISCARD_CPP17_IS_ACTIVE)
+#error BSLA_NODISCARD_CPP17_IS_ACTIVE is already defined!
+#endif
+
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD)
     #define BSLA_NODISCARD           [[ nodiscard ]]
     #define BSLA_NODISCARD_IS_ACTIVE 1
@@ -231,11 +262,9 @@ BSLS_IDENT("$Id: $")
         // gcc attribute cannot be disabled using (void) in C++03 mode, so it
         // would create too many false warnings.
         #define BSLA_NODISCARD
-        #define BSLA_NODISCARD_IS_ACTIVE 0
     #endif
 
     #define BSLA_NODISCARD_CPP17
-    #define BSLA_NODISCARD_CPP17_IS_ACTIVE 0
 
 #elif defined(BSLS_PLATFORM_CMP_CLANG) // nodiscard not supported && not g++
     #define BSLA_NODISCARD           __attribute__((warn_unused_result))
@@ -245,11 +274,10 @@ BSLS_IDENT("$Id: $")
     #define BSLA_NODISCARD_CPP17_IS_ACTIVE 1
 
 #else   // not (gcc/g++ or clang) && [[nodiscard]] not supported
-    #define BSLA_NODISCARD
-    #define BSLA_NODISCARD_IS_ACTIVE 0
 
+    #define BSLA_NODISCARD
     #define BSLA_NODISCARD_CPP17
-    #define BSLA_NODISCARD_CPP17_IS_ACTIVE 0
+
 #endif  // not (gcc/g++ or clang) && [[nodiscard]] not supported
 
 #endif
