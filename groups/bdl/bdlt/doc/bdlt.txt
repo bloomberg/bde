@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 40 components having 9 levels of physical
+ The 'bdlt' package currently has 41 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -67,6 +67,7 @@
      bdlt_dayofweek
      bdlt_fixutilconfiguration
      bdlt_iso8601utilconfiguration
+     bdlt_iso8601utilparseconfiguration
      bdlt_monthofyear
      bdlt_posixdateimputil
      bdlt_prolepticdateimputil
@@ -155,6 +156,9 @@
 :
 : 'bdlt_iso8601utilconfiguration':
 :      Provide an attribute class to configure ISO 8601 string generation.
+:
+: 'bdlt_iso8601utilparseconfiguration':
+:      Provide an attribute class to configure ISO 8601 string parsing.
 :
 : 'bdlt_localtimeoffset':
 :      Provide utilities to retrieve the local time offset.

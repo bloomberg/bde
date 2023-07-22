@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 49 components having 5 levels of physical
+ The 'bdlb' package currently has 50 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -51,9 +51,9 @@
      bdlb_guid
      bdlb_hashutil
      bdlb_literalutil
+     bdlb_nullableallocatedvalue_pointerbitspair                      !PRIVATE!
      bdlb_nullopt
      bdlb_nulloutputiterator
-     bdlb_nullableallocatedvalue_pointerbitspair                      !PRIVATE!
      bdlb_pairutil
      bdlb_pcgrandomgenerator
      bdlb_print
@@ -145,8 +145,8 @@
 : 'bdlb_nullableallocatedvalue':
 :      Provide a template for nullable allocated (out-of-place) objects.
 :
-: 'bdlb_nullableallocatedvalue_pointerbitspair':
-:      Provide a template for using the unused bits in a pointer to object.
+: 'bdlb_nullableallocatedvalue_pointerbitspair':                      !PRIVATE!
+:      Provide a mechanism for using the unused bits of a pointer.
 :
 : 'bdlb_nullablevalue':
 :      Provide a template for nullable (in-place) objects.
