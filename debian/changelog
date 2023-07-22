@@ -1,9 +1,42 @@
-bsl-internal (3.120.0.1) unstable; urgency=low
+bsl-internal (3.121.0.0) unstable; urgency=low
 
+  * 335c06e32 Bumped version to 3.121.0.0
+  * 32177601b Revert "drqs-169125741: 'bsla': Normalize '*_IS_ACTIVE' macro definitions. (#4341)" (#4346)
+  * 5e0fa760f drqs-169125741: 'bsla': Normalize '*_IS_ACTIVE' macro definitions. (#4341)
+  * a584cb02b Apply consistent use of unicode compiler features (#4336)
+  * e4096cf78 Add a "small object optimization" to NullableAllocatedObject {DRQS 172370596} (#4317)
+  * 02c514df9 drqs-171821616: 'bdlde_quotedprintableencoder': Fix TC5 buffer overflow. (#4337)
+  * 90bcccc62 fix warnings (#4340)
+  * facd1ab3a addressing additional review comments (#4339)
+  * c38ebeb8d Provide C++23 bsl::string::resize_and_overwrite - {DRQS 172247358} (#4296)
+  * f218ccf62 drqs-172281072: 'balcl_commandline': programName 'printUsage' overloads. (#4333)
+  * 921350719 fix warnings (#4335)
+  * 0cab7505d Fix c++11 build for Sun Studio 12.6 (#4322)
+  * 0ac11c5be reduce nb warnings (#4332)
+  * 579648a8a remove spurious semicolon (#4330)
+  * 732682f29 Add aliases to bslstl iterator drqs171318657 (#4318)
+  * e903a60ac fix issues (#4329)
+  * d6b25cb31 restore spinlock changes from c48cca00665a5abb2bd30e34a21e0d3e58cc7db0 (#4325)
+  * 095c87090 'forward_like' has been added to the 'bslmf_util'. DRQS 171726891 (#4289)
+  * 724ef44ed fix issues (#4326)
+  * 79db960e9 fix erroneous tests (#4321)
+  * ad3b16564 Bumped version to 3.120.1.0
+  * 160276d03 Implement {make|allocate}_shared_for_overwrite. (DRQS 171318667) (#4285)
+  * 648d7150d drqs-171318758: C++20: 'bsl_type_traits'  (#4203)
+  * 3a84a371e Make bdlma::HeapBypassAllocator thread-safe - {DRQS 172253014} (#4299)
+  * c0a3f49ea Update docs for new array meta-functions {DRQS 172333233} (#4311)
+  * df6ee9b9c Workaround for bug in MSVC 17.6 compiler (#4283)
+  * 7eeaef94e Merge pull request #4145 from bchapman/bdlt_iso8601util-basic-format-drqs-171213271
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 22 Jul 2023 12:56:40 -0400
+
+bsl-internal (3.120.0.1) git; urgency=low
+
+  * dfc6dae9c Changelog for version 3.120.0.1
   * 0e3c5792b Merge pull request #4316 from afeher/drqs-172326074-fix-solaris-detection-parseDouble
   * 67cb5f6dd fix compile warnings (#4304)
 
- -- Attila Feher <afeher@bloomberg.net>  Fri, 23 Jun 2023 16:04:10 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 23 Jun 2023 16:25:32 -0400
 
 bsl-internal (3.120.0.0) git; urgency=low
 
