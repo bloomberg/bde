@@ -223,12 +223,7 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    printf("\nBSLA_FORMAT_IS_ACTIVE: ");
-#ifdef BSLA_FORMAT_IS_ACTIVE
-    printf("%s\n", STRINGIFY(BSLA_FORMAT_IS_ACTIVE) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    P(BSLA_FORMAT_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");

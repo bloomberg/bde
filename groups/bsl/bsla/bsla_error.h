@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_ERROR(QUOTED_MESSAGE): emit error message and fail compilation
-//  BSLA_ERROR_IS_ACTIVE:       defined if 'BSLA_ERROR' is active
+//  BSLA_ERROR_IS_ACTIVE: 1 if 'BSLA_ERROR' is active and 0 otherwise
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_ERROR(QUOTED_MESSAGE)':
+//: 'BSLA_ERROR(QUOTED_MESSAGE)'
 //:     This annotation, when used, will cause compilation to fail with an
 //:     error message when a call to the so-annotated function is not removed
 //:     through dead-code elimination or other optimizations.  While it is
@@ -30,10 +30,9 @@ BSLS_IDENT("$Id: $")
 //:     location of the function call.  The message 'QUOTED_MESSAGE', which
 //:     should be a double-quoted string, will appear in the error message.
 //
-//: 'BSLA_ERROR_IS_ACTIVE':
-//:     The macro 'BSLA_ERROR_IS_ACTIVE' is defined if 'BSLA_ERROR' expands to
-//:     something with the desired effect; otherwise 'BSLA_ERROR_IS_ACTIVE' is
-//:     not defined and 'BSLA_ERROR' expands to nothing.
+//: 'BSLA_ERROR_IS_ACTIVE'
+//:     The macro 'BSLA_ERROR_IS_ACTIVE' is defined to 0 if 'BSLA_ERROR'
+//:     expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -65,22 +64,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
-                       // =============================
-                       // Checks for Pre-Defined macros
-                       // =============================
-
-#if defined(BSLA_ERROR)
-#error BSLA_ERROR is already defined!
-#endif
-
-#if defined(BSLA_ERROR_IS_ACTIVE)
-#error BSLA_ERROR_IS_ACTIVE is already defined!
-#endif
-
-                       // =========================
-                       // Set macros as appropriate
-                       // =========================
-
 #if defined(BSLS_PLATFORM_CMP_GNU)
     // The '__error__' attribute is not supported by clang as of version 7.0.
 
@@ -90,6 +73,8 @@ BSLS_IDENT("$Id: $")
     #define BSLA_ERROR_IS_ACTIVE 1
 #else
     #define BSLA_ERROR(QUOTED_MESSAGE)
+
+    #define BSLA_ERROR_IS_ACTIVE 0
 #endif
 
 #endif

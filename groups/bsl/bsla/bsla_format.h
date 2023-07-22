@@ -8,8 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a macro to indicate that a return value is a format string.
 //
 //@MACROS:
-//  BSLA_FORMAT(FMT_IDX):  validate 'printf'-style format spec. in 'n'th arg.
-//  BSLA_FORMAT_IS_ACTIVE: defined if 'BSLA_FORMAT' is active
+//  BSLA_FORMAT(FMT_IDX): validate 'printf'-style format spec. in 'n'th arg.
+//  BSLA_FORMAT_IS_ACTIVE: 1 if 'BSLA_FORMAT' is active and 0 otherwise
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_FORMAT(FMT_IDX)':
+//: 'BSLA_FORMAT(FMT_IDX)'
 //:     This annotation specifies that the so-annotated function takes an
 //:     argument that is a valid format string for a 'printf'-style function
 //:     and returns a format string that is consistent with that format.  This
@@ -29,11 +29,10 @@ BSLS_IDENT("$Id: $")
 //:     manipulate the format string via this kind of function might generate
 //:     warnings about non-literal formats, or fail to generate warnings about
 //:     mismatched arguments.
-//:
-//: 'BSLA_FORMAT_IS_ACTIVE':
-//:     The macro 'BSLA_FORMAT_IS_ACTIVE' is defined if 'BSLA_FORMAT' expands
-//:     to something with the desired effect; otherwise 'BSLA_FORMAT_IS_ACTIVE'
-//:     is not defined and 'BSLA_FORMAT' expands to nothing.
+//
+//: 'BSLA_FORMAT_IS_ACTIVE'
+//:     The macro 'BSLA_FORMAT_IS_ACTIVE' is defined to 0 when 'BSLA_FORMAT'
+//:     expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -106,22 +105,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
-                       // =============================
-                       // Checks for Pre-Defined macros
-                       // =============================
-
-#if defined(BSLA_FORMAT)
-#error BSLA_FORMAT is already defined!
-#endif
-
-#if defined(BSLA_FORMAT_IS_ACTIVE)
-#error BSLA_FORMAT_IS_ACTIVE is already defined!
-#endif
-
-                       // =========================
-                       // Set macros as appropriate
-                       // =========================
-
 #if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
     defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
     defined(BSLS_PLATFORM_CMP_IBM)
@@ -130,6 +113,8 @@ BSLS_IDENT("$Id: $")
     #define BSLA_FORMAT_IS_ACTIVE 1
 #else
     #define BSLA_FORMAT(FMT_IDX)
+
+    #define BSLA_FORMAT_IS_ACTIVE 0
 #endif
 
 #endif

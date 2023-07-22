@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_SCANF(FMTIDX, STARTIDX): validate 'scanf' format and arguments
-//  BSLA_SCANF_IS_ACTIVE:         defined if 'BSLA_SCANF' is active
+//  BSLA_SCANF_IS_ACTIVE: 0 if 'BSLA_SCANF' expands to nothing and 1 otherwise
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,23 +20,22 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_SCANF(FMTIDX, STARTIDX)':
+//: 'BSLA_SCANF(FMTIDX, STARTIDX)'
 //:     This annotation instructs the compiler to perform additional checks on
 //:     so-annotated functions that take 'scanf'-style arguments, which should
 //:     be type-checked against a format string.
 //:
-//:   o The 'FMTIDX' parameter is the one-based index to the 'const' format
+//:     The 'FMTIDX' parameter is the one-based index to the 'const' format
 //:     string.  The 'STARTIDX' parameter is the one-based index to the first
 //:     variable argument to type-check against that format string.  For
 //:     example:
 //..
 //  extern int my_scanf(void *obj, const char *format, ...) BSLA_SCANF(2, 3);
 //..
-//:
-//: 'BSLA_SCANF_IS_ACTIVE':
-//:     The macro 'BSLA_SCANF_IS_ACTIVE' is defined if 'BSLA_SCANF' expands to
-//:     something with the desired effect; otherwise 'BSLA_SCANF_IS_ACTIVE' is
-//:     not defined and 'BSLA_SCANF' expands to nothing.
+//
+//: 'BSLA_SCANF_IS_ACTIVE'
+//:     The macro 'BSLA_SCANF_IS_ACTIVE' is defined to 0 if 'BSLA_SCANF'
+//:     expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -138,22 +137,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-                       // =============================
-                       // Checks for Pre-Defined macros
-                       // =============================
-
-#if defined(BSLA_SCANF)
-#error BSLA_SCANF is already defined!
-#endif
-
-#if defined(BSLA_SCANF_IS_ACTIVE)
-#error BSLA_SCANF_IS_ACTIVE is already defined!
-#endif
-
-                       // =========================
-                       // Set macros as appropriate
-                       // =========================
-
 #if defined(BSLS_PLATFORM_CMP_GNU)   ||                                       \
     defined(BSLS_PLATFORM_CMP_CLANG) ||                                       \
     defined(BSLS_PLATFORM_CMP_HP)
@@ -163,6 +146,8 @@ BSLS_IDENT("$Id: $")
     #define BSLA_SCANF_IS_ACTIVE 1
 #else
     #define BSLA_SCANF(FMTIDX, STARTIDX)
+
+    #define BSLA_SCANF_IS_ACTIVE 0
 #endif
 
 #endif

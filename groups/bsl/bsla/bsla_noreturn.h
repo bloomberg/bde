@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_NORETURN: issue a compiler warning if function returns normally
-//  BSLA_NORETURN_IS_ACTIVE: defined if 'BSLA_NORETURN' is active
+//  BSLA_NORETURN_IS_ACTIVE: 1 if 'BSLA_NORETURN' is active and 0 otherwise
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -19,16 +19,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_NORETURN':
+//: 'BSLA_NORETURN'
 //:     This annotation is used to tell the compiler that a specified function
 //:     will not return in a normal fashion.  The function can still exit via
 //:     other means such as throwing an exception or aborting the process.
-//:
-//: 'BSLA_NORETURN_IS_ACTIVE':
-//:     The macro 'BSLA_NORETURN_IS_ACTIVE' is defined if 'BSLA_NORETURN'
-//:     expands to something with the desired effect; otherwise
-//:     'BSLA_NORETURN_IS_ACTIVE' is not defined and 'BSLA_NORETURN' expands
-//:     to nothing.
+//
+//: 'BSLA_NORETURN_IS_ACTIVE'
+//:     The macro 'BSLA_NORETURN_IS_ACTIVE' is defined to 0 if 'BSLA_NORETURN'
+//:     expands to nothing and 1 otherwise.
 //
 // Note that on Windows, the only effect of 'BSLA_NORETURN' is to indicate that
 // the code after a call to a function annotated as such is not executed.  On
@@ -95,22 +93,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-                       // =============================
-                       // Checks for Pre-Defined macros
-                       // =============================
-
-#if defined(BSLA_NORETURN)
-#error BSLA_NORETURN is already defined!
-#endif
-
-#if defined(BSLA_NORETURN_IS_ACTIVE)
-#error BSLA_NORETURN_IS_ACTIVE is already defined!
-#endif
-
-                       // =========================
-                       // Set macros as appropriate
-                       // =========================
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
     #define BSLA_NORETURN [[ noreturn ]]
 
@@ -125,6 +107,8 @@ BSLS_IDENT("$Id: $")
     #define BSLA_NORETURN_IS_ACTIVE 1
 #else
     #define BSLA_NORETURN
+
+    #define BSLA_NORETURN_IS_ACTIVE 0
 #endif
 
 #endif

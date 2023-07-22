@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bsla_maybeunused' instead.
 //
 //@MACROS:
-//  BSLA_UNUSED:           do not warn if annotated entity is unused
-//  BSLA_UNUSED_IS_ACTIVE: defined if 'BSLA_UNUSED' is active
+//  BSLA_UNUSED: do not warn if annotated entity is unused
+//  BSLA_UNUSED_IS_ACTIVE: 0 if 'BSLA_UNUSED' expands to nothing, else 1
 //
 //@SEE_ALSO: bsla_annotations, bsla_maybeunused
 //
@@ -26,14 +26,13 @@ BSLS_IDENT("$Id: $")
 ///Macro Reference
 ///---------------
 //: 'BSLA_UNUSED':
-//:     This annotation indicates that the so-annotated function, variable, or
-//:     type is possibly unused and the compiler should not generate a warning
-//:     for the unused identifier.
+//:    This annotation indicates that the so-annotated function, variable, or
+//:    type is possibly unused and the compiler should not generate a warning
+//:    for the unused identifier.
 //:
 //: 'BSLA_UNUSED_IS_ACTIVE':
-//:     The macro 'BSLA_UNUSED_IS_ACTIVE' is defined if 'BSLA_UNUSED' expands
-//:     to something with the desired effect; otherwise 'BSLA_UNUSED_IS_ACTIVE'
-//:     is not defined and 'BSLA_UNUSED' expands to nothing.
+//:    The macro 'BSLA_UNUSED_IS_ACTIVE' is defined to 0 if 'BSLA_UNUSED'
+//:    expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -171,28 +170,14 @@ BSLS_IDENT("$Id: $")
 // of platforms, but that has more specific constraints over where it can be
 // syntactically placed than the older vendor annotations.
 
-                       // =============================
-                       // Checks for Pre-Defined macros
-                       // =============================
-
-#if defined(BSLA_UNUSED)
-#error BSLA_UNUSED is already defined!
-#endif
-
-#if defined(BSLA_UNUSED_IS_ACTIVE)
-#error BSLA_UNUSED_IS_ACTIVE is already defined!
-#endif
-
-                       // =========================
-                       // Set macros as appropriate
-                       // =========================
-
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLA_UNUSED     __attribute__((__unused__))
 
     #define BSLA_UNUSED_IS_ACTIVE 1
 #else
     #define BSLA_UNUSED
+
+    #define BSLA_UNUSED_IS_ACTIVE 0
 #endif
 
 #endif

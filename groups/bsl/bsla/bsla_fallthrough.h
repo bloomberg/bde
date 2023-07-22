@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_FALLTHROUGH: do not warn if 'switch' 'case' falls through
-//  BSLA_FALLTHROUGH_IS_ACTIVE: defined if 'BSLA_FALLTHROUGH' is active
+//  BSLA_FALLTHROUGH_IS_ACTIVE: 1 if 'BSLA_FALLTHROUGH' is active, else 0
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_FALLTHROUGH':
+//: 'BSLA_FALLTHROUGH'
 //:     This annotation should be placed in a 'case' clause as the last
 //:     statement within a flow of control that is expected to allow control to
 //:     fall through instead of ending with a 'break', 'continue', or 'return'.
@@ -28,11 +28,9 @@ BSLS_IDENT("$Id: $")
 //:     'BSLA_FALLTHROUGH' must be followed by a semicolon and may be nested
 //:     within blocks, 'if's, or 'else's.
 //
-//: 'BSLA_FALLTHROUGH_IS_ACTIVE':
-//:     The macro 'BSLA_FALLTHROUGH_IS_ACTIVE' is defined if 'BSLA_FALLTHROUGH'
-//:     expands to something with the desired effect; otherwise
-//:     'BSLA_FALLTHROUGH_IS_ACTIVE' is not defined and 'BSLA_FALLTHROUGH'
-//:     expands to nothing.
+//: 'BSLA_FALLTHROUGH_IS_ACTIVE'
+//:     The macro 'BSLA_FALLTHROUGH_IS_ACTIVE' is defined to 0 if
+//:     'BSLA_FALLTHROUGH' expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -109,22 +107,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-                       // =============================
-                       // Checks for Pre-Defined macros
-                       // =============================
-
-#if defined(BSLA_FALLTHROUGH)
-#error BSLA_FALLTHROUGH is already defined!
+#ifdef BSLA_FALLTHROUGH
+#error BSLA_FALLTHROUGH previously #defined
 #endif
-
-#if defined(BSLA_FALLTHROUGH_IS_ACTIVE)
-#error BSLA_FALLTHROUGH_IS_ACTIVE is already defined!
-#endif
-
-                       // =========================
-                       // Set macros as appropriate
-                       // =========================
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH)
     #define BSLA_FALLTHROUGH [[ fallthrough ]]
 #elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 70000
@@ -136,9 +121,13 @@ BSLS_IDENT("$Id: $")
             #define BSLA_FALLTHROUGH [[clang::fallthrough]]
         #endif
     #endif
+#endif
+#ifdef BSLA_FALLTHROUGH
     #define BSLA_FALLTHROUGH_IS_ACTIVE 1
 #else
     #define BSLA_FALLTHROUGH
+
+    #define BSLA_FALLTHROUGH_IS_ACTIVE 0
 #endif
 
 #endif

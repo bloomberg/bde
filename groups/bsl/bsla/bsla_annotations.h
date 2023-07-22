@@ -24,22 +24,23 @@ BSLS_IDENT("$Id: $")
 //  BSLA_UNUSED: do not warn if annotated entity is unused
 //  BSLA_USED: emit annotated entity even if not referenced
 //  BSLA_WARNING(QUOTED_MESSAGE): emit warning message during compilation
-//  BSLA_DEPRECATED_IS_ACTIVE:       defined if 'BSLA_DEPRECATED'     is active
-//  BSLA_ERROR_IS_ACTIVE:            defined if 'BSLA_ERROR'          is active
-//  BSLA_FALLTHROUGH_IS_ACTIVE:      defined if 'BSLA_FALLTHROUGH'    is active
-//  BSLA_FORMAT_IS_ACTIVE:           defined if 'BSLA_FORMAT'         is active
-//  BSLA_MAYBE_UNUSED_IS_ACTIVE:     defined if 'BSLA_MAYBE_UNUSED'   is active
-//  BSLA_NODISCARD_IS_ACTIVE:        defined if 'BSLA_NODISCARD'      is active
-//  BSLA_NONNULLARG_IS_ACTIVE:       defined if 'BSLA_NONNULLARG'     is active
-//  BSLA_NONNULLARGS_IS_ACTIVE:      defined if 'BSLA_NONNULLARGS'    is active
-//  BSLA_NORETURN_IS_ACTIVE:         defined if 'BSLA_NORETURN'       is active
-//  BSLA_NULLTERMINATED_IS_ACTIVE:   defined if 'BSLA_NULLTERMINATED' is active
-//  BSLA_NULLTERMINATEDAT_IS_ACTIVE: defined if 'BSLA_NULLTERMINATEDAT'  active
-//  BSLA_PRINTF_IS_ACTIVE:           defined if 'BSLA_PRINTF'         is active
-//  BSLA_SCANF_IS_ACTIVE:            defined if 'BSLA_SCANF'          is active
-//  BSLA_UNUSED_IS_ACTIVE:           defined if 'BSLA_UNUSED'         is active
-//  BSLA_USED_IS_ACTIVE:             defined if 'BSLA_USED'           is active
-//  BSLA_WARNING_IS_ACTIVE:          defined if 'BSLA_WARNING'        is active
+//
+//  BSLA_DEPRECATED_IS_ACTIVE: 1 if 'BSLA_DEPRECATED is active, 0 otherwise
+//  BSLA_ERROR_IS_ACTIVE: 1 if 'BSLA_ERROR' is active and 0 otherwise
+//  BSLA_FALLTHROUGH_IS_ACTIVE: 1 if 'BSLA_FALLTHROUGH' is active, else 0
+//  BSLA_FORMAT_IS_ACTIVE: 1 if 'BSLA_FORMAT' is active and 0 otherwise
+//  BSLA_MAYBE_UNUSED_IS_ACTIVE: 1 if 'BSLA_MAYBE_UNUSED' is active, else 0
+//  BSLA_NODISCARD_IS_ACTIVE: 1 if 'BSLA_NODISCARD' is active and 0 otherwise
+//  BSLA_NONNULLARG_IS_ACTIVE:  1 if 'BSLA_NONNULLARG' is active, 0 otherwise
+//  BSLA_NONNULLARGS_IS_ACTIVE: 1 if 'BSLA_NONNULLARGS' is active, 0 otherwise
+//  BSLA_NORETURN_IS_ACTIVE: 1 if 'BSLA_NORETURN' is active and 0 otherwise
+//  BSLA_NULLTERMINATED_IS_ACTIVE:   1 if BSLA_NULLTERMINATED is active
+//  BSLA_NULLTERMINATEDAT_IS_ACTIVE: 1 if BSLA_NULLTERMINATEDAT is active
+//  BSLA_PRINTF_IS_ACTIVE: 1 if 'BSLA_PRINTF' is active and 0 otherwise
+//  BSLA_SCANF_IS_ACTIVE: 0 if 'BSLA_SCANF' expands to nothing and 1 otherwise
+//  BSLA_UNUSED_IS_ACTIVE: 0 if 'BSLA_UNUSED' expands to nothing, else 1
+//  BSLA_USED_IS_ACTIVE: 0 if 'BSLA_USED' expands to nothing and 1 otherwise
+//  BSLA_WARNING_IS_ACTIVE: 0 if 'BSLA_WARNING' expands to nothing else 1
 //
 //@DESCRIPTION: This component exists to provide a single component whose
 // header can be included to transitively include all of the annotation macros
@@ -55,7 +56,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_DEPRECATED':
+//: 'BSLA_DEPRECATED'
 //:     This annotation will, when used, cause a compile-time warning if the
 //:     so-annotated function, variable, or type is used anywhere within the
 //:     source file.  This is useful, for example, when identifying functions
@@ -63,8 +64,8 @@ BSLS_IDENT("$Id: $")
 //:     warning includes the location of the declaration of the deprecated
 //:     entity to enable users to find further information about the
 //:     deprecation, or what they should use instead.
-//:
-//: 'BSLA_ERROR(QUOTED_MESSAGE)':
+//
+//: 'BSLA_ERROR(QUOTED_MESSAGE)'
 //:     This annotation, when used, will cause a compile-time error when a call
 //:     to the so-annotated function is not removed through dead-code
 //:     elimination or other optimizations.  While it is possible to leave the
@@ -73,16 +74,16 @@ BSLS_IDENT("$Id: $")
 //:     time), and the diagnostic will include the location of the function
 //:     call.  The message 'QUOTED_MESSAGE', which should be a double-quoted
 //:     string, will appear in the error message.
-//:
-//: 'BSLA_FALLTHROUGH':
+//
+//: 'BSLA_FALLTHROUGH'
 //:     This annotation should be placed in a 'case' clause as the last
 //:     statement within a flow of control that is expected to allow control to
 //:     fall through instead of ending with a 'break', 'continue', or 'return'.
 //:     This will prevent compilers from warning about fall-through.  The
 //:     'BSLA_FALLTHROUGH' must be followed by a semicolon and may be nested
 //:     within blocks, 'if's, or 'else's.
-//:
-//: 'BSLA_FORMAT(FMT_IDX)':
+//
+//: 'BSLA_FORMAT(FMT_IDX)'
 //:     This annotation specifies that the so-annotated function takes an
 //:     argument that is a valid format string for a 'printf'-style function
 //:     and returns a format string that is consistent with that format.  This
@@ -91,45 +92,45 @@ BSLS_IDENT("$Id: $")
 //:     manipulate the format string via this kind of function might generate
 //:     warnings about non-literal formats, or fail to generate warnings about
 //:     mismatched arguments.
-//:
-//: 'BSLA_MAYBE_UNUSED':
+//
+//: 'BSLA_MAYBE_UNUSED'
 //:     This annotation indicates that the so-annotated function, variable, or
 //:     type is possibly unused and the compiler should not generate a warning
 //:     for the unused identifier.
-//:
-//: 'BSLA_NODISCARD':
+//
+//: 'BSLA_NODISCARD'
 //:     This annotation causes a warning to be emitted if the caller of a
 //:     so-annotated function does not use its return value.  This is useful
 //:     for functions where not checking the result is either a security
 //:     problem or always a bug, such as with the 'realloc' function.
-//:
-//: 'BSLA_NONNULLARGS':
+//
+//: 'BSLA_NONNULLARGS'
 //:     This annotation indicates that a compiler warning is to be issued if
 //:     any of the pointer arguments to this function are passed null.
-//:
-//: 'BSLA_NONNULLARG(...)':
+//
+//: 'BSLA_NONNULLARG(...)'
 //:     This annotation, passed a variable-length list of positive integers,
 //:     indicates that a compiler warning is to be issued if null is passed to
 //:     a pointer argument at any of the specified indices, where the first
 //:     argument of the annotated function has an index of 1.
-//:
-//: 'BSLA_NORETURN':
+//
+//: 'BSLA_NORETURN'
 //:     This annotation is used to tell the compiler that a specified function
 //:     will not return in a normal fashion.  The function can still exit via
 //:     other means such as throwing an exception or aborting the process.
-//:
-//: 'BSLA_NULLTERMINATED':
+//
+//: 'BSLA_NULLTERMINATED'
 //:     This annotation on a variadic macro indicates that a warning should be
 //:     issued unless the last argument to the function is explicitly 'NULL'.
-//:
-//: 'BSLA_NULLTERMINATEDAT(ARG_IDX)':
+//
+//: 'BSLA_NULLTERMINATEDAT(ARG_IDX)'
 //:     This annotation on a variadic function indicates that a warning should
 //:     be issued unless the argument at 'ARG_IDX' is 'NULL', where 'ARG_IDX'
 //:     is the number of arguments from the last, the last argument having
 //:     'ARG_IDX == 0'.  Thus, 'BSLA_NULLTERMINATED' is equivalent to
 //:     'BSLA_NULLTERMINATEDAT(0)'.
-//:
-//: 'BSLA_PRINTF(FMTIDX, STARTIDX)':
+//
+//: 'BSLA_PRINTF(FMTIDX, STARTIDX)'
 //:     This annotation instructs the compiler to perform additional
 //:     compile-time checks on so-annotated functions that take 'printf'-style
 //:     arguments, which should be type-checked against a format string.  The
@@ -140,8 +141,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  extern int my_printf(void *obj, const char *format, ...) BSLA_PRINTF(2, 3);
 //..
-//:
-//: 'BSLA_SCANF(FMTIDX, STARTIDX)':
+//
+//: 'BSLA_SCANF(FMTIDX, STARTIDX)'
 //:     This annotation instructs the compiler to perform additional checks on
 //:     so-annotated functions that take 'scanf'-style arguments, which should
 //:     be type-checked against a format string.
@@ -153,25 +154,25 @@ BSLS_IDENT("$Id: $")
 //..
 //  extern int my_scanf(void *obj, const char *format, ...) BSLA_SCANF(2, 3);
 //..
-//:
-//: 'BSLA_UNREACHABLE':
+//
+//: 'BSLA_UNREACHABLE'
 //:     This annotation will, when used, indicate that a given statement in a
 //:     code path is intended to be unreachable, causing compilers, where
 //:     supported, to issue warnings if there is actually a way that the code
 //:     can be reached.  Note that the behavior is undefined if control
 //:     actually reaches a 'BSLA_UNREACHABLE' statement.
-//:
-//: 'BSLA_UNUSED':
+//
+//: 'BSLA_UNUSED'
 //:     This annotation indicates that the so-annotated function, variable, or
 //:     type is possibly unused and the compiler should not generate a warning
 //:     for the unused identifier.
-//:
-//: 'BSLA_USED':
+//
+//: 'BSLA_USED'
 //:     This annotation indicates that the so-annotated function, variable, or
 //:     type must be emitted even if it appears that the variable is not
 //:     referenced.
-//:
-//: 'BSLA_WARNING(QUOTED_MESSAGE)':
+//
+//: 'BSLA_WARNING(QUOTED_MESSAGE)'
 //:     This annotation, when used, will cause a compile-time warning
 //:     containing the specified 'QUOTED_MESSAGE', which must be a string
 //:     contained in double quotes, when a call to the so-annotated function is
@@ -180,7 +181,7 @@ BSLS_IDENT("$Id: $")
 //:     link-time failure, with the use of this macro the invalid call will be
 //:     diagnosed earlier (i.e., at compile time), and the diagnostic will
 //:     include the location of the function call.
-//:
+//
 //: 'BSLA_DEPRECATED_IS_ACTIVE'
 //: 'BSLA_ERROR_IS_ACTIVE'
 //: 'BSLA_FALLTHROUGH_IS_ACTIVE'
@@ -197,10 +198,10 @@ BSLS_IDENT("$Id: $")
 //: 'BSLA_UNREACHABLE_IS_ACTIVE'
 //: 'BSLA_UNUSED_IS_ACTIVE'
 //: 'BSLA_USED_IS_ACTIVE'
-//: 'BSLA_WARNING_IS_ACTIVE':
-//:     For each 'BSLA_{X}' macro, there is a 'BSLA_{X}_IS_ACTIVE' macro that
-//:     is defined only if 'BSLA_{X}' expands to something and has its
-//:     documented effects.
+//: 'BSLA_WARNING_IS_ACTIVE'
+//:     In all cases where there is a 'BSLA_{X}' macro, there is a macro
+//:     'BSLA_{X}_IS_ACTIVE' that is defined to 0 if 'BSLA_{X}' expands to
+//:     nothing and defined to 1 if 'BSLA_{X}' expands to something and works.
 //
 ///Usage
 ///-----

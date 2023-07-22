@@ -332,19 +332,8 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    printf("\nBSLA_NULLTERMINATED_IS_ACTIVE: ");
-#ifdef BSLA_NULLTERMINATED_IS_ACTIVE
-    printf("%s\n", STRINGIFY(BSLA_NULLTERMINATED_IS_ACTIVE) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLA_NULLTERMINATEDAT_IS_ACTIVE: ");
-#ifdef BSLA_NULLTERMINATEDAT_IS_ACTIVE
-    printf("%s\n", STRINGIFY(BSLA_NULLTERMINATEDAT_IS_ACTIVE) );
-#else
-    printf("UNDEFINED\n");
-#endif
+    P(BSLA_NULLTERMINATED_IS_ACTIVE);
+    P(BSLA_NULLTERMINATEDAT_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
@@ -404,6 +393,7 @@ int main(int argc, char **argv)
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 
 {
 // Then, in 'main', we call 'catStrings' correctly:
