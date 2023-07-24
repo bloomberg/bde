@@ -88,6 +88,7 @@ BSLS_IDENT("$Id: $")
 #include <bslx_versionfunctions.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>    // bsl::size_t
 #include <bsl_cstdint.h>    // uintptr_t
 #include <bsl_iosfwd.h>
 
@@ -538,10 +539,10 @@ bool NullableAllocatedValue<TYPE>::isLocal() BSLS_KEYWORD_NOEXCEPT
 {
 //  we can store it locally if it will fit into a pointer, and it doesn't have
 //  an exceptionally large alignment requirement.
-    return (sizeof(TYPE) <= sizeof(TYPE *)) &&
-                                    bslmf::IsBitwiseMoveable<TYPE>::value &&
-                                    (bsls::AlignmentFromType<TYPE  >::VALUE <=
-                                      bsls::AlignmentFromType<TYPE *>::VALUE);
+return (sizeof(TYPE) <= sizeof(TYPE *)) &&
+       bslmf::IsBitwiseMoveable<TYPE>::value &&
+       (static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE  >::VALUE) <=
+        static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE *>::VALUE));
 }
 
 // MANIPULATORS
@@ -700,7 +701,8 @@ template <class TYPE>
 inline
 TYPE *NullableAllocatedValue<TYPE>::getAddress() {
     if (isLocal()) {
-        return reinterpret_cast<TYPE *> (d_storage.d_buffer);         // RETURN
+        return reinterpret_cast<TYPE *>(
+                           static_cast<void *>(d_storage.d_buffer));  // RETURN
         }
     else {
         return d_storage.d_pointer_p;                                 // RETURN
@@ -711,7 +713,8 @@ template <class TYPE>
 inline
 const TYPE *NullableAllocatedValue<TYPE>::getAddress() const {
     if (isLocal()) {
-        return reinterpret_cast<const TYPE *> (d_storage.d_buffer);   // RETURN
+        return reinterpret_cast<const TYPE *>(
+                     static_cast<const void *>(d_storage.d_buffer));  // RETURN
         }
     else {
         return d_storage.d_pointer_p;                                 // RETURN

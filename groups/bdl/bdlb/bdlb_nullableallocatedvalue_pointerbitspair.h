@@ -36,6 +36,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
+#include <bsl_cstddef.h>    // bsl::size_t
 
 #include <cstddef>
 #include <cstdlib>
@@ -178,7 +179,9 @@ bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
 : d_Value(0)
 {
     // ensure that TYPE is sufficiently aligned to store NUM_BITS flags
-    BSLMF_ASSERT(k_Mask < bsls::AlignmentFromType<TYPE>::VALUE);
+    BSLMF_ASSERT(
+               static_cast<bsl::size_t>(k_Mask) <
+               static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE>::VALUE));
 }
 
 template <class TYPE, unsigned NUM_BITS>
