@@ -494,7 +494,7 @@ void aSsErT(bool condition, const char *message, int line)
     // family of functions, and consequently calling 'terminate'.
 #endif
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS) ||                                   \
+#if defined(BSLS_PLATFORM_OS_SOLARIS) ||                                      \
    !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 800000)
 # define BSLS_STRING_DISABLE_S_LITERALS 1
     // The Solaris platform has a function-like '_S' macro that conflicts with
@@ -504,6 +504,13 @@ void aSsErT(bool condition, const char *message, int line)
     // trick that allows '""if' for complex floats, but appears to persist into
     // later compiler versions as the interaction with the preprocessor occurs
     // earlier in the parsing.
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_SUN) &&                                         \
+    (BSLS_PLATFORM_CMP_VERSION < 0x5150 || !defined(BDE_BUILD_TARGET_OPT))
+# define BSLS_STRING_TEST_ASSUMING_NO_NRVO
+    // The Sun compiler version 5.12.4 does not support NRVO. 5.12.6 appears to
+    // support NRVO, but only when building in optimized mode.
 #endif
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -2954,7 +2961,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
             // value.
 
             const size_t EXP_COPY_OVERHEAD =
-#ifndef BSLS_PLATFORM_CMP_SUN
+#ifndef BSLS_STRING_TEST_ASSUMING_NO_NRVO
                                         0;
 #else
                                         LEN_E <= DFLT_CAPACITY ? 0 : LEN_E + 1;

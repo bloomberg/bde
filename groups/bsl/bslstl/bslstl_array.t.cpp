@@ -211,6 +211,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 // BDE_VERIFY pragma: pop
 
+// ============================================================================
+//                      COMPILER DEFECT DETECTION MACROS
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN) &&                                         \
+    (BSLS_PLATFORM_CMP_VERSION < 0x5150 || !defined(BDE_BUILD_TARGET_OPT))
+# define BSLS_ARRAY_TEST_ASSUMING_NO_RVO
+    // The Sun compiler version 5.12.4 does not support RVO. 5.12.6 appears to
+    // support RVO, but only when building in optimized mode.
+#endif
+
 //=============================================================================
 //                       GLOBAL OBJECTS SHARED BY TEST CASES
 //-----------------------------------------------------------------------------
@@ -2550,9 +2561,10 @@ void TestDriver<TYPE, SIZE>::testCase26()
             ASSERTV(i, CopyState::e_COPIED == bsl_arr[i].copiedInto());
 #if (defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) &&             \
      defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)) ||            \
-   defined(BSLS_PLATFORM_CMP_SUN)
-            // The Sun compiler copy-constructs the result of 'to_array' into
-            // 'bsl_arr' rather than using RVO like other C++03 compilers.
+   defined(BSLS_ARRAY_TEST_ASSUMING_NO_RVO)
+            // Earlier Sun compilers and recent Sun compiliers in debug mode
+            // copy-construct the result of 'to_array' into 'bsl_arr' rather
+            // than using RVO like other C++03 compilers.
             ASSERTV(i, !bsl_arr[i].defaultConstructed());
 #else
             ASSERTV(i, bsl_arr[i].defaultConstructed());
