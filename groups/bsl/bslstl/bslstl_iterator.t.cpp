@@ -1,5 +1,4 @@
 // bslstl_iterator.t.cpp                                              -*-C++-*-
-
 #include <bslstl_iterator.h>
 
 #include <bsls_bsltestutil.h>
@@ -211,7 +210,7 @@ class MyFixedSizeArray
     // changed afterwards.
 {
     // DATA
-    VALUE  d_array[SIZE];  // storage of the container
+    VALUE d_array[SIZE];  // storage of the container
 
   public:
     // PUBLIC TYPES
@@ -219,10 +218,10 @@ class MyFixedSizeArray
 //..
 // Here, we define mutable and constant iterators and reverse iterators:
 //..
-    typedef VALUE                                  *iterator;
-    typedef VALUE const                            *const_iterator;
-    typedef bsl::reverse_iterator<iterator>         reverse_iterator;
-    typedef bsl::reverse_iterator<const_iterator>   const_reverse_iterator;
+    typedef VALUE                                 *iterator;
+    typedef VALUE const                           *const_iterator;
+    typedef bsl::reverse_iterator<iterator>        reverse_iterator;
+    typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
 
     // CREATORS
     //! MyFixedSizeArray() = default;
@@ -481,7 +480,7 @@ class AccessTestContainer
     size_t size() const;
         // Return the length of this container.
 
-    int functionCalled() const;
+    int  functionCalled() const;
     bool beginCalled() const;
     bool constBeginCalled() const;
     bool reverseBeginCalled() const;
@@ -630,7 +629,7 @@ bool AccessTestContainer::sizeCalled() const
 //
 // Originally, TC 15 simultaneously exposed both 'bsl::set' and 'std::set' and
 // then used 'bsl::set'.  This was problematic because including 'bslstl_set.h'
-// in this test driver introduced a cycle.  So we declare a minimal simulating
+// in this test driver introduced a cycle.  So we declare a minimal simulation
 // of a set in both 'bsl' and 'std' here, such that the 'bsl' set will pass the
 // test and the 'std' set won't.
 // ----------------------------------------------------------------------------
@@ -1005,11 +1004,7 @@ int main(int argc, char *argv[])
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
-
-    (void)veryVeryVerbose;      // suppress warning
-    (void)veryVeryVeryVerbose;  // suppress warning
+    bool     veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
@@ -1025,6 +1020,11 @@ int main(int argc, char *argv[])
                             "===============\n");
 
         using namespace testcontainer;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
 
 // Then, we create a 'MyFixedSizeArray' and initialize its elements:
 //..
@@ -1073,6 +1073,9 @@ int main(int argc, char *argv[])
 //       Element: 2
 //       Element: 1
 //..
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic pop
+#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -1095,9 +1098,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING CONTAINER DATA CALLS\n"
                             "============================\n");
 
-        testcontainer::MyFixedSizeArray<int, 1>    c1;
-        testcontainer::MyFixedSizeArray<float, 2>  c2;
+        testcontainer::MyFixedSizeArray<int,    1> c1;
+        testcontainer::MyFixedSizeArray<float,  2> c2;
         testcontainer::MyFixedSizeArray<double, 3> c3;
+
         ASSERT(bsl::data(c1) == c1.data());
         ASSERT(bsl::data(c2) == c2.data());
         ASSERT(bsl::data(c3) == c3.data());
@@ -1763,7 +1767,8 @@ int main(int argc, char *argv[])
         //  Declare test data and types.
 
         int testData[] = { 42, 13, 56, 72, 39, };
-        int numElements = sizeof(testData) / sizeof(int);
+        const int numElements = sizeof testData / sizeof *testData;
+
         typedef int                                   *iterator;
         typedef int const                             *const_iterator;
         typedef bsl::reverse_iterator<iterator>        reverse_iterator;
@@ -1822,7 +1827,8 @@ int main(int argc, char *argv[])
         //  Declare test data and types.
 
         int testData[] = { 42, 13, 56, 72, 39, };
-        int numElements = sizeof(testData) / sizeof(int);
+        const int numElements = sizeof testData / sizeof *testData;
+
         typedef int                             *iterator;
         typedef bsl::reverse_iterator<iterator>  reverse_iterator;
 
@@ -1869,7 +1875,8 @@ int main(int argc, char *argv[])
         //  Declare test data and types.
 
         int testData[] = { 42, 13, 56, 72, };
-        int numElements = sizeof(testData) / sizeof(int);
+        const int numElements = sizeof testData / sizeof *testData;
+
         typedef int                                   *iterator;
         typedef int const                             *const_iterator;
         typedef bsl::reverse_iterator<iterator>        reverse_iterator;
@@ -1969,7 +1976,8 @@ int main(int argc, char *argv[])
         //  Declare test data and types.
 
         int testData[] = { 42, 13, 56, 72, };
-        int numElements = sizeof(testData) / sizeof(int);
+        const int numElements = sizeof testData / sizeof *testData;
+
         typedef int                                   *iterator;
         typedef int const                             *const_iterator;
         typedef bsl::reverse_iterator<iterator>        reverse_iterator;
@@ -2310,7 +2318,7 @@ int main(int argc, char *argv[])
         //  Declare test data and types.
 
         int testData[4] = { 0, 1, 2, 3 };
-        int numElements = sizeof(testData) / sizeof(int);
+        const int numElements = sizeof testData / sizeof *testData;
 
         typedef int                                   *iterator;
         typedef int const                             *const_iterator;
