@@ -236,10 +236,7 @@ using std::iter_value_t;
 
 // 23.3.2.3, iterator traits
 using std::iter_reference_t;
-
-// 23.3.3.2, ranges::iter_swap
 using std::iter_rvalue_reference_t;
-using std::iter_swap;
 
 // 23.3.4.2, concept indirectly_readable
 using std::iter_common_reference_t;
@@ -924,6 +921,7 @@ reverse_iterator<const T *> crend(const T (&array)[N]);
 namespace ranges {
 
 using std::ranges::distance;
+using std::ranges::iter_swap;
 
 }
 
