@@ -4,9 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslalg_arraydestructionprimitives.h>   // for testing purposes only
-#include <bslalg_arrayprimitives.h>              // for testing purposes only
-#include <bslalg_rangecompare.h>                 // for testing purposes only
+#include <bslalg_arraydestructionprimitives.h>   // for testing only
+#include <bslalg_arrayprimitives.h>              // for testing only
+#include <bslalg_rangecompare.h>                 // for testing only
 
 #include <bsls_assert.h>
 

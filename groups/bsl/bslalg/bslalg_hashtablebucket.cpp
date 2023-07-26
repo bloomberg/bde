@@ -5,7 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslalg_bidirectionallink.h>
-#include <bslalg_bidirectionallinklistutil.h>    // Testing only
+#include <bslalg_bidirectionallinklistutil.h>    // for testing only
 
 namespace BloombergLP {
 

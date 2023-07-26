@@ -2,10 +2,10 @@
 
 #include <bslma_allocatorutil.h>
 
-#include <bslma_testallocator.h>  // FOR TESTING ONLY
-
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslma_allocatorutil_cpp, "$Id$ $CSID$")
+
+#include <bslma_testallocator.h>  // for testing only
 
 namespace BloombergLP {
 }  // close enterprise namespace

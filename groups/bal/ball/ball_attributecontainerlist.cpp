@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(ball_attributecontainerlist_cpp,"$Id$ $CSID$")
 
 #include <ball_attribute.h>           // for testing only
-#include <ball_attributecontainer.h>  // for testing only
+#include <ball_attributecontainer.h>
 
 #include <bdlb_print.h>
 

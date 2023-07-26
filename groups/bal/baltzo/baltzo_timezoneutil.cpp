@@ -4,10 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baltzo_timezoneutil_cpp,"$Id$ $CSID$")
 
-#include <baltzo_datafileloader.h>            // for testing
+#include <baltzo_datafileloader.h>            // for testing only
 #include <baltzo_defaultzoneinfocache.h>
 #include <baltzo_localtimeperiod.h>
-#include <baltzo_testloader.h>                // for testing
+#include <baltzo_testloader.h>                // for testing only
 #include <baltzo_timezoneutilimp.h>
 
 #include <bdlt_datetime.h>

@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 
-#include <ball_attributecontainer.h>   // for testing only
+#include <ball_attributecontainer.h>
 #include <ball_categorymanager.h>
 #include <ball_predicate.h>            // for testing only
 #include <ball_rule.h>

@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(baltzo_timezoneutilimp_cpp,"$Id$ $CSID$")
 #include <baltzo_errorcode.h>
 #include <baltzo_localtimedescriptor.h>
 #include <baltzo_localtimeperiod.h>
-#include <baltzo_testloader.h>                // for testing
+#include <baltzo_testloader.h>                // for testing only
 #include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfocache.h>
 #include <baltzo_zoneinfoutil.h>

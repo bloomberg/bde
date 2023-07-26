@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp, "$Id$ $CSID$")
 
-#include <baltzo_errorcode.h>         // for testing only
+#include <baltzo_errorcode.h>
 #include <baltzo_zoneinfoutil.h>
 
 #include <bslmt_readlockguard.h>

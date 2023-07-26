@@ -26,7 +26,7 @@ BSLS_IDENT_RCSID(bdljsn_jsonutil_cpp, "$Id$ $CSID$")
 #include <bsl_unordered_map.h>
 #include <bsl_vector.h>
 
-#include <bsl_iostream.h> // testing only
+#include <bsl_iostream.h>  // for testing only
 
 // BDE_VERIFY pragma: -CD01
 // BDE_VERIFY pragma: -TR10

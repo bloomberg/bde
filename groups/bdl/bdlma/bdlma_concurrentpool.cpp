@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(bdlma_concurrentpool_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 
-#include <bslma_testallocator.h>  // for testing purpose only
+#include <bslma_testallocator.h>  // for testing only
 
 #include <bsl_algorithm.h>  // for 'max()'
 #include <bsl_cstddef.h>    // for 'offsetof()'
