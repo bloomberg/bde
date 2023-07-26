@@ -191,9 +191,19 @@ struct Span_Utility
 {
     // PUBLIC TYPES
     template <class FROM, class TO>
-    struct IsArrayConvertible : public bsl::integral_constant<bool,
-                              bsl::is_convertible<FROM(*)[], TO(*)[]>::value>
-    {};
+    struct IsArrayConvertible : bsl::is_convertible<FROM(*)[5], TO(*)[5]>::type
+    {
+        // A metaclass that derives from `true_type` if an array of type `FROM`
+        // objects (or functions) can be implicitly converted to an array of
+        // type `TO` objects (or functions).  Typically, this is a test that
+        // `TO` is the same type as `FROM`, but potentially having a stricter
+        // cv-qualification.  Note that the preferred implementation would use
+        // arrays of unknown bound to be clear that there is nothing specific
+        // about the length of the arrays; however, to avoid warnings on the
+        // Solaris compiler that complains about the use of pointers to arrays
+        // of unknown bound, we arbitrarily pick the array length of 5, as the
+        // behavior is the same regardless of the length of the arrays.
+    };
 
     template <class TYPE, size_t EXTENT, size_t COUNT, size_t OFFSET>
     struct SubspanReturnType
