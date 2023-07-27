@@ -48,10 +48,11 @@ using namespace BloombergLP;
 // [ 4] MovableRefUtil::AddMovableReference<TYPE>
 // [ 4] MovableRefUtil::Decay<TYPE>
 // [ 8] MovableRef<TYPE> VS. RVALUE
-// [ 9] EXTENDING 'bsl::is_nothrow_move_constructible'
-// [10] CONCERN: IBM XL C++ functions with default arguments workaround
-// [11] BSLMF_MOVABLEREF_DEDUCE
-// [12] USAGE EXAMPLE
+// [ 9] COMPATIBILITY WITH 'is_nothrow_move_constructible'
+// [10] EXTENDING 'bsl::is_nothrow_move_constructible'
+// [11] CONCERN: IBM XL C++ functions with default arguments workaround
+// [12] BSLMF_MOVABLEREF_DEDUCE
+// [13] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -668,6 +669,8 @@ void testTransformationTrait(int LINE, TYPE&)
             (bsl::is_same<EXPECTED_TYPE, typename TRAIT<TYPE>::type>::value));
 };
 
+}  // close unnamed namespace
+
 //=============================================================================
 //              TEST VOCABULARY FOR BSL_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 //-----------------------------------------------------------------------------
@@ -678,7 +681,9 @@ void testTransformationTrait(int LINE, TYPE&)
 // extended), but were moved here to eliminate a cycle, i.e., a direct cycle
 // between that component and this one.  Note that 'bslmf::MovableRef' must be
 // used to expose extensions of 'bsl::is_nothrow_move_constructible' to C++03
-// environments.  Testing of such extensions is done in case 7.
+// environments.  Testing of such extensions is done in cases 9 and 10.
+
+namespace {
 
 class ImmovableClass {
   private:
@@ -752,6 +757,56 @@ struct LyingNestedTraitMovableUnion {
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
+};
+
+struct MoveOnlyThrowingClass {
+    // This user-defined type, which is marked to have a non-'nothrow'
+    // 'MovableRef' move constructor, so is not no-throw move constructible in
+    // any dialect of C++, is used for testing.
+
+    // CREATORS
+    MoveOnlyThrowingClass(bslmf::MovableRef<MoveOnlyThrowingClass>)
+        // Create an instance of the object using move construction.
+    {
+    }
+};
+
+struct MoveOnlyThrowingUnion {
+    // This user-defined type, which is marked to have a non-'nothrow'
+    // 'MovableRef' move constructor, so is not no-throw move constructible in
+    // any dialect of C++, is used for testing.
+
+    // CREATORS
+    MoveOnlyThrowingUnion(bslmf::MovableRef<MoveOnlyThrowingUnion>)
+        // Create an instance of the object using move construction.
+    {
+    }
+};
+
+struct MoveOnlyNothrowClass {
+    // This user-defined type, which is marked to have a 'nothrow' 'MovableRef'
+    // move constructor, so is no-throw move constructible in any dialect of
+    // C++ that supports 'noexcept', is used for testing.
+
+    // CREATORS
+    MoveOnlyNothrowClass(
+                 bslmf::MovableRef<MoveOnlyNothrowClass>) BSLS_KEYWORD_NOEXCEPT
+        // Create an instance of the object using move construction.
+    {
+    }
+};
+
+struct MoveOnlyNothrowUnion {
+    // This user-defined type, which is marked to have a 'nothrow' 'MovableRef'
+    // move constructor, so is no-throw move constructible in any dialect of
+    // C++ that supports 'noexcept', is used for testing.
+
+    // CREATORS
+    MoveOnlyNothrowUnion(
+                 bslmf::MovableRef<MoveOnlyNothrowUnion>) BSLS_KEYWORD_NOEXCEPT
+        // Create an instance of the object using move construction.
+    {
+    }
 };
 
 struct NestedTraitNothrowCopyableClass {
@@ -910,8 +965,9 @@ struct TrivialUnion {
 
 
 struct UnspecializedNothrowCopyableClass {
-    // This user-defined type, which is marked to have a no-throw copy
-    // constructor using template specialization (below), is used for testing.
+    // This user-defined type, which is not explicitly marked using trait
+    // specialization as being no-throw move constructible, is used for
+    // testing.
 
     // CREATORS
     UnspecializedNothrowCopyableClass();
@@ -923,8 +979,9 @@ struct UnspecializedNothrowCopyableClass {
 };
 
 struct UnspecializedNothrowCopyableUnion {
-    // This user-defined type, which is marked to have a no-throw copy
-    // constructor using template specialization (below), is used for testing.
+    // This user-defined type, which is not explicitly marked using trait
+    // specialization as being no-throw move constructible, is used for
+    // testing.
 
     // CREATORS
     UnspecializedNothrowCopyableUnion();
@@ -936,8 +993,9 @@ struct UnspecializedNothrowCopyableUnion {
 };
 
 struct UnspecializedNothrowMovableClass {
-    // This user-defined type, which is marked to have a no-throw move
-    // constructor using template specialization (below), is used for testing.
+    // This user-defined type, which is not explicitly marked using trait
+    // specialization as being no-throw move constructible, is used for
+    // testing.
 
     // CREATORS
     UnspecializedNothrowMovableClass();
@@ -951,8 +1009,9 @@ struct UnspecializedNothrowMovableClass {
 };
 
 struct UnspecializedNothrowMovableUnion {
-    // This user-defined type, which is marked to have a no-throw move
-    // constructor using template specialization (below), is used for testing.
+    // This user-defined type, which is not explicitly marked using trait
+    // specialization as being no-throw move constructible, is used for
+    // testing.
 
     // CREATORS
     UnspecializedNothrowMovableUnion();
@@ -966,20 +1025,21 @@ struct UnspecializedNothrowMovableUnion {
 };
 
 struct UnspecializedTrivialClass {
-    // This user-defined type, which is correctly marked as trivially copyable
-    // by explicit specialization of the 'bsl::is_trivially_copyable' trait, is
-    // used for testing.
+    // This user-defined type, which is not explicitly marked using trait
+    // specialization as being no-throw move constructible, is used for
+    // testing.
 };
 
 struct UnspecializedTrivialUnion {
-    // This user-defined type, which is correctly marked as trivially copyable
-    // by explicit specialization of the 'bsl::is_trivially_copyable' trait, is
-    // used for testing.
+    // This user-defined type, which is not explicitly marked using trait
+    // specialization as being no-throw move constructible, is used for
+    // testing.
 };
 
 struct UserDefinedThrowTestType {
-    // This user-defined type, which is not marked to be 'nothrow' move
-    // constructible, is used for testing.
+    // This user-defined type, which is not explicitly marked using trait
+    // specialization as being no-throw move constructible, is used for
+    // testing.
 
     // CREATORS
     UserDefinedThrowTestType();
@@ -1196,7 +1256,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1270,7 +1330,7 @@ int main(int argc, char *argv[])
 // no need for conditional compilation in when using 'MovableRef<TYPE>' while
 // move semantics is enabled in both modes.
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING DEDUCTION
         //   Ensure that the macro 'BSLMF_MOVABLEREF_DEDUCE' expands to a type
@@ -1542,7 +1602,7 @@ int main(int argc, char *argv[])
         TEST4(L_,   YES          , U::move(rrco) );
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING IBM XL C++ FUNCTIONS WITH DEFAULT ARGUMENTS WORKAROUND
         //   Ensure that the property and transformation traits provided by
@@ -1614,101 +1674,198 @@ int main(int argc, char *argv[])
 #undef MR
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // EXTENDING 'bsl::is_nothrow_move_constructible'
         //   Ensure the 'bsl::is_nothrow_move_constructible' metafunction
         //   returns the correct value for class types explicitly specified to
-        //   have a 'nothrow' move constructor.  This test case completes the
+        //   have a 'nothrow' move constructor using trait customization
+        //   facilities.  This test case completes the
         //   'bslmf_isnothrowmoveconstructible' test driver validating (only)
         //   class types across all variations where explicit BDE traits may
         //   agree or disagree with implicitly deduced C++11 traits.
         //
         // Concerns:
-        //:  1 The metafunction returns 'false' for non-trivial user-defined
-        //:    types without a no-throw move constructor.
-        //:
-        //:  2 The metafunction returns 'false' types with deleted (or private)
-        //:    copy and move constructors, even when declared 'noexcept'.
-        //:
-        //:  3 For a user-defined trivially copyable class type that is
+        //:  1 For a user-defined trivially copyable class type that is
         //:    correctly associated with either of the C++03 trait
         //:    customization facilities, both the native trait oracle and the
         //:    'bsl' trait return 'true' for the potentially const-qualified
         //:    type, and 'false' for volatile-qualified versions of that type.
         //:
-        //:  4 For a user-defined type with a move constructor marked as
+        //:  2 For a user-defined type with a move constructor marked as
         //:    'noexcept' in C++11, which is properly associated with the
         //:    'bsl::is_nothrow_move_constructible' trait, both the native
         //:    oracle  and the 'bsl' trait are defined to inherit from
         //:    'true_type' for the non-cv-qualified type, and 'false_type' for
         //:    cv-qualified versions of that type.
         //:
-        //:             // TYPES THAT DISAGREE BETWEEN C++03 AND C++11
-        //:
-        //:  5 For a user-defined trivially copyable class type that is not
-        //:    associated with either of the C++03 trait customization
-        //:    facilities, the trait returns 'false' for all cv-qualified
-        //:    variations of this type in C++03, but correctly deduces 'true'
-        //:    for potentially 'const' (but not 'volatile') qualified versions
-        //:    of this type in C++11.
-        //:
-        //:  6 For a user-defined type with a move constructor marked as
-        //:    'noexcept' in C++11, which is properly associated with the
-        //:    'bsl::is_nothrow_move_constructible' trait, both the native
-        //:    oracle  and the 'bsl' trait are defined to inherit from
-        //:    'true_type' for the non-cv-qualified type, and 'false_type' for
-        //:    cv-qualified versions of that type.
-        //:
-        //:  7 For a user-defined type with a copy constructor marked as
-        //:    'noexcept' in C++11 and no declared move constructor, which is
-        //:    properly associated with the 'is_nothrow_move_constructible'
-        //:    trait, both the native oracle and the 'bsl' trait are defined to
-        //:    inherit from 'true_type' for the non-cv-qualified type, and
-        //:    'false_type' for cv-qualified versions of that type.
-        //:
-        //:  8 For a user-defined type with a move constructor not marked as
+        //:  3 For a user-defined type with a move constructor not marked as
         //:    'noexcept' in C++11, and which is improperly associated with the
         //:    'bsl::is_nothrow_move_constructible' trait, the 'bsl' trait will
         //:    return 'true' in both C++03 and C++11, but the native oracle
         //:    will return 'false'.
         //:
-        //:  9 Traits apply equally to unions as to classes.  Note that unions
+        //:             // GENERAL CONCERNS
+        //:
+        //:  4 Traits apply equally to unions as to classes.  Note that unions
         //:    are known to cause problems in certain template metaprograms if
         //:    they rely on testing with mix-in inheritance, and this concern
         //:    is simply that this implementation does not have those problems.
         //:
-        //: 10 For array of any of these types, the metafunction always returns
+        //:  5 For array of any of these types, the metafunction always returns
         //:   'false'.
         //
         // Plan:
         //:  1 Create a set of representative class types for all scenarios
         //:    where C++03 and C++11 compilers should agree:
-        //:    o Simple types without any of the traits (C-1)
-        //:    o Types with inaccessible copy and move constructors that do not
-        //:      satisfy the traits (C-2)
         //:    o Trivial types that correctly associate with the C++03 trait
-        //:      (C-3)
+        //:      (C-1)
         //:    o Non-trivial types that associate with the trait, AND associate
-        //:      explicitly with the trait (C-4)
+        //:      explicitly with the trait (C-2, C-3)
         //:
-        //:  2 Create a set of representative class types for all scenarios
-        //:    where C++03 and C++11 compilers should disagree:
-        //:    o Simple types without any of the traits
+        //:  2 For each category of type in the above, create a similar union
+        //:    type. (C-4)
         //:
-        //:  3 For each category of type in concerns sets 1 and 2, create a
-        //:    similar union type.
-        //:
-        //:  4 For each type in steps 1-3, use the appropriate test macro for
-        //:    confirm the correct result.
+        //:  3 For each type in steps 1-2, use the appropriate test macro for
+        //:    confirm the correct result. (C-5)
         //
         // Testing:
         //   EXTENDING 'bsl::is_nothrow_move_constructible'
         // --------------------------------------------------------------------
 
         if (verbose)
-                  printf("\nEXTENDING 'bsl::is_nothrow_move_constructible'"
-                         "\n==============================================\n");
+            printf("\nEXTENDING 'bsl::is_nothrow_move_constructible'"
+                   "\n==============================================\n");
+
+        // C-1
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
+                                                      NestedTraitTrivialClass);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
+                                                      NestedTraitTrivialUnion);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialClass);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialUnion);
+
+        // C-2
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestClass,
+                                                   true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestUnion,
+                                                   true);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                                NestedTraitNothrowMovableClass,
+                                                true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                                NestedTraitNothrowMovableUnion,
+                                                true);
+
+        // C-3
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableClass, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableUnion, true);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                                  LyingNestedTraitMovableClass,
+                                                  true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                                  LyingNestedTraitMovableClass,
+                                                  true);
+
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // COMPATIBILITY WITH 'is_nothrow_move_constructible'
+        //   Ensure both the 'bsl::is_nothrow_move_constructible and
+        //   'std::is_nothrow_move_constructible' metafunctions return the
+        //   expected values for class types without explicit BDE trait
+        //   customization.
+        //
+        // Concerns:
+        //:  1 The metafunction returns 'false' for non-trivial user-defined
+        //:    types with a throwing move constructor.
+        //:
+        //:  2 The metafunction returns 'false' for types with deleted (or
+        //:    private) copy and move constructors, even when declared
+        //:    'noexcept'.
+        //:
+        //:  3 The metafunction returns 'false' for non-trivial user-defined
+        //:    types with a throwing move constructor and no copy constructor.
+        //:
+        //:             // TYPES THAT DISAGREE BETWEEN C++03 AND C++11
+        //:
+        //:  4 The metafunction returns 'true' in C++11 but 'false' in C++03
+        //:    for non-trivial user-defined types with a nothrow move
+        //:    constructor and no copy constructor that is not
+        //:    associated with either of the trait customization facilities.
+        //:
+        //:  5 For a user-defined trivially copyable type that is not
+        //:    associated with either of the trait customization facilities,
+        //:    the trait returns 'false' for all cv-qualified variations of
+        //:    this type in C++03, but correctly deduces 'true' for potentially
+        //:    'const' (but not 'volatile') qualified versions of this type in
+        //:    C++11.
+        //:
+        //:  6 For a user-defined type with a move constructor marked as
+        //:    'noexcept' in C++11, that is not associated with either of the
+        //:    trait customization facilities, both the native  oracle and the
+        //:    'bsl' trait are defined to inherit from 'true_type' for the
+        //:    non-cv-qualified type, and 'false_type' for cv-qualified
+        //:    versions of that type.
+        //:
+        //:  7 For a user-defined type with a copy constructor marked as
+        //:    'noexcept' in C++11 and no declared move constructor, that is
+        //:    not associated with either of the trait customization
+        //:    facilities, both the native oracle and the 'bsl' trait are
+        //:    defined to inherit from 'true_type' for the non-cv-qualified
+        //:    type, and 'false_type' for cv-qualified versions of that type.
+        //:
+        //:             // GENERAL CONCERNS
+        //:
+        //:  8 Traits apply equally to unions as to classes.  Note that unions
+        //:    are known to cause problems in certain template metaprograms if
+        //:    they rely on testing with mix-in inheritance, and this concern
+        //:    is simply that this implementation does not have those problems.
+        //:
+        //:  9 For array of any of these types, the metafunction always returns
+        //:    'false'.
+        //
+        // Plan:
+        //:  1 Create a set of representative class types for all scenarios
+        //:    where C++03 and C++11 compilers should agree:
+        //:    o Simple non-trivial types with a throwing move constructor that
+        //:      do not satisfy the traits (C-1)
+        //:    o Types with inaccessible copy and move constructors that do not
+        //:      satisfy the traits (C-2)
+        //:    o Simple types with a throwing move constructor that do not
+        //:      satisfy the traits (C-3)
+        //:
+        //:  2 Create a set of representative class types for all scenarios
+        //:    where C++03 and C++11 compilers should disagree:
+        //:    o Simple types with a nothrow move constructor and no copy
+        //:      constructor (C-4)
+        //:    o Trivially copyable types (C-5)
+        //:    o Simple types with a nothrow move constructor and a copy
+        //:      constructor (C-6)
+        //:    o Simple types with no move constructor and a copy
+        //:      constructor (C-7)
+        //:
+        //:  3 For each category of type in concerns sets 1 and 2, create a
+        //:    similar union type (C-8).
+        //:
+        //:  4 For each type in steps 1-3, use the appropriate test macro for
+        //:    confirm the correct result. These macros also test arrays where
+        //:    appropriate (C-10).
+        //
+        // Testing:
+        //   COMPATIBILITY WITH 'is_nothrow_move_constructible'
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+                 "\nCOMPATIBILITY WITH 'is_nothrow_move_constructible'"
+                 "\n=================================================\n");
 
         // C-0: Verify that the trait tests do not give different answers for
         // fundamental types.  This is testing the test machinery, as this test
@@ -1731,27 +1888,24 @@ int main(int argc, char *argv[])
 
         // C-3
 
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
-                                                      NestedTraitTrivialClass);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
-                                                      NestedTraitTrivialUnion);
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialClass);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialUnion);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyThrowingClass,
+                                                   false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyThrowingUnion,
+                                                   false);
 
         // C-4
 
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestClass,
+#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowClass,
                                                    true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestUnion,
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowUnion,
                                                    true);
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                NestedTraitNothrowMovableClass,
-                                                true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                NestedTraitNothrowMovableUnion,
-                                                true);
+#else
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowClass,
+                                                   false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowUnion,
+                                                   false);
+#endif
 
         // C-5
 #if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)                               \
@@ -1810,18 +1964,6 @@ int main(int argc, char *argv[])
                                              UnspecializedNothrowCopyableUnion,
                                              false);
 #endif
-
-        // C-8
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableClass, true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableUnion, true);
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                  LyingNestedTraitMovableClass,
-                                                  true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                  LyingNestedTraitMovableClass,
-                                                  true);
 
       } break;
       case 8: {
