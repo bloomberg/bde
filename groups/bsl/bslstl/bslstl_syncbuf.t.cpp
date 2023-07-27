@@ -2,7 +2,6 @@
 #include <bslstl_syncbuf.h>
 
 #include <bslstl_stringbuf.h>
-#include <bslstl_ostream.h>
 
 #include <bslma_stdallocator.h>
 #include <bslma_stdtestallocator.h>
@@ -14,6 +13,7 @@
 #include <bsltf_stdstatefulallocator.h>
 
 #include <iostream>  // 'std::cout'
+#include <ostream>
 
 #include <stddef.h>  // '::size_t'
 #include <stdio.h>
@@ -452,6 +452,7 @@ class SyncBufTest {
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+namespace bsl { using std::ostream; }
 
 void writeSync(bsl::ostream& os)
     // Write atomically to the specified 'os' output stream.
