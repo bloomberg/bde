@@ -1,11 +1,11 @@
 // bdlb_numericparseutil.t.cpp                                        -*-C++-*-
 #include <bdlb_numericparseutil.h>
 
+#include <bslim_testutil.h>
+
 #include <bdlb_chartype.h>
 #include <bdlb_float.h>
 #include <bdlb_stringviewutil.h>
-
-#include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>   // for testing only
 #include <bslma_sequentialallocator.h>
@@ -18,9 +18,13 @@
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 #include <bsl_iterator.h>
@@ -33,10 +37,11 @@
 
 #include <bsl_cerrno.h>    // 'errno', 'ERANGE', 'EDOM'
 #include <bsl_climits.h>
-#include <bsl_cmath.h>     // 'bsl::fabs'
-#include <bsl_cstdio.h>    // 'bsl::sscanf'
-#include <bsl_cstring.h>   // 'bsl::memset', 'bsl::memcpy'
-#include <bsl_cstddef.h>   // 'bsl::ptrdiff_t', 'bsl::size_t'
+#include <bsl_cmath.h>     // 'fabs'
+#include <bsl_cstdio.h>    // 'sscanf'
+#include <bsl_ctime.h>     // 'time_t', 'time'
+#include <bsl_cstring.h>   // 'memset', 'memcpy'
+#include <bsl_cstddef.h>   // 'ptrdiff_t', 'size_t'
 #include <bsl_cstdlib.h>
 
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV) || \
@@ -81,9 +86,12 @@
     #define u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG                       1
 #endif
 
-#if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)) ||\
-    defined(BSLS_PLATFORM_CMP_GNU)
-    // SunOS/Solaris 'strtod' does not support hexfloats, even though its C99.
+// Solaris 'strtod' linked by us somehow does not parse hexadecimal floats, but
+// the one we link when using gcc on Solaris does.
+#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+    #define u_BDLB_NUMERICPARSEUTIL_ON_SUN                                    1
+#endif
+#if !defined(u_BDLB_NUMERICPARSEUTIL_ON_SUN) || defined(BSLS_PLATFORM_CMP_GNU)
     #define u_BDLB_NUMERICPARSEUTIL_SUPPORT_PARSING_HEXFLOAT                  1
 #endif
 
@@ -1807,6 +1815,7 @@ static const TestDataRow TEST_DATA[] = {
     ROW("0x1d",                            29,                      All, "H" ),
     ROW("0x1e",                            30,                      All, "H" ),
     ROW("0x1f",                            31,                      All, "H" ),
+    ROW("0xFF",                           255,                      All, "H" ),
 
     // '[eE]+$' had 'scanf' anomalies, we treat those as possible anomalies
     ROW("0ee",                               0,                       1, ""  ),
@@ -4206,78 +4215,678 @@ void report()
 // ============================================================================
 // PARSE DOUBLE BENCHMARKING
 
+namespace benchmarking {
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01 // Function not in alphanumeric order
+// BDE_VERIFY pragma: -BAN02   // Banner ends at column ? instead of 79
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD01   // Function declaration requires contract
+
+const static bsl::string_view k_ALGORITHM =
+#ifdef u_PARSEDOUBLE_USES_FROM_CHARS
+#ifdef u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY
+    "from_chars-17"; // 'std::from_chars' with 'strtod' on range-errors
+#else
+    "from_chars-MS"; // pure 'std::from_chars'
+#endif
+#else
+    "strtod";  // pure 'strtod'
+#endif
+
+class LapTimesDatum {
+    // CPU (user/system) usage and elapsed wall time capture in seconds.
+
+    // DATA
+    double             d_user;
+    double             d_system;
+    double             d_wall;
+
+    bsls::TimeInterval d_endTime;
+
+  public:
+    // CREATORS
+    LapTimesDatum() {}
+
+    explicit LapTimesDatum(const bsls::Stopwatch& lapWatch) {
+        set(lapWatch);
+    }
+
+    // MANIPULATORS
+    void set(const bsls::Stopwatch& lapWatch) {
+        lapWatch.accumulatedTimes(&d_system, &d_user, &d_wall);
+        d_endTime = bsls::SystemTime::nowMonotonicClock();
+    }
+
+    // ACCESSORS
+    double endTime() const {
+        return d_endTime.totalSecondsAsDouble();
+    }
+
+    double userCpu() const {
+        return d_user;
+    }
+    double systemCpu() const {
+        return d_system;
+    }
+    double wall() const {
+        return d_wall;
+    }
+};
+
+class LapTimes {
+    // This class stores CPU (user/system) usage and elapsed wall time data
+    // captures in seconds for later manipulation or saving.
+
+  public:
+    // TYPES
+    typedef bsl::vector<LapTimesDatum> LapTimesList;
+
+  private:
+    // DATA
+    bsls::TimeInterval d_warmupStartTime;       // Monotonic clock
+    LapTimesList       d_warmupLapTimesList;    // Lap stopwatch & Monoton. clk
+    LapTimesDatum      d_warmupFullTimes;       // Long running stopwatch
+
+    bsls::TimeInterval d_measuringStartTime;    // Monotonic clock
+    LapTimesList       d_measuredLapTimesList;  // Lap stopwatch & Monoton. clk
+    bsls::TimeInterval d_measuringEndTime;      // Monotonic clock
+    LapTimesDatum      d_measuringFullTime;     // Long running stopwatch
+
+  public:
+    // CREATORS
+    explicit LapTimes(unsigned numWarmupLaps, unsigned numMeasuredLaps) {
+        BSLS_ASSERT(numWarmupLaps   > 0);
+        BSLS_ASSERT(numMeasuredLaps > 0);
+
+        d_warmupLapTimesList.reserve(numWarmupLaps);
+        d_measuredLapTimesList.reserve(numMeasuredLaps);
+    }
+
+    // MANIPULATORS
+    void recordWarmupStartTime() {
+        d_warmupStartTime = bsls::SystemTime::nowMonotonicClock();
+    }
+
+    void recordWarmupLapTimes(const bsls::Stopwatch& lapWatch) {
+        d_warmupLapTimesList.emplace_back(lapWatch);
+    }
+
+    void recordWarmupFullTimes(const bsls::Stopwatch& fullWatch) {
+        d_warmupFullTimes.set(fullWatch);
+    }
+
+    void recordMeasuringStartTime() {
+        d_measuringStartTime = bsls::SystemTime::nowMonotonicClock();
+    }
+
+    void recordMeasuredLapTimes(const bsls::Stopwatch& lapWatch) {
+        d_measuredLapTimesList.emplace_back(lapWatch);
+    }
+
+    void recordMeasuredFullTimes(const bsls::Stopwatch& fullWatch) {
+        d_measuringFullTime.set(fullWatch);
+    }
+
+    void recordMeasuringEndTime() {
+        d_measuringEndTime = bsls::SystemTime::nowMonotonicClock();
+    }
+
+    // ACCESSORS
+    double warmupStartTime() const {
+        return d_warmupStartTime.totalSecondsAsDouble();
+    }
+
+    const LapTimesList& warmupLapTimesList() const {
+        return d_warmupLapTimesList;
+    }
+
+    const LapTimesDatum& warmupFullTimes() const {
+        return d_warmupFullTimes;
+    }
+
+    double measuringStartTime() const {
+        return d_measuringStartTime.totalSecondsAsDouble();
+    }
+
+    const LapTimesList& measuredLapTimesList() const {
+        return d_measuredLapTimesList;
+    }
+
+    double measuringEndTime() const {
+        return d_measuringEndTime.totalSecondsAsDouble();
+    }
+
+    const LapTimesDatum& measuringFullTime() const {
+        return d_measuringFullTime;
+    }
+};
+
+class TimerRecorder {
+    // A mechanism that measures and records "laps" of benchmark runs.
+
+    // DATA
+    bsls::Stopwatch d_sumWatch;
+    bsls::Stopwatch d_stopWatch;
+
+    LapTimes&       d_lapTimes;
+
+  public:
+    // CREATORS
+    explicit TimerRecorder(LapTimes *results)
+    : d_lapTimes(*results)
+    {
+        BSLS_ASSERT(results);
+
+        ASSERTV(results->measuredLapTimesList().size(),
+                results->measuredLapTimesList().empty());
+
+        ASSERTV(results->warmupLapTimesList().size(),
+                results->warmupLapTimesList().empty());
+    }
+
+    // MANIPULATORS
+    void startWarmup() {
+        d_lapTimes.recordWarmupStartTime();
+        d_sumWatch.start(bsls::Stopwatch::k_COLLECT_WALL_AND_CPU_TIMES);
+    }
+
+    void startWarmupLap() {
+        d_stopWatch.start(bsls::Stopwatch::k_COLLECT_WALL_AND_CPU_TIMES);
+    }
+
+    void recordWarmupLap() {
+        d_lapTimes.recordWarmupLapTimes(d_stopWatch);
+        d_stopWatch.reset();
+    }
+
+    void stopWarmup() {
+        d_sumWatch.stop();
+        d_lapTimes.recordWarmupFullTimes(d_sumWatch);
+    }
+
+    void startMeasuring() {
+        d_lapTimes.recordMeasuringStartTime();
+        d_sumWatch.start(bsls::Stopwatch::k_COLLECT_WALL_AND_CPU_TIMES);
+    }
+
+    void startMeasuredLap() {
+        d_stopWatch.start(bsls::Stopwatch::k_COLLECT_WALL_AND_CPU_TIMES);
+    }
+
+    void recordMeasuredLap() {
+        d_lapTimes.recordMeasuredLapTimes(d_stopWatch);
+        d_stopWatch.reset();
+    }
+
+    void stopMeasuring() {
+        d_sumWatch.stop();
+        d_lapTimes.recordMeasuredFullTimes(d_sumWatch);
+        d_lapTimes.recordMeasuringEndTime();
+    }
+};
+
+
+// BDE_VERIFY pragma: pop  // -FD01: no contract
+
+
+                          // ====================
+                          // class BenchmarkInput
+                          // ====================
+
+class BenchmarkInput {
+    // Abstraction to store benchmark input in a cache-friendly way from either
+    // the 'TEST_DATA' or external input.
+
+    // DATA
+    bsl::string                   d_strings;
+    bsl::vector<bsl::string_view> d_refs;
+
+  public:
+    // CREATORS
+    template <bsl::size_t t_SIZE>
+    explicit BenchmarkInput(const TestDataRow(&testTable)[t_SIZE]);
+        // Create a 'BenchmarkInput' object representing benchmark input data
+        // from the specified 'testTable' *without* copying the input strings.
+        // The behavior is undefined unless all the referenced input strings
+        // ('testTable[n].d_input') outlive the object created.
+
+    explicit BenchmarkInput(bsl::streambuf *streamBuf,
+                            unsigned        maxNums,
+                            unsigned        maxMemMB);
+        // Create a 'BenchmarkInput' object representing benchmark input data
+        // read from the specified 'streamBuf' until EOF is reached, a hard
+        // error occurs, or until the  specified 'maxNums' number of input
+        // strings or 'maxMemMB' number of (significant, non-whitespace)
+        // characters are read.  The value of 0 for either of 'maxNums' and
+        // 'maxMemMB' indicates no limit.  The input (from 'streamBuf') is
+        // considered to be a sequence of whitespace-delimited strings that the
+        // benchmark will parse by repeatedly calling 'parseDouble'.  The read
+        // strings are copied into the object created.
+
+    // ACCESSORS
+    operator const bsl::vector<bsl::string_view>& () const
+        // Provide implicit conversion to the expected input type of the
+        // benchmark.
+    {
+        return d_refs;
+    }
+};
+
+                          // --------------------
+                          // class BenchmarkInput
+                          // --------------------
+
+// CREATORS
+template <bsl::size_t t_SIZE>
+BenchmarkInput::BenchmarkInput(const TestDataRow(&testTable)[t_SIZE])
+{
+    d_refs.reserve(t_SIZE);
+    for (bsl::size_t ti = 0; ti < t_SIZE; ++ti) {
+        d_refs.emplace_back(testTable[ti].d_input);
+    }
+}
+
+BenchmarkInput::BenchmarkInput(bsl::streambuf *streamBuf,
+                               unsigned        maxNums,
+                               unsigned        maxMemMB)
+{
+    BSLS_ASSERT(streamBuf);
+
+    bsl::istream is(streamBuf);
+
+    const bsl::size_t maxBytes = maxMemMB * 1024 * 1024 + 512;
+         // We allow more characters so in the report we get the limit in
+         // megabytes, and not 1MB less, unless that last string is too long.
+
+    // 'd_strings' gets reallocated, can't store pointers yet
+    bsl::vector<bsl::size_t> lengths;
+
+    bsl::cout << "Reading input data...\n";
+
+    // Read-one-ahead style
+    bsl::string number;
+    is >> number;
+    while (is &&
+           (!maxNums  || lengths.size() <= maxNums) &&
+           (!maxMemMB || d_strings.size() + number.size() <= maxBytes))
+    {
+        d_strings += number;
+        lengths.push_back(number.length());
+
+        is >> number;  // Attempt to read next
+    }
+
+    // Read all we can, lets tell how many:
+    using bsl::cout;  using bsl::cerr;
+    cout << "Read " << lengths.size() << " input strings, full length "
+         << d_strings.size() << " bytes, "
+         << d_strings.size() / (1024 * 1024) << "MB.\n";
+    if (!is && !is.eof()) {
+        cerr << "Reading has stopped due to an error.\n";
+    }
+
+    bsl::size_t currPos = 0;
+    for (bsl::size_t pi = 1; pi < lengths.size(); ++pi) {
+        d_refs.emplace_back(&d_strings[currPos], lengths[pi]);
+        currPos += lengths[pi];
+    }
+}
+
+// =================================
+// Input-Independent Benchmark Code
+
 volatile double sink = 0.0;
     // Attempting to avoid optimization in the benchmark code
 
-void benchmarkParseDouble(int numofWarmupRuns, int numofMeasuredRuns)
-    // Call 'parseDouble' on each line of the test data table the specified
-    // 'numofWarmupRuns' times, then call 'parseDouble' on each line of the
-    // test data table the specified 'numofMeasuredRuns' times while collecting
-    // CPU use and wall time data.  Then report the collected data to standard
-    // output and return.
+void measure(LapTimes                             *results,
+             const bsl::vector<bsl::string_view>&  inputs,
+             int                                   numWarmupLaps,
+             int                                   numMeasuredLaps)
+    // Call 'parseDouble' on each input string of the specified 'inputs'
+    // 'numWarmupLaps' times to prime the CPU cache/prediction.  Then call
+    // 'parseDouble' on the inputs again the specified 'numMeasuredLaps' times
+    // and collect CPU user-system use and wall time data in ('double') seconds
+    // for each lap and add them to the specified 'results'.
 {
     // Silence 'BSLS_REVIEW', its handling is irrelevant to the benchmark.
     bsls::Review::setViolationHandler(nullReviewHandler);
 
-    // Not measured, to get the tight loop "recognized"
-    for (int wi = 0; wi < numofWarmupRuns; ++wi) {
-        for (bsl::size_t ti = 0; ti < NUM_TEST_DATA; ++ti) {
-            double d;
-            if (0 == Util::parseDouble(&d, TEST_DATA[ti].d_input)) {
-                // Pretend the result is used
-                sink = sink + d;
-            }
+    const bsl::size_t NUM_INPUTS = inputs.size();
+
+    bsl::cout << "Starting warmup laps...\n";
+
+    // Not measured, to get the CPU cache "primed" etc.
+    double           d = 42.0;
+    bsl::string_view rest;
+
+    TimerRecorder timerRecorder(results);
+    timerRecorder.startWarmup();
+    for (int wi = 0; wi < numWarmupLaps; ++wi) {
+        timerRecorder.startWarmupLap();
+        for (bsl::size_t ti = 0; ti < NUM_INPUTS; ++ti) {
+            bdlb::NumericParseUtil::parseDouble(&d, &rest, inputs[ti]);
+            sink = sink + d;  // Pretend the result is used
         }
+        timerRecorder.recordWarmupLap();
     }
+    timerRecorder.stopWarmup();
 
-    bsls::Stopwatch sw;
-    sw.start(bsls::Stopwatch::k_COLLECT_WALL_AND_CPU_TIMES);
-    for (int mi = 0; mi < numofMeasuredRuns; ++mi) {
-        for (bsl::size_t ti = 0; ti < NUM_TEST_DATA; ++ti) {
-            double d;
-            if (0 == Util::parseDouble(&d, TEST_DATA[ti].d_input)) {
-                // Pretend the result is used
-                sink = sink + d;
-            }
+    bsl::cout << "Starting measured laps...\n" << bsl::flush;
+
+    timerRecorder.startMeasuring();
+    for (int mi = 0; mi < numMeasuredLaps; ++mi) {
+        timerRecorder.startMeasuredLap();
+        for (bsl::size_t ti = 0; ti < NUM_INPUTS; ++ti) {
+            Util::parseDouble(&d, &rest, inputs[ti]);
+            sink = sink + d;  // Pretend the result is used
         }
+        timerRecorder.recordMeasuredLap();
     }
-    sw.stop();
-
-    // All times spent running
-    const double allUserSec = sw.accumulatedUserTime();
-    const double allSystSec = sw.accumulatedSystemTime();
-    const double allWallSec = sw.accumulatedWallTime();
-
-    // The average time to run the whole test data table
-    const double tblUserMilli = allUserSec * 1000 / numofMeasuredRuns;
-    const double tblSystMilli = allSystSec * 1000 / numofMeasuredRuns;
-    const double tblWallMilli = allWallSec * 1000 / numofMeasuredRuns;
-
-    // The average time per table line, which is a call
-    const double dblNumRows = static_cast<double>(NUM_TEST_DATA);
-        // Avoids long lines and a conversion warning.
-
-    const double callUserNano = tblUserMilli * 1000000 / dblNumRows;
-    const double callSystNano = tblSystMilli * 1000000 / dblNumRows;
-    const double callWallNano = tblWallMilli * 1000000 / dblNumRows;
-
-    StreamStateGuard ssg(bsl::cout); (void)ssg;
-    bsl::cout.precision(2);
-    bsl::cout << bsl::fixed;
-
-    bsl::cout << "Full run\n"
-                  "    User:   " << allUserSec << " s\n"
-                  "    System: " << allSystSec << " s\n"
-                  "    Wall:   " << allWallSec << " s\n\n";
-
-    bsl::cout << "Per call\n"
-                 "    User:   " << callUserNano << " ns\n"
-                 "    System: " << callSystNano << " ns\n"
-                 "    Wall:   " << callWallNano << " ns\n\n";
+    timerRecorder.stopMeasuring();
 }
 
+// MACROS for "good looking" hierarchical JSON writing
+
+#define u_NL(os)  do { os <<  '\n' << k_INDENTS[nesting]; } while(false)
+#define u_CNL(os) do { os << ",\n" << k_INDENTS[nesting]; } while(false)
+
+#define u_COMMA(os)  do { os << ", ";  } while(false)
+#define u_SPACE(os)  do { os << ' ';   } while(false)
+
+#define u_NAME_(nameLit) "\"" nameLit "\": "
+
+#define u_STRING(os, name, varName) do {                                      \
+                   os << u_NAME_(name) << '"' << varName << '"'; } while(false)
+
+#define u_NUMBER(os, name, numvar) do {                                       \
+                                  os << u_NAME_(name) << numvar; } while(false)
+
+#define u_END(os) do {                                                        \
+             BSLS_ASSERT(nesting > 0); os << nestack[--nesting]; } while(false)
+#define u_NLEND(os) do {  BSLS_ASSERT(nesting > 0);  --nesting;               \
+           os << '\n' << k_INDENTS[nesting] << nestack[nesting]; } while(false)
+    // Dummy 'os' argument is needed to make C++03 preprocessors happy about
+    // using parentheses (function-like macro).  The dummy 'os' argument is
+    // added to all other macros for consistency.
+
+#define u_BEGIN(os, startChar, endChar) do {                                  \
+                                            os << startChar;                  \
+                                            nestack[nesting++] = endChar;     \
+                                            BSLS_ASSERT(nesting < k_MAX_NEST);\
+                                        } while(false)
+
+#define u_ARRAY(os, name) do {                                                \
+                     os << u_NAME_(name); u_BEGIN(os, '[', ']'); } while(false)
+
+#define u_OBJECT(os, name) do {                                               \
+                     os << u_NAME_(name); u_BEGIN(os, '{', '}'); } while(false)
+
+#define u_OBJECT_OPEN(os) do { u_BEGIN(os, '{', '}'); } while(false)
+
+void writeReport(bsl::streambuf          *outputStreamHandle,
+                 const char              *utcStartTime,
+                 const bsl::string_view&  inputSource,
+                 bsl::size_t              numData,
+                 const LapTimes&          lapTimes)
+    // Write into the specified 'outputStreamHandle' the benchmark results from
+    // the specified 'lapTimes', for a benchmark with the specified 'numData'
+    // input for calls from the specified 'inputSource', that started at the
+    // specified 'utcStartTime' (ISO 8601).  The current output format is JSON.
+{
+    BSLS_ASSERT(outputStreamHandle);
+    BSLS_ASSERT(utcStartTime);
+    ASSERTV(lapTimes.measuredLapTimesList().size(),
+            !lapTimes.measuredLapTimesList().empty());
+
+    bsl::ostream os(outputStreamHandle);
+
+    const int k_MAX_NEST = 5;       // Max nesting level + 1
+    char      nestack[k_MAX_NEST];  // Closing chars for open nesting levels
+    int       nesting = 0;          // Current nesting depth
+
+    const int k_INDENT_BY = 4;
+    static const char k_SPACES[k_MAX_NEST * k_INDENT_BY + 1] = // 2 * 10 spaces
+                                                     "          " "          ";
+    static const char *k_INDENTS[k_MAX_NEST] = {
+        k_SPACES + (k_MAX_NEST - 0) * k_INDENT_BY,
+        k_SPACES + (k_MAX_NEST - 1) * k_INDENT_BY,
+        k_SPACES + (k_MAX_NEST - 2) * k_INDENT_BY,
+        k_SPACES + (k_MAX_NEST - 3) * k_INDENT_BY,
+        k_SPACES + (k_MAX_NEST - 4) * k_INDENT_BY
+    };
+
+    bsl::cout << "Writing benchmark report into file...\n";
+
+    os << bsl::setprecision(19);
+
+    u_OBJECT_OPEN(os); u_NL(os); {
+        u_STRING(os, "utcStartTime", utcStartTime);   u_CNL(os);
+        u_STRING(os, "algorithm",    k_ALGORITHM);    u_CNL(os);
+        u_STRING(os, "inputSource",  inputSource);    u_CNL(os);
+        u_NUMBER(os, "inputSize",    numData);        u_CNL(os);
+        u_NL(os);
+
+        // Print warm-up info and measurements for load, throttle etc. analysis
+
+        const bsl::size_t numWarmupLaps = lapTimes.warmupLapTimesList().size();
+        u_NUMBER(os, "numWarmupLaps",   numWarmupLaps);              u_CNL(os);
+        u_STRING(os, "warmupStartTime", lapTimes.warmupStartTime()); u_CNL(os);
+        u_OBJECT(os, "warmupFullTime"); {
+            const LapTimesDatum& times = lapTimes.warmupFullTimes();
+            u_NUMBER(os, "user",   times.userCpu());    u_COMMA(os);
+            u_NUMBER(os, "system", times.systemCpu());  u_COMMA(os);
+            u_NUMBER(os, "wall",   times.wall());       u_COMMA(os);
+            u_STRING(os, "end",    times.endTime());    u_SPACE(os);
+        } u_END(os); u_CNL(os);
+
+        u_ARRAY(os, "warmupLapTimes"); u_NL(os); {
+            typedef LapTimes::LapTimesList LapTimesList;
+            const LapTimesList& times  = lapTimes.warmupLapTimesList();
+            const bsl::size_t   lapNum = times.size();
+
+            u_OBJECT_OPEN(os); u_SPACE(os); {
+                u_NUMBER(os, "user",   times[0].userCpu());    u_COMMA(os);
+                u_NUMBER(os, "system", times[0].systemCpu());  u_COMMA(os);
+                u_NUMBER(os, "wall",   times[0].wall());       u_COMMA(os);
+                u_STRING(os, "end",    times[0].endTime());    u_SPACE(os);
+            } u_END(os);
+
+            for (bsl::size_t i = 1; i < lapNum; ++i) {
+                u_CNL(os);
+                u_OBJECT_OPEN(os); u_SPACE(os); {
+                    u_NUMBER(os, "user",   times[i].userCpu());    u_COMMA(os);
+                    u_NUMBER(os, "system", times[i].systemCpu());  u_COMMA(os);
+                    u_NUMBER(os, "wall",   times[i].wall());       u_COMMA(os);
+                    u_STRING(os, "end",    times[i].endTime());    u_SPACE(os);
+                } u_END(os);
+            }
+        } u_NLEND(os);
+        u_CNL(os);
+        u_NL(os);
+
+        // Print measured laps info for benchmarking
+
+        const bsl::size_t numMeasuredLaps =
+                                        lapTimes.measuredLapTimesList().size();
+
+        u_NUMBER(os, "numMeasuredLaps", numMeasuredLaps);            u_CNL(os);
+        u_STRING(os, "measuringStartTime",
+                     lapTimes.measuringStartTime());                 u_CNL(os);
+        u_OBJECT(os, "measuringFullTime"); {
+            const LapTimesDatum& times = lapTimes.measuringFullTime();
+            u_NUMBER(os, "user",   times.userCpu());    u_COMMA(os);
+            u_NUMBER(os, "system", times.systemCpu());  u_COMMA(os);
+            u_NUMBER(os, "wall",   times.wall());       u_COMMA(os);
+            u_STRING(os, "end",    times.endTime());    u_SPACE(os);
+        } u_END(os); u_CNL(os);
+
+        u_ARRAY(os, "measuredLapTimes"); u_NL(os); {
+            typedef LapTimes::LapTimesList LapTimesList;
+            const LapTimesList& times  = lapTimes.measuredLapTimesList();
+            const bsl::size_t   lapNum = times.size();
+
+            u_OBJECT_OPEN(os); u_SPACE(os); {
+                u_NUMBER(os, "user",   times[0].userCpu());    u_COMMA(os);
+                u_NUMBER(os, "system", times[0].systemCpu());  u_COMMA(os);
+                u_NUMBER(os, "wall",   times[0].wall());       u_COMMA(os);
+                u_STRING(os, "end",    times[0].endTime());    u_SPACE(os);
+            } u_END(os);
+
+            for (bsl::size_t i = 1; i < lapNum; ++i) {
+                u_CNL(os);
+                u_OBJECT_OPEN(os); u_SPACE(os); {
+                    u_NUMBER(os, "user",   times[i].userCpu());    u_COMMA(os);
+                    u_NUMBER(os, "system", times[i].systemCpu());  u_COMMA(os);
+                    u_NUMBER(os, "wall",   times[i].wall());       u_COMMA(os);
+                    u_STRING(os, "end",    times[i].endTime());    u_SPACE(os);
+                } u_END(os);
+            }
+        } u_NLEND(os);
+        u_CNL(os);
+        u_STRING(os, "measuringEndTime", lapTimes.measuringEndTime());
+    } u_NLEND(os);
+
+    os << "\n\n\n" << bsl::flush;  // Add visual separation
+}
+#undef u_NL
+#undef u_CNL
+#undef u_NAME_
+#undef u_STRING
+#undef u_NUMBER
+#undef u_END
+#undef u_NLEND
+#undef u_BEGIN
+#undef u_ARRAY
+#undef u_OBJECT
+#undef u_OBJECT_OPEN
+
+void runBenchmark(bsl::fstream                         *reportFile,
+                  const bsl::string_view&               inputSource,
+                  const bsl::vector<bsl::string_view>&  inputs,
+                  unsigned                              numWarmupLaps,
+                  unsigned                              numMeasuredLaps)
+    // Benchmark the current 'parseDouble' implementation using the specified
+    // 'inputs' and write the results into the specified 'reportFile' (in JSON
+    // format).  Before measuring call 'parseDouble' on all 'inputs' the
+    // specified 'numWarmupLaps' times to warm up the CPU cache (and the cache
+    // prediction).  Then call 'parseDouble' on all 'inputs' the specified
+    // 'numMeasuredLaps' times and measure the CPU (user and system) use as
+    // well as wall time for each lap.  The report will contain all those
+    // measurements as well as the specified 'inputSource'.
+{
+    LapTimes lapTimes(numWarmupLaps, numMeasuredLaps);
+
+    // Save the time before we measure
+    bsl::time_t startTimePoint = bsl::time(0);
+
+    measure(&lapTimes, inputs, numWarmupLaps, numMeasuredLaps);
+
+    // Convert now to tm struct for UTC
+    bsl::tm *utcTmPtr = gmtime(&startTimePoint);
+    BSLS_ASSERT(utcTmPtr);  // Report error before the long benchmark run
+    char utcStartTime[sizeof "2011-10-08T07:07:09Z"];  // ISO 8601
+    bsl::strftime(utcStartTime, sizeof utcStartTime, "%FT%TZ", utcTmPtr);
+
+    writeReport(reportFile->rdbuf(),
+                utcStartTime,
+                inputSource,
+                inputs.size(),
+                lapTimes);
+}
+
+void openReportFile(bsl::fstream *reportFile)
+    // Open the specified benchmark 'reportFile' for appended writing.
+{
+    BSLS_ASSERT(reportFile);
+
+    static const char *fname =
+                            "bdlb_numericparseutil-parseDouble-benchmark.json";
+
+    typedef bsl::ios_base openflag;
+
+    reportFile->open(fname, openflag::out | openflag::app);
+    if (!reportFile->is_open()) {
+        const int errorNumber = errno;
+        bsl::cerr << "Could not open '" << fname << "' for writing.\n";
+        BSLS_ASSERT_INVOKE_NORETURN("Could not open report file for writing.");
+        exit(errorNumber);
+    }
+}
+
+}  // close namespace benchmarking
+
+void benchmarkParseDouble_OnTestData(unsigned numWarmupLaps,
+                                     unsigned numMeasuredLaps)
+    // Run a benchmark using 'TEST_DATA' as input with the specified
+    // 'numWarmupLaps' and 'numMeasuredLaps' and report the result to file.
+{
+    using namespace testDouble::benchmarking;
+
+    bsl::fstream reportFile;
+    openReportFile(&reportFile);
+
+    const BenchmarkInput inputs(testDouble::TEST_DATA);
+    runBenchmark(&reportFile,
+                 "'TEST_DATA'",
+                 inputs,
+                 numWarmupLaps,
+                 numMeasuredLaps);
+}
+
+
+void benchmarkParseDouble_OnFile(const char *inputFilename,
+                                 unsigned    maxDataCount,
+                                 unsigned    maxDataMegaBytes,
+                                 unsigned    numWarmupLaps,
+                                 unsigned    numMeasuredLaps)
+    // Run a benchmark using data from the specified 'inputFilename' as input
+    // with the specified 'numWarmupLaps' and 'numMeasuredLaps' and report the
+    // results to file.  Unless zero, use the specified 'maxDataCount' to limit
+    // the number of input strings used (read) from the input file.  Unless
+    // zero, use the specified 'maxDataMegaBytes' to limit the combined size of
+    // all input (strings) used (read) from the input file.  The reading of
+    // input on the first active limit that is exhausted.
+{
+    using namespace testDouble::benchmarking;
+
+    bsl::fstream reportFile;
+    openReportFile(&reportFile);
+
+    BSLS_ASSERT(inputFilename);
+    BSLS_ASSERT(inputFilename[0]);
+
+    bsl::ifstream inputs;
+    const bool isDash = ('-' == inputFilename[0] && '\0' == inputFilename[1]);
+    if (!isDash) {
+        inputs.open(inputFilename);
+        if (!inputs.is_open()) {
+            const int errorNumber = errno;
+            bsl::cerr << "Could not open '" << inputFilename << "' "
+                                                              "for reading.\n";
+            BSLS_ASSERT_INVOKE_NORETURN("Could not open input file.");
+            exit(errorNumber);
+        }
+    }
+
+    // "-" input file name means standard input
+    bsl::streambuf *inbuf = isDash ? bsl::cin.rdbuf() : inputs.rdbuf();
+
+    const BenchmarkInput input(inbuf, maxDataCount, maxDataMegaBytes);
+    inputs.close();
+
+    runBenchmark(&reportFile,
+                 inputFilename,
+                 input,
+                 numWarmupLaps,
+                 numMeasuredLaps);
+}
+
+// BDE_VERIFY pragma: pop  // FABC01, BAN02
+
 // ============================================================================
-// PARSE DOUBLE TEST MACHINERY VERIFICATION
+// PARSE DOUBLE TEST MACHINERY VERIFICATION MACHINERY
 
 void testCalcRestPos()
     // Verifies the 'calcRestPos' support function.  See the calling test
@@ -5307,7 +5916,7 @@ bool isHexHalfSubnormMin(const bsl::string_view& input)
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
         verbose         = argc > 2;  // These variables are global
         veryVerbose     = argc > 3;  // to be reachable from
         veryVeryVerbose = argc > 4;  // test case functions
@@ -7609,36 +8218,10 @@ int main(int argc, char *argv[])
         }
         // TODO: failure modes (in char is out of range, 'base' out of range)
       } break;
-
       // ======================================================================
-      // INTERACTIVE TEST CASES
-
+      // MANUALLY RUN TEST CASES
+      // ----------------------------------------------------------------------
       case -1: {
-        // --------------------------------------------------------------------
-        // BENCHMARKING PARSE DOUBLE
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "\nBENCHMARKING PARSE DOUBLE"
-                                  "\n=========================\n";
-
-        const int numofMeasuredRuns = argc > 2 ? atoi(argv[2]) : 500000;
-        const int numofWarmupRuns   = argc > 3 ? atoi(argv[3]) : 50;
-
-        bsl::cout << '\n';
-
-        if (0 == numofMeasuredRuns || 0 == numofWarmupRuns) {
-            bsl::cout
-                << "Usage: " << argv[0] << "[#measured-runs [#warm-up-runs]]"
-                   "\n\tmeasured-runs default: 10000"
-                   "\n\twarm-up-runs default : 50\n\n";
-            exit(1);
-        }
-
-        P_(numofWarmupRuns); P(numofMeasuredRuns); puts("");
-
-        testDouble::benchmarkParseDouble(numofWarmupRuns, numofMeasuredRuns);
-      } break;
-      case -2: {
         // --------------------------------------------------------------------
         // REPORTING 'parseDouble' IMPLEMENTATION ASSUMPTIONS VALIDITY
         // --------------------------------------------------------------------
@@ -7657,6 +8240,77 @@ int main(int argc, char *argv[])
         testDouble::FromCharsAssumptions::report();
 #endif
       } break;
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TP17   // Test case doesn't have 'if (verbose) banner'
+      case -2: {
+        // --------------------------------------------------------------------
+        // PARSE DOUBLE 'TEST_DATA' TABLE BASED BENCHMARK
+        // --------------------------------------------------------------------
+
+        bsl::cout << "\nPARSE DOUBLE 'TEST_DATA' TABLE BASED BENCHMARK"
+                     "\n==============================================\n";
+
+        const int numMeasuredLaps = argc > 2 ? bsl::atoi(argv[2]) : 500000;
+        const int numWarmupLaps   = argc > 3 ? bsl::atoi(argv[3]) : 50;
+
+        if (0 == numMeasuredLaps || 0 == numWarmupLaps) {
+            bsl::cerr << "\nUsage: " << argv[0] << test <<
+                                           "[#measured-runs [#warm-up-runs]]\n"
+                             "\tmeasured-runs default: 10000\n"
+                             "\twarm-up-runs default : 50\n\n";
+            exit(1);
+        }
+
+        P_(numWarmupLaps); P(numMeasuredLaps);  bsl::cout << '\n';
+
+        using namespace testDouble;
+        benchmarkParseDouble_OnTestData(numWarmupLaps, numMeasuredLaps);
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // PARSE DOUBLE EXTERNAL INPUT BASED BENCHMARK
+        // --------------------------------------------------------------------
+
+        bsl::cout << "\nPARSE DOUBLE EXTERNAL INPUT BASED BENCHMARK"
+                     "\n===========================================\n\n";
+
+        // CONSIDER USING 'contrib/data/numbers.txt' from the 'bde/benchmarks'
+        //                repository as input file.
+
+        const char *filename   = argc > 2 ? argv[2] : "-";
+
+        const int numMeasuredLaps = argc > 3 ? bsl::atoi(argv[3]) : 251;
+        const int numWarmupLaps   = argc > 4 ? bsl::atoi(argv[4]) : 3;
+
+        const int maxMemoryMB = argc > 5 ? bsl::atoi(argv[5]) : 0;
+        const int maxNumbers  = argc > 6 ? bsl::atoi(argv[6]) : 0;
+
+        if (0 == numMeasuredLaps || 0 == numWarmupLaps) {
+            bsl::cerr << "\nUsage: " << argv[0] << ' ' << test <<
+                    "input-file [#measured-runs [#warm-up-runs "
+                                                  "[#max-mem [#max-nums]]]] \n"
+                "\tinput-file default   : - (for 'stdin')\n"
+                "\tmeasured-runs default: 251\n"
+                "\twarm-up-runs default : 3\n"
+                "\tmax-mem default      : 0 (no limit on input)\n"
+                "\tmax-nums default     : 0 (no limit on input)\n"
+                "\tuse shell redirection or pipe for input on 'stdin'\n\n";
+            exit(1);
+        }
+
+        P(filename);
+        P_(numWarmupLaps); P(numMeasuredLaps);
+        P_(maxNumbers); P(maxMemoryMB);
+        bsl::cout << '\n';
+
+        using namespace testDouble;
+        benchmarkParseDouble_OnFile(filename,
+                                    maxNumbers,
+                                    maxMemoryMB,
+                                    numWarmupLaps,
+                                    numMeasuredLaps);
+      } break;
+// BDE_VERIFY pragma: pop  // TP17 Test case doesn't have 'if (verbose) banner'
       default: {
         bsl::cerr << "WARNING: CASE '" << test << "' NOT FOUND.\n";
         testStatus = -1;

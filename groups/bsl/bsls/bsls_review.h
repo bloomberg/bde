@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 //: o 'BSLS_REVIEW_OPT_IS_USED'
 //
 // All of these additional "predicate" macros can be used directly by clients
-// of this component to conditioanlly compile code other than just (BSLS)
+// of this component to conditionally compile code other than just (BSLS)
 // reviews, but that should be done with care to be sure code compiles and is
 // compatible across all build modes.
 //

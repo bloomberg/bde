@@ -207,8 +207,7 @@ double reparseOutOfRange(const char              **restPtr,
 }
 
 #endif  // Does not report under/overflow using the 'double' output value
-
-#else  // 'double' 'from_chars' exists
+#endif  // 'double' 'from_chars' exists
 
 static
 bool couldBeHexFloat(bsl::string_view strtodInput)
@@ -234,8 +233,6 @@ bool couldBeHexFloat(bsl::string_view strtodInput)
 
     return bdlb::CharType::isXdigit(strtodInput.front());
 }
-
-#endif  // 'double' 'from_chars' does not exist
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -463,11 +460,11 @@ int NumericParseUtil::parseDouble(double                  *result,
 
     char *endPtr;
     const char *buffer = nullTerminatedInput.c_str();
-    errno = 0;
 
+    errno = 0;
+    double rv = bsl::strtod(buffer, &endPtr);
     // 'u_GLIBC2_STRTOD_HEX_DENORM_MIN_HALF_BUG': 'rv' is not const because we
     // need to change it to zero when we determine that we have hit the bug.
-    double      rv = bsl::strtod(buffer, &endPtr);
 
 #if u_GLIBC2_STRTOD_HEX_DENORM_MIN_HALF_BUG
     if (ERANGE == errno && u::hasHexPrefix(nullTerminatedInput) &&
@@ -588,7 +585,6 @@ int NumericParseUtil::parseDouble(double                  *result,
                 }
             }
 
-            errno = 0;
             const double rv_twice = bsl::strtod(buffer, 0);
             BSLS_ASSERT(rv_twice == rv || rv_twice == 2 * rv);
 
@@ -621,11 +617,9 @@ int NumericParseUtil::parseDouble(double                  *result,
     }
 
 #ifndef BDLB_NUMERICPARSEUTIL_PARSES_HEXFLOAT
-    if (endPtr == buffer + 1 && 0.0 == rv && 'X' == CharType::toUpper(*endPtr))
-    {
-        BSLS_REVIEW_OPT(!"Possible hexfloat parsed on SunOS.  "
-                         "Please route this issue to BDE (Group 101).");
-    }
+    BSLS_REVIEW_OPT("Possible hexfloat parsed on SunOS.  "
+                    "Please route this issue to BDE (Group 101)."
+                    && !(rv == 0.0 && u::couldBeHexFloat(stdlibInput)));
 #endif
 
     if (endPtr != buffer) {
