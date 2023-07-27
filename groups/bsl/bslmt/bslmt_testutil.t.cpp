@@ -1,10 +1,9 @@
 // bslmt_testutil.t.cpp                                               -*-C++-*-
 #include <bslmt_testutil.h>
 
-#include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
-#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -22,6 +21,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 #include <fcntl.h>
 
@@ -185,6 +185,7 @@ static void realaSsErT(bool b, const char *s, int i)
 typedef BloombergLP::bslma::Allocator     Allocator;
 typedef BloombergLP::bslma::TestAllocator TestAllocator;
 typedef BloombergLP::bslmt::TestUtil      Obj;
+typedef BloombergLP::bslmt::ThreadUtil    Util;
 typedef BloombergLP::bsls::AtomicInt      AtomicInt;
 typedef BloombergLP::bslmt::Mutex         Mutex;
 
@@ -424,12 +425,18 @@ namespace Usage {
 
         using namespace BloombergLP;
 
-        bslmt::ThreadGroup tg;
-        tg.addThreads(SumUtilTest(), k_NUM_THREADS);
+        Util::Handle handles[k_NUM_THREADS];
+        for (int ii = 0; ii < k_NUM_THREADS; ++ii) {
+            int rc = Util::create(&handles[ii], SumUtilTest());
+            REAL_ASSERT(0 == rc);
+        }
 //..
 // Then, we join the threads:
 //..
-        tg.joinAll();
+        for (int ii = 0; ii < k_NUM_THREADS; ++ii) {
+            int rc = Util::join(handles[ii]);
+            REAL_ASSERT(0 == rc);
+        }
 //..
 // Now, we observe output something like this (tabs eliminated, long lines
 // wrapped).  Note that each of the five test threads reported a failure:
@@ -976,7 +983,6 @@ enum { k_NUM_THREADS      = 40,
        k_NUM_ITERATIONS   = 100,
        k_EXPECTED_MATCHES = k_NUM_THREADS * k_NUM_ITERATIONS };
 
-BloombergLP::bslmt::Barrier  barrier(k_NUM_THREADS + 1);
 AtomicInt                    atomicBarrier(0);
 AtomicInt                    threadIdx(0);
 bsl::ostringstream          *separateOut_p;
@@ -1046,7 +1052,6 @@ void TestFunctor::operator()()
 
     REAL_ASSERT(0 != outputRedirector_p);
 
-    barrier.wait();
     --atomicBarrier;
     while (atomicBarrier) ;
 
@@ -1511,19 +1516,25 @@ int main(int argc, char *argv[])
         TC::outputRedirector_p = &output;
         TC::atomicBarrier = TC::k_NUM_THREADS;
 
-        BloombergLP::bslmt::ThreadGroup tg(&ta);
-        tg.addThreads(TC::TestFunctor(), TC::k_NUM_THREADS);
+        Util::Handle handles[TC::k_NUM_THREADS];
+        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+            int rc = Util::create(&handles[ii], TC::TestFunctor());
+            REAL_ASSERT(0 == rc);
+        }
 
         // Threads are initializing their 'ThreadData' objects.
 
-        TC::barrier.wait();
+        while (TC::atomicBarrier) ;
 
         REALLOOP2_ASSERT(TC::k_NUM_THREADS, TC::threadIdx,
                                            TC::k_NUM_THREADS == TC::threadIdx);
 
         // Subthreads are all running 'Data::doOutput' concurrently.
 
-        tg.joinAll();
+        for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
+            int rc = Util::join(handles[ii]);
+            REAL_ASSERT(0 == rc);
+        }
 
         output.load();
         TC::eliminateLineNumbers();
