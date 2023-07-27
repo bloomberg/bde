@@ -12,7 +12,6 @@
 #include <bsls_atomic.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
-#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <algorithm>
@@ -26,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <thread.h>  // thr_setconcurrency
@@ -231,7 +231,7 @@ enum Mode { e_CAPTURE_ADDRESSES, e_COMPARE_ADDRESSES };
 Mode mode;
 void *addressDataBase[10][k_MAX_FRAMES_TO_CAPTURE];
 bsls::AtomicInt threadId(0);
-bsls::TimeInterval start;
+time_t start;
 bsls::AtomicInt tracesDone(0);
 int framesToCaptureBase = 0;
 
@@ -308,7 +308,8 @@ void topOfTheStack(int idMod)
         }
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "impossible switch");
+        ASSERTV("impossible switch", 0);
+        abort();
       }
     }
 }
@@ -334,6 +335,7 @@ void *loopForEightSeconds(void *arg)
     const int idMod = threadId++ % 10;
     const int expDepth = 10 + idMod;
     const int iterations = arg ? 100 : 1;
+    time_t currentTime;
 
     if (veryVeryVerbose) { P_(idMod);    P_(expDepth);    P(iterations); }
 
@@ -346,8 +348,7 @@ void *loopForEightSeconds(void *arg)
                                                      &depth, 0, &ii, 0, idMod);
             ASSERT(expDepth == depth);
         }
-    } while ((bsls::SystemTime::nowMonotonicClock() -
-                                            start).totalSecondsAsDouble() < 8);
+    } while ((::time(&currentTime), currentTime) - start < 8);
 
     return 0;
 }
@@ -869,7 +870,6 @@ int main(int argc, char *argv[])
 
         TC::mode = TC::e_CAPTURE_ADDRESSES;
         TC::threadId = 0;
-        TC::start = bsls::SystemTime::nowMonotonicClock() - 20;
         for (int ii = 0; ii < 10; ++ii) {
             TC::loopForEightSeconds(0);
         }
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
         TC::mode = TC::e_COMPARE_ADDRESSES;
         TC::threadId = 0;
         TC::tracesDone = 0;
-        TC::start = bsls::SystemTime::nowMonotonicClock();
+        ::time(&TC::start);
         for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
             u::createThread(&threadHandles[ii], &TC::loopForEightSeconds, &ii);
         }
