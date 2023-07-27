@@ -37,12 +37,43 @@ BSLS_IDENT("$Id: $")
 // standard container 'unordered_set', in this case to allow a
 // 'bsl::unordered_set<bsl::string>' to be searched with a 'bsl::string_view'.
 //
-// First, we create a container that usesn'bdlb::TransparentHash'.  Note that
-// to avoid implicit conversions we also have to use a transparent comparator:
+// First, we define a transparent equality predicate, that is required by the
+// 'bsl::unordered_set' along with the transparent hash:
+//..
+//                   // =============================
+//                   // struct TestTransparentEqualTo
+//                   // =============================
+//
+//  struct TestTransparentEqualTo {
+//      // This 'struct' defines an equality of objects of different types,
+//      // enabling them for use for heterogeneous comparison in the standard
+//      // associative containers such as 'bsl::unordered_map'.  Note that this
+//      // class is an empty POD type.
+//
+//      // TYPES
+//      typedef void is_transparent;
+//          // Type alias indicating this is a transparent comparator.
+//
+//      // ACCESSORS
+//      template <class LHS, class RHS>
+//      bool operator()(const LHS& lhs, const RHS& rhs) const
+//          // Return 'true' if the specified 'lhs' is equal to the specified
+//          // 'rhs' and 'false' otherwise.
+//      {
+//          return lhs == rhs;
+//      }
+//  };
+//..
+// Note that this struct is defined only to avoid cycle dependencies between
+// BDE components.  In real code for these purposes it is recommended to use
+// 'bdlb::TransparentEqualTo'.
+//
+// Then, we create a container that uses 'bdlb::TransparentHash'.  We use the
+// transparent comparator defined above to avoid implicit conversions:
 //..
 //  typedef bsl::unordered_set<bsl::string,
 //                             bdlb::TransparentHash,
-//                             bdlb::TransparentEqualTo> TransparentHashSet;
+//                             TestTransparentEqualTo> TransparentHashSet;
 //
 //  TransparentHashSet transparentSet;
 //..

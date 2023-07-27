@@ -1,8 +1,6 @@
 // bdlb_transparenthash.t.cpp                                         -*-C++-*-
 #include <bdlb_transparenthash.h>
 
-#include <bdlb_transparentequalto.h>
-
 #include <bslalg_constructorproxy.h>
 #include <bslalg_typetraits.h>
 
@@ -201,6 +199,62 @@ void testHashString()
 
 }  // close unnamed namespace
 
+
+//=============================================================================
+//                             USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'bdlb::TransparentHash'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need a container to store set of 'bsl::string' unique objects.
+// 'bsl::unordered_set' is designed exactly for this purpose.  But imagine that
+// we want to use 'bsl::string_view' objects for search operations within our
+// container.  'bsl::unordered_set' uses 'bsl::hash' as default hash functor.
+// The problem is that even though the hash function for 'bsl::string_view'
+// exists, compiler tries to convert 'bsl::string_view' objects to the
+// 'bsl::string' since 'bsl::hash' is parameterized by 'bsl::string'.  And
+// compilation fails, because there is no such implicit conversion.  In
+// addition, implicit conversions where they are available, may lead to
+// additional memory allocation for temporary objects.  The following code
+// illustrates how to use 'bdlb::TransparentHash' as a hash functor for the
+// standard container 'unordered_set', in this case to allow a
+// 'bsl::unordered_set<bsl::string>' to be searched with a 'bsl::string_view'.
+//
+// First, we define a transparent equality predicate, that is required by the
+// 'bsl::unordered_set' along with the transparent hash:
+//..
+                     // =============================
+                     // struct TestTransparentEqualTo
+                     // =============================
+
+    struct TestTransparentEqualTo {
+        // This 'struct' defines an equality of objects of different types,
+        // enabling them for use for heterogeneous comparison in the standard
+        // associative containers such as 'bsl::unordered_map'.  Note that this
+        // class is an empty POD type.
+
+        // TYPES
+        typedef void is_transparent;
+            // Type alias indicating this is a transparent comparator.
+
+        // ACCESSORS
+        template <class LHS, class RHS>
+        bool operator()(const LHS& lhs, const RHS& rhs) const
+            // Return 'true' if the specified 'lhs' is equal to the specified
+            // 'rhs' and 'false' otherwise.
+        {
+            return lhs == rhs;
+        }
+    };
+//..
+// Note that this struct is defined only to avoid cycle dependencies between
+// BDE components.  In real code for these purposes it is recommended to use
+// 'bdlb::TransparentEqualTo'.
+//
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -248,32 +302,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-///Usage
-///-----
-// This section illustrates intended use of this component.
-//
-///Example 1: Basic Use of 'bdlb::TransparentHash'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we need a container to store set of 'bsl::string' unique objects.
-// 'bsl::unordered_set' is designed exactly for this purpose.  But imagine that
-// we want to use 'bsl::string_view' objects for search operations within our
-// container.  'bsl::unordered_set' uses 'bsl::hash' as default hash functor.
-// The problem is that even though the hash function for 'bsl::string_view'
-// exists, compiler tries to convert 'bsl::string_view' objects to the
-// 'bsl::string' since 'bsl::hash' is parameterized by 'bsl::string'.  And
-// compilation fails, because there is no such implicit conversion.  In
-// addition, implicit conversions where they are available, may lead to
-// additional memory allocation for temporary objects.  The following code
-// illustrates how to use 'bdlb::TransparentHash' as a hash functor for the
-// standard container 'unordered_set', in this case to allow a
-// 'bsl::unordered_set<bsl::string>' to be searched with a 'bsl::string_view'.
-//
-// First, we create a container that usesn'bdlb::TransparentHash'.  Note that
-// to avoid implicit conversions we also have to use a transparent comparator:
+
+// Then, we create a container that uses 'bdlb::TransparentHash'.  We use the
+// transparent comparator defined above to avoid implicit conversions:
 //..
     typedef bsl::unordered_set<bsl::string,
                                bdlb::TransparentHash,
-                               bdlb::TransparentEqualTo> TransparentHashSet;
+                               TestTransparentEqualTo> TransparentHashSet;
 
     TransparentHashSet transparentSet;
 //..
