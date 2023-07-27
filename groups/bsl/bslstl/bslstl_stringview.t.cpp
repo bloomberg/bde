@@ -3,7 +3,6 @@
 #include <bslstl_stringref.h>
 
 #include <bslstl_algorithm.h>  // bsl::count()
-#include <bslstl_map.h>
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
 
