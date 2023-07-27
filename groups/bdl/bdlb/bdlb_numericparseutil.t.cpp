@@ -4457,13 +4457,13 @@ class BenchmarkInput {
                             unsigned        maxMemMB);
         // Create a 'BenchmarkInput' object representing benchmark input data
         // read from the specified 'streamBuf' until EOF is reached, a hard
-        // error occurs, or until the  specified 'maxNums' number of input
-        // strings or 'maxMemMB' number of (significant, non-whitespace)
-        // characters are read.  The value of 0 for either of 'maxNums' and
-        // 'maxMemMB' indicates no limit.  The input (from 'streamBuf') is
-        // considered to be a sequence of whitespace-delimited strings that the
-        // benchmark will parse by repeatedly calling 'parseDouble'.  The read
-        // strings are copied into the object created.
+        // error occurs, or until the specified 'maxNums' number of input
+        // strings or the specified 'maxMemMB' number of (significant,
+        // non-whitespace) characters are read.  The value of 0 for either of
+        // 'maxNums' and 'maxMemMB' indicates no limit.  The input (from
+        // 'streamBuf') is considered to be a sequence of whitespace-delimited
+        // strings that the benchmark will parse by repeatedly calling
+        // 'parseDouble'.  The read strings are copied into the object created.
 
     // ACCESSORS
     operator const bsl::vector<bsl::string_view>& () const
