@@ -10,7 +10,6 @@
 #include <bslmt_readerwriterlock.h>
 
 #include <bslmt_barrier.h>           // for testing only
-#include <bslmt_readerwriterlockassert.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_writelockguard.h>
@@ -67,9 +66,6 @@ using namespace bsl;  // automatically added by script
 // [11] CONCERN: Highly-parallel RW lock test: reserve & upgrade 2
 // [13] CONCERN: works with bslmt::ReadLockGuard<Obj>
 // [13] CONCERN: works with bslmt::WriteLockGuard<Obj>
-// [13] CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED
-// [13] CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ
-// [13] CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -905,7 +901,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 13: {
         // --------------------------------------------------------------------
-        // COMPATIBILITY WITH GUARDS AND ASSERTS
+        // COMPATIBILITY WITH GUARDS
         //
         // Concerns:
         //: 1 That the component under test is compatible with
@@ -913,10 +909,6 @@ int main(int argc, char *argv[])
         //:
         //: 2 That the component under test is compatible with
         //:   'bslmt::WriteLockGuard'.
-        //:
-        //: 3 That the component under test is compatible with
-        //:   BSLMT_READERWRITERLOCKASSERT_IS_LOCKED{,_READ,_WRITE}.
-        //:
         //
         // Plan:
         //: 1 Create a 'bslmt::ReaderWriterLock' object.
@@ -925,13 +917,13 @@ int main(int argc, char *argv[])
         //:   methods.
         //:
         //: 3 In a block, lock the object for read with a guard, then confirm
-        //:   its state with the accessors, and with asserts.
+        //:   its state with the accessors.
         //:
         //: 4 Leave the block, and confirm that it is unlocked by calling all
         //:   the 'isLocked*' methods.
         //:
         //: 5 In a block, lock the object for write with a guard, then confirm
-        //:   its state with the accessors, and with asserts.
+        //:   its state with the accessors.
         //:
         //: 6 Leave the block, and confirm that it is unlocked by calling all
         //:   the 'isLocked*' methods.
@@ -939,13 +931,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: works with bslmt::ReadLockGuard<Obj>
         //   CONCERN: works with bslmt::WriteLockGuard<Obj>
-        //   CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED
-        //   CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ
-        //   CONCERN: works with BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "COMPATIBILITY WITH GUARDS AND ASSERTS\n"
-                             "=====================================\n";
+        if (verbose) cout << "COMPATIBILITY WITH GUARDS\n"
+                             "=========================\n";
 
         Obj mX;    const Obj& X = mX;
 
@@ -960,9 +949,6 @@ int main(int argc, char *argv[])
             ASSERT( X.isLocked());
             ASSERT( X.isLockedRead());
             ASSERT(!X.isLockedWrite());
-
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&X);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ(&X);
         }
 
         ASSERT(!X.isLocked());
@@ -976,9 +962,6 @@ int main(int argc, char *argv[])
             ASSERT( X.isLocked());
             ASSERT(!X.isLockedRead());
             ASSERT( X.isLockedWrite());
-
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&X);
-            BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE(&X);
         }
 
         ASSERT(!X.isLocked());
