@@ -1,5 +1,26 @@
-bsl-internal (3.121.0.0) unstable; urgency=low
+bsl-internal (3.122.0.0) unstable; urgency=low
 
+  * 3ee16b96d Bumped version to 3.122.0.0
+  * a3d149c55 drqs-172596456: 'bslstl_stringview.t.cpp': Fix cycle per 'bsl::map'. (#4366)
+  * b72c10f63 Merge pull request #4365 from afeher/drqs-172015668-parsedouble-typo-fix
+  * 7da0e9c6b Add file based benchmarking & minor fixes. (#4351)
+  * 3ba6eb1b2 bslstl_iterator.t.cpp: introcude local 'FixedSet', elinimate 'set' dependency (#4359)
+  * d40c8140b Don't use bsl::ostream in the tests driver (#4354)
+  * 2d1ad7755 bsls_stackaddressutil.t.cpp: eliminate use of 'bsls::SystemTime'. (#4363)
+  * 8e8fa03e6 bslmt_threadutil.t.cpp: kill cycles (#4364)
+  * 2626adb58 Remove bslmf_movableref<-> bslmf_isnothrowmoveconstrucible cycle (#4355)
+  * 7175cbc3c Cycle has been removed from the 'bdlb_transparenthash' test driver (#4361)
+  * 7c421e82a Cycle is removed from the 'ball_log' test driver (#4357)
+  * bd029425e Fixed Solaris warnings when using `bsl::span` (#4343)
+  * 40a1f17f8 Testing only not testing only (#4352)
+  * 12787ae30 Fix RVO errors in optimized Sun 12.5.6 builds (#4347)
+  * 5ade11c1e fix compilation warning in NullableAllocatedValue (#4348)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 28 Jul 2023 10:27:25 -0400
+
+bsl-internal (3.121.0.0) git; urgency=low
+
+  * 40ceca7a6 Changelog for version 3.121.0.0
   * 335c06e32 Bumped version to 3.121.0.0
   * 32177601b Revert "drqs-169125741: 'bsla': Normalize '*_IS_ACTIVE' macro definitions. (#4341)" (#4346)
   * 5e0fa760f drqs-169125741: 'bsla': Normalize '*_IS_ACTIVE' macro definitions. (#4341)
@@ -28,7 +49,7 @@ bsl-internal (3.121.0.0) unstable; urgency=low
   * df6ee9b9c Workaround for bug in MSVC 17.6 compiler (#4283)
   * 7eeaef94e Merge pull request #4145 from bchapman/bdlt_iso8601util-basic-format-drqs-171213271
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 22 Jul 2023 12:56:40 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 22 Jul 2023 13:00:13 -0400
 
 bsl-internal (3.120.0.1) git; urgency=low
 
