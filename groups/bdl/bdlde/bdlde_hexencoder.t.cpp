@@ -2,8 +2,6 @@
 
 #include <bdlde_hexencoder.h>
 
-#include <bdlde_hexdecoder.h>
-
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
@@ -232,12 +230,16 @@ const char *BLOOMBERG_NEWS =
 //
 ///Example 1: Basic Usage of 'bdlde::HexEncoder'
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The following example shows how to use a 'bdlde::HexEncoder' object to
-// implement a function, 'streamEncoder', that reads text from 'bsl::istream',
-// encodes that text into hex representation , and writes the encoded text to a
-// 'bsl::ostream'.  'streamEncoder' returns 0 on success and a negative value
-// if the input data could not be successfully encoded or if there is an I/O
-// error.
+// The following example shows using a 'bdlde::HexEncoder' object to encode
+// bytes into a hexidecimal format. For dependency reasons, a more complete
+// example, showing both encoding and decoding can be found in
+// 'bdlde_hexdecoder'.
+//
+// In the example below, we implement a function 'streamEncoder', that reads
+// text from 'bsl::istream', encodes that text into hex representation, and
+// writes the encoded text to a 'bsl::ostream'.  'streamEncoder' returns 0 on
+// success and a negative value if the input data could not be successfully
+// encoded or if there is an I/O  error.
 //..
     int streamEncoder(bsl::ostream& os, bsl::istream& is)
         // Read the entire contents of the specified input stream 'is', convert
@@ -344,95 +346,6 @@ const char *BLOOMBERG_NEWS =
     }
 //..
 
-int streamDecoder(bsl::ostream& os, bsl::istream& is)
-    // Read the entire contents of the specified input stream 'is', convert the
-    // input hex encoding into plain text, and write the decoded text to the
-    // specified output stream 'os'.  Return 0 on success, and a negative value
-    // otherwise.
-{
-    enum {
-        SUCCESS      =  0,
-        DECODE_ERROR = -1,
-        IO_ERROR     = -2
-    };
-
-    bdlde::HexDecoder converter;
-
-    const int INBUFFER_SIZE  = 1 << 10;
-    const int OUTBUFFER_SIZE = 1 << 10;
-
-    char inputBuffer[INBUFFER_SIZE];
-    char outputBuffer[OUTBUFFER_SIZE];
-
-    char *output    = outputBuffer;
-    char *outputEnd = outputBuffer + sizeof outputBuffer;
-
-    while (is.good()) {  // input stream not exhausted
-
-        is.read(inputBuffer, sizeof inputBuffer);
-
-        const char *input    = inputBuffer;
-        const char *inputEnd = input + is.gcount();
-
-        while (input < inputEnd) { // input encoding not complete
-
-            int numOut;
-            int numIn;
-
-            int status = converter.convert(
-                                         output,
-                                         &numOut,
-                                         &numIn,
-                                         input,
-                                         inputEnd,
-                                         static_cast<int>(outputEnd - output));
-            if (status < 0) {
-                return DECODE_ERROR;                                  // RETURN
-            }
-
-            output += numOut;
-            input  += numIn;
-
-            if (output == outputEnd) {  // output buffer full; write data
-                os.write(outputBuffer, sizeof outputBuffer);
-                if (os.fail()) {
-                    return IO_ERROR;                                  // RETURN
-                }
-                output = outputBuffer;
-            }
-        }
-    }
-
-    while (1) {
-        int numOut = 0;
-
-        int more = converter.endConvert();
-        if (more < 0) {
-            return DECODE_ERROR;                                      // RETURN
-        }
-
-        output += numOut;
-
-        if (!more) { // no more output
-            break;
-        }
-
-        ASSERT(output == outputEnd);  // output buffer is full
-
-        os.write (outputBuffer, sizeof outputBuffer);  // write buffer
-        if (os.fail()) {
-            return IO_ERROR;                                          // RETURN
-        }
-        output = outputBuffer;
-    }
-
-    if (output > outputBuffer) {
-        os.write (outputBuffer, output - outputBuffer);
-    }
-
-    return is.eof() && os.good() ? SUCCESS : IO_ERROR;
-}
-
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -450,6 +363,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
+        //
+        //   Note that 'streamDecoder' implementation has been removed from
+        //   this test driver to avoid cycle dependency between encoder and
+        //   decoder components.  So the use of the 'streamDecoder' has been
+        //   commented in this usage example.  The full test that checks the
+        //   'encoder - decoder' round trip is still run in the
+        //   'bdlde_hexdecoder' test driver.  The 'streamDecoder'
+        //   implementation can be seen there.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -471,7 +392,8 @@ int main(int argc, char *argv[])
 // Next, to demonstrate how our function works we need to create a stream with
 // data to encode.  Assume that we have some character buffer,
 // 'BLOOMBERG_NEWS', and a function, 'streamDecoder' mirroring the work of the
-// 'streamEncoder':
+// 'streamEncoder'.  Below we should encode this string into a hexidecimal
+// format:
 //..
     bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
                                             strlen(BLOOMBERG_NEWS)));
@@ -480,16 +402,10 @@ int main(int argc, char *argv[])
 //..
 // Then, we use our function to encode text:
 //..
-    ASSERT(0 == streamEncoder(outStream,    inStream));
+    ASSERT(0 == streamEncoder(outStream, inStream));
 //..
-// Now, we decode this text back using mirror function:
-//..
-    ASSERT(0 == streamDecoder(backInStream, outStream));
-//..
-// Finally, we observe that the output fully matches the original text:
-//..
-    ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
-//..
+// This example does *not* decode the resulting hexidecimal text, for a
+// more complete example, see 'bdlde_hexdecoder'.
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -513,8 +429,8 @@ int main(int argc, char *argv[])
 
         char SOURCE = 'D';
         char buffer[2];
-        int  numIn    = 0;
-        int  numOut   = 0;
+        int  numIn  = 0;
+        int  numOut = 0;
 
         Obj        mX;
         const Obj& X = mX;

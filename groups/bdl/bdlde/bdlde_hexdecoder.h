@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide automata converting from hex encodings.
+//@PURPOSE: Provide mechanism for decoding text from hexadecimal.
 //
 //@CLASSES:
-//  bdlde::HexDecoder: automata for hex decoding
+//  bdlde::HexDecoder: mechanism for decoding text from hexadecimal
 //
 //@SEE_ALSO: bdlde_hexencoder
 //
