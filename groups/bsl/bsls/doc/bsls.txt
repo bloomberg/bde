@@ -373,6 +373,7 @@
 :
 : 'bsls_util':
 :      Provide essential, low-level support for portable generic code.
+
 /Component Overview
 /------------------
  This section provides a brief introduction to some of the components in the
@@ -613,15 +614,15 @@
  also characterstics of the argument such as cv-qualifications, and whether it
  is an rvalue or an lvalue.
 
-/: 'BSLS_COMPILERFEATURES_FORWARD_REF(T)':
-/:     Used to declare a function template argument of type 'T' that is to be
-/:     perfect-forwarded.
-/: 'BSLS_COMPILERFEATURES_FORWARD(T, V)':
-/:     Used to perfect-forward a function template argument, 'V', of type 'T'.
-/: 'BSLMF_MOVABLEREF_DEDUCE(T)':
-/:     Used to deduce the type 'T' of a templated rvalue reference argument.
-/: 'bslmf::ForwardingType' and 'bslmf::ForwardingRefType':
-/:     Used to forward arguments through layers of nested calls efficiently.
+: 'BSLS_COMPILERFEATURES_FORWARD_REF(T)':
+:     Used to declare a function template argument of type 'T' that is to be
+:     perfect-forwarded.
+: 'BSLS_COMPILERFEATURES_FORWARD(T, V)':
+:     Used to perfect-forward a function template argument, 'V', of type 'T'.
+: 'BSLMF_MOVABLEREF_DEDUCE(T)':
+:     Used to deduce the type 'T' of a templated rvalue reference argument.
+: 'bslmf::ForwardingType' and 'bslmf::ForwardingRefType':
+:     Used to forward arguments through layers of nested calls efficiently.
 
  The following sections explain in detail the contexts in which the above
  macros and types are used.
