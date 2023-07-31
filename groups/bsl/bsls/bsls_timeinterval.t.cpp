@@ -5,7 +5,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
-#include <bsls_fuzztest.h>
+//#include <bsls_fuzztest.h>  // DRQS 172596192 - Cycle Removal
 #include <bsls_keyword.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
@@ -1537,6 +1537,7 @@ int ByteOutStream::length() const
 
 typedef ByteOutStream Out;
 
+#if 0 // DRQS 172596192 - Cycle Removal
 //=============================================================================
 //                              FUZZ TESTING
 //-----------------------------------------------------------------------------
@@ -1636,6 +1637,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     return 0;
 }
+#endif
 
 //=============================================================================
 //                              MAIN PROGRAM
