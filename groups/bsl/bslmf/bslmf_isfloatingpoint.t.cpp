@@ -2,14 +2,14 @@
 #include <bslmf_isfloatingpoint.h>
 
 #include <bslmf_issame.h>
-#include <bslmf_isaccessiblebaseof.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits>  // 'std::is_floating_point' and
+                        // 'std::is_base_of',
+                        // 'std::is_floating_point', and
                         // 'std::is_floating_point_v' (C++17)
 #endif
 
@@ -225,10 +225,14 @@ int main(int argc, char *argv[])
         //:   defined, use 'bsl::is_same' to compare 'bsl::is_floating_point'
         //:   to 'std::is_floating_point' using a representative type.  (C-1)
         //:
-        //: 2 For all C++ versions, use 'bslmf::IsAccessibleBaseOf' to confirm
-        //:   that the 'bsl::is_floating_point' meta function has
-        //:   'bsl::true_type' or 'bsl::false_type', as appropriate, as a base
-        //:   class.  (C-2)
+        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
+        //:   defined, use 'std::is_base_of' to confirm that the
+        //:   'bsl::is_floating_point' meta function has 'bsl::true_type' or
+        //:   'bsl::false_type', as appropriate, as a base class.  (C-2)
+        //:
+        //:   o For all versions, explicitly access the 'value' member to
+        //:     confirm that the inheritance is neither 'private', 'protected',
+        //:     nor ambiguous.
         //:
         //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
         //:   'std::is_floating_point_v')
@@ -252,17 +256,16 @@ int main(int argc, char *argv[])
         ASSERT((false == bsl::is_same<
                                      bsl::is_floating_point<double>,
                                      std::is_floating_point<double> >::value));
+
+        ASSERT((std::is_base_of<bsl::true_type,
+                                bsl::is_floating_point<double>>::value));
+
+        ASSERT((std::is_base_of<bsl::false_type,
+                                bsl::is_floating_point<int>>::value));
 #endif
 
-        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<
-                                                 bsl::true_type,
-                                                 bsl::is_floating_point<double>
-                                                      >::value));
-
-        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<
-                                                 bsl::false_type,
-                                                 bsl::is_floating_point<int>
-                                                      >::value));
+        ASSERT(true  == bsl::is_floating_point<double>::value);
+        ASSERT(false == bsl::is_floating_point<int   >::value);
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
  && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY

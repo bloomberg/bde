@@ -4,7 +4,6 @@
 #include <bslmf_addconst.h>
 #include <bslmf_addcv.h>
 #include <bslmf_addvolatile.h>
-#include <bslmf_isaccessiblebaseof.h>
 #include <bslmf_integralconstant.h> // for 'bsl::true_type', 'bsl::false_type'
 
 #include <bsls_bsltestutil.h>
@@ -14,7 +13,9 @@
 #include <bsls_types.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits>  // 'std::is_integral' and 'std::is_integral_v' (C++17)
+#include <type_traits>  // 'std::is_base_of',
+                        // 'std::is_integral', and
+                        // 'std::is_integral_v' (C++17)
 #endif
 
 #include <stdio.h>
@@ -236,9 +237,14 @@ int main(int argc, char *argv[])
         //:   defined, use 'bsl::is_same' to compare 'bsl::is_integral' to
         //:   'std::is_integral' using a representative type.  (C-1)
         //:
-        //: 2 For all C++ versions, use 'bslmf::IsAccessibleBaseOf' to confirm
-        //:   that the 'bsl::is_integral' meta function has 'bsl::true_type' or
+        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
+        //:   defined, use 'std::is_base_of' to confirm that the
+        //:   'bsl::is_floating_point' meta function has 'bsl::true_type' or
         //:   'bsl::false_type', as appropriate, as a base class.  (C-2)
+        //:
+        //:   o For all versions, explicitly access the 'value' member to
+        //:     confirm that the inheritance is neither 'private', 'protected',
+        //:     nor ambiguous.
         //:
         //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
         //:   'std::is_integral_v')
@@ -258,15 +264,16 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY // 'std::is_integral'
         ASSERT((false == bsl::is_same<bsl::is_integral<int>,
                                       std::is_integral<int> >::value));
+
+        ASSERT((std::is_base_of<bsl::true_type,
+                                bsl::is_integral<int   >>::value));
+
+        ASSERT((std::is_base_of<bsl::false_type,
+                                bsl::is_integral<double>>::value));
 #endif
 
-        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<bsl::true_type,
-                                                       bsl::is_integral<int>
-                                                      >::value));
-
-        ASSERT((BloombergLP::bslmf::IsAccessibleBaseOf<bsl::false_type,
-                                                       bsl::is_integral<double>
-                                                      >::value));
+        ASSERT(true  == bsl::is_integral<int   >::value);
+        ASSERT(false == bsl::is_integral<double>::value);
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
  && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
