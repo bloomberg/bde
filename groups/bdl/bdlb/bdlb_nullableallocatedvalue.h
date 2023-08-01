@@ -53,6 +53,8 @@ BSLS_IDENT("$Id: $")
 // following code:
 //..
 //  void addValueAtEnd(LinkedListNode *node, int value)
+//      // Add the specified 'value' to the end of the list that contains the
+//      // specified 'node'.
 //  {
 //      while (!node->d_next.isNull()) {
 //          node = &node->d_next.value();
@@ -850,10 +852,9 @@ inline
 const TYPE& NullableAllocatedValue<TYPE>::value() const
 {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // TBD
-    // The assert below was commented out because a call to this function is
-    // sometimes used as an argument to a template function that only looks at
-    // the value type (and does not access the value).
+    // TBD: The assert below was commented out because a call to this function
+    // is sometimes used as an argument to a template function that only looks
+    // at the value type (and does not access the value).
 
     // BSLS_REVIEW(!isNull());
 #else

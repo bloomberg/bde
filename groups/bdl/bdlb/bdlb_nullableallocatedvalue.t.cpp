@@ -20,6 +20,8 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_review.h>
 
+#include <bslstl_span.h>
+
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
 
@@ -51,52 +53,58 @@ using namespace bsl;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
-// [06] bdlb::NullableAllocatedValue(const bdlb::NullableAllocatedValue&);
+// [05] bdlb::NullableAllocatedValue(const bdlb::NullableAllocatedValue&);
 //
 // MANIPULATORS
-// [03] NullableAllocatedValue();
-// [03] NullableAllocatedValue(bslma::Allocator *);
-// [03] NullableAllocatedValue(const TYPE &, bslma::Allocator *);
-// [03] ~NullableAllocatedValue();
-// [03] TYPE& makeValue();
-// [03] BOOTSTRAP: TYPE& makeValue(const TYPE&);
-// [03] bool isNull() const;
-// [03] TYPE& value();
-// [07] operator=(const b_NV<TYPE>&);
-// [04] bsl::ostream& operator<<bsl::ostream&, const b_NV<T>&);
+// [02] ~NullableAllocatedValue();
+// [02] bool isNull() const;
+// [02] BOOTSTRAP: TYPE& makeValue(const TYPE&);
+// [02] NullableAllocatedValue();
+// [02] NullableAllocatedValue(bslma::Allocator *);
+// [02] NullableAllocatedValue(const TYPE &, bslma::Allocator *);
+// [02] TYPE& makeValue();
+// [02] TYPE& value();
+// [02] void reset() const;
+// [03] bsl::ostream& operator<<(bsl::ostream&, const b_NV<T>&);
+// [06] operator=(const b_NV<TYPE>&);
+// [06] operator=(const TYPE&);
+// [07] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
-// [03] const TYPE& value() const;
-// [03] bslma::Allocator *allocator() const;
-// [04] bsl::ostream& print(bsl::ostream&, int, int) const;
+// [02] const TYPE& value() const;
+// [02] bslma::Allocator *allocator() const;
+// [03] bsl::ostream& print(bsl::ostream&, int, int) const;
+// [07] STREAM& bdexStreamOut(STREAM& stream, int version) const;
+// [07] int maxSupportedBdexVersion() const;
+// [07] int maxSupportedBdexVersion(int versionSelector) const;
 //
 // FREE OPERATORS
-// [ 05] bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 05] bool operator==(const TYPE&,       const b_NV<TYPE>&);
-// [ 05] bool operator==(const b_NV<TYPE>&, const TYPE&);
-// [ 05] bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 05] bool operator!=(const TYPE&,       const b_NV<TYPE>&);
-// [ 05] bool operator!=(const b_NV<TYPE>&, const TYPE&);
-// [ 05] bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 05] bool operator<( const TYPE&,       const b_NV<TYPE>&);
-// [ 05] bool operator<( const b_NV<TYPE>&, const TYPE&);
-// [ 05] bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 05] bool operator<=(const TYPE&,       const b_NV<TYPE>&);
-// [ 05] bool operator<=(const b_NV<TYPE>&, const TYPE&);
-// [ 05] bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 05] bool operator>( const TYPE&,       const b_NV<TYPE>&);
-// [ 05] bool operator>( const b_NV<TYPE>&, const TYPE&);
-// [ 05] bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
-// [ 05] bool operator>=(const TYPE&,       const b_NV<TYPE>&);
-// [ 05] bool operator>=(const b_NV<TYPE>&, const TYPE&);
-// [ 09] void swap(bdlb::NullableAllocatedValue<TYPE>& other);
-// [ 09] void swap(bdlb::NullableAllocatedValue<TYPE>& a, b);
+// [ 04] bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 04] bool operator==(const TYPE&,       const b_NV<TYPE>&);
+// [ 04] bool operator==(const b_NV<TYPE>&, const TYPE&);
+// [ 04] bool operator!=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 04] bool operator!=(const TYPE&,       const b_NV<TYPE>&);
+// [ 04] bool operator!=(const b_NV<TYPE>&, const TYPE&);
+// [ 04] bool operator<( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 04] bool operator<( const TYPE&,       const b_NV<TYPE>&);
+// [ 04] bool operator<( const b_NV<TYPE>&, const TYPE&);
+// [ 04] bool operator<=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 04] bool operator<=(const TYPE&,       const b_NV<TYPE>&);
+// [ 04] bool operator<=(const b_NV<TYPE>&, const TYPE&);
+// [ 04] bool operator>( const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 04] bool operator>( const TYPE&,       const b_NV<TYPE>&);
+// [ 04] bool operator>( const b_NV<TYPE>&, const TYPE&);
+// [ 04] bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
+// [ 04] bool operator>=(const TYPE&,       const b_NV<TYPE>&);
+// [ 04] bool operator>=(const b_NV<TYPE>&, const TYPE&);
+// [ 08] void swap(bdlb::NullableAllocatedValue<TYPE>& other);
+// [ 08] void swap(bdlb::NullableAllocatedValue<TYPE>& a, b);
 //
 // TRAITS
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] INCOMPLETE CLASS SUPPORT
-// [11] USAGE EXAMPLE
+// [ 9] INCOMPLETE CLASS SUPPORT
+// [10] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -204,6 +212,8 @@ BSLMF_ASSERT(true == bdlb::HasPrintMethod<NullableString>::value);
 // following code:
 //..
     void addValueAtEnd(LinkedListNode *node, int value)
+        // Add the specified 'value' to the end of the list that contains the
+        // specified 'node'.
     {
         while (!node->d_next.isNull()) {
             node = &node->d_next.value();
@@ -578,7 +588,7 @@ void swap(SwappableWithAllocator& a, SwappableWithAllocator& b)
 class Incomplete;  // an incomplete class
 
 
-void TestSwappableLarge (bool verbose,
+void testSwappableLarge (bool verbose,
                          bool veryVerbose,
                          bool veryVeryVerbose,
                          bool veryVeryVeryVerbose)
@@ -771,7 +781,7 @@ void TestSwappableLarge (bool verbose,
     }
 }
 
-void TestSwappableSmall (bool verbose,
+void testSwappableSmall (bool verbose,
                          bool veryVerbose,
                          bool veryVeryVerbose,
                          bool veryVeryVeryVerbose)
@@ -978,7 +988,7 @@ void TestSwappableSmall (bool verbose,
     }
 }
 
-void TestSwappableWithAllocator (bool verbose,
+void testSwappableWithAllocator (bool verbose,
                                  bool veryVerbose,
                                  bool veryVeryVerbose,
                                  bool veryVeryVeryVerbose)
@@ -1281,6 +1291,326 @@ void TestSwappableWithAllocator (bool verbose,
     }
 }
 
+template <class TYPE, size_t SIZE>
+void comparisonTest(bsl::span<TYPE, SIZE> values,
+                    bool                  verbose,
+                    bool                  veryVerbose,
+                    bool                  veryVeryVerbose)
+    // Test the comparison operators for NullableAllocatedValue<TYPE>.  Uses
+    // the specified 'values' as test cases.  Uses the specified 'verbose',
+    // 'veryVerbose', and 'veryVeryVerbose' flags to control the output.
+{
+    typedef typename bsl::remove_const<TYPE>::type ValueType;
+    typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+    // Comparison between two non-null values.
+    for (size_t ii = 0; ii < values.size(); ++ii) {
+        const ValueType RU = values[ii];
+        const Obj       U(RU);
+        ASSERT(!U.isNull());
+
+        if (veryVerbose) { T_ P_(ii) P(U) }
+
+        for (size_t jj = 0; jj < values.size(); ++jj) {
+            const ValueType RV = values[jj];
+            const Obj       V(RV);
+            ASSERT(!V.isNull());
+
+            if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
+
+            // lhs is nullable, but non-null, rhs is raw value
+
+            ASSERTV(U, RV, (ii == jj) == (U == RV));
+            ASSERTV(U, RV, (ii != jj) == (U != RV));
+
+            ASSERTV(U, RV, (ii <  jj) == (U <  RV));
+            ASSERTV(U, RV, (ii <= jj) == (U <= RV));
+            ASSERTV(U, RV, (ii >  jj) == (U >  RV));
+            ASSERTV(U, RV, (ii >= jj) == (U >= RV));
+
+            // lhs is raw value, rhs is nullable, but non-null
+
+            ASSERTV(RU, V, (ii == jj) == (RU == V));
+            ASSERTV(RU, V, (ii != jj) == (RU != V));
+
+            ASSERTV(RU, V, (ii <  jj) == (RU <  V));
+            ASSERTV(RU, V, (ii <= jj) == (RU <= V));
+            ASSERTV(RU, V, (ii >  jj) == (RU >  V));
+            ASSERTV(RU, V, (ii >= jj) == (RU >= V));
+
+            // both sides are nullable, but non-null
+
+            ASSERTV(U, V, (ii == jj) == (U == V));
+            ASSERTV(U, V, (ii != jj) == (U != V));
+
+            ASSERTV(U, V, (ii <  jj) == (U <  V));
+            ASSERTV(U, V, (ii <= jj) == (U <= V));
+            ASSERTV(U, V, (ii >  jj) == (U >  V));
+            ASSERTV(U, V, (ii >= jj) == (U >= V));
+        }
+    }
+
+    // Comparison between null nullable values and raw value.
+    {
+        const Obj N;
+        ASSERT(N.isNull());
+
+        if (verbose) cout <<
+            "\tComparison between null values and raw values" <<
+            endl;
+
+        for (size_t ii = 0; ii < values.size(); ++ii) {
+            const ValueType RV = values[ii];    // Raw Value
+
+            ASSERT(!(N  == RV));
+            ASSERT(!(RV == N ));
+
+            ASSERT(  N  != RV );
+            ASSERT(  RV != N  );
+
+            ASSERT(  N  <  RV );
+            ASSERT(!(RV <  N ));
+
+            ASSERT(  N  <= RV );
+            ASSERT(!(RV <= N ));
+
+            ASSERT(!(N  >  RV));
+            ASSERT(  RV >  N  );
+
+            ASSERT(!(N  >= RV));
+            ASSERT(  RV >= N  );
+        }
+    }
+
+    // Comparison between null nullable values and non-null value.
+    {
+        const Obj N;
+        ASSERT(N.isNull());
+
+        if (verbose) cout <<
+              "\tComparison between null values and non-null values" <<
+              endl;
+
+        for (size_t ii = 0; ii < values.size(); ++ii) {
+            const Obj NV(values[ii]);
+            ASSERT(!NV.isNull());
+
+            if (veryVerbose) { T_ P_(ii) P_(NV) }
+
+            ASSERT(!(N  == NV));
+            ASSERT(!(NV == N ));
+
+            ASSERT(  N  != NV );
+            ASSERT(  NV != N  );
+
+            ASSERT(  N  <  NV );
+            ASSERT(!(NV <  N ));
+
+            ASSERT(  N  <= NV );
+            ASSERT(!(NV <= N ));
+
+            ASSERT(!(N  >  NV));
+            ASSERT(  NV >  N  );
+
+            ASSERT(!(N  >= NV));
+            ASSERT(  NV >= N  );
+        }
+    }
+
+    // Comparison between two null values.
+    {
+        const Obj LN, RN;
+        ASSERT(LN.isNull());
+        ASSERT(RN.isNull());
+
+        ASSERT(  LN == RN );
+        ASSERT(!(LN != RN));
+
+        ASSERT(!(LN <  RN));
+        ASSERT(  LN <= RN );
+
+        ASSERT(!(LN >  RN));
+        ASSERT(  LN >= RN);
+    }
+}
+
+
+
+template <class TYPE>
+void breathingTest(const TYPE& VA,
+                   const TYPE& VB,
+                   const TYPE& VC,
+                   bool        verbose,
+                   bool        veryVerbose)
+    // Exercises basic functionality, but tests nothing.  Uses the specified
+    // 'VA', 'VB', and 'VC' as test values.  Uses the specified 'verbose' and
+    // 'veryVerbose' flags to control the output.
+{
+    typedef TYPE                                    ValueType;
+    typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."
+                         "\t\t{ x1:VA }" << endl;
+    Obj mX1(VA);  const Obj& X1 = mX1;
+    if (veryVerbose) { cout << '\t'; P(X1); }
+
+    if (veryVerbose) cout << "\ta. Check initial state of x1." << endl;
+    ASSERT(!X1.isNull());
+    ASSERT(VA == X1.value());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: x1 <op> x1."
+                          << endl;
+    ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 2. Create an object x2 (copy of x1)."
+                         "\t\t{ x1:VA x2:VA }" << endl;
+    Obj mX2(X1);  const Obj& X2 = mX2;
+    if (veryVerbose) { cout << '\t'; P(X2); }
+
+    if (veryVerbose) cout << "\ta. Check initial state of x2." << endl;
+    ASSERT(!X2.isNull());
+    ASSERT(VA == X2.value());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x2 <op> x1, x2." << endl;
+    ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
+    ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 3. Create an object x3 (default ctor)."
+                         "\t\t{ x1:VA x2:VA x3:U }" << endl;
+    Obj mX3;  const Obj& X3 = mX3;
+    if (veryVerbose) { cout << '\t'; P(X3); }
+
+    if (veryVerbose) cout << "\ta. Check initial state of x3." << endl;
+    ASSERT(X3.isNull());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x3 <op> x1, x2, x3." << endl;
+    ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
+    ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
+    ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 4. Create an object x4 (copy of x3)."
+                         "\t\t{ x1:VA x2:VA x3:U x4:U }" << endl;
+    Obj mX4(X3);  const Obj& X4 = mX4;
+    if (veryVerbose) { cout << '\t'; P(X4); }
+
+    if (veryVerbose) cout << "\ta. Check initial state of x4." << endl;
+    ASSERT(X4.isNull());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x4 <op> x1, x2, x3, x4." << endl;
+    ASSERT(0 == (X4 == X1));        ASSERT(1 == (X4 != X1));
+    ASSERT(0 == (X4 == X2));        ASSERT(1 == (X4 != X2));
+    ASSERT(1 == (X4 == X3));        ASSERT(0 == (X4 != X3));
+    ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 5. Set x3 using '=' (set to VB)."
+                         "\t\t{ x1:VA x2:VA x3:VB x4:U }" << endl;
+    mX3.makeValue(VB);
+    if (veryVerbose) { cout << '\t'; P(X3); }
+
+    if (veryVerbose) cout << "\ta. Check new state of x3." << endl;
+    ASSERT(!X3.isNull());
+    ASSERT(VB == X3.value());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x3 <op> x1, x2, x3, x4." << endl;
+    ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
+    ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
+    ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
+    ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 6. Change x1 using 'reset'."
+                         "\t\t\t{ x1:U x2:VA x3:VB x4:U }" << endl;
+    mX1.reset();
+    if (veryVerbose) { cout << '\t'; P(X1); }
+
+    if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
+    ASSERT(X1.isNull());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x1 <op> x1, x2, x3, x4." << endl;
+    ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+    ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
+    ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
+    ASSERT(1 == (X1 == X4));        ASSERT(0 == (X1 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 7. Change x1 ('makeValue', set to VC)."
+                         "\t\t{ x1:VC x2:VA x3:VB x4:U }" << endl;
+    mX1.makeValue(VC);
+    if (veryVerbose) { cout << '\t'; P(X1); }
+
+    if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
+    ASSERT(!X1.isNull());
+    ASSERT(VC == X1.value());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x1 <op> x1, x2, x3, x4." << endl;
+    ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+    ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
+    ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
+    ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 8. Assign x2 = x1."
+                         "\t\t\t\t{ x1:VC x2:VC x3:VB x4:U }" << endl;
+    mX2 = X1;
+    if (veryVerbose) { cout << '\t'; P(X2); }
+
+    if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
+    ASSERT(!X2.isNull());
+    ASSERT(VC == X2.value());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x2 <op> x1, x2, x3, x4." << endl;
+    ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
+    ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
+    ASSERT(0 == (X2 == X3));        ASSERT(1 == (X2 != X3));
+    ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 9. Assign x2 = x3."
+                         "\t\t\t\t{ x1:VC x2:VB x3:VB x4:U }" << endl;
+    mX2 = X3;
+    if (veryVerbose) { cout << '\t'; P(X2); }
+
+    if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
+    ASSERT(!X2.isNull());
+    ASSERT(VB == X2.value());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x2 <op> x1, x2, x3, x4." << endl;
+    ASSERT(0 == (X2 == X1));        ASSERT(1 == (X2 != X1));
+    ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
+    ASSERT(1 == (X2 == X3));        ASSERT(0 == (X2 != X3));
+    ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (verbose) cout << "\n 10. Assign x1 = x1."
+                         "\t\t\t\t{ x1:VC x2:VB x3:VB x4:U }" << endl;
+    mX1 = X1;
+    if (veryVerbose) { cout << '\t'; P(X1); }
+
+    if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
+    ASSERT(!X1.isNull());
+    ASSERT(VC == X1.value());
+
+    if (veryVerbose) cout << "\tb. Try equality operators: "
+                             "x1 <op> x1, x2, x3, x4." << endl;
+    ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+    ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
+    ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
+    ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1302,7 +1632,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1343,7 +1673,7 @@ int main(int argc, char *argv[])
         ASSERT(53 == node.d_next.value().d_next.value().d_value);
 
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING INCOMPLETE CLASS SUPPORT
         //   Extracted from component header file.
@@ -1353,8 +1683,8 @@ int main(int argc, char *argv[])
         //:   class, and the resulting class is not incomplete.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Define a specialization of NullableAllocatedValue containing an
+        //:   incomplete type, and check to see that it is a complete type.
         //:   (C-1)
         //
         // Testing:
@@ -1376,7 +1706,7 @@ int main(int argc, char *argv[])
         ASSERT(bslma::UsesBslmaAllocator<NAV_Incomplete>::value);
 
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
         //
@@ -1404,15 +1734,15 @@ int main(int argc, char *argv[])
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-        TestSwappableSmall(verbose,
+        testSwappableSmall(verbose,
                            veryVerbose,
                            veryVeryVerbose,
                            veryVeryVeryVerbose);
-        TestSwappableLarge(verbose,
+        testSwappableLarge(verbose,
                            veryVerbose,
                            veryVeryVerbose,
                            veryVeryVeryVerbose);
-        TestSwappableWithAllocator(verbose,
+        testSwappableWithAllocator(verbose,
                                    veryVerbose,
                                    veryVeryVerbose,
                                    veryVeryVeryVerbose);
@@ -1436,7 +1766,31 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 8: {
+      case 7: {
+        // --------------------------------------------------------------------
+        // STREAMING
+        //
+        // Concerns:
+        //: 1 An object that has been streamed out can be streamed back in, and
+        //:   results in the same value.
+        //
+        // Plan:
+        //: 1 Create an object, stream it out, and stream back into a new
+        //:   object. Ensure that the new object is equal to the original, and
+        //:   that the streaming operation consumed all the data in the stream.
+        //:   (C-1)
+        //
+        // Testing:
+        //   STREAM& bdexStreamIn(STREAM& stream, int version);
+        //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        //   int maxSupportedBdexVersion() const;
+        //   int maxSupportedBdexVersion(int versionSelector) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "STREAMING" << endl
+                          << "=========" << endl;
+
         typedef bslx::TestInStream  In;
         typedef bslx::TestOutStream Out;
         const int VERSION_SELECTOR = 20140601;
@@ -1522,32 +1876,33 @@ int main(int argc, char *argv[])
         }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //   Any value must be assignable to an object having any initial value
-        //   without affecting the rhs operand value.  Also, any object must be
-        //   assignable to itself.
+        //: 1 Any value must be assignable to an object having any initial
+        //:   value without affecting the rhs operand value.  Also, any object
+        //:   must be assignable to itself.
         //
         // Plan:
-        //   Use 'bsl::string' for 'TYPE'.
-        //
-        //   Specify a set of unique values.  Construct and initialize all
-        //   combinations (u, v) in the cross product.  Copy construct a
-        //   control w from v, assign v to u, and assert that w == u and
-        //   w == v.  Then test aliasing by copy constructing a control w from
-        //   each u, assigning u to itself, and verifying that w == u.
+        //: 1  Use 'bsl::string' and 'int' for 'TYPE'.
+        //:
+        //: 2 Specify a set of unique values.  Construct and initialize all
+        //:   combinations (u, v) in the cross product.  Copy construct a
+        //:   control w from v, assign v to u, and assert that w == u and
+        //:   w == v.  Then test aliasing by copy constructing a control w from
+        //:   each u, assigning u to itself, and verifying that w == u.
         //
         // Testing:
         //   operator=(const b_NV<TYPE>&);
+        //   operator=(const TYPE&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING ASSIGNMENT OPERATOR"
                           << "\n===========================" << endl;
 
-        if (verbose) cout << "\nTesting assignment u = V." << endl;
+        if (verbose) cout << "\nTesting assignment u = NAV." << endl;
         {
             typedef bsl::string                             ValueType;
             typedef bdlb::NullableAllocatedValue<ValueType> Obj;
@@ -1587,24 +1942,116 @@ int main(int argc, char *argv[])
             }
         }
 
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            const int NUM_VALUES = 3;
+
+            Obj mX[NUM_VALUES];
+
+            const ValueType VALUE1 = 123;
+            const ValueType VALUE2 = 456;
+
+            mX[1].makeValue(VALUE1);
+            mX[2].makeValue(VALUE2);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                Obj mU(mX[i], ALLOC);  const Obj& U = mU;
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    Obj mV(mX[j], ALLOC);  const Obj& V = mV;
+
+                    Obj mW(V, ALLOC);  const Obj& W = mW;
+
+                    mU = V;
+
+                    ASSERTV(U, W, U == W);
+                    ASSERTV(V, W, V == W);
+                }
+            }
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                Obj mU(mX[i], ALLOC);  const Obj& U = mU;
+                Obj mW(U,     ALLOC);  const Obj& W = mW;
+
+                mU = U;
+
+                ASSERTV(U, W, U == W);
+            }
+        }
+
+        if (verbose) cout << "\nTesting assignment u = V." << endl;
+        {
+            typedef bsl::string                             ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            const int       NUM_VALUES = 3;
+            const ValueType vals[NUM_VALUES] = {"123", "456", "789"};
+            Obj             mX[NUM_VALUES];
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
+                mX[i].makeValue(vals[i]);
+            }
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                Obj mU(mX[i], ALLOC);  const Obj& U = mU;
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    Obj mV(U, ALLOC);
+
+                    mV = vals[j];
+
+                    ASSERTV(i, j, mV, mX[j], mV == mX[j]);
+                }
+            }
+        }
+
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            const int       NUM_VALUES = 3;
+            const ValueType vals[NUM_VALUES] = {123, 456, 789};
+            Obj             mX[NUM_VALUES];
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
+                mX[i].makeValue(vals[i]);
+            }
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                Obj mU(mX[i], ALLOC);  const Obj& U = mU;
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    Obj mV(U, ALLOC);
+
+                    mV = vals[j];
+
+                    ASSERTV(i, j, mV, mX[j], mV == mX[j]);
+                }
+            }
+        }
+
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
-        //   Any value must be copy constructible without affecting the
-        //   argument.
+        //: 1 Any value must be copy constructible without affecting the
+        //:   argument.
         //
         // Plan:
-        //   Conduct the test using 'int' (does not use allocator) and
-        //   'bsl::string' (uses allocator) for 'TYPE'.
-        //
-        //   Specify a set whose elements have substantial and varied
-        //   differences in value.  For each element in S, construct and
-        //   initialize identical objects W and X using tested methods.  Then
-        //   copy construct Y from X and use the equality operator to assert
-        //   that both X and Y have the same value as W.
+        //: 1 Conduct the test using 'int' (does not use allocator) and
+        //:   'bsl::string' (uses allocator) for 'TYPE'.
+        //:
+        //: 2 Specify a set whose elements have substantial and varied
+        //:   differences in value.  For each element in S, construct and
+        //:   initialize identical objects W and X using tested methods.  Then
+        //:   copy construct Y from X and use the equality operator to assert
+        //:   that both X and Y have the same value as W.
         //
         // Testing:
         //   bdlb::NullableAllocatedValue(const bdlb::NullableAllocatedValue&);
@@ -1684,7 +2131,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING COMPARISON OPERATORS
         //
@@ -1772,298 +2219,44 @@ int main(int argc, char *argv[])
 
         {
             typedef int ValueType;
-            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
 
             const ValueType values[] =
                              { INT_MIN, -1000, -123, 0, +123, +1000, INT_MAX };
             enum { k_NUM_VALUES = sizeof values / sizeof *values };
 
-            // Comparison between two non-null values.
-            for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-                const int RU = values[ii];
-                const Obj U(RU);
-                ASSERT(!U.isNull());
+            comparisonTest(bsl::span<const ValueType, k_NUM_VALUES>(values),
+                                        verbose, veryVerbose, veryVeryVerbose);
 
-                if (veryVerbose) { T_ P_(ii) P(U) }
-
-                for (int jj = 0; jj < k_NUM_VALUES; ++jj) {
-                    const ValueType RV = values[jj];
-                    const Obj       V(RV);
-                    ASSERT(!V.isNull());
-
-                    if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
-
-                    // lhs is nullable, but non-null, rhs is raw value
-
-                    ASSERTV(U, RV, (ii == jj) == (U == RV));
-                    ASSERTV(U, RV, (ii != jj) == (U != RV));
-
-                    ASSERTV(U, RV, (ii <  jj) == (U <  RV));
-                    ASSERTV(U, RV, (ii <= jj) == (U <= RV));
-                    ASSERTV(U, RV, (ii >  jj) == (U >  RV));
-                    ASSERTV(U, RV, (ii >= jj) == (U >= RV));
-
-                    // lhs is raw value, rhs is nullable, but non-null
-
-                    ASSERTV(RU, V, (ii == jj) == (RU == V));
-                    ASSERTV(RU, V, (ii != jj) == (RU != V));
-
-                    ASSERTV(RU, V, (ii <  jj) == (RU <  V));
-                    ASSERTV(RU, V, (ii <= jj) == (RU <= V));
-                    ASSERTV(RU, V, (ii >  jj) == (RU >  V));
-                    ASSERTV(RU, V, (ii >= jj) == (RU >= V));
-
-                    // both sides are nullable, but non-null
-
-                    ASSERTV(U, V, (ii == jj) == (U == V));
-                    ASSERTV(U, V, (ii != jj) == (U != V));
-
-                    ASSERTV(U, V, (ii <  jj) == (U <  V));
-                    ASSERTV(U, V, (ii <= jj) == (U <= V));
-                    ASSERTV(U, V, (ii >  jj) == (U >  V));
-                    ASSERTV(U, V, (ii >= jj) == (U >= V));
-                }
-            }
-
-            // Comparison between null nullable values and raw value.
-            {
-                const Obj N;
-                ASSERT(N.isNull());
-
-                if (verbose) cout <<
-                    "\tComparison between null values and raw values" <<
-                    endl;
-
-                for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-                    const ValueType RV = values[ii];    // Raw Value
-
-                    ASSERT(!(N  == RV));
-                    ASSERT(!(RV == N ));
-
-                    ASSERT(  N  != RV );
-                    ASSERT(  RV != N  );
-
-                    ASSERT(  N  <  RV );
-                    ASSERT(!(RV <  N ));
-
-                    ASSERT(  N  <= RV );
-                    ASSERT(!(RV <= N ));
-
-                    ASSERT(!(N  >  RV));
-                    ASSERT(  RV >  N  );
-
-                    ASSERT(!(N  >= RV));
-                    ASSERT(  RV >= N  );
-                }
-            }
-
-            // Comparison between null nullable values and non-null value.
-            {
-                const Obj N;
-                ASSERT(N.isNull());
-
-                if (verbose) cout <<
-                      "\tComparison between null values and non-null values" <<
-                      endl;
-
-                for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-                    const Obj NV(values[ii]);
-                    ASSERT(!NV.isNull());
-
-                    if (veryVerbose) { T_ P_(ii) P_(NV) }
-
-                    ASSERT(!(N  == NV));
-                    ASSERT(!(NV == N ));
-
-                    ASSERT(  N  != NV );
-                    ASSERT(  NV != N  );
-
-                    ASSERT(  N  <  NV );
-                    ASSERT(!(NV <  N ));
-
-                    ASSERT(  N  <= NV );
-                    ASSERT(!(NV <= N ));
-
-                    ASSERT(!(N  >  NV));
-                    ASSERT(  NV >  N  );
-
-                    ASSERT(!(N  >= NV));
-                    ASSERT(  NV >= N  );
-                }
-            }
-
-            // Comparison between two null values.
-            {
-                const Obj LN, RN;
-                ASSERT(LN.isNull());
-                ASSERT(RN.isNull());
-
-                ASSERT(  LN == RN );
-                ASSERT(!(LN != RN));
-
-                ASSERT(!(LN <  RN));
-                ASSERT(  LN <= RN );
-
-                ASSERT(!(LN >  RN));
-                ASSERT(  LN >= RN);
-            }
       }
 
       {
           typedef bsl::string ValueType;
-          typedef bdlb::NullableAllocatedValue<ValueType> Obj;
 
           const ValueType values[] = { "a", "ab", "abc", "def" };
           enum { k_NUM_VALUES = sizeof values / sizeof *values };
 
-          // Comparison between two non-null values.
-          for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-              const ValueType RU = values[ii];
-              const Obj       U(RU);
-              ASSERT(!U.isNull());
+          comparisonTest(bsl::span<const ValueType, k_NUM_VALUES>(values),
+                                        verbose, veryVerbose, veryVeryVerbose);
 
-              if (veryVerbose) { T_ P_(ii) P(U) }
-
-              for (int jj = 0; jj < k_NUM_VALUES; ++jj) {
-                  const ValueType RV = values[jj];
-                  const Obj       V(RV);
-                  ASSERT(!V.isNull());
-
-                  if (veryVeryVerbose) { T_ T_ P_(jj) P(V) }
-
-                  // lhs is nullable, but non-null, rhs is raw value
-
-                  ASSERTV(U, RV, (ii == jj) == (U == RV));
-                  ASSERTV(U, RV, (ii != jj) == (U != RV));
-
-                  ASSERTV(U, RV, (ii <  jj) == (U <  RV));
-                  ASSERTV(U, RV, (ii <= jj) == (U <= RV));
-                  ASSERTV(U, RV, (ii >  jj) == (U >  RV));
-                  ASSERTV(U, RV, (ii >= jj) == (U >= RV));
-
-                  // lhs is raw value, rhs is nullable, but non-null
-
-                  ASSERTV(RU, V, (ii == jj) == (RU == V));
-                  ASSERTV(RU, V, (ii != jj) == (RU != V));
-
-                  ASSERTV(RU, V, (ii <  jj) == (RU <  V));
-                  ASSERTV(RU, V, (ii <= jj) == (RU <= V));
-                  ASSERTV(RU, V, (ii >  jj) == (RU >  V));
-                  ASSERTV(RU, V, (ii >= jj) == (RU >= V));
-
-                  // both sides are nullable, but non-null
-
-                  ASSERTV(U, V, (ii == jj) == (U == V));
-                  ASSERTV(U, V, (ii != jj) == (U != V));
-
-                  ASSERTV(U, V, (ii <  jj) == (U <  V));
-                  ASSERTV(U, V, (ii <= jj) == (U <= V));
-                  ASSERTV(U, V, (ii >  jj) == (U >  V));
-                  ASSERTV(U, V, (ii >= jj) == (U >= V));
-              }
-            }
-
-            // Comparison between null nullable values and raw value.
-            {
-                const Obj N;
-                ASSERT(N.isNull());
-
-                if (verbose) cout <<
-                    "\tComparison between null values and raw values" <<
-                    endl;
-
-                for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-                    const ValueType RV = values[ii];    // Raw Value
-
-                    ASSERT(!(N  == RV));
-                    ASSERT(!(RV == N ));
-
-                    ASSERT(  N  != RV );
-                    ASSERT(  RV != N  );
-
-                    ASSERT(  N  <  RV );
-                    ASSERT(!(RV <  N ));
-
-                    ASSERT(  N  <= RV );
-                    ASSERT(!(RV <= N ));
-
-                    ASSERT(!(N  >  RV));
-                    ASSERT(  RV >  N  );
-
-                    ASSERT(!(N  >= RV));
-                    ASSERT(  RV >= N  );
-                }
-            }
-
-            // Comparison between null nullable values and non-null value.
-            {
-                const Obj N;
-                ASSERT(N.isNull());
-
-                if (verbose) cout <<
-                    "\tComparison between null values and non-null values" <<
-                    endl;
-
-                for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
-                    const Obj NV(values[ii]);
-                    ASSERT(!NV.isNull());
-
-                    if (veryVerbose) { T_ P_(ii) P_(NV) }
-
-                    ASSERT(!(N  == NV));
-                    ASSERT(!(NV == N ));
-
-                    ASSERT(  N  != NV );
-                    ASSERT(  NV != N  );
-
-                    ASSERT(  N  <  NV );
-                    ASSERT(!(NV <  N ));
-
-                    ASSERT(  N  <= NV );
-                    ASSERT(!(NV <= N ));
-
-                    ASSERT(!(N  >  NV));
-                    ASSERT(  NV >  N  );
-
-                    ASSERT(!(N  >= NV));
-                    ASSERT(  NV >= N  );
-                }
-            }
-
-            // Comparison between two null values.
-            {
-                const Obj LN, RN;
-                ASSERT(LN.isNull());
-                ASSERT(RN.isNull());
-
-                ASSERT(  LN == RN );
-                ASSERT(!(LN != RN));
-
-                ASSERT(!(LN <  RN));
-                ASSERT(  LN <= RN );
-
-                ASSERT(!(LN >  RN));
-                ASSERT(  LN >= RN);
-            }
       }
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING PRINT METHOD AND OUTPUT (<<) OPERATOR
         //
         // Concerns:
-        //   The print method and output (<<) operator work as expected.
+        //: 1 The print method and output (<<) operator work as expected.
         //
         // Plan:
-        //   Conduct the test using 'int' for 'TYPE'.
-        //
-        //   For a set of values, check that the 'print' function and the
-        //   output (<<) operator work as expected.
+        //: 1 Conduct the test using 'int' for 'TYPE'.
+        //:
+        //:  For a set of values, check that the 'print' function and the
+        //:  output (<<) operator work as expected. (C-1)
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream&, int, int) const;
-        //   bsl::ostream& operator<<bsl::ostream&, const b_NV<T>&);
+        //   bsl::ostream& operator<<(bsl::ostream&, const b_NV<T>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING PRINT METHOD AND OUTPUT (<<) OPERATOR"
@@ -2112,26 +2305,28 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS & BASIC ACCESSORS
         //   Verify that the primary manipulators and basic accessors work as
         //   expected.
         //
         // Concerns:
-        //   * The default constructor creates a null object.
-        //   * 'makeValue()' sets the value to the default value for 'TYPE'.
-        //   * 'makeValue(const TYPE&)' sets the value appropriately.
+        //: 1 The default constructor creates a null object.
+        //:
+        //: 2 'makeValue()' sets the value to the default value for 'TYPE'.
+        //:
+        //: 3 'makeValue(const TYPE&)' sets the value appropriately.
         //
         // Plan:
-        //   Conduct the test using 'int' (does not use allocator) and
-        //   'bsl::string' (uses allocator) for 'TYPE'.
-        //
-        //   First, verify the default constructor by testing that the
-        //   resulting object is null.
-        //
-        //   Next, verify that the 'makeValue' function works by making a value
-        //   equal to the value passed into 'makeValue'.
+        //: 1 Conduct the test using 'int' (does not use allocator) and
+        //:   'bsl::string' (uses allocator) for 'TYPE'.
+        //:
+        //: 2 First, verify the default constructor by testing that the
+        //:   resulting object is null.
+        //:
+        //: 3 Next, verify that the 'makeValue' function works by making a
+        //:   value equal to the value passed into 'makeValue'.
         //
         //   Note that the destructor is exercised on each configuration as the
         //   object being tested leaves scope.
@@ -2144,6 +2339,7 @@ int main(int argc, char *argv[])
         //   TYPE& makeValue();
         //   BOOTSTRAP: TYPE& makeValue(const TYPE&);
         //   bool isNull() const;
+        //   void reset() const;
         //   const TYPE& value() const;
         //   TYPE& value();
         //   bslma::Allocator *allocator() const;
@@ -2210,6 +2406,19 @@ int main(int argc, char *argv[])
                 ASSERT(!X.isNull());
                 ASSERTV(X.value(), VALUE2 == X.value());
             }
+
+            if (veryVerbose) cout << "\tTesting 'reset'." << endl;
+            {
+                Obj mX0;
+                Obj mX1(ValueType(123));
+
+                ASSERT( mX0.isNull());
+                ASSERT(!mX1.isNull());
+                mX0.reset();
+                mX1.reset();
+                ASSERT( mX0.isNull());
+                ASSERT( mX1.isNull());
+            }
         }
 
         if (verbose) cout << "\nUsing 'bdlb::NullableAllocatedValue<"
@@ -2271,433 +2480,81 @@ int main(int argc, char *argv[])
                 ASSERT(!X.isNull());
                 ASSERTV(X.value(), VALUE2 == X.value());
             }
+
+            if (veryVerbose) cout << "\tTesting 'reset'." << endl;
+            {
+                Obj mX0;
+                Obj mX1(ValueType("123"));
+
+                ASSERT( mX0.isNull());
+                ASSERT(!mX1.isNull());
+                mX0.reset();
+                mX1.reset();
+                ASSERT( mX0.isNull());
+                ASSERT( mX1.isNull());
+            }
         }
-
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // BREATHING TEST USING 'int'
-        //   This test exercises basic functionality, but tests nothing.
-        //
-        // Concerns:
-        //   We want to demonstrate a base-line level of correct operation of
-        //   the following methods and operators:
-        //     - default and copy constructors.
-        //     - the assignment operator (including aliasing).
-        //     - equality operators: 'operator==' and 'operator!='.
-        //     - primary manipulators: 'makeValue' and 'reset'.
-        //     - basic accessors: 'value' and 'isNull'.
-        //
-        // Plan:
-        //   Create four test objects using the default, value, and copy
-        //   constructors.  Exercise the basic value-semantic methods and the
-        //   equality operators using the test objects.  Invoke the primary
-        //   manipulator [5, 6, 7], copy constructor [2, 4], assignment
-        //   operator without [9] and with [10] aliasing.  Use the basic
-        //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB', and 'VC' denote
-        //   unique, but otherwise arbitrary, object values, while 'U' denotes
-        //   the valid, but "unknown", default object value.
-        //
-        //   1. Create an object x1 (init. to VA)    { x1:VA                  }
-        //   2. Create an object x2 (copy of x1)     { x1:VA x2:VA            }
-        //   3. Create an object x3 (default ctor)   { x1:VA x2:VA x3:U       }
-        //   4. Create an object x4 (copy of x3)     { x1:VA x2:VA x3:U  x4:U }
-        //   5. Set x3 using 'makeValue' (set to VB) { x1:VA x2:VA x3:VB x4:U }
-        //   6. Change x1 using 'reset'              { x1:U  x2:VA x3:VB x4:U }
-        //   7. Change x1 ('makeValue', set to VC)   { x1:VC x2:VA x3:VB x4:U }
-        //   8. Assign x2 = x1                       { x1:VC x2:VC x3:VB x4:U }
-        //   9. Assign x2 = x3                       { x1:VC x2:VB x3:VB x4:U }
-        //  10. Assign x1 = x1 (aliasing)            { x1:VC x2:VB x3:VB x4:U }
-        //
-        // Testing:
-        //   This test case exercises basic value-semantic functionality.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nBREATHING TEST"
-                          << "\n==============" << endl;
-
-        typedef int                                     ValueType;
-        typedef bdlb::NullableAllocatedValue<ValueType> Obj;
-
-        // possible values
-        const ValueType VA(123);
-        const ValueType VB(234);
-        const ValueType VC(345);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."
-                             "\t\t{ x1:VA }" << endl;
-        Obj mX1(VA);  const Obj& X1 = mX1;
-        if (veryVerbose) { cout << '\t'; P(X1); }
-
-        if (veryVerbose) cout << "\ta. Check initial state of x1." << endl;
-        ASSERT(!X1.isNull());
-        ASSERT(VA == X1.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: x1 <op> x1."
-                              << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 2. Create an object x2 (copy of x1)."
-                             "\t\t{ x1:VA x2:VA }" << endl;
-        Obj mX2(X1);  const Obj& X2 = mX2;
-        if (veryVerbose) { cout << '\t'; P(X2); }
-
-        if (veryVerbose) cout << "\ta. Check initial state of x2." << endl;
-        ASSERT(!X2.isNull());
-        ASSERT(VA == X2.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x2 <op> x1, x2." << endl;
-        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 3. Create an object x3 (default ctor)."
-                             "\t\t{ x1:VA x2:VA x3:U }" << endl;
-        Obj mX3;  const Obj& X3 = mX3;
-        if (veryVerbose) { cout << '\t'; P(X3); }
-
-        if (veryVerbose) cout << "\ta. Check initial state of x3." << endl;
-        ASSERT(X3.isNull());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x3 <op> x1, x2, x3." << endl;
-        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
-        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 4. Create an object x4 (copy of x3)."
-                             "\t\t{ x1:VA x2:VA x3:U x4:U }" << endl;
-        Obj mX4(X3);  const Obj& X4 = mX4;
-        if (veryVerbose) { cout << '\t'; P(X4); }
-
-        if (veryVerbose) cout << "\ta. Check initial state of x4." << endl;
-        ASSERT(X4.isNull());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X4 == X1));        ASSERT(1 == (X4 != X1));
-        ASSERT(0 == (X4 == X2));        ASSERT(1 == (X4 != X2));
-        ASSERT(1 == (X4 == X3));        ASSERT(0 == (X4 != X3));
-        ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 5. Set x3 using '=' (set to VB)."
-                             "\t\t{ x1:VA x2:VA x3:VB x4:U }" << endl;
-        mX3.makeValue(VB);
-        if (veryVerbose) { cout << '\t'; P(X3); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x3." << endl;
-        ASSERT(!X3.isNull());
-        ASSERT(VB == X3.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x3 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
-        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
-        ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 6. Change x1 using 'reset'."
-                             "\t\t\t{ x1:U x2:VA x3:VB x4:U }" << endl;
-        mX1.reset();
-        if (veryVerbose) { cout << '\t'; P(X1); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
-        ASSERT(X1.isNull());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x1 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
-        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
-        ASSERT(1 == (X1 == X4));        ASSERT(0 == (X1 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 7. Change x1 ('makeValue', set to VC)."
-                             "\t\t{ x1:VC x2:VA x3:VB x4:U }" << endl;
-        mX1.makeValue(VC);
-        if (veryVerbose) { cout << '\t'; P(X1); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
-        ASSERT(!X1.isNull());
-        ASSERT(VC == X1.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x1 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
-        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
-        ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 8. Assign x2 = x1."
-                             "\t\t\t\t{ x1:VC x2:VC x3:VB x4:U }" << endl;
-        mX2 = X1;
-        if (veryVerbose) { cout << '\t'; P(X2); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
-        ASSERT(!X2.isNull());
-        ASSERT(VC == X2.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-        ASSERT(0 == (X2 == X3));        ASSERT(1 == (X2 != X3));
-        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 9. Assign x2 = x3."
-                             "\t\t\t\t{ x1:VC x2:VB x3:VB x4:U }" << endl;
-        mX2 = X3;
-        if (veryVerbose) { cout << '\t'; P(X2); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
-        ASSERT(!X2.isNull());
-        ASSERT(VB == X2.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X2 == X1));        ASSERT(1 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-        ASSERT(1 == (X2 == X3));        ASSERT(0 == (X2 != X3));
-        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 10. Assign x1 = x1."
-                             "\t\t\t\t{ x1:VC x2:VB x3:VB x4:U }" << endl;
-        mX1 = X1;
-        if (veryVerbose) { cout << '\t'; P(X1); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
-        ASSERT(!X1.isNull());
-        ASSERT(VC == X1.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x1 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
-        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
-        ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST USING 'bsl::string'
+        // BREATHING TEST
         //   This test exercises basic functionality, but tests nothing.
         //
         // Concerns:
-        //   We want to demonstrate a base-line level of correct operation of
-        //   the following methods and operators:
-        //     - default and copy constructors.
-        //     - the assignment operator (including aliasing).
-        //     - equality operators: 'operator==' and 'operator!='.
-        //     - primary manipulators: 'makeValue' and 'reset'.
-        //     - basic accessors: 'value' and 'isSet'.
-        //
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //:
         // Plan:
-        //   Create four test objects using the default, value, and copy
-        //   constructors.  Exercise the basic value-semantic methods and the
-        //   equality operators using the test objects.  Invoke the primary
-        //   manipulator [5, 6, 7], copy constructor [2, 4], assignment
-        //   operator without [9] and with [10] aliasing.  Use the basic
-        //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB', and 'VC' denote
-        //   unique, but otherwise arbitrary, object values, while 'U' denotes
-        //   the valid, but "unknown", default object value.
-        //
-        //   1. Create an object x1 (init. to VA)    { x1:VA                  }
-        //   2. Create an object x2 (copy of x1)     { x1:VA x2:VA            }
-        //   3. Create an object x3 (default ctor)   { x1:VA x2:VA x3:U       }
-        //   4. Create an object x4 (copy of x3)     { x1:VA x2:VA x3:U  x4:U }
-        //   5. Set x3 using 'makeValue' (set to VB) { x1:VA x2:VA x3:VB x4:U }
-        //   6. Change x1 using 'reset'              { x1:U  x2:VA x3:VB x4:U }
-        //   7. Change x1 ('makeValue', set to VC)   { x1:VC x2:VA x3:VB x4:U }
-        //   8. Assign x2 = x1                       { x1:VC x2:VC x3:VB x4:U }
-        //   9. Assign x2 = x3                       { x1:VC x2:VB x3:VB x4:U }
-        //  10. Assign x1 = x1 (aliasing)            { x1:VC x2:VB x3:VB x4:U }
+        //:  1 Create four test objects using the default, value, and copy
+        //:  constructors.  Exercise the basic value-semantic methods and the
+        //:  equality operators using the test objects.  Invoke the primary
+        //:  manipulator [5, 6, 7], copy constructor [2, 4], assignment
+        //:  operator without [9] and with [10] aliasing.  Use the basic
+        //:  accessors to verify the expected results.  Display object values
+        //:  frequently in verbose mode.  Note that 'VA', 'VB', and 'VC' denote
+        //:  unique, but otherwise arbitrary, object values, while 'U' denotes
+        //:  the valid, but "unknown", default object value.
+        //:
+        //:  2 Create an object x1 (init. to VA)    { x1:VA                  }
+        //:  3 Create an object x2 (copy of x1)     { x1:VA x2:VA            }
+        //:  4 Create an object x3 (default ctor)   { x1:VA x2:VA x3:U       }
+        //:  5 Create an object x4 (copy of x3)     { x1:VA x2:VA x3:U  x4:U }
+        //:  6 Set x3 using 'makeValue' (set to VB) { x1:VA x2:VA x3:VB x4:U }
+        //:  7 Change x1 using 'reset'              { x1:U  x2:VA x3:VB x4:U }
+        //:  8 Change x1 ('makeValue', set to VC)   { x1:VC x2:VA x3:VB x4:U }
+        //:  9 Assign x2 = x1                       { x1:VC x2:VC x3:VB x4:U }
+        //: 10 Assign x2 = x3                       { x1:VC x2:VB x3:VB x4:U }
+        //: 11 Assign x1 = x1 (aliasing)            { x1:VC x2:VB x3:VB x4:U }
         //
         // Testing:
-        //   This test case exercises basic value-semantic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nBREATHING TEST"
                           << "\n==============" << endl;
 
-        typedef bsl::string                             ValueType;
-        typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+        {
+            typedef bsl::string ValueType;
 
-        // possible values
-        const ValueType VA("The");
-        const ValueType VB("Breathing");
-        const ValueType VC("Test");
+            // some values
+            const ValueType VA("The");
+            const ValueType VB("Breathing");
+            const ValueType VC("Test");
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."
-                             "\t\t{ x1:VA }" << endl;
-        Obj mX1(VA);  const Obj& X1 = mX1;
-        if (veryVerbose) { cout << '\t'; P(X1); }
+            breathingTest(VA, VB, VC, verbose, veryVerbose);
+        }
 
-        if (veryVerbose) cout << "\ta. Check initial state of x1." << endl;
-        ASSERT(!X1.isNull());
-        ASSERT(VA == X1.value());
+        {
+            typedef int ValueType;
 
-        if (veryVerbose) cout << "\tb. Try equality operators: x1 <op> x1."
-                              << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+            // possible values
+            const ValueType VA(123);
+            const ValueType VB(234);
+            const ValueType VC(345);
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 2. Create an object x2 (copy of x1)."
-                             "\t\t{ x1:VA x2:VA }" << endl;
-        Obj mX2(X1);  const Obj& X2 = mX2;
-        if (veryVerbose) { cout << '\t'; P(X2); }
-
-        if (veryVerbose) cout << "\ta. Check initial state of x2." << endl;
-        ASSERT(!X2.isNull());
-        ASSERT(VA == X2.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x2 <op> x1, x2." << endl;
-        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 3. Create an object x3 (default ctor)."
-                             "\t\t{ x1:VA x2:VA x3:U }" << endl;
-        Obj mX3;  const Obj& X3 = mX3;
-        if (veryVerbose) { cout << '\t'; P(X3); }
-
-        if (veryVerbose) cout << "\ta. Check initial state of x3." << endl;
-        ASSERT(X3.isNull());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x3 <op> x1, x2, x3." << endl;
-        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
-        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 4. Create an object x4 (copy of x3)."
-                             "\t\t{ x1:VA x2:VA x3:U x4:U }" << endl;
-        Obj mX4(X3);  const Obj& X4 = mX4;
-        if (veryVerbose) { cout << '\t'; P(X4); }
-
-        if (veryVerbose) cout << "\ta. Check initial state of x4." << endl;
-        ASSERT(X4.isNull());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X4 == X1));        ASSERT(1 == (X4 != X1));
-        ASSERT(0 == (X4 == X2));        ASSERT(1 == (X4 != X2));
-        ASSERT(1 == (X4 == X3));        ASSERT(0 == (X4 != X3));
-        ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 5. Set x3 using '=' (set to VB)."
-                             "\t\t{ x1:VA x2:VA x3:VB x4:U }" << endl;
-        mX3.makeValue(VB);
-        if (veryVerbose) { cout << '\t'; P(X3); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x3." << endl;
-        ASSERT(!X3.isNull());
-        ASSERT(VB == X3.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x3 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
-        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
-        ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 6. Change x1 using 'reset'."
-                             "\t\t\t{ x1:U x2:VA x3:VB x4:U }" << endl;
-        mX1.reset();
-        if (veryVerbose) { cout << '\t'; P(X1); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
-        ASSERT(X1.isNull());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x1 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
-        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
-        ASSERT(1 == (X1 == X4));        ASSERT(0 == (X1 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 7. Change x1 ('makeValue', set to VC)."
-                             "\t\t{ x1:VC x2:VA x3:VB x4:U }" << endl;
-        mX1.makeValue(VC);
-        if (veryVerbose) { cout << '\t'; P(X1); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
-        ASSERT(!X1.isNull());
-        ASSERT(VC == X1.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x1 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
-        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
-        ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 8. Assign x2 = x1."
-                             "\t\t\t\t{ x1:VC x2:VC x3:VB x4:U }" << endl;
-        mX2 = X1;
-        if (veryVerbose) { cout << '\t'; P(X2); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
-        ASSERT(!X2.isNull());
-        ASSERT(VC == X2.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-        ASSERT(0 == (X2 == X3));        ASSERT(1 == (X2 != X3));
-        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 9. Assign x2 = x3."
-                             "\t\t\t\t{ x1:VC x2:VB x3:VB x4:U }" << endl;
-        mX2 = X3;
-        if (veryVerbose) { cout << '\t'; P(X2); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
-        ASSERT(!X2.isNull());
-        ASSERT(VB == X2.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(0 == (X2 == X1));        ASSERT(1 == (X2 != X1));
-        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
-        ASSERT(1 == (X2 == X3));        ASSERT(0 == (X2 != X3));
-        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 10. Assign x1 = x1."
-                             "\t\t\t\t{ x1:VC x2:VB x3:VB x4:U }" << endl;
-        mX1 = X1;
-        if (veryVerbose) { cout << '\t'; P(X1); }
-
-        if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
-        ASSERT(!X1.isNull());
-        ASSERT(VC == X1.value());
-
-        if (veryVerbose) cout << "\tb. Try equality operators: "
-                                 "x1 <op> x1, x2, x3, x4." << endl;
-        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
-        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
-        ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
+            breathingTest(VA, VB, VC, verbose, veryVerbose);
+        }
 
       } break;
       default: {
