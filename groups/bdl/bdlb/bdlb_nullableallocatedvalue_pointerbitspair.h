@@ -51,17 +51,17 @@ namespace bdlb {
                      // class Pointer_Bits_Pair
                      // =======================
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 class NullableAllocatedValue_PointerBitsPair {
     // This is a component-private class.  Do not use.
     //
     // This regular, value-semantic class provides a mechanism for storing a
     // number of bit flags in the otherwise unused bits of a pointer to the
-    // template parameter class 'TYPE'.   The number of bits that can be stored
-    // is dependent upon the required alignment of the class 'TYPE'.
+    // template parameter class 't_TYPE'.   The number of bits that can be
+    // stored is dependent upon the required alignment of the class 't_TYPE'.
 
     // DATA
-    enum { k_Mask = (1 << NUM_BITS ) - 1 };
+    enum { k_Mask = (1 << t_NUM_BITS ) - 1 };
         // 'k_Mask' is a bitmask constant containing a '1' for each of the
         // positions in the stored value where a flag can be stored, and a '0'
         // for all of the other positions.
@@ -69,8 +69,8 @@ class NullableAllocatedValue_PointerBitsPair {
     uintptr_t d_Value;
         // Contains the pointer value and the flag bits; or-ed together.
 
-    BSLMF_ASSERT(NUM_BITS >  0); // Can't store zero bits
-    BSLMF_ASSERT(NUM_BITS <= 8); // Too many bits
+    BSLMF_ASSERT(t_NUM_BITS >  0); // Can't store zero bits
+    BSLMF_ASSERT(t_NUM_BITS <= 8); // Too many bits
 
   public:
     // CREATORS
@@ -78,7 +78,7 @@ class NullableAllocatedValue_PointerBitsPair {
         // Construct an object holding a null pointer value and all flags set
         // to false.
 
-    explicit NullableAllocatedValue_PointerBitsPair(TYPE     *ptr,
+    explicit NullableAllocatedValue_PointerBitsPair(t_TYPE   *ptr,
                                                     unsigned  flags = 0);
         // Construct an object holding the specified 'ptr' and optionally
         // specified 'flags'.  The behavior is undefined unless
@@ -101,12 +101,12 @@ class NullableAllocatedValue_PointerBitsPair {
         // 'NullableAllocatedValue_PointerBitsPair' objects have the same value
         // when their pointer and flags are the same.
 
-    TYPE* getPointer () const;
+    t_TYPE* getPointer () const;
         // Return the held pointer.
 
     bool readFlag(unsigned idx) const;
         // Return the value of the flag specified by 'idx'.  The behavior is
-        // undefined unless 'idx < NUM_BITS'.
+        // undefined unless 'idx < t_NUM_BITS'.
 
     // MANIPULATORS
     //! NullableAllocatedValue_PointerBitsPair& operator=(
@@ -118,13 +118,13 @@ class NullableAllocatedValue_PointerBitsPair {
 
     void clearFlag(unsigned idx);
         // Clear the flag specified by 'idx'.  The behavior is undefined unless
-        // 'idx < NUM_BITS'.
+        // 'idx < t_NUM_BITS'.
 
     void setFlag(unsigned idx);
         // Set the flag specified by 'idx'.  The behavior is undefined unless
-        // 'idx < NUM_BITS'.
+        // 'idx < t_NUM_BITS'.
 
-    void setPointer (TYPE *new_ptr);
+    void setPointer (t_TYPE *new_ptr);
         // Set the held pointer to the value of the specified 'new_ptr'.
 
     void swap(NullableAllocatedValue_PointerBitsPair& other);
@@ -135,27 +135,27 @@ class NullableAllocatedValue_PointerBitsPair {
     };
 
 // FREE FUNCTIONS
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 bool operator==(
-            const NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& lhs,
-            const NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& rhs);
+        const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& lhs,
+        const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two
     // 'NullableAllocatedValue_PointerBitsPair' objects have the same value
     // when their pointer and flags are the same.
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 bool operator!=(
-            const NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& lhs,
-            const NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& rhs);
+        const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& lhs,
+        const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& rhs);
     // Return 'false' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'true' otherwise.  Two
     // 'NullableAllocatedValue_PointerBitsPair' objects have the same value
     // when their pointer and flags are the same.
 
-template <class TYPE, unsigned NUM_BITS>
-void swap(NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& a,
-          NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& b);
+template <class t_TYPE, unsigned t_NUM_BITS>
+void swap(NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& a,
+          NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& b);
     // Exchange the values of the specified 'a' and 'b' objects.  This function
     // provides the no-throw exception-safety guarantee.
 
@@ -172,22 +172,22 @@ void swap(NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& a,
 
 
 // CREATORS
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
+bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>
                                      ::NullableAllocatedValue_PointerBitsPair()
 : d_Value(0)
 {
-    // ensure that TYPE is sufficiently aligned to store NUM_BITS flags
+    // ensure that t_TYPE is sufficiently aligned to store t_NUM_BITS flags
     BSLMF_ASSERT(
-               static_cast<bsl::size_t>(k_Mask) <
-               static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE>::VALUE));
+             static_cast<bsl::size_t>(k_Mask) <
+             static_cast<bsl::size_t>(bsls::AlignmentFromType<t_TYPE>::VALUE));
 }
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
-            ::NullableAllocatedValue_PointerBitsPair(TYPE *ptr, unsigned flags)
+bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>
+          ::NullableAllocatedValue_PointerBitsPair(t_TYPE *ptr, unsigned flags)
 : d_Value(reinterpret_cast<uintptr_t>(ptr))
 {
     BSLS_ASSERT_OPT((d_Value & k_Mask) == 0); // pointer is correctly aligned
@@ -196,59 +196,59 @@ bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
 }
 
 // ACCESSORS
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-bool bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>::equal(
-     const NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& other) const
+bool bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>::equal(
+ const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& other) const
 {
     return d_Value == other.d_Value;
 }
 
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-TYPE* bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
+t_TYPE* bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>
                                                            ::getPointer() const
 {
-    return reinterpret_cast<TYPE *>(d_Value & ~uintptr_t(k_Mask));
+    return reinterpret_cast<t_TYPE *>(d_Value & ~uintptr_t(k_Mask));
 }
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-bool bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
+bool bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>
                                                  ::readFlag(unsigned idx) const
 {
-    BSLS_ASSERT_OPT(idx <= NUM_BITS);
+    BSLS_ASSERT_OPT(idx <= t_NUM_BITS);
     return 0 != (d_Value & (1 << idx));
 }
 
 // MANIPULATORS
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-void bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
+void bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>
                                                       ::clearFlag(unsigned idx)
 {
-    BSLS_ASSERT_OPT(idx <= NUM_BITS);
+    BSLS_ASSERT_OPT(idx <= t_NUM_BITS);
 
     const uintptr_t mask = 1U << idx;
     d_Value &= ~mask;
 }
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-void bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
+void bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>
                                                         ::setFlag(unsigned idx)
 {
-    BSLS_ASSERT_OPT(idx <= NUM_BITS);
+    BSLS_ASSERT_OPT(idx <= t_NUM_BITS);
 
     const uintptr_t mask = 1U << idx;
     d_Value |= mask;
 }
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-void bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
-                                                    ::setPointer(TYPE *new_ptr)
+void bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>
+                                                  ::setPointer(t_TYPE *new_ptr)
 {
     const uintptr_t value = reinterpret_cast<uintptr_t>(new_ptr);
     BSLS_ASSERT_OPT((value & k_Mask) == 0); // pointer is sufficiently aligned
@@ -257,9 +257,9 @@ void bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>
     d_Value = value | (d_Value & k_Mask);
 }
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
-void bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>::swap(
+void bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>::swap(
                                  NullableAllocatedValue_PointerBitsPair& other)
 {
     bslalg::SwapUtil::swap(&d_Value, &other.d_Value);
@@ -267,29 +267,29 @@ void bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>::swap(
 
 
 // FREE FUNCTIONS
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
 bool bdlb::operator==(
-       const bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& lhs,
-       const bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& rhs)
+   const bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& lhs,
+   const bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& rhs)
 {
     return lhs.equal(rhs);
 }
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
 bool bdlb::operator!=(
-       const bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& lhs,
-       const bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& rhs)
+   const bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& lhs,
+   const bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& rhs)
 {
     return !(lhs == rhs);
 }
 
-template <class TYPE, unsigned NUM_BITS>
+template <class t_TYPE, unsigned t_NUM_BITS>
 inline
 void bdlb::swap(
-               bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& a,
-               bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>& b)
+           bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& a,
+           bdlb::NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& b)
 {
     a.swap(b);
 }
