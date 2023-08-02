@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslma_allocator.h>     // for testing only
 #include <bslma_default.h>       // for testing only
 #include <bslma_testallocator.h> // for testing only
 

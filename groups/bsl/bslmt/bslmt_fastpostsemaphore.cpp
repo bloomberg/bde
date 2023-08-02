@@ -5,8 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_fastpostsemaphore_cpp,"$Id$ $CSID$")
 
-#include <bsls_atomic.h>  // for testing only
-
 namespace BloombergLP {
 namespace bslmt {
 

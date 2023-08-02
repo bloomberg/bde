@@ -16,7 +16,6 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
 
-#include <bslmt_barrier.h>                  // for testing only
 #include <bslmt_lockguard.h>
 #include <bslmt_condition.h>
 

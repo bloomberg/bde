@@ -13,8 +13,6 @@
 BSLS_IDENT_RCSID(bdlb_float_cpp,"$Id$ $CSID$")
 
 
-#include <bsls_platform.h>  // for testing only
-
 #include <bsl_cstring.h>          // for 'memcpy'
 
 namespace BloombergLP {

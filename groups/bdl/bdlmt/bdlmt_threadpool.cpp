@@ -21,10 +21,9 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#include <bslmt_barrier.h>    // for testing only
-#include <bslmt_lockguard.h>  // for testing only
-#include <bslmt_threadattributes.h>     // for testing only
-#include <bslmt_threadutil.h>     // for testing only
+#include <bslmt_lockguard.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset

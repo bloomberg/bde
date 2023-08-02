@@ -13,8 +13,6 @@
 BSLS_IDENT_RCSID(balber_berdecoder_cpp, "$Id$ $CSID$")
 
 #include <balber_berencoder.h>          // for testing only
-#include <bdlsb_fixedmeminstreambuf.h>  // for testing only
-#include <bdlsb_memoutstreambuf.h>      // for testing only
 
 namespace BloombergLP {
 
