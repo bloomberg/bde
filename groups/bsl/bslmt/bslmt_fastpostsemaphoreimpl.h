@@ -52,6 +52,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmt_lockguard.h>
 
+#include <bsls_review.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -218,6 +219,17 @@ class FastPostSemaphoreImpl {
     void post(int value);
         // Atomically increase the count of this semaphore by the specified
         // 'value'.  The behavior is undefined unless 'value > 0'.
+
+    void postWithRedundantSignal(int value, int available, int blocked);
+        // Atomically increase the count of this semaphore by the specified
+        // 'value'.  If the resources available to this semaphore is greater
+        // than or equal to the specified 'available' and the number of threads
+        // blocked in this semaphore is greater than or equal to the specified
+        // 'blocked', always send a signal to potentially wake a waiting thread
+        // (even if the signal should not be needed).  The behavior is
+        // undefined unless 'value > 0'.  Note that this method is provided to
+        // help mitigate issues in the implementation of underlying
+        // synchronization primitives.
 
     int take(int maximumToTake);
         // If the count of this semaphore is positive, reduce the count by the
@@ -661,6 +673,41 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
             LockGuard<MUTEX> guard(&d_waitMutex);
         }
         d_waitCondition.signal();
+    }
+}
+
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
+inline
+void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                       ::postWithRedundantSignal(int value,
+                                                                 int available,
+                                                                 int blocked)
+{
+    Int64 v     = k_AVAILABLE_INC * value;
+    Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state, v);
+
+    // signal only when 'state' indicates there are no other threads that can
+    // unblock blocked threads, or there are 'available' or more resources and
+    // 'blocked' or more threads
+
+    if (   (   v == (state & k_AVAILABLE_MASK)
+            || (   k_AVAILABLE_INC * available <= (state & k_AVAILABLE_MASK)
+                && blocked <= (state & k_BLOCKED_MASK)))
+        && !isDisabled(state)
+        && hasBlockedThread(state)) {
+
+        // note that 'd_waitMutex' must be acquired to ensure a thread in a
+        // wait operation either "sees" the change in state before determining
+        // whether to block using 'd_waitCondition', or has blocked and will
+        // receive a signal sent to 'd_waitCondition'
+
+        {
+            LockGuard<MUTEX> guard(&d_waitMutex);
+        }
+        d_waitCondition.signal();
+
+        BSLS_REVIEW_OPT(   v == (state & k_AVAILABLE_MASK)
+                        && "redundant signal sent");
     }
 }
 

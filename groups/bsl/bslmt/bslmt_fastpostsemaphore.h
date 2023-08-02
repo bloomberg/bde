@@ -385,6 +385,17 @@ class FastPostSemaphore {
         // Atomically increase the count of this semaphore by the specified
         // 'value'.  The behavior is undefined unless 'value > 0'.
 
+    void postWithRedundantSignal(int value, int available, int blocked);
+        // Atomically increase the count of this semaphore by the specified
+        // 'value'.  If the resources available to this semaphore is greater
+        // than or equal to the specified 'available' and the number of threads
+        // blocked in this semaphore is greater than or equal to the specified
+        // 'blocked', always send a signal to potentially wake a waiting thread
+        // (even if the signal should not be needed).  The behavior is
+        // undefined unless 'value > 0'.  Note that this method is provided to
+        // help mitigate issues in the implementation of underlying
+        // synchronization primitives.
+
     int take(int maximumToTake);
         // If the count of this semaphore is positive, reduce the count by the
         // lesser of the count and the specified 'maximumToTake' and return the
@@ -549,6 +560,14 @@ inline
 void FastPostSemaphore::post(int value)
 {
     d_impl.post(value);
+}
+
+inline
+void FastPostSemaphore::postWithRedundantSignal(int value,
+                                                int available,
+                                                int blocked)
+{
+    d_impl.postWithRedundantSignal(value, available, blocked);
 }
 
 inline

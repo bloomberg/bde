@@ -11,6 +11,7 @@
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_review.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
@@ -43,6 +44,7 @@ using namespace bsl;
 // [ 4] void disable();
 // [ 6] void post();
 // [ 6] void post(int value);
+// [ 6] void postWithRedundantSignal(value, available, blocked);
 // [ 8] int take(int maximumToTake);
 // [ 8] int takeAll();
 // [ 6] int timedWait(const bsls::TimeInterval& absTime);
@@ -1036,6 +1038,13 @@ extern "C" void *waitExpectSuccess(void *arg)
     return 0;
 }
 
+static int s_reviewCount = 0;
+
+static void reviewCount(const bsls::ReviewViolation&)
+{
+    ++s_reviewCount;
+}
+
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -1426,6 +1435,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void post();
         //   void post(int value);
+        //   void postWithRedundantSignal(value, available, blocked);
         //   int timedWait(const bsls::TimeInterval& absTime);
         //   int wait();
         // --------------------------------------------------------------------
@@ -1597,6 +1607,52 @@ int main(int argc, char *argv[])
 
                 for (int i = 0; i < k_NUM_THREAD; i += 3) {
                     mX.post(3);
+                }
+
+                for (int i = 0; i < k_NUM_THREAD; ++i) {
+                    bslmt::ThreadUtil::join(handle[i]);
+                }
+            }
+            {
+                const int k_NUM_THREAD = 6;
+
+                Obj mX;
+
+                bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
+                for (int i = 0; i < k_NUM_THREAD; ++i) {
+                    bslmt::ThreadUtil::create(&handle[i],
+                                              waitExpectSuccess,
+                                              &mX);
+                }
+
+                // sleep to allow the threads to block
+                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+
+                for (int i = 0; i < k_NUM_THREAD; i += 2) {
+                    mX.postWithRedundantSignal(2, 8, 8);
+                }
+
+                for (int i = 0; i < k_NUM_THREAD; ++i) {
+                    bslmt::ThreadUtil::join(handle[i]);
+                }
+            }
+            {
+                const int k_NUM_THREAD = 6;
+
+                Obj mX;
+
+                bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
+                for (int i = 0; i < k_NUM_THREAD; ++i) {
+                    bslmt::ThreadUtil::create(&handle[i],
+                                              timedWaitExpectSuccess,
+                                              &mX);
+                }
+
+                // sleep to allow the threads to block
+                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+
+                for (int i = 0; i < k_NUM_THREAD; i += 3) {
+                    mX.postWithRedundantSignal(3, 8, 8);
                 }
 
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
@@ -1927,6 +1983,87 @@ int main(int argc, char *argv[])
                 mX.post(VALUE);
 
                 LOOP_ASSERT(LINE, EXP_SIGNAL == TestCondition::signalCount());
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'postWithRedundantSignal'." << endl;
+        {
+            static const struct {
+                int d_line;       // source line number
+                int d_available;  // available count attribute of state
+                int d_disabled;   // disabled attribute of state
+                int d_blocked;    // blocked attribute of state
+                int d_value;      // 'postWRS(value, avail, block)'
+                int d_avail;      // 'postWRS(value, avail, block)'
+                int d_block;      // 'postWRS(value, avail, block)'
+                int d_expSignal;  // expected number of signals
+                int d_expReview;  // expected number of reviews
+            } DATA[] = {
+    //LN  AVAILABLE  DISABLED  BLOCKED  VALUE  AVAIL  BLOCK  SIGNAL  REVIEW
+    //--  ---------  --------  -------  -----  -----  -----  ------  ------
+    { L_,        -1,        0,       0,     1,    99,    99,      0,      0 },
+    { L_,        -1,        0,       1,     1,    99,    99,      0,      0 },
+    { L_,        -1,        0,       2,     1,    99,    99,      0,      0 },
+    { L_,         0,        0,       0,     1,    99,    99,      0,      0 },
+    { L_,         0,        0,       1,     1,    99,    99,      1,      0 },
+    { L_,         0,        0,       2,     1,    99,    99,      1,      0 },
+    { L_,         1,        0,       0,     1,    99,    99,      0,      0 },
+    { L_,         1,        0,       1,     1,    99,    99,      0,      0 },
+    { L_,         1,        0,       2,     1,    99,    99,      0,      0 },
+    { L_,        -1,        0,       0,     2,    99,    99,      0,      0 },
+    { L_,        -1,        0,       1,     2,    99,    99,      0,      0 },
+    { L_,        -1,        0,       2,     2,    99,    99,      0,      0 },
+    { L_,         0,        0,       0,     2,    99,    99,      0,      0 },
+    { L_,         0,        0,       1,     2,    99,    99,      1,      0 },
+    { L_,         0,        0,       2,     2,    99,    99,      1,      0 },
+    { L_,         1,        0,       0,     2,    99,    99,      0,      0 },
+    { L_,         1,        0,       1,     2,    99,    99,      0,      0 },
+    { L_,         1,        0,       2,     2,    99,    99,      0,      0 },
+
+    { L_,         5,        0,       1,     1,     6,     2,      0,      0 },
+    { L_,         5,        0,       2,     1,     6,     2,      1,      1 },
+    { L_,         5,        0,       2,     1,    99,    99,      0,      0 },
+    { L_,         6,        0,       1,     1,     6,     2,      0,      0 },
+    { L_,         6,        0,       2,     1,     6,     2,      1,      1 },
+    { L_,         6,        0,       2,     1,    99,    99,      0,      0 },
+
+    { L_,         0,        1,       1,     1,    99,    99,      0,      0 },
+    { L_,         0,        1,       2,     1,    99,    99,      0,      0 },
+    { L_,         0,        1,       1,     2,    99,    99,      0,      0 },
+    { L_,         0,        1,       2,     2,    99,    99,      0,      0 },
+
+    { L_,         0,        2,       1,     1,    99,    99,      1,      0 },
+    { L_,         0,        2,       2,     1,    99,    99,      1,      0 },
+    { L_,         0,        2,       1,     2,    99,    99,      1,      0 },
+    { L_,         0,        2,       2,     2,    99,    99,      1,      0 },
+            };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE       = DATA[ti].d_line;
+                const int AVAILABLE  = DATA[ti].d_available;
+                const int DISABLED   = DATA[ti].d_disabled;
+                const int BLOCKED    = DATA[ti].d_blocked;
+                const int VALUE      = DATA[ti].d_value;
+                const int AVAIL      = DATA[ti].d_avail;
+                const int BLOCK      = DATA[ti].d_block;
+                const int EXP_SIGNAL = DATA[ti].d_expSignal;
+                const int EXP_REVIEW = DATA[ti].d_expReview;
+
+                bsls::ReviewFailureHandlerGuard reviewGuard(&reviewCount);
+                TestObj mX;
+
+                TestAtomicOperations::clearOverride();
+                TestAtomicOperations::pushOverride(AVAILABLE,
+                                                   DISABLED,
+                                                   BLOCKED);
+
+                s_reviewCount = 0;
+
+                mX.postWithRedundantSignal(VALUE, AVAIL, BLOCK);
+
+                LOOP_ASSERT(LINE, EXP_SIGNAL == TestCondition::signalCount());
+                LOOP_ASSERT(LINE, EXP_REVIEW == s_reviewCount);
             }
         }
 

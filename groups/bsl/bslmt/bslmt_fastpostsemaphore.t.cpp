@@ -32,6 +32,7 @@ using namespace bsl;
 // [ 4] void disable();
 // [ 5] void post();
 // [ 5] void post(int value);
+// [ 5] void postWithRedundantSignal(value, available, blocked);
 // [ 7] int take(int maximumToTake);
 // [ 7] int takeAll();
 // [ 5] int timedWait(const bsls::TimeInterval& absTime);
@@ -99,9 +100,9 @@ void aSsErT(bool condition, const char *message, int line)
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -MN03
 
-            // ==================
-            // class AnotherClock
-            // ==================
+                            // ==================
+                            // class AnotherClock
+                            // ==================
 
 class AnotherClock {
     // 'AnotherClock' is a C++11-compatible clock that is very similar to
@@ -133,9 +134,9 @@ AnotherClock::time_point AnotherClock::now()
     return AnotherClock::time_point(ret - duration(10000));
 }
 
-            // ===============
-            // class HalfClock
-            // ===============
+                             // ===============
+                             // class HalfClock
+                             // ===============
 
 class HalfClock {
     // 'HalfClock' is a C++11-compatible clock that is very similar to
@@ -576,6 +577,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void post();
         //   void post(int value);
+        //   void postWithRedundantSignal(value, available, blocked);
         //   int timedWait(const bsls::TimeInterval& absTime);
         //   int wait();
         // --------------------------------------------------------------------
@@ -626,6 +628,37 @@ int main(int argc, char *argv[])
                     int count = initialCount;
                     while (count < 5) {
                         mX.post(3);
+                        count += 3;
+                    }
+
+                    while (count) {
+                        ASSERT(Obj::e_SUCCESS == mX.wait());
+                        --count;
+                    }
+                    ASSERT(Obj::e_WOULD_BLOCK == mX.tryWait());
+                }
+                {
+                    Obj mX(initialCount);
+
+                    int count = initialCount;
+                    while (count < 5) {
+                        mX.postWithRedundantSignal(1, 5, 5);
+                        ++count;
+                    }
+
+                    while (count) {
+                        ASSERT(Obj::e_SUCCESS ==
+                                        mX.timedWait(bsls::TimeInterval(1.0)));
+                        --count;
+                    }
+                    ASSERT(Obj::e_WOULD_BLOCK == mX.tryWait());
+                }
+                {
+                    Obj mX(initialCount);
+
+                    int count = initialCount;
+                    while (count < 5) {
+                        mX.postWithRedundantSignal(3, 5, 5);
                         count += 3;
                     }
 

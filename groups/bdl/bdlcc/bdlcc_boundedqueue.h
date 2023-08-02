@@ -438,7 +438,7 @@ class BoundedQueue {
                                                    // comprise the bounded
                                                    // queue
 
-    Uint64                    d_capacity;          // capacity of the queue
+    const Uint64              d_capacity;          // capacity of the queue
 
     bslma::Allocator         *d_allocator_p;       // allocator, held not owned
 
@@ -874,7 +874,10 @@ void BoundedQueue<TYPE>::popComplete(Node *node)
         if (AtomicOp::testAndSwapUint64AcqRel(&d_popCount,
                                               count,
                                               0) == count) {
-            d_pushSemaphore.post(static_cast<int>(count & k_STARTED_MASK));
+            d_pushSemaphore.postWithRedundantSignal(
+                                      static_cast<int>(count & k_STARTED_MASK),
+                                      static_cast<int>(d_capacity),
+                                      1);
 
             Uint emptyCount = AtomicOp::getUintAcquire(&d_emptyWaiterCount);
 
@@ -936,7 +939,10 @@ void BoundedQueue<TYPE>::pushComplete()
         if (AtomicOp::testAndSwapUint64AcqRel(&d_pushCount,
                                                count,
                                                0) == count) {
-            d_popSemaphore.post(static_cast<int>(count & k_STARTED_MASK));
+            d_popSemaphore.postWithRedundantSignal(
+                                      static_cast<int>(count & k_STARTED_MASK),
+                                      static_cast<int>(d_capacity),
+                                      1);
         }
     }
 }
