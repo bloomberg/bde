@@ -946,69 +946,434 @@ typedef TestArg<20> TestArg20;
 
 // ----------------------------------------------------------------------------
 
-                               // ===============
-                               // struct Copyable
-                               // ===============
+                       // ==============================
+                       // struct MovableTestTypeConsumer
+                       // ==============================
 
-enum { MAX_COPYABLE_PARAMETERS = 14 };
+enum { MAX_MOVABLETESTTYPE_PARAMETERS = 14 };
 
-struct Copyable {
-    // This 'struct' is a simple mechanism for counting the number of copy
-    // constructor calls.
+struct MovableTestTypeConsumer {
+    // This 'struct' is a simple mechanism for accepting a number of
+    // 'bsltf::MovableTestType' parameters in its constructor and forwarding
+    // them into a stored array.
 
     // PUBLIC CLASS DATA
     static bool s_copyConstructorCalled;  // flag indicating whether copy
                                           // constructor was called
 
     // PUBLIC DATA
-    bool d_arguments[MAX_COPYABLE_PARAMETERS];  // the 14 arguments
+    bsltf::MovableTestType d_arguments[MAX_MOVABLETESTTYPE_PARAMETERS];
+        // the 14 arguments
 
     // CREATORS
+    MovableTestTypeConsumer() {}
+
+    template <class TEST_TYPE_1>
     explicit
-    Copyable(bool a1  = false, bool a2  = false, bool a3  = false,
-             bool a4  = false, bool a5  = false, bool a6  = false,
-             bool a7  = false, bool a8  = false, bool a9  = false,
-             bool a10 = false, bool a11 = false, bool a12 = false,
-             bool a13 = false, bool a14 = false)
-        // Create a 'Copyable' object, initializing the 14 elements of
-        // 'd_arguments' with their specified corresponding 'a*' arguments.
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1)
     {
-        d_arguments[0]  = a1;  d_arguments[1]  = a2;  d_arguments[2]  = a3;
-        d_arguments[3]  = a4;  d_arguments[4]  = a5;  d_arguments[5]  = a6;
-        d_arguments[6]  = a7;  d_arguments[7]  = a8;  d_arguments[8]  = a9;
-        d_arguments[9]  = a10; d_arguments[10] = a11; d_arguments[11] = a12;
-        d_arguments[12] = a13; d_arguments[13] = a14;
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
     }
 
-    Copyable(const Copyable&)
+    template <class TEST_TYPE_1, class TEST_TYPE_2>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+    }
+
+    template <class TEST_TYPE_1, class TEST_TYPE_2, class TEST_TYPE_3>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3) a3)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3) a3,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4) a4)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3) a3,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4) a4,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5) a5)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3) a3,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4) a4,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5) a5,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6) a6)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3) a3,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4) a4,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5) a5,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6) a6,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7) a7)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7,
+              class TEST_TYPE_8>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3) a3,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4) a4,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5) a5,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6) a6,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7) a7,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_8) a8)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+        d_arguments[7] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_8, a8);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7,
+              class TEST_TYPE_8,
+              class TEST_TYPE_9>
+    MovableTestTypeConsumer(BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1) a1,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2) a2,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3) a3,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4) a4,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5) a5,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6) a6,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7) a7,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_8) a8,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_9) a9)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+        d_arguments[7] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_8, a8);
+        d_arguments[8] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_9, a9);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7,
+              class TEST_TYPE_8,
+              class TEST_TYPE_9,
+              class TEST_TYPE_10>
+    MovableTestTypeConsumer(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1)  a1,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2)  a2,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3)  a3,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4)  a4,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5)  a5,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6)  a6,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7)  a7,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_8)  a8,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_9)  a9,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_10) a10)
+    {
+        d_arguments[0] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+        d_arguments[7] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_8, a8);
+        d_arguments[8] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_9, a9);
+        d_arguments[9] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_10, a10);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7,
+              class TEST_TYPE_8,
+              class TEST_TYPE_9,
+              class TEST_TYPE_10,
+              class TEST_TYPE_11>
+    MovableTestTypeConsumer(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1)  a1,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2)  a2,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3)  a3,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4)  a4,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5)  a5,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6)  a6,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7)  a7,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_8)  a8,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_9)  a9,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_10) a10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_11) a11)
+    {
+        d_arguments[0]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+        d_arguments[7]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_8, a8);
+        d_arguments[8]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_9, a9);
+        d_arguments[9]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_10, a10);
+        d_arguments[10] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_11, a11);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7,
+              class TEST_TYPE_8,
+              class TEST_TYPE_9,
+              class TEST_TYPE_10,
+              class TEST_TYPE_11,
+              class TEST_TYPE_12>
+    MovableTestTypeConsumer(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1)  a1,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2)  a2,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3)  a3,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4)  a4,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5)  a5,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6)  a6,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7)  a7,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_8)  a8,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_9)  a9,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_10) a10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_11) a11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_12) a12)
+    {
+        d_arguments[0]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+        d_arguments[7]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_8, a8);
+        d_arguments[8]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_9, a9);
+        d_arguments[9]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_10, a10);
+        d_arguments[10] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_11, a11);
+        d_arguments[11] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_12, a12);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7,
+              class TEST_TYPE_8,
+              class TEST_TYPE_9,
+              class TEST_TYPE_10,
+              class TEST_TYPE_11,
+              class TEST_TYPE_12,
+              class TEST_TYPE_13>
+    MovableTestTypeConsumer(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1)  a1,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2)  a2,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3)  a3,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4)  a4,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5)  a5,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6)  a6,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7)  a7,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_8)  a8,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_9)  a9,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_10) a10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_11) a11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_12) a12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_13) a13)
+    {
+        d_arguments[0]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+        d_arguments[7]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_8, a8);
+        d_arguments[8]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_9, a9);
+        d_arguments[9]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_10, a10);
+        d_arguments[10] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_11, a11);
+        d_arguments[11] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_12, a12);
+        d_arguments[12] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_13, a13);
+    }
+
+    template <class TEST_TYPE_1,
+              class TEST_TYPE_2,
+              class TEST_TYPE_3,
+              class TEST_TYPE_4,
+              class TEST_TYPE_5,
+              class TEST_TYPE_6,
+              class TEST_TYPE_7,
+              class TEST_TYPE_8,
+              class TEST_TYPE_9,
+              class TEST_TYPE_10,
+              class TEST_TYPE_11,
+              class TEST_TYPE_12,
+              class TEST_TYPE_13,
+              class TEST_TYPE_14>
+    MovableTestTypeConsumer(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_1)  a1,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_2)  a2,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_3)  a3,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_4)  a4,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_5)  a5,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_6)  a6,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_7)  a7,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_8)  a8,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_9)  a9,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_10) a10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_11) a11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_12) a12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_13) a13,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(TEST_TYPE_14) a14)
+    {
+        d_arguments[0]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_1, a1);
+        d_arguments[1]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_2, a2);
+        d_arguments[2]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_3, a3);
+        d_arguments[3]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_4, a4);
+        d_arguments[4]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_5, a5);
+        d_arguments[5]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_6, a6);
+        d_arguments[6]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_7, a7);
+        d_arguments[7]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_8, a8);
+        d_arguments[8]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_9, a9);
+        d_arguments[9]  = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_10, a10);
+        d_arguments[10] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_11, a11);
+        d_arguments[11] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_12, a12);
+        d_arguments[12] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_13, a13);
+        d_arguments[13] = BSLS_COMPILERFEATURES_FORWARD(TEST_TYPE_14, a14);
+    }
+
+    MovableTestTypeConsumer(const MovableTestTypeConsumer&)
     {
         s_copyConstructorCalled = true;
     }
 
-    Copyable(int value)                                             // IMPLICIT
+    MovableTestTypeConsumer(int value)                              // IMPLICIT
     {
-        bsl::memset(this, 0,  sizeof(*this));
-        d_arguments[0] = !!value;
+        bsltf::MovableTestType mtt;
+        d_arguments[0] = mtt;
+        d_arguments[0].setData(value);
+        for (int i = 1; i < MAX_MOVABLETESTTYPE_PARAMETERS; ++i) {
+            d_arguments[i] = mtt;
+        }
     }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     // MANIPULATORS
-    Copyable& operator=(const Copyable& rhs) = default;
-        // Assign to this object the value of the specified 'rhs', and return
-        // a reference providing modifiable access to this object.
+    MovableTestTypeConsumer& operator=(
+                                 const MovableTestTypeConsumer& rhs) = default;
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.
 #endif
 };
 
 // PUBLIC CLASS DATA
-bool Copyable::s_copyConstructorCalled = false;
+bool MovableTestTypeConsumer::s_copyConstructorCalled = false;
 
-void checkCopyableParameters(const Copyable& object, int numTrue)
-    // Helper function that checks the specified 'numTrue' number of 'true'
-    // parameters (in increasing order of the argument list) in the specified
-    // 'Copyable' 'object'.
+void checkMoved(const MovableTestTypeConsumer& object,
+                int                            numMoved,
+                bsltf::MoveState::Enum         expectedState)
+    // Helper function that checks the specified 'numMoved' number of
+    // 'bslmf::MovableTestType' parameters (in increasing order of the argument
+    // list) have the specified 'expectedState' and their data is equal to
+    // their index in the specified 'MovableTestTypeConsumer' 'object', and the
+    // rest are in 'e_NOT_MOVED' state with the data is equal to zero.
 {
-    for (int i = 0; i < MAX_COPYABLE_PARAMETERS; ++i) {
-        ASSERTV(i, numTrue, (i < numTrue) == object.d_arguments[i]);
+    for (int i = 0; i < MAX_MOVABLETESTTYPE_PARAMETERS; ++i) {
+        ASSERTV(i,
+                numMoved,
+                ((i < numMoved) ? i + 1 : 0) == object.d_arguments[i].data());
+
+        ASSERTV(i,
+                numMoved,
+                ((i < numMoved) ? expectedState
+                                : bsltf::MoveState::e_NOT_MOVED) ==
+                    object.d_arguments[i].movedInto());
     }
 }
 
@@ -28050,281 +28415,699 @@ void TestUtil::testCase14()
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    typedef bdlb::VariantImp<bslmf::TypeList<Copyable, TestString> > Obj;
+    typedef bdlb::VariantImp<
+        bslmf::TypeList<MovableTestTypeConsumer, TestString> >
+        Obj;
+
+    typedef bsltf::MovableTestType TT;  // test type
 
     if (verbose) cout << "\nTesting 'createInPlace' with no arg." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>();
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                                   mX.createInPlace<MovableTestTypeConsumer>();
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 0);
-        checkCopyableParameters(mR,                0);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   0,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 0, MoveState::e_NOT_MOVED);
 
         mX.assign<TestString>(VK);  // will allocate
-        mX.createInPlace<Copyable>();
+        mX.createInPlace<MovableTestTypeConsumer>();
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 0);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 0, MoveState::e_MOVED);
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 1 arg." << endl;
     {
+        TT mA[1];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 1);
-        checkCopyableParameters(mR,                1);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   1,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 1, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 1);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 1, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 2 args." << endl;
     {
+        TT mA[2];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                       mX.createInPlace<MovableTestTypeConsumer>(mA[0], mA[1]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 2);
-        checkCopyableParameters(mR,                2);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   2,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 2, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 2);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 2, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 3 args." << endl;
     {
+        TT mA[3];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                mX.createInPlace<MovableTestTypeConsumer>(mA[0], mA[1], mA[2]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 3);
-        checkCopyableParameters(mR,                3);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   3,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 3, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 3);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 3, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 4 args." << endl;
     {
+        TT mA[4];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                        mA[1],
+                                                                        mA[2],
+                                                                        mA[3]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 4);
-        checkCopyableParameters(mR,                4);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   4,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 4, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 4);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 4, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 5 args." << endl;
     {
+        TT mA[5];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                                                 true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                        mA[1],
+                                                                        mA[2],
+                                                                        mA[3],
+                                                                        mA[4]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 5);
-        checkCopyableParameters(mR,                5);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   5,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 5, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 5);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 5, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 6 args." << endl;
     {
+        TT mA[6];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                                           true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                        mA[1],
+                                                                        mA[2],
+                                                                        mA[3],
+                                                                        mA[4],
+                                                                        mA[5]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 6);
-        checkCopyableParameters(mR,                6);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   6,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 6, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 6);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 6, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 7 args." << endl;
     {
+        TT mA[7];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                                     true, true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                        mA[1],
+                                                                        mA[2],
+                                                                        mA[3],
+                                                                        mA[4],
+                                                                        mA[5],
+                                                                        mA[6]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 7);
-        checkCopyableParameters(mR,                7);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   7,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 7, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 7);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 7, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 8 args." << endl;
     {
+        TT mA[8];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                               true, true, true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                        mA[1],
+                                                                        mA[2],
+                                                                        mA[3],
+                                                                        mA[4],
+                                                                        mA[5],
+                                                                        mA[6],
+                                                                        mA[7]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 8);
-        checkCopyableParameters(mR,                8);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   8,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 8, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 8);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]),
+                                                  MoveUtil::move(mA[7]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 8, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 9 args." << endl;
     {
+        TT mA[9];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                         true, true, true, true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                        mA[1],
+                                                                        mA[2],
+                                                                        mA[3],
+                                                                        mA[4],
+                                                                        mA[5],
+                                                                        mA[6],
+                                                                        mA[7],
+                                                                        mA[8]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 9);
-        checkCopyableParameters(mR,                9);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   9,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 9, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 9);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]),
+                                                  MoveUtil::move(mA[7]),
+                                                  MoveUtil::move(mA[8]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 9, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 10 args." << endl;
     {
+        TT mA[10];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                   true, true, true, true, true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                              mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                        mA[1],
+                                                                        mA[2],
+                                                                        mA[3],
+                                                                        mA[4],
+                                                                        mA[5],
+                                                                        mA[6],
+                                                                        mA[7],
+                                                                        mA[8],
+                                                                        mA[9]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 10);
-        checkCopyableParameters(mR,                10);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   10,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 10, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 10);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]),
+                                                  MoveUtil::move(mA[7]),
+                                                  MoveUtil::move(mA[8]),
+                                                  MoveUtil::move(mA[9]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 10, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 11 args." << endl;
     {
+        TT mA[11];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-             true, true, true, true, true, true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                             mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                       mA[1],
+                                                                       mA[2],
+                                                                       mA[3],
+                                                                       mA[4],
+                                                                       mA[5],
+                                                                       mA[6],
+                                                                       mA[7],
+                                                                       mA[8],
+                                                                       mA[9],
+                                                                       mA[10]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 11);
-        checkCopyableParameters(mR,                11);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   11,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 11, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 11);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]),
+                                                  MoveUtil::move(mA[7]),
+                                                  MoveUtil::move(mA[8]),
+                                                  MoveUtil::move(mA[9]),
+                                                  MoveUtil::move(mA[10]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 11, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 12 args." << endl;
     {
+        TT mA[12];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                                      true, true, true, true, true, true, true,
-                                      true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                             mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                       mA[1],
+                                                                       mA[2],
+                                                                       mA[3],
+                                                                       mA[4],
+                                                                       mA[5],
+                                                                       mA[6],
+                                                                       mA[7],
+                                                                       mA[8],
+                                                                       mA[9],
+                                                                       mA[10],
+                                                                       mA[11]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 12);
-        checkCopyableParameters(mR,                12);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   12,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 12, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 12);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]),
+                                                  MoveUtil::move(mA[7]),
+                                                  MoveUtil::move(mA[8]),
+                                                  MoveUtil::move(mA[9]),
+                                                  MoveUtil::move(mA[10]),
+                                                  MoveUtil::move(mA[11]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 12, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 13 args." << endl;
     {
+        TT mA[13];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                                   true, true, true, true, true, true, true,
-                                   true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                             mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                       mA[1],
+                                                                       mA[2],
+                                                                       mA[3],
+                                                                       mA[4],
+                                                                       mA[5],
+                                                                       mA[6],
+                                                                       mA[7],
+                                                                       mA[8],
+                                                                       mA[9],
+                                                                       mA[10],
+                                                                       mA[11],
+                                                                       mA[12]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 13);
-        checkCopyableParameters(mR,                13);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   13,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 13, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 13);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]),
+                                                  MoveUtil::move(mA[7]),
+                                                  MoveUtil::move(mA[8]),
+                                                  MoveUtil::move(mA[9]),
+                                                  MoveUtil::move(mA[10]),
+                                                  MoveUtil::move(mA[11]),
+                                                  MoveUtil::move(mA[12]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 13, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 
     if (verbose) cout << "\nTesting 'createInPlace' with 14 args." << endl;
     {
+        TT mA[14];
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            mA[i].setData(i + 1);
+        }
+
         Obj mX;  const Obj& X = mX;
-        Copyable& mR = mX.createInPlace<Copyable>(
-                                   true, true, true, true, true, true, true,
-                                   true, true, true, true, true, true, true);
-        ASSERT(&X.the<Copyable>() == &mR);
+        MovableTestTypeConsumer& mR =
+                             mX.createInPlace<MovableTestTypeConsumer>(mA[0],
+                                                                       mA[1],
+                                                                       mA[2],
+                                                                       mA[3],
+                                                                       mA[4],
+                                                                       mA[5],
+                                                                       mA[6],
+                                                                       mA[7],
+                                                                       mA[8],
+                                                                       mA[9],
+                                                                       mA[10],
+                                                                       mA[11],
+                                                                       mA[12],
+                                                                       mA[13]);
+        ASSERT(&X.the<MovableTestTypeConsumer>() == &mR);
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 14);
-        checkCopyableParameters(mR,                14);
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(),
+                   14,
+                   MoveState::e_NOT_MOVED);
+        checkMoved(mR, 14, MoveState::e_NOT_MOVED);
 
-        mX.assign<TestString>(VK);
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true, true, true, true);
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_NOT_MOVED);
+        }
 
-        ASSERT(false == Copyable::s_copyConstructorCalled);
-        checkCopyableParameters(X.the<Copyable>(), 14);
+        mX.assign<TestString>(VK);  // will allocate
+        mX.createInPlace<MovableTestTypeConsumer>(MoveUtil::move(mA[0]),
+                                                  MoveUtil::move(mA[1]),
+                                                  MoveUtil::move(mA[2]),
+                                                  MoveUtil::move(mA[3]),
+                                                  MoveUtil::move(mA[4]),
+                                                  MoveUtil::move(mA[5]),
+                                                  MoveUtil::move(mA[6]),
+                                                  MoveUtil::move(mA[7]),
+                                                  MoveUtil::move(mA[8]),
+                                                  MoveUtil::move(mA[9]),
+                                                  MoveUtil::move(mA[10]),
+                                                  MoveUtil::move(mA[11]),
+                                                  MoveUtil::move(mA[12]),
+                                                  MoveUtil::move(mA[13]));
+
+        ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
+        checkMoved(mX.the<MovableTestTypeConsumer>(), 14, MoveState::e_MOVED);
+
+        for (int i = 0; i < bsl::ssize(mA); ++i) {
+            MoveState::Enum mStateI = mA[i].movedFrom();
+            ASSERTV(i, mStateI, mStateI == MoveState::e_MOVED);
+        }
     }
 }
 
@@ -30063,14 +30846,14 @@ int main(int argc, char *argv[])
         //      arguments are forwarded properly).
         //
         // Plan:
-        //   Define a 'Copyable' class whose copy constructor is monitored and
-        //   has a constructor that takes up to 14 arguments.  Also provide an
-        //   accessor to the 14 arguments being passed in.  Then invoke all 15
-        //   versions of 'createInPlace' and verify the arguments are forwarded
-        //   properly.  Also assert that the copy constructor is never invoked.
+        //   Define a 'MovableTestTypeConsumer' class whose copy constructor is
+        //   monitored and has a constructor that takes up to 14 arguments.
+        //   Also provide an accessor to the 14 arguments being passed in.
+        //   Then invoke all 15 versions of 'createInPlace' and verify the
+        //   arguments are forwarded properly (including their value category).
+        //   Also assert that the copy constructor is never invoked.
         //
-        // Testing:
-        //   TYPE& createInPlace<TYPE>(...);
+        // Testing: TYPE& createInPlace<TYPE>(...);
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -30185,34 +30968,38 @@ int main(int argc, char *argv[])
         //   should not invoke the copy constructor.
         //
         // Plan:
-        //   Define a 'Copyable' class whose copy constructor is monitored.
-        //   Invoke the 'assign' method of a variant that wraps this 'Copyable'
-        //   class.  Verify that the copy constructor has not been called.
+        //   Define a 'MovableTestTypeConsumer' class whose copy constructor is
+        //   monitored.  Invoke the 'assign' method of a variant that wraps
+        //   this 'MovableTestTypeConsumer' class.  Verify that the copy
+        //   constructor has not been called.
         //
-        // Testing:
-        //   VariantImp& assignTo(const SOURCE& value);
+        // Testing: VariantImp& assignTo(const SOURCE& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING 'assignTo'" << endl
                           << "==================" << endl;
 
-        if (verbose) cout << "\nWith custom 'Copyable' type." << endl;
+        if (verbose)
+            cout << "\nWith custom 'MovableTestTypeConsumer' type." << endl;
         {
-            typedef bdlb::VariantImp<bslmf::TypeList<Copyable> > Obj;
+            typedef bdlb::VariantImp<bslmf::TypeList<MovableTestTypeConsumer> >
+                Obj;
 
-            ASSERT(false == Copyable::s_copyConstructorCalled);
+            ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
 
             Obj mX;  const Obj& X = mX;
             ASSERT( X.isUnset());
 
-            mX.assignTo<Copyable>(true);
+            mX.assignTo<MovableTestTypeConsumer>(1);
 
             ASSERT(!X.isUnset());
-            ASSERT( X.is<Copyable>());
-            ASSERT(false == Copyable::s_copyConstructorCalled);
+            ASSERT( X.is<MovableTestTypeConsumer>());
+            ASSERT(false == MovableTestTypeConsumer::s_copyConstructorCalled);
 
-            checkCopyableParameters(X.the<Copyable>(), 1);
+            checkMoved(X.the<MovableTestTypeConsumer>(),
+                       1,
+                       bsltf::MoveState::e_NOT_MOVED);
         }
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);

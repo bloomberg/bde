@@ -48,3 +48,4 @@ bdlb_transparentequalto
 bdlb_transparenthash
 bdlb_transparentless
 bdlb_variant
+bdlb_variant_cpp03

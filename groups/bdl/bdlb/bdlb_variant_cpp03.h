@@ -1,674 +1,30 @@
-// bdlb_variant.h                                                     -*-C++-*-
+// bdlb_variant_cpp03.h                                               -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
+// Automatically generated file.  **DO NOT EDIT**
 
-#ifndef INCLUDED_BDLB_VARIANT
-#define INCLUDED_BDLB_VARIANT
+#ifndef INCLUDED_BDLB_VARIANT_CPP03
+#define INCLUDED_BDLB_VARIANT_CPP03
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
-
-//@PURPOSE: Provide a variant (discriminated 'union'-like) type.
-//
-//@CLASSES:
-//  bdlb::Variant:    variant of up to   20 types
-//  bdlb::Variant2:   variant of exactly  2 types
-//  bdlb::Variant3:   variant of exactly  3 types
-//  bdlb::Variant4:   variant of exactly  4 types
-//  bdlb::Variant5:   variant of exactly  5 types
-//  bdlb::Variant6:   variant of exactly  6 types
-//  bdlb::Variant7:   variant of exactly  7 types
-//  bdlb::Variant8:   variant of exactly  8 types
-//  bdlb::Variant9:   variant of exactly  9 types
-//  bdlb::Variant10:  variant of exactly 10 types
-//  bdlb::Variant11:  variant of exactly 11 types
-//  bdlb::Variant12:  variant of exactly 12 types
-//  bdlb::Variant13:  variant of exactly 13 types
-//  bdlb::Variant14:  variant of exactly 14 types
-//  bdlb::Variant15:  variant of exactly 15 types
-//  bdlb::Variant16:  variant of exactly 16 types
-//  bdlb::Variant17:  variant of exactly 17 types
-//  bdlb::Variant18:  variant of exactly 18 types
-//  bdlb::Variant19:  variant of exactly 19 types
-//  bdlb::VariantImp: variant from a type list
-//
-//@SEE_ALSO:
-//
-//@DESCRIPTION: This component provides: (1) a variant class template,
-// 'bdlb::Variant', that can store an instance of one of up to some
-// (implementation-defined) number of parameter types (currently 20), (2)
-// several variant class templates that accommodate a *fixed* number (from 2
-// to 19) of types, 'bdlb::Variant2', 'bdlb::Variant3', 'bdlb::Variant4',
-// 'bdlb::Variant5', 'bdlb::Variant6', 'bdlb::Variant7', 'bdlb::Variant8',
-// 'bdlb::Variant9', 'bdlb::Variant10', 'bdlb::Variant11', 'bdlb::Variant12',
-// 'bdlb::Variant13', 'bdlb::Variant14', 'bdlb::Variant15', 'bdlb::Variant16',
-// 'bdlb::Variant17', 'bdlb::Variant18', and 'bdlb::Variant19', and (3) a final
-// variant class template, 'bdlb::VariantImp', whose supported types are
-// specified via a 'bslmf::TypeList'.  A variant (of any of the aforementioned
-// classes) can hold any one of the types defined in its signature at any point
-// in time.  Clients can retrieve the value and type that a variant currently
-// holds, assign a new value to the variant, or apply a visitor to the variant.
-// A visitor's action is based on the value and type the variant currently
-// holds.  Assigning a value of a new type destroys the object of the old type
-// and constructs the new value by copy constructing the supplied value.
-//
-// When the number ('N') of types that needs to be supported is known, it is
-// better to use the 'bdlb::VariantN' templates that use an identical
-// implementation, but generate shorter symbols and debugging information due
-// to the lack of defaulted template argument types.  Note that
-// 'bdlb::VariantN<T1, ..., TN>' and 'bdlb::Variant<T1, ..., TN>' are,
-// nevertheless, distinct types.
-//
-// When the variant types are (directly) supplied as a type list (of type
-// 'bslmf::TypeList'), the type 'bdlb::VariantImp<TYPELIST>' can be used in
-// place of:
-//..
-//  bdlb::Variant<typename TYPELIST::Type1, typename TYPELIST::Type2, ...>
-//..
-//
-// Lastly, move constructors (taking an optional allocator) and move-assignment
-// operators are also provided.  Note that move semantics are emulated with
-// C++03 compilers.
-//
-///Default Construction
-///--------------------
-// The 'bdlb::Variant' class, when default constructed, does not hold a value
-// and 'isUnset' returns 'true'.  This state is the same as that of a
-// 'bdlb::Variant' that is reset by the 'reset' method.
-//
-///Visitors
-///--------
-// 'bdlb::Variant' provides an 'apply' method that implements the visitor
-// design pattern.  'apply' accepts a visitor (functor) that provides an
-// 'operator()' that is invoked with the value that the variant currently
-// holds.
-//
-// Note, that visitor must satisfy the following requirements:
-//: o The visitor's 'operator()' must be callable with any of the types that
-//:   might be contained in the variant.
-//: o For the 'apply' methods (but not 'applyRaw') the visitor's 'operator()'
-//:   must be callable with an argument of type 'bslmf::Nil'.
-//: o For the 'apply' and 'applyRaw' methods returning non-void type the return
-//:   value of all callable overloads of 'operator()' must be convertible to
-//:   this type.
-//
-// The 'apply' method should be preferred over a 'switch' statement based on
-// the type index of a variant.  If the order or types contained by the variant
-// is changed in the future, every place where the type index is hard-coded
-// needs to be updated.  Whereas if 'apply' were used, no change would be
-// needed because function overloading will automatically resolve to the proper
-// 'operator()' to invoke.
-//
-// There are several variations of the 'apply' method, varying based on the
-// return type and the handling of unset variants.  Firstly,
-// the method varies based on whether 'apply' returns a value or not.
-// There can either be:
-//: o No return value.
-//: o A return type specified in the visitor interface.
-//: o A return type specified explicitly when invoking 'apply'.
-//
-// The default is no return value. Even if visitor's 'operator()' returns any
-// non-void value, it will not be passed to the user.  If users would like to
-// return a value from the visitor's 'operator()', they can specify a public
-// alias 'ResultType' to the desired return type in the functor class.  For
-// example, if 'operator()' were to return an 'int', the functor class should
-// specify:
-//..
-//  typedef int ResultType;
-//..
-// If 'ResultType' cannot be determined, users also have the option of
-// explicitly specifying the return type when invoking apply:
-//..
-//  apply<int>(visitor);
-//..
-// Secondly, the 'apply' method varies based on how the method handles an unset
-// variant.  A user can choose to:
-//: o Pass a default-constructed 'bslmf::Nil' to the visitor.
-//: o Pass a user-specified "default" value to the visitor.
-//
-// Furthermore, if the user is sure that the variant cannot be unset, the user
-// can invoke 'applyRaw', which is slightly more efficient.  However, if the
-// variant is, in fact, unset, the behavior of 'applyRaw' is undefined.
-//
-///BDEX Streamability
-///------------------
-// BDEX streaming is not implemented for any of the variant classes.
-//
-///Class Synopsis
-///--------------
-// Due to the complexity of the implementation, the following synopsis is
-// provided to aid users in locating documentation for functions.  Note that
-// this is not a complete summary of all available methods; only the key
-// methods are shown.  For more information, refer to the function-level
-// documentation.
-//
-///Creators
-/// - - - -
-//..
-//  bdlb::Variant()
-//  bdlb::Variant(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-//  bdlb::Variant(const TYPE& value, bslma::Allocator *basicAllocator);
-//..
-// Create a variant.  Users can choose to initialize a variant with a specified
-// value, or leave the variant in the unset state (via default construction).
-// Users can also supply a 'bslma::Allocator *' for memory allocation.
-//
-///Manipulators
-/// - - - - - -
-//..
-//  bdlb::Variant& operator=(const TYPE& value);
-//..
-// Assign a different value of template parameter 'TYPE' to the variant.
-//..
-//  bdlb::Variant& operator=(const bdlb::Variant& rhs);
-//..
-// Assign another variant to a variant.
-//..
-//  void                apply(VISITOR& visitor);
-//  VISITOR::ResultType apply(VISITOR& visitor);
-//  RET_TYPE            apply(VISITOR& visitor);
-//..
-// Access a variant's value using a specified visitor functor whereby
-// 'bslmf::Nil' is passed to the visitor's 'operator()' if the variant is
-// unset.
-//..
-//  void                apply(VISITOR& visitor, const TYPE& defaultValue);
-//  VISITOR::ResultType apply(VISITOR& visitor, const TYPE& defaultValue);
-//  RET_TYPE            apply(VISITOR& visitor, const TYPE& defaultValue);
-//..
-// Access a variant's value using a specified visitor functor whereby a
-// user-specified default value is passed to the visitor's 'operator()' if the
-// variant is unset.
-//..
-//  void                applyRaw(VISITOR& visitor);
-//  VISITOR::ResultType applyRaw(VISITOR& visitor);
-//  RET_TYPE            applyRaw(VISITOR& visitor);
-//..
-// Access a variant's value using a specified visitor functor whereby the
-// behavior is undefined if the variant is unset.
-//..
-//  template <class TYPE>
-//  TYPE& createInPlace();
-//  TYPE& createInPlace(const A1& a1);
-//  // ...
-//  TYPE& createInPlace(const A1& a1, const A2& a2, ..., const A14& a14);
-//..
-// Create a new value of template parameter 'TYPE' in-place, with up to 14
-// constructor arguments.
-//..
-//  void reset();
-//..
-// Reset a variant to the unset state.
-//..
-//  template <class TYPE>
-//  TYPE& the();
-//..
-// Access the value of template parameter 'TYPE' currently held by a variant.
-// This method should be invoked using the syntax 'the<TYPE>()', e.g.,
-// 'the<int>()'.
-//
-///Accessors
-///- - - - -
-//..
-//  template <class TYPE>
-//  bool is() const;
-//..
-// Check whether a variant is currently holding a particular type.  This
-// method should be invoked using the syntax 'is<TYPE>()', e.g., 'is<int>()'.
-//..
-//  bool isUnset() const;
-//..
-// Return 'true' if a variant is currently unset, and 'false' otherwise.
-//..
-//  bsl::ostream& print(bsl::ostream& stream,
-//                      int           level          = 0,
-//                      int           spacesPerLevel = 4) const;
-//..
-// Write a description of a variant to a specified 'stream'.
-//
-///Usage
-///-----
-// This section illustrates intended use of this component.
-//
-///Example 1: Variant Construction
-///- - - - - - - - - - - - - - - -
-// The following example illustrates the different ways of constructing a
-// 'bdlb::Variant':
-//..
-//  typedef bdlb::Variant <int, double, bsl::string> List;
-//  typedef bdlb::Variant3<int, double, bsl::string> List3;  // equivalent
-//..
-// The contained types can be retrieved as a 'bslmf::TypeList' (using the
-// 'TypeList' nested type), or individually (using 'TypeN', for 'N' varying
-// from 1 to the length of the 'TypeList').  In the example below, we use the
-// 'List' variant, but this could be substituted with 'List3' with no change
-// to the code:
-//..
-//  assert(3 == List::TypeList::LENGTH);
-//  assert(3 == List3::TypeList::LENGTH);
-//..
-// We can check that the variant defaults to the unset state by using the
-// 'is<TYPE>' and 'typeIndex' methods:
-//..
-//  List x;
-//
-//  assert(!x.is<int>());
-//  assert(!x.is<double>());
-//  assert(!x.is<bsl::string>());
-//  assert(0 == x.typeIndex());
-//..
-// Single-argument construction from a type in the 'TypeList' of a variant is
-// also supported.  This is more efficient than creating an unset variant and
-// assigning a value to it:
-//..
-//  List3 y(bsl::string("Hello"));
-//
-//  assert(!y.is<int>());
-//  assert(!y.is<double>());
-//  assert( y.is<bsl::string>());
-//
-//  assert("Hello" == y.the<bsl::string>());
-//..
-// Furthermore, 'createInPlace' is provided to support direct in-place
-// construction.  This method allows users to directly construct the target
-// type inside the variant, instead of first creating a temporary object, then
-// copy constructing the object to initialize the variant:
-//..
-//  List z;
-//  z.createInPlace<bsl::string>("Hello", 5);
-//
-//  assert(!z.is<int>());
-//  assert(!z.is<double>());
-//  assert( z.is<bsl::string>());
-//
-//  assert("Hello" == z.the<bsl::string>());
-//..
-// Up to 14 constructor arguments are supported for in-place construction of
-// an object.  Users can also safely create another object of the same or
-// different type in a variant that already holds a value using the
-// 'createInPlace' method.  No memory is leaked in all cases and the destructor
-// for the currently held object is invoked:
-//..
-//  z.createInPlace<bsl::string>("Hello", 5);
-//  assert(z.is<bsl::string>());
-//  assert("Hello" == z.the<bsl::string>());
-//
-//  z.createInPlace<double>(10.0);
-//  assert(z.is<double>());
-//  assert(10.0 == z.the<double>());
-//
-//  z.createInPlace<int>(10);
-//  assert(z.is<int>());
-//  assert(10 == z.the<int>());
-//..
-// 'createInPlace' returns a reference providing modifiable access to the
-// created object:
-//..
-//  bsl::string& ref = z.createInPlace<bsl::string>("Goodbye");
-//  assert("Goodbye" == z.the<bsl::string>());
-//  assert("Goodbye" == ref);
-//  assert(&ref == &z.the<bsl::string>());
-//
-//  ref = "Hello again!";
-//  assert("Hello again!" == z.the<bsl::string>());
-//..
-//
-///Example 2: Variant Assignment
-///- - - - - - - - - - - - - - -
-// A value of a given type can be stored in a variant in three different ways:
-//
-//: o 'operator='
-//: o 'assignTo<TYPE>'
-//: o 'assign'
-//
-// 'operator=' automatically deduces the type that the user is trying to assign
-// to the variant.  This should be used most of the time.  The 'assignTo<TYPE>'
-// method should be used when conversion to the type that the user is assigning
-// to is necessary (see the first two examples below for more details).
-// Finally, 'assign' is equivalent to 'operator=' and exists simply for
-// backwards compatibility.
-//
-///'operator='
-/// -  -  -  -
-// The following example illustrates how to use 'operator=':
-//..
-//  typedef bdlb::Variant<int, double, bsl::string> List;
-//
-//  List x;
-//
-//  List::Type1 v1 = 1;       // 'int'
-//  List::Type2 v2 = 2.0;     // 'double'
-//  List::Type3 v3("hello");  // 'bsl::string'
-//
-//  x = v1;
-//  assert( x.is<int>());
-//  assert(!x.is<double>());
-//  assert(!x.is<bsl::string>());
-//  assert(v1 == x.the<int>());
-//
-//  x = v2;
-//  assert(!x.is<int>());
-//  assert( x.is<double>());
-//  assert(!x.is<bsl::string>());
-//  assert(v2 == x.the<double>());
-//
-//  x = v3;
-//  assert(!x.is<int>());
-//  assert(!x.is<double>());
-//  assert( x.is<bsl::string>());
-//  assert(v3 == x.the<bsl::string>());
-//..
-// Note that the type of the object is deduced automatically during assignment,
-// as in:
-//..
-//  x = v1;
-//..
-// This automatic deduction, however, cannot be extended to conversion
-// constructors, such as:
-//..
-//  x = static_cast<const char *>("Bye");  // ERROR
-//..
-// The compiler will diagnose that 'const char *' is not a variant type
-// specified in the list of parameter types used in the definition of 'List',
-// and will trigger a compile-time assertion.  To overcome this problem, see
-// the next usage example of 'assignTo<TYPE>'.
-//
-///'assignTo<TYPE>'
-///-  -  -  -  -  -
-// In the previous example, 'const char *' was not part of the variant's type
-// list, which resulted in a compilation diagnostic.  The use of
-// 'assignTo<TYPE>' explicitly informs the compiler of the intended type to
-// assign to the variant:
-//..
-//  x.assignTo<bsl::string>(static_cast<const char *>("Bye"));
-//
-//  assert(!x.is<int>());
-//  assert(!x.is<double>());
-//  assert( x.is<bsl::string>());
-//
-//  assert("Bye" == x.the<bsl::string>());
-//..
-//
-///'assign'
-/// -  -  -
-// Finally, for backwards compatibility, 'assign' can also be used in place of
-// 'operator=' (but not 'assignTo'):
-//..
-//  x.assign<int>(v1);
-//  assert( x.is<int>());
-//  assert(!x.is<double>());
-//  assert(!x.is<bsl::string>());
-//  assert(v1 == x.the<int>());
-//
-//  x.assign<double>(v2);
-//  assert(!x.is<int>());
-//  assert( x.is<double>());
-//  assert(!x.is<bsl::string>());
-//  assert(v2 == x.the<double>());
-//
-//  x.assign<bsl::string>(v3);
-//  assert(!x.is<int>());
-//  assert(!x.is<double>());
-//  assert( x.is<bsl::string>());
-//  assert(v3 == x.the<bsl::string>());
-//..
-//
-///Example 3: Visiting a Variant via 'apply'
-///- - - - - - - - - - - - - - - - - - - - -
-// As described in {Visitors} (above), there are different ways to invoke the
-// 'apply' method.  The first two examples below illustrate the different ways
-// to invoke 'apply' (with no return value) to control the behavior of visiting
-// an unset variant:
-//: o 'bslmf::Nil' is passed to the visitor.
-//: o A user-specified default value is passed to the visitor.
-//
-// A third example illustrates use of 'applyRaw', the behavior of which is
-// undefined if the variant is unset.  Two final examples illustrate different
-// ways to specify the return value from 'apply':
-//: o The return value is specified in the visitor.
-//: o The return value is specified with the function call.
-//
-///'bslmf::Nil' Passed to Visitor
-///-  -  -  -  -  -  -  -  -  - -
-// A simple visitor that does not require any return value might be one that
-// prints the value of the variant to 'stdout':
-//..
-//  class my_PrintVisitor {
-//    public:
-//      template <class TYPE>
-//      void operator()(const TYPE& value) const
-//      {
-//          bsl::cout << value << bsl::endl;
-//      }
-//
-//      void operator()(bslmf::Nil value) const
-//      {
-//          bsl::cout << "null" << bsl::endl;
-//      }
-//  };
-//
-//  typedef bdlb::Variant<int, double, bsl::string> List;
-//
-//  List x[4];
-//
-//  // Note that 'x[3]' is uninitialized.
-//
-//  x[0].assign(1);
-//  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
-//
-//  my_PrintVisitor printVisitor;
-//
-//  for (int i = 0; i < 4; ++i) {
-//      x[i].apply(printVisitor);
-//  }
-//..
-// The above prints the following on 'stdout':
-//..
-//  1
-//  1.1
-//  Hello
-//  null
-//..
-// Note that 'operator()' is overloaded with 'bslmf::Nil'.  A direct match has
-// higher precedence than a template parameter match.  When the variant is
-// unset (such as 'x[3]'), a 'bslmf::Nil' is passed to the visitor.
-//
-///User-Specified Default Value Passed to Visitor
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Instead of using 'bslmf::Nil', users can also specify a default value to
-// pass to the visitor when the variant is currently unset.  Using the same
-// 'my_PrintVisitor' class from the previous example:
-//..
-//  for (int i = 0; i < 4; ++i) {
-//      x[i].apply(printVisitor, "Print this when unset");
-//  }
-//..
-// Now, the above code prints the following on 'stdout':
-//..
-//  1
-//  1.1
-//  Hello
-//  Print this when unset
-//..
-// This variation of 'apply' is useful since the user can provide a default
-// value to the visitor without incurring the cost of initializing the variant
-// itself.
-//
-///'applyRaw' Undefined If Variant Is Unset
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -
-// If it is certain that a variant is not unset, then the 'applyRaw' method can
-// be used instead of 'apply'.  'applyRaw' is slightly more efficient than
-// 'apply', but the behavior of 'applyRaw' is undefined if the variant is
-// unset.  In the following application of 'applyRaw', we purposely circumvent
-// 'x[3]' from being visited because we know that it is unset:
-//..
-//  for (int i = 0; i < 3; ++i) {     // NOT 'i < 4' as above.
-//      assert(!x[i].isUnset());
-//      x[i].applyRaw(printVisitor);  // undefined behavior for 'x[3]'
-//  }
-//  assert(x[3].isUnset());
-//..
-//
-///Return Value Specified in Visitor
-///  -  -  -  -  -  -  -  -  -  -  -
-// Users can also specify a return type that 'operator()' will return by
-// specifying a 'typedef' with the name 'ResultType' in their functor class.
-// This is necessary in order for the 'apply' method to know what type to
-// return at compile time:
-//..
-//  class my_AddVisitor {
-//    public:
-//      typedef bool ResultType;
-//
-//      // Note that the return type of 'operator()' is 'ResultType'.
-//
-//      template <class TYPE>
-//      ResultType operator()(TYPE& value) const
-//          // Return 'true' when addition is performed successfully, and
-//          // 'false' otherwise.
-//      {
-//          if (bsl::is_convertible<TYPE, double>::value) {
-//
-//              // Add certain values to the variant.  The details are elided
-//              // as it is the return value that is the focus of this example.
-//
-//              return true;                                          // RETURN
-//          }
-//          return false;
-//      }
-//  };
-//
-//  typedef bdlb::Variant<int, double, bsl::string> List;
-//
-//  List x[3];
-//
-//  x[0].assign(1);
-//  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
-//
-//  my_AddVisitor addVisitor;
-//
-//  bool ret[3];
-//
-//  for (int i = 0; i < 3; ++i) {
-//      ret[i] = x[i].apply(addVisitor);
-//      if (!ret[i]) {
-//          bsl::cout << "Cannot add to types not convertible to 'double'."
-//                    << bsl::endl;
-//      }
-//  }
-//  assert(true  == ret[0]);
-//  assert(true  == ret[1]);
-//  assert(false == ret[2]);
-//..
-// The above prints the following on 'stdout':
-//..
-//  Cannot add to types not convertible to 'double'.
-//..
-// Note that if no 'typedef' is provided (as in the 'my_PrintVisitor' class),
-// then the default return value is 'void'.
-//
-///Return Value Specified with Function Call
-/// -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// There may be some cases when a visitor interface is not owned by a client
-// (hence the client cannot add a 'typedef' to the visitor), or the visitor
-// could not determine the return type at design time.  In these scenarios,
-// users can explicitly specify the return type when invoking 'apply':
-//..
-//  class ThirdPartyVisitor {
-//    public:
-//      template <class TYPE>
-//      bsl::string operator()(const TYPE& value) const;
-//          // Return the name of the specified 'value' as a 'bsl::string'.
-//          // Note that the implementation of this class is deliberately not
-//          // shown since this class belongs to a third-party library.
-//  };
-//
-//  typedef bdlb::Variant<int, double, bsl::string> List;
-//
-//  List x[3];
-//
-//  x[0].assign(1);
-//  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
-//
-//  ThirdPartyVisitor visitor;
-//
-//  for (int i = 0; i < 3; ++i) {
-//
-//      // Note that the return type is explicitly specified.
-//
-//      bsl::string ret = x[i].apply<bsl::string>(visitor);
-//      bsl::cout << ret << bsl::endl;
-//  }
-//..
-
-#include <bdlscm_version.h>
-
-#include <bdlb_printmethods.h>
-
-#include <bslalg_swaputil.h>
-
-#include <bslma_allocator.h>
-#include <bslma_constructionutil.h>
-#include <bslma_default.h>
-#include <bslma_destructionutil.h>
-#include <bslma_usesbslmaallocator.h>
-
-#include <bslmf_assert.h>
-#include <bslmf_conditional.h>
-#include <bslmf_enableif.h>
-#include <bslmf_integralconstant.h>
-#include <bslmf_isbitwisemoveable.h>
-#include <bslmf_isconvertible.h>
-#include <bslmf_issame.h>
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_movableref.h>
-#include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_nil.h>
-#include <bslmf_removeconst.h>
-#include <bslmf_removecvref.h>
-#include <bslmf_removereference.h>
-#include <bslmf_typelist.h>
-#include <bslmf_util.h>    // 'forward(V)'
-
-#include <bslx_instreamfunctions.h>
-#include <bslx_outstreamfunctions.h>
-#include <bslx_versionfunctions.h>
-
-#include <bsls_assert.h>
-#include <bsls_compilerfeatures.h>
-#include <bsls_objectbuffer.h>
-#include <bsls_util.h>     // 'forward<T>(V)'
-
-#include <bsl_algorithm.h>
-#include <bsl_iosfwd.h>
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_if.h>
-#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#include <bslalg_scalardestructionprimitives.h>
-#include <bslalg_scalarprimitives.h>
-
-#include <bsl_typeinfo.h>
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-
-#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03
-// Generated on Fri Jul 14 13:20:25 2023
+//@PURPOSE: Provide C++03 implementation for bdlb_variant.h
+//
+//@CLASSES: See bdlb_variant.h for list of classes
+//
+//@SEE_ALSO: bdlb_variant
+//
+//@DESCRIPTION:  This component is the C++03 translation of a C++11 component,
+// generated by the 'sim_cpp11_features.pl' program.  If the original header
+// contains any specially delimited regions of C++11 code, then this generated
+// file contains the C++03 equivalent, i.e., with variadic templates expanded
+// and rvalue-references replaced by 'bslmf::MovableRef' objects.  The header
+// code in this file is designed to be '#include'd into the original header
+// when compiling with a C++03 compiler.  If there are no specially delimited
+// regions of C++11 code, then this header contains no code and is not
+// '#include'd in the original header.
+//
+// Generated on Thu Jul 27 10:17:05 2023
 // Command line: sim_cpp11_features.pl bdlb_variant.h
-# define COMPILING_BDLB_VARIANT_H
-# include <bdlb_variant_cpp03.h>
-# undef COMPILING_BDLB_VARIANT_H
-#else
+
+#ifdef COMPILING_BDLB_VARIANT_H
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
@@ -1829,18 +1185,292 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // the types that this variant can hold and 'SOURCE_TYPE' must be
         // convertible to 'TYPE'.
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bdlb_variant.h
+#ifndef BDLB_VARIANT_VARIADIC_LIMIT
+#define BDLB_VARIANT_VARIADIC_LIMIT 14
+#endif
+#ifndef BDLB_VARIANT_VARIADIC_LIMIT_A
+#define BDLB_VARIANT_VARIADIC_LIMIT_A BDLB_VARIANT_VARIADIC_LIMIT
+#endif
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 0
+    template <class TYPE>
+    TYPE& createInPlace();
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 0
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 1
+    template <class TYPE, class ARGS_01>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 1
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 2
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 2
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 3
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 3
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 4
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 4
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 5
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 5
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 6
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 6
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 7
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 7
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 8
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07,
+                          class ARGS_08>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 8
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 9
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07,
+                          class ARGS_08,
+                          class ARGS_09>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 9
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 10
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07,
+                          class ARGS_08,
+                          class ARGS_09,
+                          class ARGS_10>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 10
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 11
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07,
+                          class ARGS_08,
+                          class ARGS_09,
+                          class ARGS_10,
+                          class ARGS_11>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 11
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 12
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07,
+                          class ARGS_08,
+                          class ARGS_09,
+                          class ARGS_10,
+                          class ARGS_11,
+                          class ARGS_12>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 12
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 13
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07,
+                          class ARGS_08,
+                          class ARGS_09,
+                          class ARGS_10,
+                          class ARGS_11,
+                          class ARGS_12,
+                          class ARGS_13>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 13
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_A >= 14
+    template <class TYPE, class ARGS_01,
+                          class ARGS_02,
+                          class ARGS_03,
+                          class ARGS_04,
+                          class ARGS_05,
+                          class ARGS_06,
+                          class ARGS_07,
+                          class ARGS_08,
+                          class ARGS_09,
+                          class ARGS_10,
+                          class ARGS_11,
+                          class ARGS_12,
+                          class ARGS_13,
+                          class ARGS_14>
+    TYPE& createInPlace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) arguments_14);
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_A >= 14
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
     template <class TYPE, class... ARGS>
-    TYPE& createInPlace(ARGS&&... arguments);
-        // Create an instance of template parameter 'TYPE' in this variant
-        // object with up to 14 parameters using the allocator currently held
-        // by this variant to supply memory, and return a reference providing
-        // modifiable access to the created instance.  This method first
-        // destroys the current value held by this variant (even if 'TYPE' is
-        // the same as the type currently held).  'TYPE' must be the same as
-        // one of the types that this variant can hold.  Note the order of the
-        // template arguments was chosen so that 'TYPE' must always be
-        // specified.
+    TYPE& createInPlace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
+// }}} END GENERATED CODE
 #endif
 
     void reset();
@@ -7465,12 +7095,612 @@ VariantImp<TYPES>& VariantImp<TYPES>::assignTo(const SOURCE_TYPE& value)
     return *this;
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bdlb_variant.h
+#ifndef BDLB_VARIANT_VARIADIC_LIMIT
+#define BDLB_VARIANT_VARIADIC_LIMIT 14
+#endif
+#ifndef BDLB_VARIANT_VARIADIC_LIMIT_B
+#define BDLB_VARIANT_VARIADIC_LIMIT_B BDLB_VARIANT_VARIADIC_LIMIT
+#endif
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 0
+template <class TYPES>
+template <class TYPE>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                          )
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator());
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 0
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 1
+template <class TYPES>
+template <class TYPE, class ARGS_01>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 1
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 2
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 2
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 3
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 3
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 4
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 4
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 5
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 5
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 6
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 6
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 7
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 7
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 8
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 8
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 9
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 9
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 10
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 10
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 11
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 11
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 12
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11,
+                      class ARGS_12>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 12
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 13
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11,
+                      class ARGS_12,
+                      class ARGS_13>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 13
+
+#if BDLB_VARIANT_VARIADIC_LIMIT_B >= 14
+template <class TYPES>
+template <class TYPE, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11,
+                      class ARGS_12,
+                      class ARGS_13,
+                      class ARGS_14>
+inline
+TYPE& VariantImp<TYPES>::createInPlace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) arguments_14)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                            bufR.address(),
+                            this->getAllocator(),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_14, arguments_14));
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return bufR.object();
+}
+#endif  // BDLB_VARIANT_VARIADIC_LIMIT_B >= 14
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
 
 template <class TYPES>
 template <class TYPE, class... ARGS>
 inline
-TYPE& VariantImp<TYPES>::createInPlace(ARGS&&... arguments)
+TYPE& VariantImp<TYPES>::createInPlace(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
     BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
@@ -7485,6 +7715,7 @@ TYPE& VariantImp<TYPES>::createInPlace(ARGS&&... arguments)
     return bufR.object();
 }
 
+// }}} END GENERATED CODE
 #endif
 
 template <class TYPES>
@@ -11290,12 +11521,14 @@ operator=(bslmf::MovableRef<Variant19> rhs)
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif // End C++11 code
+#else // if ! defined(DEFINED_BDLB_VARIANT_H)
+# error Not valid except when included from bdlb_variant.h
+#endif // ! defined(COMPILING_BDLB_VARIANT_H)
 
-#endif
+#endif // ! defined(INCLUDED_BDLB_VARIANT_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
