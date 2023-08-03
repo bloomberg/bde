@@ -224,6 +224,8 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // the specified arguments, 'args...'.  Use the specified
         // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
         // to destroy this representation (and the "in-place" shared object).
+        // If construction of 'TYPE' with 'args' does not throw, then
+        // invocation of this constructor does not throw.
 #endif
 
     // MANIPULATORS

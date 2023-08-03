@@ -47,6 +47,13 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
 
     size_t repSize = (sizeof(Rep) + bufferSize - 1) & k_ALIGNMENT_MASK;
 
+    // Implementation Note
+    //-------------------
+    // Since 'MaxAlignedType' is a POD of some primitive type, its CTOR does
+    // not throw, and neither does the CTOR of 'Rep' below.  Thus, there is no
+    // need for a proctor to recover the 'repSize' allocation below in event of
+    // a thrown exception.
+
     Rep *rep = new (basicAllocator->allocate(repSize)) Rep(basicAllocator);
 
     return bsl::shared_ptr<char>(reinterpret_cast<char *>(rep->ptr()), rep);
