@@ -12,7 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
-#include <bslmt_muteximpl_pthread.h>   // for testing only
 #include <bslmt_saturatedtimeconversionimputil.h>
 #include <bslmt_threadutil.h>
 

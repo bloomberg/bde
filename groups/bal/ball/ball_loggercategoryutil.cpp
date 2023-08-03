@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(ball_loggercategoryutil_cpp,"$Id$ $CSID$")
 
 #include <ball_categorymanager.h>
 #include <ball_loggermanager.h>
-#include <ball_testobserver.h>                // for testing only
 #include <ball_thresholdaggregate.h>
 
 #include <bdlf_bind.h>

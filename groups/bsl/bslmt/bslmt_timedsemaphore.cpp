@@ -12,10 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_timedsemaphore_cpp,"$Id$ $CSID$")
 
-#include <bslmt_lockguard.h>       // for testing only
-#include <bslmt_mutex.h>           // for testing only
-#include <bslmt_threadutil.h>      // for testing only
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

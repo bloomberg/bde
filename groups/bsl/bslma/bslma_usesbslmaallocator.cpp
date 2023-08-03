@@ -5,9 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslmf_assert.h>                       // for testing only
-#include <bslmf_nestedtraitdeclaration.h>       // for testing only
-
 namespace BloombergLP {
 
 }  // close enterprise namespace

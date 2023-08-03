@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(bslmt_recursivemutex_cpp,"$Id$ $CSID$")
 
 #include <bslmt_threadattributes.h>   // for testing only
 #include <bslmt_threadutil.h>         // for testing only
-#include <bsls_atomic.h>         // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

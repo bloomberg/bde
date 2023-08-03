@@ -1,7 +1,6 @@
 // bslstl_unorderedmap.cpp                                            -*-C++-*-
 #include <bslstl_unorderedmap.h>
 
-#include <bslstl_iterator.h>            // for testing only
 #include <bslstl_string.h>              // for testing only
 #include <bslstl_vector.h>              // for testing only
 

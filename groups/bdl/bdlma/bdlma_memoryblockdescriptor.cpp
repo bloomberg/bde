@@ -12,9 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_memoryblockdescriptor_cpp,"$Id$ $CSID$")
 
-#include <bslma_defaultallocatorguard.h>   // for testing only
-#include <bslma_testallocator.h>           // for testing only
-
 #include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
 

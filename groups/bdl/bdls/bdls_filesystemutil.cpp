@@ -24,7 +24,6 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlt_epochutil.h>
 #include <bdlf_placeholder.h>
-#include <bdlt_currenttime.h> // for testing only
 #include <bdlma_bufferedsequentialallocator.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>

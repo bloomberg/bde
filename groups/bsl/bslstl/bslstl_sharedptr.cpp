@@ -5,7 +5,6 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_badweakptr.h>
-#include <bslstl_deque.h>              // for testing only
 #include <bslstl_list.h>               // for testing only
 #include <bslstl_map.h>                // for testing only
 #include <bslstl_string.h>             // for testing only

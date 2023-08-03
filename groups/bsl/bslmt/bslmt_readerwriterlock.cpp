@@ -27,11 +27,8 @@ BSLS_IDENT_RCSID(bslmt_readerwriterlock_cpp,"$Id$ $CSID$")
 //..
 
 #include <bslmt_barrier.h>    // for testing only
-#include <bsls_atomic.h> // for testing only
 
 #include <bsls_types.h>
-
-#include <bsl_map.h>          // for testing only
 
 namespace BloombergLP {
 

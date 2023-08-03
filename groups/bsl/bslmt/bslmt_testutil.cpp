@@ -4,11 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_testutil_cpp,"$Id$ $CSID$")
 
-#include <bslmt_barrier.h>            // for testing only
 #include <bslmt_lockguard.h>          // for testing only
 #include <bslmt_mutex.h>              // for testing only
 #include <bslmt_once.h>
-#include <bslmt_threadgroup.h>        // for testing only
 
 
 namespace BloombergLP {
