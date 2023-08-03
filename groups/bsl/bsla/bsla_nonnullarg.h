@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSLA_NONNULLARGS: warn if any pointer arguments are null
 //  BSLA_NONNULLARG(...): warn if indexed arguments are null
-//  BSLA_NONNULLARGS_IS_ACTIVE: 1 if 'BSLA_NONNULLARGS' is active, 0 otherwise
-//  BSLA_NONNULLARG_IS_ACTIVE:  1 if 'BSLA_NONNULLARG' is active, 0 otherwise
+//  BSLA_NONNULLARGS_IS_ACTIVE: defined if 'BSLA_NONNULLARGS' is active
+//  BSLA_NONNULLARG_IS_ACTIVE:  defined if 'BSLA_NONNULLARG'  is active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -30,21 +30,28 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_NONNULLARGS'
+//: 'BSLA_NONNULLARGS':
 //:     This annotation indicates that a compiler warning is to be issued if
 //:     any of the pointer arguments to this function are passed null.
-//
-//: 'BSLA_NONNULLARG(...)'
+//:
+//: 'BSLA_NONNULLARG(...)':
 //:     This annotation, passed a variable-length list of positive integers,
 //:     indicates that a compiler warning is to be issued if null is passed to
 //:     a pointer argument at any of the specified indices, where the first
 //:     argument of the annotated function has an index of 1. Note that for
 //:     non-static member functions, the implicit 'this' argument has index 1.
-//
-//: 'BSLA_NONNULLARG_IS_ACTIVE'
-//: 'BSLS_NONNULLARGS_IS_ACTIVE'
-//:     In these two cases, 'X_IS_ACTIVE' is defined to 0 if 'X' expands to
-//:     nothing and 1 otherwise.
+//:
+//: 'BSLA_NONNULLARG_IS_ACTIVE':
+//:     The macro 'BSLA_NONNULLARGS_IS_ACTIVE' is defined if 'BSLA_NONNULLARGS'
+//:     expands to something with the desired effect; otherwise
+//:     'BSLA_NONNULLARGS_IS_ACTIVE' is not defined and 'BSLA_NONNULLARGS'
+//:     expands to nothing.
+//:
+//: 'BSLS_NONNULLARGS_IS_ACTIVE':
+//:     The macro 'BSLA_NONNULLARG_IS_ACTIVE' is defined if 'BSLA_NONNULLARG'
+//:     expands to something with the desired effect; otherwise
+//:     'BSLA_NONNULLARG_IS_ACTIVE' is not defined and 'BSLA_NONNULLARG'
+//:     expands to nothing.
 //
 ///Usage
 ///-----
@@ -168,6 +175,29 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_NONNULLARG)
+#error BSLA_NONNULLARG is already defined!
+#endif
+
+#if defined(BSLA_NONNULLARG_IS_ACTIVE)
+#error BSLA_NONNULLARG_IS_ACTIVE is already defined!
+#endif
+
+#if defined(BSLA_NONNULLARGS)
+#error BSLA_NONNULLARGS is already defined!
+#endif
+
+#if defined(BSLA_NONNULLARGS_IS_ACTIVE)
+#error BSLA_NONNULLARGS_IS_ACTIVE is already defined!
+#endif
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLA_NONNULLARG(...)   __attribute__((__nonnull__(__VA_ARGS__)))
     #define BSLA_NONNULLARGS       __attribute__((__nonnull__))
@@ -177,9 +207,6 @@ BSLS_IDENT("$Id: $")
 #else
     #define BSLA_NONNULLARG(...)
     #define BSLA_NONNULLARGS
-
-    #define BSLA_NONNULLARG_IS_ACTIVE  0
-    #define BSLA_NONNULLARGS_IS_ACTIVE 0
 #endif
 
 #endif

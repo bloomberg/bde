@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSLA_NULLTERMINATED:            warn if last argument is not 'NULL'
 //  BSLA_NULLTERMINATEDAT(ARG_IDX): warn if argument at 'ARG_IDX' is not 'NULL'
-//  BSLA_NULLTERMINATED_IS_ACTIVE:   1 if 'BSLA_NULLTERMINATED' is active
-//  BSLA_NULLTERMINATEDAT_IS_ACTIVE: 1 if 'BSLA_NULLTERMINATEDAT' is active
+//  BSLA_NULLTERMINATED_IS_ACTIVE:   defined if 'BSLA_NULLTERMINATED' is active
+//  BSLA_NULLTERMINATEDAT_IS_ACTIVE: defined if 'BSLA_NULLTERMINATEDAT'  active
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -23,21 +23,28 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: 'BSLA_NULLTERMINATED'
+//: 'BSLA_NULLTERMINATED':
 //:     This annotation on a variadic macro indicates that a warning should be
 //:     issued unless the last argument to the function is explicitly 'NULL'.
-//
-//: 'BSLA_NULLTERMINATEDAT(ARG_IDX)'
+//:
+//: 'BSLA_NULLTERMINATEDAT(ARG_IDX)':
 //:     This annotation on a variadic function indicates that a warning should
 //:     be issued unless the argument at 'ARG_IDX' is 'NULL', where 'ARG_IDX'
 //:     is the number of arguments from the last, the last argument having
 //:     'ARG_IDX == 0'.  Thus, 'BSLA_NULLTERMINATED' is equivalent to
 //:     'BSLA_NULLTERMINATEDAT(0)'.
-//
-//: 'BSLA_NULLTERMINATED_IS_ACTIVE'
-//: 'BSLA_NULLTERMINATEDAT_IS_ACTIVE'
-//:     In these two cases, 'X_IS_ACTIVE' is defined to 0 if 'X' expands to
-//:     nothing and 1 otherwise.
+//:
+//: 'BSLA_NULLTERMINATED_IS_ACTIVE':
+//:     The macro 'BSLA_NULLTERMINATED_IS_ACTIVE' is defined if
+//:     'BSLA_NULLTERMINATED' expands to something with the desired effect;
+//:     otherwise 'BSLA_NULLTERMINATED_IS_ACTIVE' is not defined and
+//:     'BSLA_NULLTERMINATED' expands to nothing.
+//:
+//: 'BSLA_NULLTERMINATEDAT_IS_ACTIVE':
+//:     The macro 'BSLA_NULLTERMINATEDAT_IS_ACTIVE' is defined if
+//:     'BSLA_NULLTERMINATEDAT' expands to something with the desired effect;
+//:     otherwise 'BSLA_NULLTERMINATEDAT_IS_ACTIVE' is not defined and
+//:     'BSLA_NULLTERMINATEDAT' expands to nothing.
 //
 ///Usage
 ///-----
@@ -189,6 +196,29 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_platform.h>
 
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLA_NULLTERMINATED)
+#error BSLA_NULLTERMINATED is already defined!
+#endif
+
+#if defined(BSLA_NULLTERMINATED_IS_ACTIVE)
+#error BSLA_NULLTERMINATED_IS_ACTIVE is already defined!
+#endif
+
+#if defined(BSLA_NULLTERMINATEDAT)
+#error BSLA_NULLTERMINATEDAT is already defined!
+#endif
+
+#if defined(BSLA_NULLTERMINATEDAT_IS_ACTIVE)
+#error BSLA_NULLTERMINATEDAT_IS_ACTIVE is already defined!
+#endif
+                       // =========================
+                       // Set macros as appropriate
+                       // =========================
+
 #if (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)) &&   \
     !defined(BSLS_PLATFORM_OS_SOLARIS)
     #define BSLA_NULLTERMINATED         __attribute__((__sentinel__))
@@ -200,9 +230,6 @@ BSLS_IDENT("$Id: $")
 #else
     #define BSLA_NULLTERMINATED
     #define BSLA_NULLTERMINATEDAT(ARG_IDX)
-
-    #define BSLA_NULLTERMINATED_IS_ACTIVE   0
-    #define BSLA_NULLTERMINATEDAT_IS_ACTIVE 0
 #endif
 
 #endif

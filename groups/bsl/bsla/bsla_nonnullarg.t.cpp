@@ -293,8 +293,19 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_NONNULLARGS_IS_ACTIVE);
-    P(BSLA_NONNULLARG_IS_ACTIVE);
+    printf("\nBSLA_NONNULLARGS_IS_ACTIVE: ");
+#ifdef BSLA_NONNULLARGS_IS_ACTIVE
+    printf("%s\n", STRINGIFY(BSLA_NONNULLARGS_IS_ACTIVE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\nBSLA_NONNULLARG_IS_ACTIVE: ");
+#ifdef BSLA_NONNULLARG_IS_ACTIVE
+    printf("%s\n", STRINGIFY(BSLA_NONNULLARG_IS_ACTIVE) );
+#else
+    printf("UNDEFINED\n");
+#endif
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");

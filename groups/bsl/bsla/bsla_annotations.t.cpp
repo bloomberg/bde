@@ -127,6 +127,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY2(...) "" #__VA_ARGS__
 #define STRINGIFY(a) STRINGIFY2(a)
 
+#define PMU(M) printf("%s = undefined\n", STRINGIFY(M));
+#define PMV(M) printf("%s = %d\n",        STRINGIFY(M), (M));
+
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -535,7 +538,6 @@ void use_with_warning_message_NORETURN()
 {
 }
 
-
 BSLA_NORETURN void use_with_error_message_NORETURN_function()
 {
 }
@@ -738,22 +740,101 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_DEPRECATED_IS_ACTIVE);
-    P(BSLA_ERROR_IS_ACTIVE);
-    P(BSLA_FALLTHROUGH_IS_ACTIVE);
-    P(BSLA_FORMAT_IS_ACTIVE);
-    P(BSLA_NODISCARD_IS_ACTIVE);
-    P(BSLA_NONNULLARG_IS_ACTIVE);
-    P(BSLA_NONNULLARGS_IS_ACTIVE);
-    P(BSLA_NORETURN_IS_ACTIVE);
-    P(BSLA_NULLTERMINATEDAT_IS_ACTIVE);
-    P(BSLA_NULLTERMINATED_IS_ACTIVE);
-    P(BSLA_PRINTF_IS_ACTIVE);
-    P(BSLA_SCANF_IS_ACTIVE);
-    P(BSLA_UNREACHABLE_IS_ACTIVE);
-    P(BSLA_UNUSED_IS_ACTIVE);
-    P(BSLA_USED_IS_ACTIVE);
-    P(BSLA_WARNING_IS_ACTIVE);
+    #ifdef BSLA_DEPRECATED_IS_ACTIVE
+       PMV(BSLA_DEPRECATED_IS_ACTIVE);
+    #else
+       PMU(BSLA_DEPRECATED_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_ERROR_IS_ACTIVE
+       PMV(BSLA_ERROR_IS_ACTIVE);
+    #else
+       PMU(BSLA_ERROR_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_FALLTHROUGH_IS_ACTIVE
+       PMV(BSLA_FALLTHROUGH_IS_ACTIVE);
+    #else
+       PMU(BSLA_FALLTHROUGH_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_FORMAT_IS_ACTIVE
+       PMV(BSLA_FORMAT_IS_ACTIVE);
+    #else
+       PMU(BSLA_FORMAT_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_NODISCARD_IS_ACTIVE
+       PMV(BSLA_NODISCARD_IS_ACTIVE);
+    #else
+       PMU(BSLA_NODISCARD_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_NONNULLARG_IS_ACTIVE
+       PMV(BSLA_NONNULLARG_IS_ACTIVE);
+    #else
+       PMU(BSLA_NONNULLARG_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_NONNULLARGS_IS_ACTIVE
+       PMV(BSLA_NONNULLARGS_IS_ACTIVE);
+    #else
+       PMU(BSLA_NONNULLARGS_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_NORETURN_IS_ACTIVE
+       PMV(BSLA_NORETURN_IS_ACTIVE);
+    #else
+       PMU(BSLA_NORETURN_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_NULLTERMINATEDAT_IS_ACTIVE
+       PMV(BSLA_NULLTERMINATEDAT_IS_ACTIVE);
+    #else
+       PMU(BSLA_NULLTERMINATEDAT_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_NULLTERMINATED_IS_ACTIVE
+       PMV(BSLA_NULLTERMINATED_IS_ACTIVE);
+    #else
+       PMU(BSLA_NULLTERMINATED_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_PRINTF_IS_ACTIVE
+       PMV(BSLA_PRINTF_IS_ACTIVE);
+    #else
+       PMU(BSLA_PRINTF_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_SCANF_IS_ACTIVE
+       PMV(BSLA_SCANF_IS_ACTIVE);
+    #else
+       PMU(BSLA_SCANF_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_UNREACHABLE_IS_ACTIVE
+       PMV(BSLA_UNREACHABLE_IS_ACTIVE);
+    #else
+       PMU(BSLA_UNREACHABLE_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_UNUSED_IS_ACTIVE
+       PMV(BSLA_UNUSED_IS_ACTIVE);
+    #else
+       PMU(BSLA_UNUSED_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_USED_IS_ACTIVE
+       PMV(BSLA_USED_IS_ACTIVE);
+    #else
+       PMU(BSLA_USED_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_WARNING_IS_ACTIVE
+       PMV(BSLA_WARNING_IS_ACTIVE);
+    #else
+       PMU(BSLA_WARNING_IS_ACTIVE);
+    #endif
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
