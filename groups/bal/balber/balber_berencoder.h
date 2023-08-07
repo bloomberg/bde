@@ -22,11 +22,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a single class, 'balber::BerEncoder',
 // that contains a parameterized 'encode' function.  The 'encode' function
-// encodes data read from a specified stream and loads the corresponding object
-// to an object of the parameterized type.  The 'encode' method is overloaded
-// for two types of input streams:
+// encodes the object of the parameterized type into the specified stream.
+// The 'encode' method is overloaded for two types of output streams:
 //: o 'bsl::streambuf'
-//: o 'bsl::istream'
+//: o 'bsl::ostream'
 //
 // This component encodes objects based on the X.690 BER specification.  It can
 // only be used with types supported by the 'bdlat' framework.
