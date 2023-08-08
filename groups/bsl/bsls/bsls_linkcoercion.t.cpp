@@ -1,7 +1,6 @@
 // bsls_linkcoercion.t.cpp                                            -*-C++-*-
 
 #include <bsls_linkcoercion.h>
-#include <bsls_linkcoercion.h>
 #include <stdio.h>  // printf
 #include <stdlib.h> // atoi
 

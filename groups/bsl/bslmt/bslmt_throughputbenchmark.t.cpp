@@ -16,7 +16,6 @@
 #include <bslmt_semaphore.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
-#include <bslmt_throughputbenchmark.h>
 
 #include <bslmf_assert.h>
 
