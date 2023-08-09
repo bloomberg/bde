@@ -7062,6 +7062,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase26()
     {
         using namespace bsl;
 
+        // Due to the internal compiler bug the following line of code fails to
+        // be compiled by the MSVC (version 19.30) with the following error:
+        //..
+        //  error C3861: '==': identifier not found
+        //..
+        // The issue is reproduced with C++20 flag. This bug has been fixed in
+        // compiler version 19.31.  See {DRQS 172604250}.
+
         bool (*operatorEq)(const Obj&, const Obj&) = &operator==;
         (void)operatorEq;
 

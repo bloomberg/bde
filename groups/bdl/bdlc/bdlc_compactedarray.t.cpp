@@ -4391,6 +4391,16 @@ int main(int argc, char *argv[])
             typedef bool (*operatorPtr)(const Obj&, const Obj&);
             // Verify that the signature and return type is standard.
 
+            // Due to the internal compiler bug the following two lines of code
+            // fail to be compiled by the MSVC (version 19.30) with the
+            // following errors:
+            //..
+            //  error C3861: '==': identifier not found
+            //  error C3861: '!=': identifier not found
+            //..
+            // The issue is reproduced with C++20 flag. This bug has been fixed
+            // in compiler version 19.31.  See {DRQS 172604250}.
+
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
