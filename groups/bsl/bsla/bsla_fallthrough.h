@@ -136,7 +136,10 @@ BSLS_IDENT("$Id: $")
             #define BSLA_FALLTHROUGH [[clang::fallthrough]]
         #endif
     #endif
-    #define BSLA_FALLTHROUGH_IS_ACTIVE 1
+#endif
+
+#if defined(BSLA_FALLTHROUGH)
+    #define BSLA_FALLTHROUGH_IS_ACTIVE                                        1
 #else
     #define BSLA_FALLTHROUGH
 #endif
