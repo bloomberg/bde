@@ -106,8 +106,8 @@ BSLS_IDENT("$Id: $")
 //
 //..
 //
-// JSON Format
-// -----------
+///JSON Format
+///-----------
 // The JSON encoding format (see http://json.org or ECMA-404 standard for more
 // information) specifies a self-describing and simple syntax that is built on
 // two structures:
