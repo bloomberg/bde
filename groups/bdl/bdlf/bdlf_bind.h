@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 // passing place-holders instead of literal values as the bound arguments.
 // When the binder is invoked, these place-holders are replaced by their
 // respective invocation arguments.  The section "Elementary construction and
-// usage of 'bdlf::Bind' objects" shows an elementary (but not realistic) usage
+// usage of bdlf::Bind objects" shows an elementary (but not realistic) usage
 // of the 'bdlf::BindUtil::bind' factory methods with free functions, that
 // should be enough for most users to grasp the basic usage of this component.
 // The section "Binding data" offers more details and should enable a user to
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 // argument that is a binder itself is invoked recursively with the same
 // invocation arguments and the result of that invocation is passed to the
 // parent binder.  The section "Elementary construction and usage of
-// 'bdlf::Bind' objects" below details the whole mechanism and offers some
+// bdlf::Bind objects" below details the whole mechanism and offers some
 // examples.
 //
 // The 'bdlf::Bind' functors support 'bslma::Allocator *' arguments.  When
@@ -844,7 +844,7 @@ BSLS_IDENT("$Id: $")
 // with C linkage and variable number of arguments 'printf(const char*, ...)'.
 // In the following code snippet, we show how the argument to the 'callBinder'
 // function (redefined below for the reader's convenience) of section
-// "Elementary construction and usage of 'bdlf::Bind' objects" above can be
+// "Elementary construction and usage of bdlf::Bind objects" above can be
 // bound to 'printf':
 //..
 //  template <class BINDER>
