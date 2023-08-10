@@ -8,26 +8,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
-// defined in the corresponding C++ standard header.  Include the native
-// compiler-provided standard header, and also directly include Bloomberg's
-// implementation of the C++ standard type (if one exists).  Finally, place the
-// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+// defined in the corresponding C++ standard header.  Include
+// 'bslstl_stoptoken.h', which provides Bloomberg's implementation on all
+// platforms.
 
-#include <bsls_libraryfeatures.h>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-#include <stop_token>
-
-namespace bsl {
-    using std::stop_token;
-    using std::stop_source;
-    using std::nostopstate_t;
-    using std::nostopstate;
-    using std::stop_callback;
-}  // close package namespace
+#include <bslstl_stoptoken.h>
 
 #endif
-#endif  // INCLUDED_BSL_STOP_TOKEN
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

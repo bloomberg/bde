@@ -36,6 +36,7 @@ bsl_new.h
 bsl_numeric.h
 bsl_ostream.h
 bsl_stdexcept.h
+bsl_stop_token.h
 bsl_streambuf.h
 bsl_strstream.h
 bsl_thread.h

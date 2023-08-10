@@ -85,6 +85,8 @@ bslstl_span
 bslstl_stack
 bslstl_stack_cpp03
 bslstl_stdexceptutil
+bslstl_stopstate
+bslstl_stoptoken
 bslstl_string
 bslstl_string_test
 bslstl_stringbuf
