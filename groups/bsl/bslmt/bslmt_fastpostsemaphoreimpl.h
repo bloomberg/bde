@@ -62,6 +62,32 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmt {
 
+                // =========================================
+                // class FastPostSemaphoreImplWorkaroundUtil
+                // =========================================
+
+class FastPostSemaphoreImplWorkaroundUtil {
+    // This class provides utility functions for workarounds to system level
+    // issues for 'FastPostSemaphoreImpl'.
+
+  private:
+    // CLASS DATA
+    static bool s_postAlwaysSignals;
+
+  public:
+    // PUBLIC CLASS METHODS
+    static void removePostAlwaysSignalsMitigation();
+        // Remove the mitigation of 'post' always signalling the condition
+        // variable.  Note this mitigation was introduced as a work around for
+        // a lost signal bug in the underlying implementation of condition
+        // variable (e.g.,
+        // https://sourceware.org/bugzilla/show_bug.cgi?id=25847).
+
+    static bool usePostAlwaysSignalsMitigation();
+        // Return 'true' if  the mitigation of 'post' always signalling the
+        // condition variable should be used, and 'false' otherwise.
+};
+
                        // ===========================
                        // class FastPostSemaphoreImpl
                        // ===========================
@@ -303,6 +329,23 @@ class FastPostSemaphoreImpl {
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
+
+                // -----------------------------------------
+                // class FastPostSemaphoreImplWorkaroundUtil
+                // -----------------------------------------
+
+// PUBLIC CLASS METHODS
+inline
+void FastPostSemaphoreImplWorkaroundUtil::removePostAlwaysSignalsMitigation()
+{
+    s_postAlwaysSignals = false;
+}
+
+inline
+bool FastPostSemaphoreImplWorkaroundUtil::usePostAlwaysSignalsMitigation()
+{
+    return s_postAlwaysSignals;
+}
 
                        // ---------------------------
                        // class FastPostSemaphoreImpl
@@ -633,7 +676,9 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::post()
     // signal only when 'state' indicates there are no other threads that can
     // unblock blocked threads
 
-    if (   k_AVAILABLE_INC == (state & k_AVAILABLE_MASK)
+    if (   (   FastPostSemaphoreImplWorkaroundUtil::
+                                               usePostAlwaysSignalsMitigation()
+            || k_AVAILABLE_INC == (state & k_AVAILABLE_MASK))
         && !isDisabled(state)
         && hasBlockedThread(state)) {
 
@@ -660,7 +705,9 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
     // signal only when 'state' indicates there are no other threads that can
     // unblock blocked threads
 
-    if (   v == (state & k_AVAILABLE_MASK)
+    if (   (   FastPostSemaphoreImplWorkaroundUtil::
+                                               usePostAlwaysSignalsMitigation()
+            || v == (state & k_AVAILABLE_MASK))
         && !isDisabled(state)
         && hasBlockedThread(state)) {
 
@@ -690,7 +737,9 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
     // unblock blocked threads, or there are 'available' or more resources and
     // 'blocked' or more threads
 
-    if (   (   v == (state & k_AVAILABLE_MASK)
+    if (   (   FastPostSemaphoreImplWorkaroundUtil::
+                                               usePostAlwaysSignalsMitigation()
+            || v == (state & k_AVAILABLE_MASK)
             || (   k_AVAILABLE_INC * available <= (state & k_AVAILABLE_MASK)
                 && blocked <= (state & k_BLOCKED_MASK)))
         && !isDisabled(state)
@@ -706,7 +755,9 @@ void FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
         }
         d_waitCondition.signal();
 
-        BSLS_REVIEW_OPT(   v == (state & k_AVAILABLE_MASK)
+        BSLS_REVIEW_OPT(   (   FastPostSemaphoreImplWorkaroundUtil::
+                                               usePostAlwaysSignalsMitigation()
+                            || v == (state & k_AVAILABLE_MASK))
                         && "redundant signal sent");
     }
 }

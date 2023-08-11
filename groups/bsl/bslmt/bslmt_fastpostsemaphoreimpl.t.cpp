@@ -60,6 +60,7 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 5] CONCERN: MANIPULATORS SIGNAL AS EXPECTED
 // [ 9] CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION
+// [11] CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1071,9 +1072,339 @@ int main(int argc, char *argv[])
         ExhaustiveTest::s_verbose = true;
     }
 
+    if (11 != test) {
+        bslmt::FastPostSemaphoreImplWorkaroundUtil::
+                                           removePostAlwaysSignalsMitigation();
+    }
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 11: {
+        // --------------------------------------------------------------------
+        // CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION
+        //   Ensure the manipulators signal as expected.
+        //
+        // Concerns:
+        //: 1 The 'post' manipulator signals only when the semaphore count goes
+        //:   from zero to one, the semaphore it not disabled, and there is at
+        //:   least one blocked thread.
+        //:
+        //: 2 The 'post(value)' manipulator signals only when the semaphore
+        //:   count goes from 0 to 'value', the semaphore is not disabled, and
+        //:   there is at least one blocked thread.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of states and
+        //:   a flag indicating if the 'post' method is expected to signal.
+        //:   Use 'TestObj', which specializes 'FastPostSemaphoreImpl' with
+        //:   'TestAtomicOperations' and 'TestCondition' (as opposed to
+        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
+        //:   the state of the semaphore and to verify the signalling behavior
+        //:   of 'post'.  (C-1)
+        //:
+        //: 2 Using the table-driven technique, specify a set of states, a
+        //:   flag indicating if the 'post(value)' method is expected to
+        //:   signal, and a value to be used in 'post(value)'.  Use 'TestObj',
+        //:   which specializes 'FastPostSemaphoreImpl' with
+        //:   'TestAtomicOperations' and 'TestCondition' (as opposed to
+        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
+        //:   the state of the semaphore and to verify the signalling behavior
+        //:   of 'post(value)'.  (C-2)
+        //
+        // Testing:
+        //   CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION"
+                 << endl
+                 << "========================================================"
+                 << endl;
+        }
+
+        if (verbose) cout << "\nTesting 'post()'." << endl;
+        {
+            static const struct {
+                int d_line;       // source line number
+                int d_available;  // available count attribute of state
+                int d_disabled;   // disabled attribute of state
+                int d_blocked;    // blocked attribute of state
+                int d_expSignal;  // expected number of signals
+            } DATA[] = {
+                //LN  AVAILABLE  DISABLED  BLOCKED  SIGNAL
+                //--  ---------  --------  -------  ------
+                { L_,        -1,        0,       0,      0 },
+                { L_,        -1,        0,       1,      1 },
+                { L_,        -1,        0,       2,      1 },
+                { L_,         0,        0,       0,      0 },
+                { L_,         0,        0,       1,      1 },
+                { L_,         0,        0,       2,      1 },
+                { L_,         1,        0,       0,      0 },
+                { L_,         1,        0,       1,      1 },
+                { L_,         1,        0,       2,      1 },
+
+                { L_,         0,        1,       1,      0 },
+                { L_,         0,        1,       2,      0 },
+
+                { L_,         0,        2,       1,      1 },
+                { L_,         0,        2,       2,      1 },
+            };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE       = DATA[ti].d_line;
+                const int AVAILABLE  = DATA[ti].d_available;
+                const int DISABLED   = DATA[ti].d_disabled;
+                const int BLOCKED    = DATA[ti].d_blocked;
+                const int EXP_SIGNAL = DATA[ti].d_expSignal;
+
+                TestObj mX;
+
+                TestAtomicOperations::clearOverride();
+                TestAtomicOperations::pushOverride(AVAILABLE,
+                                                   DISABLED,
+                                                   BLOCKED);
+
+                mX.post();
+
+                LOOP_ASSERT(LINE, EXP_SIGNAL == TestCondition::signalCount());
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'post(value)'." << endl;
+        {
+            static const struct {
+                int d_line;       // source line number
+                int d_available;  // available count attribute of state
+                int d_disabled;   // disabled attribute of state
+                int d_blocked;    // blocked attribute of state
+                int d_value;      // value used with 'post(value)'
+                int d_expSignal;  // expected number of signals
+            } DATA[] = {
+                //LN  AVAILABLE  DISABLED  BLOCKED  VALUE  SIGNAL
+                //--  ---------  --------  -------  -----  ------
+                { L_,        -1,        0,       0,     1,      0 },
+                { L_,        -1,        0,       1,     1,      1 },
+                { L_,        -1,        0,       2,     1,      1 },
+                { L_,         0,        0,       0,     1,      0 },
+                { L_,         0,        0,       1,     1,      1 },
+                { L_,         0,        0,       2,     1,      1 },
+                { L_,         1,        0,       0,     1,      0 },
+                { L_,         1,        0,       1,     1,      1 },
+                { L_,         1,        0,       2,     1,      1 },
+                { L_,        -1,        0,       0,     2,      0 },
+                { L_,        -1,        0,       1,     2,      1 },
+                { L_,        -1,        0,       2,     2,      1 },
+                { L_,         0,        0,       0,     2,      0 },
+                { L_,         0,        0,       1,     2,      1 },
+                { L_,         0,        0,       2,     2,      1 },
+                { L_,         1,        0,       0,     2,      0 },
+                { L_,         1,        0,       1,     2,      1 },
+                { L_,         1,        0,       2,     2,      1 },
+
+                { L_,         0,        1,       1,     1,      0 },
+                { L_,         0,        1,       2,     1,      0 },
+                { L_,         0,        1,       1,     2,      0 },
+                { L_,         0,        1,       2,     2,      0 },
+
+                { L_,         0,        2,       1,     1,      1 },
+                { L_,         0,        2,       2,     1,      1 },
+                { L_,         0,        2,       1,     2,      1 },
+                { L_,         0,        2,       2,     2,      1 },
+            };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE       = DATA[ti].d_line;
+                const int AVAILABLE  = DATA[ti].d_available;
+                const int DISABLED   = DATA[ti].d_disabled;
+                const int BLOCKED    = DATA[ti].d_blocked;
+                const int VALUE      = DATA[ti].d_value;
+                const int EXP_SIGNAL = DATA[ti].d_expSignal;
+
+                TestObj mX;
+
+                TestAtomicOperations::clearOverride();
+                TestAtomicOperations::pushOverride(AVAILABLE,
+                                                   DISABLED,
+                                                   BLOCKED);
+
+                mX.post(VALUE);
+
+                LOOP_ASSERT(LINE, EXP_SIGNAL == TestCondition::signalCount());
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'postWithRedundantSignal'." << endl;
+        {
+            static const struct {
+                int d_line;       // source line number
+                int d_available;  // available count attribute of state
+                int d_disabled;   // disabled attribute of state
+                int d_blocked;    // blocked attribute of state
+                int d_value;      // 'postWRS(value, avail, block)'
+                int d_avail;      // 'postWRS(value, avail, block)'
+                int d_block;      // 'postWRS(value, avail, block)'
+                int d_expSignal;  // expected number of signals
+                int d_expReview;  // expected number of reviews
+            } DATA[] = {
+    //LN  AVAILABLE  DISABLED  BLOCKED  VALUE  AVAIL  BLOCK  SIGNAL  REVIEW
+    //--  ---------  --------  -------  -----  -----  -----  ------  ------
+    { L_,        -1,        0,       0,     1,    99,    99,      0,      0 },
+    { L_,        -1,        0,       1,     1,    99,    99,      1,      0 },
+    { L_,        -1,        0,       2,     1,    99,    99,      1,      0 },
+    { L_,         0,        0,       0,     1,    99,    99,      0,      0 },
+    { L_,         0,        0,       1,     1,    99,    99,      1,      0 },
+    { L_,         0,        0,       2,     1,    99,    99,      1,      0 },
+    { L_,         1,        0,       0,     1,    99,    99,      0,      0 },
+    { L_,         1,        0,       1,     1,    99,    99,      1,      0 },
+    { L_,         1,        0,       2,     1,    99,    99,      1,      0 },
+    { L_,        -1,        0,       0,     2,    99,    99,      0,      0 },
+    { L_,        -1,        0,       1,     2,    99,    99,      1,      0 },
+    { L_,        -1,        0,       2,     2,    99,    99,      1,      0 },
+    { L_,         0,        0,       0,     2,    99,    99,      0,      0 },
+    { L_,         0,        0,       1,     2,    99,    99,      1,      0 },
+    { L_,         0,        0,       2,     2,    99,    99,      1,      0 },
+    { L_,         1,        0,       0,     2,    99,    99,      0,      0 },
+    { L_,         1,        0,       1,     2,    99,    99,      1,      0 },
+    { L_,         1,        0,       2,     2,    99,    99,      1,      0 },
+
+    { L_,         5,        0,       1,     1,     6,     2,      1,      0 },
+    { L_,         5,        0,       2,     1,     6,     2,      1,      0 },
+    { L_,         5,        0,       2,     1,    99,    99,      1,      0 },
+    { L_,         6,        0,       1,     1,     6,     2,      1,      0 },
+    { L_,         6,        0,       2,     1,     6,     2,      1,      0 },
+    { L_,         6,        0,       2,     1,    99,    99,      1,      0 },
+
+    { L_,         0,        1,       1,     1,    99,    99,      0,      0 },
+    { L_,         0,        1,       2,     1,    99,    99,      0,      0 },
+    { L_,         0,        1,       1,     2,    99,    99,      0,      0 },
+    { L_,         0,        1,       2,     2,    99,    99,      0,      0 },
+
+    { L_,         0,        2,       1,     1,    99,    99,      1,      0 },
+    { L_,         0,        2,       2,     1,    99,    99,      1,      0 },
+    { L_,         0,        2,       1,     2,    99,    99,      1,      0 },
+    { L_,         0,        2,       2,     2,    99,    99,      1,      0 },
+            };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE       = DATA[ti].d_line;
+                const int AVAILABLE  = DATA[ti].d_available;
+                const int DISABLED   = DATA[ti].d_disabled;
+                const int BLOCKED    = DATA[ti].d_blocked;
+                const int VALUE      = DATA[ti].d_value;
+                const int AVAIL      = DATA[ti].d_avail;
+                const int BLOCK      = DATA[ti].d_block;
+                const int EXP_SIGNAL = DATA[ti].d_expSignal;
+                const int EXP_REVIEW = DATA[ti].d_expReview;
+
+                bsls::ReviewFailureHandlerGuard reviewGuard(&reviewCount);
+                TestObj mX;
+
+                TestAtomicOperations::clearOverride();
+                TestAtomicOperations::pushOverride(AVAILABLE,
+                                                   DISABLED,
+                                                   BLOCKED);
+
+                s_reviewCount = 0;
+
+                mX.postWithRedundantSignal(VALUE, AVAIL, BLOCK);
+
+                LOOP_ASSERT(LINE, EXP_SIGNAL == TestCondition::signalCount());
+                LOOP_ASSERT(LINE, EXP_REVIEW == s_reviewCount);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'wait' and 'timedWait'." << endl;
+        {
+            static const struct {
+                int d_line;       // source line number
+                int d_available;  // available count attribute of state
+                int d_disabled;   // disabled attribute of state
+                int d_blocked;    // blocked attribute of state
+                int d_expSignal;  // expected number of signals
+            } DATA[] = {
+                //LN  AVAILABLE  DISABLED  BLOCKED  SIGNAL
+                //--  ---------  --------  -------  ------
+                { L_,        -1,        0,       0,      0 },
+                { L_,        -1,        0,       1,      0 },
+                { L_,        -1,        0,       2,      0 },
+                { L_,         0,        0,       0,      0 },
+                { L_,         0,        0,       1,      0 },
+                { L_,         0,        0,       2,      0 },
+                { L_,         1,        0,       0,      0 },
+                { L_,         1,        0,       1,      1 },
+                { L_,         1,        0,       2,      1 },
+                { L_,         2,        0,       0,      0 },
+                { L_,         2,        0,       1,      1 },
+                { L_,         2,        0,       2,      1 },
+
+                { L_,         1,        1,       1,      0 },
+                { L_,         1,        1,       2,      0 },
+                { L_,         2,        1,       1,      0 },
+                { L_,         2,        1,       2,      0 },
+
+                { L_,         1,        2,       1,      1 },
+                { L_,         1,        2,       2,      1 },
+                { L_,         2,        2,       1,      1 },
+                { L_,         2,        2,       2,      1 },
+            };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE       = DATA[ti].d_line;
+                const int AVAILABLE  = DATA[ti].d_available;
+                const int DISABLED   = DATA[ti].d_disabled;
+                const int BLOCKED    = DATA[ti].d_blocked;
+                const int EXP_SIGNAL = DATA[ti].d_expSignal;
+
+                {
+                    TestObj mX;
+
+                    TestAtomicOperations::clearOverride();
+                    TestAtomicOperations::pushOverride(0, 0, 0);
+                    TestAtomicOperations::pushOverride(0, 0, 0);
+
+                    // the specified state is for *after* the
+                    // 'addInt64NvAcqRel' so the table values are modified to
+                    // account for the effect of the 'addInt64NvAcqRel'
+
+                    TestAtomicOperations::pushOverride(AVAILABLE + 1,
+                                                       DISABLED,
+                                                       BLOCKED + 1);
+
+                    mX.wait();
+
+                    LOOP_ASSERT(LINE,
+                                EXP_SIGNAL == TestCondition::signalCount());
+                }
+                {
+                    TestObj mX;
+
+                    TestAtomicOperations::clearOverride();
+                    TestAtomicOperations::pushOverride(0, 0, 0);
+                    TestAtomicOperations::pushOverride(0, 0, 0);
+
+                    // the specified state is for *after* the
+                    // 'addInt64NvAcqRel' so the table values are modified to
+                    // account for the effect of the 'addInt64NvAcqRel'
+
+                    TestAtomicOperations::pushOverride(AVAILABLE + 1,
+                                                       DISABLED,
+                                                       BLOCKED + 1);
+
+                    mX.timedWait(bsls::SystemTime::nowRealtimeClock()
+                                                    + bsls::TimeInterval(0.1));
+
+                    LOOP_ASSERT(LINE,
+                                EXP_SIGNAL == TestCondition::signalCount());
+                }
+            }
+        }
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING 'clockType'

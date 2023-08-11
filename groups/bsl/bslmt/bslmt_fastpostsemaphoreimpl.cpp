@@ -67,6 +67,13 @@ namespace bslmt {
 // should block after decrementing the available count (see
 // 'willHaveBlockedThread').
 
+                // -----------------------------------------
+                // class FastPostSemaphoreImplWorkaroundUtil
+                // -----------------------------------------
+
+// CLASS DATA
+bool FastPostSemaphoreImplWorkaroundUtil::s_postAlwaysSignals = true;
+
 }  // close package namespace
 }  // close enterprise namespace
 
