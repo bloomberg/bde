@@ -1,6 +1,8 @@
 // bsls_linkcoercion.cpp                                              -*-C++-*-
-#include <bsls_ident.h>
 
+#include <bsls_linkcoercion.h>
+
+#include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
 // ----------------------------------------------------------------------------

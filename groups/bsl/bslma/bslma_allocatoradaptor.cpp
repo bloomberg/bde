@@ -2,13 +2,10 @@
 
 #include <bslma_allocatoradaptor.h>
 
-#ifdef TEST
-#include <bslma_testallocator.h>
-#include <bslma_default.h>
-#endif
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslma_testallocator.h>  // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

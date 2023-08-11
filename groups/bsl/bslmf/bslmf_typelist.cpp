@@ -1,11 +1,10 @@
 // bslmf_typelist.cpp                                                 -*-C++-*-
 #include <bslmf_typelist.h>
-#ifdef TESTING
-#include <bslmf_issame.h>  // For testing only
-#endif
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslmf_issame.h>  // For testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

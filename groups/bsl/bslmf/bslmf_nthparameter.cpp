@@ -2,12 +2,10 @@
 
 #include <bslmf_nthparameter.h>
 
-#ifdef TEST
-# include <bslmf_issame.h> // Testing purposes only
-#endif
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslmf_issame.h>  // for testing only
 
 namespace BloombergLP {
 
