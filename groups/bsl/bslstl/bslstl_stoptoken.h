@@ -143,6 +143,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_movableref.h>
+#include <bslmf_removereference.h>
 
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
@@ -282,7 +283,7 @@ class StopCallback_CallbackStorage<t_CALLBACK, true> {
         // never allocator-aware.
 
     // ACCESSORS
-    t_CALLBACK& callback() const;
+    typename bsl::remove_reference<t_CALLBACK>::type& callback() const;
         // Return an lvalue referring to the callback.
 };
 
@@ -824,7 +825,8 @@ StopCallback_CallbackStorage<t_CALLBACK, true>::StopCallback_CallbackStorage(
 }
 
 template <class t_CALLBACK>
-t_CALLBACK& StopCallback_CallbackStorage<t_CALLBACK, true>::callback() const
+typename bsl::remove_reference<t_CALLBACK>::type&
+StopCallback_CallbackStorage<t_CALLBACK, true>::callback() const
 {
     return d_callback;
 }
