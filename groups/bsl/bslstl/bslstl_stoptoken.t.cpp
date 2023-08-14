@@ -4,6 +4,7 @@
 #include <bslma_bufferallocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructionutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -460,8 +461,8 @@ class DestroyingCallback : public GenericCallback {
         GenericCallback::operator()();
         StopCallback *stopCallback1 = d_stopCallback1_p;
         StopCallback *stopCallback2 = d_stopCallback2_p;
-        stopCallback1->~stop_callback();
-        stopCallback2->~stop_callback();
+        bslma::DestructionUtil::destroy(stopCallback1);
+        bslma::DestructionUtil::destroy(stopCallback2);
     }
 };
 
