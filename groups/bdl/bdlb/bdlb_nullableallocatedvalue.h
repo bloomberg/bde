@@ -85,6 +85,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_review.h>
 
+#include <bslstl_optional.h>     // bsl::nullopt
+
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
 #include <bslx_versionfunctions.h>
@@ -176,6 +178,7 @@ class NullableAllocatedValue {
 
   public:
     // TYPES
+
     typedef TYPE ValueType;
         // 'ValueType' is an alias for the underlying 'TYPE' upon which this
         // template class is instantiated, and represents the type of the
@@ -190,24 +193,42 @@ class NullableAllocatedValue {
                                    bdlb::HasPrintMethod);
 
     // CREATORS
-    explicit NullableAllocatedValue(bslma::Allocator *basicAllocator = 0);
-        // Create a nullable object having the null value.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+    NullableAllocatedValue();
+        // Create a nullable object having the null value.  Use the currently
+        // installed default allocator to supply memory.
+
+    explicit NullableAllocatedValue(const bsl::allocator<char>& allocator);
+        // Create a nullable object that has the null value and that uses the
+        // mechanism of the specified 'allocator' to supply memory.
+
+    NullableAllocatedValue(const bsl::nullopt_t&);                  // IMPLICIT
+        // Create a nullable object having the null value.  Use the currently
+        // installed default allocator to supply memory.
+
+    NullableAllocatedValue(const bsl::nullopt_t&,
+                           const bsl::allocator<char>& allocator);
+        // Create a nullable object that has the null value and that uses the
+        // mechanism of the specified 'allocator' to supply memory.
+
+    NullableAllocatedValue(const NullableAllocatedValue&  original);
+        // Create a nullable object having the value of the specified
+        // 'original' object.  Use the currently installed default allocator
+        // to supply memory.
 
     NullableAllocatedValue(const NullableAllocatedValue&  original,
-                           bslma::Allocator              *basicAllocator = 0);
+                           const bsl::allocator<char>&    allocator);
         // Create a nullable object having the value of the specified
-        // 'original' object.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // 'original' object and that uses the mechanism of the specified
+        // 'allocator' to supply memory.
 
-    NullableAllocatedValue(const TYPE&       value,
-                           bslma::Allocator *basicAllocator = 0);   // IMPLICIT
-        // Create a nullable object having the specified 'value'.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+    NullableAllocatedValue(const TYPE& value);                      // IMPLICIT
+        // Create a nullable object having the specified 'value'.  Use the
+        // currently installed default allocator to supply memory.
+
+    NullableAllocatedValue(const TYPE&                    value,
+                           const bsl::allocator<char>&    allocator);
+        // Create a nullable object having the specified 'value' and that uses
+        // the mechanism of specified 'allocator' to supply memory.
 
     ~NullableAllocatedValue();
         // Destroy this object.
@@ -216,6 +237,10 @@ class NullableAllocatedValue {
     NullableAllocatedValue<TYPE>& operator=(const NullableAllocatedValue& rhs);
         // Assign to this object the value of the specified 'rhs', and return a
         // reference providing modifiable access to this object.
+
+    NullableAllocatedValue<TYPE>& operator=(const bsl::nullopt_t&);
+        // Reset this object to the default constructed state (i.e., to have
+        // the null value).
 
     TYPE& operator=(const TYPE& rhs);
         // Assign to this object the value of the specified 'rhs', and return a
@@ -271,8 +296,13 @@ class NullableAllocatedValue {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
-    bool isNull() const;
-        // Return 'true' if this object is null, and 'false' otherwise.
+    bool has_value() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if this object contains a value, and 'false'
+        // otherwise.
+
+    bool isNull() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'false' if this object contains a value, and 'true'
+        // otherwise.  Note that this is the opposite of 'has_value'.
 
     int maxSupportedBdexVersion(int versionSelector) const;
         // Return the maximum valid BDEX format version, as indicated by the
@@ -478,6 +508,164 @@ bsl::ostream& operator<<(bsl::ostream&                       stream,
     //  print(stream, 0, -1);
     //..
 
+                  //================================
+                  // Comparisons with bsl::nullopt_t
+                  //================================
+
+template <class TYPE>
+bool operator==(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is null, and 'false' otherwise.
+
+template <class TYPE>
+bool operator==(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'rhs' is null, and 'false' otherwise.
+
+template <class TYPE>
+bool operator!=(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is not null, and 'false' otherwise.
+
+template <class TYPE>
+bool operator!=(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'rhs' is not null, and 'false'
+    // otherwise.
+
+template <class TYPE>
+bool operator<(const NullableAllocatedValue<TYPE>&, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'false'.  Note that 'bsl::nullopt' never orders after a
+    // 'NullableAllocatedValue'.
+
+template <class TYPE>
+bool operator<(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'rhs' is not null, and 'false' otherwise.
+    // Note that 'bsl::nullopt' is ordered before any 'NullableAllocatedValue'
+    // that is not null.
+
+template <class TYPE>
+bool operator>(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is not null, and 'false'
+    // otherwise.
+
+template <class TYPE>
+bool operator>(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'false'.  Note that 'bsl::nullopt' never orders after a
+    // 'NullableAllocatedValue'.
+
+template <class TYPE>
+bool operator<=(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'lhs' is null, and 'false' otherwise.
+
+template <class TYPE>
+bool operator<=(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true'.
+
+template <class TYPE>
+bool operator>=(const NullableAllocatedValue<TYPE>&, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true'.
+
+template <class TYPE>
+bool operator>=(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'rhs' is null, and 'false' otherwise.
+
+                  //===============================
+                  // Comparisons with bsl::optional
+                  //===============================
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>&          rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const bsl::optional<LHS_TYPE>&          lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'true'.  If one contains a value, and the other does not, return
+    // 'false'.  Otherwise, return 'lhs.value == rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>&          rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const bsl::optional<LHS_TYPE>&          lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'false'.  If one contains a value, and the other does not, return
+    // 'true'.  Otherwise, return 'lhs.value != rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const bsl::optional<RHS_TYPE>&          rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
+    // Otherwise, return 'lhs.value < rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const bsl::optional<LHS_TYPE>&          lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
+    // Otherwise, return 'lhs.value < rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+               const bsl::optional<RHS_TYPE>&          rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
+    // Otherwise, return 'lhs.value > rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const bsl::optional<LHS_TYPE>&          lhs,
+               const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
+    // Otherwise, return 'lhs.value > rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>&          rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
+    // Otherwise, return 'lhs.value <= rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const bsl::optional<LHS_TYPE>&          lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
+    // Otherwise, return 'lhs.value <= rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>&          rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
+    // Otherwise, return 'lhs.value >= rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const bsl::optional<LHS_TYPE>&          lhs,
+                const NullableAllocatedValue<RHS_TYPE>& rhs);
+    // If neither of the specified 'lhs' and 'rhs' contain a value, return
+    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
+    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
+    // Otherwise, return 'lhs.value >= rhs.value()'.
+
 // FREE FUNCTIONS
 template <class TYPE>
 void swap(NullableAllocatedValue<TYPE>& a,
@@ -497,33 +685,72 @@ void swap(NullableAllocatedValue<TYPE>& a,
 // CREATORS
 template <class TYPE>
 inline
-NullableAllocatedValue<TYPE>
-::NullableAllocatedValue(bslma::Allocator *basicAllocator)
-: d_allocator(bslma::Default::allocator(basicAllocator))
-// , d_value_p(0)
+NullableAllocatedValue<TYPE>::NullableAllocatedValue()
+: d_allocator(bslma::Default::defaultAllocator())
 {
 }
 
 template <class TYPE>
 inline
 NullableAllocatedValue<TYPE>
-::NullableAllocatedValue(const NullableAllocatedValue<TYPE>&  original,
-                         bslma::Allocator                    *basicAllocator)
-: d_allocator(bslma::Default::allocator(basicAllocator))
-// , d_value_p(0)
+::NullableAllocatedValue(const bsl::allocator<char>& allocator)
+: d_allocator(allocator.mechanism())
 {
-    if (!original.isNull()) {
+}
+
+template <class TYPE>
+inline
+NullableAllocatedValue<TYPE>::NullableAllocatedValue(const bsl::nullopt_t&)
+: d_allocator(bslma::Default::defaultAllocator())
+{
+}
+
+template <class TYPE>
+inline
+NullableAllocatedValue<TYPE>
+::NullableAllocatedValue(const bsl::nullopt_t&,
+                         const bsl::allocator<char>& allocator)
+: d_allocator(allocator.mechanism())
+{
+}
+
+template <class TYPE>
+inline
+NullableAllocatedValue<TYPE>
+::NullableAllocatedValue(const NullableAllocatedValue<TYPE>&  original)
+: d_allocator(bslma::Default::defaultAllocator())
+{
+    if (original.has_value()) {
         makeValue(original.value());
     }
 }
 
 template <class TYPE>
 inline
+NullableAllocatedValue<TYPE>
+::NullableAllocatedValue(const NullableAllocatedValue<TYPE>&  original,
+                         const bsl::allocator<char>&          allocator)
+: d_allocator(allocator.mechanism())
+{
+    if (original.has_value()) {
+        makeValue(original.value());
+    }
+}
+
+template <class TYPE>
+inline
+NullableAllocatedValue<TYPE>::NullableAllocatedValue(const TYPE& value)
+: d_allocator(bslma::Default::defaultAllocator())
+{
+    makeValue(value);
+}
+
+template <class TYPE>
+inline
 NullableAllocatedValue<TYPE>::NullableAllocatedValue(
-                                              const TYPE&       value,
-                                              bslma::Allocator *basicAllocator)
-: d_allocator(bslma::Default::allocator(basicAllocator))
-// , d_value_p(0)
+                                         const TYPE&                 value,
+                                         const bsl::allocator<char>& allocator)
+: d_allocator(allocator.mechanism())
 {
     makeValue(value);
 }
@@ -541,10 +768,10 @@ bool NullableAllocatedValue<TYPE>::isLocal() BSLS_KEYWORD_NOEXCEPT
 {
 //  we can store it locally if it will fit into a pointer, and it doesn't have
 //  an exceptionally large alignment requirement.
-return (sizeof(TYPE) <= sizeof(TYPE *)) &&
-       bslmf::IsBitwiseMoveable<TYPE>::value &&
-       (static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE  >::VALUE) <=
-        static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE *>::VALUE));
+    return (sizeof(TYPE) <= sizeof(TYPE *)) &&
+           bslmf::IsBitwiseMoveable<TYPE>::value &&
+           (static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE  >::VALUE) <=
+            static_cast<bsl::size_t>(bsls::AlignmentFromType<TYPE *>::VALUE));
 }
 
 // MANIPULATORS
@@ -554,13 +781,22 @@ NullableAllocatedValue<TYPE>&
 NullableAllocatedValue<TYPE>::operator=(
                                        const NullableAllocatedValue<TYPE>& rhs)
 {
-    if (!rhs.isNull()) {
+    if (rhs.has_value()) {
         makeValue(rhs.value());
     }
     else {
         reset();
     }
 
+    return *this;
+}
+
+template <class TYPE>
+inline
+NullableAllocatedValue<TYPE>&
+NullableAllocatedValue<TYPE>::operator=(const bsl::nullopt_t&)
+{
+    reset();
     return *this;
 }
 
@@ -598,7 +834,7 @@ template <class TYPE>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValue(const TYPE& val)
 {
-    if (!isNull()) {
+    if (has_value()) {
         TYPE &v = value();
         v = val;
         return v;                                                     // RETURN
@@ -659,7 +895,7 @@ template <class TYPE>
 inline
 void NullableAllocatedValue<TYPE>::reset()
 {
-    if (!isNull()) {
+    if (has_value()) {
         TYPE *p = getAddress();
         BSLS_ASSERT(p);
         p->~TYPE();
@@ -694,7 +930,7 @@ template <class TYPE>
 inline
 TYPE& NullableAllocatedValue<TYPE>::value()
 {
-    BSLS_ASSERT(!isNull());
+    BSLS_ASSERT(has_value());
     return *getAddress();
 }
 
@@ -781,9 +1017,9 @@ STREAM& NullableAllocatedValue<TYPE>::bdexStreamOut(STREAM& stream,
 {
     using bslx::OutStreamFunctions::bdexStreamOut;
 
-    stream.putInt8(isNull() ? 1 : 0);
+    stream.putInt8(has_value() ? 0 : 1);
 
-    if (!isNull()) {
+    if (has_value()) {
         bdexStreamOut(stream, value(), version);
     }
 
@@ -792,9 +1028,16 @@ STREAM& NullableAllocatedValue<TYPE>::bdexStreamOut(STREAM& stream,
 
 template <class TYPE>
 inline
-bool NullableAllocatedValue<TYPE>::isNull() const
+bool NullableAllocatedValue<TYPE>::has_value() const BSLS_KEYWORD_NOEXCEPT
 {
-    return !d_allocator.readFlag(k_HAS_VALUE);
+    return d_allocator.readFlag(k_HAS_VALUE);
+}
+
+template <class TYPE>
+inline
+bool NullableAllocatedValue<TYPE>::isNull() const BSLS_KEYWORD_NOEXCEPT
+{
+    return !has_value();
 }
 
 template <class TYPE>
@@ -837,7 +1080,7 @@ bsl::ostream& NullableAllocatedValue<TYPE>::print(
                                             int           level,
                                             int           spacesPerLevel) const
 {
-    if (isNull()) {
+    if (!has_value()) {
         return bdlb::PrintMethods::print(stream,
                                          "NULL",
                                          level,
@@ -856,9 +1099,9 @@ const TYPE& NullableAllocatedValue<TYPE>::value() const
     // is sometimes used as an argument to a template function that only looks
     // at the value type (and does not access the value).
 
-    // BSLS_REVIEW(!isNull());
+    // BSLS_REVIEW(has_value());
 #else
-    BSLS_ASSERT(!isNull());
+    BSLS_ASSERT(has_value());
 #endif
 
     return *getAddress();
@@ -1042,6 +1285,236 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&                       stream,
 {
     return object.print(stream, 0, -1);
 }
+
+                  //--------------------------------
+                  // Comparisons with bsl::nullopt_t
+                  //--------------------------------
+
+template <class TYPE>
+inline
+bool bdlb::operator==(const NullableAllocatedValue<TYPE>& lhs,
+                      const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
+{
+    return !lhs.has_value();
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator==(
+                 const bsl::nullopt_t&,
+                 const NullableAllocatedValue<TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return !rhs.has_value();
+}
+
+template <class TYPE>
+inline bool bdlb::operator!=(const NullableAllocatedValue<TYPE>& lhs,
+                             const bsl::nullopt_t& ) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs.has_value();
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator!=(
+                 const bsl::nullopt_t&,
+                 const NullableAllocatedValue<TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return rhs.has_value();
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<(const NullableAllocatedValue<TYPE>&,
+                     const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
+{
+    return false;
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<(
+                 const bsl::nullopt_t&,
+                 const NullableAllocatedValue<TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return rhs.has_value();
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>(const NullableAllocatedValue<TYPE>& lhs,
+                     const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs.has_value();
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>(const bsl::nullopt_t&,
+                     const NullableAllocatedValue<TYPE>&) BSLS_KEYWORD_NOEXCEPT
+{
+    return false;
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<=(const NullableAllocatedValue<TYPE>& lhs,
+                      const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
+{
+    return !lhs.has_value();
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<=(
+                     const bsl::nullopt_t&,
+                     const NullableAllocatedValue<TYPE>&) BSLS_KEYWORD_NOEXCEPT
+{
+    return true;
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>=(const NullableAllocatedValue<TYPE>&,
+                      const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
+{
+    return true;
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>=(
+                 const bsl::nullopt_t&,
+                 const NullableAllocatedValue<TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    return !rhs.has_value();
+}
+
+                  //-------------------------------
+                  // Comparisons with bsl::optional
+                  //-------------------------------
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const bsl::optional<RHS_TYPE>&          rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return false;                                                 // RETURN
+    return lhs.has_value () ? lhs.value() == rhs.value () : true;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const bsl::optional<LHS_TYPE>&          lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return false;                                                 // RETURN
+    return lhs.has_value () ? lhs.value() == rhs.value () : true;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const bsl::optional<RHS_TYPE>&          rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return true;                                                  // RETURN
+    return lhs.has_value () ? lhs.value() != rhs.value () : false;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const bsl::optional<LHS_TYPE>&          lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return true;                                                  // RETURN
+    return lhs.has_value () ? lhs.value() != rhs.value () : false;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const bsl::optional<RHS_TYPE>&          rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return rhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() < rhs.value () : false;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const bsl::optional<LHS_TYPE>&          lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return rhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() < rhs.value () : false;
+}
+
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                     const bsl::optional<RHS_TYPE>&          rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return lhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() > rhs.value () : false;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const bsl::optional<LHS_TYPE>&          lhs,
+                     const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return lhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() > rhs.value () : false;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const bsl::optional<RHS_TYPE>&          rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return rhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() <= rhs.value () : true;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const bsl::optional<LHS_TYPE>&          lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return rhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() <= rhs.value () : true;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
+                      const bsl::optional<RHS_TYPE>&          rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return lhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() >= rhs.value () : true;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const bsl::optional<LHS_TYPE>&          lhs,
+                      const NullableAllocatedValue<RHS_TYPE>& rhs)
+{
+    if (lhs.has_value() != rhs.has_value())
+        return lhs.has_value();                                       // RETURN
+    return lhs.has_value () ? lhs.value() >= rhs.value () : true;
+}
+
 
 // FREE FUNCTIONS
 template <class TYPE>

@@ -53,30 +53,36 @@ using namespace bsl;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
-// [05] bdlb::NullableAllocatedValue(const bdlb::NullableAllocatedValue&);
+// [02] NullableAllocatedValue();
+// [02] NullableAllocatedValue(const allocator<char>&);
+// [06] NullableAllocatedValue(const nullopt_t&);
+// [06] NullableAllocatedValue(const nullopt_t&, const allocator<char>&);
+// [06] NullableAllocatedValue(const TYPE&);
+// [06] NullableAllocatedValue(const TYPE&, const allocator<char>&);
+// [05] NullableAllocatedValue(const NAV&);
+// [05] NullableAllocatedValue(const NAV&, const allocator<char>&);
 //
 // MANIPULATORS
-// [02] ~NullableAllocatedValue();
+// [02] bool has_value() const;
 // [02] bool isNull() const;
 // [02] BOOTSTRAP: TYPE& makeValue(const TYPE&);
-// [02] NullableAllocatedValue();
-// [02] NullableAllocatedValue(bslma::Allocator *);
-// [02] NullableAllocatedValue(const TYPE &, bslma::Allocator *);
 // [02] TYPE& makeValue();
 // [02] TYPE& value();
 // [02] void reset() const;
 // [03] bsl::ostream& operator<<(bsl::ostream&, const b_NV<T>&);
-// [06] operator=(const b_NV<TYPE>&);
-// [06] operator=(const TYPE&);
-// [07] STREAM& bdexStreamIn(STREAM& stream, int version);
+// [07] operator=(const b_NV<TYPE>&);
+// [07] operator=(const bsl::nullopt_t&);
+// [07] operator=(const TYPE&);
+// [02] ~NullableAllocatedValue();
+// [08] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
 // [02] const TYPE& value() const;
 // [02] bslma::Allocator *allocator() const;
 // [03] bsl::ostream& print(bsl::ostream&, int, int) const;
-// [07] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [07] int maxSupportedBdexVersion() const;
-// [07] int maxSupportedBdexVersion(int versionSelector) const;
+// [08] STREAM& bdexStreamOut(STREAM& stream, int version) const;
+// [08] int maxSupportedBdexVersion() const;
+// [08] int maxSupportedBdexVersion(int versionSelector) const;
 //
 // FREE OPERATORS
 // [ 04] bool operator==(const b_NV<TYPE>&, const b_NV<TYPE>&);
@@ -97,14 +103,38 @@ using namespace bsl;
 // [ 04] bool operator>=(const b_NV<TYPE>&, const b_NV<TYPE>&);
 // [ 04] bool operator>=(const TYPE&,       const b_NV<TYPE>&);
 // [ 04] bool operator>=(const b_NV<TYPE>&, const TYPE&);
-// [ 08] void swap(bdlb::NullableAllocatedValue<TYPE>& other);
-// [ 08] void swap(bdlb::NullableAllocatedValue<TYPE>& a, b);
+// [ 09] void swap(bdlb::NullableAllocatedValue<TYPE>& other);
+// [ 09] void swap(bdlb::NullableAllocatedValue<TYPE>& a, b);
+// [ 11] bool operator==(const NullableAllocatedValue&, bsl::nullopt_t);
+// [ 11] bool operator!=(const NullableAllocatedValue&, bsl::nullopt_t);
+// [ 11] bool operator< (const NullableAllocatedValue&, bsl::nullopt_t);
+// [ 11] bool operator<=(const NullableAllocatedValue&, bsl::nullopt_t);
+// [ 11] bool operator>=(const NullableAllocatedValue&, bsl::nullopt_t);
+// [ 11] bool operator> (const NullableAllocatedValue&, bsl::nullopt_t);
+// [ 11] bool operator==(bsl::nullopt_t, const NullableAllocatedValue&);
+// [ 11] bool operator!=(bsl::nullopt_t, const NullableAllocatedValue&);
+// [ 11] bool operator< (bsl::nullopt_t, const NullableAllocatedValue&);
+// [ 11] bool operator<=(bsl::nullopt_t, const NullableAllocatedValue&);
+// [ 11] bool operator>=(bsl::nullopt_t, const NullableAllocatedValue&);
+// [ 11] bool operator> (bsl::nullopt_t, const NullableAllocatedValue&);
+// [ 12] bool operator==(const NullableAllocatedValue&, const optional&);
+// [ 12] bool operator!=(const NullableAllocatedValue&, const optional&);
+// [ 12] bool operator< (const NullableAllocatedValue&, const optional&);
+// [ 12] bool operator<=(const NullableAllocatedValue&, const optional&);
+// [ 12] bool operator>=(const NullableAllocatedValue&, const optional&);
+// [ 12] bool operator> (const NullableAllocatedValue&, const optional&);
+// [ 12] bool operator==(const optional&, const NullableAllocatedValue&);
+// [ 12] bool operator!=(const optional&, const NullableAllocatedValue&);
+// [ 12] bool operator< (const optional&, const NullableAllocatedValue&);
+// [ 12] bool operator<=(const optional&, const NullableAllocatedValue&);
+// [ 12] bool operator>=(const optional&, const NullableAllocatedValue&);
+// [ 12] bool operator> (const optional&, const NullableAllocatedValue&);
 //
 // TRAITS
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] INCOMPLETE CLASS SUPPORT
-// [10] USAGE EXAMPLE
+// [10] INCOMPLETE CLASS SUPPORT
+// [13] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -1632,7 +1662,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1673,7 +1703,297 @@ int main(int argc, char *argv[])
         ASSERT(53 == node.d_next.value().d_next.value().d_value);
 
       } break;
-      case 9: {
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'bsl::optional' COMPARISONS
+        //  Compare a 'bsl::optional' and a 'NullableAllocatedValue', either
+        //  of which can be empty,
+        //
+        // Concerns:
+        //: 1 That an empty 'bsl::optional' orders as a non-empty
+        //:   'NullableAllocatedValue'
+        //: o That an empty 'bsl::optional' orders as before a non-empty
+        //:   'NullableAllocatedValue'
+        //: o That an empty 'NullableAllocatedValue' orders as before a
+        //:   non-empty 'bsl::optional'
+        //: o That an non-empty 'NullableAllocatedValue' orders as with a
+        //:   non-empty 'bsl::optional' according to the contained values.
+        //:
+        //: 2 If the compiler supports 'noexcept', then none of the comparisons
+        //:   with 'bsl::nullopt' can throw an exception.
+        //
+        // Plan:
+        //: 1  Conduct the regular test using 'int'.
+        //
+        // Testing:
+        //   bool operator==(const NullableAllocatedValue&, const optional&);
+        //   bool operator!=(const NullableAllocatedValue&, const optional&);
+        //   bool operator< (const NullableAllocatedValue&, const optional&);
+        //   bool operator<=(const NullableAllocatedValue&, const optional&);
+        //   bool operator>=(const NullableAllocatedValue&, const optional&);
+        //   bool operator> (const NullableAllocatedValue&, const optional&);
+        //   bool operator==(const optional&, const NullableAllocatedValue&);
+        //   bool operator!=(const optional&, const NullableAllocatedValue&);
+        //   bool operator< (const optional&, const NullableAllocatedValue&);
+        //   bool operator<=(const optional&, const NullableAllocatedValue&);
+        //   bool operator>=(const optional&, const NullableAllocatedValue&);
+        //   bool operator> (const optional&, const NullableAllocatedValue&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'bsl::optional' COMPARISONS"
+                             "\n===================================" << endl;
+
+        if (verbose) cout << "\tfor 'NullableAllocatedValue<int>" << endl;
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+            typedef bsl::optional<ValueType>                Optional;
+
+            Obj mX(bsl::nullopt);       const Obj& X = mX;
+            Obj mY(10);                 const Obj& Y = mY;
+
+            // Sanity checks
+            ASSERT(!X.has_value());
+            ASSERT( Y.has_value());
+
+            Optional oA(bsl::nullopt);  const Optional &A = oA;
+            Optional oB(5);             const Optional &B = oB;
+            Optional oC(10);            const Optional &C = oC;
+            Optional oD(15);            const Optional &D = oD;
+
+            // Sanity checks
+            ASSERT(!A.has_value());
+            ASSERT( B.has_value());
+            ASSERT( C.has_value());
+            ASSERT( D.has_value());
+
+            // Comparisons between two empty objects
+            ASSERT( (X == A) );
+            ASSERT(!(X != A) );
+            ASSERT(!(X <  A) );
+            ASSERT( (X <= A) );
+            ASSERT( (X >= A) );
+            ASSERT(!(X >  A) );
+
+            ASSERT( (A == X) );
+            ASSERT(!(A != X) );
+            ASSERT(!(A <  X) );
+            ASSERT( (A <= X) );
+            ASSERT( (A >= X) );
+            ASSERT(!(A >  X) );
+
+            // Comparisons between empty Obj and non-empty Optional
+            ASSERT(!(X == B) );
+            ASSERT( (X != B) );
+            ASSERT( (X <  B) );
+            ASSERT( (X <= B) );
+            ASSERT(!(X >= B) );
+            ASSERT(!(X >  B) );
+
+            ASSERT(!(B == X) );
+            ASSERT( (B != X) );
+            ASSERT(!(B <  X) );
+            ASSERT(!(B <= X) );
+            ASSERT( (B >= X) );
+            ASSERT( (B >  X) );
+
+
+            // Comparisons between non-empty Obj and empty Optional
+            ASSERT(!(Y == A) );
+            ASSERT( (Y != A) );
+            ASSERT(!(Y <  A) );
+            ASSERT(!(Y <= A) );
+            ASSERT( (Y >= A) );
+            ASSERT( (Y >  A) );
+
+            ASSERT(!(A == Y) );
+            ASSERT( (A != Y) );
+            ASSERT( (A <  Y) );
+            ASSERT( (A <= Y) );
+            ASSERT(!(A >= Y) );
+            ASSERT(!(A >  Y) );
+
+
+            // Comparisons between non-empty Obj and non-empty Optional
+            ASSERT(!(Y == B) );
+            ASSERT( (Y == C) );
+            ASSERT(!(Y == D) );
+            ASSERT( (Y != B) );
+            ASSERT(!(Y != C) );
+            ASSERT( (Y != D) );
+            ASSERT(!(Y <  B) );
+            ASSERT(!(Y <  C) );
+            ASSERT( (Y <  D) );
+            ASSERT(!(Y <= B) );
+            ASSERT( (Y <= C) );
+            ASSERT( (Y <= D) );
+            ASSERT( (Y >  B) );
+            ASSERT(!(Y >  C) );
+            ASSERT(!(Y >  D) );
+            ASSERT( (Y >= B) );
+            ASSERT( (Y >= C) );
+            ASSERT(!(Y >= D) );
+
+            ASSERT(!(B == Y) );
+            ASSERT( (C == Y) );
+            ASSERT(!(D == Y) );
+            ASSERT( (B != Y) );
+            ASSERT(!(C != Y) );
+            ASSERT( (D != Y) );
+            ASSERT( (B <  Y) );
+            ASSERT(!(C <  Y) );
+            ASSERT(!(D <  Y) );
+            ASSERT( (B <= Y) );
+            ASSERT( (C <= Y) );
+            ASSERT(!(D <= Y) );
+            ASSERT(!(B >  Y) );
+            ASSERT(!(C >  Y) );
+            ASSERT( (D >  Y) );
+            ASSERT(!(B >= Y) );
+            ASSERT( (C >= Y) );
+            ASSERT( (D >= Y) );
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'bsl::nullopt_t' COMPARISONS
+        //  The type 'bsl::nullopt_t' is not a type suitable for arbitrary
+        //  user-created objects, but a proxy for conversion from the literal
+        //  value 'bsl::nullopt'.  As such, all testing concerns will be
+        //  phrased in terms of the 'bsl::nullopt' literal, rather than
+        //  'bsl::nullopt_t'.
+        //
+        // Concerns:
+        //: 1 That 'bsl::nullopt' orders as a null NullableAllocatedValue
+        //: o 'bsl::nullopt' orders before any non-null 'NullableAllocatedValue
+        //: o 'bsl::nullopt' compares equal to a null NullableAllocatedValue
+        //:
+        //: 2 If the compiler supports 'noexcept', then none of the comparisons
+        //:   with 'bsl::nullopt' can throw an exception.
+        //
+        // Plan:
+        //: 1  Conduct the regular test using 'int' and 'bsl::string'.
+        //
+        // Testing:
+        //   bool operator==(const NullableAllocatedValue&, bsl::nullopt_t);
+        //   bool operator!=(const NullableAllocatedValue&, bsl::nullopt_t);
+        //   bool operator< (const NullableAllocatedValue&, bsl::nullopt_t);
+        //   bool operator<=(const NullableAllocatedValue&, bsl::nullopt_t);
+        //   bool operator>=(const NullableAllocatedValue&, bsl::nullopt_t);
+        //   bool operator> (const NullableAllocatedValue&, bsl::nullopt_t);
+        //   bool operator==(bsl::nullopt_t, const NullableAllocatedValue&);
+        //   bool operator!=(bsl::nullopt_t, const NullableAllocatedValue&);
+        //   bool operator< (bsl::nullopt_t, const NullableAllocatedValue&);
+        //   bool operator<=(bsl::nullopt_t, const NullableAllocatedValue&);
+        //   bool operator>=(bsl::nullopt_t, const NullableAllocatedValue&);
+        //   bool operator> (bsl::nullopt_t, const NullableAllocatedValue&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'bsl::nullopt_t' COMPARISONS"
+                             "\n====================================" << endl;
+
+        if (verbose) cout << "\tfor 'NullableAllocatedValue<int>" << endl;
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            Obj mX(bsl::nullopt);          const Obj& X = mX;
+            Obj mY(0);                     const Obj& Y = mY;
+
+            // Sanity checks
+            ASSERT(!X.has_value());
+            ASSERT( Y.has_value());
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+            ASSERT(noexcept(X == bsl::nullopt));
+            ASSERT(noexcept(X != bsl::nullopt));
+            ASSERT(noexcept(X <  bsl::nullopt));
+            ASSERT(noexcept(X <= bsl::nullopt));
+            ASSERT(noexcept(X >= bsl::nullopt));
+            ASSERT(noexcept(X >  bsl::nullopt));
+
+            ASSERT(noexcept(bsl::nullopt == X));
+            ASSERT(noexcept(bsl::nullopt != X));
+            ASSERT(noexcept(bsl::nullopt <  X));
+            ASSERT(noexcept(bsl::nullopt <= X));
+            ASSERT(noexcept(bsl::nullopt >= X));
+            ASSERT(noexcept(bsl::nullopt >  X));
+#endif
+
+
+            ASSERT( (X == bsl::nullopt) );
+            ASSERT(!(X != bsl::nullopt) );
+            ASSERT(!(X <  bsl::nullopt) );
+            ASSERT( (X <= bsl::nullopt) );
+            ASSERT( (X >= bsl::nullopt) );
+            ASSERT(!(X >  bsl::nullopt) );
+
+            ASSERT( (bsl::nullopt == X) );
+            ASSERT(!(bsl::nullopt != X) );
+            ASSERT(!(bsl::nullopt <  X) );
+            ASSERT( (bsl::nullopt <= X) );
+            ASSERT( (bsl::nullopt >= X) );
+            ASSERT(!(bsl::nullopt >  X) );
+
+            ASSERT(!(Y == bsl::nullopt) );
+            ASSERT( (Y != bsl::nullopt) );
+            ASSERT(!(Y <  bsl::nullopt) );
+            ASSERT(!(Y <= bsl::nullopt) );
+            ASSERT( (Y >= bsl::nullopt) );
+            ASSERT( (Y >  bsl::nullopt) );
+
+            ASSERT(!(bsl::nullopt == Y) );
+            ASSERT( (bsl::nullopt != Y) );
+            ASSERT( (bsl::nullopt <  Y) );
+            ASSERT( (bsl::nullopt <= Y) );
+            ASSERT(!(bsl::nullopt >= Y) );
+            ASSERT(!(bsl::nullopt >  Y) );
+        }
+
+        if (verbose) cout << "\tfor 'NullableAllocatedValue<string>" << endl;
+        {
+            typedef bsl::string                             ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            Obj        mX(bsl::nullopt);
+            const Obj& X = mX;
+            Obj        mY("Long string literal: no short string optimization");
+            const Obj& Y = mY;
+
+            ASSERT(!X.has_value());
+            ASSERT( Y.has_value());
+
+            ASSERT( (X == bsl::nullopt) );
+            ASSERT(!(X != bsl::nullopt) );
+            ASSERT(!(X <  bsl::nullopt) );
+            ASSERT( (X <= bsl::nullopt) );
+            ASSERT( (X >= bsl::nullopt) );
+            ASSERT(!(X >  bsl::nullopt) );
+
+            ASSERT( (bsl::nullopt == X) );
+            ASSERT(!(bsl::nullopt != X) );
+            ASSERT(!(bsl::nullopt <  X) );
+            ASSERT( (bsl::nullopt <= X) );
+            ASSERT( (bsl::nullopt >= X) );
+            ASSERT(!(bsl::nullopt >  X) );
+
+
+            ASSERT(!(Y == bsl::nullopt) );
+            ASSERT( (Y != bsl::nullopt) );
+            ASSERT(!(Y <  bsl::nullopt) );
+            ASSERT(!(Y <= bsl::nullopt) );
+            ASSERT( (Y >= bsl::nullopt) );
+            ASSERT( (Y >  bsl::nullopt) );
+
+            ASSERT(!(bsl::nullopt == Y) );
+            ASSERT( (bsl::nullopt != Y) );
+            ASSERT( (bsl::nullopt <  Y) );
+            ASSERT( (bsl::nullopt <= Y) );
+            ASSERT(!(bsl::nullopt >= Y) );
+            ASSERT(!(bsl::nullopt >  Y) );
+        }
+      } break;
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING INCOMPLETE CLASS SUPPORT
         //   Extracted from component header file.
@@ -1706,7 +2026,7 @@ int main(int argc, char *argv[])
         ASSERT(bslma::UsesBslmaAllocator<NAV_Incomplete>::value);
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
         //
@@ -1766,7 +2086,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // STREAMING
         //
@@ -1876,7 +2196,7 @@ int main(int argc, char *argv[])
         }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
         //
@@ -1896,6 +2216,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   operator=(const b_NV<TYPE>&);
+        //   operator=(const bsl::nullopt_t&);
         //   operator=(const TYPE&);
         // --------------------------------------------------------------------
 
@@ -2034,6 +2355,175 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nTesting assignment u = bsl::nullopt." << endl;
+        {
+            typedef bsl::string                             ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            Obj mX0 = ValueType("123");
+            Obj mX1 = ValueType("456");
+
+            ASSERT( mX0.has_value());
+            ASSERT( mX1.has_value());
+
+            mX0 = bsl::nullopt;
+            ASSERT(!mX0.has_value());
+            ASSERT( mX1.has_value());
+
+            mX1 = bsl::nullopt;
+            ASSERT(!mX0.has_value());
+            ASSERT(!mX1.has_value());
+        }
+
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            Obj mX0 = ValueType(123);
+            Obj mX1 = ValueType(456);
+
+            ASSERT( mX0.has_value());
+            ASSERT( mX1.has_value());
+
+            mX0 = bsl::nullopt;
+            ASSERT(!mX0.has_value());
+            ASSERT( mX1.has_value());
+
+            mX1 = bsl::nullopt;
+            ASSERT(!mX0.has_value());
+            ASSERT(!mX1.has_value());
+        }
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING OTHER CONSTRUCTORS
+        //
+        // Concerns:
+        //: 1 NullableAllocateValue should be constructible from a 'nullopt_t'
+        //:   and a 'TYPE' argument, both with and without an allocator.
+        //
+        // Plan:
+        //: 1 Conduct the test using 'int' (does not use allocator) and
+        //:   'bsl::string' (uses allocator) for 'TYPE'. Verify that the memory
+        //:   for the objects is allocated as expected.
+        //
+        // Testing:
+        //   NullableAllocatedValue(const nullopt_t&);
+        //   NullableAllocatedValue(const nullopt_t&, const allocator<char>&);
+        //   NullableAllocatedValue(const TYPE&);
+        //   NullableAllocatedValue(const TYPE&, const allocator<char>&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING OTHER CONSTRUCTORS"
+                          << "\n==========================" << endl;
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",    veryVeryVeryVerbose);
+        bsl::allocator<char> alloc(&oa);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout << "\nUsing 'bdlb::NullableAllocatedValue<int>."
+                          << endl;
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            {
+                Obj mX(bsl::nullopt);  const Obj& X = mX;
+                ASSERT(!X.has_value());
+                ASSERT(X.allocator() == &da);
+
+                Obj mY(bsl::nullopt, alloc);  const Obj& Y = mY;
+                ASSERT(!Y.has_value());
+                ASSERT(Y.allocator() == &oa);
+            }
+
+            ASSERT(0 == da.numAllocations());
+            ASSERT(0 == oa.numAllocations());
+
+            {
+                const ValueType value = 3;
+
+                Obj mX(value);  const Obj& X = mX;
+                ASSERT( X.has_value());
+                ASSERT(X.allocator() == &da);
+                ASSERT(value == X.value());
+
+                Obj mY(value, alloc);  const Obj& Y = mY;
+                ASSERT( Y.has_value());
+                ASSERT(Y.allocator() == &oa);
+                ASSERT(value == Y.value());
+            }
+
+            ASSERT(0 == da.numAllocations());
+            ASSERT(0 == oa.numAllocations());
+        }
+
+        if (verbose) cout << "\nUsing bdlb::NullableAllocatedValue<"
+                          << "bsl::string>." << endl;
+        {
+            typedef bsl::string                             ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            {
+                Obj mX(bsl::nullopt);  const Obj& X = mX;
+                ASSERT(!X.has_value());
+                ASSERT(X.allocator() == &da);
+
+                Obj mY(bsl::nullopt, alloc);  const Obj& Y = mY;
+                ASSERT(!Y.has_value());
+                ASSERT(Y.allocator() == &oa);
+            }
+
+            ASSERT(0 == da.numAllocations());
+            ASSERT(0 == oa.numAllocations());
+
+            {
+                const ValueType value = "123"; // short string
+
+                Obj mX(value);  const Obj& X = mX;
+                ASSERT( X.has_value());
+                ASSERT(X.allocator() == &da);
+                ASSERT(value == X.value());
+
+                Obj mY(value, alloc);  const Obj& Y = mY;
+                ASSERT( Y.has_value());
+                ASSERT(Y.allocator() == &oa);
+                ASSERT(value == Y.value());
+            }
+
+            ASSERT(1 == da.numAllocations());
+            ASSERT(1 == oa.numAllocations());
+            ASSERT(da.numDeallocations() == da.numAllocations());
+            ASSERT(oa.numDeallocations() == oa.numAllocations());
+
+            {
+                const ValueType value = "1234567890ABCDF" // long string
+                                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                ASSERT(value.size() >= 40);
+
+                Obj mX(value);  const Obj& X = mX;
+                ASSERT( X.has_value());
+                ASSERT(X.allocator() == &da);
+                ASSERT(value == X.value());
+
+                Obj mY(value, alloc);  const Obj& Y = mY;
+                ASSERT( Y.has_value());
+                ASSERT(Y.allocator() == &oa);
+                ASSERT(value == Y.value());
+            }
+
+            // 1 allocation for the creation of 'value' - uses 'da'
+            // 2 allocations for the creation of the 'NullableAllocatedValue';
+            // one for the string object, and one for the string data.
+            ASSERT(4 == da.numAllocations());
+            ASSERT(3 == oa.numAllocations());
+            ASSERT(da.numDeallocations() == da.numAllocations());
+            ASSERT(oa.numDeallocations() == oa.numAllocations());
+        }
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2054,7 +2544,8 @@ int main(int argc, char *argv[])
         //:   that both X and Y have the same value as W.
         //
         // Testing:
-        //   bdlb::NullableAllocatedValue(const bdlb::NullableAllocatedValue&);
+        //   NullableAllocatedValue(const NAV&);
+        //   NullableAllocatedValue(const NAV&, const allocator<char>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING COPY CONSTRUCTOR"
@@ -2333,11 +2824,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   NullableAllocatedValue();
-        //   NullableAllocatedValue(bslma::Allocator *);
-        //   NullableAllocatedValue(const TYPE &, bslma::Allocator *);
+        //   NullableAllocatedValue(const allocator<char>&);
         //   ~NullableAllocatedValue();
         //   TYPE& makeValue();
         //   BOOTSTRAP: TYPE& makeValue(const TYPE&);
+        //   bool has_value() const;
         //   bool isNull() const;
         //   void reset() const;
         //   const TYPE& value() const;
@@ -2359,7 +2850,8 @@ int main(int argc, char *argv[])
             {
                 Obj mX;  const Obj& X = mX;
                 if (veryVeryVerbose) { T_ T_ P(X) }
-                ASSERT(X.isNull());
+                ASSERT( X.isNull());
+                ASSERT(!X.has_value());
             }
 
             if (veryVerbose) cout << "\tTesting 'makeValue'." << endl;
@@ -2370,6 +2862,7 @@ int main(int argc, char *argv[])
                 mX.makeValue();
                 if (veryVeryVerbose) { T_ T_ P(X) }
                 ASSERT(!X.isNull());
+                ASSERT( X.has_value());
                 ASSERTV(X.value(), ValueType() == X.value());
             }
 
@@ -2380,6 +2873,7 @@ int main(int argc, char *argv[])
                 mX.makeValue();   // reset to default
                 if (veryVeryVerbose) { T_ T_ P(X) }
                 ASSERT(!X.isNull());
+                ASSERT( X.has_value());
                 ASSERTV(X.value(), ValueType() == X.value());
             }
 
@@ -2391,6 +2885,7 @@ int main(int argc, char *argv[])
                 mX.makeValue(VALUE1);
                 if (veryVeryVerbose) { T_ T_ P(X) }
                 ASSERT(!X.isNull());
+                ASSERT( X.has_value());
                 ASSERTV(X.value(), VALUE1 == X.value());
             }
 
@@ -2404,6 +2899,7 @@ int main(int argc, char *argv[])
                 mX.makeValue(VALUE2);
                 if (veryVeryVerbose) { T_ T_ P(X) }
                 ASSERT(!X.isNull());
+                ASSERT( X.has_value());
                 ASSERTV(X.value(), VALUE2 == X.value());
             }
 
@@ -2413,11 +2909,15 @@ int main(int argc, char *argv[])
                 Obj mX1(ValueType(123));
 
                 ASSERT( mX0.isNull());
+                ASSERT(!mX0.has_value());
                 ASSERT(!mX1.isNull());
+                ASSERT( mX1.has_value());
                 mX0.reset();
                 mX1.reset();
                 ASSERT( mX0.isNull());
+                ASSERT(!mX0.has_value());
                 ASSERT( mX1.isNull());
+                ASSERT(!mX1.has_value());
             }
         }
 
