@@ -4,6 +4,8 @@
 
 //@PURPOSE: Provide machinery to deprecate interfaces on a per-version basis.
 //
+//@DEPRECATED: Use 'bsls_deprecatefeature' instead.
+//
 //@MACROS:
 //  BSLS_DEPRECATE:           tag an interface as deprecated
 //  BSLS_DEPRECATE_IS_ACTIVE: conditionally activate deprecation by UOR version
