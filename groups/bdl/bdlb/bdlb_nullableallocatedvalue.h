@@ -82,6 +82,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_review.h>
 
@@ -101,6 +102,15 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #include <stddef.h>   // NULL
+
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Fri Aug 18 08:37:40 2023
+// Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
+# define COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
+# include <bdlb_nullableallocatedvalue_cpp03.h>
+# undef COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
+#else
 
 namespace BloombergLP {
 namespace bdlb {
@@ -134,6 +144,19 @@ class NullableAllocatedValue {
         TYPE                               *d_pointer_p;
         char                                d_buffer[sizeof(TYPE *)];
         } d_storage;
+
+    // PRIVATE TYPES
+#  ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    // UNSPECIFIED BOOL
+
+    // This type is needed only in C++03 mode, where 'explicit' conversion
+    // operators are not supported.  A 'NullableAllocatedValue' is implicitly
+    // converted to 'UnspecifiedBool' when used in 'if' statements, but is not
+    // implicitly convertible to 'bool'.
+    typedef BloombergLP::bsls::UnspecifiedBool<NullableAllocatedValue>
+                                                           UnspecifiedBoolUtil;
+    typedef typename UnspecifiedBoolUtil::BoolType         UnspecifiedBool;
+#  endif
 
     // PRIVATE CLASS METHODS
     static bool isLocal() BSLS_KEYWORD_NOEXCEPT;
@@ -242,10 +265,46 @@ class NullableAllocatedValue {
         // Reset this object to the default constructed state (i.e., to have
         // the null value).
 
-    TYPE& operator=(const TYPE& rhs);
+    NullableAllocatedValue<TYPE>& operator=(const TYPE& rhs);
         // Assign to this object the value of the specified 'rhs', and return a
         // reference providing modifiable access to the underlying 'TYPE'
         // object.
+
+    TYPE *operator->();
+        // Return a pointer providing modifiable access to the underlying
+        // 'TYPE' object.  The behavior is undefined if the object has no
+        // value.
+
+    TYPE& operator*();
+        // Return a reference providing modifiable access to the underlying
+        // 'TYPE' object.  The behavior is undefined if the object has no
+        // value.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)...);
+        // Assign to this object the value of the (template parameter) 'TYPE'
+        // created in place using the specified 'args' and return a reference
+        // providing modifiable access to the underlying 'TYPE' object.  If
+        // this 'optional' object already contains an object ('true ==
+        // hasValue()'), that object is destroyed before the new object is
+        // created.  Note that if the constructor of 'TYPE' throws an exception
+        // this object is left in a disengaged state.
+
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    template <class INIT_LIST_TYPE, class... ARGS>
+    TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)...);
+        // Assign to this object the value of the (template parameter) 'TYPE'
+        // created in place using the specified 'il' and specified 'args' and
+        // return a reference providing modifiable access to the underlying
+        // 'TYPE' object.  If this object already contains an object ('true ==
+        // hasValue()'), that object is destroyed before the new object is
+        // created.  Note that if the constructor of 'TYPE' throws an exception
+        // this object is left in a disengaged state.
+
+#   endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+#endif
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -321,6 +380,37 @@ class NullableAllocatedValue {
         // this class.  (See the package-group-level documentation for more
         // information on BDEX streaming of container types.)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+    template <class ANY_TYPE>
+    TYPE value_or(const ANY_TYPE& default_value) const;
+        // Return the value of the underlying object of a (template parameter)
+        // 'TYPE' if this object is non-null, and the specified 'default_value'
+        // otherwise.  Note that this method returns *by* *value*, so may be
+        // inefficient in some contexts.
+
+    const TYPE *operator->() const;
+        // Return a pointer providing non-modifiable access to the underlying
+        // 'TYPE' object.  The behavior is undefined if the object has no
+        // value.
+
+    const TYPE& operator*() const;
+        // Return a reference providing non-modifiable access to the underlying
+        // 'TYPE' object.  The behavior is undefined if the object has no
+        // value.
+
+
+#  ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    BSLS_KEYWORD_EXPLICIT operator bool() const BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if this object is contains a value, and 'true'
+        // otherwise.
+#  else  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    // Simulation of explicit conversion to bool.  Inlined to work around xlC
+    // bug when out-of-line.
+    operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
+    {
+        return UnspecifiedBoolUtil::makeValue(has_value());
+    }
+#  endif  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT else
 
                               // Aspects
 
@@ -802,9 +892,11 @@ NullableAllocatedValue<TYPE>::operator=(const bsl::nullopt_t&)
 
 template <class TYPE>
 inline
-TYPE& NullableAllocatedValue<TYPE>::operator=(const TYPE& rhs)
+NullableAllocatedValue<TYPE>&
+NullableAllocatedValue<TYPE>::operator=(const TYPE& rhs)
 {
-    return makeValue(rhs);
+    makeValue(rhs);
+    return *this;
 }
 
 template <class TYPE>
@@ -843,7 +935,7 @@ TYPE& NullableAllocatedValue<TYPE>::makeValue(const TYPE& val)
     bslma::Allocator *alloc = allocator();
     if (isLocal()) {
         bslalg::ScalarPrimitives::copyConstruct(getAddress(), val, alloc);
-        }
+    }
     else {
         TYPE *tmpPtr = reinterpret_cast<TYPE *>(alloc->allocate(sizeof(TYPE)));
 
@@ -851,7 +943,7 @@ TYPE& NullableAllocatedValue<TYPE>::makeValue(const TYPE& val)
         bslalg::ScalarPrimitives::copyConstruct(tmpPtr, val, alloc);
         proctor.release();
         setRemoteAddress(tmpPtr);
-        }
+    }
 
     setHasValueFlag();
     return value();
@@ -884,7 +976,7 @@ TYPE& NullableAllocatedValue<TYPE>::makeValue()
         bslalg::ScalarPrimitives::defaultConstruct(tmpPtr, alloc);
         proctor.release();
         setRemoteAddress(tmpPtr);
-        }
+    }
 
     setHasValueFlag();
 
@@ -933,6 +1025,108 @@ TYPE& NullableAllocatedValue<TYPE>::value()
     BSLS_ASSERT(has_value());
     return *getAddress();
 }
+
+template <class TYPE>
+inline
+TYPE *NullableAllocatedValue<TYPE>::operator->()
+{
+    BSLS_ASSERT(has_value());
+    return getAddress();
+}
+
+template <class TYPE>
+inline
+TYPE& NullableAllocatedValue<TYPE>::operator*()
+{
+    BSLS_ASSERT(has_value());
+    return value();
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class TYPE>
+template <class... ARGS>
+inline
+TYPE& NullableAllocatedValue<TYPE>::emplace(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    bslma::Allocator *alloc = allocator();
+    TYPE             *ptr = getAddress();
+    // First, we get destruct the existing value - w/o releasing the storage
+    if (has_value()) {
+        BSLS_ASSERT(ptr);
+        ptr->~TYPE();
+        clearHasValueFlag();
+    }
+    else if (!isLocal()) {
+        // Allocate some space for the object that we're creating. If this
+        // throws, we have no cleanup to do; because the object is already
+        // empty.
+        ptr = reinterpret_cast<TYPE *>(alloc->allocate(sizeof(TYPE)));
+        setRemoteAddress(ptr);
+    }
+
+    if (isLocal()) {
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+    }
+    else {
+        bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+        proctor.release();
+    }
+    setHasValueFlag();
+    return value();
+}
+
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class TYPE>
+template <class INIT_LIST_TYPE, class... ARGS>
+TYPE& NullableAllocatedValue<TYPE>::emplace(
+                               std::initializer_list<INIT_LIST_TYPE>      il,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+{
+    bslma::Allocator *alloc = allocator();
+    TYPE             *ptr = getAddress();
+    // First, we get destruct the existing value - w/o releasing the storage
+    if (has_value()) {
+        BSLS_ASSERT(ptr);
+        ptr->~TYPE();
+        clearHasValueFlag();
+    }
+    else if (!isLocal()) {
+        // Allocate some space for the object that we're creating. If this
+        // throws, we have no cleanup to do; because the object is already
+        // empty.
+        ptr = reinterpret_cast<TYPE *>(alloc->allocate(sizeof(TYPE)));
+        setRemoteAddress(ptr);
+    }
+
+    if (isLocal()) {
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                                 il,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+    }
+    else {
+        bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                                 il,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+        proctor.release();
+    }
+    setHasValueFlag();
+    return value();
+}
+#  endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+#endif
 
 // PRIVATE ACCESSORS
 template <class TYPE>
@@ -1040,6 +1234,14 @@ bool NullableAllocatedValue<TYPE>::isNull() const BSLS_KEYWORD_NOEXCEPT
     return !has_value();
 }
 
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+template <class TYPE>
+NullableAllocatedValue<TYPE>::operator bool() const BSLS_KEYWORD_NOEXCEPT
+{
+    return has_value();
+}
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+
 template <class TYPE>
 inline
 int NullableAllocatedValue<TYPE>::maxSupportedBdexVersion(
@@ -1063,6 +1265,30 @@ int NullableAllocatedValue<TYPE>::maxSupportedBdexVersion() const
     return maxSupportedBdexVersion(0);
 }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+template <class TYPE>
+template <class ANY_TYPE>
+inline TYPE
+NullableAllocatedValue<TYPE>::value_or(const ANY_TYPE& default_value) const
+{
+    return has_value() ? value() : static_cast<TYPE>(default_value);
+}
+
+template <class TYPE>
+inline
+const TYPE *NullableAllocatedValue<TYPE>::operator->() const
+{
+    BSLS_ASSERT(has_value());
+    return &value();
+}
+
+template <class TYPE>
+inline
+const TYPE& NullableAllocatedValue<TYPE>::operator*() const
+{
+    BSLS_ASSERT(has_value());
+    return value();
+}
 
                                   // Aspects
 
@@ -1535,6 +1761,8 @@ void bdlb::swap(NullableAllocatedValue<TYPE>& a,
 }
 
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 

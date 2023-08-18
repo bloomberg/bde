@@ -67,14 +67,22 @@ using namespace bsl;
 // [02] bool isNull() const;
 // [02] BOOTSTRAP: TYPE& makeValue(const TYPE&);
 // [02] TYPE& makeValue();
-// [02] TYPE& value();
 // [02] void reset() const;
+// [02] TYPE& value();
+// [02] TYPE value_or(const ANY_TYPE &) const;
+// [02] explicit operator bool() const;
+// [02] const TYPE& operator* () const;
+// [02] const TYPE* operator->() const;
+// [02] TYPE& operator* ();
+// [02] TYPE* operator->();
 // [03] bsl::ostream& operator<<(bsl::ostream&, const b_NV<T>&);
 // [07] operator=(const b_NV<TYPE>&);
 // [07] operator=(const bsl::nullopt_t&);
 // [07] operator=(const TYPE&);
 // [02] ~NullableAllocatedValue();
 // [08] STREAM& bdexStreamIn(STREAM& stream, int version);
+// [13] emplace(ARGS args...);
+// [13] emplace(initializer_list, ARGS args...);
 //
 // ACCESSORS
 // [02] const TYPE& value() const;
@@ -134,7 +142,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] INCOMPLETE CLASS SUPPORT
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -575,6 +583,44 @@ class SwappableWithAllocator {
         return d_value;
     }
 };
+
+struct ConstructorThatThrows {
+    ConstructorThatThrows()
+        // Construct an object with default values.
+    : d_i(1), d_l(2), d_d(3.0)
+    {
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    explicit ConstructorThatThrows(std::initializer_list<int> il)
+        // Construct an object with the values from the specified 'il'.
+    {
+        std::initializer_list<int>::const_iterator it = il.begin();
+        d_i = *it++;
+        d_l = *it++;
+        d_d = *it++;
+    }
+
+    ConstructorThatThrows(std::initializer_list<int> il, double d)
+        // Construct an object with the values from the specified 'il' and 'd'.
+    {
+        std::initializer_list<int>::const_iterator it = il.begin();
+        d_i = *it++;
+        d_l = *it++;
+        d_d = d;
+    }
+#endif
+
+    ConstructorThatThrows(int, long, double)
+        // Throw an exception upon construction.
+    {
+        throw std::runtime_error("ConstructorThatThrows");
+    }
+
+    int    d_i;
+    long   d_l;
+    double d_d;
+    };
 
 // FREE OPERATORS
 bool operator==(const SwappableWithAllocator& lhs,
@@ -1662,7 +1708,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1701,6 +1747,93 @@ int main(int argc, char *argv[])
         ASSERT( 3 == node.d_value);
         ASSERT( 5 == node.d_next.value().d_value);
         ASSERT(53 == node.d_next.value().d_next.value().d_value);
+
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'emplace'
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   emplace(ARGS args...);
+        //   emplace(initializer_list, ARGS args...);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'emplace'" << endl
+                          << "=================" << endl;
+
+        bslma::TestAllocator         da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            typedef bsl::string                             ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            const char *source = "0123456789ABCDEF";
+            Obj         mX(bsl::nullopt);       const Obj& X = mX;
+
+            ASSERT(!X.has_value());
+            mX.emplace(source, 3, 4);   // ValueType (size_t, offset, count)
+            ASSERT( X.has_value());
+            ASSERTV(X.value(), "3456" == X);
+
+            mX.emplace(5U, 'J');   // ValueType (size_t, char)
+            ASSERT( X.has_value());
+            ASSERTV(X.value(), "JJJJJ" == X);
+        }
+        ASSERT(da.numAllocations() == da.numDeallocations());
+
+        {
+            typedef ConstructorThatThrows                   ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            Obj         mX(bsl::nullopt);       const Obj& X = mX;
+            ASSERT(!X.has_value());
+            mX.emplace();   // ValueType ()
+            ASSERT( X.has_value());
+            ASSERT(1   == X->d_i);
+            ASSERT(2   == X->d_l);
+            ASSERT(3   == X->d_d);
+
+            ASSERT(1 == da.numAllocations() - da.numDeallocations());
+            try {
+                mX.emplace(23, 46L, 69.0);
+                ASSERT(false);
+            }
+            catch (const std::runtime_error &) {
+            }
+
+            ASSERT(!X.has_value());
+            ASSERT(0 == da.numAllocations() - da.numDeallocations());
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+            std::initializer_list<int> il = {5, 6, 7};
+            mX.emplace(il);
+            ASSERT( X.has_value());
+            ASSERT(5   == X->d_i);
+            ASSERT(6   == X->d_l);
+            ASSERT(7   == X->d_d);
+
+            mX.reset();
+            ASSERT(!X.has_value());
+            mX.emplace(il, 34.0);
+            ASSERT( X.has_value());
+            ASSERT(5    == X->d_i);
+            ASSERT(6    == X->d_l);
+            ASSERT(34.0 == X->d_d);
+#endif
+        }
+        ASSERT(da.numAllocations() == da.numDeallocations());
 
       } break;
       case 12: {
@@ -2832,8 +2965,14 @@ int main(int argc, char *argv[])
         //   bool isNull() const;
         //   void reset() const;
         //   const TYPE& value() const;
+        //   TYPE value_or(const ANY_TYPE &) const;
         //   TYPE& value();
         //   bslma::Allocator *allocator() const;
+        //   explicit operator bool() const;
+        //   const TYPE& operator* () const;
+        //   const TYPE* operator->() const;
+        //   TYPE& operator* ();
+        //   TYPE* operator->();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING PRIMARY MANIPULATORS & BASIC ACCESSORS"
@@ -2919,6 +3058,53 @@ int main(int argc, char *argv[])
                 ASSERT( mX1.isNull());
                 ASSERT(!mX1.has_value());
             }
+
+            if (veryVerbose) cout << "\tTesting operator bool." << endl;
+            {
+                Obj mX;                  const Obj& X = mX;
+                Obj mY(ValueType(123));  const Obj& Y = mY;
+//                if (veryVeryVerbose) { T_ T_ P(X) }
+                ASSERT( X.isNull());
+                if (X) {
+                    ASSERTV(X, false);
+                }
+                else {
+                    ASSERTV(X, true);
+                }
+
+//                if (veryVeryVerbose) { T_ T_ P(Y) }
+                ASSERT(!Y.isNull());
+                if (Y) {
+                    ASSERTV(Y, true);
+                }
+                else {
+                    ASSERTV(Y, false);
+                }
+            }
+
+            if (veryVerbose) cout << "\tTesting value_or." << endl;
+            {
+                Obj mX;                  const Obj& X = mX;
+                Obj mY(ValueType(123));  const Obj& Y = mY;
+
+                ASSERT( X.isNull());
+                ASSERT(!Y.isNull());
+
+                ValueType fromX = X.value_or(456LL);
+                ValueType fromY = Y.value_or(456LL);
+
+                ASSERT(fromX == 456);
+                ASSERT(fromY == 123);
+            }
+
+            if (veryVerbose) cout << "\tTesting operator * and ->" << endl;
+            {
+                Obj mY(ValueType(123));  const Obj& Y = mY;
+                ASSERT(!Y.isNull());
+
+                ASSERT(123 == *Y);
+                ASSERT(123 == *mY);
+            }
         }
 
         if (verbose) cout << "\nUsing 'bdlb::NullableAllocatedValue<"
@@ -2992,6 +3178,56 @@ int main(int argc, char *argv[])
                 mX1.reset();
                 ASSERT( mX0.isNull());
                 ASSERT( mX1.isNull());
+            }
+
+            if (veryVerbose) cout << "\tTesting operator bool." << endl;
+            {
+                Obj mX;                    const Obj& X = mX;
+                Obj mY(ValueType("123"));  const Obj& Y = mY;
+
+//                if (veryVeryVerbose) { T_ T_ P(X) }
+                ASSERT( X.isNull());
+                if (X) {
+                    ASSERTV(X, false);
+                }
+                else {
+                    ASSERTV(X, true);
+                }
+
+//                if (veryVeryVerbose) { T_ T_ P(Y) }
+                ASSERT(!Y.isNull());
+                if (Y) {
+                    ASSERTV(Y, true);
+                }
+                else {
+                    ASSERTV(Y, false);
+                }
+            }
+
+            if (veryVerbose) cout << "\tTesting value_or." << endl;
+            {
+                Obj mX;                    const Obj& X = mX;
+                Obj mY(ValueType("123"));  const Obj& Y = mY;
+
+                ASSERT( X.isNull());
+                ASSERT(!Y.isNull());
+
+                ValueType fromX = X.value_or("456");
+                ValueType fromY = Y.value_or("456");
+
+                ASSERT(fromX == "456");
+                ASSERT(fromY == "123");
+            }
+
+            if (veryVerbose) cout << "\tTesting operator * and ->" << endl;
+            {
+                Obj mY(ValueType("123"));  const Obj& Y = mY;
+                ASSERT(!Y.isNull());
+
+                ASSERT("123" == *Y);
+                ASSERT("123" == *mY);
+                ASSERT(3U ==  Y->size());
+                ASSERT(3U == mY->size());
             }
         }
 
