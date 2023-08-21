@@ -639,9 +639,9 @@ BSLS_IDENT("$Id: $")
 // providing the basic library facilities necessary to make use of coroutines.
 //
 //: o Compiler support (in C++20 mode):
-//:   o gcc 11
+//:   o gcc 11.1
 //:   o clang 14
-//:   o Visual Studio 2019 version 16.8 (_MSC_VER 1928)
+//:   o Visual Studio 2019 version 16.11 (_MSC_VER 1929)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
 /// - - - - - - - - - - - - - - - - - - - -
@@ -877,7 +877,7 @@ BSLS_IDENT("$Id: $")
 //: o Compiler support:
 //:   o GCC 10.1
 //:   o Clang 11.0
-//:   o Visual Studio 2019 version 16.0 (_MSC_VER 1920)
+//:   o Visual Studio 2019 version 16.11 (_MSC_VER 1929)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 /// - - - - - - - - - - - - - - - - - - - - - - - - -

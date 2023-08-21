@@ -982,6 +982,14 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_concepts' feature-test
 // macro is defined and '__cpp_lib_concepts >= 202002L'.
 //
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 11.1
+//:   o clang 15 when compiling against either:
+//:       o libc++ version 15, or
+//:       o libstdc++ version 11
+//:   o Microsoft Visual Studio 2022 17.2 / MSVC 19.32
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES'
 ///---------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' macro is defined if the native
@@ -991,6 +999,14 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_ranges' feature-test macro
 // is defined and '__cpp_lib_ranges >= 202110L'.
 //
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 12.1
+//:   o clang 15 when compiling against either:
+//:       o libc++ version 15, or
+//:       o libstdc++ version 12
+//:   o Microsoft Visual Studio 2022 17.2 / MSVC 19.32
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES'
 ///--------------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' macro is
@@ -999,6 +1015,13 @@ BSLS_IDENT("$Id: $")
 //
 // This macro is defined if the standard
 // '__cpp_lib_atomic_lock_free_type_aliases' feature-test macro is defined.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 13.1
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no curent version of clang supports this feature)
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS'
 ///-----------------------------------------------------------
@@ -1010,20 +1033,42 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_atomic_wait' feature-test
 // macro is defined and has a value of at least 201907L.
 //
+// This macro is defined first for the following compiler versions:
+//
+//:   o clang 15 when compiling against libc++ version 15, or
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of GCC supports this feature)
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
 ///----------------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS' is
 // defined if the 'bsl::atomic_flag_test' and 'bsl::atomic_flag_test_explicit'
 // functions are available with C++20 semantics.
 //
-// This macro is defined if the standard '__cpp_lib_flag_test' feature-test
-// macro is defined and has a value of at least 201907L.
+// This macro is defined if the standard '__cpp_lib_atomic_flag_test'
+// feature-test macro is defined and has a value of at least 201907L.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o clang 15 when compiling against libc++ version 15, or
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of GCC supports this feature)
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE'
 ///----------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' macro is
 // defined if the 'bsl::make_unique_for_overwrite' function is available with
 // C++20 semantics.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 11.1
+//:   o clang 15 when compiling against either:
+//:       o libc++ version 15, or
+//:       o libstdc++ version 11
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR'
 ///-----------------------------------------
@@ -1033,11 +1078,19 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard '__cpp_lib_chrono' feature-test macro
 // has at least '201907L' value.
 //
+// This macro is defined first for the following compiler versions:
+//
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of GCC or clang supports this feature)
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV'
 ///----------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' macro is defined if the
 // 'bsl::mbrtoc8' and 'bsl::c8rtomb' functions are available with C++20
 // semantics.
+//
+// (no current version of GCC, clang or MSVC supports this feature
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'
 ///-----------------------------------------------------
@@ -1046,6 +1099,13 @@ BSLS_IDENT("$Id: $")
 //
 // Note that the standard feature test macro '__cpp_lib_is_layout_compatible'
 // is also defined and has a value of at least '201907L'.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 12.1
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of clang supports this feature)
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER'
 ///--------------------------------------------------------
@@ -1057,6 +1117,13 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE', is also defined.  See
 // the last sentence of 'P0466R5'.
 //
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 12.1
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of clang supports this feature)
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'
 ///------------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE' is defined
@@ -1066,6 +1133,13 @@ BSLS_IDENT("$Id: $")
 // Note that the standard feature test macro
 // '__cpp_lib_is_pointer_interconvertible' is also defined and has a value of
 // at least '201907L'.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 12.1
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of clang supports this feature)
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU'
 ///---------------------------------
@@ -1934,27 +2008,28 @@ BSLS_IDENT("$Id: $")
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES                             1
   #endif
 
-  #if defined(__cpp_lib_atomic_lock_free_type_aliases) &&                    \
+  #if defined(__cpp_lib_atomic_lock_free_type_aliases) &&                     \
       __cpp_lib_atomic_lock_free_type_aliases >= 201907L
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES      1
   #endif
 
 
-  #if defined(__cpp_lib_atomic_wait) && __cpp_lib_atomic_wait >= 201907L &&  \
+  #if defined(__cpp_lib_atomic_wait) && __cpp_lib_atomic_wait >= 201907L &&   \
       !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS         1
   #endif
 
-  #if defined(__cpp_lib_atomic_flag_test) &&                                 \
-      __cpp_lib_atomic_flag_test >= 201907L &&                               \
+  #if defined(__cpp_lib_atomic_flag_test) &&                                  \
+      __cpp_lib_atomic_flag_test >= 201907L &&                                \
       !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS    1
   #endif
 
-  #if (defined(__cpp_lib_smart_ptr_for_overwrite) &&                         \
-       __cpp_lib_smart_ptr_for_overwrite >= 202022L) ||                      \
-       (defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE == 11)
-    // GNU libstdc++ 11 doesn't define the macro but defines the functions
+  #if (defined(__cpp_lib_smart_ptr_for_overwrite) &&                          \
+               __cpp_lib_smart_ptr_for_overwrite >= 202002L) ||               \
+      (defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) &&                            \
+              (_GLIBCXX_RELEASE == 11 || _GLIBCXX_RELEASE == 12))
+    // GNU libstdc++ 11 & 12 don't define the macro but define the functions.
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE          1
   #endif
 
@@ -1967,25 +2042,25 @@ BSLS_IDENT("$Id: $")
   // any current compilers.
   //#define BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
 
+  #if defined(__cpp_lib_is_layout_compatible) &&                              \
+              __cpp_lib_is_layout_compatible >= 201907L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE               1
+  #endif
+
+  // Per the final sentence of 'P0466R5', the availability of
+  // 'std::is_corresponding_member' is linked to the availability of
+  // 'std::is_layout_compatible.
+  #if defined(__cpp_lib_is_layout_compatible) &&                              \
+              __cpp_lib_is_layout_compatible >= 201907L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER            1
+  #endif
+
+  #if defined(__cpp_lib_is_pointer_interconvertible) &&                       \
+              __cpp_lib_is_pointer_interconvertible >= 201907L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE        1
+  #endif
+
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
-
-#if defined(__cpp_lib_is_layout_compatible) &&                                \
-    __cpp_lib_is_layout_compatible >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE                   1
-#endif
-
-// Per the final sentence of 'P0466R5', the availability of
-// 'std::is_corresponding_member' is linked to the availability of
-// 'std::is_layout_compatible.
-#if defined(__cpp_lib_is_layout_compatible) &&                                \
-    __cpp_lib_is_layout_compatible >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
-#endif
-
-#if defined(__cpp_lib_is_layout_compatible) &&                                \
-    __cpp_lib_is_pointer_interconvertible >= 201907L
-#define BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE            1
-#endif
 
 // ============================================================================
 //                       DEFINE LINK-COERCION SYMBOL
