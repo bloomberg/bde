@@ -1,10 +1,7 @@
 // bslstl_stringview.t.cpp                                            -*-C++-*-
 #include <bslstl_stringview.h>
-#include <bslstl_stringref.h>
 
 #include <bslstl_algorithm.h>  // bsl::count()
-#include <bslstl_string.h>
-#include <bslstl_vector.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -261,7 +258,7 @@ static bslma::TestAllocator *defaultAllocator_p;
 static bslma::TestAllocator *objectAllocator_p;
 
 template <class TYPE>
-class DummyTrait : public bsl::char_traits<TYPE>
+class DummyTrait : public std::char_traits<TYPE>
     // This class is used to simulate 'invalid length of string' scenario.  We
     // juggle the calculated length of string instead of allocating enormous
     // amount of memory, filling it and passing it's address to the
@@ -289,25 +286,96 @@ class DummyTrait : public bsl::char_traits<TYPE>
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Support function overloads for printing debug info, discovered via ADL.
-namespace bsl {
+namespace {
+namespace u {
 
-template <class TRAITS, class ALLOC>
-void debugprint(const bsl::basic_string<char, TRAITS, ALLOC>& v)
-    // Print the contents of the specified string 'v' to 'stdout', then flush.
+template <class CHAR_TYPE>
+int myCompare(const CHAR_TYPE *a,
+              size_t           aLen,
+              const CHAR_TYPE *b,
+              size_t           bLen)
 {
-    if (v.empty()) {
-        printf("<empty>");
+    int cmpRet = std::char_traits<CHAR_TYPE>::compare(a,
+                                                      b,
+                                                      bsl::min(aLen, bLen));
+    if (0 != cmpRet) {
+        return cmpRet;                                                // RETURN
+    }
+
+    if (aLen == bLen) {
+        return 0;                                                     // RETURN
+    }
+    else if (aLen < bLen) {
+        return -1;                                                    // RETURN
     }
     else {
-        for (size_t i = 0; i < v.size(); ++i) {
-            printf("%c", v[i]);
-        }
+        return +1;
     }
-    fflush(stdout);
 }
 
-}  // close namespace bsl
+template <class CHAR_TYPE>
+size_t myFind(const CHAR_TYPE *str,
+              size_t           strLen,
+              const CHAR_TYPE *pattern,
+              size_t           pos,
+              size_t           patternLen)
+{
+    const size_t npos = bsl::basic_string_view<CHAR_TYPE>::npos;
+    if (strLen < pos) {
+        return npos;                                                  // RETURN
+    }
+
+    const CHAR_TYPE *end = str + strLen - patternLen;
+
+    for (size_t ret = pos; str + ret <= end; ++ret) {
+        bool found = true;
+        for (size_t ii = 0; ii < patternLen; ++ii) {
+            if (str[ret + ii] != pattern[ii]) {
+                found = false;
+                break;
+            }
+        }
+        if (found) {
+            return ret;                                               // RETURN
+        }
+    }
+
+    return npos;
+}
+
+template <class CHAR_TYPE>
+size_t myRFind(const CHAR_TYPE *str,
+               size_t           strLen,
+               const CHAR_TYPE *pattern,
+               size_t           pos,
+               size_t           patternLen)
+{
+    const size_t npos = bsl::basic_string_view<CHAR_TYPE>::npos;
+    if (strLen < patternLen) {
+        return npos;                                                  // RETURN
+    }
+    if (npos == pos || strLen < pos + patternLen) {
+        pos = strLen - patternLen;
+    }
+
+    for (size_t ret = pos + 1; 0 < ret--; ) {
+        bool found = true;
+        for (size_t ii = 0; ii < patternLen; ++ii) {
+            if (str[ret + ii] != pattern[ii]) {
+                found = false;
+                break;
+            }
+        }
+        if (found) {
+            return ret;                                               // RETURN
+        }
+    }
+
+    return npos;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstOf(
@@ -814,7 +882,7 @@ bool operator==(const TestIterator<CHAR_TYPE>& lhs,
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
-template <class TYPE, class TRAITS = bsl::char_traits<TYPE> >
+template <class TYPE, class TRAITS = std::char_traits<TYPE> >
 struct TestDriver {
     // TYPES
     typedef bsl::basic_string_view<TYPE, TRAITS> Obj;
@@ -838,9 +906,6 @@ struct TestDriver {
     static const int  s_testStringLength = 49;  // length of test string
 
     // TEST CASES
-    static void testCase23();
-        // Conversions between strings and string views.
-
     static void testCase22();
         // Test 'operator ""_sv'.
 
@@ -900,9 +965,6 @@ struct TestDriver {
     static void testCase4();
         // Test equality comparison.
 
-    static void testCase3();
-        // Test print operations.
-
     static void testCase2();
         // Test primary manipulators.
 
@@ -927,193 +989,6 @@ const TYPE TestDriver<TYPE, TRAITS>::s_testString [] =
                                 // ----------
                                 // TEST CASES
                                 // ----------
-
-template <class TYPE, class TRAITS>
-void TestDriver<TYPE,TRAITS>::testCase23()
-{
-    // --------------------------------------------------------------------
-    // TESTING CONVERSION W.R.T. 'std::basic_string'
-    //
-    // Concerns:
-    //: 1 That it is possible to construct a 'string_view' from a
-    //:   'std::string'.
-    //:
-    //: 2 That the source is not modified.
-    //:
-    //: 3 That the contents of the constructed object match the original
-    //:   string.
-    //:
-    //: 4 That a variety of string and string view types are constructible and
-    //:   assignable from each other.
-    //
-    // Plan:
-    //: 1 Using a few samples, create strings with those contents, create
-    //:   string views from them, and verify that the results are consistent.
-    //:
-    //: 2 Construct a variety of string-like objects and verify that they
-    //:   inter-convert properly with string views.
-    // --------------------------------------------------------------------
-
-    static const char *DATA[] = {
-        "", "woof", "meow", "bow wow",
-        "The rain in Spain falls mainly in the plain.",
-        "By george, I think she's got it!" };
-    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
-
-    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-        const char *CHAR_STR = DATA[ti];
-        const char *pc;
-        TYPE        buffer[100], *pB;
-
-        // Copy from 'char' buffer to 'TYPE' buffer.
-
-        for (pB = buffer, pc = CHAR_STR; (*pB++ = *pc++); ) {
-            ;  // do nothing
-        }
-        const size_t LEN = pB - 1 - buffer;
-        ASSERT(0 == buffer[LEN]);
-
-        pB = buffer;
-
-        const std::basic_string<TYPE> str(pB);
-        ASSERT(pB == str);
-        const bsl::basic_string_view<TYPE> sv(str);
-        ASSERT(pB == str);    // unchanged
-
-        // Compare 'sv' with 'str', they should match.
-
-        ASSERT(str.length() == sv.length());
-        ASSERT(!sv.data()[sv.length()]);
-
-        for (unsigned ii = 0; ii < LEN; ++ii) {
-            ASSERT(sv[ii] == str[ii]);
-            ASSERT(sv[ii] == buffer[ii]);
-        }
-
-        if (LEN < 4) {
-            continue;
-        }
-
-        // Now, do it over again with an embedded zero in the string.
-
-        buffer[2] = 0;
-
-        const std::basic_string<TYPE> zStr(pB, LEN);
-        ASSERT(LEN == zStr.length());
-        ASSERT(zStr != str);
-        ASSERT(zStr[2] == 0);
-
-        const std::basic_string<TYPE> zStrB(pB, LEN);
-        ASSERT(LEN == zStrB.length());
-        ASSERT(zStrB != str);
-        ASSERT(zStrB[2] == 0);
-        ASSERT(zStr == zStrB);
-
-        const bsl::basic_string_view<TYPE> zSv(zStr);
-        ASSERT(LEN == zSv.length());
-        ASSERT(zSv.data() == zStr.data());
-        ASSERT(zSv[2] == 0);
-
-        ASSERT(LEN == zStr.length());  // unchanged
-        ASSERT(zStr == zStrB);         // unchanged
-
-        for (unsigned ii = 0; ii < LEN; ++ii) {
-            ASSERT(zSv[ii] == zStr[ii]);
-            ASSERT(zSv[ii] == buffer[ii]);
-        }
-
-        if (veryVerbose) printf("\tbsl::string vs. string_view\n");
-        {
-            bsl::basic_string<TYPE> s(pB, pB + LEN);
-            bsl::basic_string_view<TYPE> v(s);
-            ASSERT(v.data() == s.data());
-            ASSERT(s == v);
-            ASSERT(v == s);
-            v = s;
-            ASSERT(v.data() == s.data());
-            bsl::basic_string<TYPE> o(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o = v;
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o.assign(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-        }
-
-        if (veryVerbose) printf("\tstd::string vs. string_view\n");
-        {
-            std::basic_string<TYPE> s(pB, pB + LEN);
-            bsl::basic_string_view<TYPE> v(s);
-            ASSERT(v.data() == s.data());
-            ASSERT(s == v);
-            ASSERT(v == s);
-            v = s;
-            ASSERT(v.data() == s.data());
-            std::basic_string<TYPE> o(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
-            // Will not work with 'explicit string_view::operator std::string'
-            // in our implementation.
-            o = v;
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o.assign(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-#endif
-        }
-
-        if (veryVerbose) printf("\tstd::string vs. string_view\n");
-        {
-            std::basic_string<TYPE> s(pB, pB + LEN);
-            bsl::basic_string_view<TYPE> v(s);
-            ASSERT(v.data() == s.data());
-            ASSERT(s == v);
-            ASSERT(v == s);
-            v = s;
-            ASSERT(v.data() == s.data());
-            std::basic_string<TYPE> o(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
-            // Will not work with 'explicit string_view::operator std::string'
-            // in our implementation.
-            o = v;
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o.assign(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-#endif
-        }
-
-        if (veryVerbose) printf("\tStringRefImp vs. string_view\n");
-        {
-            bslstl::StringRefImp<TYPE> s(pB, pB + LEN);
-            bsl::basic_string_view<TYPE> v(s);
-            ASSERT(v.data() == s.data());
-            ASSERT(s == v);
-            ASSERT(v == s);
-            v = s;
-            ASSERT(v.data() == s.data());
-            bslstl::StringRefImp<TYPE> o(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o = v;
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o.assign(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-        }
-
-        if (veryVerbose) printf("\tStringRefData vs. string_view\n");
-        {
-            bslstl::StringRefData<TYPE> s(pB, pB + LEN);
-            bsl::basic_string_view<TYPE> v(s);
-            ASSERT(v.data() == s.data());
-            ASSERT(s == v);
-            ASSERT(v == s);
-            v = s;
-            ASSERT(v.data() == s.data());
-            bslstl::StringRefData<TYPE> o(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o = v;
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-        }
-    }
-}
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase22()
@@ -2377,11 +2252,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
 
     if (verbose) printf("\t\tTesting non-empty object.\n");
     {
-        bsl::basic_string<TYPE> sampleString;
-        sampleString.reserve(MAX_LENGTH);
-
-        bsl::basic_string<TYPE> rhsSampleString;
-        rhsSampleString.reserve(MAX_LENGTH);
+        TYPE sampleString[MAX_LENGTH + 1];
         for (size_type i = 0; i < NUM_DATA; ++i) {
             const int          LINE   = DATA[i].d_lineNum;
             const TYPE * const STR    = DATA[i].d_string;
@@ -2390,8 +2261,10 @@ void TestDriver<TYPE, TRAITS>::testCase18()
             Obj        mX(STR, LENGTH);
             const Obj& X = mX;
 
-            sampleString.clear();
-            sampleString.append(STR, LENGTH);
+            for (size_type uu = 0; uu < LENGTH; ++uu) {
+                sampleString[uu] = STR[uu];
+            }
+            sampleString[LENGTH] = 0;
 
             // Firstly iterate through available positions and lengths of LHS
             // (our object).  Position must be less than the length of the
@@ -2421,11 +2294,13 @@ void TestDriver<TYPE, TRAITS>::testCase18()
                         for (size_type m = 0; m <= MAX_LENGTH; ++m) {
                             const size_type RHS_NUM_CHARS = m;
 
-                            const int EXP    = sampleString.compare(
-                                                                LHS_POSITION,
-                                                                LHS_NUM_CHARS,
-                                                                RHS_STRING,
-                                                                RHS_NUM_CHARS);
+                            const int EXP    =
+                                      u::myCompare(
+                                               sampleString + LHS_POSITION,
+                                               bsl::min(LHS_NUM_CHARS,
+                                                        LENGTH - LHS_POSITION),
+                                               RHS_STRING,
+                                               RHS_NUM_CHARS);
                             const int RESULT = X.compare(LHS_POSITION,
                                                          LHS_NUM_CHARS,
                                                          RHS_STRING,
@@ -3176,9 +3051,6 @@ void TestDriver<TYPE, TRAITS>::testCase16()
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        bsl::basic_string<TYPE> sampleString;
-        sampleString.reserve(MAX_LENGTH);
-
         for (size_type i = 0; i < NUM_DATA; ++i) {
             const int          LINE   = DATA[i].d_lineNum;
             const TYPE * const STR    = DATA[i].d_string;
@@ -3202,10 +3074,6 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                 ASSERTV(LINE, POSITION, EXP_F, RESULT_F, EXP_F == RESULT_F);
                 ASSERTV(LINE, POSITION, EXP_L, RESULT_L, EXP_L == RESULT_L);
             }
-
-            // Test non-null pointer.
-            sampleString.clear();
-            sampleString.append(STRING, LENGTH);
 
             for (size_type j = 0; j < NUM_DATA; ++j) {
                 const int          LINE_P   =  DATA[j].d_lineNum;
@@ -3753,9 +3621,6 @@ void TestDriver<TYPE, TRAITS>::testCase15()
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        bsl::basic_string<TYPE> sampleString;
-        sampleString.reserve(MAX_LENGTH);
-
         for (size_type i = 0; i < NUM_DATA; ++i) {
             const int          LINE   = DATA[i].d_lineNum;
             const TYPE * const STR    = DATA[i].d_string;
@@ -3779,10 +3644,6 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                 ASSERTV(LINE, POSITION, EXP_F, RESULT_F, EXP_F == RESULT_F);
                 ASSERTV(LINE, POSITION, EXP_L, RESULT_L, EXP_L == RESULT_L);
             }
-
-            // Test non-null pointer.
-            sampleString.clear();
-            sampleString.append(STRING, LENGTH);
 
             for (size_type j = 0; j < NUM_DATA; ++j) {
                 const int          LINE_P   =  DATA[j].d_lineNum;
@@ -4377,9 +4238,6 @@ void TestDriver<TYPE, TRAITS>::testCase14()
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        bsl::basic_string<TYPE> sampleString;
-        sampleString.reserve(MAX_LENGTH);
-
         for (size_type i = 0; i < NUM_DATA; ++i) {
             const int          LINE   = DATA[i].d_lineNum;
             const TYPE * const STR    = DATA[i].d_string;
@@ -4403,9 +4261,6 @@ void TestDriver<TYPE, TRAITS>::testCase14()
             }
 
             // Test non-null pointer.
-            sampleString.clear();
-            sampleString.append(STR, LENGTH);
-
             for (size_type j = 0; j < NUM_DATA; ++j) {
                 const int          LINE_P   =  DATA[j].d_lineNum;
                 const TYPE * const STRING_P =  DATA[j].d_string;
@@ -4421,19 +4276,17 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                     for (size_type l = 0; l <= MAX_LENGTH; ++l) {
                         const size_type NUM_CHARS = l;
 
-                        size_type       exp  = sampleString.find(STRING_P,
-                                                                 POSITION,
-                                                                 NUM_CHARS);
-                        size_type       expR = sampleString.rfind(STRING_P,
-                                                                  POSITION,
-                                                                  NUM_CHARS);
-                        const size_type EXP =
-                                           bsl::basic_string<TYPE>::npos == exp
-                                           ? NPOS : exp;
+                        const size_type EXP  = u::myFind(STR,
+                                                         LENGTH,
+                                                         STRING_P,
+                                                         POSITION,
+                                                         NUM_CHARS);
 
-                        const size_type EXP_R =
-                                          bsl::basic_string<TYPE>::npos == expR
-                                          ? NPOS : expR;
+                        const size_type EXP_R = u::myRFind(STR,
+                                                           LENGTH,
+                                                           STRING_P,
+                                                           POSITION,
+                                                           NUM_CHARS);
 
                         const size_type RESULT = X.find(STRING_P,
                                                         POSITION,
@@ -4554,19 +4407,17 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                     for (size_type l = 0; l <= MAX_LENGTH; ++l) {
                         const size_type NUM_CHARS = l;
 
-                        size_type       exp  = sampleString.find(STRING_P,
-                                                                 NPOS,
-                                                                 NUM_CHARS);
-                        size_type       expR = sampleString.rfind(STRING_P,
-                                                                  NPOS,
-                                                                  NUM_CHARS);
-                        const size_type EXP =
-                                           bsl::basic_string<TYPE>::npos == exp
-                                           ? NPOS : exp;
+                        const size_type EXP  = u::myFind(STR,
+                                                         LENGTH,
+                                                         STRING_P,
+                                                         NPOS,
+                                                         NUM_CHARS);
 
-                        const size_type EXP_R =
-                                          bsl::basic_string<TYPE>::npos == expR
-                                          ? NPOS : expR;
+                        const size_type EXP_R = u::myRFind(STR,
+                                                           LENGTH,
+                                                           STRING_P,
+                                                           NPOS,
+                                                           NUM_CHARS);
 
                         const size_type RESULT = X.find(STRING_P,
                                                         NPOS,
@@ -6389,178 +6240,6 @@ void TestDriver<TYPE, TRAITS>::testCase4()
 }
 
 template <class TYPE, class TRAITS>
-void TestDriver<TYPE, TRAITS>::testCase3()
-{
-    // ------------------------------------------------------------------------
-    // TESTING OPERATOR<<
-    //   The result of the operator invocation depends not only on object's
-    //   value, but on the stream's settings (width and adjustment).  This is
-    //   taken into account when writing test.
-    //
-    // Concerns:
-    //: 1 Empty object is correctly streamed.
-    //:
-    //: 2 The operator takes into account the state of the passed stream (its
-    //:   width and adjustment).
-    //:
-    //: 3 Null symbols in the object are correctly streamed.
-    //:
-    //: 4 The operator sets width of the passed stream to zero.
-    //:
-    //: 5 The operator returns a reference to the passed stream.
-    //:
-    //
-    // Plan:
-    //: 1 Create an empty object, stream it using the 'operator<<' and verify
-    //:   the results.  (C-1)
-    //:
-    //: 2 Construct a couple of 'std::ostringstream' objects having different
-    //:   adjustments (left and right).  For each object:
-    //:
-    //:   1 Using a loop-based approach, construct a set of 'string_view'
-    //:     objects 'O' on the constant string 'S' (that can include null
-    //:     symbol) having lengths in the range '[0, N]', where the 'N' is some
-    //:     non-negative integer constant.  For each object in the set 'O':
-    //:
-    //:     1 Adjust width of the stream objects from the P-1.  The width has
-    //:       the same value for all 'string_view' objects, but due to the
-    //:       different lengths of these objects it can be less, equal or
-    //:       greater than they.
-    //:
-    //:     2 Use 'operator<<' to stream objects from the P-2.1 and verify the
-    //:       results.  (C-2..5)
-    //:
-    //:     3 Return stream objects to the original state.
-    //
-    // Testing:
-    //   operator<<(std::basic_ostream& stream, basic_string_view view);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
-
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
-    const size_type  STREAM_WIDTH  = 11;
-    const TYPE       FILL_SYMBOL   = 'a';
-
-    // Testing empty object streaming.
-
-    {
-        const TYPE *NULL_PTR = 0;
-        Obj         mXEmpty(NULL_PTR, 0);
-        const Obj&  XEmpty = mXEmpty;
-
-        std::basic_ostringstream<TYPE, TRAITS> streamLeft;
-        std::basic_ostringstream<TYPE, TRAITS> streamRight;
-
-        streamLeft.fill(FILL_SYMBOL);
-        streamRight.fill(FILL_SYMBOL);
-        streamLeft.width(STREAM_WIDTH);
-        streamRight.width(STREAM_WIDTH);
-        streamLeft.setf(std::ios::left, std::ios_base::adjustfield);
-        streamRight.setf(std::ios::right, std::ios_base::adjustfield);
-
-        std::basic_string<TYPE> LEFT_EXPECTED;
-        std::basic_string<TYPE> RIGHT_EXPECTED;
-
-        LEFT_EXPECTED.append(STREAM_WIDTH, FILL_SYMBOL);
-        RIGHT_EXPECTED.append(STREAM_WIDTH, FILL_SYMBOL);
-
-        std::basic_ostream<TYPE, TRAITS>& leftResult  = streamLeft  << XEmpty;
-        std::basic_ostream<TYPE, TRAITS>& rightResult = streamRight << XEmpty;
-
-        ASSERTV(&leftResult  == &streamLeft);
-        ASSERTV(&rightResult == &streamRight);
-
-        ASSERTV(streamLeft.width(),  0 == streamLeft.width() );
-        ASSERTV(streamRight.width(), 0 == streamRight.width());
-
-        ASSERT(LEFT_EXPECTED  == streamLeft.str());
-        ASSERT(RIGHT_EXPECTED == streamRight.str());
-    }
-
-    // Testing non-empty object streaming.
-
-    std::basic_ostringstream<TYPE, TRAITS> streamLeft;
-    std::basic_ostringstream<TYPE, TRAITS> streamRight;
-
-    streamLeft.fill(FILL_SYMBOL);
-    streamRight.fill(FILL_SYMBOL);
-
-    streamLeft.setf( std::ios::left,  std::ios_base::adjustfield);
-    streamRight.setf(std::ios::right, std::ios_base::adjustfield);
-
-    std::basic_string<TYPE> LESS_LEFT_EXPECTED;
-    std::basic_string<TYPE> LESS_RIGHT_EXPECTED;
-    std::basic_string<TYPE> GREATER_EXPECTED;
-
-    LESS_LEFT_EXPECTED.reserve(STREAM_WIDTH);
-    LESS_RIGHT_EXPECTED.reserve(STREAM_WIDTH);
-    GREATER_EXPECTED.reserve(STRING_LENGTH);
-
-    for (size_type i = 0; i < STREAM_WIDTH; ++i) {
-        for (size_type j = 0; j <= STRING_LENGTH; ++j) {
-            const TYPE      *START  = STRING;
-            const size_type  LENGTH = j;
-
-            streamLeft.width(STREAM_WIDTH);
-            streamRight.width(STREAM_WIDTH);
-
-            if (LENGTH <= STREAM_WIDTH) {
-                LESS_LEFT_EXPECTED.append(STREAM_WIDTH - LENGTH, FILL_SYMBOL);
-                LESS_RIGHT_EXPECTED.append(STREAM_WIDTH - LENGTH, FILL_SYMBOL);
-
-                LESS_LEFT_EXPECTED.insert(0, START, LENGTH);
-                LESS_RIGHT_EXPECTED.insert(STREAM_WIDTH - LENGTH,
-                                           START,
-                                           LENGTH);
-            }
-            else {
-                GREATER_EXPECTED.append(START, LENGTH);
-            }
-
-            Obj        mX(START, LENGTH);
-            const Obj& X = mX;
-
-            ASSERTV(streamLeft.width(),  STREAM_WIDTH == streamLeft.width() );
-            ASSERTV(streamRight.width(), STREAM_WIDTH == streamRight.width());
-
-            std::basic_ostream<TYPE, TRAITS>& leftResult  = streamLeft  << X;
-            std::basic_ostream<TYPE, TRAITS>& rightResult = streamRight << X;
-
-            ASSERTV(&leftResult  == &streamLeft);
-            ASSERTV(&rightResult == &streamRight);
-
-            ASSERTV(streamLeft.width(),  0 == streamLeft.width() );
-            ASSERTV(streamRight.width(), 0 == streamRight.width());
-
-            if (LENGTH <= STREAM_WIDTH) {
-                ASSERT(LESS_LEFT_EXPECTED  == streamLeft.str());
-                ASSERT(LESS_RIGHT_EXPECTED == streamRight.str());
-            }
-            else {
-                ASSERT(GREATER_EXPECTED  == streamLeft.str());
-                ASSERT(GREATER_EXPECTED  == streamRight.str());
-            }
-
-            // Final cleanup.
-
-            LESS_LEFT_EXPECTED.clear();
-            LESS_RIGHT_EXPECTED.clear();
-            GREATER_EXPECTED.clear();
-
-            streamLeft.str(
-                     std::basic_string<TYPE, TRAITS, std::allocator<TYPE> >());
-            streamRight.str(
-                     std::basic_string<TYPE, TRAITS, std::allocator<TYPE> >());
-
-            streamLeft.clear();
-            streamRight.clear();
-        }
-    }
-}
-
-template <class TYPE, class TRAITS>
 void TestDriver<TYPE, TRAITS>::testCase2()
 {
     // ------------------------------------------------------------------------
@@ -6848,6 +6527,94 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 }
 
 //=============================================================================
+//                   FAKE 'bsl::string' FOR USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace bsl {
+
+class string {
+    // The usage example uses 'bsl::string', which we can't access here because
+    // it would cause a cylce.  So this 'class' simulates the minimum necessary
+    // exact function of 'bsl::string' to make the usage example work.
+    //
+    // Note that most of the functionality of the real 'bsl::string' is not
+    // needed here -- this 'class' doesn't even have to be modifiable after
+    // construction.
+
+    // DATA
+    char                          *d_str;
+    BloombergLP::bslma::Allocator *d_alloc;
+
+  public:
+    // CREATORS
+    string(const char *str, BloombergLP::bslma::Allocator *alloc)
+    : d_alloc(alloc)
+    {
+        std::size_t len = std::strlen(str);
+        d_str = static_cast<char *>(alloc->allocate(len + 1));
+        std::strcpy(d_str, str);
+    }
+
+    ~string()
+    {
+        d_alloc->deallocate(d_str);
+    }
+
+    // ACCESSORS
+    char at(size_t index) const
+    {
+        string_view sv(d_str);
+        return sv.at(index);
+    }
+
+    bool compare(size_t pos, size_t len, const char *other) const
+    {
+        string_view sv(d_str);
+        return sv.compare(pos, len, other);
+    }
+
+    const char *data() const
+    {
+        return d_str;
+    }
+
+    bool empty() const
+    {
+        return !d_str[0];
+    }
+
+    size_t find(const char *pattern) const
+    {
+        string_view sv(d_str);
+        return sv.find(pattern);
+    }
+
+    size_t find_last_not_of(const char *pattern) const
+    {
+        string_view sv(d_str);
+        return sv.find_last_not_of(pattern);
+    }
+
+    char front() const
+    {
+        return d_str[0];
+    }
+
+    size_t length() const
+    {
+        string_view sv(d_str);
+        return sv.length();
+    }
+};
+
+bool operator==(const char *cstr, const string& str)
+{
+    return !std::strcmp(cstr, str.data());
+}
+
+}  // close namespace bsl
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -6995,17 +6762,9 @@ int main(int argc, char *argv[])
             printf("\nTESTING CONVERSION W.R.T. 'std::basic_string'"
                    "\n============================================\n");
 
-        TestDriver<char>::testCase23();
-        TestDriver<wchar_t>::testCase23();
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        TestDriver<char8_t>::testCase23();
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        TestDriver<char16_t>::testCase23();
-        TestDriver<char32_t>::testCase23();
-#endif
+        if (verbose) printf("This test has been moved to\n"
+                             "bslstl_stringret.t.cpp TC 15 to avoid\n"
+                             "cyclic dependencies.\n");
       } break;
       case 22: {
 
@@ -7332,24 +7091,13 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 3: {
-
         if (verbose) printf ("\nTESTING PRINT OPERATIONS"
                              "\n========================\n");
 
-        TestDriver<char>::testCase3();
-        TestDriver<wchar_t>::testCase3();
 
-        // The facets of 'char8_t', 'char16_t' and 'char32_t' are such that
-        // they throw on this test.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-//      TestDriver<char8_t>::testCase3();
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-//      TestDriver<char16_t>::testCase3();
-//      TestDriver<char32_t>::testCase3();
-#endif
+        if (verbose) printf("This test has been moved to\n"
+                             "bslstl_string_test.t.cpp TC 46\n"
+                             "to prevent dependency cycles.\n");
       } break;
       case 2: {
 

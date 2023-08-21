@@ -102,7 +102,7 @@ struct in_place_type_t {
     explicit BSLS_KEYWORD_CONSTEXPR in_place_type_t() = default;
 #else
     explicit BSLS_KEYWORD_CONSTEXPR in_place_type_t() BSLS_KEYWORD_NOEXCEPT;
-#endif  
+#endif
         // Create an 'in_place_type_t' value.  On platforms that allow for
         // defaulted special member functions, we opt for the compiler provided
         // one too keep the type trivial.

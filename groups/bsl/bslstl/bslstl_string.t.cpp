@@ -2,7 +2,6 @@
 #include <bslstl_string.h>
 
 #include <bslstl_forwarditerator.h>
-#include <bslstl_stringref.h>
 
 #include <bsla_fallthrough.h>
 #include <bslma_allocator.h>
@@ -374,7 +373,7 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [45] USAGE EXAMPLE
+// [47] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -383,6 +382,8 @@ using bsls::nameOfType;
 // [36] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [38] CLASS TEMPLATE DEDUCTION GUIDES
 // [43] CONCERN: 'string' IS A C++20 RANGE
+// [45] CONVERSION of 'string_view' W.R.T. 'std::basic_string'
+// [46] Testing 'operator<<(ostream&, const basic_string_view&)'\n
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -1865,7 +1866,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     //   basic_string& operator=(CHAR_TYPE c);
     // ------------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>           StringRefImp;
+    typedef bslstl::StringRefData<TYPE>          StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS> StringView;
     typedef ConvertibleToStringViewType<TYPE>    StringViewLikeType;
 
@@ -1996,7 +1997,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                         mU = V; // test assignment here
                       } break;
                       case ASSIGN_MODE_STRING_REF: {
-                        const StringRefImp SR(V.data(), V.length());
+                        const StringRefData SR(V);
                         mU = SR; // test assignment here
                       } break;
                       case ASSIGN_MODE_STRING_VIEW: {
@@ -2144,7 +2145,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                             mU = V; // test assignment here
                           } break;
                           case ASSIGN_MODE_STRING_REF: {
-                            const StringRefImp SR(V.data(), V.length());
+                            const StringRefData SR(V);
                             mU = SR; // test assignment here
                           } break;
                           case ASSIGN_MODE_STRING_VIEW: {
@@ -2271,7 +2272,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                             mY = Y.c_str();
                           } break;
                           case SELF_ASSIGN_STRINGREF: {
-                            const StringRefImp SR(Y.data(), Y.length());
+                            const StringRefData SR(Y);
                             mY = SR;
                           } break;
                           case SELF_ASSIGN_STRINGVIEW: {
@@ -2347,8 +2348,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                             mY = Y.c_str() + OFFSET;
                           } break;
                           case PARTIAL_SELF_ASSIGN_MODE_STRINGREF: {
-                            const StringRefImp SR(Y.data()   + OFFSET,
-                                                  Y.length() - OFFSET);
+                            const StringRefData SR(Y.data() + OFFSET,
+                                                   Y.data() + Y.length());
                             mY = SR;
                           } break;
                           case PARTIAL_SELF_ASSIGN_MODE_STRINGVIEW: {
@@ -2418,7 +2419,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
         try
         {
-            const StringRefImp SR(src.data(), src.length());
+            const StringRefData SR(src);
 
             // the assignment will require to allocate more memory
             dst = SR;
@@ -6049,7 +6050,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 45: {
+      case 47: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6261,6 +6262,8 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 46:     BSLA_FALLTHROUGH;
+      case 45:     BSLA_FALLTHROUGH;
       case 44:     BSLA_FALLTHROUGH;
       case 43:     BSLA_FALLTHROUGH;
       case 42:     BSLA_FALLTHROUGH;

@@ -2,10 +2,6 @@
 
 #include <bslstl_stringref.h>
 
-#include <bslstl_string.h>
-#include <bslstl_stringrefdata.h>
-#include <bslstl_stringview.h>
-
 #include <bslh_hash.h>
 
 #include <bslma_testallocator.h>
@@ -167,9 +163,10 @@ using namespace BloombergLP;
 // [11] bsl::string::operator=(const bslstl::StringRefData&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [12] TYPE TRAITS
 // [13] STRING CONSTRUCTORS COMPATIBILITY
+// [15] CONV of 'string_view' W.R.T. 'std::basic_string' (from stringview)
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -249,11 +246,25 @@ bool         veryVerbose;
 bool     veryVeryVerbose;
 bool veryVeryVeryVerbose;
 
+const char VA = 'A';
+const char VB = 'B';
+const char VC = 'C';
+const char VD = 'D';
+const char VE = 'E';
+const char VF = 'F';
+const char VG = 'G';
+const char VH = 'H';
+const char VI = 'I';
+const char VJ = 'J';
+const char VK = 'K';
+const char VL = 'L';
+    // All test types have character value type.
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslstl::StringRef Obj;
+typedef bslstl::StringRef   Obj;
 
 template <class CHAR>
 struct TestData
@@ -2481,6 +2492,76 @@ class ImplicitlyConvertibleToString {
     }
 };
 
+                 // =================================
+                 // class ConvertibleToStringViewType
+                 // =================================
+
+template <class TYPE,
+          class TRAITS = bsl::char_traits<TYPE> >
+class ConvertibleToStringViewType
+    // This test class provides conversion operators to
+    // 'bsl::basic_string_view' object.  It is used for testing methods that
+    // accept 'StringViewLike' types.
+{
+    // DATA
+    const TYPE *d_value_p;  // value (held, not owned)
+
+  public:
+    // CREATORS
+    explicit ConvertibleToStringViewType(const TYPE *value);
+        // Create an object that has the specified 'value'.
+
+    // ACCESSORS
+    operator bsl::basic_string_view<TYPE, TRAITS>() const;
+        // Convert this object to a 'bsl::basic_string_view' object,
+        // instantiated with the same character type and traits type.  The
+        // return string will contain the same sequence of characters as this
+        // object.  Note that this conversion operator can be invoked
+        // implicitly (e.g., during argument passing).
+
+    const TYPE *data() const;
+        // Return the value of this object.
+
+    size_t length() const;
+        // Return the length of the underlying string.
+};
+
+                 // ---------------------------------
+                 // class ConvertibleToStringViewType
+                 // ---------------------------------
+
+// CREATORS
+template <class TYPE, class TRAITS>
+inline
+ConvertibleToStringViewType<TYPE, TRAITS>::
+ConvertibleToStringViewType(const TYPE *value)
+: d_value_p(value)
+{
+}
+
+// ACCESSORS
+template <class TYPE, class TRAITS>
+inline
+ConvertibleToStringViewType<TYPE, TRAITS>::
+operator bsl::basic_string_view<TYPE, TRAITS>() const
+{
+    return bsl::basic_string_view<TYPE, TRAITS>(d_value_p);
+}
+
+template <class TYPE, class TRAITS>
+inline
+const TYPE *ConvertibleToStringViewType<TYPE, TRAITS>::data() const
+{
+    return d_value_p;
+}
+
+template <class TYPE, class TRAITS>
+inline
+size_t ConvertibleToStringViewType<TYPE, TRAITS>::length() const
+{
+    return TRAITS::length(d_value_p);
+}
+
 class IncompleteType;
     // Incomplete class to check the correctness of the SFINAE conditions of
     // the 'bsl::basic_string' template constructor.
@@ -2502,13 +2583,61 @@ void testIncompleteTypeConversion(const IncompleteType &obj)
     overloadedFunction(obj);
 }
 
+                            // ====================
+                            // class ExceptionGuard
+                            // ====================
+
+template <class VALUE_TYPE>
+struct ExceptionGuard {
+    // This scoped guard helps to verify the full guarantee of rollback in
+    // exception-throwing code.
+
+    // DATA
+    int               d_lineNum;
+    VALUE_TYPE        d_value;
+    const VALUE_TYPE *d_object_p;
+
+  public:
+    // CREATORS
+    ExceptionGuard(const VALUE_TYPE &object, int line)
+    : d_lineNum(line)
+    , d_value(object)
+    , d_object_p(&object)
+    {}
+
+    ~ExceptionGuard() {
+        if (d_object_p) {
+            const int LINE = d_lineNum;
+            LOOP3_ASSERT(LINE, d_value, *d_object_p, d_value == *d_object_p);
+        }
+    }
+
+    // MANIPULATORS
+    void release() {
+        d_object_p = 0;
+    }
+
+    void resetValue(const VALUE_TYPE& value, int line) {
+        d_lineNum = line;
+        d_value = value;
+    }
+};
+
 template <class CHAR_TYPE>
 class TestDriver {
     // TYPES
     typedef bslstl::StringRefImp<CHAR_TYPE> Obj;
         // Type under testing.
 
+    typedef bsl::basic_string<CHAR_TYPE> String;
+
+    typedef typename String::allocator_type Allocator;
+
   public:
+
+    static void testCase15();
+        // Conversions between strings and string view-like types (moved from
+        // bslstl_string_test.t.cpp to prevent cycles).
 
     static void testCase14();
         // Testing construction of string views and string refs from different
@@ -2519,8 +2648,243 @@ class TestDriver {
 
     static void testCase9();
         // Testing 'StringRefImp(const StringRefImp& , size_type, size_type)'
+
+    static int getValues(const CHAR_TYPE **values);
+        // Load the specified 'values' with the address of an array containing
+        // initialized values of the parameterized 'TYPE' and return the length
+        // of that array.
+
+    static void stretch(String           *object,
+                        size_t            size,
+                        const CHAR_TYPE&  value = CHAR_TYPE());
+        // Using only primary manipulators, extend the length of the specified
+        // 'object' by the specified 'size' by adding copies of the optionally
+        // specified 'value', or with the null character for the (template
+        // parameter) 'TYPE' if 'value' is not specified.  The resulting value
+        // is not specified.
+
+    static void stretchRemoveAll(String           *object,
+                                 size_t            size,
+                                 const CHAR_TYPE&  value = CHAR_TYPE());
+        // Using only primary manipulators, extend the capacity of the
+        // specified 'object' to (at least) the specified 'size' by adding
+        // copies of the optionally specified 'value' or with the null
+        // character for the (template parameter) 'TYPE' if 'value' is not
+        // specified; then remove all elements leaving 'object' empty.
+
+    static int ggg(String *object, const char *spec, int verboseFlag = 1);
+        // Configure the specified 'object' according to the specified 'spec',
+        // using only the primary manipulator function 'push_back' and
+        // white-box manipulator 'clear'.  Optionally specify a zero
+        // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
+        // index of the first invalid character, and a negative value
+        // otherwise.  Note that this function is used to implement 'gg' as
+        // well as allow for verification of syntax error detection.
+
+    static String& gg(String *object, const char *spec);
+        // Return, by reference, the specified 'object' with its value adjusted
+        // according to the specified 'spec'.
+
+    static String g(const char *spec);
+        // Return, by value, a new object corresponding to the specified
+        // 'spec'.
+
+    static String g(size_t length, CHAR_TYPE seed);
+        // Return, by value, a new string object with the specified 'length'
+        // and the specified 'seed' character.  The actual content of the
+        // string is not important, only the string length and the fact that
+        // two different 'seeds' produce two different results.
 };
 
+template <class TYPE>
+void TestDriver<TYPE>::testCase15()
+{
+    // --------------------------------------------------------------------
+    // TESTING CONVERSION of 'string_view' W.R.T. 'std::basic_string'
+    //
+    // (This test was migrated here for bslstl_stringview.t.cpp to prevent
+    // dependency cycles).
+    //
+    // Concerns:
+    //: 1 That it is possible to construct a 'string_view' from a
+    //:   'std::string'.
+    //:
+    //: 2 That the source is not modified.
+    //:
+    //: 3 That the contents of the constructed object match the original
+    //:   string.
+    //:
+    //: 4 That a variety of string and string view types are constructible and
+    //:   assignable from each other.
+    //
+    // Plan:
+    //: 1 Using a few samples, create strings with those contents, create
+    //:   string views from them, and verify that the results are consistent.
+    //:
+    //: 2 Construct a variety of string-like objects and verify that they
+    //:   inter-convert properly with string views.
+    // --------------------------------------------------------------------
+
+    static const char *DATA[] = {
+        "", "woof", "meow", "bow wow",
+        "The rain in Spain falls mainly in the plain.",
+        "By george, I think she's got it!" };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const char *CHAR_STR = DATA[ti];
+        const char *pc;
+        TYPE        buffer[100], *pB;
+
+        // Copy from 'char' buffer to 'TYPE' buffer.
+
+        for (pB = buffer, pc = CHAR_STR; (*pB++ = *pc++); ) {
+            ;  // do nothing
+        }
+        const size_t LEN = pB - 1 - buffer;
+        ASSERT(0 == buffer[LEN]);
+
+        pB = buffer;
+
+        const std::basic_string<TYPE> str(pB);
+        ASSERT(pB == str);
+        const bsl::basic_string_view<TYPE> sv(str);
+        ASSERT(pB == str);    // unchanged
+
+        // Compare 'sv' with 'str', they should match.
+
+        ASSERT(str.length() == sv.length());
+        ASSERT(!sv.data()[sv.length()]);
+
+        for (unsigned ii = 0; ii < LEN; ++ii) {
+            ASSERT(sv[ii] == str[ii]);
+            ASSERT(sv[ii] == buffer[ii]);
+        }
+
+        if (LEN < 4) {
+            continue;
+        }
+
+        // Now, do it over again with an embedded zero in the string.
+
+        buffer[2] = 0;
+
+        const std::basic_string<TYPE> zStr(pB, LEN);
+        ASSERT(LEN == zStr.length());
+        ASSERT(zStr != str);
+        ASSERT(zStr[2] == 0);
+
+        const std::basic_string<TYPE> zStrB(pB, LEN);
+        ASSERT(LEN == zStrB.length());
+        ASSERT(zStrB != str);
+        ASSERT(zStrB[2] == 0);
+        ASSERT(zStr == zStrB);
+
+        const bsl::basic_string_view<TYPE> zSv(zStr);
+        ASSERT(LEN == zSv.length());
+        ASSERT(zSv.data() == zStr.data());
+        ASSERT(zSv[2] == 0);
+
+        ASSERT(LEN == zStr.length());  // unchanged
+        ASSERT(zStr == zStrB);         // unchanged
+
+        for (unsigned ii = 0; ii < LEN; ++ii) {
+            ASSERT(zSv[ii] == zStr[ii]);
+            ASSERT(zSv[ii] == buffer[ii]);
+        }
+
+        if (veryVerbose) printf("\tbsl::string vs. string_view\n");
+        {
+            bsl::basic_string<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            bsl::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+        }
+
+        if (veryVerbose) printf("\tstd::string vs. string_view\n");
+        {
+            std::basic_string<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            std::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            // Will not work with 'explicit string_view::operator std::string'
+            // in our implementation.
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#endif
+        }
+
+        if (veryVerbose) printf("\tstd::string vs. string_view\n");
+        {
+            std::basic_string<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            std::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            // Will not work with 'explicit string_view::operator std::string'
+            // in our implementation.
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#endif
+        }
+
+        if (veryVerbose) printf("\tStringRefImp vs. string_view\n");
+        {
+            bslstl::StringRefImp<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            bslstl::StringRefImp<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+        }
+
+        if (veryVerbose) printf("\tStringRefData vs. string_view\n");
+        {
+            bslstl::StringRefData<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            bslstl::StringRefData<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+        }
+    }
+}
 
 template <class CHAR_TYPE>
 void TestDriver<CHAR_TYPE>::testCase14()
@@ -2820,7 +3184,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
     //
     // Testing:
     //   StringRefImp(const StringRefImp&, size_type, size_type)
-    // --------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
 
     if (verbose) printf("\tTest empty string\n");
@@ -2953,6 +3317,114 @@ void TestDriver<CHAR_TYPE>::testCase9()
             ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, ORIGINAL.length() + 1, 0));
         }
     }
+}
+
+                               // --------------
+                               // TEST APPARATUS
+                               // --------------
+
+template <class CHAR_TYPE>
+void TestDriver<CHAR_TYPE>::stretch(String           *object,
+                                    size_t            size,
+                                    const CHAR_TYPE&  value)
+{
+    ASSERT(object);
+    for (size_t i = 0; i < size; ++i) {
+        object->push_back(value);
+    }
+    ASSERT(object->size() >= size);
+}
+
+template <class CHAR_TYPE>
+void TestDriver<CHAR_TYPE>::stretchRemoveAll(String      *object,
+                                             size_t       size,
+                                             const CHAR_TYPE&  value)
+{
+    ASSERT(object);
+    stretch(object, size, value);
+    object->clear();
+    ASSERT(0 == object->size());
+}
+
+template <class CHAR_TYPE>
+int TestDriver<CHAR_TYPE>::getValues(const CHAR_TYPE **values)
+{
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
+
+    const int NUM_VALUES = 12;
+    static const CHAR_TYPE initValues[NUM_VALUES] = {
+        CHAR_TYPE(VA),
+        CHAR_TYPE(VB),
+        CHAR_TYPE(VC),
+        CHAR_TYPE(VD),
+        CHAR_TYPE(VE),
+        CHAR_TYPE(VF),
+        CHAR_TYPE(VG),
+        CHAR_TYPE(VH),
+        CHAR_TYPE(VI),
+        CHAR_TYPE(VJ),
+        CHAR_TYPE(VK),
+        CHAR_TYPE(VL)
+    };
+
+    *values = initValues;
+    return NUM_VALUES;
+}
+
+template <class CHAR_TYPE>
+int TestDriver<CHAR_TYPE>::ggg(String     *object,
+                               const char *spec,
+                               int         verboseFlag)
+{
+    const CHAR_TYPE *VALUES;
+    getValues(&VALUES);
+    enum { SUCCESS = -1 };
+    for (int i = 0; spec[i]; ++i) {
+        if ('A' <= spec[i] && spec[i] <= 'L') {
+            object->push_back(VALUES[spec[i] - 'A']);
+        }
+        else if ('~' == spec[i]) {
+            object->clear();
+        }
+        else {
+            if (verboseFlag) {
+                printf("Error, bad character ('%c') "
+                       "in spec \"%s\" at position %d.\n", spec[i], spec, i);
+            }
+            return i;  // Discontinue processing this spec.           // RETURN
+        }
+   }
+   return SUCCESS;
+}
+
+template <class CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>&
+TestDriver<CHAR_TYPE>::gg(String *object, const char *spec)
+{
+    ASSERT(ggg(object, spec) < 0);
+    return *object;
+}
+
+template <class CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+TestDriver<CHAR_TYPE>::g(const char *spec)
+{
+    String object((bslma::Allocator *)0);
+    return gg(&object, spec);
+}
+
+template <class CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+TestDriver<CHAR_TYPE>::g(size_t length, CHAR_TYPE seed)
+{
+    String object(length, CHAR_TYPE());
+
+    for (size_t i = 0; i < length; ++i) {
+        object[i] = CHAR_TYPE(i + seed);
+    }
+
+    return object;
 }
 
 namespace BloombergLP {
@@ -3605,7 +4077,7 @@ int main(int argc, char *argv[])
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -3717,6 +4189,30 @@ int main(int argc, char *argv[])
     numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // CONVERSION of 'string_view' W.R.T. 'std::basic_string'
+        //
+        // This test was migrated to from 'bslstl_stringview.t.cpp' TC 23 to
+        // here to avoid dependency cycles.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                   "CONVERSION of 'string_view' W.R.T. 'std::basic_string'\n"
+                   "======================================================\n");
+
+        TestDriver<char>::testCase15();
+        TestDriver<wchar_t>::testCase15();
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        TestDriver<char8_t>::testCase15();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TestDriver<char16_t>::testCase15();
+        TestDriver<char32_t>::testCase15();
+#endif
       } break;
       case 14: {
         // --------------------------------------------------------------------

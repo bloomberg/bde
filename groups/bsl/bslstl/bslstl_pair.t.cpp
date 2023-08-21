@@ -720,7 +720,7 @@ struct ArgHolder  {
     ARG& arg()
     {
         return d_arg;
-    } 
+    }
 };
 
                          // =======================
@@ -3426,7 +3426,7 @@ class TupleTestDriver {
               int NS3>
     static void runTestAlloc();
         // Call runTestAllocImpl once with every possible pair with element
-        // types drawn from the set of 'bsltf::EmplacableTestType' and 
+        // types drawn from the set of 'bsltf::EmplacableTestType' and
         // bsltf::AllocEmplacableTestType' (4 combinations total), in each case
         // constructing the pair type from two tuples (each with 0-3 elements)
         // and a 'bslma'-style allocator.  The number of args for the first

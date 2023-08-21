@@ -4,7 +4,6 @@
 #include <bslstl_algorithm.h>    // 'count', 'sort'
 #include <bslstl_forwarditerator.h>
 #include <bslstl_string.h>
-#include <bslstl_stringref.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -59,6 +58,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif
 
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
@@ -398,7 +401,7 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [45] USAGE EXAMPLE
+// [47] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -407,6 +410,7 @@ using bsls::nameOfType;
 // [36] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [38] CLASS TEMPLATE DEDUCTION GUIDES
 // [43] CONCERN: 'string' IS A C++20 RANGE
+// [46] Testing 'operator<<(ostream&, const basic_string_view&)'\n
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -1392,12 +1396,17 @@ struct TestDriver {
     typedef ALLOC AllocType;
         // Utility typedef for xlC10 silliness.
 
+    typedef typename Obj::size_type                size_type;
     typedef typename Obj::iterator                 iterator;
     typedef typename Obj::const_iterator           const_iterator;
     typedef typename Obj::reverse_iterator         reverse_iterator;
     typedef typename Obj::const_reverse_iterator   const_reverse_iterator;
 
     typedef bslmf::MovableRefUtil                  MoveUtil;
+
+    BSLMF_ASSERT((bsl::is_same<
+                    size_type,
+                    typename bsl::basic_string_view<TYPE>::size_type>::value));
 
     struct InputIterator {
         // Input iterator type to test functions that take input iterators.
@@ -1447,6 +1456,17 @@ struct TestDriver {
             return d_data != rhs.d_data;
         }
     };
+
+    // CLASS DATA
+    // We have to define 's_testStringLength' constant inside of the class
+    // declaration to avoid MSVC build error "C2131: expression did not
+    // evaluate to a constant".  And we have to initialize it with the literal
+    // instead of using 'sizeof', because MSVC doesn't allow to use 'sizeof'
+    // for constant static arrays, defined outside  of the class declaration:
+    // "C2070: 'const char []': illegal sizeof operand".
+
+    static const TYPE s_testString[];           // common test string
+    static const int  s_testStringLength = 49;  // length of test string
 
     // TEST APPARATUS
     static int getValues(const TYPE **values);
@@ -1498,6 +1518,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase46();
+        // Testing 'operator<<(ostream&, const basic_string_view&)'
+
     static void testCase44();
         // Test 'resize_and_overwrite'.
 
@@ -1648,6 +1671,22 @@ struct TestDriver {
         // conditions.
 };
 
+                                // ----------
+                                // CLASS DATA
+                                // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+const TYPE TestDriver<TYPE, TRAITS, ALLOC>::s_testString [] =
+                                                  {
+                                                     0, 48, 49, 50, 51, 52, 53,
+                                                    48,  0, 49, 50, 51, 52, 53,
+                                                    48, 49,  0, 50, 51, 52, 53,
+                                                    48, 49, 50,  0, 51, 52, 53,
+                                                    48, 49, 50, 51,  0, 52, 53,
+                                                    48, 49, 50, 51, 52,  0, 53,
+                                                    48, 49, 50, 51, 52, 53,  0
+                                                  };
+
                                // --------------
                                // TEST APPARATUS
                                // --------------
@@ -1789,6 +1828,181 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase46()
+{
+    // ------------------------------------------------------------------------
+    // TESTING OPERATOR<<
+    //   The result of the operator invocation depends not only on object's
+    //   value, but on the stream's settings (width and adjustment).  This is
+    //   taken into account when writing test.
+    //
+    // (This test was moved here from 'bslstl_stringview.t.cpp' TC 3 to prevent
+    // cycles because the test requires 'basic_string').
+    //
+    // Concerns:
+    //: 1 Empty object is correctly streamed.
+    //:
+    //: 2 The operator takes into account the state of the passed stream (its
+    //:   width and adjustment).
+    //:
+    //: 3 Null symbols in the object are correctly streamed.
+    //:
+    //: 4 The operator sets width of the passed stream to zero.
+    //:
+    //: 5 The operator returns a reference to the passed stream.
+    //:
+    //
+    // Plan:
+    //: 1 Create an empty object, stream it using the 'operator<<' and verify
+    //:   the results.  (C-1)
+    //:
+    //: 2 Construct a couple of 'std::ostringstream' objects having different
+    //:   adjustments (left and right).  For each object:
+    //:
+    //:   1 Using a loop-based approach, construct a set of 'string_view'
+    //:     objects 'O' on the constant string 'S' (that can include null
+    //:     symbol) having lengths in the range '[0, N]', where the 'N' is some
+    //:     non-negative integer constant.  For each object in the set 'O':
+    //:
+    //:     1 Adjust width of the stream objects from the P-1.  The width has
+    //:       the same value for all 'string_view' objects, but due to the
+    //:       different lengths of these objects it can be less, equal or
+    //:       greater than they.
+    //:
+    //:     2 Use 'operator<<' to stream objects from the P-2.1 and verify the
+    //:       results.  (C-2..5)
+    //:
+    //:     3 Return stream objects to the original state.
+    //
+    // Testing:
+    //   operator<<(std::basic_ostream& stream, basic_string_view view);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
+
+    const TYPE      *STRING        = s_testString;
+    const size_type  STRING_LENGTH = s_testStringLength;
+    const size_type  STREAM_WIDTH  = 11;
+    const TYPE       FILL_SYMBOL   = 'a';
+
+    // Testing empty object streaming.
+
+    {
+        const TYPE                          *NULL_PTR = 0;
+        bsl::basic_string_view<TYPE>         mXEmpty(NULL_PTR, 0);
+        const bsl::basic_string_view<TYPE>&  XEmpty = mXEmpty;
+
+        std::basic_ostringstream<TYPE, TRAITS> streamLeft;
+        std::basic_ostringstream<TYPE, TRAITS> streamRight;
+
+        streamLeft.fill(FILL_SYMBOL);
+        streamRight.fill(FILL_SYMBOL);
+        streamLeft.width(STREAM_WIDTH);
+        streamRight.width(STREAM_WIDTH);
+        streamLeft.setf(std::ios::left, std::ios_base::adjustfield);
+        streamRight.setf(std::ios::right, std::ios_base::adjustfield);
+
+        std::basic_string<TYPE> LEFT_EXPECTED;
+        std::basic_string<TYPE> RIGHT_EXPECTED;
+
+        LEFT_EXPECTED.append(STREAM_WIDTH, FILL_SYMBOL);
+        RIGHT_EXPECTED.append(STREAM_WIDTH, FILL_SYMBOL);
+
+        std::basic_ostream<TYPE, TRAITS>& leftResult  = streamLeft  << XEmpty;
+        std::basic_ostream<TYPE, TRAITS>& rightResult = streamRight << XEmpty;
+
+        ASSERTV(&leftResult  == &streamLeft);
+        ASSERTV(&rightResult == &streamRight);
+
+        ASSERTV(streamLeft.width(),  0 == streamLeft.width() );
+        ASSERTV(streamRight.width(), 0 == streamRight.width());
+
+        ASSERT(LEFT_EXPECTED  == streamLeft.str());
+        ASSERT(RIGHT_EXPECTED == streamRight.str());
+    }
+
+    // Testing non-empty object streaming.
+
+    std::basic_ostringstream<TYPE, TRAITS> streamLeft;
+    std::basic_ostringstream<TYPE, TRAITS> streamRight;
+
+    streamLeft.fill(FILL_SYMBOL);
+    streamRight.fill(FILL_SYMBOL);
+
+    streamLeft.setf( std::ios::left,  std::ios_base::adjustfield);
+    streamRight.setf(std::ios::right, std::ios_base::adjustfield);
+
+    std::basic_string<TYPE> LESS_LEFT_EXPECTED;
+    std::basic_string<TYPE> LESS_RIGHT_EXPECTED;
+    std::basic_string<TYPE> GREATER_EXPECTED;
+
+    LESS_LEFT_EXPECTED.reserve(STREAM_WIDTH);
+    LESS_RIGHT_EXPECTED.reserve(STREAM_WIDTH);
+    GREATER_EXPECTED.reserve(STRING_LENGTH);
+
+    for (size_type i = 0; i < STREAM_WIDTH; ++i) {
+        for (size_type j = 0; j <= STRING_LENGTH; ++j) {
+            const TYPE      *START  = STRING;
+            const size_type  LENGTH = j;
+
+            streamLeft.width(STREAM_WIDTH);
+            streamRight.width(STREAM_WIDTH);
+
+            if (LENGTH <= STREAM_WIDTH) {
+                LESS_LEFT_EXPECTED.append(STREAM_WIDTH - LENGTH, FILL_SYMBOL);
+                LESS_RIGHT_EXPECTED.append(STREAM_WIDTH - LENGTH, FILL_SYMBOL);
+
+                LESS_LEFT_EXPECTED.insert(0, START, LENGTH);
+                LESS_RIGHT_EXPECTED.insert(STREAM_WIDTH - LENGTH,
+                                           START,
+                                           LENGTH);
+            }
+            else {
+                GREATER_EXPECTED.append(START, LENGTH);
+            }
+
+            bsl::basic_string_view<TYPE>        mX(START, LENGTH);
+            const bsl::basic_string_view<TYPE>& X = mX;
+
+            ASSERTV(streamLeft.width(),  STREAM_WIDTH == streamLeft.width() );
+            ASSERTV(streamRight.width(), STREAM_WIDTH == streamRight.width());
+
+            std::basic_ostream<TYPE, TRAITS>& leftResult  = streamLeft  << X;
+            std::basic_ostream<TYPE, TRAITS>& rightResult = streamRight << X;
+
+            ASSERTV(&leftResult  == &streamLeft);
+            ASSERTV(&rightResult == &streamRight);
+
+            ASSERTV(streamLeft.width(),  0 == streamLeft.width() );
+            ASSERTV(streamRight.width(), 0 == streamRight.width());
+
+            if (LENGTH <= STREAM_WIDTH) {
+                ASSERT(LESS_LEFT_EXPECTED  == streamLeft.str());
+                ASSERT(LESS_RIGHT_EXPECTED == streamRight.str());
+            }
+            else {
+                ASSERT(GREATER_EXPECTED  == streamLeft.str());
+                ASSERT(GREATER_EXPECTED  == streamRight.str());
+            }
+
+            // Final cleanup.
+
+            LESS_LEFT_EXPECTED.clear();
+            LESS_RIGHT_EXPECTED.clear();
+            GREATER_EXPECTED.clear();
+
+            streamLeft.str(
+                     std::basic_string<TYPE, TRAITS, std::allocator<TYPE> >());
+            streamRight.str(
+                     std::basic_string<TYPE, TRAITS, std::allocator<TYPE> >());
+
+            streamLeft.clear();
+            streamRight.clear();
+        }
+    }
+}
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase44()
@@ -5522,7 +5736,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     //   Proper use of 'std::length_error'
     // ------------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
     typedef ::FillN<TYPE>                         FillN;
@@ -5542,7 +5756,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 #ifdef BDE_BUILD_TARGET_EXC
     const LimitObj& Y = mY;
 
-    const StringRefImp           SR( Y.data(), Y.length());
+    const StringRefData          SR( Y);
     const StringView             SV( Y.data(), Y.length());
     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -6685,7 +6899,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
     //   auto operator<=>(const string<C,CT,A1>&, const std::string<C,CT,A2>&);
     // ------------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
 
@@ -6870,7 +7084,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
                 const size_t      V_LEN  = strlen(V_SPEC);
 
                 const Obj                    V(g(V_SPEC));
-                const StringRefImp           SR(V.data(), V.length());
+                const StringRefData          SR(V);
                 const StringView             SV(V.data(), V.length());
                 const StringViewOnlyLikeType SVL(V.data());
 
@@ -7364,7 +7578,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
     // [22] size_type find_last_not_of(C c, pos = npos) const;
     // ------------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
 
@@ -7426,7 +7640,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             const Obj Z;
 
-            const StringRefImp           SRZ( Z.data(), Z.length());
+            const StringRefData          SRZ( Z);
             const StringView             SVZ( Z.data(), Z.length());
             const StringViewOnlyLikeType SVLZ(Z.data());
 
@@ -7552,7 +7766,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             const Obj Y(g(PATTERN));
 
-            const StringRefImp           SRY( Y.data(), Y.length());
+            const StringRefData          SRY( Y);
             const StringView             SVY( Y.data(), Y.length());
             const StringViewOnlyLikeType SVLY(Y.data());
 
@@ -7735,7 +7949,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             const Obj Z;
 
-            const StringRefImp           SRZ( Z.data(), Z.length());
+            const StringRefData          SRZ( Z);
             const StringView             SVZ( Z.data(), Z.length());
             const StringViewOnlyLikeType SVLZ(Z.data());
 
@@ -7909,7 +8123,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 const size_t      N       = strlen(PATTERN);
                 const Obj         Y(g(PATTERN));
 
-                const StringRefImp           SRY( Y.data(), Y.length());
+                const StringRefData          SRY( Y);
                 const StringView             SVY( Y.data(), Y.length());
                 const StringViewOnlyLikeType SVLY(Y.data());
 
@@ -9213,7 +9427,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     //   basic_string& replace(const_iterator p,q,const STRING_VIEW_LIKE&);
     // ------------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
 
@@ -9342,7 +9556,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -9558,7 +9772,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -9733,7 +9947,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -10034,7 +10248,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
                     Obj                          mY(g(SPEC));
                     const Obj&                   Y = mY;
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -10162,7 +10376,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                         mX.reserve(INIT_RES);
                         const size_t INIT_CAP = X.capacity();
 
-                        const StringRefImp           SR( X.data(), X.length());
+                        const StringRefData          SR( X);
                         const StringView             SV( X.data(), X.length());
                         const StringViewOnlyLikeType SVL(X.data());
 
@@ -10395,8 +10609,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                 mX.reserve(INIT_RES);
                                 const size_t INIT_CAP = X.capacity();
 
-                                const StringRefImp           SR( X.data(),
-                                                                 X.length());
+                                const StringRefData          SR( X);
                                 const StringView             SV( X.data(),
                                                                  X.length());
                                 const StringViewOnlyLikeType SVL(X.data());
@@ -10548,7 +10761,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
     //   replace(const_iterator first, const_iterator last, const C *s, n2);
     // -----------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
 
@@ -10606,7 +10819,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(), mY));
     }
 
-    if (veryVerbose) printf("\treplace(first, last, StringRef)\n");
+    if (veryVerbose) printf("\treplace(first, last, StringRefData)\n");
 
     {
         Obj        mX(g("ABCDE"));
@@ -10614,7 +10827,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         Obj                mY(g("AB"));
         const Obj&         Y = mY;
-        const StringRefImp SR( Y.data(), Y.length());  // replacement
+        const StringRefData   SR(Y);  // replacement
 
         // first < begin()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(), SR));
@@ -10643,7 +10856,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         Obj              mY(g("AB"));
         const Obj&       Y = mY;
-        const StringView SV( Y.data(), Y.length());  // replacement
+        const StringView    SV( Y.data(), Y.length());  // replacement
 
         // first < begin()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(), SV));
@@ -12035,7 +12248,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     //   basic_string& insert(p1, const STRING_VIEW_LIKE_TYPE& s, p2, n=npos);
     // --------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
 
@@ -12159,16 +12372,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                         const size_t POS = j;
 
-                        Obj mX(INIT_LENGTH,
-                               DEFAULT_VALUE,
-                               AllocType(&testAllocator));
+                        Obj        mX(INIT_LENGTH,
+                                      DEFAULT_VALUE,
+                                      AllocType(&testAllocator));
                         const Obj& X = mX;
                         mX.reserve(INIT_RES);
                         const size_t INIT_CAP = X.capacity();
@@ -12320,7 +12533,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -12526,7 +12739,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -12750,7 +12963,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     Obj                          mY(g(SPEC));
                     const Obj&                   Y = mY;
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -12878,7 +13091,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     Obj mY(X); const Obj& Y = mY;  // control
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -13036,8 +13249,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                                 Obj mY(X); const Obj& Y = mY;  // source
 
-                                const StringRefImp           SR( Y.data(),
-                                                                 Y.length());
+                                const StringRefData          SR( Y);
                                 const StringView             SV( Y.data(),
                                                                  Y.length());
                                 const StringViewOnlyLikeType SVL(Y.data());
@@ -13184,7 +13396,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     if (veryVerbose) printf("\tnegative testing insert(pos, s)\n");
 
     {
-        Obj mX(g("ABCDE"));
+        Obj         mX(g("ABCDE"));
         const TYPE *nullStr = 0;
         // disable "unused variable" warning in non-safe mode:
         (void) nullStr;
@@ -13198,7 +13410,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     if (veryVerbose) printf("\tnegative testing insert(pos, s, n)\n");
 
     {
-        Obj mX(g("ABCDE"));
+        Obj         mX(g("ABCDE"));
         const TYPE *nullStr = 0;
         // disable "unused variable" warning in non-safe mode:
         (void) nullStr;
@@ -13212,7 +13424,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     if (veryVerbose) printf("\tnegative testing insert(p, c)\n");
 
     {
-        Obj mX(g("ABCDE"));
+        Obj        mX(g("ABCDE"));
         const Obj& X = mX;
 
         // position < begin()
@@ -13228,7 +13440,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     if (veryVerbose) printf("\tnegative testing insert(p, n, c)\n");
 
     {
-        Obj mX(g("ABCDE"));
+        Obj        mX(g("ABCDE"));
         const Obj& X = mX;
 
         // position < begin()
@@ -13247,10 +13459,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     if (veryVerbose) printf("\tnegative testing insert(p, first, last)\n");
 
     {
-        Obj mX(g("ABCDE"));
+        Obj        mX(g("ABCDE"));
         const Obj& X = mX;
 
-        Obj mY(g("ABE"));
+        Obj        mY(g("ABE"));
         const Obj& Y = mY;
 
         // position < begin()
@@ -13638,7 +13850,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     //   basic_string& operator+=(const CHAR_TYPE *rhs);
     // --------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
 
@@ -13768,7 +13980,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    const StringRefImp           SR(Y.data(), Y.length());
+                    const StringRefData          SR(Y);
                     const StringView             SV(Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());;
 
@@ -13951,7 +14163,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     Obj                           mY(g(SPEC));
                     const Obj&                    Y = mY;
-                    const StringRefImp            SR(Y.data(), Y.length());
+                    const StringRefData           SR(Y);
                     const StringView              SV(Y.data(), Y.length());
                     const StringViewOnlyLikeType  SVL(Y.data());
 
@@ -14264,7 +14476,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    const StringRefImp           SR(Y.data(), Y.length());
+                    const StringRefData          SR(Y);
                     const StringView             SV(Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -14463,7 +14675,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     Obj                          mY(g(SPEC));
                     const Obj&                   Y = mY;
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -14543,7 +14755,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 Obj        mY(X, AllocType(&testAllocator));  // control
                 const Obj& Y = mY;
 
-                const StringRefImp           SR(Y.data(), Y.length());
+                const StringRefData          SR(Y);
                 const StringView             SV(Y.data(), Y.length());
                 const StringViewOnlyLikeType SVL(Y.data());
 
@@ -14755,7 +14967,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                               case APPEND_STRINGREF: {
                                 // string& append(const StringRef&, p, n);
 
-                                const StringRefImp SR(Y.data(), Y.length());
+                                const StringRefData SR(Y);
 
                                 AllocatorUseGuard guardG(globalAllocator_p);
                                 AllocatorUseGuard guardD(defaultAllocator_p);
@@ -16182,7 +16394,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
     //   basic_string& assign(const STRING_VIEW_LIKE_TYPE& s, p, n = npos);
     // ------------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>            StringRefImp;
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
 
@@ -16270,7 +16482,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
                         Obj        mY(X);  // control object
                         const Obj& Y = mY;
 
-                        const StringRefImp           SR( X.data(), X.length());
+                        const StringRefData          SR( X);
                         const StringView             SV( X.data(), X.length());
                         const StringViewOnlyLikeType SVL(X.data());
 
@@ -16337,8 +16549,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
                             Obj        mY(X);  // control object
                             const Obj& Y = mY;
 
-                            const StringRefImp           SR( X.data(),
-                                                             X.length());
+                            const StringRefData          SR( X);
                             const StringView             SV( X.data(),
                                                              X.length());
                             const StringViewOnlyLikeType SVL(X.data());
@@ -16400,7 +16611,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
 
                     Obj mY(g(SPEC)); const Obj& Y = mY;
 
-                    const StringRefImp           SR( Y.data(), Y.length());
+                    const StringRefData          SR( Y);
                     const StringView             SV( Y.data(), Y.length());
                     const StringViewOnlyLikeType SVL(Y.data());
 
@@ -16554,7 +16765,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
         size_t defaultCapacity = Obj().capacity();
 
         Obj                          src(defaultCapacity + 1, '1', &ta);
-        const StringRefImp           SR(src.data(), src.length());
+        const StringRefData          SR(src);
         const StringView             SV(src.data(), src.length());
         const StringViewOnlyLikeType SVL(src.data());
 
@@ -16724,11 +16935,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
             const Obj& Y = mY;
 
             {
-                Obj                mX(INIT_LENGTH,
-                                      DEFAULT_VALUE,
-                                      AllocType(&ta));
-                const StringRefImp SR( Y.data(), Y.length());
-                bool               outOfRangeCaught = false;
+                Obj                 mX(INIT_LENGTH,
+                                       DEFAULT_VALUE,
+                                       AllocType(&ta));
+                const StringRefData SR( Y);
+                bool                outOfRangeCaught = false;
 
                 try {
                     mX.assign(SR, SOURCE_POSITION, 0);
@@ -17695,7 +17906,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
     //   basic_string(const STRING_VIEW_LIKE_TYPE& object, pos, n, a = A());
     // --------------------------------------------------------------------
 
-    typedef bslstl::StringRefImp<TYPE>               StringRefImp;
+    typedef bslstl::StringRefData<TYPE>              StringRefData;
     typedef bsl::basic_string_view<TYPE, TRAITS>     StringView;
     typedef ConvertibleToStringViewOnlyType<TYPE>    StringViewOnlyLikeType;
     typedef ConvertibleToStringViewAndCStrType<TYPE> StringViewLikeType;
@@ -18278,8 +18489,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
 
             Obj                 mY(g(SPEC));
             const Obj&          Y = mY;
-            StringRefImp        mSR(Y.data(), Y.length());  // source object
-            const StringRefImp& SR = mSR;
+            StringRefData       mSR(Y);  // source object
+            const StringRefData&SR = mSR;
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 const char CONFIG = cfg;  // how we specify the allocator
@@ -18578,10 +18789,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                 printf("using "); P(SPEC);
             }
 
-            Obj                 mY(g(SPEC));
-            const Obj&          Y = mY;
-            StringRefImp        mSR(Y.data(), Y.length());  // source object
-            const StringRefImp& SR = mSR;
+            Obj                  mY(g(SPEC));
+            const Obj&           Y = mY;
+            StringRefData        mSR(Y);  // source object
+            const StringRefData& SR = mSR;
 
             for (size_t i = 0; i < LENGTH; ++i) {
                 const size_t POS = i;
@@ -19151,8 +19362,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            StringRefImp        mSR(Y.data(), Y.length());
-            const StringRefImp&  SR = mSR;
+            StringRefData         mSR(Y);
+            const StringRefData&  SR = mSR;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
@@ -19277,8 +19488,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
 
             Obj                           mY(g(SPEC));
             const Obj&                    Y = mY;
-            StringRefImp                  mSR(Y.data(), Y.length());
-            const StringRefImp&           SR = mSR;
+            StringRefData                 mSR(Y);
+            const StringRefData&          SR = mSR;
             StringView                    mSV(Y.data(), Y.length());
             const StringView&             SV = mSV;
             StringViewOnlyLikeType        mSVOL(Y.data());
@@ -21123,12 +21334,46 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 45:
+      case 47: {
+        if (verbose) printf(
+                 "USAGE EXAMPLE TC %d IS DELEGATED TO 'bslstl_string.t.cpp'"
+                 "=========================================================\n",
+                 test);
+      } break;
+      case 46: {
+        // --------------------------------------------------------------------
+        // TESTING '<<'
+        //
+        // This test was migrated here from 'bslstl_stringview.t.cpp' TC 3 to
+        // avoid dependency cycles.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                 "Testing 'operator<<(ostream&, const basic_string_view&)'\n"
+                 "========================================================\n");
+
+        TestDriver<char>::testCase46();
+        TestDriver<wchar_t>::testCase46();
+
+        // The facets of 'char8_t', 'char16_t' and 'char32_t' are such that
+        // they throw on this test.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+//      TestDriver<char8_t>::testCase46();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+//      TestDriver<char16_t>::testCase46();
+//      TestDriver<char32_t>::testCase46();
+#endif
+      } break;
+      case 45: {
         if (verbose) printf(
                  "\nTEST CASE %d IS DELEGATED TO 'bslstl_string.t.cpp'"
                  "\n=======================================================\n",
                  test);
-        break;
+
+      } break;
       case 44: {
         // --------------------------------------------------------------------
         // TESTING 'resize_and_overwrite'

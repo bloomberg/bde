@@ -258,9 +258,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslstl_iterator.h>
 #include <bslstl_string.h>
-#include <bslstl_stringrefdata.h>
 
 #include <bslmf_enableif.h>
 #include <bslmf_isintegral.h>
