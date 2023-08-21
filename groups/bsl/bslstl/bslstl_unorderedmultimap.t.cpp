@@ -915,7 +915,7 @@ class TestNonConstHashFunctor {
         return TstFacility::getIdentifier(obj);
     }
 
-    bool operator==(const TestNonConstHashFunctor&)
+    bool operator==(const TestNonConstHashFunctor&) const
     {
         return true;
     }

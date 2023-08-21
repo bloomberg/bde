@@ -1274,7 +1274,7 @@ class TestNonConstHashFunctor {
         return bsltf::TemplateTestFacility::getIdentifier(obj);
     }
 
-    bool operator==(const TestNonConstHashFunctor&)
+    bool operator==(const TestNonConstHashFunctor&) const
     {
         return true;
     }

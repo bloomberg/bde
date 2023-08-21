@@ -331,6 +331,11 @@ bool operator==(const my_String& lhs, const char *rhs)
 {
     return strcmp(lhs, rhs) == 0;
 }
+inline
+bool operator==(const my_String& lhs, const my_String& rhs)
+{
+    return strcmp(lhs, rhs) == 0;
+}
 
 // ...
 
