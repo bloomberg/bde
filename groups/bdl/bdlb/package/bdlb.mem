@@ -22,6 +22,7 @@ bdlb_indexspanstringutil
 bdlb_indexspanutil
 bdlb_literalutil
 bdlb_nullableallocatedvalue
+bdlb_nullableallocatedvalue_cpp03
 bdlb_nullableallocatedvalue_pointerbitspair
 bdlb_nullablevalue
 bdlb_nullablevalue_cpp03
