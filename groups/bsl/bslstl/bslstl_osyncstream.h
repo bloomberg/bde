@@ -21,7 +21,11 @@ BSLS_IDENT("$Id: $")
 //
 // This component defines a class template, 'bsl::basic_osyncstream', that is a
 // convenience wrapper for 'bsl::basic_syncbuf'.  It provides a mechanism to
-// synchronize threads writing to the same stream.
+// synchronize threads writing to the same stream, or more precisely, to the
+// same 'streambuf'.  It's guaranteed that all output made to the same final
+// destination buffer will be free of data races and will not be interleaved or
+// garbled in any way, as long as every write to that final destination buffer
+// is made through (possibly different) instances of 'bsl::basic_syncbuf'.
 //
 // Types 'bsl::osyncstream' and 'bsl::wosyncstream' are aliases for
 // 'bsl::basic_osyncstream<char>' and 'bsl::basic_osyncstream<wchar_t>',
@@ -31,50 +35,64 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using a named variable
-/// - - - - - - - - - - - - - - - -
-// The following example demonstrates the use of a named variable within a
-// block statement for streaming.
-//..
-//  {
-//    bsl::osyncstream out(bsl::cout);
-//    out << "Hello, ";
-//    out << "World!";
-//    out << bsl::endl; // flush is noted
-//    out << "and more!\n";
-//  }   // characters are transferred and 'cout' is flushed
-//..
+// In a multi-threaded environment attempts to write from different threads to
+// one 'ostream' "may result in a data race", according to the ISO C++
+// Standard.  Concurrent access to the special synchronized iostream objects,
+// like 'cout', 'cerr', etc, does not result in a data race, but output
+// characters from one thread can interleave with the characters from other
+// threads still.  'osyncstream' solves both problems: prevents data races and
+// characters interleaving.
 //
-///Example 2: Using a temporary object
-/// - - - - - - - - - - - - - - - - -
-// Here a temporary object is used for streaming within a single statement.
+///Example 1: Using 'osyncstream'
+/// - - - - - - - - - - - - - - -
+// The following example demonstrates concurrent printing of a standard STL
+// container of values that can be streamed out.  The elements are separated by
+// comma and the whole sequence is enclosed in curly brackets.  Note that this
+// example requires at least C++11.
 //..
-//  bsl::osyncstream(bsl::cout) << "Hello, " << "World!" << '\n';
-//..
-// In this example, 'cout' is not flushed.
-//
-///Example 3: Using manipulators
-/// - - - - - - - - - - - - - -
-// The following example demonstrates the use of syncstream-specific
-// manipulators.
-//..
+//  template <class t_CONTAINER>
+//  void printContainer(bsl::ostream& stream, const t_CONTAINER& container)
+//      // Print elements of the specified 'container' to the specified
+//      // 'stream' in a multi-threaded environment without interleaving with
+//      // output from another threads.
 //  {
-//    bsl::osyncstream out(bsl::cout);
-//    out << bsl::noemit_on_flush;
-//                            // same as 'out.rdbuf()->set_emit_on_sync(false)'
-//    out << "Part 1\n" << bsl::flush_emit;
-//                                       // "Part 1\n" is transferred to 'cout'
-//    out << "Part 2\n";
-//  }   // "Part 2\n" is transferred to 'cout' here
+//      bsl::osyncstream out(stream);
+//      out << '{';
+//      bool first = true;
+//      for(auto& value : container) {
+//          if (first) {
+//              first = false;
+//          }
+//          else {
+//              out << ", ";
+//          }
+//          out << value;
+//      }
+//      out << '}';
+//  } // all output is atomically transferred to 'stream' on 'out' destruction
+//..
+// Now this function can safely be used in a multi-threaded environment:
+//..
+//  int main()
+//  {
+//      bsl::vector<int>    container1 = {1, 2, 3};
+//      bsl::vector<double> container2 = {4.0, 5.0, 6.0, 7.0};
+//
+//      bsl::thread thread1{[&]{ printContainer(bsl::cout, container1); }};
+//      bsl::thread thread2{[&]{ printContainer(bsl::cout, container2); }};
+//      thread1.join();
+//      thread2.join();
+//  }
 //..
 
 #include <bslscm_version.h>
 
-#include <bslstl_ostream.h>
 #include <bslstl_syncbuf.h>
 
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+
+#include <ostream>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 #include <utility>  // move
@@ -87,14 +105,14 @@ namespace bsl {
                             // =======================
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-class basic_osyncstream : public basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
+class basic_osyncstream : public std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard output stream providing an internal
     // buffer to accumulate the written data in order to atomically transmit
     // its entire contents to the wrapped buffer on destruction (or 'emit'
     // call).
 
     // PRIVATE TYPES
-    typedef basic_ostream<CHAR_TYPE, CHAR_TRAITS> Base;
+    typedef std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> Base;
 
   public:
     // TYPES
@@ -108,19 +126,36 @@ class basic_osyncstream : public basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
     typedef std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>     streambuf_type;
     typedef basic_syncbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> syncbuf_type;
 
+  private:
+    // DATA
+    syncbuf_type d_syncbuf;  // wrapped 'syncbuf'
+
+  public:
     // CREATORS
     explicit basic_osyncstream(streambuf_type   *wrapped,
                                const ALLOCATOR&  allocator = ALLOCATOR());
-        // Create a 'basic_osyncstream' object.  Set the specified 'wrapped' as
-        // a wrapped buffer.  Optionally specify an 'allocator' used to supply
-        // memory.
+        // Create a 'basic_osycnstream' object that will forward stream output
+        // to the specified 'wrapped' buffer.  Optionally specify an
+        // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+        // a default-constructed object of the (template parameter) 'ALLOCATOR'
+        // type is used.  If the 'ALLOCATOR' argument is of type
+        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
+        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
+        // is of type 'bsl::allocator' and 'allocator' is not supplied, the
+        // currently installed default allocator will be used to supply memory.
 
     explicit basic_osyncstream(
-               basic_ostream<CHAR_TYPE, CHAR_TRAITS>& os,
-               const ALLOCATOR&                       allocator = ALLOCATOR());
-        // Create a 'basic_osyncstream' object.  Set the specified 'os.rdbuf()'
-        // as a wrapped buffer.  Optionally specify an 'allocator' used to
-        // supply memory.
+          std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+          const ALLOCATOR&                            allocator = ALLOCATOR());
+        // Create a 'basic_osycnstream' object that will forward stream output
+        // to 'rdbuf' of the specified 'stream'.  Optionally specify an
+        // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+        // a default-constructed object of the (template parameter) 'ALLOCATOR'
+        // type is used.  If the 'ALLOCATOR' argument is of type
+        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
+        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
+        // is of type 'bsl::allocator' and 'allocator' is not supplied, the
+        // currently installed default allocator will be used to supply memory.
 
     //! ~basic_osyncstream() = default;
         // Destroy this object.
@@ -139,19 +174,22 @@ class basic_osyncstream : public basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
     // MANIPULATORS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     basic_osyncstream &operator=(basic_osyncstream&& original) = default;
-        // Call 'rdbuf()->emit()' then assign to this object the value of the
-        // specified 'original', and return a reference providing modifiable
-        // access to this object.  The contents of 'original' are move-assigned
-        // to this object.  'original.get_wrapped() == nullptr' after the call.
+        // Transfer the associated output to the wrapped stream buffer then
+        // assign to this object the value of the specified 'original', and
+        // return a reference providing modifiable access to this object.  The
+        // contents of 'original' are move-assigned to this object.
+        // 'original.get_wrapped() == nullptr' after the call.
 #endif
 
     void emit();
-        // After constructing a sentry object, call 'rdbuf()->emit()'.  If that
-        // call returns 'false', call 'setstate(ios_base::badbit)'.
+        // Atomically transfer any characters buffered by this object to the
+        // wrapped stream buffer, so that it appears in the output stream as a
+        // contiguous sequence of characters.  If an error occurs, set the
+        // 'badbit' of the 'rdstate' to 'true'.
 
     // ACCESSORS
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the allocator used by the underlying string to supply memory.
+        // Return the allocator used to supply memory.
 
     streambuf_type *get_wrapped() const BSLS_KEYWORD_NOEXCEPT;
         // Return the wrapped buffer.
@@ -160,10 +198,6 @@ class basic_osyncstream : public basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
         // Return an address providing modifiable access to the 'basic_syncbuf'
         // object that is internally used by this stream object to buffer
         // unformatted characters.
-
-  private:
-    // DATA
-    syncbuf_type d_syncbuf;  // wrapped 'syncbuf'
 };
 
 // STANDARD TYPEDEFS
@@ -196,13 +230,13 @@ basic_osyncstream<CHAR,TRAITS,ALLOCATOR>::basic_osyncstream(
 
 template <class CHAR, class TRAITS, class ALLOCATOR>
 basic_osyncstream<CHAR,TRAITS,ALLOCATOR>::basic_osyncstream(
-                                         basic_ostream<CHAR,TRAITS>& os,
-                                         const ALLOCATOR&            allocator)
+                                    std::basic_ostream<CHAR,TRAITS>& stream,
+                                    const ALLOCATOR&                 allocator)
 :
 #ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
   Base(&d_syncbuf),
 #endif
-  d_syncbuf(os.rdbuf(), allocator)
+  d_syncbuf(stream.rdbuf(), allocator)
 {
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
     this->init(&d_syncbuf);

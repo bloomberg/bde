@@ -13,23 +13,23 @@ namespace bsl {
 template class basic_syncbuf<char>;
 template class basic_syncbuf<wchar_t>;
 
-syncbuf_Mutex *syncbuf_GetMutex(void *streambuf) BSLS_KEYWORD_NOEXCEPT
+SyncBuf_Mutex *SyncBuf_MutexUtil::get(void *streambuf) BSLS_KEYWORD_NOEXCEPT
 {
     BSLS_ASSERT(streambuf);
 #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L  // C++03
     using namespace BloombergLP::bsls;
-    static syncbuf_Mutex *mutex = 0;
+    static SyncBuf_Mutex *mutex = 0;
     static BslOnce        once  = BSLS_BSLONCE_INITIALIZER;
 
     BslOnceGuard onceGuard;
     if (onceGuard.enter(&once)) {
-        static syncbuf_Mutex theMutex;
+        static SyncBuf_Mutex theMutex;
         mutex = &theMutex;
     }
     return streambuf ? mutex : 0;
 #else  // C++11+
-    static syncbuf_Mutex mutex;
-    return streambuf ? &mutex : 0;
+    static SyncBuf_Mutex mutex;
+    return streambuf ? &mutex : nullptr;
 #endif
 }
 

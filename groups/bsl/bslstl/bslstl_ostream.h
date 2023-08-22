@@ -5,18 +5,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
+//@PURPOSE: Provide aliases and implementations matching standard <ostream>.
 //
 //@CANONICAL_HEADER: bsl_ostream.h
 //
-//@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
-// defined in the corresponding C++ standard header.  Include the native
-// compiler-provided standard header, and also directly include Bloomberg's
-// implementation of the C++ standard type (if one exists).  Finally, place the
-// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+//@DESCRIPTION: This component is for internal use only.  Please include
+// '<bsl_ostream.h>' instead.  This component provides a namespace for
+// implementations for standard 'osynstream' I/O manipulators.
 
 #include <bslstl_iosfwd.h>
 #include <bslstl_ios.h>
+#include <bslstl_syncbufbase.h>
 
 #include <bsls_platform.h>
 
@@ -41,58 +40,27 @@ namespace bsl {
     using std::exception;
 
     template <class CHAR, class TRAITS>
-    basic_ostream<CHAR,TRAITS>& emit_on_flush(basic_ostream<CHAR,TRAITS>& os)
-        // If, for the specified 'os', 'os.rdbuf()' is a
-        // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>', make 'os' emit (i.e.,
+    basic_ostream<CHAR,TRAITS>& emit_on_flush(
+                                           basic_ostream<CHAR,TRAITS>& stream);
+        // If, for the specified 'stream', 'stream.rdbuf()' is a
+        // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>', make 'stream' emit (i.e.,
         // transmit data to the wrapped stream buffer) when flushed, otherwise
-        // has no effect.  Return 'os'.
-    {
-        syncbuf_Base<CHAR,TRAITS> *p =
-                          dynamic_cast<syncbuf_Base<CHAR,TRAITS>*>(os.rdbuf());
-        if (p) {
-            p->set_emit_on_sync(true);
-        }
-        return os;
-    }
+        // has no effect.  Return 'stream'.
 
     template <class CHAR, class TRAITS>
-    basic_ostream<CHAR,TRAITS>& flush_emit(basic_ostream<CHAR,TRAITS>& os)
-        // Flush the specified 'os' as if by calling 'os.flush()'.  Then, if
-        // 'os.rdbuf()' actually points to a
+    basic_ostream<CHAR,TRAITS>& flush_emit(basic_ostream<CHAR,TRAITS>& stream);
+        // Flush the specified 'stream' as if by calling 'stream.flush()'.
+        // Then, if 'stream.rdbuf()' actually points to a
         // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>' 'buf', call 'buf.emit()'.
-        // Return 'os'.
-    {
-        os.flush();
-        syncbuf_Base<CHAR,TRAITS> *p =
-                          dynamic_cast<syncbuf_Base<CHAR,TRAITS>*>(os.rdbuf());
-        if (p) {
-            typename basic_ostream<CHAR,TRAITS>::sentry ok(os);
-            if (!ok) {
-                os.setstate(ios_base::badbit);
-            }
-            else {
-                if (!p->emitInternal()) {
-                    os.setstate(ios_base::badbit);
-                }
-            }
-        }
-        return os;
-    }
+        // Return 'stream'.
 
     template <class CHAR, class TRAITS>
-    basic_ostream<CHAR,TRAITS>& noemit_on_flush(basic_ostream<CHAR,TRAITS>& os)
-        // If, for the specified 'os', 'os.rdbuf()' is a
-        // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>', make 'os' not emit (i.e.,
-        // don't transmit data to the wrapped stream buffer) when flushed,
-        // otherwise has no effect.  Return 'os'.
-    {
-        syncbuf_Base<CHAR,TRAITS> *p =
-                          dynamic_cast<syncbuf_Base<CHAR,TRAITS>*>(os.rdbuf());
-        if (p) {
-            p->set_emit_on_sync(false);
-        }
-        return os;
-    }
+    basic_ostream<CHAR,TRAITS>& noemit_on_flush(
+                                           basic_ostream<CHAR,TRAITS>& stream);
+        // If, for the specified 'stream', 'stream.rdbuf()' is a
+        // 'basic_syncbuf<CHAR,TRAITS,ALLOCATOR>', make 'stream' not emit
+        // (i.e., don't transmit data to the wrapped stream buffer) when
+        // flushed, otherwise has no effect.  Return 'stream'.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Export additional names, leaked to support transitive dependencies in
@@ -129,6 +97,50 @@ namespace bsl {
     using std::use_facet;
 # endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+template <class CHAR, class TRAITS>
+basic_ostream<CHAR,TRAITS>& emit_on_flush(basic_ostream<CHAR,TRAITS>& stream)
+{
+    using BloombergLP::bslstl::SyncBufBase;
+    if (SyncBufBase *p = dynamic_cast<SyncBufBase*>(stream.rdbuf())) {
+        BloombergLP::bslstl::SyncBufBaseUtil::setEmitOnSync(p, true);
+    }
+    return stream;
+}
+
+template <class CHAR, class TRAITS>
+basic_ostream<CHAR,TRAITS>& flush_emit(basic_ostream<CHAR,TRAITS>& stream)
+{
+    using BloombergLP::bslstl::SyncBufBase;
+    stream.flush();
+    if (SyncBufBase *p = dynamic_cast<SyncBufBase*>(stream.rdbuf())) {
+        typename basic_ostream<CHAR,TRAITS>::sentry ok(stream);
+        if (!ok) {
+            stream.setstate(ios_base::badbit);
+        }
+        else {
+            if (!BloombergLP::bslstl::SyncBufBaseUtil::emit(p)) {
+                stream.setstate(ios_base::badbit);
+            }
+        }
+    }
+    return stream;
+}
+
+template <class CHAR, class TRAITS>
+basic_ostream<CHAR,TRAITS>& noemit_on_flush(basic_ostream<CHAR,TRAITS>& stream)
+{
+    using BloombergLP::bslstl::SyncBufBase;
+    if (SyncBufBase *p = dynamic_cast<SyncBufBase*>(stream.rdbuf())) {
+        BloombergLP::bslstl::SyncBufBaseUtil::setEmitOnSync(p, false);
+    }
+    return stream;
+}
+
 }  // close package namespace
 
 #endif

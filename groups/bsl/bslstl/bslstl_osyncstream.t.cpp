@@ -1,6 +1,7 @@
 // bslstl_osyncstream.t.cpp                                           -*-C++-*-
 #include <bslstl_osyncstream.h>
 
+#include <bslstl_ostream.h>
 #include <bslstl_ostringstream.h>
 #include <bslstl_stringbuf.h>
 
@@ -10,6 +11,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 
 #include <stddef.h>  // '::size_t'
 #include <stdio.h>
@@ -42,8 +44,6 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE 1
-// [ 7] USAGE EXAMPLE 2
-// [ 8] USAGE EXAMPLE 3
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -350,6 +350,57 @@ class SyncStreamTest {
     }
 };
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L  // C++11
+namespace bsl {
+
+struct thread {
+    // Fake 'bsl::thread' for the "USAGE EXAMPLE" testing.
+
+    // CREATORS
+    template <class t_CALLABLE>
+    explicit thread(t_CALLABLE callable)
+        // Call the specified 'callable'.
+    {
+        callable();
+    }
+
+    // MANIPULATORS
+    void join()
+        // No-Op.
+    {
+    }
+};
+
+}  // close namespace bsl
+
+// The following example demonstrates concurrent printing of a standard STL
+// container of values that can be "ostreamed".  The elements are separated by
+// comma and all the sequence is enclosed in curly brackets.  This example
+// requires C++11 at least.
+//..
+template <class t_CONTAINER>
+void printContainer(bsl::ostream& stream, const t_CONTAINER& container)
+    // Print elements of the specified 'container' to the specified
+    // 'stream' in a multi-threaded environment without interleaving with
+    // output from another threads.
+{
+    bsl::osyncstream out(stream);
+    out << '{';
+    bool first = true;
+    for(auto& value : container) {
+        if (first) {
+            first = false;
+        }
+        else {
+            out << ", ";
+        }
+        out << value;
+    }
+    out << '}';
+} // all output is atomically transferred to 'stream' on 'out' destruction
+//..
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -369,63 +420,6 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 3
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example 3 provided in the component header file
-        //:   compiles, links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example 3 from header into test driver, remove
-        //:   leading comment characters. (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE 3
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE 3"
-                            "\n===============\n");
-// The following example demonstrates the use of syncstream-specific
-// manipulators.
-//..
-    {
-      bsl::osyncstream out(std::cout);
-      out << bsl::noemit_on_flush;
-                              // same as 'out.rdbuf()->set_emit_on_sync(false)'
-      out << "Part 1\n" << bsl::flush_emit;
-                                         // "Part 1\n" is transferred to 'cout'
-      out << "Part 2\n";
-    }   // "Part 2\n" is transferred to 'cout' here
-//..
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example 2 provided in the component header file
-        //:   compiles, links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example 2 from header into test driver, remove
-        //:   leading comment characters. (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE 2
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE 2"
-                            "\n===============\n");
-// Here a temporary object is used for streaming within a single statement.
-//..
-    bsl::osyncstream(std::cout) << "Hello, " << "World!" << '\n';
-//..
-// In this example, 'cout' is not flushed.
-      } break;
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
@@ -445,17 +439,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE 1"
                             "\n===============\n");
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L  // C++11
 // The following example demonstrates the use of a named variable within a
 // block statement for streaming.
 //..
-    {
-      bsl::osyncstream out(std::cout);
-      out << "Hello, ";
-      out << "World!";
-      out << std::endl; // flush is noted
-      out << "and more!\n";
-    }   // characters are transferred and 'cout' is flushed
+    const int    container1[] = {1, 2, 3};
+    const double container2[] = {4.0, 5.0, 6.0, 7.0};
+
+    bsl::thread thread1{[&]{ printContainer(std::cout, container1); }};
+    bsl::thread thread2{[&]{ printContainer(std::cout, container2); }};
+    thread1.join();
+    thread2.join();
 //..
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------

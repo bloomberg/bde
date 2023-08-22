@@ -95,6 +95,7 @@ bslstl_stringrefdata
 bslstl_stringstream
 bslstl_stringview
 bslstl_syncbuf
+bslstl_syncbufbase
 bslstl_systemerror
 bslstl_treeiterator
 bslstl_treenode

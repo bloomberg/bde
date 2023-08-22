@@ -1,32 +1,16 @@
-// bslstl_ostream.t.cpp                                               -*-C++-*-
-#include <bslstl_ostream.h>
+// bslstl_syncbufbase.t.cpp                                           -*-C++-*-
+#include <bslstl_syncbufbase.h>
 
-#include <bslstl_syncbuf.h>
-#include <bslstl_stringbuf.h>
-
-#include <bsls_assert.h>
-#include <bsls_asserttest.h>
-#include <bsls_bsltestutil.h>
-
+#include <stddef.h>  // '::size_t'
 #include <stdio.h>
 #include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
-using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
-// The component under test mostly just imports 'std' names to the 'bsl'.  The
-// exceptions at the moment are the 'emit_on_flush', 'noemit_on_flush', and
-// 'flush_emit' manipulators.  They has been available only since C++20 but we
-// provide it as an extension to C++03 mode as well.
-// ----------------------------------------------------------------------------
-// [ 1] basic_ostream& emit_on_flush(basic_ostream& os);
-// [ 1] basic_ostream& noemit_on_flush(basic_ostream& os);
-// [ 1] basic_ostream& flush_emit(basic_ostream& os);
+// [ 1] BREATHING TEST
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -107,10 +91,6 @@ static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -122,64 +102,30 @@ int main(int argc, char *argv[])
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
+    (void) veryVeryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'osyncstream' MANIPULATORS
+        // BREATHING TEST
         //
         // Concerns:
-        //: 1 The 'emit_on_flush' manipulator calls 'set_emit_on_sync(true)'
-        //:   when applied to 'osyncstream'.
-        //:
-        //: 2 The 'noemit_on_flush' manipulator calls 'set_emit_on_sync(false)'
-        //:   when applied to 'osyncstream'.
-        //:
-        //: 3 The 'flush_emit' manipulator flushes the content of 'syncbuf'.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Since there is no accessor to check "emit-on-sync" flag, the
-        //:   'flush' call will be used instead.  The pending output is flushed
-        //:   on the 'flush' ('sync') call only if "emit-on-sync" flag is
-        //:   'true'.  Verify this for both values of "emit-on-sync".
-        //:
-        //: 2 Write to 'osyncstream' then apply the 'flush_emit' manipulator.
-        //:   Verify that all the output is flushed to the wrapped 'streambuf'.
+        //: 1 Perform simple sanity tests.
         //
         // Testing:
-        //   basic_ostream& emit_on_flush(basic_ostream& os);
-        //   basic_ostream& noemit_on_flush(basic_ostream& os);
-        //   basic_ostream& flush_emit(basic_ostream& os);
+        //   BREATHING TEST
         // --------------------------------------------------------------------
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
-        if (verbose) printf("\nTESTING 'osyncstream' MANIPULATORS"
-                            "\n==================================\n");
-
-        stringbuf wrapped;
-        syncbuf   sbuf(&wrapped); // emit-on-sync == false
-        ostream   out(&sbuf);
-
-        out << 'a';
-        out.flush(); // no flush
-        string str = wrapped.str();
-        ASSERTV(str.c_str(), str.empty());
-
-        out << emit_on_flush; // emit-on-sync == true
-        out << 'b';
-        out.flush();
-        str = wrapped.str();
-        ASSERTV(str.c_str(), str == "ab");
-
-        out << noemit_on_flush; // emit-on-sync == false
-        out << 'c';
-        out.flush(); // no flush again
-        str = wrapped.str();
-        ASSERTV(str.c_str(), str == "ab");
-
-        out << flush_emit; // explicit flush
-        str = wrapped.str();
-        ASSERTV(str.c_str(), str == "abc");
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

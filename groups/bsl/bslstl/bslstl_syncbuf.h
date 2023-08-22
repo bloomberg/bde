@@ -87,6 +87,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_iosfwd.h>
 #include <bslstl_stringbuf.h>
+#include <bslstl_syncbufbase.h>
 
 #include <streambuf>
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
@@ -96,88 +97,35 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
 // Internal type
-typedef BloombergLP::bsls::BslLock syncbuf_Mutex;
-
-                            // ==================
-                            // class syncbuf_Base
-                            // ==================
-
-template <class CHAR_TYPE, class CHAR_TRAITS>
-class syncbuf_Base : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> {
-    // Allocator-independent base of 'basic_syncbuf'.  Also this is used by the
-    // manipulators: 'emit_on_flush', 'noemit_on_flush', 'flush_emit' (the
-    // 'ALLOCATOR' template argument cannot be deduced from
-    // 'basic_ostream<CHAR_TYPE, CHAR_TRAITS>').
-
-    // PRIVATE MANIPULATORS
-    virtual bool emitInternal() = 0;
-        // Internal function for the 'flush_emit' manipulator.
-
-    // FRIENDS
-    template <class CHAR, class TRAITS>
-    friend std::basic_ostream<CHAR,TRAITS>& flush_emit(
-                                          std::basic_ostream<CHAR,TRAITS>& os);
-
-  public:
-    // TYPES
-    typedef std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> streambuf_type;
-
-    // MANIPULATORS
-    void set_emit_on_sync(bool value) BSLS_KEYWORD_NOEXCEPT;
-        // Set the "emit-on-sync" flag to the specified 'value'.
-
-    // ACCESSORS
-    streambuf_type *get_wrapped() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the wrapped buffer.
-
-  protected:
-    // PROTECTED CREATORS
-    explicit syncbuf_Base(streambuf_type *wrapped);
-        // Create a 'syncbuf_Base' object.  Set the specified 'wrapped' as a
-        // wrapped buffer.
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-    syncbuf_Base(syncbuf_Base&& original);
-        // Create a 'syncbuf_Base' object having the same value as the
-        // specified 'original' object by moving the contents of 'original' to
-        // the newly-created object.  'original' is left in a valid but
-        // unspecified state.
-#endif
-    ~syncbuf_Base();
-        // Destroy this object.
-
-    // PROTECTED MANIPULATORS
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-    void swap(syncbuf_Base &other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.
-#endif
-
-    // PROTECTED DATA
-    streambuf_type *d_wrapped_p;     // wrapped buffer
-    syncbuf_Mutex  *d_mutex_p;       // mutex for 'emit'
-    bool            d_emit_on_sync;  // "emit-on-sync" flag
-    bool            d_needs_sync;    // sync call was requested
-};
+typedef BloombergLP::bsls::BslLock SyncBuf_Mutex;
 
                             // ===================
                             // class basic_syncbuf
                             // ===================
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-class basic_syncbuf : public syncbuf_Base<CHAR_TYPE, CHAR_TRAITS> {
+class basic_syncbuf : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>,
+                      public BloombergLP::bslstl::SyncBufBase {
     // This class implements a standard stream buffer providing an internal
     // buffer to accumulate the written data in order to atomically transmit
     // its entire contents to the wrapped buffer on destruction (or 'emit'
     // call).
 
     // PRIVATE TYPES
-    typedef syncbuf_Base<CHAR_TYPE, CHAR_TRAITS> Base;
-    typedef BloombergLP::bslmf::MovableRefUtil   MoveUtil;
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
 
     // PRIVATE MANIPULATORS
     bool emitInternal() BSLS_KEYWORD_OVERRIDE;
-        // Internal function for the 'flush_emit' manipulator.
+        // This function is a private alias for 'emit'. Note that this virtual
+        // function implementation is private because the base class is
+        // deliberately not a template (see 'bslstl_syncbufbase') and we don't
+        // want to expose this method directly to users.
+
+    void setEmitOnSync(bool value) BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // This function is a private alias for 'set_emit_on_sync'. Note that
+        // this virtual function implementation is private because the base
+        // class is deliberately not a template (see 'bslstl_syncbufbase') and
+        // we don't want to expose this method directly to users.
 
   public:
     // TYPES
@@ -187,8 +135,23 @@ class basic_syncbuf : public syncbuf_Base<CHAR_TYPE, CHAR_TRAITS> {
     typedef typename CHAR_TRAITS::off_type off_type;
     typedef CHAR_TRAITS                    traits_type;
     typedef ALLOCATOR                      allocator_type;
-    typedef typename Base::streambuf_type  streambuf_type;
 
+    typedef std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> streambuf_type;
+
+  private:
+    // DATA
+    streambuf_type                                     *d_wrapped_p;
+        // wrapped buffer
+    SyncBuf_Mutex                                      *d_mutex_p;
+        // mutex for 'emit'
+    bool                                                d_emit_on_sync;
+        // "emit-on-sync" flag
+    bool                                                d_needs_sync;
+        // sync call was requested
+    basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>  d_buff;
+        // internal buffer
+
+  public:
     // CREATORS
     explicit basic_syncbuf(const ALLOCATOR& allocator = ALLOCATOR());
         // Create a 'basic_syncbuf' object without a wrapped buffer.
@@ -215,17 +178,18 @@ class basic_syncbuf : public syncbuf_Base<CHAR_TYPE, CHAR_TRAITS> {
 
     // MANIPULATORS
     bool emit();
-        // Atomically transfer the associated output of '*this' to the wrapped
-        // stream buffer, so that it appears in the output stream as a
-        // contiguous sequence of characters.  'get_wrapped()->pubsync()' is
-        // called if and only if a call was made to 'sync()' since the most
-        // recent call to 'emit()', if any.  Return 'true' iff all of the
-        // following conditions hold: 'get_wrapped() != nullptr', all of the
-        // characters in the associated output were successfully transferred,
-        // the call to 'get_wrapped()->pubsync()' (if any) succeeded.
+        // Atomically transfer any characters buffered by this object to the
+        // wrapped stream buffer, so that it appears in the output stream as a
+        // contiguous sequence of characters.  The wrapped stream buffer is
+        // flushed if and only if a call was made to 'sync' since the most
+        // recent call to 'emit' or construction.  Return 'true' if
+        // 'get_wrapped() != nullptr', and all of the characters in the
+        // associated output were successfully transferred, and the flush (if
+        // any) succeeded; return 'false' otherwise.
 
-    using Base::set_emit_on_sync;
-        // Set the "emit-on-sync" flag to the specified 'value'.
+    void set_emit_on_sync(bool value) BSLS_KEYWORD_NOEXCEPT;
+        // Call the 'emit' function by each 'sync' call if the specified
+        // 'value' is 'true'.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     basic_syncbuf& operator=(basic_syncbuf&& original);
@@ -243,112 +207,49 @@ class basic_syncbuf : public syncbuf_Base<CHAR_TYPE, CHAR_TRAITS> {
 
     // ACCESSORS
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the allocator used by the underlying string to supply memory.
+        // Return the allocator used to supply memory.
 
-    using Base::get_wrapped;
-        // Return the wrapped buffer.
+    streambuf_type *get_wrapped() const BSLS_KEYWORD_NOEXCEPT;
+        // Return the wrapped buffer supplied at construction.
 
   protected:
     // PROTECTED MANIPULATORS
-    int_type overflow(int_type ch = traits_type::eof()) BSLS_KEYWORD_OVERRIDE;
+    int_type overflow(int_type character = traits_type::eof())
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Do nothing if 'traits_type::eof()' is passed.  Optionally specify
-        // 'ch' that has non-default value to add it to the internal buffer and
-        // return 'traits_type::to_int_type(ch)'.  Return 'traits_type::eof()'
-        // otherwise.
+        // 'character' that has non-default value to add it to the internal
+        // buffer and return 'traits_type::to_int_type(character)'.  Return
+        // 'traits_type::eof()' otherwise.
 
     int sync() BSLS_KEYWORD_OVERRIDE;
-        // Note the sync request.  Then call 'emit' if the "emit-on-sync" flag
-        // is 'true'.  Return 0 on success and -1 if the 'emit' call has
-        // failed.
+        // Request the wrapped streambuf flush on the next 'emit' call, then
+        // call 'emit' if the "emit-on-sync" flag is 'true'.  Return 0 on
+        // success and -1 if the 'emit' call has failed.
 
-    std::streamsize xsputn(const char_type *s, std::streamsize count)
+    std::streamsize xsputn(const char_type *inputString, std::streamsize count)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Write the specified 's' array of the specified 'count' characters
-        // to the internal buffer.  Return the number of characters
+        // Write the specified 'inputString' array of the specified 'count'
+        // characters to the internal buffer.  Return the number of characters
         // successfully written.
-
-  private:
-    // DATA
-    basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> d_buff;
-        // internal buffer
 };
 
 // STANDARD TYPEDEFS
 typedef basic_syncbuf<char>     syncbuf;
 typedef basic_syncbuf<wchar_t> wsyncbuf;
 
-// FREE FUNCTIONS
+                            // =======================
+                            // class SyncBuf_MutexUtil
+                            // =======================
 
-// Internal mutex-related utils
-syncbuf_Mutex *syncbuf_GetMutex(void *streambuf) BSLS_KEYWORD_NOEXCEPT;
-    // Return address of a mutex associated the specified 'streambuf' object
-    // (address).  The behavior is undefined unless 'streambuf' is not null.
+struct SyncBuf_MutexUtil {
+    // Internal mutex-related utils.
 
-                            // ------------------
-                            // class syncbuf_Base
-                            // ------------------
-
-// CREATORS
-template <class CHAR, class TRAITS>
-inline
-syncbuf_Base<CHAR,TRAITS>::syncbuf_Base(streambuf_type *wrapped)
-: d_wrapped_p(wrapped)
-, d_mutex_p(wrapped ? syncbuf_GetMutex(wrapped) : 0)
-, d_emit_on_sync(false)
-, d_needs_sync(false)
-{
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-template <class CHAR, class TRAITS>
-inline
-syncbuf_Base<CHAR,TRAITS>::syncbuf_Base(syncbuf_Base&& original)
-: d_wrapped_p(original.d_wrapped_p)
-, d_mutex_p(original.d_mutex_p)
-, d_emit_on_sync(original.d_emit_on_sync)
-, d_needs_sync(original.d_needs_sync)
-{
-    original.d_wrapped_p = 0;
-    original.d_mutex_p = 0;
-}
-#endif
-
-template <class CHAR, class TRAITS>
-syncbuf_Base<CHAR,TRAITS>::~syncbuf_Base()
-{
-}
-
-// MANIPULATORS
-template <class CHAR, class TRAITS>
-inline
-void syncbuf_Base<CHAR,TRAITS>::set_emit_on_sync(bool value)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    d_emit_on_sync = value;
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-template <class CHAR, class TRAITS>
-inline
-void syncbuf_Base<CHAR,TRAITS>::swap(syncbuf_Base<CHAR,TRAITS> &other)
-{
-    typedef BloombergLP::bslalg::SwapUtil SwapUtil;
-    streambuf_type::swap(other);
-    SwapUtil::swap(&d_wrapped_p,    &other.d_wrapped_p);
-    SwapUtil::swap(&d_mutex_p,      &other.d_mutex_p);
-    SwapUtil::swap(&d_emit_on_sync, &other.d_emit_on_sync);
-    SwapUtil::swap(&d_needs_sync,   &other.d_needs_sync);
-}
-#endif
-
-// ACCESSORS
-template <class CHAR, class TRAITS>
-inline
-typename syncbuf_Base<CHAR,TRAITS>::streambuf_type *
-syncbuf_Base<CHAR,TRAITS>::get_wrapped() const BSLS_KEYWORD_NOEXCEPT
-{
-    return d_wrapped_p;
-}
+    // CLASS METHODS
+    static SyncBuf_Mutex *get(void *streambuf) BSLS_KEYWORD_NOEXCEPT;
+        // Return address of a mutex associated the specified 'streambuf'
+        // object (address).  The behavior is undefined unless 'streambuf' is
+        // not null and points to 'basic_streambuf<...>' object.
+};
 
                             // -------------------
                             // class basic_syncbuf
@@ -357,7 +258,10 @@ syncbuf_Base<CHAR,TRAITS>::get_wrapped() const BSLS_KEYWORD_NOEXCEPT
 // CREATORS
 template <class CHAR, class TRAITS, class ALLOCATOR>
 basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::basic_syncbuf(const ALLOCATOR& allocator)
-: Base(0)
+: d_wrapped_p(0)
+, d_mutex_p(0)
+, d_emit_on_sync(false)
+, d_needs_sync(false)
 , d_buff(allocator)
 {
 }
@@ -366,7 +270,10 @@ template <class CHAR, class TRAITS, class ALLOCATOR>
 basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::basic_syncbuf(
                                                    streambuf_type   *wrapped,
                                                    const ALLOCATOR&  allocator)
-: Base(wrapped)
+: d_wrapped_p(wrapped)
+, d_mutex_p(wrapped ? SyncBuf_MutexUtil::get(wrapped) : 0)
+, d_emit_on_sync(false)
+, d_needs_sync(false)
 , d_buff(allocator)
 {
 }
@@ -385,17 +292,27 @@ basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::~basic_syncbuf()
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 template <class CHAR, class TRAITS, class ALLOCATOR>
 basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::basic_syncbuf(basic_syncbuf&& original)
-: Base(std::move(original))
+: d_wrapped_p(original.d_wrapped_p)
+, d_mutex_p(original.d_mutex_p)
+, d_emit_on_sync(original.d_emit_on_sync)
+, d_needs_sync(original.d_needs_sync)
 , d_buff(std::move(original.d_buff))
 {
+    original.d_wrapped_p = 0;
+    original.d_mutex_p = 0;
 }
 
 template <class CHAR, class TRAITS, class ALLOCATOR>
 basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::basic_syncbuf(basic_syncbuf&&  original,
                                                     const ALLOCATOR& allocator)
-: Base(std::move(original))
+: d_wrapped_p(original.d_wrapped_p)
+, d_mutex_p(original.d_mutex_p)
+, d_emit_on_sync(original.d_emit_on_sync)
+, d_needs_sync(original.d_needs_sync)
 , d_buff(std::move(original.d_buff), allocator)
 {
+    original.d_wrapped_p = 0;
+    original.d_mutex_p = 0;
 }
 #endif
 
@@ -441,6 +358,21 @@ bool basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::emitInternal()
     return emit();
 }
 
+template <class CHAR, class TRAITS, class ALLOCATOR>
+inline
+void basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::set_emit_on_sync(bool value)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    d_emit_on_sync = value;
+}
+
+template <class CHAR, class TRAITS, class ALLOCATOR>
+void basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::setEmitOnSync(bool value)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    set_emit_on_sync(value);
+}
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 template <class CHAR, class TRAITS, class ALLOCATOR>
 basic_syncbuf<CHAR,TRAITS,ALLOCATOR>&
@@ -465,7 +397,12 @@ void basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::swap(basic_syncbuf& other)
 {
     BSLS_ASSERT(allocator_traits<ALLOCATOR>::propagate_on_container_swap::value
              || get_allocator() == other.get_allocator());
-    Base::swap(other);
+    typedef BloombergLP::bslalg::SwapUtil SwapUtil;
+    streambuf_type::swap(other);
+    SwapUtil::swap(&d_wrapped_p,    &other.d_wrapped_p);
+    SwapUtil::swap(&d_mutex_p,      &other.d_mutex_p);
+    SwapUtil::swap(&d_emit_on_sync, &other.d_emit_on_sync);
+    SwapUtil::swap(&d_needs_sync,   &other.d_needs_sync);
     d_buff.swap(other.d_buff);
 }
 #endif
@@ -479,13 +416,21 @@ ALLOCATOR basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::get_allocator() const
     return d_buff.get_allocator();
 }
 
+template <class CHAR, class TRAITS, class ALLOCATOR>
+inline
+typename basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::streambuf_type *
+basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::get_wrapped() const BSLS_KEYWORD_NOEXCEPT
+{
+    return d_wrapped_p;
+}
+
 // PROTECTED MANIPULATORS
 template <class CHAR, class TRAITS, class ALLOCATOR>
 typename basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::int_type
-basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::overflow(int_type ch)
+basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::overflow(int_type character)
 {
-    if (!traits_type::eq_int_type(ch, traits_type::eof())) {
-        return d_buff.sputc(traits_type::to_char_type(ch));           // RETURN
+    if (!traits_type::eq_int_type(character, traits_type::eof())) {
+        return d_buff.sputc(traits_type::to_char_type(character));    // RETURN
     }
     return traits_type::eof();
 }
@@ -502,10 +447,10 @@ int basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::sync()
 
 template <class CHAR, class TRAITS, class ALLOCATOR>
 std::streamsize basic_syncbuf<CHAR,TRAITS,ALLOCATOR>::xsputn(
-                                                        const char_type *s,
-                                                        std::streamsize  count)
+                                                  const char_type *inputString,
+                                                  std::streamsize  count)
 {
-    return d_buff.sputn(s, count);
+    return d_buff.sputn(inputString, count);
 }
 
 // FREE FUNCTIONS
