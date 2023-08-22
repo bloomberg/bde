@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Aug 18 08:37:40 2023
+// Generated on Tue Aug 22 15:40:38 2023
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
@@ -1246,7 +1246,7 @@ inline
 TYPE *NullableAllocatedValue<TYPE>::operator->()
 {
     BSLS_ASSERT(has_value());
-    return &value();
+    return getAddress();
 }
 
 template <class TYPE>
