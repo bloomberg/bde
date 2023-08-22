@@ -270,7 +270,7 @@ struct MyNonTrivialDestructorType {
     typedef int  MyFundamentalType;
     typedef int& MyFundamentalTypeReference;
 //
-    class MyTriviallyCopyableType {
+    class MyBitwiseCopyableType {
     };
 
     struct MyNonTriviallyCopyableType {
@@ -283,25 +283,25 @@ struct MyNonTrivialDestructorType {
 //..
 // Then, since user-defined types cannot be automatically evaluated by
 // 'is_trivially_copyable', we define a template specialization to specify that
-// 'MyTriviallyCopyableType' is trivially copyable:
+// 'MyBitwiseCopyableType' is trivially copyable:
 //..
     namespace BloombergLP {
     namespace bslmf {
 
     template <>
-    struct IsBitwiseCopyable<MyTriviallyCopyableType> : bsl::true_type {
+    struct IsBitwiseCopyable<MyBitwiseCopyableType> : bsl::true_type {
         // This template specialization for 'IsBitwiseCopyable' indicates that
-        // 'MyTriviallyCopyableType' is a trivially copyable.
+        // 'MyBitwiseCopyableType' is a trivially copyable.
     };
 
     }  // close namespace bslmf
     }  // close namespace BloombergLP
 //..
 
-typedef int MyTriviallyCopyableType::*DataMemberPtrTestType;
+typedef int MyBitwiseCopyableType::*DataMemberPtrTestType;
     // This pointer to instance data member type is used for testing.
 
-typedef int (MyTriviallyCopyableType::*MethodPtrTestType)();
+typedef int (MyBitwiseCopyableType::*MethodPtrTestType)();
     // This pointer to non-static function member type is used for testing.
 
 namespace bsl {
@@ -455,8 +455,11 @@ int main(int argc, char *argv[])
 //..
     ASSERT( bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
     ASSERT(!bslmf::IsBitwiseCopyable<MyFundamentalTypeReference>::value);
-    ASSERT( bslmf::IsBitwiseCopyable<MyTriviallyCopyableType>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<MyBitwiseCopyableType>::value);
     ASSERT(!bslmf::IsBitwiseCopyable<MyNonTriviallyCopyableType>::value);
+
+    ASSERT( bslmf::IsBitwiseCopyable<DataMemberPtrTestType>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<MethodPtrTestType>::value);
 //..
 // Finally, note that if the current compiler supports the variable templates
 // C++14 feature, then we can re-write the snippet of code above as follows:
@@ -464,8 +467,11 @@ int main(int argc, char *argv[])
     #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
         ASSERT( bslmf::IsBitwiseCopyable_v<MyFundamentalType>);
         ASSERT(!bslmf::IsBitwiseCopyable_v<MyFundamentalTypeReference>);
-        ASSERT( bslmf::IsBitwiseCopyable_v<MyTriviallyCopyableType>);
+        ASSERT( bslmf::IsBitwiseCopyable_v<MyBitwiseCopyableType>);
         ASSERT(!bslmf::IsBitwiseCopyable_v<MyNonTriviallyCopyableType>);
+
+        ASSERT( bslmf::IsBitwiseCopyable_v<DataMemberPtrTestType>);
+        ASSERT( bslmf::IsBitwiseCopyable_v<MethodPtrTestType>);
     #endif
 //..
       } break;
@@ -536,7 +542,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING: 'bslmf::IsBitwiseCopyable<bslmf::Nil>'
         //   Ensure that 'bslmf::IsBitwiseCopyable' meta-function is
-        //   specialized correctly for 'bsls::TimeInterval'.
+        //   specialized correctly for 'bslmf::Nil'.
         //
         // NOTE: This is not tested in 'bsls' for dependency reasons.
         //

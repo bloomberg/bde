@@ -2214,10 +2214,10 @@ void FlatHashTable_ImplUtil::destroyEntryArray(
     ///Implementation Note
     ///-------------------
     // If a type is trivially copyable then it is also trivially destructible.
-    // The type trait 'bslmf::IsTriviallyDestructible' is available in C++03
+    // The type trait 'bslmf::IsTriviallyCopyable' is available in C++03
     // mode and later, however 'bsl::is_trivially_destructible' is only
     // available in C++11 and later and not always on clang.  So, this utility
-    // 'struct' uses trivial copyability as a stand-in for trivial
+    // 'struct' uses bitwise copyability as a stand-in for trivial
     // destructibility in order to provide certain optimizations uniformly
     // across all C++ versions.
 

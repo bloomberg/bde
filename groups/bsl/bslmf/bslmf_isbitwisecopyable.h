@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //  typedef int  MyFundamentalType;
 //  typedef int& MyFundamentalTypeReference;
 //
-//  class MyTriviallyCopyableType {
+//  class MyBitwiseCopyableType {
 //  };
 //
 //  struct MyNonTriviallyCopyableType {
@@ -79,15 +79,15 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, since user-defined types cannot be automatically evaluated by
 // 'is_trivially_copyable', we define a template specialization to specify that
-// 'MyTriviallyCopyableType' is trivially copyable:
+// 'MyBitwiseCopyableType' is trivially copyable:
 //..
 //  namespace BloombergLP {
 //  namespace bslmf {
 //
 //  template <>
-//  struct IsBitwiseCopyable<MyTriviallyCopyableType> : bsl::true_type {
+//  struct IsBitwiseCopyable<MyBitwiseCopyableType> : bsl::true_type {
 //      // This template specialization for 'IsBitwiseCopyable' indicates that
-//      // 'MyTriviallyCopyableType' is a trivially copyable.
+//      // 'MyBitwiseCopyableType' is a trivially copyable.
 //  };
 //
 //  }  // close namespace bslmf
@@ -96,12 +96,10 @@ BSLS_IDENT("$Id: $")
 // Now, we verify whether each type is trivially copyable using
 // 'bslmf::IsBitwiseCopyable':
 //..
-//  assert(true  == bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
-//  assert(false == bslmf::IsBitwiseCopyable<
-//                                         MyFundamentalTypeReference>::value);
-//  assert(true  == bslmf::IsBitwiseCopyable<MyTriviallyCopyableType>::value);
-//  assert(false == bslmf::IsBitwiseCopyable<
-//                                         MyNonTriviallyCopyableType>::value);
+//  assert( bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
+//  assert(!bslmf::IsBitwiseCopyable<MyFundamentalTypeReference>::value);
+//  assert( bslmf::IsBitwiseCopyable<MyBitwiseCopyableType>::value);
+//  assert(!bslmf::IsBitwiseCopyable<MyNonTriviallyCopyableType>::value);
 //..
 // Finally, note that if the current compiler supports the variable templates
 // C++14 feature, then we can re-write the snippet of code above as follows:
@@ -109,7 +107,7 @@ BSLS_IDENT("$Id: $")
 //  #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 //      assert( bslmf::IsBitwiseCopyable_v<MyFundamentalType>);
 //      assert(!bslmf::IsBitwiseCopyable_v<MyFundamentalTypeReference>);
-//      assert( bslmf::IsBitwiseCopyable_v<MyTriviallyCopyableType>);
+//      assert( bslmf::IsBitwiseCopyable_v<MyBitwiseCopyableType>);
 //      assert(!bslmf::IsBitwiseCopyable_v<MyNonTriviallyCopyableType>);
 //  #endif
 //..

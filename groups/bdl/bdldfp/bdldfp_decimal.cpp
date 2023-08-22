@@ -64,6 +64,10 @@ using namespace BloombergLP;
 using namespace bdldfp;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+// 'ValueType{32,64,128}' are not BDE-created types and are not explicitly
+// declared as 'bsl::is_trivially_copyable', they are naturally
+// 'std::is_trivially_copyable' on C++11 and later.
+
 BSLMF_ASSERT(bsl::is_trivially_copyable<DecimalImpUtil::ValueType32>::value);
 BSLMF_ASSERT(bsl::is_trivially_copyable<DecimalImpUtil::ValueType64>::value);
 BSLMF_ASSERT(bsl::is_trivially_copyable<DecimalImpUtil::ValueType128>::value);

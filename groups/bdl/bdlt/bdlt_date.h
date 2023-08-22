@@ -1106,8 +1106,8 @@ namespace bslmf {
 
 template <>
 struct IsBitwiseCopyable<BloombergLP::bdlt::Date> : bsl::true_type {
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'Date' is a trivially copyable type.
+    // This template specialization for 'IsBitwiseCopyable' indicates that
+    // 'Date' is a bitwise copyable type.
 };
 
 }  // close namespace bslmf
