@@ -502,8 +502,8 @@ class allocator {
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(
-        allocator,
-        BloombergLP::bslmf::IsBitwiseEqualityComparable);
+                              allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -644,8 +644,8 @@ class allocator<void> {
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(
-        allocator,
-        BloombergLP::bslmf::IsBitwiseEqualityComparable);
+                              allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES

@@ -17,11 +17,9 @@ namespace BloombergLP {
 namespace bdlt {
 
 BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DayOfWeekSet_Iter>::value);
-BSLMF_ASSERT(bslmf::IsBitwiseMoveable<DayOfWeekSet_Iter>::value);
 BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<DayOfWeekSet_Iter>::value);
 
 BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DayOfWeekSet>::value);
-BSLMF_ASSERT(bslmf::IsBitwiseMoveable<DayOfWeekSet>::value);
 BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<DayOfWeekSet>::value);
 
                          // -----------------------

@@ -20,6 +20,7 @@
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
+#include <string.h>
 
 using namespace BloombergLP;
 
@@ -28,13 +29,12 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function,
-// 'bslmf::IsBitwiseCopyable' and a template variable
-// 'bslmf::IsBitwiseCopyable_v', that determine whether a template parameter
-// type is trivially copyable.  By default, the meta-function supports a
-// restricted set of type categories and can be extended to support other types
-// through either template specialization or use of the
-// 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
+// The component under test defines a meta-function, 'bslmf::IsBitwiseCopyable'
+// and a template variable 'bslmf::IsBitwiseCopyable_v', that determine whether
+// a template parameter type is bitwise copyable.  By default, the
+// meta-function supports a restricted set of type categories and can be
+// extended to support other types through either template specialization or
+// use of the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
 //
 // Thus, we need to ensure that the natively supported types are correctly
 // identified by the meta-function by testing the meta-function with each of
@@ -42,7 +42,7 @@ using namespace BloombergLP;
 // meta-function can be correctly extended to support other types through
 // either of the two supported mechanisms.  Finally, we need to test correct
 // support for cv-qualified and array types, where the underlying type may be
-// trivially copyable.
+// bitwise copyable.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -103,7 +103,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                      DEFECT DETECTION MACROS
 // ----------------------------------------------------------------------------
 
-#define BSLMF_ISBITWISECOPYABLE_NO_NESTED_FOR_ABOMINABLE_FUNCTIONS  1
+#define BSLMF_ISBITWISECOPYABLE_NOT_TESTED_FOR_ABOMINABLE_FUNCTIONS  1
     // At the moment, 'bsl::is_convertible' will give a hard error when invoked
     // with an abominable function type, as used in 'DetectNestedTrait'.  There
     // is a separate patch coming for this, at which point these tests should
@@ -158,23 +158,23 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 // Macro: ASSERT_IS_BITWISE_COPYABLE
-//   This macro tests that the 'is_move_constructible' trait has the expected
+//   This macro tests that the 'IsBitwiseCopyable' trait has the expected
 //   'RESULT' for the given 'TYPE', and that all manifestations of that trait
 //   and value are consistent.  First, test that the result of
 //   'bslmf::IsBitwiseCopyable<TYPE>' has the same value as the expected
-//   'RESULT'.  Then. confirm that the associated variable template, when
+//   'RESULT'.  Then, confirm that the associated variable template, when
 //   available, has a value that agrees with this trait instantiation.
-#define ASSERT_IS_BITWISE_COPYABLE(TYPE, RESULT)                            \
-    ASSERT(bslmf::IsBitwiseCopyable<TYPE>::value ==  RESULT);              \
+#define ASSERT_IS_BITWISE_COPYABLE(TYPE, RESULT)                              \
+    ASSERT(bslmf::IsBitwiseCopyable<TYPE>::value ==  RESULT);                 \
     ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT(TYPE)
 
 // Macro: ASSERT_IS_BITWISE_COPYABLE_LVAL_REF
 //   This macro tests that the 'IsBitwiseCopyable' trait has the expected
-//   'RESULT' for an rvalue reference to the given 'TYPE' on platforms that
+//   'RESULT' for an lvalue reference to the given 'TYPE' on platforms that
 //   implement language support, and performs no test otherwise.  Note that the
 //   native trait implementation shipping with Visual C++ compilers prior to
-//   MSVC 2017 erroneously reports that rvalue-references to arrays are
-//   trivially copyable.
+//   MSVC 2017 erroneously reports that rvalue-references to arrays are bitwise
+//   copyable.
 # define ASSERT_IS_BITWISE_COPYABLE_LVAL_REF(TYPE, RESULT)                  \
     ASSERT_IS_BITWISE_COPYABLE(bsl::add_lvalue_reference<TYPE>::type, false)
 
@@ -183,8 +183,8 @@ void aSsErT(bool condition, const char *message, int line)
 //   'RESULT' for an rvalue reference to the given 'TYPE' on platforms that
 //   implement language support, and performs no test otherwise.  Note that the
 //   native trait implementation shipping with Visual C++ compilers prior to
-//   MSVC 2017 erroneously reports that rvalue-references to arrays are
-//   trivially copyable.
+//   MSVC 2017 erroneously reports that rvalue-references to arrays are bitwise
+//   copyable.
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 # define ASSERT_IS_BITWISE_COPYABLE_RVAL_REF(TYPE, RESULT)                  \
     ASSERT_IS_BITWISE_COPYABLE(bsl::add_rvalue_reference<TYPE>::type, false)
@@ -195,7 +195,7 @@ void aSsErT(bool condition, const char *message, int line)
 // Macro: ASSERT_IS_BITWISE_COPYABLE_TYPE
 //   This macro tests that the 'IsBitwiseCopyable' trait has the expected
 //   'RESULT' for the given 'TYPE', and pointers/references to that type.
-//   Pointers are always trivially copyable, and references are never trivially
+//   Pointers are always bitwise copyable, and references are never bitwise
 //   copyable.
 # define ASSERT_IS_BITWISE_COPYABLE_TYPE(TYPE, RESULT)                      \
     ASSERT_IS_BITWISE_COPYABLE(TYPE, RESULT);                               \
@@ -240,6 +240,7 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 namespace {
+namespace u {
 
 enum EnumTestType {
     // This 'enum' type is used for testing.
@@ -251,10 +252,7 @@ enum class EnumClassType {
 };
 #endif
 
-struct MyNonTrivialDestructorType {
-    ~MyNonTrivialDestructorType() {}
-};
-
+}  // close namespace u
 }  // close unnamed namespace
 
 ///Usage
@@ -263,55 +261,92 @@ struct MyNonTrivialDestructorType {
 //
 ///Example 1: Verify Whether Types are Trivially Copyable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a type is trivially copyable.
+// Suppose that we want to assert whether a type is trivially copyable, and/or
+// bitwise copyable.
 //
 // First, we define a set of types to evaluate:
 //..
-    typedef int  MyFundamentalType;
-    typedef int& MyFundamentalTypeReference;
-//
-    class MyBitwiseCopyableType {
+    struct MyTriviallyCopyableType {
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(MyTriviallyCopyableType,
+                                       bsl::is_trivially_copyable);
     };
 
     struct MyNonTriviallyCopyableType {
+        // Because this 'struct' has constructors declared, the C++11 compiler
+        // will not automatically declare it 'std::is_trivially_copyable'.  But
+        // since it has no data, we know it can be 'memcpy'ed around so we will
+        // give it the 'IsBitwiseCopyable' trait.
+
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(MyNonTriviallyCopyableType,
+                                       bslmf::IsBitwiseCopyable);
+
+        // CREATORS
         MyNonTriviallyCopyableType() {}
         MyNonTriviallyCopyableType(const MyNonTriviallyCopyableType&) {}
+        ~MyNonTriviallyCopyableType() {}
             // Explicitly supply constructors that do nothing, to ensure that
             // this class has no trivial traits detected with a conforming
             // C++11 library implementation.
     };
-//..
-// Then, since user-defined types cannot be automatically evaluated by
-// 'is_trivially_copyable', we define a template specialization to specify that
-// 'MyBitwiseCopyableType' is trivially copyable:
-//..
-    namespace BloombergLP {
-    namespace bslmf {
 
-    template <>
-    struct IsBitwiseCopyable<MyBitwiseCopyableType> : bsl::true_type {
-        // This template specialization for 'IsBitwiseCopyable' indicates that
-        // 'MyBitwiseCopyableType' is a trivially copyable.
+    class MyNonBitwiseCopyableType {
+        // This 'class' allocates memory and cannot be copied around with
+        // 'memcpy', so it should have neither the 'is_trivially_copyable' nor
+        // the 'IsBitwiseCopyable' traits.
+
+        // DATA
+        char *d_string;
+
+      public:
+        // CREATORS
+        MyNonBitwiseCopyableType(const char *string)
+        : d_string(::strdup(string))
+        {}
+
+        MyNonBitwiseCopyableType(const MyNonBitwiseCopyableType& original)
+        : d_string(::strdup(original.d_string))
+        {}
+
+        ~MyNonBitwiseCopyableType()
+        {
+            free(d_string);
+        }
+
+        bool operator==(const MyNonBitwiseCopyableType& rhs) const
+        {
+            return !::strcmp(d_string, rhs.d_string);
+        }
     };
-
-    }  // close namespace bslmf
-    }  // close namespace BloombergLP
 //..
+// Then, the following 6 types are automatically interpreted by
+// 'bsl::is_trivially_copyable' to be trivially copyable without our having to
+// declare them as such, and therefore, as 'IsBitwiseCopyable'.
+//..
+    typedef int MyFundamentalType;
+        // fundamental type
 
-typedef int MyBitwiseCopyableType::*DataMemberPtrTestType;
-    // This pointer to instance data member type is used for testing.
+    typedef int *DataPtrTestType;
+        // data pointer
 
-typedef int (MyBitwiseCopyableType::*MethodPtrTestType)();
-    // This pointer to non-static function member type is used for testing.
+    typedef void (*FunctionPtrTestType)();
+        // function ptr
 
-namespace bsl {
+    typedef int MyNonBitwiseCopyableType::*DataMemberPtrTestType;
+        // non-static data member ptr
 
-// This is a lie.  'std::is_trivially_copyable' is not 'true'
+    typedef int (MyNonBitwiseCopyableType::*MethodPtrTestType)();
+        // non-static function member ptr
 
-template <>
-struct is_trivially_copyable<MyNonTrivialDestructorType> : true_type {};
+    typedef int& MyFundamentalTypeRef;
+        // reference (not bitwise copyable)
 
-}  // close namespace bsl
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        typedef int&& MyFundamentalTypeRvalueRef;
+            // rvalue reference (not bitwise copyable)
+    #endif
+//..
 
 namespace {
 
@@ -321,8 +356,9 @@ struct UserDefinedBcTestType {
 
     int d_data;
 
-//    UserDefinedBcTestType() {}
-//    UserDefinedBcTestType(const UserDefinedBcTestType&) {}
+    UserDefinedBcTestType() {}
+    UserDefinedBcTestType(const UserDefinedBcTestType&) {}
+    ~UserDefinedBcTestType() {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -338,8 +374,9 @@ struct UserDefinedBcTestType2 {
 
     int d_data;
 
-//    UserDefinedBcTestType2() {}
-//    UserDefinedBcTestType2(const UserDefinedBcTestType2&) {}
+    UserDefinedBcTestType2() {}
+    UserDefinedBcTestType2(const UserDefinedBcTestType2&) {}
+    ~UserDefinedBcTestType2() {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -409,6 +446,31 @@ struct IsBitwiseCopyable<UserDefinedBcTestType> : bsl::true_type {
 }  // close namespace bslmf
 }  // close namespace BloombergLP
 
+
+// This test is usually disable, because enabling it should result in a compile
+// error (on C++11 or above) in the 'k_FAIL_TYPE_RESULT' enum below.  To enable
+// this test, set 'U_FAIL_TYPE_RESULT' to '1', which should result in the
+// 'static_assert' within 'IsBitwiseCopyable' failing.
+
+#define U_MAKE_INTERNAL_STATIC_ASSERT_FAIL 1
+#if     U_MAKE_INTERNAL_STATIC_ASSERT_FAIL
+
+struct FailType {
+    BSLMF_NESTED_TRAIT_DECLARATION(FailType,
+                                   bslmf::IsBitwiseCopyable);
+};
+
+namespace bsl {
+
+template <>
+struct is_trivially_copyable<FailType> : bsl::false_type {};
+
+}  // close namespace bsl
+
+enum { k_FAIL_TYPE_RESULT = !bslmf::IsBitwiseCopyable<FailType>::value };
+
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -451,27 +513,71 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // Now, we verify whether each type is trivially copyable using
+// 'bsl::is_trivially_copyable':
+//..
+    ASSERT( bsl::is_trivially_copyable<MyTriviallyCopyableType>::value);
+    ASSERT(!bsl::is_trivially_copyable<MyNonTriviallyCopyableType>::value);
+    ASSERT(!bsl::is_trivially_copyable<MyNonBitwiseCopyableType>::value);
+
+    ASSERT( bsl::is_trivially_copyable<MyFundamentalType>::value);
+    ASSERT( bsl::is_trivially_copyable<DataPtrTestType>::value);
+    ASSERT( bsl::is_trivially_copyable<FunctionPtrTestType>::value);
+    ASSERT( bsl::is_trivially_copyable<DataMemberPtrTestType>::value);
+    ASSERT( bsl::is_trivially_copyable<MethodPtrTestType>::value);
+    ASSERT(!bsl::is_trivially_copyable<MyFundamentalTypeRef>::value);
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(!bsl::is_trivially_copyable<MyFundamentalTypeRvalueRef>::value);
+    #endif
+//..
+// Now, we verify whether each type is bitwise copyable using
 // 'bslmf::IsBitwiseCopyable':
 //..
-    ASSERT( bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
-    ASSERT(!bslmf::IsBitwiseCopyable<MyFundamentalTypeReference>::value);
-    ASSERT( bslmf::IsBitwiseCopyable<MyBitwiseCopyableType>::value);
-    ASSERT(!bslmf::IsBitwiseCopyable<MyNonTriviallyCopyableType>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<MyTriviallyCopyableType>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<MyNonTriviallyCopyableType>::value);
+    ASSERT(!bslmf::IsBitwiseCopyable<MyNonBitwiseCopyableType>::value);
 
+    ASSERT( bslmf::IsBitwiseCopyable<MyFundamentalType>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<DataPtrTestType>::value);
+    ASSERT( bslmf::IsBitwiseCopyable<FunctionPtrTestType>::value);
     ASSERT( bslmf::IsBitwiseCopyable<DataMemberPtrTestType>::value);
     ASSERT( bslmf::IsBitwiseCopyable<MethodPtrTestType>::value);
+    ASSERT(!bslmf::IsBitwiseCopyable<MyFundamentalTypeRef>::value);
+    #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(!bslmf::IsBitwiseCopyable<MyFundamentalTypeRvalueRef>::value);
+    #endif
 //..
 // Finally, note that if the current compiler supports the variable templates
-// C++14 feature, then we can re-write the snippet of code above as follows:
+// C++14 feature, then we can re-write the two snippets of code above as
+// follows:
 //..
     #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-        ASSERT( bslmf::IsBitwiseCopyable_v<MyFundamentalType>);
-        ASSERT(!bslmf::IsBitwiseCopyable_v<MyFundamentalTypeReference>);
-        ASSERT( bslmf::IsBitwiseCopyable_v<MyBitwiseCopyableType>);
-        ASSERT(!bslmf::IsBitwiseCopyable_v<MyNonTriviallyCopyableType>);
+        // trivially copyable:
 
+        ASSERT( bsl::is_trivially_copyable_v<MyTriviallyCopyableType>);
+        ASSERT(!bsl::is_trivially_copyable_v<MyNonTriviallyCopyableType>);
+        ASSERT(!bsl::is_trivially_copyable_v<MyNonBitwiseCopyableType>);
+
+        ASSERT( bsl::is_trivially_copyable_v<MyFundamentalType>);
+        ASSERT( bsl::is_trivially_copyable_v<DataPtrTestType>);
+        ASSERT( bsl::is_trivially_copyable_v<FunctionPtrTestType>);
+        ASSERT( bsl::is_trivially_copyable_v<DataMemberPtrTestType>);
+        ASSERT( bsl::is_trivially_copyable_v<MethodPtrTestType>);
+        ASSERT(!bsl::is_trivially_copyable_v<MyFundamentalTypeRef>);
+        ASSERT(!bsl::is_trivially_copyable_v<MyFundamentalTypeRvalueRef>);
+
+        // bitwise copyable:
+
+        ASSERT( bslmf::IsBitwiseCopyable_v<MyTriviallyCopyableType>);
+        ASSERT( bslmf::IsBitwiseCopyable_v<MyNonTriviallyCopyableType>);
+        ASSERT(!bslmf::IsBitwiseCopyable_v<MyNonBitwiseCopyableType>);
+
+        ASSERT( bslmf::IsBitwiseCopyable_v<MyFundamentalType>);
+        ASSERT( bslmf::IsBitwiseCopyable_v<DataPtrTestType>);
+        ASSERT( bslmf::IsBitwiseCopyable_v<FunctionPtrTestType>);
         ASSERT( bslmf::IsBitwiseCopyable_v<DataMemberPtrTestType>);
         ASSERT( bslmf::IsBitwiseCopyable_v<MethodPtrTestType>);
+        ASSERT(!bslmf::IsBitwiseCopyable_v<MyFundamentalTypeRef>);
+        ASSERT(!bslmf::IsBitwiseCopyable_v<MyFundamentalTypeRvalueRef>);
     #endif
 //..
       } break;
@@ -708,9 +814,9 @@ int main(int argc, char *argv[])
 #endif
 
         // C-2 (partial 6, 7, 8, 9)
-        ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(EnumTestType,   true);
+        ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(u::EnumTestType,   true);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(EnumClassType,  true);
+        ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(u::EnumClassType,  true);
 #endif
 
         // C-3 (complete 6, 7, 8, 9)
@@ -734,7 +840,7 @@ int main(int argc, char *argv[])
         // C-5 : Function types are not object types, nor cv-qualifiable.
         ASSERT_IS_BITWISE_COPYABLE_TYPE(void(),                false);
         ASSERT_IS_BITWISE_COPYABLE_TYPE(int(float,double...),  false);
-#ifndef BSLMF_ISBITWISECOPYABLE_NO_NESTED_FOR_ABOMINABLE_FUNCTIONS
+#ifndef BSLMF_ISBITWISECOPYABLE_NOT_TESTED_FOR_ABOMINABLE_FUNCTIONS
         ASSERT_IS_BITWISE_COPYABLE(void() const,               false);
         ASSERT_IS_BITWISE_COPYABLE(int(float,double...) const, false);
 #endif

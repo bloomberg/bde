@@ -14,7 +14,7 @@ BSLS_IDENT_RCSID(bdlt_datetz_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-// 'DateTz' is trivially copyable only if 'Date' is also trivially copyable.
+// 'DateTz' is bitwise copyable only if 'Date' is also bitwise copyable.
 // In the header we have stated unconditionally that 'DateTz' is trivially
 // copyable, so we assert our assumption about 'Date', as a sanity check.
 

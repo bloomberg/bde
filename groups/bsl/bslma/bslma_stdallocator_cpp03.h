@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri May 12 15:52:27 2023
+// Generated on Wed Aug 23 11:35:05 2023
 // Command line: sim_cpp11_features.pl bslma_stdallocator.h
 
 #ifdef COMPILING_BSLMA_STDALLOCATOR_H
@@ -53,8 +53,8 @@ class allocator {
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(
-        allocator,
-        BloombergLP::bslmf::IsBitwiseEqualityComparable);
+                              allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -474,8 +474,8 @@ class allocator<void> {
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(
-        allocator,
-        BloombergLP::bslmf::IsBitwiseEqualityComparable);
+                              allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES

@@ -568,8 +568,8 @@ namespace bslmf {
 // TRAITS
 template <>
 struct IsBitwiseCopyable<BloombergLP::bdlt::TimeTz> : bsl::true_type {
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'bdlt::TimeTz' is a trivially copyable type.
+    // This template specialization for 'IsBitwiseCopyable' indicates that
+    // 'bdlt::TimeTz' is a bitwise copyable type.
 };
 
 }  // close namespace bslmf

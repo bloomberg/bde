@@ -17,7 +17,7 @@ BSLS_IDENT_RCSID(bdlt_timetz_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-// 'TimeTz' is trivially copyable only if 'Time' is also trivially copyable.
+// 'TimeTz' is bitwise copyable only if 'Time' is also bitwise copyable.
 
 BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
 BSLMF_ASSERT(bslmf::IsBitwiseCopyable<TimeTz>::value);
