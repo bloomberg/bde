@@ -159,6 +159,7 @@ class Sluice {
     bslma::Allocator     *d_allocator_p;         // memory allocator (held, not
                                                  // owned)
 
+  private:
     // NOT IMPLEMENTED
     Sluice(const Sluice&);
     Sluice& operator=(const Sluice&);
@@ -279,8 +280,9 @@ class Sluice {
 // MANIPULATORS
 template <class CLOCK, class DURATION>
 int bslmt::Sluice::timedWait(
-                    const void                                      *token,
-                    const bsl::chrono::time_point<CLOCK, DURATION>&  absTime) {
+                      const void                                      *token,
+                      const bsl::chrono::time_point<CLOCK, DURATION>&  absTime)
+{
 
     GenerationDescriptor *g =
                 static_cast<GenerationDescriptor *>(const_cast<void *>(token));

@@ -12,22 +12,21 @@
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_semaphore.h>    // for testing only
-#include <bslmt_threadgroup.h>  // for testing only
 #include <bslmt_threadutil.h>   // for testing only
-
-#include <bsla_maybeunused.h>
 
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 
 #include <bsls_atomic.h>
+#include <bsla_maybeunused.h>
 #include <bsls_timeinterval.h>
 #include <bsls_systemtime.h>
 #include <bsls_stopwatch.h>
 
-#include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 #include <bsl_c_time.h>
 #include <bsl_c_stdio.h>
@@ -94,6 +93,10 @@ static bslmt::Mutex coutMutex;
 #define MTENDL   endl;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
 
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
 ///Usage
 ///-----
 // 'bslmt::Sluice' is intended to be used to implement other synchronization
@@ -134,42 +137,6 @@ static bslmt::Mutex coutMutex;
 
 typedef bslmt::Sluice Obj;
 
-class My_TestAllocator : public bslma::Allocator{
-
-    // DATA
-    bslma::TestAllocator d_allocator;
-    bslmt::Mutex          d_lock;
-
-  public:
-    explicit
-    My_TestAllocator(bool verbose)
-        : d_allocator(verbose)
-    {}
-
-    virtual ~My_TestAllocator()
-    {}
-
-    virtual void *allocate(size_type size)
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
-        return d_allocator.allocate(size);
-    }
-
-    virtual void deallocate(void *address)
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
-        d_allocator.deallocate(address);
-    }
-
-    int numAllocations() {
-        return static_cast<int>(d_allocator.numAllocations());
-    }
-
-    int numBytesInUse() {
-        return static_cast<int>(d_allocator.numBytesInUse());
-    }
-};
-
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
@@ -192,7 +159,8 @@ class EnterAndWaitUntilDoneJob {
     {
     }
 
-    void operator()() {
+    void operator()()
+    {
         while (1) {
             d_lock->lock();
             if (*d_done) {
@@ -222,7 +190,8 @@ class EnterPostSleepAndWaitJob {
     {
     }
 
-    void operator()() {
+    void operator()()
+    {
         const void *token = d_sluice->enter();
 
         d_semaphore->post();
@@ -323,6 +292,59 @@ int WaitForTimeout(bslmt::Sluice& mX, int secondsToWait)
 }
 #endif
 
+namespace {
+namespace u {
+
+class LocalThreadGroup {
+    // This 'class' is a mechanism for managing the creation and joining of a
+    // group of threads.  It mimics a subset of 'bslmt::ThreadGroup's
+    // functionality for use in this test driver.  Note that it is implemented
+    // here to avoid a dependency on 'bslmt_threadgroup', which would introduce
+    // a test driver cycle.
+
+    // DATA
+    bsl::vector<bslmt::ThreadUtil::Handle>    d_handles;
+
+  public:
+    // CREATORS
+    explicit
+    LocalThreadGroup(bslma::Allocator *basicAllocator)
+    : d_handles(basicAllocator)
+    {}
+
+    ~LocalThreadGroup()
+    {
+        BSLS_ASSERT_OPT(d_handles.empty());
+    }
+
+    // MANIPULATORS
+    template <class INVOKABLE>
+    void addThreads(const INVOKABLE& func, unsigned numThreads)
+    {
+        BSLS_ASSERT(d_handles.empty());
+
+        d_handles.resize(numThreads);
+
+        for (unsigned uu = 0; uu < numThreads; ++uu) {
+            int rc = bslmt::ThreadUtil::create(&d_handles[uu], func);
+            BSLS_ASSERT_OPT(0 == rc);    (void) rc;
+        }
+    }
+
+    void joinAll()
+    {
+        BSLS_ASSERT(!d_handles.empty());
+
+        for (; !d_handles.empty(); d_handles.pop_back()) {
+            int rc = bslmt::ThreadUtil::join(d_handles.back());
+            BSLS_ASSERT_OPT(0 == rc);    (void) rc;
+        }
+    }
+};
+
+}  // close namespace u
+}  // close unnamed namespace
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -342,7 +364,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    My_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
 
     switch (test) {  case 0:
       case 4: {
@@ -408,19 +430,18 @@ int main(int argc, char *argv[])
             bslmt::Mutex lock;
             bsls::AtomicInt iterations(0);
 
-            bslmt::ThreadGroup threadGroup;
+            u::LocalThreadGroup threadGroup(&ta);
 
             EnterAndWaitUntilDoneJob job(&mX,
                                          &done,
                                          &lock,
                                          &iterations);
 
-            ASSERT(k_NUM_WAITING_THREADS ==
-                   threadGroup.addThreads(job, k_NUM_WAITING_THREADS));
+            threadGroup.addThreads(job, k_NUM_WAITING_THREADS);
 
             bsls::Stopwatch timer;
             timer.start();
-            while (timer.elapsedTime() < k_NUM_TEST_SECONDS) {
+            while (timer.elapsedTime() < double(k_NUM_TEST_SECONDS)) {
                 mX.signalOne();
                 mX.signalOne();
                 mX.signalOne();
@@ -437,8 +458,9 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(iterations);
             }
-            // we should ALWAYS be able to make WAY MORE THAN 100 iterations per
-            // thread per second
+            // we should ALWAYS be able to make WAY MORE THAN 100 iterations
+            // per thread per second
+
             LOOP_ASSERT(iterations,
                         100 * k_NUM_WAITING_THREADS * k_NUM_TEST_SECONDS <
                         iterations);
@@ -485,9 +507,8 @@ int main(int argc, char *argv[])
             mX.signalOne();
             bslmt::ThreadUtil::join(h);
 
-            bslmt::ThreadGroup threadGroup;
-            rc = threadGroup.addThreads(job, k_NUM_SIGNALED_THREADS);
-            BSLS_ASSERT(k_NUM_SIGNALED_THREADS == rc); // test invariant
+            u::LocalThreadGroup threadGroup(&ta);
+            threadGroup.addThreads(job, k_NUM_SIGNALED_THREADS);
 
             for (int i = 0; i < k_NUM_SIGNALED_THREADS; ++i) {
                 readySem.wait();

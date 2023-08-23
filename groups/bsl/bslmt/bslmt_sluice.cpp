@@ -108,10 +108,12 @@ const void *bslmt::Sluice::enter()
         g = d_descriptorPool;
         if (g) {
             // The pool is not empty.  Get a descriptor from the pool.
+
             d_descriptorPool = g->d_next;
         }
         else {
             // The pool is empty.  Allocate a new descriptor.
+
             g = new (*d_allocator_p) GenerationDescriptor(d_clockType);
         }
 
@@ -246,6 +248,7 @@ void bslmt::Sluice::signalOne()
         g = d_pendingGeneration;
         if (0 == g) {
             // There are no threads to signal.  We are done.
+
             return;                                                   // RETURN
         }
         d_signaledGeneration = g;
