@@ -48,6 +48,7 @@ Description: BSL
 
 Package: libbal-dev
 Depends: libbdl-dev, libbsl-dev
+Recommends: tzdata
 Architecture: any
 Description: BAL
  groups/bal development files
