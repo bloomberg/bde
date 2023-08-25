@@ -39,7 +39,6 @@
       bslma_sequentialallocator                          !DEPRECATED!
 
    7. bslma_autodeallocator
-      bslma_autorawdeleter
       bslma_destructorproctor
       bslma_sequentialpool                               !DEPRECATED!
       bslma_sharedptrinplacerep
@@ -64,7 +63,8 @@
    5. bslma_default
       bslma_testallocator
 
-   4. bslma_bufferallocator                              !DEPRECATED!
+   4. bslma_autorawdeleter
+      bslma_bufferallocator                              !DEPRECATED!
       bslma_mallocfreeallocator
       bslma_managedallocator                             !DEPRECATED!
       bslma_newdeleteallocator

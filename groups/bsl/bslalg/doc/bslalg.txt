@@ -25,34 +25,30 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslalg' package currently has 44 components having 9 levels of physical
+ The 'bslalg' package currently has 44 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  9. bslalg_dequeprimitives
+  7. bslalg_dequeprimitives
+     bslalg_hashtableimputil
      bslalg_rbtreeutil
 
-  8. bslalg_arrayprimitives
-
-  7. bslalg_autoarraymovedestructor
-     bslalg_hashtableimputil
-
-  6. bslalg_autoarraydestructor
+  6. bslalg_arrayprimitives
      bslalg_hashtableanchor
 
-  5. bslalg_arraydestructionprimitives
-     bslalg_bidirectionalnode
+  5. bslalg_bidirectionalnode
      bslalg_constructorproxy
      bslalg_dequeiterator
 
-  4. bslalg_hashtablebucket
-     bslalg_rangecompare
+  4. bslalg_autoarraymovedestructor
+     bslalg_hashtablebucket
      bslalg_scalarprimitives
      bslalg_selecttrait                                  !DEPRECATED!
      bslalg_typetraits                                   !DEPRECATED!
 
-  3. bslalg_autoscalardestructor
+  3. bslalg_autoarraydestructor
+     bslalg_autoscalardestructor
      bslalg_bidirectionallinklistutil
      bslalg_nothrowmovableutil
      bslalg_rbtreeanchor
@@ -65,7 +61,8 @@
      bslalg_typetraitpair                                !DEPRECATED!
      bslalg_typetraitusesbslmaallocator                  !DEPRECATED!
 
-  2. bslalg_bidirectionallink
+  2. bslalg_arraydestructionprimitives
+     bslalg_bidirectionallink
      bslalg_containerbase
      bslalg_dequeimputil
      bslalg_functoradapter
@@ -74,6 +71,7 @@
      bslalg_hastrait                                     !DEPRECATED!
      bslalg_nothrowmovablewrapper
      bslalg_numericformatterutil
+     bslalg_rangecompare
      bslalg_rbtreenode
      bslalg_scalardestructionprimitives                  !DEPRECATED!
      bslalg_swaputil

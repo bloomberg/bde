@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 50 components having 5 levels of physical
+ The 'bdlb' package currently has 52 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -52,7 +52,7 @@
      bdlb_hashutil
      bdlb_literalutil
      bdlb_nullableallocatedvalue_pointerbitspair                      !PRIVATE!
-     bdlb_nullopt
+     bdlb_nullopt                                        !DEPRECATED!
      bdlb_nulloutputiterator
      bdlb_pairutil
      bdlb_pcgrandomgenerator
@@ -68,7 +68,9 @@
      bdlb_transparenthash
      bdlb_transparentless
 
-  1. bdlb_nullablevalue_cpp03                                         !PRIVATE!
+  1. bdlb_nullableallocatedvalue_cpp03                                !PRIVATE!
+     bdlb_nullablevalue_cpp03                                         !PRIVATE!
+     bdlb_variant_cpp03                                               !PRIVATE!
 ..
 
 /Component Synopsis
@@ -145,6 +147,9 @@
 : 'bdlb_nullableallocatedvalue':
 :      Provide a template for nullable allocated (out-of-place) objects.
 :
+: 'bdlb_nullableallocatedvalue_cpp03':                                !PRIVATE!
+:      Provide C++03 implementation for bdlb_nullableallocatedvalue.h
+:
 : 'bdlb_nullableallocatedvalue_pointerbitspair':                      !PRIVATE!
 :      Provide a mechanism for using the unused bits of a pointer.
 :
@@ -154,7 +159,7 @@
 : 'bdlb_nullablevalue_cpp03':                                         !PRIVATE!
 :      Provide C++03 implementation for bdlb_nullablevalue.h
 :
-: 'bdlb_nullopt':
+: 'bdlb_nullopt':                                        !DEPRECATED!
 :      Provide a tag type and constant indicating an empty nullable value.
 :
 : 'bdlb_nulloutputiterator':
@@ -222,3 +227,6 @@
 :
 : 'bdlb_variant':
 :      Provide a variant (discriminated 'union'-like) type.
+:
+: 'bdlb_variant_cpp03':                                               !PRIVATE!
+:      Provide C++03 implementation for bdlb_variant.h

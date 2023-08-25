@@ -17,12 +17,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 118 components having 10 levels of physical
+ The 'bslstl' package currently has 121 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   10. bslstl_ownerless
+      bslstl_stoptoken
       bslstl_typeindex
 
    9. bslstl_map_test1                                                !PRIVATE!
@@ -124,6 +125,8 @@
       bslstl_sharedptrallocateoutofplacerep
       bslstl_simplepool
       bslstl_stdexceptutil
+      bslstl_stopstate
+      bslstl_syncbufbase
       bslstl_unorderedmapkeyconfiguration
       bslstl_unorderedsetkeyconfiguration
       bslstl_utility
@@ -340,7 +343,7 @@
 :      Provide C++03 implementation for bslstl_optional.h
 :
 : 'bslstl_ostream':
-:      Provide functionality of the corresponding C++ Standard header.
+:      Provide aliases and implementations matching standard <ostream>.
 :
 : 'bslstl_ostringstream':
 :      Provide a C++03-compatible 'ostringstream' class.
@@ -414,6 +417,12 @@
 : 'bslstl_stdexceptutil':
 :      Provide a utility to throw standard exceptions.
 :
+: 'bslstl_stopstate':
+:      Provide a stop state for 'std'-compliant stop tokens.
+:
+: 'bslstl_stoptoken':
+:      Provide an allocator-aware standard-compliant 'stop_source' type.
+:
 : 'bslstl_string':
 :      Provide a standard-compliant 'basic_string' class template.
 :
@@ -437,6 +446,9 @@
 :
 : 'bslstl_syncbuf':
 :      Provide a C++20-compatible 'basic_syncbuf' class template.
+:
+: 'bslstl_syncbufbase':
+:      Provide an allocator-independent base-class for 'basic_syncbuf'.
 :
 : 'bslstl_systemerror':
 :      Provide a standard compliant 'system_error' class.

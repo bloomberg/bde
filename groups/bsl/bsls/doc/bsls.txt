@@ -118,7 +118,7 @@
       bsls_nativestd                                     !DEPRECATED!
       bsls_platform
 
-   1. bsls_deprecate
+   1. bsls_deprecate                                     !DEPRECATED!
       bsls_deprecatefeature
       bsls_ident
 ..
@@ -263,7 +263,7 @@
 : 'bsls_cpp11':                                          !DEPRECATED!
 :      Provide macros for C++11 forward compatibility.
 :
-: 'bsls_deprecate':
+: 'bsls_deprecate':                                      !DEPRECATED!
 :      Provide machinery to deprecate interfaces on a per-version basis.
 :
 : 'bsls_deprecatefeature':
