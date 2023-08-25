@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      t_TYPE *d_storage;
-//      size_t d_length;
+//      size_t  d_length;
 //
 //      // Copy operations are declared private and not defined.
 //
@@ -227,45 +227,45 @@ BSLS_IDENT("$Id: $")
 // then the attempt to use 'dynamic_cast' would be a compile-time failure, and
 // we must use 'static_cast' instead.
 //..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 //..
 // Note that if the current compiler supports alias templates C++11 feature, we
 // can use 'bsl::enable_if_t' alias to the "result" type of 'bsl::enable_if'
 // meta-function, that avoids the '::type' suffix and 'typename' prefix in the
-// declaration of the function return type:
+// declaration of the function return type.
 //..
-//  template<class TO, class FROM>
-//  typename bsl::enable_if<bsl::is_polymorphic<FROM>::value &&
-//                                              bsl::is_polymorphic<TO>::value,
-//                          TO>::type *
-//#else
-//  template<class TO, class FROM>
-//  bsl::enable_if_t<bsl::is_polymorphic<FROM>::value &&
-//                      bsl::is_polymorphic<TO  >::value, TO> *
-//#endif
-//  smart_cast(FROM *from)
+//  template<class t_TO, class t_FROM>
+//  bsl::enable_if_t<bsl::is_polymorphic<t_FROM>::value &&
+//                   bsl::is_polymorphic<t_TO  >::value, t_TO> *
+//  #else
+//  template<class t_TO, class t_FROM>
+//  typename bsl::enable_if<bsl::is_polymorphic<t_FROM>::value &&
+//                                            bsl::is_polymorphic<t_TO>::value,
+//                          t_TO>::type *
+//  #endif
+//  smart_cast(t_FROM *from)
 //      // Return a pointer to the specified 'TO' type if the specified 'from'
 //      // pointer refers to an object whose complete class publicly derives,
 //      // directly or indirectly, from 'TO', and a null pointer otherwise.
 //  {
-//      return dynamic_cast<TO *>(from);
+//      return dynamic_cast<t_TO *>(from);
 //  }
 //
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//  template<class TO, class FROM>
-//  bsl::enable_if_t<not(bsl::is_polymorphic<FROM>::value &&
-//                       bsl::is_polymorphic<TO  >::value), TO> *
-//#else
-//  template<class TO, class FROM>
-//  typename bsl::enable_if<not(bsl::is_polymorphic<FROM>::value &&
-//                                            bsl::is_polymorphic<TO>::value),
-//                          TO>::type *
-//#endif
-//  smart_cast(FROM *from)
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//  template<class t_TO, class t_FROM>
+//  bsl::enable_if_t<not(bsl::is_polymorphic<t_FROM>::value &&
+//                       bsl::is_polymorphic<t_TO  >::value), t_TO> *
+//  #else
+//  template<class t_TO, class t_FROM>
+//  typename bsl::enable_if<not(bsl::is_polymorphic<t_FROM>::value &&
+//                                           bsl::is_polymorphic<t_TO>::value),
+//                          t_TO>::type *
+//  #endif
+//  smart_cast(t_FROM *from)
 //      // Return the specified 'from' pointer value cast as a pointer to type
 //      // 'TO'.  The behavior is undefined unless such a conversion is valid.
 //  {
-//      return static_cast<TO *>(from);
+//      return static_cast<t_TO *>(from);
 //  }
 //..
 // Next, we define a small number of classes to demonstrate that this casting
@@ -301,7 +301,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void TestSmartCast()
 //  {
-//      ABC object;
+//      ABC  object;
 //      ABC *pABC = &object;
 //      A   *pA   = &object;
 //      B   *pB   = &object;
@@ -349,8 +349,8 @@ BSLS_IDENT("$Id: $")
 //      // that is modeled after 'std::vector'.
 //
 //      // DATA
-//      t_TYPE *d_storage;
-//      size_t  d_length;
+//      t_TYPE  *d_storage;
+//      size_t   d_length;
 //
 //      // NOT IMPLEMENTED
 //      MyVector(const MyVector&);
@@ -363,11 +363,10 @@ BSLS_IDENT("$Id: $")
 //          // the specified 'value'.  The behavior is undefined unless
 //          // '0 <= n'.
 //
-//      template<class FORWARD_ITERATOR>
-//      MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
+//      template<class t_FORWARD_ITERATOR>
+//      MyVector(t_FORWARD_ITERATOR first, t_FORWARD_ITERATOR last,
 //                  typename bsl::enable_if<
-//                      !bsl::is_fundamental<FORWARD_ITERATOR>::value
-//                                                               >::type * = 0)
+//                     bsl::is_pointer<t_FORWARD_ITERATOR>::value>::type * = 0)
 //          // Create a 'MyVector' object having the same sequence of values as
 //          // found in the range described by the specified iterators
 //          // '[first, last)'.  The behavior is undefined unless 'first' and
@@ -375,10 +374,9 @@ BSLS_IDENT("$Id: $")
 //          // type 't_TYPE' where 'first' is at a position at or before
 //          // 'last'.  Note that this function is currently defined inline to
 //          // work around an issue with the Microsoft Visual Studio compiler.
-//
 //      {
 //          d_length = 0;
-//          for (FORWARD_ITERATOR cursor = first; cursor != last; ++cursor) {
+//          for (t_FORWARD_ITERATOR cursor = first; cursor != last; ++cursor) {
 //               ++d_length;
 //          }
 //
