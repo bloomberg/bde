@@ -1,5 +1,45 @@
-bsl-internal (3.122.0.0) unstable; urgency=low
+bsl-internal (3.123.0.0) unstable; urgency=low
 
+  * b36889b8f Bumped version to 3.123.0.0
+  * fecb13548 Add tzdata as recommended install dependency of bal (#4413)
+  * 388d815cc Make 'bdlb::NullOpt' a synonym for 'bsl::nullopt' (#4411)
+  * 34aa40f38 bslmt_sluice: eliminate cyclic dependency on thread group (#4408)
+  * f8af219f2 Add bdlb_nullableallocatedvalue_cpp03 to bdlb.mem (#4409)
+  * 0621c16d4 Update bslstl_syncbuf to more closely follow BDE conventions (DRQS 172615685) (#4381)
+  * 36d23d06b Bslstl string stringview cycles drqs 172596744 (#4372)
+  * f43daa69f add compiler support documentation for C++20 (#4404)
+  * c612fb3a3 Fix equality operator overload resolution (#4405)
+  * 03194206b Second round of changes to NullableAllocatedValue (#4402)
+  * e42f76cc2 Merge pull request #4353 from afeher/drqs-172596104-fix-bsl_iterator-iter_swap
+  * 461e122fe Fix 'bsl::stop_token' warning on AIX (DRQS 172748854) (#4399)
+  * 79326ec8f Fix bsl::stop_token Solaris build error (#4398)
+  * b4ece257f First round of changes to NullableAllocatedValue (#4382)
+  * c729d166e Merge pull request #4390 from jberne4/more_include_cleanups
+  * 576983c5d rough out of always-post workaround (#4395)
+  * 79986c166 Implement bsl::stop_token (DRQS 171656646) (#4394)
+  * 84c640e6a Fix FALLTHROUGH macro under clang cpp03 (#4388)
+  * 1a08b0112 Comment for MSVC build failure has been added to several test drivers (#4391)
+  * 39ee5ff00 Correct BerEncoder's documentation (DRQS 172564463) (#4386)
+  * 24a006d00 Bump minimum required CMake version
+  * ace6c3d37 Shared ptr util noleak drqs 171930743 (#4360)
+  * 42dfd2c12 Bsla normalize '*_IS_ACTIVE' macros  drqs 169125741 (#4380)
+  * 3ec54de68 Merge pull request #4379 from jberne4/more_testonly_fixups
+  * c9b18c267 Bdlb variant create in place perfect forwarding drqs 172492600 (#4334)
+  * 0478973cc Drqs 172620261/bslmt fastpostsemaphore redundant signal (#4369)
+  * bf7b5c6b6 @CANONICAL_HEADER annotation added (#4378)
+  * e7a7edd9e bdlma_pool.t.cpp: TC 8: thowing in 'delete'. (#4315)
+  * fb28c2ada Rework the test driver for NullableAllocatedValue - DRQS 172558273 (#4349)
+  * 5a3843546 Rename template parameters (#4376)
+  * ddbaecec3 drqs-172595882: 'bslmf': Fix TD cycles per 'bslmf_isaccessiblebaseof' (#4371)
+  * b9418e18c temporary solution for cycle with 'fuzztest' (#4373)
+  * 0d44f45bb Cycle dependency has been removed from the 'bdlde_hexencoder'. DRQS 172595834 (#4362)
+  * 3d5d3f056 drqs-172596051: 'bslmt_readerwriterlock.t.cpp': Fix cycle on '*LOCKASSERT*' (#4367)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Aug 2023 10:20:04 -0400
+
+bsl-internal (3.122.0.0) git; urgency=low
+
+  * e026d22b5 Changelog for version 3.122.0.0
   * 3ee16b96d Bumped version to 3.122.0.0
   * a3d149c55 drqs-172596456: 'bslstl_stringview.t.cpp': Fix cycle per 'bsl::map'. (#4366)
   * b72c10f63 Merge pull request #4365 from afeher/drqs-172015668-parsedouble-typo-fix
@@ -16,7 +56,7 @@ bsl-internal (3.122.0.0) unstable; urgency=low
   * 12787ae30 Fix RVO errors in optimized Sun 12.5.6 builds (#4347)
   * 5ade11c1e fix compilation warning in NullableAllocatedValue (#4348)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 28 Jul 2023 10:27:25 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 28 Jul 2023 10:36:00 -0400
 
 bsl-internal (3.121.0.0) git; urgency=low
 
