@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // encoder and decoder to (1) assert the end of input, (2) determine whether
 // the input so far is currently acceptable, and (3) indicate whether a
 // non-recoverable error has occurred.
-
+//
 ///Hex Encoding
 ///------------
 // The data stream is processed one byte at a time from left to right.  Each
