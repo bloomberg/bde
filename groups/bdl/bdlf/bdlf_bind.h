@@ -611,7 +611,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Binding to Free Functions
-/// - -  - - - - - - - - - -
+///- - - - - - - - - - - - -
 // We illustrate how to use the dispatcher with free callback functions that
 // have various signatures by passing a binder as the callback function of the
 // dispatcher, and how to use the binder to match the signature of the callback
