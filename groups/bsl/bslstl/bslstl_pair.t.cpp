@@ -2519,31 +2519,21 @@ struct is_trivially_copyable<my_CopyTrivial>
      : bsl::true_type {};
 
 // The base class of 'my_CopyBitwise' has a do-nothing declared default c'tor,
-// but contains no data, so we know it can be trivially constructed.  'pair'
-// keys of 'is_trivially_default_constructible' so we explicitly declare the
-// trait here for this test, since the compiler won't assume it.
+// but contains no data, so we know it can be trivially default constructed.
+// 'pair' propagates 'is_trivially_default_constructible' so we explicitly
+// declare the trait here for this test, since the compiler won't assume it.
 
 template <>
 struct is_trivially_default_constructible<my_CopyBitwise>
      : bsl::true_type {};
+
 }  // close namespace bsl
 
-struct my_EqualityTrivial : my_NonTrivialBaseClass {};
-
-namespace bsl {
-template <>
-struct is_trivially_default_constructible<my_EqualityTrivial>
-     : bsl::true_type {};
-}  // close namespace bsl
 
 struct my_NoTraits : my_NonTrivialBaseClass {};
 
 namespace BloombergLP {
 namespace bslmf {
-template <>
-struct IsBitwiseCopyable<my_EqualityTrivial> : bsl::true_type {};
-template <>
-struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
 
 // Empty classes are bitwise movable by default.  Specialize for 'my_NoTraits'
 // to make it NOT bitwise movable.
