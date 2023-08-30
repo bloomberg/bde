@@ -1,12 +1,13 @@
 // bslmt_readerwritermutex.cpp                                        -*-C++-*-
-
 #include <bslmt_readerwritermutex.h>
-
-#include <bslmt_semaphore.h>   // for testing only
-#include <bslmt_threadutil.h>  // for testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_readerwriterwmutex_cpp,"$Id$ $CSID$")
+
+#include <bslmt_readlockguard.h>   // for testing only
+#include <bslmt_semaphore.h>       // for testing only
+#include <bslmt_threadutil.h>      // for testing only
+#include <bslmt_writelockguard.h>  // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.
