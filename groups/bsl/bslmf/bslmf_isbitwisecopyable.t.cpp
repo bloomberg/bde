@@ -286,9 +286,9 @@ enum class EnumClassType {
         MyNonTriviallyCopyableType() {}
         MyNonTriviallyCopyableType(const MyNonTriviallyCopyableType&) {}
         ~MyNonTriviallyCopyableType() {}
-            // Explicitly supply constructors that do nothing, to ensure that
-            // this class has no trivial traits detected with a conforming
-            // C++11 library implementation.
+            // Explicitly supply creators that do nothing, to ensure that this
+            // class has no trivial traits detected with a conforming C++11
+            // library implementation.
     };
 
     class MyNonBitwiseCopyableType {
