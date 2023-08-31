@@ -138,7 +138,8 @@ using namespace bslstl;
 // [26] array<TYPE, SIZE> to_array(TYPE (&&src)[SIZE]);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [28] USAGE EXAMPLE
+// [29] USAGE EXAMPLE
+// [28] CONCERN: TESTING basic interoperability with C++20 ranges
 // [27] CONCERN: 'array' IS A C++20 RANGE
 // [25] CLASS TEMPLATE DEDUCTION GUIDES
 // [23] CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
@@ -2260,6 +2261,9 @@ struct TestDriver {
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
 
+    static void testCase28();
+        // TEST basic interoperability with C++20 ranges
+
     static void testCase27_isRange();
         // Test whether 'array' is a C++20 range.
 
@@ -2338,6 +2342,9 @@ struct TestDriver {
 
 template<class TYPE>
 struct TestDriverWrapper{
+
+    static void testCase28();
+        // TEST basic interoperability with C++20 ranges
 
     static void testCase27_isRange();
         // Test whether 'array' is a C++20 range.
@@ -2424,6 +2431,67 @@ struct TestDriverWrapper{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
+
+template <class TYPE>
+void TestDriverWrapper<TYPE>::testCase28()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+
+    TestDriver<TYPE, 1>::testCase28();
+    TestDriver<TYPE, 2>::testCase28();
+    TestDriver<TYPE, 3>::testCase28();
+    TestDriver<TYPE, 4>::testCase28();
+}
+
+template <class TYPE, size_t SIZE>
+void TestDriver<TYPE, SIZE>::testCase28()
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    const char *SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+
+    Obj        mX;
+    const Obj& X = gg(&mX, SPEC);
+
+    auto Begin   = X.begin();
+    auto End     = X.end();
+    auto CBegin  = X.cbegin();
+    auto CEnd    = X.cend();
+    auto RBegin  = X.rbegin();
+    auto REnd    = X.rend();
+    auto CRBegin = X.crbegin();
+    auto CREnd   = X.crend();
+    auto Size    = X.size();
+    bool Empty   = X.empty();
+    auto Data    = X.data();
+
+    auto crBegin   = std::ranges::begin(X);
+    auto crEnd     = std::ranges::end(X);
+    auto crCBegin  = std::ranges::cbegin(X);
+    auto crCEnd    = std::ranges::cend(X);
+    auto crRBegin  = std::ranges::rbegin(X);
+    auto crREnd    = std::ranges::rend(X);
+    auto crCRBegin = std::ranges::crbegin(X);
+    auto crCREnd   = std::ranges::crend(X);
+    auto crSize    = std::ranges::size(X);
+    bool crEmpty   = std::ranges::empty(X);
+    auto crData    = std::ranges::data(X);
+
+    ASSERTV(*crBegin == *Begin);
+    ASSERTV(crEnd == End);
+    ASSERTV(*crCBegin == *CBegin);
+    ASSERTV(crCEnd == CEnd);
+    ASSERTV(*crRBegin == *RBegin);
+    ASSERTV(crREnd == REnd);
+    ASSERTV(*crCRBegin == *CRBegin);
+    ASSERTV(crCREnd == CREnd);
+    ASSERTV(crSize == Size);
+    ASSERTV(crEmpty == Empty);
+    ASSERTV(*crData == *Data);
+
+#endif
+}
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase27_isRange()
@@ -4952,7 +5020,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
 
     switch (test) { case 0:
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4973,6 +5041,33 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         UsageExample::usageExample();
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // CONCERN: TESTING BASIC INTEROPERABILITY WITH C++20 RANGES
+        //
+        // Concerns: The functions in the 'ranges::' namespace, 'begin, 'end',
+        // 'cbegin, 'cend', 'rbegin', crbegin', crenmd', 'size', 'empy', 'data'
+        // all serve as an alias to the corresponding function in the 'array'
+        //
+        // Plan:
+        //: 1 For each of the above-mentioned functions, verify that each of
+        // the corresponding pair of functions returns the same value.
+        //
+        // Testing:
+        // CONCERN: TESTING basic interoperability with C++20 ranges
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+                  "\nCONCERN: TESTING BASIC INTEROPERABILITY WITH C++20 RANGES"
+                  "\n========================================================="
+                  "\n");
+
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                TestDriverWrapper,
+                                testCase28,
+                                BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 27: {
         // --------------------------------------------------------------------
