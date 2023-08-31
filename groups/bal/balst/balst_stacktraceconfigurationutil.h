@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Evaluating Boolean Value
-// - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - -
 // If neither 'enableResolution' nor 'disableResolution' have been called, the
 // default value of 'isResolutionDisabled' is 'false'.
 //..

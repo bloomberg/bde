@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 // standard, but were not always so.
 //
 ///Usage
-//------
+///-----
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a function pointer as a closure parameter

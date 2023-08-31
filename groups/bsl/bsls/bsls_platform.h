@@ -142,7 +142,7 @@ BSLS_IDENT("$Id: $")
 // component provides a macro that can be used to ensure that.
 //
 ///Windows Subtypes Explained
-//---------------------------
+///--------------------------
 // Windows Subtypes describe what API variation the code is built to target,
 // not the actual operating system it will run on, with the following mapping
 // between the macro names and Windows API versions:
