@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Defining a Concrete 'RecordBuffer' Type
-///- - - - - - - - - - - - - - - - - -- - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - 
 // This example shows the definition of a simple concrete record buffer.  The
 // requisite steps are:
 //
