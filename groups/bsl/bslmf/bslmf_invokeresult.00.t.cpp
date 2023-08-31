@@ -33,7 +33,7 @@
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Aug 14 11:38:22 2023
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.00.t.cpp
 # define COMPILING_BSLMF_INVOKERESULT_00_T_CPP
 # include <bslmf_invokeresult_cpp03.00.t.cpp>
@@ -265,12 +265,12 @@ struct IsReferenceWrapper<stub_reference_wrapper<TP> > : bsl::true_type {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
+namespace {
+
                        // ===============================
                        // struct template IsInvokeResult
                        // Required for test cases 2,3,4,7
                        // ===============================
-
-namespace {
 
 // Required for test cases 2,3,4,7
 template <class EXPECTED_INVOKE_RESULT, class INVOCABLE, class... ARGS>
@@ -284,6 +284,29 @@ struct IsInvokeResult
     // 'bsl::invoke_result<INVOCABLE, ARGS...>' provides a nested typedef
     // 'type'.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+                       // ===============================
+                       // struct template IsInvokeResultT
+                       // Required for test cases 2,3,4,5
+                       // ===============================
+
+// Required for test cases 2,3,4,5
+template <class INVOCABLE, class... ARGS>
+struct IsInvokeResultT
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS...>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS...> > {
+    // This metafunction 'struct' provides a compile-time constant, Boolean
+    // data member 'value' that is 'true' if 'bsl::invoke_result<INVOCABLE,
+    // ARGS...>::type' is the same as the
+    // 'bsl::invoke_result_t<INVOCABLE, ARGS...>' type, and is 'false'
+    // otherwise.  Compilation will fail unless
+    // 'bsl::invoke_result<INVOCABLE, ARGS...>' provides a nested typedef
+    // 'type'.
+};
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close unnamed namespace
 

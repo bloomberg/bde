@@ -295,6 +295,20 @@ struct PtrToMemObjTest {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         ASSERTV(LINE, (IsInvokeResult<CvqR, Mp&&, T1>::value));
 #endif
+
+        // Testing 'bsl::invoke_result_t'.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        ASSERTV(LINE, (IsInvokeResultT<Mp,                 T1>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Mp&,                T1>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Mp const&,          T1>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Mp       volatile&, T1>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Mp const volatile&, T1>::value));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        ASSERTV(LINE, (IsInvokeResultT<Mp&&,               T1>::value));
+#endif
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     }
 
 };
@@ -482,6 +496,8 @@ int main(int argc, char *argv[])
         //:    o pointer to (possibly cv-qualified) void
         //:    o cv-qualified types
         //:    o arrays (which do not decay)
+        //: 8 The 'bsl::invoke_result_t' represents the expected type for
+        //:   invocables of pointer-to-member-object type.
         //
         // Plan:
         //: 1 For concern 1, define a functor template 'PtrToMemObjTest<T1>'
@@ -531,6 +547,10 @@ int main(int argc, char *argv[])
         //:   'int', 'float', user-defined type 'Ic01', 'const int',
         //:   'volatile short', and 'const volatile MyEnum'. Note that 'void'
         //:   will be ignored, but *pointer to (cv-qualified)* 'void' will not.
+        //: 8 For concern 8, verify, for each of the parameter types specified
+        //:   in concern 7, that the type yielded by the 'bsl::invoke_result_t'
+        //:   matches the type yielded by the 'bsl::invoke_result'
+        //:   meta-function.
         //
         // Testing:
         //     POINTER-TO-MEMBER-OBJECT INVOCABLES

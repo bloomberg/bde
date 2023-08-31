@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Aug 14 11:38:22 2023
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.00.t.cpp
 
 // Expanded test driver only when compiling bslmf_invokeresult.cpp
@@ -254,8 +254,8 @@ struct IsReferenceWrapper<stub_reference_wrapper<TP> > : bsl::true_type {
 #define BSLMF_INVOKERESULT_VARIADIC_LIMIT_A BSLMF_INVOKERESULT_VARIADIC_LIMIT
 #endif
 
-
 namespace {
+
 
 template <class EXPECTED_INVOKE_RESULT,
           class INVOCABLE
@@ -660,19 +660,515 @@ struct IsInvokeResult<EXPECTED_INVOKE_RESULT, INVOCABLE, ARGS_01,
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 13
 
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+
+template <class INVOCABLE
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 0
+        , class ARGS_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 1
+        , class ARGS_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 2
+        , class ARGS_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 3
+        , class ARGS_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 4
+        , class ARGS_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 5
+        , class ARGS_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 6
+        , class ARGS_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 7
+        , class ARGS_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 8
+        , class ARGS_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 9
+        , class ARGS_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 10
+        , class ARGS_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 11
+        , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 12
+        , class ARGS_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct IsInvokeResultT;
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 0
+template <class INVOCABLE>
+struct IsInvokeResultT<INVOCABLE>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE>::type,
+                        bsl::invoke_result_t<INVOCABLE> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 1
+template <class INVOCABLE, class ARGS_01>
+struct IsInvokeResultT<INVOCABLE, ARGS_01>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 2
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 3
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 4
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 5
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 6
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 7
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06,
+                                  ARGS_07>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 8
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06,
+                                  ARGS_07,
+                                  ARGS_08>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 9
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06,
+                                  ARGS_07,
+                                  ARGS_08,
+                                  ARGS_09>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 10
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09,
+                           class ARGS_10>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06,
+                                  ARGS_07,
+                                  ARGS_08,
+                                  ARGS_09,
+                                  ARGS_10>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 11
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09,
+                           class ARGS_10,
+                           class ARGS_11>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06,
+                                  ARGS_07,
+                                  ARGS_08,
+                                  ARGS_09,
+                                  ARGS_10,
+                                  ARGS_11>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10,
+                                                        ARGS_11>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10,
+                                                        ARGS_11> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 12
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09,
+                           class ARGS_10,
+                           class ARGS_11,
+                           class ARGS_12>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06,
+                                  ARGS_07,
+                                  ARGS_08,
+                                  ARGS_09,
+                                  ARGS_10,
+                                  ARGS_11,
+                                  ARGS_12>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10,
+                                                        ARGS_11,
+                                                        ARGS_12>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10,
+                                                        ARGS_11,
+                                                        ARGS_12> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 13
+template <class INVOCABLE, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09,
+                           class ARGS_10,
+                           class ARGS_11,
+                           class ARGS_12,
+                           class ARGS_13>
+struct IsInvokeResultT<INVOCABLE, ARGS_01,
+                                  ARGS_02,
+                                  ARGS_03,
+                                  ARGS_04,
+                                  ARGS_05,
+                                  ARGS_06,
+                                  ARGS_07,
+                                  ARGS_08,
+                                  ARGS_09,
+                                  ARGS_10,
+                                  ARGS_11,
+                                  ARGS_12,
+                                  ARGS_13>
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10,
+                                                        ARGS_11,
+                                                        ARGS_12,
+                                                        ARGS_13>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS_01,
+                                                        ARGS_02,
+                                                        ARGS_03,
+                                                        ARGS_04,
+                                                        ARGS_05,
+                                                        ARGS_06,
+                                                        ARGS_07,
+                                                        ARGS_08,
+                                                        ARGS_09,
+                                                        ARGS_10,
+                                                        ARGS_11,
+                                                        ARGS_12,
+                                                        ARGS_13> > {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 13
+
+
+#endif
+
 }
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-
 namespace {
+
 
 template <class EXPECTED_INVOKE_RESULT, class INVOCABLE, class... ARGS>
 struct IsInvokeResult
 : bsl::is_same<EXPECTED_INVOKE_RESULT,
                typename bsl::invoke_result<INVOCABLE, ARGS...>::type> {
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+
+template <class INVOCABLE, class... ARGS>
+struct IsInvokeResultT
+: bsl::is_same<typename bsl::invoke_result  <INVOCABLE, ARGS...>::type,
+                        bsl::invoke_result_t<INVOCABLE, ARGS...> > {
+};
+
+#endif
 
 }
 
@@ -1571,7 +2067,7 @@ int main() {
 #endif // defined(COMPILING_BSLMF_INVOKERESULT_00_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

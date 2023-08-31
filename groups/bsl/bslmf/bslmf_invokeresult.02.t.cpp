@@ -80,6 +80,22 @@ struct FuncTest {
         ASSERTV(LINE, (IsInvokeResult<EXPECTED_RT, Fn&&, char>::value));
         ASSERTV(LINE, (IsInvokeResult<EXPECTED_RT, Fn *&&, char>::value));
 #endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        // Testing 'bsl::invoke_result_t'.
+
+        ASSERTV(LINE, (IsInvokeResultT<Fn,         char>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Fn&,        char>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Fn *,       char>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Fn *&,      char>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Fn *const&, char>::value));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        ASSERTV(LINE, (IsInvokeResultT<Fn&&,       char>::value));
+        ASSERTV(LINE, (IsInvokeResultT<Fn *&&,     char>::value));
+#endif
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     }
 };
 
@@ -163,6 +179,8 @@ int main(int argc, char *argv[])
         //:   reference-to-function type.
         //: 6 Results are not affected by arguments that decay (arrays,
         //:   functions), reference binding, or valid volatile arguments.
+        //: 7 The 'bsl::invoke_result_t' represents the expected type for
+        //:   invocables of function type.
         //
         // Plan:
         //: 1 For concerns 1 and 2, define a functor template 'FuncTest' which
@@ -185,6 +203,10 @@ int main(int argc, char *argv[])
         //: 5 For concern 6, invoke 'bsl::invoke_result' in a one-off fashion
         //:   with the argument categories listed in the concern and verify
         //:   correct operation.
+        //: 6 For concern 7, verify, for each of the parameter types specified
+        //:   in concern 2, that the type yielded by the 'bsl::invoke_result_t'
+        //:   matches the type yielded by the 'bsl::invoke_result'
+        //:   meta-function.
         //
         // Testing:
         //     FUNCTION INVOCABLES

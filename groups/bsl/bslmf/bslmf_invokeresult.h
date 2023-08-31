@@ -9,6 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 // bsl::invoke_result: Metafunction to determine invocation result type
+// bsl::invoke_result_t: alias to the return type of the 'bsl::invoke_result'
 // bslmf::InvokeResultDeductionFailed: Returned on failed result deduction
 //
 //@MACROS:
@@ -19,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a metafunction 'bsl::invoke_result'
 // that determines, at compile time, the type returned by invoking a callable
 // type, including pointer-to-function, pointer-to-member function,
-// pointer-to-member object (returns the object type), or functor class, and a
+// pointer-to-member object (returns the object type), or functor class and a
 // class 'bslmf::InvokeResultDeductionFailed' that is returned when the
 // invocation return type cannot be determined (C++03 only).  For a set of
 // types 'F', 'T1', 'T2', and 'T3', 'bsl::invoke_result<F, T1, t2, T3>::type'
@@ -28,12 +29,15 @@ BSLS_IDENT("$Id: $")
 // However, 'invoke_result' goes beyond function-like objects and deduces a
 // return type if 'F' is a pointer to function member or data member of some
 // class 'C' and 'T1' is a type (derived from) 'C', pointer to 'C', or
-// smart-pointer to 'C'.  (See precise specification, below).
+// smart-pointer to 'C'.  (See precise specification, below).  For the
+// convenience of users, an alias for the type returned by the
+// 'bsl::invoke_result', 'bsl::invoke_result_t', is provided by this component.
 //
-// The interface and functionality of 'bsl::invoke_result' is intended to be
-// identical to that of the C++17 metafunction, 'std::invoke_result' except
-// that invalid argument lists are detected in C++11 and later, but not in
-// C++03.  In C++03, invalid arguments lists will result in a compilation error
+// The interfaces and functionality of 'bsl::invoke_result' and
+// 'bsl::invoke_result_t' are intended to be identical to that of the C++17
+// metafunctions, 'std::invoke_result' and 'std::invoke_result_t' except that
+// invalid argument lists are detected in C++11 and later, but not in C++03.
+// In C++03, invalid arguments lists will result in a compilation error
 // (instead of simply missing 'type') in the remaining cases.  Some other
 // functionality is lost when compiling with a C++03 compiler -- see the
 // precise specification, below.
@@ -315,6 +319,17 @@ class invoke_result
     // 'bslmf::InvokeResult_BaseCalcUtil' specialization from which this class
     // inherits.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <class t_FN, class... t_ARGTYPES>
+using invoke_result_t = typename invoke_result<t_FN, t_ARGTYPES...>::type;
+    // 'invoke_result_t' is an alias to the return type of the
+    // 'bsl::invoke_result' meta-function.  Note, that the 'invoke_result_t'
+    // avoids the '::type' suffix and 'typename' prefix when we want to use the
+    // result of the meta-function in templates.
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 #endif
 

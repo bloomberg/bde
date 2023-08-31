@@ -111,6 +111,10 @@ struct FunctorTest
         using bsl::invoke_result;
         using bslmf::InvokeResultDeductionFailed;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        using bsl::invoke_result_t;
+#endif
+
         // The 'char*' overload of 'FuncRt1<RT>::operator()' will return 'RT',
         // whereas the 'int' overload will return 'int'.
         typedef typename invoke_result<FuncRt1<RT> , char*>::type Rt1ResultR;
@@ -175,6 +179,32 @@ struct FunctorTest
             ASSERTV(LINE, (bsl::is_same<RT, MFrResult>::value));
         }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        // Testing 'bsl::invoke_result_t'.
+
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt1<RT> , char*>::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt1<RT>&, char*>::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt1<RT> , int  >::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt1<RT>&, int  >::value));
+
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt2<RT> , char*>::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt2<RT>&, char*>::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt2<RT> , int  >::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt2<RT>&, int  >::value));
+
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt3<RT> , char*>::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt3<RT>&, char*>::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt3<RT> , int  >::value));
+        ASSERTV(LINE, (IsInvokeResultT<FuncRt3<RT>&, int  >::value));
+
+        ASSERTV(LINE, (IsInvokeResultT<ManyFunc,  MetaType<RT>, int>::value));
+        ASSERTV(LINE, (IsInvokeResultT<ManyFunc&, MetaType<RT>, int>::value));
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
     }
 };
 
@@ -448,13 +478,15 @@ int main(int argc, char *argv[])
         //:   of the return value would have failed for the unspecialized
         //:   template.
         //: 9 The above concerns apply to functors taking 0 to 13 arguments.
-        //: 10 Though not technically a functor, a class that is convertible
-        //:   to a pointer-to-function or reference-to-function behaves like a
+        //:10 Though not technically a functor, a class that is convertible to
+        //:   a pointer-to-function or reference-to-function behaves like a
         //:   functor within this component.  If the class is convertible to
         //:   more than one function type, then the correct one is chosen
         //:   based on overloading rules.  If the chosen (pointer or reference
         //:   to) function returns a user-defined type, then return
         //:   'bslmf::InvokeResultDeductionFailed' in C++03 mode.
+        //:11 The 'bsl::invoke_result_t' represents the expected type for
+        //:   invocables of functor class type.
         //
         // Plan:
         //: 1 For concerns 1 and 2, define a functor class, 'ManyFunc', with
@@ -507,6 +539,10 @@ int main(int argc, char *argv[])
         //:   where the result of each conversion has a different prototype.
         //:   Instantiate 'bsl::invoke_result' with arguments that select
         //:   each of the overloads and verify the correct result.
+        //: 9 For concern 11, verify, for each of the parameter types specified
+        //:   in concern 4, that the type yielded by the 'bsl::invoke_result_t'
+        //:   matches the type yielded by the 'bsl::invoke_result'
+        //:   meta-function.
         //
         // Testing:
         //     FUNCTOR CLASS INVOCABLES

@@ -87,11 +87,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'bsl::invoke_result<FT, ARGS...>' compiles for a sampling of
         //:   parameter types
+        //:
+        //: 2 The 'bsl::invoke_result_t<FT, ARGS...>' represents the expected
+        //:   type for a sampling of parameter types
         //
         // Plan:
         //: 1 Instantiate 'bsl::resulf_of' on a sampling of invocable types
         //:   and verify that the computed return type matches the expected
         //:   return type.
+        //:
+        //: 2 Compare 'bsl::invoke_result_t' type and the type yielded by the
+        //:   'bsl::invoke_result' meta-function for a variety of template
+        //:   parameter types.
         //
         // Testing:
         //      BREATHING TEST
@@ -105,9 +112,13 @@ int main(int argc, char *argv[])
                 "(versions in other files are no-ops)\n",
                 test);
 
-#define TEST(exp, ...) \
-        ASSERT((bsl::is_same<bsl::invoke_result<__VA_ARGS__>::type, \
+#define TEST(exp, ...)                                                        \
+        ASSERT((bsl::is_same<bsl::invoke_result<__VA_ARGS__>::type,           \
                 exp>::value))
+
+#define TEST_T(...)                                                           \
+        ASSERT((bsl::is_same<bsl::invoke_result<__VA_ARGS__>::type,           \
+                             bsl::invoke_result_t<__VA_ARGS__> >::value))
 
         typedef void (*f1)();
         typedef int (*f2)(int);
@@ -148,6 +159,40 @@ int main(int argc, char *argv[])
         TEST(volatile void *const&, ManyFunc
                                 , MetaType<volatile void *const&>, int   );
         TEST(const char*        , ManyFunc, MetaType<const char*>, int   );
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        // Testing 'bsl::invoke_result_t'.
+
+        //     Arguments
+        //     ===============================================
+        TEST_T(f1                                             );
+        TEST_T(f2, char                                       );
+        TEST_T(f3, bool, float                                );
+        TEST_T(f4, char*, int, int*                           );
+        TEST_T(f5, short, int&, int, char                     );
+        TEST_T(f6, bool                                       );
+        TEST_T(g1, MyClass, int                               );
+        TEST_T(g2, MyClass, int                               );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST_T(dp, MyClass                                    );
+#else
+        TEST_T(dp, MyClass                                    );
+#endif
+        TEST_T(ManyFunc, float, void*                         );
+        TEST_T(ConstManyFunc, float, void*                    );
+
+        TEST_T(ManyFunc, MetaType<void>, int                  );
+        TEST_T(ManyFunc, MetaType<int *>, int                 );
+#ifndef BSLS_PLATFORM_CMP_SUN
+        TEST_T(ManyFunc, MetaType<int *volatile>, int         );
+#endif
+        TEST_T(ManyFunc, MetaType<int *volatile&>, int        );
+        TEST_T(ManyFunc, MetaType<const void *>, int          );
+        TEST_T(ManyFunc, MetaType<volatile void *const&>, int );
+        TEST_T(ManyFunc, MetaType<const char*>, int           );
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
       } break;
       default: {

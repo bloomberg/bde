@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Feb 17 15:55:33 2023
+// Generated on Mon Aug 14 09:31:51 2023
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
@@ -571,6 +571,277 @@ class invoke_result<t_FN, t_ARGTYPES_01,
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 13
 
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 0
+template <class t_FN>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                BSLS_COMPILERFEATURES_FILLT(13)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 1
+template <class t_FN, class t_ARGTYPES_01>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                BSLS_COMPILERFEATURES_FILLT(12)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 2
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                BSLS_COMPILERFEATURES_FILLT(11)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 3
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                BSLS_COMPILERFEATURES_FILLT(10)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 4
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                BSLS_COMPILERFEATURES_FILLT( 9)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 5
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                BSLS_COMPILERFEATURES_FILLT( 8)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 6
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                BSLS_COMPILERFEATURES_FILLT( 7)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 7
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06,
+                      class t_ARGTYPES_07>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                t_ARGTYPES_07,
+                                                BSLS_COMPILERFEATURES_FILLT( 6)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 8
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06,
+                      class t_ARGTYPES_07,
+                      class t_ARGTYPES_08>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                t_ARGTYPES_07,
+                                                t_ARGTYPES_08,
+                                                BSLS_COMPILERFEATURES_FILLT( 5)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 9
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06,
+                      class t_ARGTYPES_07,
+                      class t_ARGTYPES_08,
+                      class t_ARGTYPES_09>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                t_ARGTYPES_07,
+                                                t_ARGTYPES_08,
+                                                t_ARGTYPES_09,
+                                                BSLS_COMPILERFEATURES_FILLT( 4)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 10
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06,
+                      class t_ARGTYPES_07,
+                      class t_ARGTYPES_08,
+                      class t_ARGTYPES_09,
+                      class t_ARGTYPES_10>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                t_ARGTYPES_07,
+                                                t_ARGTYPES_08,
+                                                t_ARGTYPES_09,
+                                                t_ARGTYPES_10,
+                                                BSLS_COMPILERFEATURES_FILLT( 3)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 11
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06,
+                      class t_ARGTYPES_07,
+                      class t_ARGTYPES_08,
+                      class t_ARGTYPES_09,
+                      class t_ARGTYPES_10,
+                      class t_ARGTYPES_11>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                t_ARGTYPES_07,
+                                                t_ARGTYPES_08,
+                                                t_ARGTYPES_09,
+                                                t_ARGTYPES_10,
+                                                t_ARGTYPES_11,
+                                                BSLS_COMPILERFEATURES_FILLT( 2)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 12
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06,
+                      class t_ARGTYPES_07,
+                      class t_ARGTYPES_08,
+                      class t_ARGTYPES_09,
+                      class t_ARGTYPES_10,
+                      class t_ARGTYPES_11,
+                      class t_ARGTYPES_12>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                t_ARGTYPES_07,
+                                                t_ARGTYPES_08,
+                                                t_ARGTYPES_09,
+                                                t_ARGTYPES_10,
+                                                t_ARGTYPES_11,
+                                                t_ARGTYPES_12,
+                                                BSLS_COMPILERFEATURES_FILLT( 1)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 13
+template <class t_FN, class t_ARGTYPES_01,
+                      class t_ARGTYPES_02,
+                      class t_ARGTYPES_03,
+                      class t_ARGTYPES_04,
+                      class t_ARGTYPES_05,
+                      class t_ARGTYPES_06,
+                      class t_ARGTYPES_07,
+                      class t_ARGTYPES_08,
+                      class t_ARGTYPES_09,
+                      class t_ARGTYPES_10,
+                      class t_ARGTYPES_11,
+                      class t_ARGTYPES_12,
+                      class t_ARGTYPES_13>
+using invoke_result_t = typename invoke_result<t_FN,
+                                                t_ARGTYPES_01,
+                                                t_ARGTYPES_02,
+                                                t_ARGTYPES_03,
+                                                t_ARGTYPES_04,
+                                                t_ARGTYPES_05,
+                                                t_ARGTYPES_06,
+                                                t_ARGTYPES_07,
+                                                t_ARGTYPES_08,
+                                                t_ARGTYPES_09,
+                                                t_ARGTYPES_10,
+                                                t_ARGTYPES_11,
+                                                t_ARGTYPES_12,
+                                                t_ARGTYPES_13,
+                                                BSLS_COMPILERFEATURES_FILLT( 0)
+                                                >::type;
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 13
+
+#endif
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -581,6 +852,12 @@ class invoke_result
       BaseType {
 
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+template <class t_FN, class... t_ARGTYPES>
+using invoke_result_t = typename invoke_result<t_FN, t_ARGTYPES...>::type;
+#endif
 
 // }}} END GENERATED CODE
 #endif
@@ -11654,7 +11931,7 @@ true,
 #endif // ! defined(INCLUDED_BSLMF_INVOKERESULT_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
