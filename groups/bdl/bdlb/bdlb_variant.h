@@ -434,7 +434,7 @@ BSLS_IDENT("$Id: $")
 //: o The return value is specified with the function call.
 //
 ///'bslmf::Nil' Passed to Visitor
-///-  -  -  -  -  -  -  -  -  - -
+///  -  -  -  -  -  -  -  -  -  -
 // A simple visitor that does not require any return value might be one that
 // prints the value of the variant to 'stdout':
 //..

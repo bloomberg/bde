@@ -580,7 +580,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // types in the same way that native pointers can.
 //
 ///Implicit Conversion
-/// -  -  -  -  -  - -
+///-  -  -  -  -  -  -
 // As with native pointers, a pointer of the type 'B' that is publicly derived
 // from the type 'A', can be directly assigned a 'ManagedPtr' of 'A'.
 //
@@ -659,7 +659,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //
 ///Explicit Conversion
-/// -  -  -  -  -  - -
+///-  -  -  -  -  -  -
 // Through "aliasing", a managed pointer of any type can be explicitly
 // converted to a managed pointer of any other type using any legal cast
 // expression.  For example, to static-cast a managed pointer of type A to a

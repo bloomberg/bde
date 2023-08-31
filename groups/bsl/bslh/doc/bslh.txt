@@ -170,7 +170,7 @@
  unlimited number of data members into one, good, hash.
 
 /Swappable Algorithms
-/- - - - - - - - - -
+/ - - - - - - - - - -
  In the standard C++03 hashing system, anyone who wanted to hash a type had to
  use the algorithm written by the type implementer, or they had to write their
  own algorithm in a functor (without access to private data members of course).
@@ -613,7 +613,7 @@
  for any algorithm that takes a seed.
 
 /'bslh::SeededHash'
-/-  -  -  -  -  - -
+/  -  -  -  -  -  -
  'bslh::SeededHash' is very similar to 'bslh::Hash'.  Both are wrappers for the
  hashing algorithm functors in 'bslh and both present an interface that meets
  the requirements of the standard for 'std::hash'.  The interface of

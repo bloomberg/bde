@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 // key-value pairs (attributes).
 //
 ///Verifying the Format Specification for 'setFormat'
-///- - - - - - - - - - - - - - - - - - - - - -- - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The sections that follow describe the set of fields that can be provided in
 // the format specification supplied to 'setFormat'.
 // 'RecordJsonFormatter::setFormat' will ignore fields in the provided format

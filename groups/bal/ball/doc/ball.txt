@@ -790,7 +790,7 @@
  "simple" usage, and is illustrated in {Usage} below.
 
 /'ball::Observer'
-/- - - - - - - -
+/ - - - - - - - -
  'ball::Observer' is the object that receives "published" log messages.
  Specifically, 'ball::Observer' is a protocol (abstract interface), and the
  user must supply a concrete implementation (separately written or chosen from
@@ -801,7 +801,7 @@
  messages.
 
 /Logging Macros
-/- - - - - - -
+/ - - - - - - -
  For both convenience and uniformity of programming, 'ball' provides a suite of
  logging macros (defined in the 'ball_log' component).  All but the most
  demanding and customized applications will use the logging macros for basic
@@ -995,7 +995,7 @@ by observers:
 ..
 
 /Suggested Log Record Format
-/ - - - - -  - - - - - - - -
+/- - - - - - - - - - - - - -
 The logger now provides a new constant,
 'ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT', which is the
 recommended log format specification for most users (see the example above).
@@ -1312,7 +1312,7 @@ a simple logging rule, and associating attributes with a processing thread.
  'ball_asyncfileobserver'.
 
 /Tutorial Example 2: Hello World! With Modified Defaults
-/ - - - - - - - - -- - - - - - - - - - - - - - - - - - -
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - -
  This "Hello world!" example illustrates how to enable "recording" log records
  to the in-memory record buffer, and also how to change the severity level at
  which records are published as "pass-through".  The code is identical to

@@ -337,7 +337,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Class 'my_CountedHandle'
-///-  -  -  -  -  -  -  - -
+///  -  -  -  -  -  -  -  -
 // Then, we create class 'my_CountedHandle' that provides an individual handle
 // to the shared, reference-counted object.  Each 'my_CountedHandle' object
 // acts as a smart pointer, supplying an overloaded 'operator->' that provides
