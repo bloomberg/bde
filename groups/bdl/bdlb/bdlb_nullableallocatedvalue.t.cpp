@@ -87,6 +87,7 @@ using namespace bsl;
 // ACCESSORS
 // [02] const TYPE& value() const;
 // [02] bslma::Allocator *allocator() const;
+// [02] bsl::allocator<char> get_allocator() const;
 // [03] bsl::ostream& print(bsl::ostream&, int, int) const;
 // [08] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [08] int maxSupportedBdexVersion() const;
@@ -138,11 +139,16 @@ using namespace bsl;
 // [ 12] bool operator>=(const optional&, const NullableAllocatedValue&);
 // [ 12] bool operator> (const optional&, const NullableAllocatedValue&);
 //
+// DEPRECATED FUNCTIONS
+//  [14] const TYPE *addressOr(const TYPE *address) const;
+//  [14] TYPE& makeValueInplace(ARGS&&... args);
+//  [14] TYPE valueOr(const TYPE& otherValue) const;
+//  [14] const TYPE *valueOrNull() const;
 // TRAITS
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] INCOMPLETE CLASS SUPPORT
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -1708,7 +1714,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1749,6 +1755,106 @@ int main(int argc, char *argv[])
         ASSERT(53 == node.d_next.value().d_next.value().d_value);
 
       } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // DEPRECATED FUNCTIONS BROUGHT OVER FROM 'NullableValue'
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   const TYPE *addressOr(const TYPE *address) const;
+        //   TYPE& makeValueInplace(ARGS&&... args);
+        //   TYPE valueOr(const TYPE& otherValue) const;
+        //   const TYPE *valueOrNull() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+           << "DEPRECATED FUNCTIONS BROUGHT OVER FROM 'NullableValue'" << endl
+           << "======================================================" << endl;
+
+        bslma::TestAllocator         da("default",   veryVeryVeryVerbose);
+        bslma::TestAllocator         oa("other",     veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            Obj       mX(bsl::nullopt);       const Obj& X = mX;
+            Obj       mY(123);                const Obj& Y = mY;
+            Obj       mZ(456, &oa);           const Obj& Z = mZ;
+            ValueType v(789);
+
+            ASSERT(!X.has_value());
+            ASSERT(X.addressOr(&v) == &v);
+            ASSERT(X.valueOr(v)    == v);
+            ASSERT(X.valueOrNull() == NULL);
+            ASSERT(X.get_allocator().mechanism() == &da);
+
+            mX.makeValueInplace(4);
+            ASSERT( X.has_value());
+            ASSERTV(X.value(), 4 == X);
+
+            ASSERT( Y.has_value());
+            const ValueType *ptrY = &Y.value();
+            ASSERT(Y.addressOr(&v) == ptrY);
+            ASSERT(Y.valueOr(v)    == ValueType(123));
+            ASSERT(Y.valueOrNull() == ptrY);
+            ASSERT(Y.get_allocator().mechanism() == &da);
+
+            ASSERT( Z.has_value());
+            const ValueType *ptrZ = &Z.value();
+            ASSERT(Z.addressOr(&v) == ptrZ);
+            ASSERT(Z.valueOr(v)    == ValueType(456));
+            ASSERT(Z.valueOrNull() == ptrZ);
+            ASSERT(Z.get_allocator().mechanism() == &oa);
+        }
+
+        {
+            typedef bsl::string                             ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            const char *source = "0123456789ABCDEF";
+            Obj         mX(bsl::nullopt);       const Obj& X = mX;
+            Obj         mY(source);             const Obj& Y = mY;
+            Obj         mZ("456", &oa);         const Obj& Z = mZ;
+            ValueType   v("789");
+
+            ASSERT(!X.has_value());
+            ASSERT(X.addressOr(&v) == &v);
+            ASSERT(X.valueOr(v)    == v);
+            ASSERT(X.valueOrNull() == NULL);
+            ASSERT(X.get_allocator().mechanism() == &da);
+
+            ASSERT(!X.has_value());
+            mX.makeValueInplace(source, 3, 4);   // (char *, offset, count)
+            ASSERT( X.has_value());
+            ASSERTV(X.value(), "3456" == X);
+
+            ASSERT( Y.has_value());
+            const ValueType *ptrY = &Y.value();
+            ASSERT(Y.addressOr(&v) == ptrY);
+            ASSERT(Y.valueOr(v)    == ValueType(source));
+            ASSERT(Y.valueOrNull() == ptrY);
+            ASSERT(Y.get_allocator().mechanism() == &da);
+
+            ASSERT( Z.has_value());
+            const ValueType *ptrZ = &Z.value();
+            ASSERT(Z.addressOr(&v) == ptrZ);
+            ASSERT(Z.valueOr(v)    == ValueType("456"));
+            ASSERT(Z.valueOrNull() == ptrZ);
+            ASSERT(Z.get_allocator().mechanism() == &oa);
+        }
+
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING 'emplace'
@@ -1783,7 +1889,7 @@ int main(int argc, char *argv[])
             Obj         mX(bsl::nullopt);       const Obj& X = mX;
 
             ASSERT(!X.has_value());
-            mX.emplace(source, 3, 4);   // ValueType (size_t, offset, count)
+            mX.emplace(source, 3, 4);   // ValueType (char *, offset, count)
             ASSERT( X.has_value());
             ASSERTV(X.value(), "3456" == X);
 
@@ -2968,6 +3074,7 @@ int main(int argc, char *argv[])
         //   TYPE value_or(const ANY_TYPE &) const;
         //   TYPE& value();
         //   bslma::Allocator *allocator() const;
+        //   bsl::allocator<char> get_allocator() const;
         //   explicit operator bool() const;
         //   const TYPE& operator* () const;
         //   const TYPE* operator->() const;
@@ -3119,6 +3226,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { T_ T_ P(X) }
                 ASSERT(X.isNull());
                 ASSERT(X.allocator() == ALLOC);
+                ASSERT(X.get_allocator().mechanism() == ALLOC);
             }
 
             if (veryVerbose) cout << "\tTesting 'makeValue'." << endl;
@@ -3152,6 +3260,7 @@ int main(int argc, char *argv[])
                 ASSERT(!X.isNull());
                 ASSERTV(X.value(), VALUE1 == X.value());
                 ASSERT(X.allocator() == ALLOC);
+                ASSERT(X.get_allocator().mechanism() == ALLOC);
             }
 
             {

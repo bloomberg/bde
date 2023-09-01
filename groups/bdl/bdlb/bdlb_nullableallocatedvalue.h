@@ -83,6 +83,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_deprecate.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_review.h>
 
@@ -355,6 +357,12 @@ class NullableAllocatedValue {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
+    bsl::allocator<char> get_allocator() const;
+        // Return a 'bsl::allocator' constructed from the 'bslma::Allocator'
+        // used by this object to supply memory.  Note that if no allocator was
+        // supplied at construction the default allocator in effect at
+        // construction is used.
+
     bool has_value() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this object contains a value, and 'false'
         // otherwise.
@@ -434,6 +442,52 @@ class NullableAllocatedValue {
         // Return a reference providing non-modifiable access to the underlying
         // 'TYPE' object.  The behavior is undefined unless this object is
         // non-null.
+
+    // DEPRECATED FUNCTIONS
+    //  provided for compatibility with NullableValue
+
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::addressOr",
+                              "Use 'has_value() ? &value() : address' instead")
+    const TYPE *addressOr(const TYPE *address) const;
+        // Return an address providing non-modifiable access to the underlying
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and the specified 'address' otherwise.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=5
+    template <class... ARGS>
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
+                                                       "Use 'emplace' instead")
+    TYPE& makeValueInplace(ARGS&&... args);
+        // Assign to this nullable object the value of the (template parameter)
+        // 'TYPE' created in place using the specified 'args'.  Return a
+        // reference providing modifiable access to the created (value) object.
+        // The object is also accessible via the 'value' method.  If this
+        // nullable object already contains an object ('false == isNull()'),
+        // that object is destroyed before the new object is created.  If
+        // 'TYPE' has the trait 'bslma::UsesBslmaAllocator' ('TYPE' is
+        // allocator-enabled) the allocator specified at the construction of
+        // this nullable object is used to supply memory to the value object.
+        // Attempts to explicitly specify via 'args' another allocator to
+        // supply memory to the created (value) object are disallowed by the
+        // compiler.  Note that if the constructor of 'TYPE' throws an
+        // exception this object is left in the null state.
+#endif
+
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOr",
+                                                      "Use 'value_or' instead")
+    TYPE valueOr(const TYPE& otherValue) const;
+        // Return the value of the underlying object of a (template parameter)
+        // 'TYPE' if this object is non-null, and the specified 'otherValue'
+        // otherwise.  Note that this method returns *by* *value*, so may be
+        // inefficient in some contexts.
+
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOrNull",
+                                 "Use 'has_value() ? &value() : NULL' instead")
+    const TYPE *valueOrNull() const;
+        // Return an address providing non-modifiable access to the underlying
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and 0 otherwise.
+
 };
 
 // FREE OPERATORS
@@ -1222,6 +1276,14 @@ STREAM& NullableAllocatedValue<TYPE>::bdexStreamOut(STREAM& stream,
 
 template <class TYPE>
 inline
+bsl::allocator<char> NullableAllocatedValue<TYPE>::get_allocator() const
+{
+    return allocator();
+}
+
+
+template <class TYPE>
+inline
 bool NullableAllocatedValue<TYPE>::has_value() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_allocator.readFlag(k_HAS_VALUE);
@@ -1331,6 +1393,38 @@ const TYPE& NullableAllocatedValue<TYPE>::value() const
 #endif
 
     return *getAddress();
+}
+
+// DEPRECATED FUNCTIONS
+
+template <class TYPE>
+inline
+const TYPE *NullableAllocatedValue<TYPE>::addressOr(const TYPE *address) const
+{
+    return has_value() ? &value() : address;
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=5
+template <class TYPE>
+template <class... ARGS>
+inline
+TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(ARGS&&... args)
+{
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+#endif
+
+template <class TYPE>
+inline
+TYPE NullableAllocatedValue<TYPE>::valueOr(const TYPE& otherValue) const
+{
+    return has_value() ? value() : otherValue;
+}
+
+template <class TYPE>
+inline
+const TYPE *NullableAllocatedValue<TYPE>::valueOrNull() const {
+    return has_value() ? &value() : NULL;
 }
 
 }  // close package namespace
