@@ -30,7 +30,7 @@ pipeline {
                 branch "PR-*"               // a stage only runs for pull requests
             }
             steps{
-                echo 'Running arc diff with --nolint (in case there is a bde_verify error)'
+		echo 'Running BDE CI Bot'
                 sh """             
 		PATH=/bb/bde/bbshr/bin/:$PATH /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/bdecibot.py --verbose --nolint --url ${CHANGE_URL} --create-checkout ${WORKSPACE}
                 """                
