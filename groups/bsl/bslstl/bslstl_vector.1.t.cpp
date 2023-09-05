@@ -2,6 +2,8 @@
 #define BSLSTL_VECTOR_0T_AS_INCLUDE
 #include <bslstl_vector.0.t.cpp>
 
+#include <bslstl_string.h>
+
 #include <bsls_stopwatch.h>
 
 // ============================================================================
@@ -101,6 +103,9 @@ struct TestDriver1 : TestSupport<TYPE, ALLOC> {
 
     static void testCaseM1();
         // Performance test.
+
+    static void testCaseM2();
+        // 'push_back' performance test.
 };
 
                   // ==================================
@@ -162,10 +167,10 @@ void MetaTestDriver1<TYPE>::testCase8()
     TestDriver1<TYPE , StatelessAllocator<TYPE>  >::testCase8_swap_noexcept();
     TestDriver1<TYPE*, StatelessAllocator<TYPE*> >::testCase8_swap_noexcept();
 }
+
                                 // ----------
                                 // TEST CASES
                                 // ----------
-
 
 template <class TYPE, class ALLOC>
 void TestDriver1<TYPE, ALLOC>::testCase11()
@@ -4589,6 +4594,52 @@ void TestDriver1<TYPE, ALLOC>::testCaseM1()
     }
 }
 
+template <class TYPE, class ALLOC>
+void TestDriver1<TYPE, ALLOC>::testCaseM2()
+{
+    // ------------------------------------------------------------------------
+    // 'push_back' PERFORMANCE TEST
+    //
+    // Concerns:
+    //: 1 Making 'push_back' inline and moving its branch with capacity change
+    //:   into a separate function gives an increase in performance.
+    //
+    // Plan:
+    //: 1 Using 'bsls_stopwatch', the run time of the 'push_back' operations is
+    //    tallied over various iterations.
+    //
+    // Testing:
+    //   'push_back' PERFORMANCE TEST
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\n\t... with '%s' type.\n", NameOf<TYPE>().name());
+
+    const size_t NUM_CYCLES        = 1000000;
+    const size_t NUM_VALUES        = 100;
+    const size_t RESERVED_CAPACITY = NUM_CYCLES * NUM_VALUES;
+
+    bsl::vector<TYPE> VALUES(NUM_VALUES);
+    for (size_t i = 0; i < NUM_VALUES; ++i) {
+        VALUES[i] = static_cast<TYPE>(i);
+    }
+
+    bsl::vector<TYPE> mX;
+    mX.reserve(RESERVED_CAPACITY);
+
+    bsls::Stopwatch t;
+    t.start();
+
+    for (size_t i = 0; i < NUM_CYCLES; ++i) {
+        for (size_t j = 0; j < NUM_VALUES; ++j) {
+            mX.push_back(VALUES[j]);
+        }
+    }
+
+    double time = t.elapsedTime();
+
+    printf("\t\tTotal  : %1.6fs\n", time);
+}
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -5354,6 +5405,35 @@ int main(int argc, char *argv[])
         TestDriver1<bsltf::BitwiseCopyableTestType>::testCaseM1Range(
                                   ArrayLike<bsltf::BitwiseCopyableTestType>());
 
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // 'push_back' PERFORMANCE TEST
+        //
+        // Concerns:
+        //: 1 Making 'push_back' inline and moving its branch with capacity
+        //:   change into a separate function gives an increase in performance.
+        //
+        // Plan:
+        //: 1 Using 'bsls_stopwatch', the run time of the 'push_back'
+        //    operations is tallied over various iterations.
+        //
+        // Testing:
+        //   'push_back' PERFORMANCE TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'push_back' PERFORMANCE TEST"
+                            "\n============================\n");
+
+        TestDriver1<bool         >::testCaseM2();
+        TestDriver1<char         >::testCaseM2();
+        TestDriver1<short int    >::testCaseM2();
+        TestDriver1<int          >::testCaseM2();
+        TestDriver1<long int     >::testCaseM2();
+        TestDriver1<long long int>::testCaseM2();
+        TestDriver1<float        >::testCaseM2();
+        TestDriver1<double       >::testCaseM2();
+        TestDriver1<long double  >::testCaseM2();
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

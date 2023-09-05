@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jul  7 16:03:01 2023
+// Generated on Mon Sep  4 07:36:25 2023
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -511,6 +511,192 @@ class vector : public  vectorBase<VALUE_TYPE>
         // Reserve exactly the specified 'numElements'.  The behavior is
         // undefined unless this vector is empty and has no capacity.
 
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_vector.h
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
+#define BSLSTL_VECTOR_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_A
+#define BSLSTL_VECTOR_VARIADIC_LIMIT_A BSLSTL_VECTOR_VARIADIC_LIMIT
+#endif
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 0
+    void privateEmplaceBackWithAllocation(
+                          );
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 1
+    template <class Args_01>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 2
+    template <class Args_01,
+              class Args_02>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    void privateEmplaceBackWithAllocation(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    void privateEmplaceBackWithAllocation(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)...arguments);
+// }}} END GENERATED CODE
+#endif
+
+    void privatePushBackWithAllocation(const VALUE_TYPE& value);
+        // Append a copy of the specified 'value' to the end of this vector
+        // after changing its capacity.  If an exception is thrown, '*this' is
+        // unaffected.  Throw 'std::length_error' if 'size() == max_size()'.
+
+    void privatePushBackWithAllocation(
+                             BloombergLP::bslmf::MovableRef<VALUE_TYPE> value);
+        // Append the specified move-insertable 'value' to the end of this
+        // vector after changing its capacity.  'value' is left in a valid but
+        // unspecified state.  If an exception is thrown (other than by the
+        // move constructor of a non-copy-insertable 'value_type'), '*this' is
+        // unaffected.  Throw 'std::length_error' if 'size() == max_size()'.
+
   public:
     // CREATORS
 
@@ -773,29 +959,29 @@ class vector : public  vectorBase<VALUE_TYPE>
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_A
-#define BSLSTL_VECTOR_VARIADIC_LIMIT_A BSLSTL_VECTOR_VARIADIC_LIMIT
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_B
+#define BSLSTL_VECTOR_VARIADIC_LIMIT_B BSLSTL_VECTOR_VARIADIC_LIMIT
 #endif
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 0
     VALUE_TYPE &emplace_back(
                          );
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 1
     template <class Args_01>
     VALUE_TYPE &emplace_back(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 2
     template <class Args_01,
               class Args_02>
     VALUE_TYPE &emplace_back(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -803,9 +989,9 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -815,9 +1001,9 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -829,9 +1015,9 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -845,9 +1031,9 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -863,9 +1049,9 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -883,9 +1069,9 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -905,9 +1091,9 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -929,7 +1115,7 @@ class vector : public  vectorBase<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -966,10 +1152,10 @@ class vector : public  vectorBase<VALUE_TYPE>
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_B
-#define BSLSTL_VECTOR_VARIADIC_LIMIT_B BSLSTL_VECTOR_VARIADIC_LIMIT
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_C
+#define BSLSTL_VECTOR_VARIADIC_LIMIT_C BSLSTL_VECTOR_VARIADIC_LIMIT
 #endif
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
     iterator emplace(const_iterator position)
     {
         BSLS_ASSERT_SAFE(this->begin() <= position);
@@ -1015,9 +1201,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
     template <class Args_01>
     iterator emplace(const_iterator position,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
@@ -1067,9 +1253,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
     template <class Args_01,
               class Args_02>
     iterator emplace(const_iterator position,
@@ -1123,9 +1309,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -1183,9 +1369,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1247,9 +1433,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1315,9 +1501,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1387,9 +1573,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1463,9 +1649,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1543,9 +1729,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1627,9 +1813,9 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1715,7 +1901,7 @@ class vector : public  vectorBase<VALUE_TYPE>
 
         return this->begin() + index;
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -3351,6 +3537,696 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(size_type numElements)
     this->d_capacity = numElements;
 }
 
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_vector.h
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
+#define BSLSTL_VECTOR_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_D
+#define BSLSTL_VECTOR_VARIADIC_LIMIT_D BSLSTL_VECTOR_VARIADIC_LIMIT
+#endif
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 0
+template <class VALUE_TYPE, class ALLOCATOR>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                           )
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos);
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 0
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 1
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 1
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 2
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 2
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 3
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 3
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 4
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 4
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 5
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 5
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 6
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 6
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 7
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 7
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 8
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 8
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 9
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 9
+
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 10
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class... Args>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)...arguments)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+// }}} END GENERATED CODE
+#endif
+
+template <class VALUE_TYPE, class ALLOCATOR>
+void vector<VALUE_TYPE, ALLOCATOR>::privatePushBackWithAllocation(
+                                                       const VALUE_TYPE& value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                             "vector<...>:push_back(lvalue): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+
+    vector temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    // Construct before we risk invalidating the reference
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(ContainerBase::allocator(), pos, value);
+
+    // Nothing else should throw, but probably worth guarding the above
+    // 'construct' call for types with potentially-throwing destructive moves.
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();  // Nothing after this can throw
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+void vector<VALUE_TYPE, ALLOCATOR>::privatePushBackWithAllocation(
+                              BloombergLP::bslmf::MovableRef<VALUE_TYPE> value)
+{
+    VALUE_TYPE& lvalue = value;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                             "vector<...>:push_back(rvalue): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+
+    vector temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    // Construct before we risk invalidating the reference
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(ContainerBase::allocator(),
+                               pos,
+                               MoveUtil::move(lvalue));
+
+    // Nothing else should throw, but probably worth guarding the above
+    // 'construct' call for types with potentially-throwing destructive moves.
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();  // Nothing after this can throw
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+
 // CREATORS
 
                       // *** construct/copy/destroy ***
@@ -3790,10 +4666,10 @@ void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_C
-#define BSLSTL_VECTOR_VARIADIC_LIMIT_C BSLSTL_VECTOR_VARIADIC_LIMIT
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_E
+#define BSLSTL_VECTOR_VARIADIC_LIMIT_E BSLSTL_VECTOR_VARIADIC_LIMIT
 #endif
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 0
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 VALUE_TYPE &
@@ -3807,42 +4683,14 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos);
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+        privateEmplaceBackWithAllocation(
+                            );
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 0
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 1
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -3858,43 +4706,14 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 1
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 2
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -3913,44 +4732,15 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 2
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 3
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3972,45 +4762,16 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 3
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 4
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4035,46 +4796,17 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
                          BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 4
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 5
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4102,47 +4834,18 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
                          BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
                          BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 5
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 6
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4173,48 +4876,19 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
                          BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
                          BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
                          BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 6
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 7
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4248,23 +4922,7 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -4272,25 +4930,12 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
                          BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
                          BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 7
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 8
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4327,23 +4972,7 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -4352,25 +4981,12 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
                          BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
                          BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 8
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 9
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4410,23 +5026,7 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -4436,25 +5036,12 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
                          BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
                          BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 9
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 10
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4497,23 +5084,7 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
@@ -4524,23 +5095,10 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
                          BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
                          BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -4560,37 +5118,8 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
-
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
@@ -4598,6 +5127,7 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
 #endif
 
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 void vector<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -4607,45 +5137,12 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                             "vector<...>:push_back(lvalue): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        // Construct before we risk invalidating the reference
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(ContainerBase::allocator(),
-                                   pos,
-                                   value);
-
-        // Nothing else should throw, but probably worth guarding the above
-        // 'construct' call for types with potentially-throwing destructive
-        // moves.
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();  // Nothing after this can throw
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+        privatePushBackWithAllocation(value);
     }
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 void vector<VALUE_TYPE, ALLOCATOR>::push_back(
                               BloombergLP::bslmf::MovableRef<VALUE_TYPE> value)
 {
@@ -4657,40 +5154,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() == max_size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                             "vector<...>:push_back(rvalue): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        // Construct before we risk invalidating the reference
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(ContainerBase::allocator(),
-                                   pos,
-                                   MoveUtil::move(lvalue));
-
-        // Nothing else should throw, but probably worth guarding the above
-        // 'construct' call for types with potentially-throwing destructive
-        // moves.
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        guard.release();  // Nothing after this can throw
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+        privatePushBackWithAllocation(MoveUtil::move(lvalue));
     }
 }
 
@@ -5732,7 +6196,7 @@ extern template class bsl::vector<const char *>;
 #endif // ! defined(INCLUDED_BSLSTL_VECTOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

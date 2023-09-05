@@ -1103,6 +1103,31 @@ class vector : public  vectorBase<VALUE_TYPE>
         // Reserve exactly the specified 'numElements'.  The behavior is
         // undefined unless this vector is empty and has no capacity.
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    void privateEmplaceBackWithAllocation(Args&&...arguments);
+        // Change the capacity of this vector and append to its end a newly
+        // created 'value_type' object, constructed by forwarding
+        // 'get_allocator()' (if required) and the specified (variable number
+        // of) 'arguments' to the corresponding constructor of 'value_type'.
+        // If an exception is thrown (other than by the move constructor of a
+        // non-copy-insertable 'value_type'), '*this' is unaffected.  Throw
+        // 'std::length_error' if 'size() == max_size()'.
+#endif
+
+    void privatePushBackWithAllocation(const VALUE_TYPE& value);
+        // Append a copy of the specified 'value' to the end of this vector
+        // after changing its capacity.  If an exception is thrown, '*this' is
+        // unaffected.  Throw 'std::length_error' if 'size() == max_size()'.
+
+    void privatePushBackWithAllocation(
+                             BloombergLP::bslmf::MovableRef<VALUE_TYPE> value);
+        // Append the specified move-insertable 'value' to the end of this
+        // vector after changing its capacity.  'value' is left in a valid but
+        // unspecified state.  If an exception is thrown (other than by the
+        // move constructor of a non-copy-insertable 'value_type'), '*this' is
+        // unaffected.  Throw 'std::length_error' if 'size() == max_size()'.
+
   public:
     // CREATORS
 
@@ -1368,10 +1393,10 @@ class vector : public  vectorBase<VALUE_TYPE>
         // corresponding constructor of 'value_type'.  Return a reference
         // providing modifiable access to the inserted element.  If an
         // exception is thrown (other than by the move constructor of a
-        // non-copy-insertable 'value_type'), '*this' is unaffected.  This
-        // method requires that the (template parameter) type 'VALUE_TYPE' be
-        // 'move-insertable' into this vector and 'emplace-constructible' from
-        // 'arguments' (see
+        // non-copy-insertable 'value_type'), '*this' is unaffected.  Throw
+        // 'std::length_error' if 'size() == max_size()'.  This method requires
+        // that the (template parameter) type 'VALUE_TYPE' be 'move-insertable'
+        // into this vector and 'emplace-constructible' from 'arguments' (see
         // {Requirements on 'VALUE_TYPE'}).
 #endif
 
@@ -3042,6 +3067,125 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(size_type numElements)
     this->d_capacity = numElements;
 }
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class... Args>
+void vector<VALUE_TYPE, ALLOCATOR>::privateEmplaceBackWithAllocation(
+                                                            Args&&...arguments)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                         "vector<...>:emplace_back(args...): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+    vector    temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    // Construct before we risk invalidating the reference
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(
+                            ContainerBase::allocator(),
+                            pos,
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+
+    // Nothing else should throw, but probably worth guarding the above
+    // 'construct' call for types with potentially-throwing destructive moves.
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();  // Nothing after this can throw
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+#endif
+
+template <class VALUE_TYPE, class ALLOCATOR>
+void vector<VALUE_TYPE, ALLOCATOR>::privatePushBackWithAllocation(
+                                                       const VALUE_TYPE& value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                             "vector<...>:push_back(lvalue): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+
+    vector temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    // Construct before we risk invalidating the reference
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(ContainerBase::allocator(), pos, value);
+
+    // Nothing else should throw, but probably worth guarding the above
+    // 'construct' call for types with potentially-throwing destructive moves.
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();  // Nothing after this can throw
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+void vector<VALUE_TYPE, ALLOCATOR>::privatePushBackWithAllocation(
+                              BloombergLP::bslmf::MovableRef<VALUE_TYPE> value)
+{
+    VALUE_TYPE& lvalue = value;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                             "vector<...>:push_back(rvalue): vector too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(this->size() + 1,
+                                                            this->d_capacity,
+                                                            this->max_size());
+
+    vector temp(this->get_allocator());
+    temp.privateReserveEmpty(newCapacity);
+
+    // Construct before we risk invalidating the reference
+    VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
+    AllocatorTraits::construct(ContainerBase::allocator(),
+                               pos,
+                               MoveUtil::move(lvalue));
+
+    // Nothing else should throw, but probably worth guarding the above
+    // 'construct' call for types with potentially-throwing destructive moves.
+    Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
+                                                   pos,
+                                                   ContainerBase::allocator());
+    ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
+                                     this->d_dataBegin_p,
+                                     this->d_dataEnd_p,
+                                     ContainerBase::allocator());
+    guard.release();  // Nothing after this can throw
+
+    this->d_dataEnd_p = this->d_dataBegin_p;
+    temp.d_dataEnd_p  = ++pos;
+    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+}
+
 // CREATORS
 
                       // *** construct/copy/destroy ***
@@ -3490,47 +3634,15 @@ vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                         "vector<...>:emplace_back(args...): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        // Construct before we risk invalidating the reference
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(
-                            ContainerBase::allocator(),
-                            pos,
+        privateEmplaceBackWithAllocation(
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
-
-        // Nothing else should throw, but probably worth guarding the above
-        // 'construct' call for types with potentially-throwing destructive
-        // moves.
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();  // Nothing after this can throw
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     return *(this->d_dataEnd_p - 1);
 }
 #endif
 
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 void vector<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -3540,45 +3652,12 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(max_size() == this->size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                             "vector<...>:push_back(lvalue): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        // Construct before we risk invalidating the reference
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(ContainerBase::allocator(),
-                                   pos,
-                                   value);
-
-        // Nothing else should throw, but probably worth guarding the above
-        // 'construct' call for types with potentially-throwing destructive
-        // moves.
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        guard.release();  // Nothing after this can throw
-
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+        privatePushBackWithAllocation(value);
     }
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 void vector<VALUE_TYPE, ALLOCATOR>::push_back(
                               BloombergLP::bslmf::MovableRef<VALUE_TYPE> value)
 {
@@ -3590,40 +3669,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(
         ++this->d_dataEnd_p;
     }
     else {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() == max_size())){
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                             "vector<...>:push_back(rvalue): vector too long");
-        }
-
-        size_type newCapacity = Vector_Util::computeNewCapacity(
-                                                             this->size() + 1,
-                                                             this->d_capacity,
-                                                             this->max_size());
-
-        vector temp(this->get_allocator());
-        temp.privateReserveEmpty(newCapacity);
-
-        // Construct before we risk invalidating the reference
-        VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
-        AllocatorTraits::construct(ContainerBase::allocator(),
-                                   pos,
-                                   MoveUtil::move(lvalue));
-
-        // Nothing else should throw, but probably worth guarding the above
-        // 'construct' call for types with potentially-throwing destructive
-        // moves.
-        Vector_PushProctor<VALUE_TYPE, ALLOCATOR> guard(
-                                                   pos,
-                                                   ContainerBase::allocator());
-        ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
-                                         this->d_dataBegin_p,
-                                         this->d_dataEnd_p,
-                                         ContainerBase::allocator());
-        this->d_dataEnd_p = this->d_dataBegin_p;
-        guard.release();  // Nothing after this can throw
-        temp.d_dataEnd_p = ++pos;
-        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+        privatePushBackWithAllocation(MoveUtil::move(lvalue));
     }
 }
 

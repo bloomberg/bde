@@ -161,6 +161,7 @@
 //
 // INTERACTIVE AND SPECIAL TESTS
 // [-1] PERFORMANCE TEST
+// [-2] 'push_back' PERFORMANCE TEST
 //
 // ~~ bslstl_vector.2.t.cpp ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // CREATORS:
