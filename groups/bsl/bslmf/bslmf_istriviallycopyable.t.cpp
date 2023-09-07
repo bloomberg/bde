@@ -49,7 +49,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_trivially_copyable_v
 //
 // ----------------------------------------------------------------------------
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
+// [ 6] bslmf::IsTriviallyCopyableCheck\n
 // [ 5] TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
 // [ 2] EXTENDING bsl::is_trivially_copyable
 // [ 3] CONCERN: bsl::is_trivially_copyable<bsls::TimeInterval>::value
@@ -556,12 +557,40 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING: bslmf::IsTriviallyCopyableCheck
+        //
+        // Concern:
+        //: 1 Confirm that 'bslmf::IsTriviallyCopyableCheck' returns the same
+        //:   value as 'bsl::is_trivially_copyable'.
+        //:
+        //: 2 On compilers that support 'std::is_trivially_copyable' and
+        //:   'static_assert', confirm that a compile-time error will occur if
+        //:   'IsTriviallyCopyableCheck' is applied to a type for which the
+        //:   'std' and 'bsl' versions of 'is_trivially_copyable' don't match.
+        //
+        // Plan:
+        //: 1 Confirm that 'bsl::is_trivially_copyable' and
+        //:   'bslmf::IsTriviallyCopyableCheck' return the same result on a
+        //:   couple of types, one trivially copyable and one not.
+        //:
+        //: 2 When a compile-time flag is set, apply
+        //:   'bslmf::IsTriviallyCopyableCheck' to a type which for which the
+        //:   'bsl' and 'std' versions of 'is_trivially_copyable' differ, and
+        //:   observe the compile-time failure.
+        //
+        // Testing:
+        //   bslmf::IsTriviallyCopyableCheck\n
         // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING: bslmf::IsTriviallyCopyableCheck\n"
+                            "========================================\n");
+
+        ASSERT( bslmf::IsTriviallyCopyableCheck<
+                                           UserDefinedTcTestType>::value);
+        ASSERT( bsl::is_trivially_copyable<UserDefinedTcTestType>::value);
 
         ASSERT(!bslmf::IsTriviallyCopyableCheck<
                                            UserDefinedNonTcTestType>::value);
-        ASSERT( bslmf::IsTriviallyCopyableCheck<
-                                           UserDefinedTcTestType>::value);
+        ASSERT(!bsl::is_trivially_copyable<UserDefinedNonTcTestType>::value);
 
         // 'UserDefinedWrongTestType' is trivially copyable according to 'bsl'
         // but not according to 'std', so if it is evaluated with
@@ -573,10 +602,19 @@ int main(int argc, char *argv[])
         ASSERT(!std::is_trivially_copyable<UserDefinedWrongTcTestType>::value);
 #endif
 
-//      Deliberately fails to compile:
-//
-//      ASSERT( bslmf::IsTriviallyCopyableCheck<
-//                                         UserDefinedWrongTcTestType>::value);
+#define U_FAIL_TO_COMPILE 0     // setting to '1' will result in compile-time
+                                // failure in C++11 and beyond
+#if     U_FAIL_TO_COMPILE
+        // Deliberately fails to compile:
+
+        ASSERT( bslmf::IsTriviallyCopyableCheck<
+                                           UserDefinedWrongTcTestType>::value);
+
+# if !defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
+        printf("Compiler doesn't support 'std::is_trivially_copyable', no"
+                                                                    " test\n");
+# endif
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -626,6 +664,7 @@ int main(int argc, char *argv[])
         // Native trait checks detect that POD types are trivially copyable,
         // even without trait info.  Our non-native trait check implementation
         // has to be pessimistic and assume they are not.
+
 #ifdef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
         bool expected_i_t_c_with_pod_member = true;
 #else

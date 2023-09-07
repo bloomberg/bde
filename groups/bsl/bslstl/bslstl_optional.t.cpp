@@ -208,6 +208,11 @@ using namespace bsl;
 // [16] optional make_optional(TYPE&&);
 // [16] optional make_optional(ARG&&, ARGS&&...);
 // [16] optional make_optional(initializer_list, ARGS&&...);
+//
+// TRAITS
+// [28] bslmf::IsBitwiseMoveable<Obj>
+// [28] bslmf::IsBitwiseCopyable<Obj>
+//
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [14] DRQS 169300521
@@ -6379,7 +6384,18 @@ void TestDriver<TYPE>::testCase28()
     // Plan:
     //: 1 Check the 3 traits with asserts.
     //:
-    //: 2 If we expect 'Obj' to be move it, try moving it between two
+    //: 2 If we expect 'Obj' to be bitwise moveable, try moving it between two
+    //:   'ObjectBuffers'.
+    //:
+    //: 3 If we expect 'Obj' to be bitwise copyable, try copying it between two
+    //:   'ObjectBuffers'.
+    //:
+    //: 4 Don't run this test on any 'TYPE' for which 'IsBitwiseCopyable<TYPE>'
+    //:   != 'IsBitwiseCopyable<Obj>'.
+    //
+    // Testing
+    //   bslmf::IsBitwiseMoveable<Obj>
+    //   bslmf::IsBitwiseCopyable<Obj>
     // ------------------------------------------------------------------------
 
     const char *type = bsls::NameOf<TYPE>().name();
@@ -8401,13 +8417,9 @@ void TestDriver<TYPE>::testCase15()
 
             BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
                                          std::optional<bsl::allocator<char>>>);
-
-            // So, because 'std::optional' is the base class of 'bsl::optional'
-            // for non-allocating types, this means that:
-
-            BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
-                                         bsl::optional<bsl::allocator<char>>>);
 #endif
+            BSLMF_ASSERT(bslmf::IsBitwiseCopyable<
+                                bsl::optional<bsl::allocator<char> > >::value);
 
             // ... and we have to be careful and guard this next assert:
 
@@ -8428,12 +8440,15 @@ void TestDriver<TYPE>::testCase15()
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        ASSERTV(valueTypeName, usesAllocatorObj,
-                bslmf::IsBitwiseCopyable_v<ValueType>,
-                bslmf::IsBitwiseCopyable_v<Obj>,
-                bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>,
-                bslmf::IsBitwiseCopyable_v<Obj> ==
-                bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>);
+        if (bslmf::IsBitwiseCopyable_v<ValueType>
+                     == bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>) {
+            ASSERTV(valueTypeName, usesAllocatorObj,
+                    bslmf::IsBitwiseCopyable_v<ValueType>,
+                    bslmf::IsBitwiseCopyable_v<Obj>,
+                    bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>,
+                    bslmf::IsBitwiseCopyable_v<Obj> ==
+                    bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>);
+        }
 #endif
     }
 }

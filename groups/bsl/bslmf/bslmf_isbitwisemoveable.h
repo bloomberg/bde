@@ -600,7 +600,7 @@ template <class t_TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE constexpr bool IsBitwiseMoveable_v =
                                               IsBitwiseMoveable<t_TYPE>::value;
     // This template variable represents the result value of the
-    // 'bsl::is_trivially_moveable' meta-function.
+    // 'bslmf::IsBitwiseMoveable' meta-function.
 #endif
 
 template <class t_TYPE,

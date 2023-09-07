@@ -2778,9 +2778,9 @@ class optional<TYPE, false> : public std::optional<TYPE> {
                            BloombergLP::bslmf::IsBitwiseMoveable,
                            BloombergLP::bslmf::IsBitwiseMoveable<TYPE>::value);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
-                   optional,
-                   BloombergLP::bslmf::IsBitwiseCopyable,
-                   BloombergLP::bslmf::IsBitwiseCopyable<OptionalBase>::value);
+                           optional,
+                           BloombergLP::bslmf::IsBitwiseCopyable,
+                           BloombergLP::bslmf::IsBitwiseCopyable<TYPE>::value);
 
     // CREATORS
     optional() noexcept;

@@ -195,6 +195,13 @@ void printTypeTraits()
     else {
         printf("Type does not define bsl::is_trivially_copyable.\n");
     }
+
+    if (bslmf::IsBitwiseCopyable<TYPE>::value) {
+        printf("Type defines bslmf::IsBitwiseCopyable.\n");
+    }
+    else {
+        printf("Type does not define bslmf::IsBitwiseCopyable.\n");
+    }
 }
 //..
 

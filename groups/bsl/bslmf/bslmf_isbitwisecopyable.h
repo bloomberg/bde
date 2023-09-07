@@ -82,7 +82,6 @@ BSLS_IDENT("$Id: $")
 //                                     bslmf::IsBitwiseCopyable);
 //
 //      // CREATORS
-//      // CREATORS
 //      MyNonTriviallyCopyableType() {}
 //      MyNonTriviallyCopyableType(const MyNonTriviallyCopyableType&) {}
 //      ~MyNonTriviallyCopyableType() {}
@@ -273,38 +272,6 @@ struct IsBitwiseCopyable<t_TYPE&&> : bsl::false_type {
 };
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-template <class NON_CV_TYPE, class = void>
-struct IsBitwiseCopyable_Solaris
-     : bsl::false_type {
-    // The Solaris CC compiler (prior to CC 12.4) will match certain types,
-    // such as abominable function types, as matching a 'cv'-qualified type in
-    // partial specialization, even when that type is not 'cv'-qualified.  The
-    // idiom of implementing a partial specialization for 'cv'-qualified traits
-    // in terms of the primary template then becomes infinitely recursive for
-    // those special cases, so we provide a shim implementation class to handle
-    // the delegation.  This primary template always derives from 'false_type',
-    // and will be matched for function types, reference types, and 'void',
-    // none of which are bitwise copyable.  The partial specialization below
-    // handles recursion back to the primary trait for all other types.
-};
-
-template <class NON_CV_TYPE>
-struct IsBitwiseCopyable_Solaris<NON_CV_TYPE, BSLMF_VOIDTYPE(NON_CV_TYPE[])>
-                                     : IsBitwiseCopyable<NON_CV_TYPE>::type {};
-
-template <class t_TYPE>
-struct IsBitwiseCopyable<const t_TYPE> : IsBitwiseCopyable_Solaris<t_TYPE> {};
-
-template <class t_TYPE>
-struct IsBitwiseCopyable<volatile t_TYPE> :
-                                          IsBitwiseCopyable_Solaris<t_TYPE> {};
-
-template <class t_TYPE>
-struct IsBitwiseCopyable<const volatile t_TYPE> :
-                                          IsBitwiseCopyable_Solaris<t_TYPE> {};
-#else
-
 template <class t_TYPE>
 struct IsBitwiseCopyable<const t_TYPE> : IsBitwiseCopyable<t_TYPE> {};
 
@@ -313,8 +280,6 @@ struct IsBitwiseCopyable<volatile t_TYPE> : IsBitwiseCopyable<t_TYPE> {};
 
 template <class t_TYPE>
 struct IsBitwiseCopyable<const volatile t_TYPE> : IsBitwiseCopyable<t_TYPE> {};
-
-#endif
 
 template <class t_TYPE, int t_LEN>
 struct IsBitwiseCopyable<t_TYPE[t_LEN]> : IsBitwiseCopyable<t_TYPE> {};
@@ -330,10 +295,6 @@ template <class t_TYPE, int t_LEN>
 struct IsBitwiseCopyable<const volatile t_TYPE[t_LEN]> :
                                                   IsBitwiseCopyable<t_TYPE> {};
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
-
 template <class t_TYPE>
 struct IsBitwiseCopyable<t_TYPE[]> : IsBitwiseCopyable<t_TYPE>::type {};
 template <class t_TYPE>
@@ -347,8 +308,6 @@ struct IsBitwiseCopyable<const volatile t_TYPE[]>
                                           : IsBitwiseCopyable<t_TYPE>::type {};
     // These partial specializations ensures that array-of-unknown-bound types
     // have the same result as their element type.
-
-#endif  // !ibm
 
 }  // close namespace bslmf
 }  // close enterprise namespace

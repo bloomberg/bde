@@ -219,21 +219,12 @@ void aSsErT(bool condition, const char *message, int line)
 //   that type, and pointers and references to each of those cv-qualified
 //   types, and arrays of those cv-qualified types.  Note that this macro does
 //   not recursively test arrays of pointers to 'TYPE'.
-#if defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
-# define ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(TYPE, RESULT)               \
-    ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE, RESULT);                       \
-    ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE[128], RESULT);                  \
-    ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE[12][8], RESULT)
-#else
-# define ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(TYPE, RESULT)               \
+#define ASSERT_IS_BITWISE_COPYABLE_OBJECT_TYPE(TYPE, RESULT)                \
     ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE, RESULT);                       \
     ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE[128], RESULT);                  \
     ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE[12][8], RESULT);                \
     ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE[], RESULT);                     \
     ASSERT_IS_BITWISE_COPYABLE_CV_TYPE(TYPE[][8], RESULT)
-#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
