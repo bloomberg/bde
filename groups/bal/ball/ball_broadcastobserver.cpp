@@ -30,9 +30,7 @@ int BroadcastObserver::deregisterObserver(const bsl::string_view& observerName)
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
-    // TODO: until {DRQS 164220683} is implemented.
-    ObserverRegistry::iterator it = d_observers.find(
-                                                    bsl::string(observerName));
+    ObserverRegistry::iterator it = d_observers.find(observerName);
 
     if (it == d_observers.end() ) {
         return 1;                                                     // RETURN
@@ -67,9 +65,7 @@ bsl::shared_ptr<Observer> BroadcastObserver::findObserver(
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
-    // TODO: until {DRQS 164220683} is implemented.
-    ObserverRegistry::iterator it = d_observers.find(
-                                                    bsl::string(observerName));
+    ObserverRegistry::iterator it = d_observers.find(observerName);
 
     if (it == d_observers.end()) {
         return bsl::shared_ptr<Observer>();                           // RETURN
@@ -118,9 +114,7 @@ BroadcastObserver::findObserver(const bsl::string_view& observerName) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
-    // TODO: until {DRQS 164220683} is implemented.
-    ObserverRegistry::const_iterator it = d_observers.find(
-                                                    bsl::string(observerName));
+    ObserverRegistry::const_iterator it = d_observers.find(observerName);
 
     if (it == d_observers.end()) {
         return bsl::shared_ptr<const Observer>();                     // RETURN

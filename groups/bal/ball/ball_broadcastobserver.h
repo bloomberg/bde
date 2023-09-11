@@ -142,6 +142,9 @@ BSLS_IDENT("$Id: $")
 
 #include <ball_observer.h>
 
+#include <bdlb_transparentequalto.h>
+#include <bdlb_transparenthash.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
@@ -177,7 +180,9 @@ class BroadcastObserver : public Observer {
   public:
     // TYPES
     typedef bsl::unordered_map<bsl::string,
-                               bsl::shared_ptr<Observer> > ObserverRegistry;
+                               bsl::shared_ptr<Observer>,
+                               bdlb::TransparentHash,
+                               bdlb::TransparentEqualTo> ObserverRegistry;
         // This 'typedef' is an alias for the type of the registry maintained
         // by this observer.
 
