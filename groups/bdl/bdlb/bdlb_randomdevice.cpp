@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_sysrandom_cpp,"$Id$ $CSID$")
 
+#include <bslmt_once.h>
+
 #include <bsls_platform.h>
 #include <bsls_assert.h>
 
@@ -193,11 +195,16 @@ int RandomDevice::getRandomBytes(unsigned char *buffer, size_t numBytes)
 {
 #ifdef BDLB_USE_WIN_CRYPT
 
-    static HCRYPTPROV_Adapter hCryptProv;
+    static HCRYPTPROV_Adapter *s_hCryptProv_p;
+    BSLMT_ONCE_DO {
+        static HCRYPTPROV_Adapter s_hCryptProv;
+
+        s_hCryptProv_p = &s_hCryptProv;
+    }
     // if the context is NULL, return error, otherwise return the return value
     // of CryptGenRandom
-    return hCryptProv.hCryptProv() &&
-           !CryptGenRandom(hCryptProv.hCryptProv(),
+    return s_hCryptProv_p->hCryptProv() &&
+           !CryptGenRandom(s_hCryptProv_p->hCryptProv(),
                            numBytes,
                            static_cast<BYTE *>(buffer));
 

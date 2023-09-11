@@ -19,8 +19,12 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bsl_sstream.h>
 
 #include <bslim_printer.h>
+
 #include <bslma_deallocatorguard.h>
+
 #include <bslmf_assert.h>
+
+#include <bslmt_once.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #include <math.h>
@@ -347,8 +351,13 @@ template <class CHARTYPE, class INPUTITERATOR>
 const DecimalNumGet<CHARTYPE, INPUTITERATOR>&
 DecimalNumGet<CHARTYPE, INPUTITERATOR>::object()
 {
-    static DecimalNumGet<CHARTYPE, INPUTITERATOR> rc;
-    return rc;
+    static DecimalNumGet<CHARTYPE, INPUTITERATOR> *s_rc_p;
+    BSLMT_ONCE_DO {
+        static DecimalNumGet<CHARTYPE, INPUTITERATOR> s_rc;
+
+        s_rc_p = &s_rc;
+    }
+    return *s_rc_p;
 }
 
 template <class CHARTYPE, class INPUTITERATOR>
@@ -499,8 +508,13 @@ template <class CHARTYPE, class OUTPUTITERATOR>
 const DecimalNumPut<CHARTYPE, OUTPUTITERATOR>&
 DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::object()
 {
-    static DecimalNumPut<CHARTYPE, OUTPUTITERATOR> rc;
-    return rc;
+    static DecimalNumPut<CHARTYPE, OUTPUTITERATOR> *s_rc_p;
+    BSLMT_ONCE_DO {
+        static DecimalNumPut<CHARTYPE, OUTPUTITERATOR> s_rc;
+
+        s_rc_p = &s_rc;
+    }
+    return *s_rc_p;
 }
 
 template <class CHARTYPE, class OUTPUTITERATOR>

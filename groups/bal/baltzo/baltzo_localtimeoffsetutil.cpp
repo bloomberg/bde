@@ -13,6 +13,8 @@
 
 #include <bslma_default.h>
 
+#include <bslmt_once.h>
+
 #include <bsls_assert.h>
 #include <bsls_review.h>
 #include <bsls_timeinterval.h>
@@ -56,8 +58,15 @@ LocalTimePeriod *LocalTimeOffsetUtil::privateLocalTimePeriod()
 inline
 bslmt::RWMutex *LocalTimeOffsetUtil::privateLock()
 {
-    static bslmt::RWMutex lock;
-    return &lock;
+    static bslmt::RWMutex *s_lock_p;
+
+    BSLMT_ONCE_DO {
+        static bslmt::RWMutex s_lock;
+
+        s_lock_p = &s_lock;
+    }
+
+    return s_lock_p;
 }
 
 bsl::string *LocalTimeOffsetUtil::privateTimezone()
