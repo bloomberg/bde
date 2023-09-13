@@ -417,6 +417,67 @@ void testRelationalOperationsNonNull(const INIT_TYPE& lesserVal,
 
     ASSERTV( (secondGreater >= firstLesser  ));
     ASSERTV( (secondGreater >= firstGreater ));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (bsl::three_way_comparable_with<FIRST_TYPE, SECOND_TYPE>) {
+        ASSERTV( ((firstLesser   <=> secondLesser ) == 0));
+        ASSERTV(!((firstLesser   <=> secondLesser ) != 0));
+        ASSERTV(!((firstLesser   <=> secondLesser )  < 0));
+        ASSERTV(!((firstLesser   <=> secondLesser )  > 0));
+        ASSERTV( ((firstLesser   <=> secondLesser ) <= 0));
+        ASSERTV( ((firstLesser   <=> secondLesser ) >= 0));
+
+        ASSERTV(!((firstLesser   <=> secondGreater) == 0));
+        ASSERTV( ((firstLesser   <=> secondGreater) != 0));
+        ASSERTV( ((firstLesser   <=> secondGreater)  < 0));
+        ASSERTV(!((firstLesser   <=> secondGreater)  > 0));
+        ASSERTV( ((firstLesser   <=> secondGreater) <= 0));
+        ASSERTV(!((firstLesser   <=> secondGreater) >= 0));
+
+        ASSERTV(!((firstGreater  <=> secondLesser ) == 0));
+        ASSERTV( ((firstGreater  <=> secondLesser ) != 0));
+        ASSERTV(!((firstGreater  <=> secondLesser )  < 0));
+        ASSERTV( ((firstGreater  <=> secondLesser )  > 0));
+        ASSERTV(!((firstGreater  <=> secondLesser ) <= 0));
+        ASSERTV( ((firstGreater  <=> secondLesser ) >= 0));
+
+        ASSERTV( ((firstGreater  <=> secondGreater) == 0));
+        ASSERTV(!((firstGreater  <=> secondGreater) != 0));
+        ASSERTV(!((firstGreater  <=> secondGreater)  < 0));
+        ASSERTV(!((firstGreater  <=> secondGreater)  > 0));
+        ASSERTV( ((firstGreater  <=> secondGreater) <= 0));
+        ASSERTV( ((firstGreater  <=> secondGreater) >= 0));
+
+        ASSERTV( ((secondLesser  <=> firstLesser  ) == 0));
+        ASSERTV(!((secondLesser  <=> firstLesser  ) != 0));
+        ASSERTV(!((secondLesser  <=> firstLesser  )  < 0));
+        ASSERTV(!((secondLesser  <=> firstLesser  )  > 0));
+        ASSERTV( ((secondLesser  <=> firstLesser  ) <= 0));
+        ASSERTV( ((secondLesser  <=> firstLesser  ) >= 0));
+
+        ASSERTV(!((secondLesser  <=> firstGreater ) == 0));
+        ASSERTV( ((secondLesser  <=> firstGreater ) != 0));
+        ASSERTV( ((secondLesser  <=> firstGreater )  < 0));
+        ASSERTV(!((secondLesser  <=> firstGreater )  > 0));
+        ASSERTV( ((secondLesser  <=> firstGreater ) <= 0));
+        ASSERTV(!((secondLesser  <=> firstGreater ) >= 0));
+
+        ASSERTV(!((secondGreater <=> firstLesser  ) == 0));
+        ASSERTV( ((secondGreater <=> firstLesser  ) != 0));
+        ASSERTV(!((secondGreater <=> firstLesser  )  < 0));
+        ASSERTV( ((secondGreater <=> firstLesser  )  > 0));
+        ASSERTV(!((secondGreater <=> firstLesser  ) <= 0));
+        ASSERTV( ((secondGreater <=> firstLesser  ) >= 0));
+
+        ASSERTV( ((secondGreater <=> firstGreater ) == 0));
+        ASSERTV(!((secondGreater <=> firstGreater ) != 0));
+        ASSERTV(!((secondGreater <=> firstGreater )  < 0));
+        ASSERTV(!((secondGreater <=> firstGreater )  > 0));
+        ASSERTV( ((secondGreater <=> firstGreater ) <= 0));
+        ASSERTV( ((secondGreater <=> firstGreater ) >= 0));
+    }
+#endif
 }
 
 template <class FIRST_NV_TYPE, class SECOND_TYPE, class INIT_TYPE>
@@ -456,6 +517,25 @@ void testRelationalOperationsOneNull(const INIT_TYPE& initValue)
     ASSERTV(!(secondValue <= firstNullNV));
     ASSERTV( (secondValue >  firstNullNV));
     ASSERTV( (secondValue >= firstNullNV));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_TYPE>) {
+        ASSERTV(!((firstNullNV <=> secondValue) == 0));
+        ASSERTV( ((firstNullNV <=> secondValue) != 0));
+        ASSERTV( ((firstNullNV <=> secondValue)  < 0));
+        ASSERTV(!((firstNullNV <=> secondValue)  > 0));
+        ASSERTV( ((firstNullNV <=> secondValue) <= 0));
+        ASSERTV(!((firstNullNV <=> secondValue) >= 0));
+
+        ASSERTV(!((secondValue <=> firstNullNV) == 0));
+        ASSERTV( ((secondValue <=> firstNullNV) != 0));
+        ASSERTV(!((secondValue <=> firstNullNV)  < 0));
+        ASSERTV( ((secondValue <=> firstNullNV)  > 0));
+        ASSERTV(!((secondValue <=> firstNullNV) <= 0));
+        ASSERTV( ((secondValue <=> firstNullNV) >= 0));
+    }
+#endif
 }
 
 template <class FIRST_NV_TYPE, class SECOND_NV_TYPE>
@@ -492,6 +572,26 @@ void testRelationalOperationsBothNull()
     ASSERTV( (secondNull <= firstNull));
     ASSERTV(!(secondNull >  firstNull));
     ASSERTV( (secondNull >= firstNull));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    if constexpr (bsl::three_way_comparable_with<FIRST_NV_TYPE,
+                                                 SECOND_NV_TYPE>) {
+        ASSERTV( ((firstNull  <=> secondNull) == 0));
+        ASSERTV(!((firstNull  <=> secondNull) != 0));
+        ASSERTV(!((firstNull  <=> secondNull)  < 0));
+        ASSERTV(!((firstNull  <=> secondNull)  > 0));
+        ASSERTV( ((firstNull  <=> secondNull) <= 0));
+        ASSERTV( ((firstNull  <=> secondNull) >= 0));
+
+        ASSERTV( ((secondNull <=> firstNull ) == 0));
+        ASSERTV(!((secondNull <=> firstNull ) != 0));
+        ASSERTV(!((secondNull <=> firstNull )  < 0));
+        ASSERTV(!((secondNull <=> firstNull )  > 0));
+        ASSERTV( ((secondNull <=> firstNull ) <= 0));
+        ASSERTV( ((secondNull <=> firstNull ) >= 0));
+    }
+#endif
 }
 
 template <class FIRST_TYPE, class SECOND_TYPE, class INIT_TYPE>
@@ -503,6 +603,11 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
 
     typedef bsl::optional< FIRST_TYPE>        FIRST_BO_TYPE;
     typedef bsl::optional<SECOND_TYPE>        SECOND_BO_TYPE;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    typedef std::optional< FIRST_TYPE>        FIRST_SO_TYPE;
+    typedef std::optional<SECOND_TYPE>        SECOND_SO_TYPE;
+#endif
 
     testRelationalOperationsNonNull<FIRST_TYPE,    SECOND_NV_TYPE>(lesserVal,
                                                                    greaterVal);
@@ -524,6 +629,55 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
 
     testRelationalOperationsBothNull<FIRST_NV_TYPE, SECOND_BO_TYPE>();
     testRelationalOperationsBothNull<FIRST_BO_TYPE, SECOND_NV_TYPE>();
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    testRelationalOperationsNonNull<FIRST_SO_TYPE, SECOND_NV_TYPE>(lesserVal,
+                                                                   greaterVal);
+    testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_SO_TYPE>(lesserVal,
+                                                                   greaterVal);
+
+    testRelationalOperationsOneNull<FIRST_SO_TYPE, SECOND_NV_TYPE>(lesserVal);
+    testRelationalOperationsOneNull<SECOND_NV_TYPE, FIRST_SO_TYPE>(lesserVal);
+
+    testRelationalOperationsBothNull<FIRST_NV_TYPE, SECOND_SO_TYPE>();
+    testRelationalOperationsBothNull<FIRST_SO_TYPE, SECOND_NV_TYPE>();
+#endif
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_TYPE, SECOND_NV_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_TYPE, SECOND_BO_TYPE>));
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_BO_TYPE, SECOND_TYPE>));
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_NV_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_BO_TYPE, SECOND_BO_TYPE>));
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_NV_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_BO_TYPE, SECOND_BO_TYPE>));
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_TYPE, SECOND_NV_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_TYPE, SECOND_SO_TYPE>));
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_SO_TYPE, SECOND_TYPE>));
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_NV_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_SO_TYPE, SECOND_SO_TYPE>));
+
+    ASSERTV((
+        bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_NV_TYPE> ==
+        bsl::three_way_comparable_with<FIRST_SO_TYPE, SECOND_SO_TYPE>));
+#endif
 
 }
 
@@ -5288,7 +5442,7 @@ void TestDriver<TEST_TYPE>::testCase29()
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
     const char *type = bsls::NameOf<TEST_TYPE>().name();
 
-    TEST_TYPE    mTT;
+    TEST_TYPE    mTT = TEST_TYPE();
 
     if (veryVerbose) {
         cout << "Type: " << type << ": default c'tor: " <<
@@ -6551,9 +6705,12 @@ int main(int argc, char *argv[])
             PP(BSLS_COMPILERFEATURES_CPLUSPLUS);
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            auto comp = bsl::tie(o) <=> bsl::tie(o);
-            int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(o) <=> bsl::tie(o);
+                int  ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::tie(o) == bsl::tie(o));
             PP(bsl::tie(o) == bsl::tie(o));
@@ -6565,9 +6722,12 @@ int main(int argc, char *argv[])
 
             bdlb::NullableValue<int> nv;
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::tie(nv) <=> bsl::tie(nv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(nv) <=> bsl::tie(nv);
+                auto ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::tie(nv) == bsl::tie(nv));
             PP(bsl::tie(nv) == bsl::tie(nv));
@@ -6578,9 +6738,12 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::tie(o) <=> bsl::tie(nv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(o) <=> bsl::tie(nv);
+                auto ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::tie(o) == bsl::tie(nv));
             PP(bsl::tie(o) == bsl::tie(nv));
@@ -6591,9 +6754,12 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::tie(nv) <=> bsl::tie(o);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(nv) <=> bsl::tie(o);
+                auto ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::tie(nv) == bsl::tie(o));
             PP(bsl::tie(nv) == bsl::tie(o));
@@ -6606,9 +6772,12 @@ int main(int argc, char *argv[])
             o = INT_MIN;    P(*o);
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::tie(o) <=> bsl::tie(nv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(1 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(o) <=> bsl::tie(nv);
+                auto ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::tie(o) == bsl::tie(nv)));
             PP(bsl::tie(o) == bsl::tie(nv));
@@ -6619,9 +6788,12 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::tie(nv) <=> bsl::tie(o);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(-1 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(nv) <=> bsl::tie(o);
+                auto ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(-1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::tie(nv) == bsl::tie(o)));
             PP(bsl::tie(nv) == bsl::tie(o));
@@ -6634,9 +6806,12 @@ int main(int argc, char *argv[])
             nv = INT_MAX;    P(*nv);
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::tie(o) <=> bsl::tie(nv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(-1 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(o) <=> bsl::tie(nv);
+                auto ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(-1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::tie(o) == bsl::tie(nv)));
             PP(bsl::tie(o) == bsl::tie(nv));
@@ -6647,9 +6822,12 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::tie(nv) <=> bsl::tie(o);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(1 == ii);    PP(ii);
+            {
+                auto comp = bsl::tie(nv) <=> bsl::tie(o);
+                auto ii   = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::tie(nv) == bsl::tie(o)));
             PP(bsl::tie(nv) == bsl::tie(o));
@@ -6667,10 +6845,13 @@ int main(int argc, char *argv[])
             PP(BSLS_COMPILERFEATURES_CPLUSPLUS);
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            auto comp = bsl::forward_as_tuple(mo) <=>
-                                                     bsl::forward_as_tuple(mo);
-            int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mo) <=>
+                            bsl::forward_as_tuple(mo);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mo));
             PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mo));
@@ -6684,9 +6865,13 @@ int main(int argc, char *argv[])
             bdlb::NullableValue<int>&& mnv = std::move(nv);
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(mnv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mnv) <=>
+                       bsl::forward_as_tuple(mnv);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mnv));
             PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mnv));
@@ -6697,9 +6882,13 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::forward_as_tuple(mo) <=> bsl::forward_as_tuple(mnv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mo) <=>
+                       bsl::forward_as_tuple(mnv);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
             PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
@@ -6710,9 +6899,13 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(o);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(0 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mnv) <=>
+                       bsl::forward_as_tuple(o);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(0 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
             PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
@@ -6725,9 +6918,13 @@ int main(int argc, char *argv[])
             o = INT_MIN;    P(*mo);
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::forward_as_tuple(mo) <=> bsl::forward_as_tuple(mnv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(1 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mo) <=>
+                       bsl::forward_as_tuple(mnv);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv)));
             PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
@@ -6738,9 +6935,13 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(o);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(-1 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mnv) <=>
+                       bsl::forward_as_tuple(o);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(-1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo)));
             PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
@@ -6753,9 +6954,13 @@ int main(int argc, char *argv[])
             nv = INT_MAX;    P(*mnv);
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::forward_as_tuple(mo) <=> bsl::forward_as_tuple(mnv);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(-1 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mo) <=>
+                       bsl::forward_as_tuple(mnv);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(-1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv)));
             PP(bsl::forward_as_tuple(mo) == bsl::forward_as_tuple(mnv));
@@ -6766,9 +6971,13 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-            comp = bsl::forward_as_tuple(mnv) <=> bsl::forward_as_tuple(mo);
-            ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
-            ASSERT(1 == ii);    PP(ii);
+            {
+                auto comp = bsl::forward_as_tuple(mnv) <=>
+                       bsl::forward_as_tuple(mo);
+                int ii = 0 == comp ? 0 : 0 < comp ? 1 : -1;
+                ASSERT(1 == ii);
+                PP(ii);
+            }
 #endif
             ASSERT(!(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo)));
             PP(bsl::forward_as_tuple(mnv) == bsl::forward_as_tuple(mo));
@@ -9935,6 +10144,24 @@ int main(int argc, char *argv[])
             ASSERT_N( (bdlb::nullOpt >= X) );
             ASSERT_N(!(bdlb::nullOpt >  X) );
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+            ASSERTV( ((bdlb::nullOpt <=> X) == 0));
+            ASSERTV(!((bdlb::nullOpt <=> X) != 0));
+            ASSERTV(!((bdlb::nullOpt <=> X)  < 0));
+            ASSERTV(!((bdlb::nullOpt <=> X)  > 0));
+            ASSERTV( ((bdlb::nullOpt <=> X) <= 0));
+            ASSERTV( ((bdlb::nullOpt <=> X) >= 0));
+
+            ASSERTV( ((X <=> bdlb::nullOpt) == 0));
+            ASSERTV(!((X <=> bdlb::nullOpt) != 0));
+            ASSERTV(!((X <=> bdlb::nullOpt)  < 0));
+            ASSERTV(!((X <=> bdlb::nullOpt)  > 0));
+            ASSERTV( ((X <=> bdlb::nullOpt) <= 0));
+            ASSERTV( ((X <=> bdlb::nullOpt) >= 0));
+#endif
+
             Obj mY(0);                      const Obj& Y = mY;
             ASSERT_N(!Y.isNull());
 
@@ -9951,6 +10178,25 @@ int main(int argc, char *argv[])
             ASSERT_N( (bdlb::nullOpt <= Y) );
             ASSERT_N(!(bdlb::nullOpt >= Y) );
             ASSERT_N(!(bdlb::nullOpt >  Y) );
+
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+            ASSERTV(!((bdlb::nullOpt <=> Y) == 0));
+            ASSERTV( ((bdlb::nullOpt <=> Y) != 0));
+            ASSERTV( ((bdlb::nullOpt <=> Y)  < 0));
+            ASSERTV(!((bdlb::nullOpt <=> Y)  > 0));
+            ASSERTV( ((bdlb::nullOpt <=> Y) <= 0));
+            ASSERTV(!((bdlb::nullOpt <=> Y) >= 0));
+
+            ASSERTV(!((Y <=> bdlb::nullOpt) == 0));
+            ASSERTV( ((Y <=> bdlb::nullOpt) != 0));
+            ASSERTV(!((Y <=> bdlb::nullOpt)  < 0));
+            ASSERTV( ((Y <=> bdlb::nullOpt)  > 0));
+            ASSERTV(!((Y <=> bdlb::nullOpt) <= 0));
+            ASSERTV( ((Y <=> bdlb::nullOpt) >= 0));
+#endif
         }
 
         if (verbose) cout << "\tfor simple 'NullableValue<double>" << endl;
@@ -9976,6 +10222,24 @@ int main(int argc, char *argv[])
             ASSERT_N( (bdlb::nullOpt >= X) );
             ASSERT_N(!(bdlb::nullOpt >  X) );
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+            ASSERTV( ((bdlb::nullOpt <=> X) == 0));
+            ASSERTV(!((bdlb::nullOpt <=> X) != 0));
+            ASSERTV(!((bdlb::nullOpt <=> X)  < 0));
+            ASSERTV(!((bdlb::nullOpt <=> X)  > 0));
+            ASSERTV( ((bdlb::nullOpt <=> X) <= 0));
+            ASSERTV( ((bdlb::nullOpt <=> X) >= 0));
+
+            ASSERTV( ((X <=> bdlb::nullOpt) == 0));
+            ASSERTV(!((X <=> bdlb::nullOpt) != 0));
+            ASSERTV(!((X <=> bdlb::nullOpt)  < 0));
+            ASSERTV(!((X <=> bdlb::nullOpt)  > 0));
+            ASSERTV( ((X <=> bdlb::nullOpt) <= 0));
+            ASSERTV( ((X <=> bdlb::nullOpt) >= 0));
+#endif
+
             Obj        mY("Long string literal: no short string optimization");
             const Obj& Y = mY;
 
@@ -9994,6 +10258,25 @@ int main(int argc, char *argv[])
             ASSERT_N( (bdlb::nullOpt <= Y) );
             ASSERT_N(!(bdlb::nullOpt >= Y) );
             ASSERT_N(!(bdlb::nullOpt >  Y) );
+
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+            ASSERTV(!((bdlb::nullOpt <=> Y) == 0));
+            ASSERTV( ((bdlb::nullOpt <=> Y) != 0));
+            ASSERTV( ((bdlb::nullOpt <=> Y)  < 0));
+            ASSERTV(!((bdlb::nullOpt <=> Y)  > 0));
+            ASSERTV( ((bdlb::nullOpt <=> Y) <= 0));
+            ASSERTV(!((bdlb::nullOpt <=> Y) >= 0));
+
+            ASSERTV(!((Y <=> bdlb::nullOpt) == 0));
+            ASSERTV( ((Y <=> bdlb::nullOpt) != 0));
+            ASSERTV(!((Y <=> bdlb::nullOpt)  < 0));
+            ASSERTV( ((Y <=> bdlb::nullOpt)  > 0));
+            ASSERTV(!((Y <=> bdlb::nullOpt) <= 0));
+            ASSERTV( ((Y <=> bdlb::nullOpt) >= 0));
+#endif
         }
 #undef ASSERT_N
       } break;
@@ -11188,7 +11471,7 @@ int main(int argc, char *argv[])
                 ObjType2 *mR2 = &(obj2 = OBJ1a);  // null = non-null
 
                 ASSERT(VALUE1a == OBJ1a.value());
-                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(VALUE1a == static_cast<ValueType1>(OBJ2.value()));
                 ASSERT(    mR2 == &obj2);
 
                 mR2 = &(obj2 = obj1b);            // non-null = non-null
@@ -11224,7 +11507,7 @@ int main(int argc, char *argv[])
 
                 ObjType2 *mR2 = &(obj2 = VALUE1a);
 
-                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(VALUE1a == static_cast<ValueType1>(OBJ2.value()));
                 ASSERT(    mR2 == &obj2);
 
                 mR2 = &(obj2 = VALUE1b);
@@ -11238,13 +11521,13 @@ int main(int argc, char *argv[])
                 ASSERT(OBJ2.isNull());
 
                 obj2 = mVALUE2;
-                ASSERT(VALUE2 == OBJ2.value());
+                ASSERT(VALUE2 == static_cast<ValueType1>(OBJ2.value()));
 
                 obj2.reset();
                 ASSERT(OBJ2.isNull());
 
                 obj2 = mRVALUE2;
-                ASSERT(VALUE2 == OBJ2.value());
+                ASSERT(VALUE2 == static_cast<ValueType1>(OBJ2.value()));
             }
 
             if (verbose) cout << "\tmake value" << endl;
@@ -11257,7 +11540,7 @@ int main(int argc, char *argv[])
 
                 ValueType2 *addr2 = &obj2.makeValue(VALUE1a);
 
-                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(VALUE1a == static_cast<ValueType1>(OBJ2.value()));
                 ASSERT(  addr2 == &obj2.value());
 
                 addr2 = &obj2.makeValue(VALUE1b);
@@ -11341,13 +11624,13 @@ int main(int argc, char *argv[])
                 ASSERT(OBJ2.isNull());
 
                 obj2 = mVALUE2;
-                ASSERT(VALUE2 == OBJ2.value());
+                ASSERT(VALUE2 == static_cast<ValueType1>(OBJ2.value()));
 
                 obj2.reset();
                 ASSERT(OBJ2.isNull());
 
                 obj2 = mRVALUE2;
-                ASSERT(VALUE2 == OBJ2.value());
+                ASSERT(VALUE2 == static_cast<ValueType1>(OBJ2.value()));
             }
 
             if (verbose) cout << "\tmake value" << endl;

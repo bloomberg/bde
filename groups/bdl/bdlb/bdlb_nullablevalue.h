@@ -158,6 +158,43 @@ class NullableValue_WithAllocator;
 template <class TYPE>
 class NullableValue_WithoutAllocator;
 
+                         // ==========================
+                         // Component-private concepts
+                         // ==========================
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+template <class t_TYPE>
+concept NullableValue_ConvertibleToBool =
+    // This component-private concept models the Standard's exposition-only
+    // 'boolean-testable' concept.
+    bsl::is_convertible_v<t_TYPE, bool>;
+
+template <class t_TYPE>
+concept NullableValue_DerivedFromBslOptional =
+    // This component-private concept is used in the subsequent implementation
+    // of the component-private concept 'NullableValue_DerivedFromOptional'.
+    requires(const t_TYPE &t) {
+        []<class U>(const bsl::optional<U>&){}(t);
+    };
+template <class t_TYPE>
+concept NullableValue_DerivedFromStdOptional =
+    // This component-private concept is used in the subsequent implementation
+    // of the component-private concept 'NullableValue_DerivedFromOptional'.
+    requires(const t_TYPE &t) {
+        []<class U>(const std::optional<U>&){}(t);
+    };
+template <class t_TYPE>
+concept NullableValue_DerivedFromOptional =
+    // This component-private concept models whether a type is derived from one
+    // of 'std::optional', or 'bsl::optional'. Note that this concept is always
+    // satisfied for 'bdlb::NullableValue' as it is derived from
+    // 'bsl::optional'.
+    NullableValue_DerivedFromBslOptional<t_TYPE>   ||
+    NullableValue_DerivedFromStdOptional<t_TYPE>;
+
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
                       // =========================
                       // class NullableValue<TYPE>
                       // =========================
@@ -600,13 +637,51 @@ class NullableValue : public bsl::optional<TYPE> {
 // FREE OPERATORS
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableValue<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableValue<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const bsl::optional<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const NullableValue<LHS_TYPE>& lhs,
+                const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const std::optional<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // Return 'true' if the specified 'lhs' and 'rhs' nullable objects have the
     // same value, and 'false' otherwise.  Two nullable objects have the same
     // value if both are null, or if both are non-null and the values of their
@@ -615,13 +690,51 @@ bool operator==(const bsl::optional<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableValue<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const bsl::optional<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableValue<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const std::optional<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const NullableValue<LHS_TYPE>& lhs,
+                const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // Return 'true' if the specified 'lhs' and 'rhs' nullable objects do not
     // have the same value, and 'false' otherwise.  Two nullable objects do not
     // have the same value if one is null and the other is non-null, or if both
@@ -631,10 +744,20 @@ bool operator!=(const NullableValue<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableValue<LHS_TYPE>& lhs,
-                const RHS_TYPE&                rhs);
+                const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs != rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const LHS_TYPE&                lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs != *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  A nullable object and a value of
     // some type do not have the same value if either the nullable object is
@@ -644,10 +767,20 @@ bool operator!=(const LHS_TYPE&                lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableValue<LHS_TYPE>& lhs,
-                const RHS_TYPE&                rhs);
+                const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs == rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const LHS_TYPE&                lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs == *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  A nullable object and a value of some
     // type have the same value if the nullable object is non-null and its
@@ -655,15 +788,54 @@ bool operator==(const LHS_TYPE&                lhs,
     // function will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not
     // compatible.
 
+
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableValue<LHS_TYPE>& lhs,
-               const NullableValue<RHS_TYPE>& rhs);
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const bsl::optional<LHS_TYPE>& lhs,
-               const NullableValue<RHS_TYPE>& rhs);
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableValue<LHS_TYPE>& lhs,
-               const bsl::optional<RHS_TYPE>& rhs);
+               const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const std::optional<LHS_TYPE>& lhs,
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableValue<LHS_TYPE>& lhs,
+               const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
     // ordered before 'rhs' if 'lhs' is null and 'rhs' is non-null or if both
@@ -673,119 +845,305 @@ bool operator<(const NullableValue<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableValue<LHS_TYPE>& lhs,
-               const RHS_TYPE&                rhs);
+               const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs < rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered before
     // 'rhs' if 'lhs' is null or 'lhs.value()' is ordered before 'rhs'.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const LHS_TYPE&                lhs,
-               const NullableValue<RHS_TYPE>& rhs);
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs < *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered before the specified
     // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered before
     // 'rhs' if 'rhs' is not null and 'lhs' is ordered before 'rhs.value()'.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableValue<LHS_TYPE>& lhs,
-               const NullableValue<RHS_TYPE>& rhs);
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const bsl::optional<LHS_TYPE>& lhs,
-               const NullableValue<RHS_TYPE>& rhs);
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableValue<LHS_TYPE>& lhs,
-               const bsl::optional<RHS_TYPE>& rhs);
+               const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const std::optional<LHS_TYPE>& lhs,
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableValue<LHS_TYPE>& lhs,
+               const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
     // ordered after 'rhs' if 'lhs' is non-null and 'rhs' is null or if both
     // are non-null and 'lhs.value()' is ordered after 'rhs.value()'.  Note
-    // that this operator returns 'rhs < lhs' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
-    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+    // that this operator returns '*lhs > *rhs' when both operands are of
+    // 'NullableValue' type and both have values.  Also note that this function
+    // will fail to compile  if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableValue<LHS_TYPE>& lhs,
-               const RHS_TYPE&                rhs);
+               const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs > rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered after
     // 'rhs' if 'lhs' is not null and 'lhs.value()' is ordered after 'rhs'.
-    // Note that this operator returns 'rhs < lhs'.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const LHS_TYPE&                lhs,
-               const NullableValue<RHS_TYPE>& rhs);
+               const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs > *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered after the specified
     // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered after
-    // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'.  Note
-    // that this operator returns 'rhs < lhs'.
+    // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableValue<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const bsl::optional<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableValue<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const std::optional<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableValue<LHS_TYPE>& lhs,
+                const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
     // value, and 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note
-    // that this operator returns '!(rhs < lhs)' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
-    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+    // that this operator returns '*lhs <= *rhs' when both operands are of
+    // 'NullableValue' type and have a value.  Also note that this function
+    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableValue<LHS_TYPE>& lhs,
-                const RHS_TYPE&                rhs);
+                const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs <= rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
-    // otherwise.  (See 'operator<' and 'operator=='.)  Note that this operator
-    // returns '!(rhs < lhs)'.
+    // otherwise.  (See 'operator<' and 'operator=='.)
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const LHS_TYPE&                lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs <= *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered before the specified
     // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note that this
-    // operator returns '!(rhs < lhs)'.
+    // 'false' otherwise.  (See 'operator<' and 'operator=='.)
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableValue<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const bsl::optional<LHS_TYPE>& lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableValue<LHS_TYPE>& lhs,
-                const bsl::optional<RHS_TYPE>& rhs);
+                const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const std::optional<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableValue<LHS_TYPE>& lhs,
+                const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
     // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
-    // that this operator returns '!(lhs < rhs)' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
-    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+    // that this operator returns '*lhs >= *rhs' when both operands are of
+    // 'NullableValue' type and have a value.  Also note that this function
+    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableValue<LHS_TYPE>& lhs,
-                const RHS_TYPE&                rhs);
+                const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs >= rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
-    // otherwise.  (See 'operator>' and 'operator=='.)  Note that this operator
-    // returns '!(lhs < rhs)'.
+    // otherwise.  (See 'operator>' and 'operator=='.)
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const LHS_TYPE&                lhs,
-                const NullableValue<RHS_TYPE>& rhs);
+                const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs >= *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
+;
     // Return 'true' if the specified 'lhs' is ordered after the specified
     // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note that this
-    // operator returns '!(lhs < rhs)'.
+    // 'false' otherwise.  (See 'operator>' and 'operator=='.)
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE> operator<=>(
+                                           const NullableValue<LHS_TYPE>& lhs,
+                                           const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE> operator<=>(
+                                           const NullableValue<LHS_TYPE>& lhs,
+                                           const bsl::optional<RHS_TYPE>& rhs);
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE> operator<=>(
+                                           const NullableValue<LHS_TYPE>& lhs,
+                                           const std::optional<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+    requires(!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+              bsl::three_way_comparable_with<LHS_TYPE, RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
+    operator<=>(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
+    // Perform a three-way comparison of the specified 'lhs' and the specified
+    // 'rhs' objects by using the comparison operators of 't_LHS' and 't_RHS';
+    // return the result of that comparison.
+
+template <class TYPE>
+constexpr std::strong_ordering
+    operator<=>(const NullableValue<TYPE>& value,
+                const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
+    // Perform a three-way comparison of the specified 'value' and one of type
+    // 'NullOptType'; return the result of that comparison.
+
+#endif // SUPPORT_THREE_WAY_COMPARISON && HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
 bool operator==(const NullableValue<TYPE>& value,
                 const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'value' is null, and 'false' otherwise.
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
 bool operator==(const NullOptType&         ,
@@ -802,6 +1160,8 @@ bool operator!=(const NullOptType&         ,
                 const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is not null, and 'false'
     // otherwise.
+
+#  ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
@@ -856,6 +1216,9 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator>=(const NullOptType&         ,
                 const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is null, and 'false' otherwise.
+
+#  endif // !BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+#endif // !BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&              stream,
@@ -1457,31 +1820,80 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) ==
            static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
-template <class LHS_TYPE, class RHS_TYPE>
-inline
-bool bdlb::operator==(const bsl::optional<LHS_TYPE>& lhs,
-                      const NullableValue<RHS_TYPE>& rhs)
-{
-    return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
-}
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
                       const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) == rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
+bool bdlb::operator==(const bsl::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
+                      const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) == rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const std::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs == *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
 bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+ #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) !=
            static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
@@ -1491,6 +1903,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator!=(const bsl::optional<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return lhs != static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1499,13 +1916,50 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
                       const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) != rhs;
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const std::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return lhs != static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
+                      const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs != *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) != rhs;
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs == rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) == rhs;
 }
@@ -1513,6 +1967,10 @@ bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator==(const LHS_TYPE& lhs, const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs == *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1520,6 +1978,10 @@ bool bdlb::operator==(const LHS_TYPE& lhs, const NullableValue<RHS_TYPE>& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs != rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) != rhs;
 }
@@ -1527,6 +1989,10 @@ bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator!=(const LHS_TYPE& lhs, const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs != *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return lhs != static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1535,6 +2001,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <
            static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
@@ -1544,6 +2015,11 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<(const bsl::optional<LHS_TYPE>& lhs,
                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return lhs < static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1552,13 +2028,50 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
                      const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) < rhs;
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const std::optional<LHS_TYPE>& lhs,
+                     const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return lhs < static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
+                     const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs < *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) < rhs;
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs < rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) < rhs;
 }
@@ -1566,6 +2079,10 @@ bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<(const LHS_TYPE& lhs, const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs < *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return lhs < static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1574,14 +2091,25 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
-    return rhs < lhs;
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >
+           static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>(const bsl::optional<LHS_TYPE>& lhs,
                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return lhs > static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1590,38 +2118,90 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
                      const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) > rhs;
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const std::optional<LHS_TYPE>& lhs,
+                     const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return lhs > static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
+                     const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs > *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) > rhs;
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
+                     const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs > rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) > rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
-bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
-                     const RHS_TYPE&                rhs)
-{
-    return rhs < lhs;
-}
-
-template <class LHS_TYPE, class RHS_TYPE>
-inline
 bool bdlb::operator>(const LHS_TYPE&                lhs,
                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs > *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
-    return rhs < lhs;
+    return lhs > static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
-    return !(rhs < lhs);
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <=
+           static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<=(const bsl::optional<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return lhs <= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1630,38 +2210,91 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
                       const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <= rhs;
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const std::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return lhs <= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
+                      const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs <= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <= rhs;
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs <= rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <= rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
-bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
-                      const RHS_TYPE&                rhs)
-{
-    return !(rhs < lhs);
-}
-
-template <class LHS_TYPE, class RHS_TYPE>
-inline
 bool bdlb::operator<=(const LHS_TYPE&                lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs <= *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
-    return !(rhs < lhs);
+    return lhs <= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
+
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
-    return !(lhs < rhs);
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >=
+           static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>=(const bsl::optional<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
 {
     return lhs >= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
@@ -1670,25 +2303,114 @@ template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
                       const bsl::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >= rhs;
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const std::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return lhs >= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
+                      const std::optional<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires {
+        { *lhs >= *rhs } -> NullableValue_ConvertibleToBool;
+    }
+#endif
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >= rhs;
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
+                      const RHS_TYPE&                rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+    requires { { *lhs >= rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >= rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
-bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
-                      const RHS_TYPE&                rhs)
+bool bdlb::operator>=(const LHS_TYPE&                lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires (!NullableValue_DerivedFromOptional<LHS_TYPE>) &&
+    requires { { lhs >= *rhs } -> NullableValue_ConvertibleToBool; }
+#endif
 {
-    return !(lhs < rhs);
+    return lhs >= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
+bdlb::operator<=>(const NullableValue<LHS_TYPE>& lhs,
+                  const NullableValue<RHS_TYPE>& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <=>
+           static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
+bdlb::operator<=>(const NullableValue<LHS_TYPE>& lhs,
+                  const bsl::optional<RHS_TYPE>& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <=> rhs;
+}
+
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
+bdlb::operator<=>(const NullableValue<LHS_TYPE>& lhs,
+                  const std::optional<RHS_TYPE>& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <=> rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
-inline
-bool bdlb::operator>=(const LHS_TYPE&                lhs,
-                      const NullableValue<RHS_TYPE>& rhs)
+    requires(!bdlb::NullableValue_DerivedFromOptional<RHS_TYPE>) &&
+              bsl::three_way_comparable_with<LHS_TYPE, RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
+bdlb::operator<=>(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 {
-    return !(lhs < rhs);
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <=> rhs;
 }
+
+template <class TYPE>
+constexpr std::strong_ordering
+bdlb::operator<=>(const NullableValue<TYPE>& value,
+                  const NullOptType&) BSLS_KEYWORD_NOEXCEPT
+{
+    return (!value.isNull()) <=> false;
+}
+
+#endif // SUPPORT_THREE_WAY_COMPARISON && HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 inline
@@ -1698,6 +2420,8 @@ BSLS_KEYWORD_CONSTEXPR bool bdlb::operator==(
 {
     return value.isNull();
 }
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template <class TYPE>
 inline
@@ -1724,6 +2448,8 @@ bool bdlb::operator!=(const NullOptType&         ,
 {
     return !value.isNull();
 }
+
+#  ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
@@ -1788,6 +2514,9 @@ bool bdlb::operator>=(const NullOptType&  ,
 {
     return value.isNull();
 }
+
+#  endif // !BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+#endif // !BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template <class TYPE>
 inline
