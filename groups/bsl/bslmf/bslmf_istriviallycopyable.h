@@ -463,8 +463,10 @@ struct IsTriviallyCopyableCheck : bsl::is_trivially_copyable<t_TYPE> {
     static_assert(bsl::is_trivially_copyable<t_TYPE>::value ==
                                     std::is_trivially_copyable<t_TYPE>::value,
                   "Types with copy constructors or destructors defined "
-                  "or deleted should be declared 'bslmf::IsBitwiseCopyable', "
-                  "not 'bsl::is_trivially_copyable'");
+                  "or deleted may be declared 'bslmf::IsBitwiseCopyable', "
+                  "if the type author is certain that using 'memcpy' on "
+                  "the type is safe.  'bsl::is_trivially_copyable', "
+                  "however, is prohibited.");
 #endif
 };
 

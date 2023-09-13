@@ -6389,9 +6389,6 @@ void TestDriver<TYPE>::testCase28()
     //:
     //: 3 If we expect 'Obj' to be bitwise copyable, try copying it between two
     //:   'ObjectBuffers'.
-    //:
-    //: 4 Don't run this test on any 'TYPE' for which 'IsBitwiseCopyable<TYPE>'
-    //:   != 'IsBitwiseCopyable<Obj>'.
     //
     // Testing
     //   bslmf::IsBitwiseMoveable<Obj>
@@ -8413,7 +8410,7 @@ void TestDriver<TYPE>::testCase15()
             BSLMF_ASSERT(!bslma::UsesBslmaAllocator<bsl::allocator<char>
                                                                      >::value);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-            // ... and yet, for mysterious reasons:
+            // Note:
 
             BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
                                          std::optional<bsl::allocator<char>>>);

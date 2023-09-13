@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Then, the following 6 types are automatically interpreted by
-// 'bsl::is_trivially_copyable' to be trivially copyable without our having to
+// 'std::is_trivially_copyable' to be trivially copyable without our having to
 // declare them as such, and therefore, as 'IsBitwiseCopyable'.
 //..
 //  typedef int MyFundamentalType;
@@ -147,20 +147,20 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 // Now, we verify whether each type is trivially copyable using
-// 'bsl::is_trivially_copyable':
+// 'std::is_trivially_copyable':
 //..
-//  assert( bsl::is_trivially_copyable<MyTriviallyCopyableType>::value);
-//  assert(!bsl::is_trivially_copyable<MyNonTriviallyCopyableType>::value);
-//  assert(!bsl::is_trivially_copyable<MyNonBitwiseCopyableType>::value);
+//  assert( std::is_trivially_copyable<MyTriviallyCopyableType>::value);
+//  assert(!std::is_trivially_copyable<MyNonTriviallyCopyableType>::value);
+//  assert(!std::is_trivially_copyable<MyNonBitwiseCopyableType>::value);
 //
-//  assert( bsl::is_trivially_copyable<MyFundamentalType>::value);
-//  assert( bsl::is_trivially_copyable<DataPtrTestType>::value);
-//  assert( bsl::is_trivially_copyable<FunctionPtrTestType>::value);
-//  assert( bsl::is_trivially_copyable<DataMemberPtrTestType>::value);
-//  assert( bsl::is_trivially_copyable<MethodPtrTestType>::value);
-//  assert(!bsl::is_trivially_copyable<MyFundamentalTypeRef>::value);
+//  assert( std::is_trivially_copyable<MyFundamentalType>::value);
+//  assert( std::is_trivially_copyable<DataPtrTestType>::value);
+//  assert( std::is_trivially_copyable<FunctionPtrTestType>::value);
+//  assert( std::is_trivially_copyable<DataMemberPtrTestType>::value);
+//  assert( std::is_trivially_copyable<MethodPtrTestType>::value);
+//  assert(!std::is_trivially_copyable<MyFundamentalTypeRef>::value);
 //  #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-//      assert(!bsl::is_trivially_copyable<MyFundamentalTypeRvalueRef>::value);
+//      assert(!std::is_trivially_copyable<MyFundamentalTypeRvalueRef>::value);
 //  #endif
 //..
 // Now, we verify whether each type is bitwise copyable using
@@ -187,17 +187,17 @@ BSLS_IDENT("$Id: $")
 //  #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 //      // trivially copyable:
 //
-//      assert( bsl::is_trivially_copyable_v<MyTriviallyCopyableType>);
-//      assert(!bsl::is_trivially_copyable_v<MyNonTriviallyCopyableType>);
-//      assert(!bsl::is_trivially_copyable_v<MyNonBitwiseCopyableType>);
+//      assert( std::is_trivially_copyable_v<MyTriviallyCopyableType>);
+//      assert(!std::is_trivially_copyable_v<MyNonTriviallyCopyableType>);
+//      assert(!std::is_trivially_copyable_v<MyNonBitwiseCopyableType>);
 //
-//      assert( bsl::is_trivially_copyable_v<MyFundamentalType>);
-//      assert( bsl::is_trivially_copyable_v<DataPtrTestType>);
-//      assert( bsl::is_trivially_copyable_v<FunctionPtrTestType>);
-//      assert( bsl::is_trivially_copyable_v<DataMemberPtrTestType>);
-//      assert( bsl::is_trivially_copyable_v<MethodPtrTestType>);
-//      assert(!bsl::is_trivially_copyable_v<MyFundamentalTypeRef>);
-//      assert(!bsl::is_trivially_copyable_v<MyFundamentalTypeRvalueRef>);
+//      assert( std::is_trivially_copyable_v<MyFundamentalType>);
+//      assert( std::is_trivially_copyable_v<DataPtrTestType>);
+//      assert( std::is_trivially_copyable_v<FunctionPtrTestType>);
+//      assert( std::is_trivially_copyable_v<DataMemberPtrTestType>);
+//      assert( std::is_trivially_copyable_v<MethodPtrTestType>);
+//      assert(!std::is_trivially_copyable_v<MyFundamentalTypeRef>);
+//      assert(!std::is_trivially_copyable_v<MyFundamentalTypeRvalueRef>);
 //
 //      // bitwise copyable:
 //

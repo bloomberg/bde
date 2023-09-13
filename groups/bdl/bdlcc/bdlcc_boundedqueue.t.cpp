@@ -3233,17 +3233,6 @@ int main(int argc, char *argv[])
 
         ASSERT(3 == v);
         ASSERT(0 == X.numElements());
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-        ASSERT((bslmf::IsTriviallyCopyableCheck<
-                               bdlcc::BoundedQueue_Node<int, true> >::value));
-        ASSERT((bslmf::IsTriviallyCopyableCheck<
-                               bdlcc::BoundedQueue_Node<int, false> >::value));
-        ASSERT((bslmf::IsTriviallyCopyableCheck<
-                       bdlcc::BoundedQueue_Node<bsl::string, true> >::value));
-        ASSERT((bslmf::IsTriviallyCopyableCheck<
-                       bdlcc::BoundedQueue_Node<bsl::string, false> >::value));
-#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

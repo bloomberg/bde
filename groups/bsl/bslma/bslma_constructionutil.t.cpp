@@ -2237,22 +2237,6 @@ typedef MoveOnlyBaseTestType<ARG_T_ALLOC> MoveOnlyArgTAllocTestType;
 
 
 // TRAITS
-namespace bsl {
-
-template <>
-struct is_trivially_copyable<MoveOnlyTrivialTestType> : bsl::false_type {};
-
-template <>
-struct is_trivially_copyable<MoveOnlyNonTrivialTestType> : bsl::false_type {};
-
-template <>
-struct is_trivially_copyable<MoveOnlyBslmaAllocTestType> : bsl::false_type {};
-
-template <>
-struct is_trivially_copyable<MoveOnlyArgTAllocTestType> : bsl::false_type {};
-
-}  // close namespace bsl
-
 namespace BloombergLP {
 namespace bslma {
 

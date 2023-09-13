@@ -168,12 +168,12 @@ using bsls::NameOf;
 // [ 4] ostream& operator<<(ostream&, const NullableValue<TYPE>&);
 //
 // FREE FUNCTIONS
-// [20] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
+// [19] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
 // [13] void swap(NullableValue<TYPE>& a, b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [31] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 // [24] Concern: Types that are not copy-assignable can be used.
 // [26] bsl::optional c'tors from derived type
 // [26] bsl::optional assignment from derived type
@@ -182,7 +182,12 @@ using bsls::NameOf;
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [ 8] int maxSupportedBdexVersion() const;
 #endif
-// [30] CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+// [33] CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+// [35] REPRODUCE BUG FROM 168410920
+// [36] bsl::optional c'tors from derived type
+// [36] bsl::optional assignment from derived type
+// [38] IsBitwiseMoveable
+// [38] IsBitwiseCopyable
 
 // ----------------------------------------------------------------------------
 
@@ -5458,6 +5463,10 @@ void TestDriver<TEST_TYPE>::testCase38()
     //:
     //: 3 If we expect 'Obj' to be copyable, try moving it between two object
     //:   buffers.
+    //
+    // Testing:
+    //   IsBitwiseMoveable
+    //   IsBitwiseCopyable
     // ------------------------------------------------------------------------
 
     const char *type = bsls::NameOf<TEST_TYPE>().name();
