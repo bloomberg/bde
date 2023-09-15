@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 52 components having 5 levels of physical
+ The 'bdlb' package currently has 53 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -18,6 +18,7 @@
   5. bdlb_bitstringutil
      bdlb_indexspanstringutil
      bdlb_indexspanutil
+     bdlb_nullablevaluewrapper
 
   4. bdlb_bigendian
      bdlb_bitstringimputil
@@ -158,6 +159,10 @@
 :
 : 'bdlb_nullablevalue_cpp03':                                         !PRIVATE!
 :      Provide C++03 implementation for bdlb_nullablevalue.h
+:
+: 'bdlb_nullablevaluewrapper':
+:      Provide two templates for wrapping either a NullableValue or a
+:      NullableAllcatedValue
 :
 : 'bdlb_nullopt':                                        !DEPRECATED!
 :      Provide a tag type and constant indicating an empty nullable value.

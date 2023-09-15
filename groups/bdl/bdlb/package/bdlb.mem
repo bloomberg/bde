@@ -26,6 +26,8 @@ bdlb_nullableallocatedvalue_cpp03
 bdlb_nullableallocatedvalue_pointerbitspair
 bdlb_nullablevalue
 bdlb_nullablevalue_cpp03
+bdlb_nullablevalueref
+bdlb_nullablevalueref_cpp03
 bdlb_nullopt
 bdlb_nulloutputiterator
 bdlb_numericparseutil
