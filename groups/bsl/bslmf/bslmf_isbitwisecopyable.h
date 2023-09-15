@@ -119,8 +119,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Then, the following 6 types are automatically interpreted by
-// 'std::is_trivially_copyable' to be trivially copyable without our having to
+// Then, the following 5 types are automatically interpreted by
+// 'bsl::is_trivially_copyable' to be trivially copyable without our having to
 // declare them as such, and therefore, as 'IsBitwiseCopyable'.
 //..
 //  typedef int MyFundamentalType;
@@ -137,7 +137,9 @@ BSLS_IDENT("$Id: $")
 //
 //  typedef int (MyNonBitwiseCopyableType::*MethodPtrTestType)();
 //      // non-static function member ptr
-//
+//..
+// The following 2 types are neither trivially nor bitwise copyable:
+///..
 //  typedef int& MyFundamentalTypeRef;
 //      // reference (not bitwise copyable)
 //

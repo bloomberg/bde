@@ -8410,24 +8410,17 @@ void TestDriver<TYPE>::testCase15()
             BSLMF_ASSERT(!bslma::UsesBslmaAllocator<bsl::allocator<char>
                                                                      >::value);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-            // Note:
-
             BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
                                          std::optional<bsl::allocator<char>>>);
 #endif
             BSLMF_ASSERT(bslmf::IsBitwiseCopyable<
                                 bsl::optional<bsl::allocator<char> > >::value);
 
-            // ... and we have to be careful and guard this next assert:
-
-            if (!bsl::is_same<ValueType, bsl::allocator<char> >::value ||
-                                                                    !k_CPP17) {
-                ASSERTV(valueTypeName, usesAllocatorObj,
-                        bslmf::IsBitwiseCopyable<Obj>::value,
-                        bslmf::IsBitwiseCopyable<ValueType>::value,
-                        bslmf::IsBitwiseCopyable<Obj>::value ==
-                        bslmf::IsBitwiseCopyable<ValueType>::value);
-            }
+            ASSERTV(valueTypeName, usesAllocatorObj,
+                    bslmf::IsBitwiseCopyable<Obj>::value,
+                    bslmf::IsBitwiseCopyable<ValueType>::value,
+                    bslmf::IsBitwiseCopyable<Obj>::value ==
+                    bslmf::IsBitwiseCopyable<ValueType>::value);
 
             // check that 'bsl::is_trivially_copyable' and the native
             // 'std::is_trivially_copyable' are consistent.

@@ -2251,7 +2251,7 @@ struct UsesBslmaAllocator<MoveOnlyArgTAllocTestType> : bsl::true_type {};
 namespace bslmf {
 
 template <>
-struct IsBitwiseCopyable<MoveOnlyTrivialTestType> : bsl::false_type {};
+struct IsBitwiseCopyable<MoveOnlyTrivialTestType> : bsl::true_type {};
 
 template <>
 struct IsBitwiseCopyable<MoveOnlyNonTrivialTestType> : bsl::false_type {};
