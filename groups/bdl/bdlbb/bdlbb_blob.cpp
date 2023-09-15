@@ -745,8 +745,7 @@ void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
         srcBlob->d_preDataIndexLength +
         srcBlob->d_buffers[numSrcDataBuffers - 1].size();
 
-    d_dataIndex = 0 == length() ? numSrcDataBuffers - 1
-                                : d_dataIndex + numSrcDataBuffers;
+    d_dataIndex += numSrcDataBuffers;
     d_preDataIndexLength = d_dataLength + srcBlob->d_preDataIndexLength;
     d_dataLength += srcBlob->d_dataLength;
     d_totalSize += totalSizeAdded;

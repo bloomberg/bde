@@ -123,7 +123,8 @@ using bsl::cerr;
 // [14] IMPLICIT TRIM
 // [15] MOVE OPERATIONS
 // [16] SWAP
-// [19] USAGE EXAMPLE
+// [19] CONCERN: DRQS 172996405
+// [20] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -734,7 +735,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -886,6 +887,110 @@ int main(int argc, char *argv[])
         ASSERT(5                             == blob.numDataBuffers());
         ASSERT(5                             == blob.numBuffers());
     }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // DRQS 172996405
+        //   'moveAndAppendDataBuffers' assertion failure
+        //
+        // Concerns:
+        //: 1 'moveAndAppendDataBuffers' works properly when the target 'Blob'
+        //:   has a zero-sized buffer as the last data buffer.
+        //
+        // Plan:
+        //: 1 Create a 'Blob' containing up to three data buffers, both zero-
+        //:   and non-zero sized.
+        //:
+        //: 2 Create a second 'Blob' containing a single non-zero sized data
+        //:   buffer.
+        //:
+        //: 3 Invoke 'moveAndAppendDataBuffers' on the first blob, supplying
+        //:   the second blob as the argument.
+        //:
+        //: 4 Verify that the result is of expected length and contains the
+        //:   expected number of data buffers.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: DRQS 172996405
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "DRQS 172996405" << endl
+                          << "==============" << endl;
+
+        bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+        bslma::TestAllocator ta(veryVeryVerbose);
+
+        const int BUFFER_SIZE = 1;
+
+        enum {
+            k_NO_BUFFER = 0,
+            k_EMPTY_BUFFER,
+            k_NON_EMPTY_BUFFER,
+            k_NUM_BUFFER_TYPES
+        };
+
+        for (int bufferTypes = 0;
+             bufferTypes < k_NUM_BUFFER_TYPES * k_NUM_BUFFER_TYPES *
+                               k_NUM_BUFFER_TYPES;
+             ++bufferTypes) {
+            const int BUFFER_TYPES[] = {
+                bufferTypes % k_NUM_BUFFER_TYPES,
+                bufferTypes / k_NUM_BUFFER_TYPES % k_NUM_BUFFER_TYPES,
+                bufferTypes / k_NUM_BUFFER_TYPES / k_NUM_BUFFER_TYPES};
+
+            SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
+            Obj                     mX(&fa, &ta);
+            const Obj&              X = mX;
+
+            int DATA_LENGTH = 0;
+            int NUM_BUFFERS = 0;
+
+            for (int i = 0; i < bsl::ssize(BUFFER_TYPES); ++i) {
+                switch (BUFFER_TYPES[i]) {
+                  case k_NO_BUFFER: {
+                  } break;
+                  case k_EMPTY_BUFFER: {
+                    mX.appendDataBuffer(bdlbb::BlobBuffer());
+                    ++NUM_BUFFERS;
+                  } break;
+                  case k_NON_EMPTY_BUFFER: {
+                    bdlbb::BlobBuffer buf;
+                    fa.allocate(&buf);
+                    mX.appendDataBuffer(buf);
+                    ++DATA_LENGTH;
+                    ++NUM_BUFFERS;
+                  } break;
+                  default: {
+                    ASSERTV(BUFFER_TYPES[i], "Bad buffer type.", false);
+                  } break;
+                }
+            }
+
+            Obj mY(&fa, &ta);
+
+            mY.setLength(BUFFER_SIZE);
+            mX.moveAndAppendDataBuffers(&mY);
+
+            const int EXP_DATA_LENGTH             = DATA_LENGTH + BUFFER_SIZE;
+            const int EXP_NUM_BUFFERS             = NUM_BUFFERS + 1;
+            const int EXP_NUM_DATA_BUFFERS        = NUM_BUFFERS + 1;
+            const int EXP_LAST_DATA_BUFFER_LENGTH = BUFFER_SIZE;
+
+            ASSERT(checkTotalSize(X));
+            ASSERTV(EXP_DATA_LENGTH,
+                    X.length(),
+                    EXP_DATA_LENGTH == X.length());
+            ASSERTV(EXP_NUM_BUFFERS,
+                    X.numBuffers(),
+                    EXP_NUM_BUFFERS == X.numBuffers());
+            ASSERTV(EXP_NUM_DATA_BUFFERS,
+                    X.numDataBuffers(),
+                    EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+            ASSERTV(EXP_LAST_DATA_BUFFER_LENGTH,
+                    X.lastDataBufferLength(),
+                    EXP_LAST_DATA_BUFFER_LENGTH == X.lastDataBufferLength());
+        }
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -2338,7 +2443,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'reolaceDataBuffer'
+        // TESTING 'replaceDataBuffer'
         //
         // Concerns:
         //   - That replacing does not change either the number of data
