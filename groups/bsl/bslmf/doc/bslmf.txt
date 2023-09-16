@@ -52,44 +52,42 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 89 components having 21 levels of physical
+ The 'bslmf' package currently has 89 components having 20 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  21. bslmf_isnothrowswappable
+  20. bslmf_isnothrowswappable
 
-  20. bslmf_isswappable
+  19. bslmf_isswappable
 
-  19. bslmf_forwardingreftype
+  18. bslmf_forwardingreftype
       bslmf_forwardingtype
       bslmf_invokeresult
       bslmf_util
 
-  18. bslmf_movableref
+  17. bslmf_movableref
 
-  17. bslmf_isbitwisemoveable
+  16. bslmf_isbitwisemoveable
       bslmf_iscopyconstructible
       bslmf_isnothrowmoveconstructible
 
-  16. bslmf_haspointersemantics
+  15. bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible
       bslmf_matcharithmetictype
       bslmf_usesallocatorargt
 
-  15. bslmf_detectnestedtrait
+  14. bslmf_detectnestedtrait
       bslmf_isenum
 
-  14. bslmf_isaccessiblebaseof
+  13. bslmf_isaccessiblebaseof
       bslmf_isconvertibletoany
       bslmf_nestedtraitdeclaration
       bslmf_usesallocator
 
-  13. bslmf_isconvertible
-
-  12. bslmf_enableif
+  12. bslmf_isconvertible
 
   11. bslmf_isfundamental
 
@@ -132,6 +130,7 @@
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_enableif
       bslmf_integersequence
       bslmf_isconst
       bslmf_isreference
