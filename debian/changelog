@@ -1,5 +1,24 @@
-bsl-internal (3.123.0.0) unstable; urgency=low
+bsl-internal (3.124.0.0) unstable; urgency=low
 
+  * b5f8629fc Bumped version to 3.124.0.0
+  * 4eefd812c New component - NullableValueRef (#4428)
+  * 345874adf Fix bug in moveAndAppendDataBuffers (#4432)
+  * 69f65a001 Fix bdlb_nullablevalue.t build error on C++20 MSVC 2022 (#4368)
+  * 4074fe2c3 added BSLMT_ONCE_DO for initialization (#4425)
+  * 67321e7bd Use transparent lookup in broadcast observer (#4418)
+  * 969da3b95 bslmt_testutil: kill use of 'BSLMT_ONCE_DO' (#4424)
+  * 5ed8d1411 'bsl::vector::push_back' has been made inline. DRQS 172750717 (#4407)
+  * cbe6f08e1 Third round of changes to NullableAllocateValue (#4417)
+  * 2a0dcdf2e Adds C++20 ranges accessor tests (#4377)
+  * a9c981e72 'bsl::invoke_result_t' has been added. DRQS 172695878. (#4400)
+  * 2a481c0b1 drqs-172804421: 'bslmt_readerwritermutex.t.cpp': Fix '*LOCKASSERT*' cycle. (#4419)
+  * 460b552cc bslmf_enableif: kill depencies on is_polymorphic and is_)fundamental (#4410)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sat, 16 Sep 2023 15:25:20 -0400
+
+bsl-internal (3.123.0.0) git; urgency=low
+
+  * 2a0aee646 Changelog for version 3.123.0.0
   * b36889b8f Bumped version to 3.123.0.0
   * fecb13548 Add tzdata as recommended install dependency of bal (#4413)
   * 388d815cc Make 'bdlb::NullOpt' a synonym for 'bsl::nullopt' (#4411)
@@ -35,7 +54,7 @@ bsl-internal (3.123.0.0) unstable; urgency=low
   * 0d44f45bb Cycle dependency has been removed from the 'bdlde_hexencoder'. DRQS 172595834 (#4362)
   * 3d5d3f056 drqs-172596051: 'bslmt_readerwriterlock.t.cpp': Fix cycle on '*LOCKASSERT*' (#4367)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Aug 2023 10:20:04 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Aug 2023 10:25:03 -0400
 
 bsl-internal (3.122.0.0) git; urgency=low
 
