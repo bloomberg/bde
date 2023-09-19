@@ -465,8 +465,8 @@ struct IsTriviallyCopyableCheck : bsl::is_trivially_copyable<t_TYPE> {
                   "Types with copy constructors or destructors defined "
                   "or deleted may be declared 'bslmf::IsBitwiseCopyable', "
                   "if the type author is certain that using 'memcpy' on "
-                  "the type is safe.  'bsl::is_trivially_copyable' is, "
-                  "however, is prohibited.");
+                  "the type is safe.  Declaring such types"
+                  " 'bsl::is_trivially_copyable' is, however, prohibited.");
 #endif
 };
 

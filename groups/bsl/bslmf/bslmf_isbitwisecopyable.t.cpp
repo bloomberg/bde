@@ -246,6 +246,7 @@ enum class EnumClassType {
 }  // close namespace u
 }  // close unnamed namespace
 
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
