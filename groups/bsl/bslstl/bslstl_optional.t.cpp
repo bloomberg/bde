@@ -1,6 +1,7 @@
 // bslstl_optional.t.cpp                                              -*-C++-*-
 #include <bslstl_optional.h>
 
+#include <bslstl_compare.h>
 #include <bslstl_string.h>
 
 #include <bsla_maybeunused.h>
@@ -17,6 +18,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isfundamental.h>
 #include <bslmf_issame.h>
 
 #include <bsls_buildtarget.h>
@@ -206,6 +208,11 @@ using namespace bsl;
 // [16] optional make_optional(TYPE&&);
 // [16] optional make_optional(ARG&&, ARGS&&...);
 // [16] optional make_optional(initializer_list, ARGS&&...);
+//
+// TRAITS
+// [28] bslmf::IsBitwiseMoveable<Obj>
+// [28] bslmf::IsBitwiseCopyable<Obj>
+//
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [14] DRQS 169300521
@@ -310,6 +317,12 @@ namespace {
     enum { k_MOVED_FROM_VAL = 0x01d };
     enum { k_DESTROYED = 0x05c };
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    enum { k_CPP17 = true };
+#else
+    enum { k_CPP17 = false };
+#endif
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -359,6 +372,20 @@ namespace {
   BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::MovableTestType),                   \
   BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::MovableAllocTestType),              \
   BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::NonTypicalOverloadsTestType)
+
+void myMemcpy(void *dst, const void *src, size_t size)
+    // Functionally equivalent to 'std::memcpy', except avoids warnings on some
+    // compilers when copying objects for which 'std::is_trivially_copyable' is
+    // not true.
+{
+    char              *dstChar = static_cast<char *>(dst);
+    const char        *srcChar = static_cast<const char *>(src);
+    const char * const end     = srcChar + size;
+
+    while (srcChar < end) {
+        *dstChar++ = *srcChar++;
+    }
+}
 
                               // ================
                               // class MyClassDef
@@ -6191,6 +6218,9 @@ class TestDriver {
 
   public:
 
+    static void testCase28();
+        // Bit-wise movable, bit-wise copyable.
+
     static void testCase24();
         // TESTING DERIVED -- 'TYPE' DOES NOT ALLOCATE
 
@@ -6335,6 +6365,115 @@ void bslstl_optional_value_type_deduce(const bsl::optional<TYPE>&)
 template <class TYPE>
 void bslstl_optional_optional_type_deduce(const TYPE&)
 {
+}
+
+template <class TYPE>
+void TestDriver<TYPE>::testCase28()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'IsBitwiseMoveable' and 'IsBitwiseCopyable'
+    //
+    // Concerns:
+    //: 1 That the 'IsBitwiseMoveable', 'IsBitwiseCopyable', and
+    //:   'UsesBslmaAllocator' traits are as expected.
+    //:
+    //: 2 If 'TEST_TYPE' is movable, we can move 'Obj' with 'memcpy'.
+    //:
+    //: 3 If 'TEST_TYPE' is movable, we can copy 'Obj' with 'memcpy'.
+    //
+    // Plan:
+    //: 1 Check the 3 traits with asserts.
+    //:
+    //: 2 If we expect 'Obj' to be bitwise moveable, try moving it between two
+    //:   'ObjectBuffers'.
+    //:
+    //: 3 If we expect 'Obj' to be bitwise copyable, try copying it between two
+    //:   'ObjectBuffers'.
+    //
+    // Testing
+    //   bslmf::IsBitwiseMoveable<Obj>
+    //   bslmf::IsBitwiseCopyable<Obj>
+    // ------------------------------------------------------------------------
+
+    const char *type = bsls::NameOf<TYPE>().name();
+
+    if (veryVerbose) {
+        printf("%s: TYPE moves: %s, Obj moves: %s, TYPE copies: %s,"
+                                                     " Obj copies: %s\n", type,
+                    (bslmf::IsBitwiseMoveable<TYPE>::value ? "true" : "false"),
+                    (bslmf::IsBitwiseMoveable<Obj>::value ? "true" : "false"),
+                    (bslmf::IsBitwiseCopyable<TYPE>::value ? "true" : "false"),
+                    (bslmf::IsBitwiseCopyable<Obj>::value ? "true" : "false"));
+    }
+
+    ASSERTV(type, bslmf::IsBitwiseMoveable<TYPE>::value ==
+                                         bslmf::IsBitwiseMoveable<Obj>::value);
+    ASSERTV(type, bslmf::IsBitwiseCopyable<TYPE>::value ==
+                                         bslmf::IsBitwiseCopyable<Obj>::value);
+    ASSERTV(type, bslma::UsesBslmaAllocator<TYPE>::value ==
+                                        bslma::UsesBslmaAllocator<Obj>::value);
+
+    typedef bsls::ObjectBuffer<Obj>              ObjBuffer;
+    typedef bsls::ObjectBuffer<ObjWithAllocator> ObjWABuffer;
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+    bslma::TestAllocator va("values",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const TestValues VALUES(&va);
+
+    if (bslmf::IsBitwiseMoveable<Obj>::value) {
+        ObjWABuffer xBuffer;
+        ObjBuffer   yBuffer;
+
+        Obj& x = xBuffer.object().object();     const Obj& X = x;
+        Obj& y = yBuffer.object();              const Obj& Y = y;
+
+        new (&xBuffer.object()) ObjWithAllocator(VALUES[0], &oa);
+
+        ASSERT(X.has_value());
+        ASSERT(X.value() == VALUES[0]);
+
+        myMemcpy(yBuffer.address(), xBuffer.address(), sizeof(x));
+
+        ASSERT(Y.has_value());
+        ASSERT(Y.value() == VALUES[0]);
+
+        if (!bslmf::IsBitwiseCopyable<Obj>::value) {
+            y.~Obj();
+        }
+    }
+
+    ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+    ASSERT(0 == da.numAllocations());
+
+    if (bslmf::IsBitwiseCopyable<Obj>::value) {
+        ObjWABuffer xBuffer;
+        ObjBuffer   yBuffer;
+
+        Obj& x = xBuffer.object().object();     const Obj& X = x;
+        Obj& y = yBuffer.object();              const Obj& Y = y;
+
+        new (&xBuffer.object()) ObjWithAllocator(VALUES[1], &oa);
+
+        ASSERT(X.has_value());
+        ASSERT(X.value() == VALUES[1]);
+
+        myMemcpy(yBuffer.address(), xBuffer.address(), sizeof(x));
+
+        ASSERT(Y.has_value());
+        ASSERT(Y.value() == VALUES[1]);
+        ASSERT(X.has_value());
+        ASSERT(X.value() == Y.value());
+        ASSERT(X == Y);
+
+        // bitwise copyable, no d'tor
+    }
+
+    ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+    ASSERT(0 == da.numAllocations());
 }
 
 template <class TYPE>
@@ -8207,19 +8346,20 @@ void TestDriver<TYPE>::testCase15()
     //
     // --------------------------------------------------------------------
 
+    const char *valueTypeName    = bsls::NameOf<ValueType>().name();
+    const char *objName          = bsls::NameOf<Obj>().name();
+    const bool  usesAllocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
+
     if (verbose)
-        printf("\nTESTING TRAITS AND TYPEDEFS"
-               "\n===========================\n");
+        printf("\nTESTING TRAITS AND TYPEDEFS: type: %s, alloc: %s"
+               "\n===========================\n",
+                valueTypeName, usesAllocatorObj ? "true" : "false");
 
     {
-        const char *valueTypeName = bsls::NameOf<ValueType>().name();
-        const char *objName       = bsls::NameOf<Obj>().name();
-
         ASSERT((bsl::is_same<typename Obj::value_type, ValueType>::value));
         ASSERT(
             (bsl::is_same<typename ObjC::value_type, const ValueType>::value));
 
-        const bool usesAllocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
         const bool usesAllocatorValueType =
                                    bslma::UsesBslmaAllocator<ValueType>::value;
         const bool usesArgTObj = bslmf::UsesAllocatorArgT<Obj>::value;
@@ -8228,9 +8368,6 @@ void TestDriver<TYPE>::testCase15()
                                                  Obj>::value;
         const bool convValueType = bsl::is_convertible<bslma::Allocator *,
                                                        ValueType>::value;
-        if (veryVerbose) {
-            P_(valueTypeName);    P_(convObj);    P(convValueType);
-        }
 
         ASSERTV(valueTypeName, objName, usesAllocatorObj,
                                                         usesAllocatorValueType,
@@ -8240,13 +8377,69 @@ void TestDriver<TYPE>::testCase15()
         ASSERTV(valueTypeName, objName, usesArgTObj, usesAllocatorObj,
                                               usesArgTObj == usesAllocatorObj);
 
+        if (veryVerbose) {
+            P_(valueTypeName);    P_(convObj);    P(convValueType);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            T_ P_(std::is_trivially_destructible<ValueType>::value);
+            P(    std::is_trivially_destructible<Obj>::value);
+            T_ P_(std::is_trivially_copyable<ValueType>::value);
+            P(    std::is_trivially_copyable<Obj>::value);
+#endif
+            T_ P_(bslmf::IsBitwiseMoveable<ValueType>::value);
+            P(    bslmf::IsBitwiseMoveable<Obj>::value);
+            T_ P_(bslmf::IsBitwiseCopyable<ValueType>::value);
+            P(    bslmf::IsBitwiseCopyable<Obj>::value);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+            T_ P_(bslmf::IsBitwiseMoveable_v<std::optional<ValueType>>);
+            P(    bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>);
+            T_ P( std::is_trivially_copyable_v<std::optional<ValueType>>);
+#endif
+            T_ P(usesAllocatorObj);
+        }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT(std::is_trivially_destructible<Obj>::value ==
                std::is_trivially_destructible<ValueType>::value);
-#else
-        ASSERT(bsl::is_trivially_copyable<Obj>::value ==
-               bsl::is_trivially_copyable<ValueType>::value);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+        {
+            // 'bsl::allocator<char>' has this problematic quality:
+
+            BSLMF_ASSERT(bslmf::IsBitwiseCopyable<bsl::allocator<char>
+                                                                     >::value);
+            BSLMF_ASSERT(!bslma::UsesBslmaAllocator<bsl::allocator<char>
+                                                                     >::value);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+            BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
+                                         std::optional<bsl::allocator<char>>>);
+#endif
+            BSLMF_ASSERT(bslmf::IsBitwiseCopyable<
+                                bsl::optional<bsl::allocator<char> > >::value);
+
+            ASSERTV(valueTypeName, usesAllocatorObj,
+                    bslmf::IsBitwiseCopyable<Obj>::value,
+                    bslmf::IsBitwiseCopyable<ValueType>::value,
+                    bslmf::IsBitwiseCopyable<Obj>::value ==
+                    bslmf::IsBitwiseCopyable<ValueType>::value);
+
+            // check that 'bsl::is_trivially_copyable' and the native
+            // 'std::is_trivially_copyable' are consistent.
+
+            (void) bslmf::IsTriviallyCopyableCheck<ValueType>::value;
+            (void) bslmf::IsTriviallyCopyableCheck<Obj>::value;
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        if (bslmf::IsBitwiseCopyable_v<ValueType>
+                     == bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>) {
+            ASSERTV(valueTypeName, usesAllocatorObj,
+                    bslmf::IsBitwiseCopyable_v<ValueType>,
+                    bslmf::IsBitwiseCopyable_v<Obj>,
+                    bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>,
+                    bslmf::IsBitwiseCopyable_v<Obj> ==
+                    bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>);
+        }
+#endif
     }
 }
 template <class TYPE>
@@ -13239,6 +13432,15 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 28: {
+        //---------------------------------------------------------------------
+        // Testing 'IsBitwiseMoveable' and 'IsBitwiseCopyable'.
+        //---------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase28,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 27: {
         //---------------------------------------------------------------------
         // TESTING CONCEPTS
@@ -13262,7 +13464,9 @@ int main(int argc, char **argv)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
         BSLMF_ASSERT(( Optional_ConvertibleToBool<bool>));
         BSLMF_ASSERT(( Optional_ConvertibleToBool<int>));
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
         BSLMF_ASSERT((!Optional_ConvertibleToBool<bsl::weak_ordering>));
+# endif
         BSLMF_ASSERT((!Optional_ConvertibleToBool<bsl::nullopt_t>));
 
         class Derived : public bsl::optional<int> {};

@@ -20,6 +20,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
 
@@ -5621,6 +5622,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase23()
 
     BSLMF_ASSERT((0 ==
                   bslmf::IsBitwiseEqualityComparable<bsl::set<KEY> >::value));
+
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseCopyable<bsl::set<KEY> >::value));
 
     BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<bsl::set<KEY> >::value));
 

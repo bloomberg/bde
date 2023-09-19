@@ -1,6 +1,10 @@
 // bdld_datumerror.t.cpp                                              -*-C++-*-
 #include <bdld_datumerror.h>
 
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bslim_testutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -262,7 +266,8 @@ int main(int argc, char **argv)
                           << "TESTING TYPE TRAITS" << endl
                           << "===================" << endl;
 
-        ASSERT((bsl::is_trivially_copyable<Obj>::value));
+        ASSERT(bslmf::IsTriviallyCopyableCheck<Obj>::value);
+        ASSERT(bdlb::HasPrintMethod<Obj>::value);
       } break;
       case 6: {
         // --------------------------------------------------------------------

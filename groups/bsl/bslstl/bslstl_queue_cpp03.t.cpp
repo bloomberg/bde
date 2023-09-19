@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Mon Apr 10 03:25:28 2023
+// Generated on Mon May 15 17:16:26 2023
 // Command line: sim_cpp11_features.pl bslstl_queue.t.cpp
 
 // Expanded test driver only when compiling bslstl_queue.cpp
@@ -3719,6 +3719,8 @@ void TestDriver<VALUE, CONTAINER>::testCase11()
     BSLMF_ASSERT((0 == bsl::is_trivially_copyable<Obj>::value));
 
     BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
+
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseCopyable<Obj>::value));
 
     BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<Obj>::value));
 

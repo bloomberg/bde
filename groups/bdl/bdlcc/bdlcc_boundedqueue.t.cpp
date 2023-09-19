@@ -1234,9 +1234,9 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 If one thread executes 'pushBack', 'pushBack', and
-        //:  'waitUntilEmpty' on an empty queue, another thread executing two
-        //:  'popFront' should never cause 'waitUntilEmpty' to return after
-        //:  the first 'popFront' (detectible with '0 != numElements()').
+        //:   'waitUntilEmpty' on an empty queue, another thread executing two
+        //:   'popFront' should never cause 'waitUntilEmpty' to return after
+        //:   the first 'popFront' (detectible with '0 != numElements()').
         //
         // Plan:
         //: 1 Create a thread that executes a known number of 'pushBack',

@@ -11,6 +11,7 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_ispair.h>
 #include <bslmf_movableref.h>
@@ -524,12 +525,18 @@ int my_ClassFussy::destructorInvocations            = 0;
 namespace bsl {
 
 template <>
-struct is_trivially_copyable<my_ClassFussy> : true_type {};
-
-template <>
 struct is_trivially_default_constructible<my_ClassFussy> : true_type {};
 
 }  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <>
+struct IsBitwiseCopyable<my_ClassFussy> : bsl::true_type {};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
 
                                  // =========
                                  // my_Class4

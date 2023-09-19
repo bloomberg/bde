@@ -215,7 +215,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_serialdateimputil.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bslh_hash.h>
 
@@ -1102,17 +1102,17 @@ void bdlt::hashAppend(HASHALG& hashAlg, const Date& object)
     hashAppend(hashAlg, object.d_serialDate);
 }
 
-}  // close enterprise namespace
-
-namespace bsl {
+namespace bslmf {
 
 template <>
-struct is_trivially_copyable<BloombergLP::bdlt::Date> : bsl::true_type {
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'Date' is a trivially copyable type.
+struct IsBitwiseCopyable<BloombergLP::bdlt::Date> : bsl::true_type {
+    // This template specialization for 'IsBitwiseCopyable' indicates that
+    // 'Date' is a bitwise copyable type.
 };
 
-}  // close namespace bsl
+}  // close namespace bslmf
+
+}  // close enterprise namespace
 
 #endif
 

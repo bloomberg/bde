@@ -106,6 +106,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_decay.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isaccessiblebaseof.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isnothrowmoveconstructible.h>
@@ -491,10 +492,15 @@ struct Optional_IsTriviallyDestructible
 # else  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 template <class TYPE>
-struct Optional_IsTriviallyDestructible : bsl::is_trivially_copyable<TYPE> {
+struct Optional_IsTriviallyDestructible : bslmf::IsBitwiseCopyable<TYPE> {
     // C++03 does not provide a trivially destructible trait.  Instead we use
-    // 'bsl::is_trivially_copyable' which implies the type is also trivially
+    // 'bslmf::IsBitwiseCopyable' which implies the type is also trivially
     // destructible.
+    //
+    // Note that we use 'bslmf::IsBitwiseCopyable' here and not
+    // 'bsl::is_trivially_copyable' because on some platforms, the native
+    // 'std::is_trivially_copyable<Optional_Data<TYPE, true>>' is 'false'
+    // even though it has no d'tor and 'TYPE' is trivally copyable.
 };
 
 # endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY else
@@ -683,17 +689,9 @@ struct Optional_Data<TYPE, true> : public Optional_DataImp<TYPE> {
     // which makes it 'is_trivially_destructible' itself.
 
   public:
-# ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Optional_Data,
-                                      bsl::is_trivially_copyable,
-                                      bsl::is_trivially_copyable<TYPE>::value);
-        // Workaround for C++03 'bsl::is_trivially_copyable' trait.  Note that,
-        // whether 'Optional_Data<TYPE>' satisfies 'bsl::is_trivially_copyable'
-        // doesn't affect 'Optional<TYPE>' 'bsl::is_trivially_copyable' trait.
-        // We only add this nested trait for the tests to be able to check the
-        // C++03 implementation of 'Optional_Data'.  For correct C++03
-        // functionality, 'bsl::optional' has to add a nested trait as well.
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                                      bslmf::IsBitwiseCopyable,
+                                      bslmf::IsBitwiseCopyable<TYPE>::value);
 };
 
 }  // close package namespace
@@ -790,16 +788,13 @@ class optional {
     BSLMF_NESTED_TRAIT_DECLARATION(optional,
                                    BloombergLP::bslmf::UsesAllocatorArgT);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
-        optional,
-        BloombergLP::bslmf::IsBitwiseMoveable,
-        BloombergLP::bslmf::IsBitwiseMoveable<TYPE>::value);
-
-# ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(optional,
-                                      bsl::is_trivially_copyable,
-                                      bsl::is_trivially_copyable<TYPE>::value);
-        // Workaround for C++03 'bsl::is_trivially_copyable' trait.
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                           optional,
+                           BloombergLP::bslmf::IsBitwiseMoveable,
+                           BloombergLP::bslmf::IsBitwiseMoveable<TYPE>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                           optional,
+                           BloombergLP::bslmf::IsBitwiseCopyable,
+                           BloombergLP::bslmf::IsBitwiseCopyable<TYPE>::value);
 
     // CREATORS
     optional() BSLS_KEYWORD_NOEXCEPT;
@@ -1575,8 +1570,18 @@ class optional<TYPE, false> : public std::optional<TYPE> {
     typedef std::optional<TYPE> OptionalBase;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                           optional,
+                           BloombergLP::bslmf::IsBitwiseMoveable,
+                           BloombergLP::bslmf::IsBitwiseMoveable<TYPE>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                           optional,
+                           BloombergLP::bslmf::IsBitwiseCopyable,
+                           BloombergLP::bslmf::IsBitwiseCopyable<TYPE>::value);
+
     // CREATORS
-   optional() noexcept;
+    optional() noexcept;
         // Create a disengaged 'optional' object.
 
     optional(bsl::nullopt_t) noexcept;                              // IMPLICIT
@@ -1857,16 +1862,13 @@ class optional<TYPE, false> {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
-        optional,
-        BloombergLP::bslmf::IsBitwiseMoveable,
-        BloombergLP::bslmf::IsBitwiseMoveable<TYPE>::value);
-
-#  ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(optional,
-                                      bsl::is_trivially_copyable,
-                                      bsl::is_trivially_copyable<TYPE>::value);
-        // Workaround for C++03 'bsl::is_trivially_copyable' trait.
-#  endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                           optional,
+                           BloombergLP::bslmf::IsBitwiseMoveable,
+                           BloombergLP::bslmf::IsBitwiseMoveable<TYPE>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                           optional,
+                           BloombergLP::bslmf::IsBitwiseCopyable,
+                           BloombergLP::bslmf::IsBitwiseCopyable<TYPE>::value);
 
     // CREATORS
     optional() BSLS_KEYWORD_NOEXCEPT;

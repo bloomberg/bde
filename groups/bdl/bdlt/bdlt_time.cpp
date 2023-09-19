@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdlt_time_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
@@ -30,6 +32,10 @@ BSLS_IDENT_RCSID(bdlt_time_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlt {
+
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
+
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Time>::value);
 
 // STATIC HELPER FUNCTIONS
 static

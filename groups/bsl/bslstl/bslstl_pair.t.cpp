@@ -14,6 +14,7 @@
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isintegral.h>
 #include <bslmf_isnothrowmoveconstructible.h>
@@ -2489,8 +2490,17 @@ struct my_NonTrivialBaseClass {
 struct my_MoveAbandonBslma : my_NonTrivialBaseClass {
 };
 
+struct my_CopyBitwise : my_NonTrivialBaseClass {};
+
+struct my_CopyTrivial {
+    int d_data;
+};
+
 namespace BloombergLP {
 namespace bslmf {
+
+template <>
+struct IsBitwiseCopyable<my_CopyBitwise> : bsl::true_type {};
 template <>
 struct IsBitwiseMoveable<my_MoveAbandonBslma> : bsl::true_type {};
 }  // close namespace bslmf
@@ -2501,32 +2511,29 @@ struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
 }  // close namespace bslma
 }  // close enterprise namespace
 
-struct my_CopyTrivial : my_NonTrivialBaseClass {};
 
 namespace bsl {
+
 template <>
-struct is_trivially_copyable<my_CopyTrivial> : bsl::true_type {};
-template <>
-struct is_trivially_default_constructible<my_CopyTrivial>
+struct is_trivially_copyable<my_CopyTrivial>
      : bsl::true_type {};
+
+// The base class of 'my_CopyBitwise' has a do-nothing declared default c'tor,
+// but contains no data, so we know it can be trivially default constructed.
+// 'pair' propagates 'is_trivially_default_constructible' so we explicitly
+// declare the trait here for this test, since the compiler won't assume it.
+
+template <>
+struct is_trivially_default_constructible<my_CopyBitwise>
+     : bsl::true_type {};
+
 }  // close namespace bsl
 
-struct my_EqualityTrivial : my_NonTrivialBaseClass {};
-
-namespace bsl {
-template <>
-struct is_trivially_copyable<my_EqualityTrivial> : bsl::true_type {};
-template <>
-struct is_trivially_default_constructible<my_EqualityTrivial>
-     : bsl::true_type {};
-}  // close namespace bsl
 
 struct my_NoTraits : my_NonTrivialBaseClass {};
 
 namespace BloombergLP {
 namespace bslmf {
-template <>
-struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
 
 // Empty classes are bitwise movable by default.  Specialize for 'my_NoTraits'
 // to make it NOT bitwise movable.
@@ -3106,6 +3113,9 @@ void testFunctionality()
     ASSERT(bsl::is_trivially_copyable<Obj>::value ==
            (bsl::is_trivially_copyable<T1>::value &&
             bsl::is_trivially_copyable<T2>::value));
+    ASSERT(bslmf::IsBitwiseCopyable<Obj>::value ==
+           (bslmf::IsBitwiseCopyable<T1>::value &&
+            bslmf::IsBitwiseCopyable<T2>::value));
     ASSERT(bsl::is_trivially_default_constructible<Obj>::value ==
            (bsl::is_trivially_default_constructible<T1>::value &&
             bsl::is_trivially_default_constructible<T2>::value));
@@ -9582,6 +9592,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<my_NoTraits, my_NoTraits> Pair0;
         ASSERT(! (bslmf::IsBitwiseMoveable<               Pair0>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair0>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair0>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair0>::value));
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair0>::value));
@@ -9595,6 +9606,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_MoveAbandonBslma> Pair1;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair1>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair1>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair1>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair1>::value));
         ASSERT(  (bslma::UsesBslmaAllocator<              Pair1>::value));
@@ -9603,11 +9615,12 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf("Testing traits of "
-                        "bsl::pair<my_CopyTrivial, my_CopyTrivial>\n");
+                        "bsl::pair<my_CopyBitwise, my_CopyBitwise>\n");
         }
-        typedef bsl::pair<my_CopyTrivial, my_CopyTrivial> Pair2;
+        typedef bsl::pair<my_CopyBitwise, my_CopyBitwise> Pair2;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair2>::value));
-        ASSERT(  (bsl::is_trivially_copyable<             Pair2>::value));
+        ASSERT(  (bslmf::IsBitwiseCopyable<               Pair2>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair2>::value));
         ASSERT(  (bsl::is_trivially_default_constructible<Pair2>::value));
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair2>::value));
         ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair2>::value));
@@ -9615,10 +9628,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf("Testing traits of "
-                        "bsl::pair<my_CopyTrivial, my_MoveAbandonBslma>\n");
+                        "bsl::pair<my_CopyBitwise, my_MoveAbandonBslma>\n");
         }
-        typedef bsl::pair<my_CopyTrivial, my_MoveAbandonBslma> Pair3;
+        typedef bsl::pair<my_CopyBitwise, my_MoveAbandonBslma> Pair3;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair3>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair3>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair3>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair3>::value));
         ASSERT(  (bslma::UsesBslmaAllocator<              Pair3>::value));
@@ -9627,10 +9641,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf("Testing traits of "
-                        "bsl::pair<my_MoveAbandonBslma, my_CopyTrivial>\n");
+                        "bsl::pair<my_MoveAbandonBslma, my_CopyBitwise>\n");
         }
-        typedef bsl::pair<my_MoveAbandonBslma, my_CopyTrivial> Pair4;
+        typedef bsl::pair<my_MoveAbandonBslma, my_CopyBitwise> Pair4;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair4>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair4>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair4>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair4>::value));
         ASSERT(  (bslma::UsesBslmaAllocator<              Pair4>::value));
@@ -9643,6 +9658,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_NoTraits> Pair5;
         ASSERT(! (bslmf::IsBitwiseMoveable<               Pair5>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair5>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair5>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair5>::value));
         ASSERT(  (bslma::UsesBslmaAllocator<              Pair5>::value));
@@ -9651,10 +9667,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf("Testing traits of "
-                        "bsl::pair<my_CopyTrivial, my_NoTraits>\n");
+                        "bsl::pair<my_CopyBitwise, my_NoTraits>\n");
         }
-        typedef bsl::pair<my_CopyTrivial, my_NoTraits> Pair6;
+        typedef bsl::pair<my_CopyBitwise, my_NoTraits> Pair6;
         ASSERT(! (bslmf::IsBitwiseMoveable<               Pair6>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair6>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair6>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair6>::value));
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair6>::value));
@@ -9667,6 +9684,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<my_String, my_NoTraits> Pair7;
         ASSERT(! (bslmf::IsBitwiseMoveable<               Pair7>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair7>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair7>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair7>::value));
         ASSERT(  (bslma::UsesBslmaAllocator<              Pair7>::value));
@@ -9679,6 +9697,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<my_MoveAbandonBslma, int> Pair8;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair8>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair8>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair8>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair8>::value));
         ASSERT(  (bslma::UsesBslmaAllocator<              Pair8>::value));
@@ -9687,11 +9706,12 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf("Testing traits of "
-                        "bsl::pair<int, my_CopyTrivial>\n");
+                        "bsl::pair<int, my_CopyBitwise>\n");
         }
-        typedef bsl::pair<int, my_CopyTrivial> Pair9;
+        typedef bsl::pair<int, my_CopyBitwise> Pair9;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair9>::value));
-        ASSERT(  (bsl::is_trivially_copyable<             Pair9>::value));
+        ASSERT(  (bslmf::IsBitwiseCopyable<               Pair9>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair9>::value));
         ASSERT(  (bsl::is_trivially_default_constructible<Pair9>::value));
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair9>::value));
         ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair9>::value));
@@ -9703,6 +9723,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<my_String, my_MoveAbandonBslma> Pair10;
         ASSERT(! (bslmf::IsBitwiseMoveable<               Pair10>::value));
+        ASSERT(! (bslmf::IsBitwiseCopyable<               Pair10>::value));
         ASSERT(! (bsl::is_trivially_copyable<             Pair10>::value));
         ASSERT(! (bsl::is_trivially_default_constructible<Pair10>::value));
         ASSERT(  (bslma::UsesBslmaAllocator<              Pair10>::value));
@@ -9715,6 +9736,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<char, int> Pair11;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair11>::value));
+        ASSERT(  (bslmf::IsBitwiseCopyable<               Pair11>::value));
         ASSERT(  (bsl::is_trivially_copyable<             Pair11>::value));
         ASSERT(  (bsl::is_trivially_default_constructible<Pair11>::value));
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair11>::value));
@@ -9727,6 +9749,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<int, char> Pair12;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair12>::value));
+        ASSERT(  (bslmf::IsBitwiseCopyable<               Pair12>::value));
         ASSERT(  (bsl::is_trivially_copyable<             Pair12>::value));
         ASSERT(  (bsl::is_trivially_default_constructible<Pair12>::value));
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair12>::value));
@@ -9739,6 +9762,7 @@ int main(int argc, char *argv[])
         }
         typedef bsl::pair<int, int> Pair13;
         ASSERT(  (bslmf::IsBitwiseMoveable<               Pair13>::value));
+        ASSERT(  (bslmf::IsBitwiseCopyable<               Pair13>::value));
         ASSERT(  (bsl::is_trivially_copyable<             Pair13>::value));
         ASSERT(  (bsl::is_trivially_default_constructible<Pair13>::value));
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair13>::value));
@@ -10367,6 +10391,7 @@ int main(int argc, char *argv[])
             ASSERT((bsl::is_same<short, Obj::second_type>::value));
 
             ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bslmf::IsBitwiseCopyable<               Obj>::value));
             ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
             ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
             ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));

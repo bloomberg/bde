@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Sep 22 17:06:46 2022
+// Generated on Wed Aug 23 11:35:05 2023
 // Command line: sim_cpp11_features.pl bslma_stdallocator.h
 
 #ifdef COMPILING_BSLMA_STDALLOCATOR_H
@@ -48,12 +48,13 @@ class allocator {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseCopyable);
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(
-        allocator,
-        BloombergLP::bslmf::IsBitwiseEqualityComparable);
+                              allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -468,12 +469,13 @@ class allocator<void> {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseCopyable);
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(
-        allocator,
-        BloombergLP::bslmf::IsBitwiseEqualityComparable);
+                              allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -1869,7 +1871,7 @@ struct UsesBslmaAllocator< ::bsl::allocator<TYPE> > : bsl::false_type {
 #endif // ! defined(INCLUDED_BSLMA_STDALLOCATOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

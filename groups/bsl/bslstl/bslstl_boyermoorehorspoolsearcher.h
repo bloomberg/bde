@@ -599,9 +599,9 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 
 #include <bslmf_conditional.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_issame.h>
-#include <bslmf_istriviallycopyable.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
@@ -957,7 +957,7 @@ class BoyerMooreHorspoolSearcher {
     enum { k_CAN_OPTIMIZE_FOR_CHAR = (
                              1 == sizeof(value_type)
                        && bslmf::IsBitwiseEqualityComparable<value_type>::value
-                       && bsl::is_trivially_copyable<difference_type>::value
+                       && bslmf::IsBitwiseCopyable<difference_type>::value
                        && bsl::is_same<HASH,  DefaultHash >::value
                        && bsl::is_same<EQUAL, DefaultEqual>::value)
     };

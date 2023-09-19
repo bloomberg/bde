@@ -3,20 +3,22 @@
 #include <bslalg_dequeprimitives.h>
 #include <bslalg_dequeiterator.h>
 
-#include <bslma_allocator.h>              // for testing only
-#include <bslma_default.h>                // for testing only
-#include <bslma_stdallocator.h>           // for testing only
-#include <bslma_testallocator.h>          // for testing only
-#include <bslma_testallocatorexception.h> // for testing only
-#include <bslmf_movableref.h>             // for testing only
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_stdallocator.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
-#include <bsls_alignmentutil.h>           // for testing only
-#include <bsls_bsltestutil.h>             // for testing only
+#include <bslmf_isbitwisecopyable.h>
+#include <bslmf_movableref.h>
+
+#include <bsls_alignmentutil.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_objectbuffer.h>            // for testing only
-#include <bsls_platform.h>                // for testing only
-#include <bsls_stopwatch.h>               // for testing only
-#include <bsls_types.h>                   // for testing only
+#include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <ctype.h>     // 'isalpha'
 #include <stdio.h>
@@ -622,10 +624,12 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 };
 
 // TRAITS
-namespace bsl {
-template <> struct is_trivially_copyable<BitwiseCopyableTestType>
-    : true_type {};
-}  // close namespace bsl
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseCopyable<BitwiseCopyableTestType>
+    : bsl::true_type {};
+}  // close namespace bslmf
+}  // close enterprise namespace
 
                        // ============================
                        // class SelfMoveAssignTestType

@@ -1226,21 +1226,16 @@ template <class PROTOTYPE>
 struct IsBitwiseMoveable<bdlf::MemFn<PROTOTYPE> > : bsl::true_type
 {
     // This bitwise moveable trait is redundant as it is already implied by the
-    // 'is_trivially_copyable' trait below.  We retain this definition,
+    // 'bslmf::IsBitwiseCopyable' trait below.  We retain this definition,
     // however, as it can potentially save a level of template instantiation.
 };
 
-}  // close namespace bslmf
-}  // close enterprise namespace
-
-namespace bsl {
-
 template <class PROTOTYPE>
-struct is_trivially_copyable<BloombergLP::bdlf::MemFn<PROTOTYPE> > :
-                                                                 bsl::true_type
+struct IsBitwiseCopyable<bdlf::MemFn<PROTOTYPE> > : bsl::true_type
 {};
 
-}  // close namespace bsl
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 #endif
 

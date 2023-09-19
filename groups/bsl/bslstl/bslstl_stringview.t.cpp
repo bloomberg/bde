@@ -7,6 +7,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_nameof.h>
@@ -6738,7 +6740,9 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The class has the bsl::is_trivially_copyable trait.
         //:
-        //: 2 The class has the bslmf::IsBitwiseMoveable trait.
+        //: 2 The class has the bslmf::IsBitwiseCopyable trait.
+        //:
+        //: 3 The class has the bslmf::IsBitwiseMoveable trait.
         //
         // Plan:
         //: 1 ASSERT the presence of each trait required by the type.  (C-1..2)
@@ -6750,6 +6754,7 @@ int main(int argc, char *argv[])
                             "\n===================\n");
 
         ASSERT((bsl::is_trivially_copyable<bsl::string_view>::value));
+        ASSERT((bslmf::IsBitwiseCopyable<bsl::string_view>::value));
         ASSERT((bslmf::IsBitwiseMoveable<bsl::string_view>::value));
 
       } break;

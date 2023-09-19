@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bslmf_assert.h>
 
 //=============================================================================
@@ -51,6 +53,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace bsl {
     BSLMF_ASSERT(bsl::is_trivially_copyable<string_view>::value);
+    BSLMF_ASSERT(BloombergLP::bslmf::IsTriviallyCopyableCheck<
+                                                          string_view>::value);
     BSLMF_ASSERT(BloombergLP::bslmf::IsBitwiseMoveable<string_view>::value);
 }  // close namespace bsl
 

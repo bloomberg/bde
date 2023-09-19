@@ -22,12 +22,11 @@ BSLS_IDENT_RCSID(bdlt_datetimetz_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-// 'DatetimeTz' is trivially copyable only if 'Datetime' is also trivially
-// copyable.  In the header we have stated unconditionally that 'DatetimeTz' is
-// trivially copyable, so we assert our assumption about 'Datetime', as a
-// sanity check.
+// 'DatetimeTz' is bitwise copyable only if 'Datetime' is also bitwise
+// copyable.
 
-BSLMF_ASSERT(bsl::is_trivially_copyable<Datetime>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Datetime>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DatetimeTz>::value);
 
                              // ----------------
                              // class DatetimeTz

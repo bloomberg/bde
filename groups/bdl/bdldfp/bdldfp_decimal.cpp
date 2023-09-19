@@ -4,6 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 
+#include <bslim_printer.h>
+#include <bslma_deallocatorguard.h>
+#include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bsls_exceptionutil.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
@@ -52,11 +57,26 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 // numeric_limits<>::digits10?  Because it is "helpfully" broken on MS Visual
 // C++ 2008, reports 18 & not 19.
 
-
-namespace BloombergLP {
-namespace bdldfp {
-
 namespace {
+namespace u {
+
+using namespace BloombergLP;
+using namespace bdldfp;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+// 'ValueType{32,64,128}' are not BDE-created types and are not explicitly
+// declared as 'bsl::is_trivially_copyable', they are naturally
+// 'std::is_trivially_copyable' on C++11 and later.
+
+BSLMF_ASSERT(bsl::is_trivially_copyable<DecimalImpUtil::ValueType32>::value);
+BSLMF_ASSERT(bsl::is_trivially_copyable<DecimalImpUtil::ValueType64>::value);
+BSLMF_ASSERT(bsl::is_trivially_copyable<DecimalImpUtil::ValueType128>::value);
+
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DecimalImpUtil::ValueType32>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DecimalImpUtil::ValueType64>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DecimalImpUtil::ValueType128>::value);
+#endif
+
                     // ================
                     // class NotIsSpace
                     // ================
@@ -308,8 +328,12 @@ bool isNegative(const Decimal128& x)
 
     return xH & k_SIGN_MASK;
 }
+
+}  // close namespace u
 }  // close unnamed namespace
 
+namespace BloombergLP {
+namespace bdldfp {
 
                             // --------------------
                             // class Decimal_Type64
@@ -327,7 +351,7 @@ bsl::ostream& Decimal_Type64::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start(true);
-    printImpl(stream, *this);
+    u::printImpl(stream, *this);
     printer.end(true);
     return stream;
 }
@@ -426,7 +450,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
                                                 str.getloc()).thousands_sep());
     bool        hasDigit(false);
 
-    begin = doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
+    begin = u::doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
     if (hasDigit) {
         value = DecimalImpUtil::parse32(buffer);
     } else {
@@ -453,7 +477,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
                                                 str.getloc()).thousands_sep());
     bool        hasDigit(false);
 
-    begin = doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
+    begin = u::doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
     if (hasDigit) {
         value = DecimalImpUtil::parse64(buffer);
     } else {
@@ -480,7 +504,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
                                                 str.getloc()).thousands_sep());
     bool        hasDigit(false);
 
-    begin = doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
+    begin = u::doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
     if (hasDigit) {
         value = DecimalImpUtil::parse128(buffer);
     } else {
@@ -639,7 +663,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         BSLS_ASSERT(wexp != wend);
     }
 
-    const bool addSign = isNegative(value) ||
+    const bool addSign = u::isNegative(value) ||
                          cfg.sign() == DecimalFormatConfig::e_ALWAYS;
 
     const bsl::ios_base::fmtflags adjustfield =
@@ -652,7 +676,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
 
     if (surplus && adjustfield != bsl::ios_base::left) {
         // output the fillers
-        out = fillN(out, surplus, fill);
+        out = u::fillN(out, surplus, fill);
     }
 
     // output decimal integer and partial parts
@@ -661,7 +685,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         // output trailing zeros
         const CHARTYPE k_ZERO = bsl::use_facet<bsl::ctype<CHARTYPE> >(
                                                    format.getloc()).widen('0');
-        out = fillN(out, trailingZeros, k_ZERO);
+        out = u::fillN(out, trailingZeros, k_ZERO);
         if (format.flags() & bsl::ios::scientific) {
             // output the exponent
             out = bsl::copy(wexp, wend, out);
@@ -670,7 +694,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
 
     if (surplus && adjustfield == bsl::ios_base::left) {
         // output the fillers
-        out = fillN(out, surplus, fill);
+        out = u::fillN(out, surplus, fill);
     }
 
     return out;
@@ -722,8 +746,8 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal32                             object)
 {
-    return bdldfp::printImpl(stream, object);
-                                         // See {DRQS 131792157} for 'bdldfp::'.
+    return u::printImpl(stream, object);
+                                        // See {DRQS 131792157} for 'bdldfp::'.
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -731,7 +755,7 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal64                             object)
 {
-    return bdldfp::printImpl(stream, object);
+    return u::printImpl(stream, object);
                                         // See {DRQS 131792157} for 'bdldfp::'.
 }
 
@@ -740,7 +764,7 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal128                            object)
 {
-    return bdldfp::printImpl(stream, object);
+    return u::printImpl(stream, object);
                                         // See {DRQS 131792157} for 'bdldfp::'.
 }
 
@@ -751,8 +775,7 @@ bsl::basic_istream<CHARTYPE, TRAITS>&
 bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
                    Decimal32&                            object)
 {
-    return bdldfp::read(stream, object);
-                                        // See {DRQS 131792157} for 'bdldfp::'.
+    return u::read(stream, object);     // See {DRQS 131792157} for 'bdldfp::'.
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -760,8 +783,7 @@ bsl::basic_istream<CHARTYPE, TRAITS>&
 bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
                    Decimal64&                            object)
 {
-    return bdldfp::read(stream, object);
-                                        // See {DRQS 131792157} for 'bdldfp::'.
+    return u::read(stream, object);     // See {DRQS 131792157} for 'bdldfp::'.
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -769,8 +791,7 @@ bsl::basic_istream<CHARTYPE, TRAITS>&
 bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
                    Decimal128&                           object)
 {
-    return bdldfp::read(stream, object);
-                                        // See {DRQS 131792157} for 'bdldfp::'.
+    return u::read(stream, object);     // See {DRQS 131792157} for 'bdldfp::'.
 }
 
                 // Streaming operators explicit instantiations

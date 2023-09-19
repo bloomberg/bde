@@ -1,9 +1,11 @@
 // bdlb_indexspan.t.cpp                                               -*-C++-*-
 #include <bdlb_indexspan.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_allocator.h>
 
-#include <bslim_testutil.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -441,6 +443,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
         ASSERT(bsl::is_trivially_copyable<Obj>::value);
+        ASSERT(bslmf::IsTriviallyCopyableCheck<Obj>::value);
         ASSERT(bdlb::HasPrintMethod<Obj>::value);
       } break;
 

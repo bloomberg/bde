@@ -565,9 +565,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isempty.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_isreference.h>
-#include <bslmf_istriviallycopyable.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
@@ -594,6 +594,14 @@ namespace bslmf {
 
 template <class t_TYPE>
 struct IsBitwiseMoveable;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class t_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE constexpr bool IsBitwiseMoveable_v =
+                                              IsBitwiseMoveable<t_TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bslmf::IsBitwiseMoveable' meta-function.
+#endif
 
 template <class t_TYPE,
           bool = bsl::is_reference<t_TYPE>::value ||
@@ -624,9 +632,9 @@ struct IsBitwiseMoveable_Imp<t_TYPE, false> {
                            DetectNestedTrait<t_TYPE, IsBitwiseMoveable>::value;
 
   public:
-    static const bool value = bsl::is_trivially_copyable<t_TYPE>::value ||
-                              k_NestedBitwiseMoveableTrait ||
-                              sizeof(t_TYPE) == 1;
+    static const bool value = IsBitwiseCopyable<t_TYPE>::value
+                                                || k_NestedBitwiseMoveableTrait
+                                                || sizeof(t_TYPE) == 1;
 
     typedef bsl::integral_constant<bool, value> type;
 

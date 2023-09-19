@@ -9,6 +9,8 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
@@ -567,7 +569,8 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create two ('const'/non-'const') iterator types.
         //:
-        //: 2 Verify that their type traits say they are trivially copyable.
+        //: 2 Verify that their type traits say they are trivially and bitwise
+        //:   copyable.
         //
         // Testing
         //   CONCERN: The type is trivially copyable.
@@ -584,6 +587,10 @@ int main(int argc, char *argv[])
         ASSERT(bsl::is_trivially_copyable<iterator>::value == true);
 
         ASSERT(bsl::is_trivially_copyable<const_iterator>::value == true);
+
+        ASSERT(bslmf::IsBitwiseCopyable<iterator>::value == true);
+
+        ASSERT(bslmf::IsBitwiseCopyable<const_iterator>::value == true);
 #endif
       } break;
       case 15: {

@@ -7,6 +7,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_enableif.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_ispair.h>
 #include <bslmf_movableref.h>
@@ -741,13 +742,18 @@ int my_ClassFussy::s_destructorInvocations            = 0;
 namespace bsl {
 
 template <>
-struct is_trivially_copyable<my_ClassFussy> : true_type {};
-
-template <>
 struct is_trivially_default_constructible<my_ClassFussy> : true_type {};
 
 }  // close namespace bsl
 
+namespace BloombergLP {
+namespace bslmf {
+
+template <>
+struct IsBitwiseCopyable<my_ClassFussy> : bsl::true_type {};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
                                  // =========
                                  // my_Class4
                                  // =========
@@ -936,16 +942,11 @@ int my_ClassFussy2::s_conversionConstructorInvocations = 0;
 int my_ClassFussy2::s_destructorInvocations            = 0;
 
 // TRAITS
-namespace bsl {
-
-template <>
-struct is_trivially_default_constructible<my_ClassFussy2> : true_type {};
-
-}  // close namespace bsl
-
 namespace BloombergLP {
 namespace bslmf {
 
+template <>
+struct IsBitwiseCopyable<my_ClassFussy2> : bsl::true_type {};
 template <>
 struct IsBitwiseMoveable<my_ClassFussy2> : bsl::true_type {};
 
@@ -2065,22 +2066,6 @@ typedef BaseTestType<BSLMA_ALLOC> BslmaAllocTestType;
 typedef BaseTestType<ARG_T_ALLOC> ArgTAllocTestType;
 
 // TRAITS
-
-namespace bsl {
-template <>
-struct is_trivially_copyable< TrivialTestType    > : true_type {};
-
-template <>
-struct is_trivially_copyable< NonTrivialTestType > : false_type {};
-
-template <>
-struct is_trivially_copyable< BslmaAllocTestType > : false_type {};
-
-template <>
-struct is_trivially_copyable< ArgTAllocTestType  > : false_type {};
-
-}  // close namespace bsl
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -2093,6 +2078,18 @@ struct UsesBslmaAllocator<ArgTAllocTestType> : bsl::true_type {};
 }  // close package namespace
 
 namespace bslmf {
+
+template <>
+struct IsBitwiseCopyable< TrivialTestType    > : bsl::true_type {};
+
+template <>
+struct IsBitwiseCopyable< NonTrivialTestType > : bsl::false_type {};
+
+template <>
+struct IsBitwiseCopyable< BslmaAllocTestType > : bsl::false_type {};
+
+template <>
+struct IsBitwiseCopyable< ArgTAllocTestType  > : bsl::false_type {};
 
 template <>
 struct UsesAllocatorArgT<ArgTAllocTestType> : bsl::true_type {};
@@ -2240,22 +2237,6 @@ typedef MoveOnlyBaseTestType<ARG_T_ALLOC> MoveOnlyArgTAllocTestType;
 
 
 // TRAITS
-namespace bsl {
-
-template <>
-struct is_trivially_copyable<MoveOnlyTrivialTestType> : true_type {};
-
-template <>
-struct is_trivially_copyable<MoveOnlyNonTrivialTestType> : false_type {};
-
-template <>
-struct is_trivially_copyable<MoveOnlyBslmaAllocTestType> : false_type {};
-
-template <>
-struct is_trivially_copyable<MoveOnlyArgTAllocTestType> : false_type {};
-
-}  // close namespace bsl
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -2268,6 +2249,18 @@ struct UsesBslmaAllocator<MoveOnlyArgTAllocTestType> : bsl::true_type {};
 }  // close package namespace
 
 namespace bslmf {
+
+template <>
+struct IsBitwiseCopyable<MoveOnlyTrivialTestType> : bsl::true_type {};
+
+template <>
+struct IsBitwiseCopyable<MoveOnlyNonTrivialTestType> : bsl::false_type {};
+
+template <>
+struct IsBitwiseCopyable<MoveOnlyBslmaAllocTestType> : bsl::false_type {};
+
+template <>
+struct IsBitwiseCopyable<MoveOnlyArgTAllocTestType> : bsl::false_type {};
 
 template <>
 struct UsesAllocatorArgT<MoveOnlyArgTAllocTestType> : bsl::true_type {};
@@ -2400,21 +2393,6 @@ typedef CopyOnlyBaseTestType<ARG_T_ALLOC> CopyOnlyArgTAllocTestType;
 
 
 // TRAITS
-namespace bsl {
-template <>
-struct is_trivially_copyable<CopyOnlyTrivialTestType> : true_type {};
-
-template <>
-struct is_trivially_copyable<CopyOnlyNonTrivialTestType> : false_type {};
-
-template <>
-struct is_trivially_copyable<CopyOnlyBslmaAllocTestType> : false_type {};
-
-template <>
-struct is_trivially_copyable<CopyOnlyArgTAllocTestType> : false_type {};
-
-}  // close namespace bsl
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -2427,6 +2405,18 @@ struct UsesBslmaAllocator<CopyOnlyArgTAllocTestType> : bsl::true_type {};
 }  // close package namespace
 
 namespace bslmf {
+
+template <>
+struct IsBitwiseCopyable<CopyOnlyTrivialTestType> : bsl::true_type {};
+
+template <>
+struct IsBitwiseCopyable<CopyOnlyNonTrivialTestType> : bsl::false_type {};
+
+template <>
+struct IsBitwiseCopyable<CopyOnlyBslmaAllocTestType> : bsl::false_type {};
+
+template <>
+struct IsBitwiseCopyable<CopyOnlyArgTAllocTestType> : bsl::false_type {};
 
 template <>
 struct UsesAllocatorArgT<CopyOnlyArgTAllocTestType> : bsl::true_type {};

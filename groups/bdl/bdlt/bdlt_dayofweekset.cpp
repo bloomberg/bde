@@ -6,12 +6,21 @@ BSLS_IDENT_RCSID(bdlt_dayofweekset_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_isbitwisemoveable.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
 namespace bdlt {
+
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DayOfWeekSet_Iter>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<DayOfWeekSet_Iter>::value);
+
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DayOfWeekSet>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<DayOfWeekSet>::value);
 
                          // -----------------------
                          // class DayOfWeekSet_Iter

@@ -109,10 +109,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_allocatorargt.h>
 #include <bslmf_conditional.h>
 #include <bslmf_enableif.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isnothrowmoveconstructible.h>
-#include <bslmf_istriviallycopyable.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_util.h>    // 'forward(V)'
@@ -259,8 +259,8 @@ class NullableValue : public bsl::optional<TYPE> {
                                       bslma::UsesBslmaAllocator,
                                       bslma::UsesBslmaAllocator<TYPE>::value);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(NullableValue,
-                                      bsl::is_trivially_copyable,
-                                      bsl::is_trivially_copyable<TYPE>::value);
+                                      bslmf::IsBitwiseCopyable,
+                                      bslmf::IsBitwiseCopyable<TYPE>::value);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(NullableValue,
                                       bslmf::IsBitwiseMoveable,
                                       bslmf::IsBitwiseMoveable<TYPE>::value);

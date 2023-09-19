@@ -15,12 +15,16 @@ BSLS_IDENT_RCSID(balxml_elementattribute_cpp,"$Id$ $CSID$")
 #include <balxml_prefixstack.h>
 #include <balxml_namespaceregistry.h>
 
+#include <bslmf_assert.h>
+
 #include <bsl_string.h>
 #include <bsl_cstring.h>
 
 namespace BloombergLP {
-
 namespace balxml {
+
+BSLMF_ASSERT(bslmf::IsTriviallyCopyableCheck<ElementAttribute>::value);
+
 ElementAttribute::ElementAttribute()
 : d_prefixStack(0)
 , d_qualifiedName(0)

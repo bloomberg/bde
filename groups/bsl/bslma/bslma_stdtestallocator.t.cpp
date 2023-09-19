@@ -510,11 +510,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============\n");
 
-        ASSERT((bslmf::IsBitwiseMoveable<bslma::StdTestAllocator<int> >::value));
-        ASSERT((bsl::is_trivially_copyable<
-                                         bslma::StdTestAllocator<int> >::value));
+        ASSERT((bslmf::IsBitwiseMoveable<
+                                       bslma::StdTestAllocator<int> >::value));
+        ASSERT((bslmf::IsBitwiseCopyable<
+                                       bslma::StdTestAllocator<int> >::value));
         ASSERT((bslmf::IsBitwiseEqualityComparable<
-                                         bslma::StdTestAllocator<int> >::value));
+                                       bslma::StdTestAllocator<int> >::value));
 
       } break;
 

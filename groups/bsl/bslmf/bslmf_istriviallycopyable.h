@@ -57,6 +57,14 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
 // bsls_compilerfeatures component for details.
 //
+///'bslmf::IsTriviallyCopyableCheck'
+///---------------------------------
+// In addition to 'bsl::is_trivially_copyable', we provide
+// 'bslmf::IsTriviallyCopyableCheck', which is never intended to be
+// specialized, but rather to be used to get the same return value as
+// 'bsl::is_trivially_copyable', but perform a static assert that the 'bsl' and
+// 'std' versions of 'is_trivially_copyable' are equivalent.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -436,6 +444,35 @@ struct is_trivially_copyable<BloombergLP::bslmf::Nil> : bsl::true_type {
 };
 #endif
 }  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <class t_TYPE>
+struct IsTriviallyCopyableCheck : bsl::is_trivially_copyable<t_TYPE> {
+    // This 'struct' exists to return the same value as 'is_trivially_copyable'
+    // and is intended to never be specialized.  The purpose of using it is
+    // to perform the following static assert that the 'bsl' and 'std' versions
+    // of 'is_trivially_copyable' are in sync.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
+    defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
+    // Note that 'std::is_trivially_copyable' is 'false' on Windows for types
+    // with copy c'tors declared as 'deleted', but 'true' on other platforms.
+
+    static_assert(bsl::is_trivially_copyable<t_TYPE>::value ==
+                                    std::is_trivially_copyable<t_TYPE>::value,
+                  "Types with copy constructors or destructors defined "
+                  "or deleted may be declared 'bslmf::IsBitwiseCopyable', "
+                  "if the type author is certain that using 'memcpy' on "
+                  "the type is safe.  Declaring such types"
+                  " 'bsl::is_trivially_copyable' is, however, prohibited.");
+#endif
+};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
+
 
 #endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
 

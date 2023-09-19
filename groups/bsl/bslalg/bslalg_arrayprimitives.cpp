@@ -106,7 +106,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  template <class TARGET_TYPE, class ALLOCATOR>
 //  static
-//  typename bsl::enable_if<bsl::is_trivially_copyable<TARGET_TYPE>::value>
+//  typename bsl::enable_if<bslmf::IsBitwiseCopyable<TARGET_TYPE>::value>
 //      ::type
 //  defaultConstruct(TARGET_TYPE *begin, ...);
 //..

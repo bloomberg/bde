@@ -14,8 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'BitwiseCopyableTestType', that is
-// bitwise-copyable and defines the 'bsl::is_trivially_copyable' type
-// trait.
+// bitwise-copyable and defines the 'bslmf::IsBitwiseCopyable' type trait.
 //
 ///Attributes
 ///----------
@@ -72,6 +71,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 namespace BloombergLP {
@@ -93,7 +93,7 @@ class BitwiseCopyableTestType {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestType,
-                                   bsl::is_trivially_copyable);
+                                   bslmf::IsBitwiseCopyable);
 
     // CREATORS
     BitwiseCopyableTestType();

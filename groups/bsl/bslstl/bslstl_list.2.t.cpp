@@ -4115,6 +4115,7 @@ void TestDriver2<TYPE,ALLOC>::test22_typeTraits()
     BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value
                                     == bslmf::IsBitwiseMoveable<ALLOC>::value);
 
+    BSLMF_ASSERT(! bslmf::IsBitwiseCopyable<Obj>::value);
     BSLMF_ASSERT(! bsl::is_trivially_copyable<Obj>::value);
 }
 

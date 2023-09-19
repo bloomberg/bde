@@ -9,6 +9,8 @@
 
 #include <balm_metricrecord.h>
 
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_metricrecord_cpp,"$Id$ $CSID$")
 
@@ -49,6 +51,10 @@ const double balm::MetricRecord::DEFAULT_MAX =
 #endif
 
 namespace balm {
+
+BSLMF_ASSERT(bsl::is_trivially_copyable<MetricRecord>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<MetricRecord>::value);
+
 // ACCESSORS
 bsl::ostream& MetricRecord::print(bsl::ostream& stream) const
 {

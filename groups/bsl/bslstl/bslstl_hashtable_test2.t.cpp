@@ -22,6 +22,7 @@
 #include <bslmf_assert.h>
 #include <bslmf_conditional.h>
 #include <bslmf_isfunction.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_removeconst.h>
@@ -3649,6 +3650,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase16()
 
     ASSERT(!bsl::is_trivially_copyable<             Obj>::value);
     ASSERT(!bsl::is_trivially_default_constructible<Obj>::value);
+    ASSERT(!bslmf::IsBitwiseCopyable<               Obj>::value);
     ASSERT(!bslmf::IsBitwiseEqualityComparable<     Obj>::value);
 
     // The uses-allocator trait should depend only on the allocator type.

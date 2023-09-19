@@ -128,6 +128,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
@@ -136,10 +137,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #include <bsl_iterator.h>
 #include <bsl_vector.h>
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlc {
@@ -164,7 +161,7 @@ class IndexClerkIter {
                            const IndexClerkIter& rhs);
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(IndexClerkIter, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(IndexClerkIter, bslmf::IsBitwiseCopyable);
 
     // CREATORS
     IndexClerkIter();

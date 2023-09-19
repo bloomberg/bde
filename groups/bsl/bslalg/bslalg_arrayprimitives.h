@@ -98,7 +98,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                                                "TYPE has a trivial default
 //                                                constructor"
 //
-//  bsl::is_trivially_copyable                    "TYPE has the bit-wise
+//  bslmf::IsBitwiseCopyable                      "TYPE has the bit-wise
 //                                                copyable trait", or
 //                                                "TYPE is bit-wise copyable"
 //
@@ -306,6 +306,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isenum.h>
@@ -1795,7 +1796,7 @@ struct ArrayPrimitives_CanBitwiseCopy
                                    typename bsl::remove_const<FROM_TYPE>::type,
                                    typename bsl::remove_const<TO_TYPE  >::type>
                                                                         ::value
-                          && bsl::is_trivially_copyable<
+                          && bslmf::IsBitwiseCopyable<
                                    typename bsl::remove_const<TO_TYPE  >::type>
                                                                         ::value
                             > {
@@ -1832,7 +1833,7 @@ void ArrayPrimitives::uninitializedFillN(
         k_IS_FUNDAMENTAL_OR_POINTER = k_IS_FUNDAMENTAL ||
                                      (k_IS_POINTER && !k_IS_FUNCTION_POINTER),
 
-        k_IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<TargetType>::value,
+        k_IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<TargetType>::value,
 
         k_VALUE =
                  k_IS_FUNDAMENTAL_OR_POINTER ? Imp::e_IS_FUNDAMENTAL_OR_POINTER
@@ -1982,7 +1983,7 @@ void ArrayPrimitives::defaultConstruct(
                || bsl::is_member_pointer<TargetType>::value
 #endif
               ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : bsl::is_trivially_copyable<TargetType>::value &&
+              : bslmf::IsBitwiseCopyable<TargetType>::value &&
                 bsl::is_trivially_default_constructible<TargetType>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
@@ -2502,7 +2503,7 @@ void ArrayPrimitives::emplace(
     typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
@@ -2596,7 +2597,7 @@ void ArrayPrimitives::insert(
         // operator throw.
 
         enum {
-            k_VALUE = bsl::is_trivially_copyable<TargetType>::value
+            k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : bslmf::IsBitwiseMoveable<TargetType>::value
                     ? Imp::e_BITWISE_MOVEABLE_TRAITS
@@ -2646,7 +2647,7 @@ void ArrayPrimitives::insert(
     }
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
@@ -2812,7 +2813,7 @@ void ArrayPrimitives::moveConstruct(
     typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TargetType>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };

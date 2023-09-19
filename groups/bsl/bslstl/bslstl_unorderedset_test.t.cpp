@@ -19,6 +19,7 @@
 #include <bslmf_assert.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_issame.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
@@ -6520,6 +6521,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase23()
     // Verify unordered_set does not define other common traits.
     BSLMF_ASSERT((0 ==
                  bsl::is_trivially_copyable<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+                   bslmf::IsBitwiseCopyable<bsl::unordered_set<KEY> >::value));
 
     BSLMF_ASSERT((0 ==
          bslmf::IsBitwiseEqualityComparable<bsl::unordered_set<KEY> >::value));

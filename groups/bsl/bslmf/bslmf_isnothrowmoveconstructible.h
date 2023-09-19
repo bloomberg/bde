@@ -43,8 +43,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isarray.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isconst.h>
-#include <bslmf_istriviallycopyable.h>
 #include <bslmf_isvolatile.h>
 #include <bslmf_voidtype.h>
 
@@ -133,7 +133,7 @@ struct IsNothrowMoveConstructible_Impl<
 : bsl::integral_constant<
       bool,
       STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(t_TYPE) ||
-          bsl::is_trivially_copyable<t_TYPE>::value ||
+          bslmf::IsBitwiseCopyable<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE,
                             bsl::is_nothrow_move_constructible>::value> {
     // This 'struct' template implements a metafunction to determine whether
@@ -153,7 +153,7 @@ struct IsNothrowMoveConstructible_Impl<
 : bsl::integral_constant<
       bool,
       STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(const t_TYPE) ||
-          bsl::is_trivially_copyable<t_TYPE>::value> {
+          bslmf::IsBitwiseCopyable<t_TYPE>::value> {
     enum { k_CHECK_COMPLETE = sizeof(t_TYPE) };  // Diagnose incomplete types
 };
 
@@ -181,7 +181,7 @@ struct IsNothrowMoveConstructible_Impl<
     // cv-qualified rvalues unless those constructors are actually detected as
     // non-throwing.  Note that volatile-qualified scalar types will detect as
     // no-throw move constructible through the primary template.  In addition,
-    // we flag types that specialize 'bsl::is_trivially_copyable' as no-throw
+    // we flag types that specialize 'bslmf::IsBitwiseCopyable' as no-throw
     // move constructible to maintain consistency between the C++03 and C++11
     // implementations of this trait.
 
@@ -189,7 +189,7 @@ struct IsNothrowMoveConstructible_Impl<
 #else
 template <class t_TYPE, class = void>
 struct IsNothrowMoveConstructible_Impl
-: bsl::is_trivially_copyable<t_TYPE>::type {
+: bslmf::IsBitwiseCopyable<t_TYPE>::type {
     // This 'struct' template implements a metafunction to determine whether
     // the (non-cv-qualified) (template parameter) 't_TYPE' has a no-throw move
     // constructor.  For C++03, the set of types known to be no-throw move
@@ -205,7 +205,7 @@ struct IsNothrowMoveConstructible_Impl<
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(t_TYPE)>
 : bsl::integral_constant<
       bool,
-      bsl::is_trivially_copyable<t_TYPE>::value ||
+      bslmf::IsBitwiseCopyable<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE,
                             bsl::is_nothrow_move_constructible>::value> {
     // This 'struct' template implements a metafunction to determine whether
@@ -222,7 +222,7 @@ template <class t_TYPE>
 struct IsNothrowMoveConstructible_Impl<
     const t_TYPE,
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(t_TYPE)>
-: bsl::is_trivially_copyable<t_TYPE>::type {
+: bslmf::IsBitwiseCopyable<t_TYPE>::type {
     enum { k_CHECK_COMPLETE = sizeof(t_TYPE) };  // Diagnose incomplete types
 };
 

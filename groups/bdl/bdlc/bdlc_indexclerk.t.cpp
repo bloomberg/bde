@@ -22,6 +22,8 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bslmf_assert.h>
+
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -3270,6 +3272,9 @@ int main(int argc, char *argv[])
         ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
 
+        BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Iter>::value);
+        BSLMF_ASSERT(! bslmf::IsTriviallyCopyableCheck<Iter>::value);
+        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

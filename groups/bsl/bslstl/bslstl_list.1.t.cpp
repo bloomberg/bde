@@ -4480,10 +4480,14 @@ int main(int argc, char *argv[])
         ASSERT(  bslmf::IsBitwiseMoveable<bsl::list<TTA> >::value);
         ASSERT(  bslmf::IsBitwiseMoveable<bsl::list<bsl::list<int> > >::value);
 
+        ASSERT(! bslmf::IsBitwiseCopyable<bsl::list<char> >::value);
+        ASSERT(! bslmf::IsBitwiseCopyable<bsl::list<TTA> >::value);
+        ASSERT(! bslmf::IsBitwiseCopyable<bsl::list<bsl::list<int> > >::value);
+
         ASSERT(! bsl::is_trivially_copyable<bsl::list<char> >::value);
         ASSERT(! bsl::is_trivially_copyable<bsl::list<TTA> >::value);
         ASSERT(! bsl::is_trivially_copyable<bsl::list<
-                                                    bsl::list<int> > >::value);
+                                                   bsl::list<int> > >::value);
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         if (verbose) printf("\nAdditional tests: initializer lists.\n");

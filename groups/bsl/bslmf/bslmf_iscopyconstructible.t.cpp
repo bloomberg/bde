@@ -403,8 +403,8 @@ int main(int argc, char *argv[])
                    "\n======================================\n");
 
         // C-1
-        ASSERTV(bsl::is_trivially_copyable<UserDefinedCopyableTestType>::value,
-               !bsl::is_trivially_copyable<UserDefinedCopyableTestType>::value);
+        ASSERTV(bslmf::IsBitwiseCopyable<UserDefinedCopyableTestType>::value,
+               !bslmf::IsBitwiseCopyable<UserDefinedCopyableTestType>::value);
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(UserDefinedCopyableTestType,
                                                  true);
 

@@ -20,6 +20,7 @@
 
 #include <bslmf_assert.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_removeconst.h>
@@ -7394,6 +7395,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase23()
     BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<ObjStlAlloc>::value));
 
     // Verify unordered_map does not define other common traits.
+
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseCopyable<UMKV>::value));
 
     BSLMF_ASSERT((0 == bsl::is_trivially_copyable<UMKV>::value));
 

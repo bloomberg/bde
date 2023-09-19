@@ -253,7 +253,7 @@ using bdldfp::Decimal64;
 // [ 4] bsl::ostream& operator<<(ostream&, const Datum&); // non-aggregate
 // [19] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
 // [29] bsl::ostream& operator<<(ostream&, const Datum::DataType);
-// [34] void hashAppend(hashAlgorithm, datum);
+// [33] void hashAppend(hashAlgorithm, datum);
 //
 //                            // -------------------
 //                            // class DatumMapEntry
@@ -370,13 +370,12 @@ using bdldfp::Decimal64;
 // [14] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [36] USAGE EXAMPLE
-// [35] VECTOR OF NULLS TEST
+// [35] USAGE EXAMPLE
+// [34] VECTOR OF NULLS TEST
 // [24] Datum_ArrayProctor
-// [33] DATETIME ALLOCATION TESTS
-// [32] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
-// [31] COMPRESSIBILITY OF DECIMAL64
-// [30] TYPE TRAITS
+// [32] DATETIME ALLOCATION TESTS
+// [31] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
+// [30] COMPRESSIBILITY OF DECIMAL64
 // [-2] EFFICIENCY TEST
 // ----------------------------------------------------------------------------
 
@@ -485,8 +484,39 @@ const Decimal64 k_DECIMAL64_NEG_INFINITY = -k_DECIMAL64_INFINITY;
 const char *UNKNOWN_FORMAT = "(* UNKNOWN *)";
 
 //=============================================================================
+//                           TESTING TYPE TRAITS
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# define U_ASSERT_EXPECTED_PROPERTIES_BASIC(TYPE)                             \
+    BSLMF_ASSERT(bslmf::IsTriviallyCopyableCheck<TYPE>::value);               \
+    BSLMF_ASSERT(bslmf::IsBitwiseMoveable<TYPE>::value);                      \
+    BSLMF_ASSERT(!(bslma::UsesBslmaAllocator<TYPE>::value));                  \
+    BSLMF_ASSERT(!(bslmf::IsBitwiseEqualityComparable<TYPE>::value))
+
+# define U_ASSERT_EXPECTED_PROPERTIES(TYPE)                                   \
+    U_ASSERT_EXPECTED_PROPERTIES_BASIC(TYPE);                                 \
+    BSLMF_ASSERT(bdlb::HasPrintMethod<TYPE>::value)
+
+# define U_ASSERT_EXPECTED_PROPERTIES_PLUS_DEFAULT(TYPE)                      \
+    U_ASSERT_EXPECTED_PROPERTIES(TYPE);                                       \
+    BSLMF_ASSERT(bsl::is_trivially_default_constructible<TYPE>::value)
+
+    U_ASSERT_EXPECTED_PROPERTIES_PLUS_DEFAULT(bdld::Datum);
+    U_ASSERT_EXPECTED_PROPERTIES_BASIC(bdld::DatumMutableArrayRef);
+    U_ASSERT_EXPECTED_PROPERTIES_BASIC(bdld::DatumMutableMapRef);
+    U_ASSERT_EXPECTED_PROPERTIES_BASIC(bdld::DatumMutableIntMapRef);
+    U_ASSERT_EXPECTED_PROPERTIES_BASIC(bdld::DatumMutableMapOwningKeysRef);
+    U_ASSERT_EXPECTED_PROPERTIES(bdld::DatumArrayRef);
+    U_ASSERT_EXPECTED_PROPERTIES(bdld::DatumIntMapEntry);
+    U_ASSERT_EXPECTED_PROPERTIES(bdld::DatumMapEntry);
+    U_ASSERT_EXPECTED_PROPERTIES(bdld::DatumMapRef);
+#endif
+
+//=============================================================================
 //                   GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
 void populateWithNonAggregateValues(vector<Datum>    *elements,
                                     bslma::Allocator *allocator,
                                     bool              withNaNs = true)
@@ -2088,7 +2118,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 36: {
+      case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2379,7 +2409,7 @@ int main(int argc, char *argv[])
 //..
 // Note, that the bytes have been copied.
       } break;
-      case 35: {
+      case 34: {
         // --------------------------------------------------------------------
         // VECTOR OF NULLS TEST
         //  This test became necessary as of December 2022, when someone
@@ -2430,7 +2460,7 @@ int main(int argc, char *argv[])
         ASSERT(v3[2].isNull());
 
       } break;
-      case 34: {
+      case 33: {
         // --------------------------------------------------------------------
         // BSLH HASHING TESTS
         //
@@ -3710,7 +3740,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
       } break;
-      case 33: {
+      case 32: {
         // --------------------------------------------------------------------
         // DATETIME ALLOCATION TESTS
         //
@@ -3801,7 +3831,7 @@ int main(int argc, char *argv[])
                           << endl;
 #endif
       } break;
-      case 32: {
+      case 31: {
         // --------------------------------------------------------------------
         // MISALIGNED MEMORY ACCESS TEST
         //
@@ -3842,7 +3872,7 @@ int main(int argc, char *argv[])
                           << endl;
 #endif
       } break;
-      case 31: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING COMPRESSIBILITY OF DECIMAL64
         //    Check that 'Decimal64' fit in 6 bytes or not (as expected).
@@ -3884,42 +3914,6 @@ int main(int argc, char *argv[])
                                                 BDLDFP_DECIMAL_DD(12.3456789));
             ASSERT(variable2 > buffer + 6);
         }
-      } break;
-      case 30: {
-        // --------------------------------------------------------------------
-        // TESTING TYPE TRAITS
-        //   The object is trivially copyable, default constructible and
-        //   bitwise copyable and should have appropriate bsl type traits to
-        //   reflect this.
-        //
-        // Concerns:
-        //: 1 The class has the bsl::is_trivially_copyable trait.
-        //:
-        //: 2 The class has the bsl::is_trivially_default_constructible trait.
-        //:
-        //: 3 The class has the bslmf::IsBitwiseMoveable trait.
-        //:
-        //: 4 The class doesn't have the bslma::UsesBslmaAllocator trait.
-        //:
-        //: 5 The class doesn't have the bslmf::IsBitwiseEqualityComparable
-        //:   trait.
-        //
-        // Plan:
-        //: 1 ASSERT the presence of each trait required by the type.  (C-1..5)
-        //
-        // Testing:
-        //   TYPE TRAITS
-        // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "TESTING TYPE TRAITS" << endl
-                          << "===================" << endl;
-
-        ASSERT((bsl::is_trivially_copyable<Datum>::value));
-        ASSERT((bsl::is_trivially_default_constructible<Datum>::value));
-        ASSERT((bslmf::IsBitwiseMoveable<Datum>::value));
-        ASSERT(!(bslma::UsesBslmaAllocator<Datum>::value));
-        ASSERT(!(bslmf::IsBitwiseEqualityComparable<Datum>::value));
-
       } break;
       case 29: {
         // --------------------------------------------------------------------

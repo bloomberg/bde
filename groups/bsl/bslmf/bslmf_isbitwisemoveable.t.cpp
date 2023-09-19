@@ -181,7 +181,6 @@ struct UserDefinedOneByteTestType {
     bool d_dummy;
 };
 
-
 struct UserDefinedNotTriviallyCopyableOneByteTestType {
     // One-byte, non-trivially copyable type (used to test the one-byte
     // bitwise-movable heuristic)
@@ -241,6 +240,15 @@ enum EnumTestType {
 typedef int (UserDefinedNonTcTestType::*MethodPtrTestType) ();
     // This pointer to non-static function member type is used for testing.
 
+struct UserDefinedFakeTriviallyCopyableTestType {
+    bool d_dummy;
+
+    UserDefinedFakeTriviallyCopyableTestType(
+                      const UserDefinedFakeTriviallyCopyableTestType& original)
+    : d_dummy(original.d_dummy)
+    {}
+};
+
 }  // close unnamed namespace
 
 
@@ -261,6 +269,13 @@ namespace bsl {
 
 template <>
 struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
+};
+
+template <>
+struct is_trivially_copyable<UserDefinedFakeTriviallyCopyableTestType> :
+                                                               bsl::true_type {
+    // This is a lie.  The type has a defined copy c'tor, so
+    // 'std::is_trivially_copyable' will not be 'true'.
 };
 
 }  // close namespace bsl

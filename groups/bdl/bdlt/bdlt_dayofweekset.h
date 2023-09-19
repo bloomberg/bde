@@ -219,7 +219,7 @@ BSLS_IDENT("$Id: $")
 #include <bslh_hash.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
@@ -926,7 +926,9 @@ void bdlt::hashAppend(HASHALG& hashAlg, const DayOfWeekSet& object)
 // TRAITS SPECIALIZATIONS
 namespace bslmf {
 template <>
-struct IsBitwiseMoveable<bdlt::DayOfWeekSet> : ::bsl::true_type {};
+struct IsBitwiseCopyable<bdlt::DayOfWeekSet_Iter> : ::bsl::true_type {};
+template <>
+struct IsBitwiseCopyable<bdlt::DayOfWeekSet> : ::bsl::true_type {};
 }
 
 }  // close enterprise namespace

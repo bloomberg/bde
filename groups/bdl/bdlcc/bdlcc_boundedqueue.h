@@ -201,7 +201,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -306,7 +306,7 @@ struct BoundedQueue_Node;
     // template when the value of 'isUnconstructed' is known at compile-time.
     // If 'RECLAIMABLE' is 'false' then it can be determined at compile time
     // that the construction of 'TYPE' will uncoditionally succeed (e.g., it
-    // 'is_trivially_copyable'), and the 'isUnconstructed' property does not
+    // 'IsBitwiseCopyable'), and the 'isUnconstructed' property does not
     // require a data member to be accessed at run-time.
 
 template <class TYPE>
@@ -378,7 +378,7 @@ class BoundedQueue {
     typedef typename bsls::AtomicOperations AtomicOp;
 
     typedef BoundedQueue_Node<TYPE,
-                              !bsl::is_trivially_copyable<TYPE>::value> Node;
+                              !bslmf::IsBitwiseCopyable<TYPE>::value> Node;
 
     // DATA
     bslmt::FastPostSemaphore  d_pushSemaphore;     // synchronization primitive

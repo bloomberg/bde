@@ -26,6 +26,7 @@ bslmf_invokeresult_cpp03
 bslmf_isaccessiblebaseof
 bslmf_isarithmetic
 bslmf_isarray
+bslmf_isbitwisecopyable
 bslmf_isbitwiseequalitycomparable
 bslmf_isbitwisemoveable
 bslmf_isclass

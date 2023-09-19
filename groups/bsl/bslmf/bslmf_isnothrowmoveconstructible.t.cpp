@@ -47,7 +47,7 @@ using namespace BloombergLP;
 // marked as 'noexcept' for C++11 and this trait is not explicitly enabled via
 // a 'BSLMF_NESTED_TRAIT_DECLARATION' or specialization.  We expect false
 // positives in C++03 for non-trivial types that use BDE traits customization
-// for the 'is_trivially_copyable' trait, as this serves as a proxy for
+// for the 'bslmf::IsBitwiseCopyable' trait, as this serves as a proxy for
 // detecting no-throw movability on a wider range of C++03 types.
 //
 // Thus, we need to ensure that the metafunction correctly identifies natively
@@ -407,7 +407,7 @@ struct ClassUsingNestedCopyable {
     // using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro, is used for testing.
 
     BSLMF_NESTED_TRAIT_DECLARATION(ClassUsingNestedCopyable,
-                                   bsl::is_trivially_copyable);
+                                   bslmf::IsBitwiseCopyable);
 };
 
 struct ClassUsingNestedMovable {
@@ -423,7 +423,7 @@ union UnionUsingNestedCopyable {
     // using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro, is used for testing.
 
     BSLMF_NESTED_TRAIT_DECLARATION(UnionUsingNestedCopyable,
-                                   bsl::is_trivially_copyable);
+                                   bslmf::IsBitwiseCopyable);
 };
 
 union UnionUsingNestedMovable {
@@ -448,20 +448,27 @@ union NothrowMovableUnion {
 
 struct TrivialClass {
     // This empty 'struct' indicates its triviality to C++03 toolchains by
-    // explicitly specializing the 'bsl::is_trivially_copyable' trait.
+    // explicitly specializing the 'bslmf::IsBitwiseCopyable' trait.
 };
 
 union TrivialUnion {
     // This empty 'union' indicates its triviality to C++03 toolchains by
-    // explicitly specializing the 'bsl::is_trivially_copyable' trait.
+    // explicitly specializing the 'bslmf::IsBitwiseCopyable' trait.
 };
 
-namespace bsl {
-template <>
-struct is_trivially_copyable<TrivialClass> : bsl::true_type {};
-template <>
-struct is_trivially_copyable<TrivialUnion> : bsl::true_type {};
+namespace BloombergLP {
+namespace bslmf {
 
+template <>
+struct IsBitwiseCopyable<TrivialClass> : bsl::true_type {};
+template <>
+struct IsBitwiseCopyable<TrivialUnion> : bsl::true_type {};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+
+namespace bsl {
 template <>
 struct is_nothrow_move_constructible<NothrowMovableClass> : bsl::true_type {};
 template <>
@@ -611,7 +618,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: basic support for class types
         //   CONCERN: traits customization for 'is_nothrow_move_constructible'
-        //   CONCERN: traits customization for 'is_trivially_copyable'
+        //   CONCERN: traits customization for 'bslmf::IsBitwiseCopyable'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BASIC SUPPORT FOR CLASS TYPES"

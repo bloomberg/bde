@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  7 07:39:24 2022
+// Generated on Thu Jun  8 15:01:47 2023
 // Command line: sim_cpp11_features.pl bslalg_dequeprimitives.h
 
 #ifdef COMPILING_BSLALG_DEQUEPRIMITIVES_H
@@ -2540,7 +2540,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(Iterator   begin,
                                                          ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -2590,7 +2590,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(Iterator  *toBegin,
                                                  ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -2695,7 +2695,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                                ALLOCATOR          allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -2960,7 +2960,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
                                       ALLOCATOR                      allocator)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3104,7 +3104,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                     ALLOCATOR          allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3351,7 +3351,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
                                       ALLOCATOR                      allocator)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3499,7 +3499,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                                                           ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3529,7 +3529,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3562,7 +3562,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3598,7 +3598,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3637,7 +3637,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3679,7 +3679,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3724,7 +3724,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3772,7 +3772,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3823,7 +3823,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3877,7 +3877,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -3934,7 +3934,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -5773,7 +5773,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                                                           ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -5803,7 +5803,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -5836,7 +5836,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -5872,7 +5872,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -5911,7 +5911,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -5953,7 +5953,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -5998,7 +5998,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -6046,7 +6046,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -6097,7 +6097,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -6151,7 +6151,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -6208,7 +6208,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -8005,7 +8005,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -8155,7 +8155,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     enum {
-        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
@@ -9026,7 +9026,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -9105,7 +9105,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -9182,7 +9182,7 @@ DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -9441,7 +9441,7 @@ void DequePrimitives_DequeEndpointProctor<VALUE_TYPE, BLOCK_LENGTH>::release()
 #endif // ! defined(INCLUDED_BSLALG_DEQUEPRIMITIVES_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

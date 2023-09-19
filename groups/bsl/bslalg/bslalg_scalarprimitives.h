@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //                                                "TYPE has a trivial default
 //                                                constructor"
 //
-//  bsl::is_trivially_copyable                    "TYPE has the bit-wise
+//  bslmf::IsBitwiseCopyable                      "TYPE has the bit-wise
 //                                                copyable trait", or
 //                                                "TYPE is bit-wise copyable"
 //                                                (implies that it has a
@@ -89,6 +89,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_allocatorargt.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isfundamental.h>
 #include <bslmf_ispointer.h>
@@ -1566,7 +1567,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
               ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-              : bsl::is_trivially_copyable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -1584,7 +1585,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
     BSLS_ASSERT_SAFE(address);
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : Imp::e_NIL_TRAITS
     };
@@ -1609,7 +1610,7 @@ ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
               ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-              : bsl::is_trivially_copyable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -1627,7 +1628,7 @@ ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
     BSLS_ASSERT_SAFE(address);
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
               : Imp::e_NIL_TRAITS
     };
@@ -1707,7 +1708,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
               : bsl::is_same<ARG1, TARGET_TYPE>::value
-                && bsl::is_trivially_copyable<TARGET_TYPE>::value
+                && bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };

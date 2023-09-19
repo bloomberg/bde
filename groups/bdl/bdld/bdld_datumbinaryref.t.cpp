@@ -1,6 +1,10 @@
 // bdld_datumbinaryref.t.cpp                                          -*-C++-*-
 #include <bdld_datumbinaryref.h>
 
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwisecopyable.h>
+
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>        // 'bsl::atoi'
 #include <bsl_iostream.h>
@@ -276,7 +280,9 @@ int main(int argc, char **argv)
                           << "TESTING TYPE TRAITS" << endl
                           << "===================" << endl;
 
-        ASSERT((bsl::is_trivially_copyable<Obj>::value));
+        ASSERT(bslmf::IsTriviallyCopyableCheck<Obj>::value);
+        ASSERT(bdlb::HasPrintMethod<Obj>::value)
+        ASSERT(! bslma::UsesBslmaAllocator<Obj>::value);
       } break;
       case 5: {
         // --------------------------------------------------------------------

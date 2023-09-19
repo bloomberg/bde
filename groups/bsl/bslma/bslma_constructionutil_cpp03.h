@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Thu Jun  8 14:51:14 2023
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
@@ -2542,7 +2542,7 @@ void ConstructionUtil::construct(TARGET_TYPE        *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bsl::is_trivially_copyable<TARGET_TYPE>::value
+                : bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                     ? Imp::e_BITWISE_COPYABLE_TRAITS
                     : Imp::e_NIL_TRAITS
     };
@@ -2563,7 +2563,7 @@ void ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bsl::is_trivially_copyable<TARGET_TYPE>::value
+                : bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                     ? Imp::e_BITWISE_COPYABLE_TRAITS
                     : Imp::e_NIL_TRAITS
     };
@@ -2580,7 +2580,7 @@ void ConstructionUtil::construct(TARGET_TYPE        *address,
                                  const TARGET_TYPE&  original)
 {
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : Imp::e_NIL_TRAITS
     };
@@ -2596,7 +2596,7 @@ void ConstructionUtil::construct(TARGET_TYPE  *address,
                                  TARGET_TYPE&  original)
 {
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : Imp::e_NIL_TRAITS
     };
@@ -2616,7 +2616,7 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bsl::is_trivially_copyable<TARGET_TYPE>::value
+                : bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                  ? Imp::e_BITWISE_COPYABLE_TRAITS
                  : Imp::e_NIL_TRAITS
     };
@@ -2634,7 +2634,7 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
 {
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseCopyable<TARGET_TYPE>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : Imp::e_NIL_TRAITS
     };
@@ -6660,7 +6660,7 @@ void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
 #endif // ! defined(INCLUDED_BSLMA_CONSTRUCTIONUTIL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -136,8 +136,8 @@ class NullableValue : public bsl::optional<TYPE> {
                                       bslma::UsesBslmaAllocator,
                                       bslma::UsesBslmaAllocator<TYPE>::value);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(NullableValue,
-                                      bsl::is_trivially_copyable,
-                                      bsl::is_trivially_copyable<TYPE>::value);
+                                      bslmf::IsBitwiseCopyable,
+                                      bslmf::IsBitwiseCopyable<TYPE>::value);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(NullableValue,
                                       bslmf::IsBitwiseMoveable,
                                       bslmf::IsBitwiseMoveable<TYPE>::value);

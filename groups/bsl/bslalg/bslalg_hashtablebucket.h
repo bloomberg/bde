@@ -236,7 +236,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_bidirectionallink.h>
 
-#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisecopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
@@ -262,7 +262,7 @@ struct HashTableBucket {
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(HashTableBucket,
-                                   bsl::is_trivially_copyable);
+                                   bslmf::IsBitwiseCopyable);
 
   public:
     // No creators -- must be a POD so that aggregate initialization can be

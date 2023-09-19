@@ -24,9 +24,10 @@ BSLS_IDENT_RCSID(bdlt_datetime_cpp,"$Id$ $CSID$")
 // logging and asserting occur and the value is converted from the old 'Date'
 // and 'Time' representation to the new microsecond representation.
 
-namespace BloombergLP {
-namespace bdlt {
 namespace {
+
+using namespace BloombergLP;
+using namespace bdlt;
 
 int printToBufferFormatted(char       *result,
                            int         numBytes,
@@ -117,13 +118,21 @@ int printToBufferFormatted(char       *result,
 
 }  // close unnamed namespace
 
-// 'Datetime' is trivially copyable only if 'Date' and 'Time' are also
-// trivially copyable.  In the header we have stated unconditionally that
-// 'Datetime' is trivially copyable, so we assert our assumption about 'Date'
-// and 'Time', as a sanity check.
+namespace BloombergLP {
+namespace bdlt {
 
-BSLMF_ASSERT(bsl::is_trivially_copyable<Date>::value);
-BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
+// 'Datetime' is bitwise copyable only if 'Date' and 'Time' are also bitwise
+// copyable.  In the header we have stated unconditionally that 'Datetime' is
+// trivially copyable, so we assert our assumption about 'Date' and 'Time', as
+// a sanity check.
+
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Date>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Datetime>::value);
+
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Date>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Time>::value);
+BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Datetime>::value);
 
                               // --------------
                               // class Datetime

@@ -1007,7 +1007,7 @@ int main(int argc, char *argv[])
                           } break;
                           default: {
                             BSLS_ASSERT_INVOKE_NORETURN(
-					              "Bad allocator config.");
+                                                      "Bad allocator config.");
                           } break;
                         }
                         ASSERTV(CONFIG, (&sa != &oa) == tam.isInUseUp());

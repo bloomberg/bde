@@ -4,6 +4,7 @@
 #include <bslim_testutil.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisecopyable.h>
 
 #include <bsls_review.h>
 
@@ -546,6 +547,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bslmf::IsBitwiseEqualityComparable<Obj>::value);
         ASSERT(bsl::is_trivially_copyable<Obj>::value);
+        ASSERT(bslmf::IsTriviallyCopyableCheck<Obj>::value)
       } break;
       case 12: {
         // --------------------------------------------------------------------
