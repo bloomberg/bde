@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a template for non-owning reference to nullable objects.
+//@PURPOSE: *Tech* *preview* for non-owning reference to nullable objects.
 //
 //@CLASSES:
 //  NullableValueRef: template for modifiable reference to nullable object
@@ -14,15 +14,17 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: NullableAllocatedValue, bsl::optional, NullableValue
 //
-//@DESCRIPTION: This component provides two template classes,
-// 'bdlb::NullableValueRef<TYPE>' and
-// 'bdlb::ConstNullableValueRef<TYPE>', that hold a reference to a either a
-// 'bdlb::NullableValue' or a 'bdlb::NullableAllocatedValue', and provide a
-// common interface for dealing with the referenced object.  Once constructed,
-// the "ref" object is not 're-targetable', i. e, it cannot be changed to
-// refer to a different nullable object (the 'target').  However, in the case 
-// of 'NullableValueRef', the value that is contained by the target can be 
-// changed, cleared, created and so on.
+//@DESCRIPTION: *This* *component* *is* *a* *technology* *preview* and subject
+// to change. It is provided for evaluation purposes only and should not be
+// used in a production setting. It provides two template classes,
+// 'bdlb::NullableValueRef<TYPE>' and 'bdlb::ConstNullableValueRef<TYPE>', that
+// hold a reference to a either a 'bdlb::NullableValue' or a
+// 'bdlb::NullableAllocatedValue', and provide a common interface for dealing
+// with the referenced object.  Once constructed, the "ref" object is not
+// 're-targetable', i. e, it cannot be changed to refer to a different nullable
+// object (the 'target').  However, in the case of 'NullableValueRef', the
+// value that is contained by the target can be changed, cleared, created and
+// so on.
 //
 // Neither a 'NullableValueRef' nor a 'ConstNullableValueRef' owns the
 // target that it refers to.  They do not allocate the value upon construction;
@@ -957,7 +959,7 @@ bdlb::NullableValue<TYPE>& bdlb::NullableValueRef<TYPE>::getNV() const
 
 template <class TYPE>
 inline
-bool bdlb::NullableValueRef<TYPE>::hasNV() const 
+bool bdlb::NullableValueRef<TYPE>::hasNV() const
 {
     return d_isReferentNullableValue;
 }
@@ -1493,7 +1495,7 @@ bdlb::ConstNullableValueRef<TYPE>::getNV() const
 
 template <class TYPE>
 inline
-bool bdlb::ConstNullableValueRef<TYPE>::hasNV() const 
+bool bdlb::ConstNullableValueRef<TYPE>::hasNV() const
 {
     return d_isReferentNullableValue;
 }
