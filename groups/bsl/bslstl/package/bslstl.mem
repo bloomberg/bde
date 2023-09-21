@@ -4,7 +4,6 @@ bslstl_allocator
 bslstl_array
 bslstl_badfunctioncall
 bslstl_badoptionalaccess
-bslstl_badvariantaccess
 bslstl_badweakptr
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool
@@ -53,7 +52,6 @@ bslstl_map_test1
 bslstl_map_test2
 bslstl_map_test3
 bslstl_mapcomparator
-bslstl_monostate
 bslstl_multimap
 bslstl_multimap_cpp03
 bslstl_multimap_test
@@ -119,7 +117,5 @@ bslstl_unorderedset_cpp03
 bslstl_unorderedset_test
 bslstl_unorderedsetkeyconfiguration
 bslstl_utility
-bslstl_variant
-bslstl_variant_cpp03
 bslstl_vector
 bslstl_vector_cpp03
