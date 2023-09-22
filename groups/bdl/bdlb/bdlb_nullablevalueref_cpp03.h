@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Sep 15 17:52:18 2023
+// Generated on Fri Sep 22 08:26:37 2023
 // Command line: sim_cpp11_features.pl bdlb_nullablevalueref.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUEREF_H
@@ -1002,7 +1002,7 @@ bdlb::NullableValue<TYPE>& bdlb::NullableValueRef<TYPE>::getNV() const
 
 template <class TYPE>
 inline
-bool bdlb::NullableValueRef<TYPE>::hasNV() const 
+bool bdlb::NullableValueRef<TYPE>::hasNV() const
 {
     return d_isReferentNullableValue;
 }
@@ -1780,7 +1780,7 @@ bdlb::ConstNullableValueRef<TYPE>::getNV() const
 
 template <class TYPE>
 inline
-bool bdlb::ConstNullableValueRef<TYPE>::hasNV() const 
+bool bdlb::ConstNullableValueRef<TYPE>::hasNV() const
 {
     return d_isReferentNullableValue;
 }
