@@ -87,7 +87,8 @@ using bsl::size_t;
 //:
 //: o Test case 10 tests 'numBytesRaw'.
 //:
-//: o Test case 11 is a table-driven test to test 'numBytesInCodePoint'.
+//: o Test case 11 is a table-driven test to test functions returning code
+//:   point aspects ('codePointValue' and 'numBytesInCodePoint').
 //:
 //: o Test case 12 tests 'appendUtf8CodePoint' on valid Unicode characters.
 //:
@@ -117,6 +118,7 @@ using bsl::size_t;
 // [12] int appendUtf8CodePoint(std::string *, unsigned int);
 // [12] int appendUtf8CodePoint(std::pmr::string *, unsigned int);
 // [12] int appendUtf8Character(bsl::string *, unsigned int);
+// [11] int codePointValue(const char *);
 // [11] int numBytesInCodePoint(const char *);
 // [11] int getByteSize(const char *);
 // [16] int getLineAndColumnNumber(...);
@@ -4663,12 +4665,38 @@ int main(int argc, char *argv[])
                                           static_cast<bsl::string *>(0), 'a'));
             }
 
+            if (verbose) cout << "codePointValue\n";
+            {
+                // Null pointer.
+
+                ASSERT_PASS(rc = Obj::codePointValue(WOOF));
+                ASSERTV(rc, 119 == rc);
+
+                ASSERT_FAIL(Obj::codePointValue(nullStr));
+
+                // Invalid code point.
+
+                const char *invalidCodePoint = "\x80";
+                ASSERTV(false == Obj::isValid(invalidCodePoint));
+
+                ASSERT_SAFE_FAIL(Obj::codePointValue(invalidCodePoint));
+            }
+
             if (verbose) cout << "numBytesInCodePoint\n";
             {
+                // Null pointer.
+
                 ASSERT_PASS(rc = Obj::numBytesInCodePoint(WOOF));
                 ASSERT(1 == rc);
 
                 ASSERT_FAIL(Obj::numBytesInCodePoint(nullStr));
+
+                // Invalid code point.
+
+                const char *invalidCodePoint = "\x80";
+                ASSERTV(false == Obj::isValid(invalidCodePoint));
+
+                ASSERT_SAFE_FAIL(Obj::numBytesInCodePoint(invalidCodePoint));
             }
 
             if (verbose) cout << "getByteSize\n";
@@ -5059,28 +5087,31 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'numBytesInCodePoint'
+        // TESTING CODE POINT ASPECT GETTERS
         //
         // Concerns:
-        //: 1 The method under test produce the expected results on valid UTF-8
-        //:   code points.
+        //: 1 The methods under test produce the expected results on valid
+        //:   UTF-8 code points.
         //
         // Plan:
         //: 1 Use the table-driven approach to verify correct behavior on
         //:   various valid UTF-8 code points.
         //
         // Testing:
+        //   int codePointValue(const char *);
         //   int numBytesInCodePoint(const char *);
         //   int getByteSize(const char *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'numBytesInCodePoint'\n"
-                               "=============================\n";
+        if (verbose) cout << "\nTESTING CODE POINT ASPECT GETTERS\n"
+                               "=================================\n";
 
         for (int ti = 0; ti < u::NUM_INTERESTING_CODEPOINTS; ++ti) {
             const int    LINE     = u::legalCodepointData[ti].d_lineNum;
             const char  *UTF8     = u::legalCodepointData[ti].d_utf8_p;
             bsl::size_t  UTF8_LEN = strlen(UTF8);
+            const int    VALUE    =
+                       static_cast<int>(u::legalCodepointData[ti].d_codePoint);
 
             if (veryVerbose) {
                 T_; P_(ti);
@@ -5089,6 +5120,7 @@ int main(int argc, char *argv[])
 
             ASSERT(int(UTF8_LEN) == Obj::numBytesInCodePoint(UTF8));
             ASSERT(int(UTF8_LEN) == Obj::getByteSize(UTF8));
+            ASSERT(VALUE         == Obj::codePointValue(UTF8));
         }
       } break;
       case 10: {

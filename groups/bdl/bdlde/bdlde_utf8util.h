@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // meaning that only 1-, 2-, 3-, and 4-byte sequences are allowed.  Values
 // above 'U+10ffff' are also not allowed.
 //
-// Six types of functions are provided:
+// Seven types of functions are provided:
 //
 //: o 'isValid', which checks for validity, per RFC 3629, of a (candidate)
 //:   UTF-8 string.  "Overlong values", that is, values encoded in more bytes
@@ -51,6 +51,9 @@ BSLS_IDENT("$Id: $")
 //:
 //: o 'getByteSize', which returns the length of a single UTF-8 encoded
 //:   character.
+//:
+//: o 'CodePointValue', which returns the integral value of a single UTF-8
+//:   encoded character.
 //:
 //: o 'appendUtf8Character', which appends a single Unicode code point to a
 //:   UTF-8 string.
@@ -547,23 +550,29 @@ struct Utf8Util {
         // the specified 'output' string.  Return 0 on success, and a non-zero
         // value otherwise.
 
+    static int codePointValue(const char *codePoint);
+        // Return the numeric value of the UTF-8-encoded code point beginning
+        // at the specified 'codePoint'.  The behavior is undefined unless
+        // 'codePoint' is the address of the first byte of a valid UTF-8
+        // encoded character.
+
     static int getByteSize(const char *codePoint);
         // !DEPRECATED!: Use 'numBytesInCodePoint' instead.
         //
         // Return the length (in bytes) of the UTF-8-encoded code point
         // beginning at the specified 'codePoint'.  The behavior is undefined
-        // unless 'codePoint' addresses a code point of valid UTF-8.  Note
-        // that the value returned will be in the range '[1 .. 4]'.  Also note
-        // that 1 is returned if '0 == *codePoint' since '\0' is a valid 1-byte
-        // encoding.
+        // unless 'codePoint' is the address of the first byte of a valid UTF-8
+        // encoded character.  Note that the value returned will be in the
+        // range '[1 .. 4]'.  Also note that 1 is returned if '0 == *codePoint'
+        // since '\0' is a valid 1-byte encoding.
 
     static int numBytesInCodePoint(const char *codePoint);
         // Return the length (in bytes) of the UTF-8-encoded code point
         // beginning at the specified 'codePoint'.  The behavior is undefined
-        // unless 'codePoint' addresses a code point of valid UTF-8.  Note
-        // that the value returned will be in the range '[1 .. 4]'.  Also note
-        // that 1 is returned if '0 == *codePoint' since '\0' is a valid 1-byte
-        // encoding.
+        // unless 'codePoint' is the address of the first byte of a valid UTF-8
+        // encoded character.  Note that the value returned will be in the
+        // range '[1 .. 4]'.  Also note that 1 is returned if '0 == *codePoint'
+        // since '\0' is a valid 1-byte encoding.
 
     static int getLineAndColumnNumber(Uint64         *lineNumber,
                                       Uint64         *utf8Column,

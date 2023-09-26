@@ -13,6 +13,8 @@
 BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 
 #include <bsla_fallthrough.h>
+#include <bsla_unused.h>
+
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -72,9 +74,7 @@ enum {
     k_SURROGATE                    = Utf8Util::k_SURROGATE
 };
 
-#if defined(BSLS_ASSERT_SAFE_IS_USED)
-
-bool isValidUtf8CodePoint(const char *sequence)
+bool BSLA_UNUSED isValidUtf8CodePoint(const char *sequence)
     // Return 'true' if 'sequence' points to a valid UTF-8 code point and
     // 'false' otherwise.  Note that this checks for neither:
     //: o values too large
@@ -91,8 +91,6 @@ bool isValidUtf8CodePoint(const char *sequence)
           ((sequence[3] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
            (sequence[0] & k_FOURBYTEHEAD_TEST)  == k_FOURBYTEHEAD_RES )))));
 }
-
-#endif // defined(BSLS_ASSERT_SAFE_IS_USED)
 
 int utf8Size(char character)
     // Return the length of the UTF-8 code point for which the specified
@@ -1187,10 +1185,35 @@ int Utf8Util::appendUtf8CodePoint(std::pmr::string *output,
 }
 #endif
 
+int Utf8Util::codePointValue(const char *codePoint)
+{
+    BSLS_ASSERT(codePoint);
+    BSLS_ASSERT(isValidUtf8CodePoint(codePoint));
+
+    int value = 0;
+
+    switch (utf8Size(codePoint[0])) {
+      case 1: {
+        value = static_cast<int>(*codePoint);
+      } break;
+      case 2: {
+        value = get2ByteValue(codePoint);
+      } break;
+      case 3: {
+        value = get3ByteValue(codePoint);
+      } break;
+      case 4: {
+        value = get4ByteValue(codePoint);
+      } break;
+    }
+
+    return value;
+}
+
 int Utf8Util::numBytesInCodePoint(const char *codePoint)
 {
     BSLS_ASSERT(codePoint);
-    BSLS_ASSERT_SAFE(isValidUtf8CodePoint(codePoint));
+    BSLS_ASSERT(isValidUtf8CodePoint(codePoint));
 
     return utf8Size(codePoint[0]);
 }
@@ -1403,7 +1426,7 @@ Utf8Util::IntPtr Utf8Util::numBytesRaw(const bsl::string_view& string,
     // validation functions our work is very simple.
 
     for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
-        BSLS_ASSERT_SAFE(isValidUtf8CodePoint(&string[numBytes]));
+        BSLS_ASSERT(isValidUtf8CodePoint(&string[numBytes]));
         numBytes += utf8Size(string[numBytes]);
     }
 
