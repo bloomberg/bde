@@ -223,7 +223,7 @@ double doubleClock()
     // Return the time in seconds since New Year, 1970 GMT, according to a
     // monotonic clock.
 {
-    enum { k_BILLION = 1000 * 1000 * 1000 };
+    const double k_BILLION = 1000 * 1000 * 1000;
 
     return static_cast<double>(
        BloombergLP::bsls::SystemTime::nowMonotonicClock().totalNanoseconds()) /
@@ -695,7 +695,8 @@ void testMain(
            k_II_LOOPS                = 10,
            k_JJ_LOOPS                = k_BURST_SIZE * 5 };
 
-    const double secondsPerMessage = k_NANOSECONDS_PER_MESSAGE * 1e-9;
+    const double secondsPerMessage = static_cast<double>(
+                                             k_NANOSECONDS_PER_MESSAGE) * 1e-9;
     const double sleepTime         = secondsPerMessage * 0.51;
 
     int retries = 0, expTotal = 0;
@@ -717,7 +718,8 @@ void testMain(
                 return;                                               // RETURN
             }
 
-            u::doubleSleep(k_BURST_SIZE * secondsPerMessage * 1.1);
+            u::doubleSleep(static_cast<double>(k_BURST_SIZE)
+                                                    * secondsPerMessage * 1.1);
             ii = -1;
             start = u::doubleClock(), lastEpoch = start;
             continue;
@@ -935,9 +937,10 @@ void testMain(
     const int     numPublished = TO->numPublishedRecords();
     const BloombergLP::ball::RecordAttributes& attributes =
                                    TO->lastPublishedRecord().fixedFields();
-    const char   *lastTrace = attributes.message();
-    const int     severity  = attributes.severity();
-    const double  minElapsed = 0.9 * 1e-9 * k_NANOSECONDS_PER_MESSAGE;
+    const char   *lastTrace  = attributes.message();
+    const int     severity   = attributes.severity();
+    const double  minElapsed =
+                   0.9 * 1e-9 * static_cast<double>(k_NANOSECONDS_PER_MESSAGE);
 
     ASSERTV(k_TERMINATE == atomicBarrier);
     ASSERTV(elapsed, minElapsed, elapsed < minElapsed);
@@ -1328,9 +1331,10 @@ int main(int argc, char *argv[])
         enum { k_MSM = 5,                   // max simultaneous messages
                k_NPM = 10 * 1000 * 1000 };  // nanoseconds per message
 
-        const double periodTime        = 1e-9 * k_NPM;
-        const double attemptTime       = 0.5         * periodTime;
-        const double betweenTrialsTime = 1.5 * k_MSM * periodTime;
+        const double periodTime        = 1e-9 * static_cast<double>(k_NPM);
+        const double attemptTime       = 0.5  * periodTime;
+        const double betweenTrialsTime =
+                                 1.5 * static_cast<double>(k_MSM) * periodTime;
 
         for (int ii = 0; ii < k_NUM_LEVELS; ++ii) {
             const Level categoryThreshold = levels[ii];

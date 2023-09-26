@@ -545,7 +545,7 @@ double wasteCpuTime()
 
 bsls::Types::Int64 controlledCpuBurn()
 {
-    volatile bsls::Types::Int64 factorial = 1;
+    bsls::Types::Int64 factorial = 1;
     bsls::TimeInterval begin = bdlt::CurrentTime::now();
 
     while (1) {

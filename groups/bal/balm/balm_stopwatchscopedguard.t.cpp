@@ -131,8 +131,8 @@ bool within(double value, Units scale, double expectedS, double windowMs)
     // within the specified 'windowMs' (milliseconds) of the specified
     // 'expectedS' (seconds).
 {
-    double expected = expectedS * scale;
-    double window   = windowMs *1000 * scale;
+    double expected = expectedS * static_cast<double>(scale);
+    double window   = windowMs * 1000 * static_cast<double>(scale);
 
     return ((expected - window) < value)
         && ((expected + window) > value);

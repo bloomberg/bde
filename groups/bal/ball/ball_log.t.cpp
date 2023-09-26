@@ -89,6 +89,10 @@
 # undef ERROR
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, wvarhidemem)
+#endif
+
 // Warning: the following 'using' declarations interfere with the testing of
 // the macros defined in this component.  Please do not un-comment them.
 //

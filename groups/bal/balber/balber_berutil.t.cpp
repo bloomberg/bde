@@ -51,6 +51,8 @@
 
 #include <bsla_maybeunused.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
 #include <bsl_cfloat.h>
@@ -63,6 +65,11 @@
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, arrowrtn)
+#endif
+
 
 using namespace BloombergLP;
 using namespace bsl;

@@ -736,7 +736,8 @@ inline
 ProtocolTest_MethodReturnRefType::operator T&() const
 {
     static ProtocolTest_AsBigAsT<T> obj;
-    return *reinterpret_cast<T *>(&obj);
+    T *pObj = reinterpret_cast<T *>(&obj);
+    return *pObj;
 }
 
                        // -----------------------

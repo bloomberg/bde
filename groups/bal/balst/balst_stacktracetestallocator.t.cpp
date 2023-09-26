@@ -1049,8 +1049,8 @@ int main(int argc, char *argv[])
 
     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
-    // 'volatile' avoids clobbered warning
-    volatile int expectedDefaultAllocations = 0;
+    // atomic avoids clobbered warning
+    bsls::AtomicInt expectedDefaultAllocations(0);
 
     idxVoidFuncRecurser   = 0;
     idxVoidFuncLeakTwiceA = 1;
@@ -1784,7 +1784,7 @@ int main(int argc, char *argv[])
 
         const unsigned char fillChars[] = { 0, 1, 0xff };
 
-        // 'volatile' avoids clobbered warning        
+        // 'volatile' avoids clobbered warning
         volatile const unsigned char * volatile end =
                                                  fillChars + sizeof(fillChars);
 
@@ -1794,11 +1794,11 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Coninuous Underruns);
         {
-            // 'volatile' avoids clobbered warning        
-            for (volatile int a = 0; a < ABORT_LIMIT; ++a) {
+            // atomic avoids clobbered warning
+            for (bsls::AtomicInt a(0); a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
-                for (volatile unsigned u = 1; u <= 4 * sizeof(void *); ++u) {
+                for (bsls::AtomicUint u = 1; u <= 4 * sizeof(void *); ++u) {
                     for (const unsigned char *pu = fillChars; pu < end; ++pu) {
                         if (veryVerbose) {
                             cout << "Continuous:   ";
@@ -1855,15 +1855,16 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Single-byte Underruns);
         {
-            // 'volatile' avoids clobbered warning        
-            for (volatile int a = 0; a < ABORT_LIMIT; ++a) {
+            // atomic and 'volatile' avoid clobbered warning
+            for (bsls::AtomicInt a(0); a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
-                for (volatile int i = 1; i <= (int) sizeof(void *); ++i) {
-                    for (volatile const unsigned char * volatile pu =
-                                                                     fillChars;
-                         pu < end;
-                         ++pu) {
+                for (bsls::AtomicInt i(1); i <= (int) sizeof(void *); ++i) {
+                    for (bsls::AtomicUint puOffset = 0;
+                         puOffset < sizeof(fillChars);
+                         ++puOffset) {
+                        volatile const unsigned char * volatile pu
+                                                        = fillChars + puOffset;
                         if (veryVerbose) {
                             cout << "Single-byte:   ";
                             P_(ABORT);   P_(i);    P((int) *pu);
@@ -1984,8 +1985,8 @@ int main(int argc, char *argv[])
         Obj ta2;
         ta2.setOstream(&oss2);
 
-        // 'volatile' avoids clobbered warning        
-        for (volatile int i = 0; i < ABORT_LIMIT; ++i) {
+        // atomic avoids clobbered warning
+        for (bsls::AtomicInt i(0); i < ABORT_LIMIT; ++i) {
             const bool ABORT = i;
 
             ASSERT(oss.str().empty());
@@ -2006,7 +2007,7 @@ int main(int argc, char *argv[])
                 tba.setName("beta");
                 tba.setOstream(&oss);
 
-                // 'volatile' avoids clobbered warning        
+                // 'volatile' avoids clobbered warning
                 volatile unsigned int tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating same block twice);
@@ -2053,7 +2054,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing by wrong allocator of right type)
             {
-                // 'volatile' avoids clobbered warning        
+                // 'volatile' avoids clobbered warning
                 volatile void * volatile ptr;
                 volatile unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
@@ -2106,7 +2107,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of block allocated with malloc);
             {
-                // 'volatile' avoids clobbered warning        
+                // 'volatile' avoids clobbered warning
                 volatile void * volatile ptr;
 
                 volatile unsigned int taBlocks;
@@ -2150,7 +2151,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of array alloced with new[]);
             {
-                // 'volatile' avoids clobbered warning        
+                // 'volatile' avoids clobbered warning
                 volatile char * volatile ptr;
 
                 volatile unsigned int taBlocks;
@@ -2194,7 +2195,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of array alloced with new);
             {
-                // 'volatile' avoids clobbered warning        
+                // 'volatile' avoids clobbered warning
                 volatile int * volatile ptr;
 
                 volatile unsigned int taBlocks;
@@ -2240,7 +2241,7 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator     taBsl;
 
-                // 'volatile' avoids clobbered warning        
+                // 'volatile' avoids clobbered warning
                 volatile void * volatile ptr;
                 volatile unsigned int    numBlocks;
 
@@ -2286,7 +2287,7 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator     taBce;
 
-                // 'volatile' avoids clobbered warning        
+                // 'volatile' avoids clobbered warning
                 volatile void * volatile ptr;
                 volatile unsigned int    numBlocks;
 
@@ -2332,10 +2333,10 @@ int main(int argc, char *argv[])
             {
                 char *cPtr = (char *) ta.allocate(100);
 
-                // 'volatile' avoids clobbered warning        
+                // atomic and 'volatile' avoid clobbered warning
                 volatile unsigned int numBlocks;
 
-                for (volatile unsigned int offset = 1;
+                for (bsls::AtomicUint offset = 1;
                      offset < sizeof(void *);
                      ++offset) {
                     ASSERT(oss.str().empty());
@@ -2524,8 +2525,8 @@ int main(int argc, char *argv[])
         {
             bsl::stringstream ss;
 
-            // 'volatile' avoids clobbered warning        
-            for (volatile unsigned int numAllocs = 1;
+            // atomic avoids clobbered warning
+            for (bsls::AtomicUint numAllocs = 1;
                  numAllocs <= 100;
                  ++numAllocs) {
                 bslma::TestAllocator sta("sta");
@@ -3128,13 +3129,13 @@ int main(int argc, char *argv[])
 
         if (verbose) Q("Loop to exercise all c'tors");
 
-        // 'volatile' avoids clobbered warning        
-        for (volatile int i = 0; i < 2 * ABORT_LIMIT; ++i) {
+        // atomic and 'volatile' avoids clobbered warning
+        for (bsls::AtomicInt i(0); i < 2 * ABORT_LIMIT; ++i) {
             const bool CLEAN_DESTROY   = i %  2;
             const bool FAILURE_LONGJMP = i >= 2;
 
             volatile bool done = false;
-            for (volatile char c = 'a'; !done; ++c) {
+            for (bsls::AtomicInt c('a'); !done; ++c) {
                 if (veryVerbose) {
                     P_(CLEAN_DESTROY);    P_(FAILURE_LONGJMP);    P(c);
                 }

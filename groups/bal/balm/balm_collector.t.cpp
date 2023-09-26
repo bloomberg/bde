@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
                 balm::MetricRecord r;
 
                 count += VALUES[idx].d_count;
-                total += VALUES[idx].d_total;
+                total =  total + VALUES[idx].d_total;
                 min   =  bsl::min(VALUES[idx].d_min, (double)min);
                 max   =  bsl::max(VALUES[idx].d_max, (double)max);
 
@@ -677,7 +677,7 @@ int main(int argc, char *argv[])
                 const int INDEX = (i + j) % NUM_UPDATES;
                 mX.update(UPDATES[INDEX]);
 
-                total += UPDATES[INDEX];
+                total = total + UPDATES[INDEX];
                 min   = bsl::min((double)min, UPDATES[INDEX]);
                 max   = bsl::max((double)max, UPDATES[INDEX]);
 
