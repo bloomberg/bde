@@ -82,6 +82,10 @@
 # include <type_traits>
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, ptrarray0)
+#endif
+
 // BDE_VERIFY pragma: -FE01  // Testing throws exceptions not derived from std
 
 // Warnings that we hope to stop silencing one day:

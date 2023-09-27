@@ -195,7 +195,7 @@ struct AssertLocation {
         NONE,
         FIRST_BLOCK_TOP_LEVEL,
         FIRST_BLOCK_SECOND_LEVEL,
-        SECOND_BLOCK,
+        SECOND_BLOCK
     };
 };
 

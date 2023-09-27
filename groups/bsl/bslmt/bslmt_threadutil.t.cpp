@@ -852,7 +852,7 @@ enum {  k_NUM_THREADS = 10,
         // in bslmt_threadutilimpl_windows.cpp when translating UTF-8 to
         // UTF-16.
 
-        k_EXP_DEFAULT_ALLOCS = k_NUM_THREADS,
+        k_EXP_DEFAULT_ALLOCS = k_NUM_THREADS
 
 #elif   defined(BSLS_PLATFORM_OS_UNIX)
         // The max thread name is short enough to fit in a short string, but we
@@ -862,7 +862,7 @@ enum {  k_NUM_THREADS = 10,
 
         // No unicode translation on Unix.
 
-        k_EXP_DEFAULT_ALLOCS = 0,
+        k_EXP_DEFAULT_ALLOCS = 0
 #else
 # error unrecognized platform
 #endif

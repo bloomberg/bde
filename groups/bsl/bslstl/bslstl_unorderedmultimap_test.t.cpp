@@ -6978,10 +6978,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase14()
                                   const bsl::pair<const KEY, VALUE>*>::value));
     BSLMF_ASSERT(1 == (bsl::is_same<typename CLIter::reference,
                                   const bsl::pair<const KEY, VALUE>&>::value));
-
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-# warning "TBD: implementation is missing"
-#endif
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>

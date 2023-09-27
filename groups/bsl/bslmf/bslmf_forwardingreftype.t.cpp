@@ -28,6 +28,10 @@ using namespace BloombergLP;
 #pragma warning(disable: 4521) // test classes offer multiple copy constructors
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, refarray0)
+#endif
+
 // Suppress bde_verify messages about all-uppercase type names.  Test drivers
 // are rife with short names like 'F' or 'PF' or 'T' or 'T1'.
 

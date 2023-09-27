@@ -41,6 +41,10 @@ using namespace BloombergLP;
 using namespace std;
 using namespace bslalg;
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, arrowrtn)
+#endif
+
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------

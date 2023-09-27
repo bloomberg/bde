@@ -71,6 +71,10 @@ using bsls::NameOf;
     // This macro definition parallels that defined in the header file.
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, reftoref)
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
