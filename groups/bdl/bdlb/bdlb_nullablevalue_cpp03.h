@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 13 12:44:08 2023
+// Generated on Wed Sep 27 09:20:11 2023
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -90,7 +90,7 @@ class NullableValue : public bsl::optional<TYPE> {
     // object.  Attempts to copy construct, copy assign, or compare
     // incompatible values types will fail to compile.  The 'NullableValue'
     // template cannot be instantiated on an incomplete type, a type that
-    // overloads unary 'operator&', or 'bdlb::NullOptType'.
+    // overloads unary 'operator&', or 'bsl::nullopt_t'.
 
     // PRIVATE TYPES
     typedef bslmf::MovableRefUtil MoveUtil;
@@ -290,13 +290,13 @@ class NullableValue : public bsl::optional<TYPE> {
         // that compilation will fail if this function is called with a
         // 'BDE_OTHER_TYPE' that is not convertible to 'TYPE'.
 
-    NullableValue(const NullOptType&) BSLS_KEYWORD_NOEXCEPT;        // IMPLICIT
+    NullableValue(const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT;     // IMPLICIT
         // Create a nullable object having the null value.  If 'TYPE' takes an
         // optional allocator at construction, use the currently installed
         // default allocator to supply memory for subsequent values assigned to
         // this object.
 
-    NullableValue(const NullOptType&    ,
+    NullableValue(const bsl::nullopt_t&,
                   const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT;
         // Create a nullable object that has the null value; use the specified
         // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
@@ -378,7 +378,8 @@ class NullableValue : public bsl::optional<TYPE> {
         // moves and/or assigns from that type, a move rather than a copy may
         // take place.
 
-    NullableValue<TYPE>& operator=(const NullOptType&) BSLS_KEYWORD_NOEXCEPT;
+    NullableValue<TYPE>& operator=(const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Reset this object to the default constructed state (i.e., to have
         // the null value), and return a reference providing modifiable access
         // to this object.
@@ -1055,34 +1056,34 @@ constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
 template <class TYPE>
 constexpr std::strong_ordering
     operator<=>(const NullableValue<TYPE>& value,
-                const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
+                const bsl::nullopt_t&         ) BSLS_KEYWORD_NOEXCEPT;
     // Perform a three-way comparison of the specified 'value' and one of type
-    // 'NullOptType'; return the result of that comparison.
+    // 'bsl::nullopt_t'; return the result of that comparison.
 
 #endif // SUPPORT_THREE_WAY_COMPARISON && HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator==(const NullableValue<TYPE>& value,
-                const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
+bool operator==(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is null, and 'false' otherwise.
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator==(const NullOptType&         ,
-                const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
+bool operator==(const bsl::nullopt_t&,const NullableValue<TYPE>& value)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is null, and 'false' otherwise.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator!=(const NullableValue<TYPE>& value,
-                const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
+bool operator!=(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator!=(const NullOptType&         ,
-                const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
+bool operator!=(const bsl::nullopt_t&,const NullableValue<TYPE>& value)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is not null, and 'false'
     // otherwise.
 
@@ -1090,56 +1091,55 @@ bool operator!=(const NullOptType&         ,
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator<(const NullableValue<TYPE>&,
-               const NullOptType&        ) BSLS_KEYWORD_NOEXCEPT;
+bool operator<(const NullableValue<TYPE>&, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'false'.  Note that 'bdlb::nullOpt' never orders after a
     // 'NullableValue'.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator<(const NullOptType&         ,
-               const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
+bool operator<(const bsl::nullopt_t&,const NullableValue<TYPE>& value)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is not null, and 'false'
     // otherwise.  Note that 'bdlb::nullOpt' is ordered before any
     // 'NullableValue' that is not null.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator>(const NullableValue<TYPE>& value,
-               const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
+bool operator>(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is not null, and 'false'
     // otherwise.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator>(const NullOptType&         ,
-               const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
+bool operator>(const bsl::nullopt_t&,const NullableValue<TYPE>&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'false'.  Note that 'bdlb::nullOpt' never orders after a
     // 'NullableValue'.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator<=(const NullableValue<TYPE>& value,
-                const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'value' is null, and 'false'
-    // otherwise.
+bool operator<=(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // Return 'true' if the specified 'value' is null, and 'false' otherwise.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator<=(const NullOptType&         ,
-                const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
+bool operator<=(const bsl::nullopt_t&,const NullableValue<TYPE>&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true'.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator>=(const NullableValue<TYPE>& value,
-                const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT;
+bool operator>=(const NullableValue<TYPE>&, const bsl::nullopt_t&)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true'.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
-bool operator>=(const NullOptType&         ,
-                const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
+bool operator>=(const bsl::nullopt_t&,const NullableValue<TYPE>& value)
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is null, and 'false' otherwise.
 
 #  endif // !BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
@@ -1362,14 +1362,14 @@ NullableValue<TYPE>::NullableValue(
 
 template <class TYPE>
 inline
-NullableValue<TYPE>::NullableValue(const NullOptType&) BSLS_KEYWORD_NOEXCEPT
+NullableValue<TYPE>::NullableValue(const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
 : Base()
 {}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
-                         const NullOptType&,
+                         const bsl::nullopt_t&,
                          const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT
 : Base(bsl::allocator_arg, allocator)
 {}
@@ -1560,7 +1560,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
-                                      const NullOptType&) BSLS_KEYWORD_NOEXCEPT
+                                   const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
 {
     this->reset();
 
@@ -2438,7 +2438,7 @@ bdlb::operator<=>(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 template <class TYPE>
 constexpr std::strong_ordering
 bdlb::operator<=>(const NullableValue<TYPE>& value,
-                  const NullOptType&) BSLS_KEYWORD_NOEXCEPT
+                  const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT
 {
     return (!value.isNull()) <=> false;
 }
@@ -2446,106 +2446,103 @@ bdlb::operator<=>(const NullableValue<TYPE>& value,
 #endif // SUPPORT_THREE_WAY_COMPARISON && HAS_CPP20_CONCEPTS
 
 template <class TYPE>
-inline
-BSLS_KEYWORD_CONSTEXPR bool bdlb::operator==(
-                             const NullableValue<TYPE>& value,
-                             const NullOptType&) BSLS_KEYWORD_NOEXCEPT
+inline BSLS_KEYWORD_CONSTEXPR
+bool bdlb::operator==(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return value.isNull();
+    return !value.has_value();
 }
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 template <class TYPE>
-inline
-BSLS_KEYWORD_CONSTEXPR bool bdlb::operator==(
-                        const NullOptType&,
-                        const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT
+inline BSLS_KEYWORD_CONSTEXPR
+bool bdlb::operator==(const bsl::nullopt_t&, const NullableValue<TYPE>& value)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return value.isNull();
-}
-
-template <class TYPE>
-inline
-BSLS_KEYWORD_CONSTEXPR bool bdlb::operator!=(
-                             const NullableValue<TYPE>& value,
-                             const NullOptType&) BSLS_KEYWORD_NOEXCEPT
-{
-    return !value.isNull();
+    return !value.has_value();
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator!=(const NullOptType&         ,
-                      const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator!=(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return !value.isNull();
+    return value.has_value();
+}
+
+template <class TYPE>
+inline BSLS_KEYWORD_CONSTEXPR
+bool bdlb::operator!=(const bsl::nullopt_t&, const NullableValue<TYPE>& value)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return value.has_value();
 }
 
 #  ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator<(const NullableValue<TYPE>&,
-                     const NullOptType&        ) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator<(const NullableValue<TYPE>&, const bsl::nullopt_t&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return false;
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator<(const NullOptType&         ,
-                     const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator<(const bsl::nullopt_t&, const NullableValue<TYPE>& value)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return !value.isNull();
+    return value.has_value();
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator>(const NullableValue<TYPE>& value,
-                     const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator>(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return !value.isNull();
+    return value.has_value();
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator>(const NullOptType&         ,
-                     const NullableValue<TYPE>& ) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator>(const bsl::nullopt_t&, const NullableValue<TYPE>&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return false;
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator<=(const NullableValue<TYPE>& value,
-                      const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator<=(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return value.isNull();
+    return !value.has_value();
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator<=(const NullOptType&         ,
-                      const NullableValue<TYPE>& ) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator<=(const bsl::nullopt_t&, const NullableValue<TYPE>&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return true;
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator>=(const NullableValue<TYPE>& ,
-                      const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator>=(const NullableValue<TYPE>&, const bsl::nullopt_t&)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return true;
 }
 
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator>=(const NullOptType&  ,
-                      const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT
+bool bdlb::operator>=(const bsl::nullopt_t&, const NullableValue<TYPE>& value)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return value.isNull();
+    return !value.has_value();
 }
 
 #  endif // !BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
