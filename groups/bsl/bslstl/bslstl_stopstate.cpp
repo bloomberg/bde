@@ -4,13 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslstl_stopstate_cpp, "$Id$ $CSID$")
 
-#include <bslma_default.h>  // for testing only
-#include <bslma_testallocator.h>  // for testing only
-
-#include <bsls_assert.h>  // for testing only
-#include <bsls_asserttest.h>  // for testing only
-#include <bsls_bsltestutil.h>  // for testing only
-#include <bsls_libraryfeatures.h>  // for testing only
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS

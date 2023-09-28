@@ -10,23 +10,6 @@ BSLS_IDENT_RCSID(bslstl_stoptoken_cpp, "$Id$ $CSID$")
 // in order to avoid exposing any virtual methods (even private ones) in the
 // interface of 'stop_callback'.
 
-#include <bslma_bufferallocator.h>  // for testing only
-#include <bslma_default.h>  // for testing only
-#include <bslma_defaultallocatorguard.h>  // for testing only
-#include <bslma_testallocator.h>  // for testing only
-
-#include <bslmf_assert.h>  // for testing only
-#include <bslmf_issame.h>  // for testing only
-#include <bslmf_nestedtraitdeclaration.h>  // for testing only
-#include <bslmf_usesallocatorargt.h>  // for testing only
-#include <bslmf_util.h>  // for testing only
-
-#include <bsls_assert.h>  // for testing only
-#include <bsls_asserttest.h>  // for testing only
-#include <bsls_bsltestutil.h>  // for testing only
-#include <bsls_libraryfeatures.h>  // for testing only
-#include <bsls_types.h>  // for testing only
-
 #include <bslstl_optional.h>  // for testing only
 
 namespace bsl {
