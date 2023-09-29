@@ -182,6 +182,15 @@ int main(int argc, char *argv[])
         static const bool YES = true;
         static const bool NO = false;
 
+#if MSVC && !(MSVC_2022 && (BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L))
+        // MSVC 2019 and earlier, and MSVC 2022 in C++17 (or earlier) mode
+        // incorrectly handles volatile-qualified invocable types.  This has
+        // been rectified in MSVC 2022 compiling in C++20 mode.
+        static const bool MSVC_PRE_CPP20 = true;
+#else
+        static const bool MSVC_PRE_CPP20 = false;
+#endif
+
         const SfinaeFriendlinessTest TEST;
 
         //          'type' IS DEFINED                         LINE NUMBER
@@ -236,10 +245,10 @@ int main(int argc, char *argv[])
         TEST.run< NO,              FvrI,       cvrI                     >(L_);
         TEST.run< NO,              FvrI,          I,     I              >(L_);
         TEST.run< NO,             FcvrI                                 >(L_);
-        TEST.run<MSVC,            FcvrI,          I                     >(L_);
-        TEST.run<MSVC,            FcvrI,         cI                     >(L_);
-        TEST.run<MSVC,            FcvrI,         vI                     >(L_);
-        TEST.run<MSVC,            FcvrI,        cvI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,  FcvrI,          I                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,  FcvrI,         cI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,  FcvrI,         vI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,  FcvrI,        cvI                     >(L_);
         TEST.run<YES,             FcvrI,         rI                     >(L_);
         TEST.run<YES,             FcvrI,        crI                     >(L_);
         TEST.run<YES,             FcvrI,        vrI                     >(L_);
@@ -294,10 +303,10 @@ int main(int argc, char *argv[])
         TEST.run< NO,            FcrI *,       cvrI                     >(L_);
         TEST.run< NO,            FcrI *,          I,     I              >(L_);
         TEST.run< NO,           FcvrI *                                 >(L_);
-        TEST.run<MSVC,          FcvrI *,          I                     >(L_);
-        TEST.run<MSVC,          FcvrI *,         cI                     >(L_);
-        TEST.run<MSVC,          FcvrI *,         vI                     >(L_);
-        TEST.run<MSVC,          FcvrI *,        cvI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,FcvrI *,          I                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,FcvrI *,         cI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,FcvrI *,         vI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20,FcvrI *,        cvI                     >(L_);
         TEST.run<YES,           FcvrI *,         rI                     >(L_);
         TEST.run<YES,           FcvrI *,        crI                     >(L_);
         TEST.run<YES,           FcvrI *,        vrI                     >(L_);
@@ -336,10 +345,10 @@ int main(int argc, char *argv[])
         TEST.run< NO,             FcrI&,       cvrI                     >(L_);
         TEST.run< NO,             FcrI&,          I,     I              >(L_);
         TEST.run< NO,            FcvrI&                                 >(L_);
-        TEST.run<MSVC,           FcvrI&,          I                     >(L_);
-        TEST.run<MSVC,           FcvrI&,         cI                     >(L_);
-        TEST.run<MSVC,           FcvrI&,         vI                     >(L_);
-        TEST.run<MSVC,           FcvrI&,        cvI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20, FcvrI&,          I                     >(L_);
+        TEST.run<MSVC_PRE_CPP20, FcvrI&,         cI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20, FcvrI&,         vI                     >(L_);
+        TEST.run<MSVC_PRE_CPP20, FcvrI&,        cvI                     >(L_);
         TEST.run<YES,            FcvrI&,         rI                     >(L_);
         TEST.run<YES,            FcvrI&,        crI                     >(L_);
         TEST.run<YES,            FcvrI&,        vrI                     >(L_);

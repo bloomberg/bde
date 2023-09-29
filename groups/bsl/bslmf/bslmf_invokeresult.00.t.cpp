@@ -159,6 +159,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define MSVC_2019 0
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1930 \
+ && BSLS_PLATFORM_CMP_VERSION <= 1939
+#define MSVC_2022 1
+#else
+#define MSVC_2022 0
+#endif
+
                       // =============================================
                       // Common function for test case banner printing
                       // =============================================

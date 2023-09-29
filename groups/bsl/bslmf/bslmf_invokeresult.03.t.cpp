@@ -355,11 +355,11 @@ int main(int argc, char *argv[])
         // Arrays and functions cannot be returned by value, so we test only
         // references.  Can't apply a pointer or reference to something that is
         // already a reference, so simply call the 'apply' method directly.
-        // MSVC 2019 and earlier fails to propagate the reference qualifier.
+        // MSVC 2022 and earlier fails to propagate the reference qualifier.
         // However, MSVC 2013 uses the C++03 implementation of
         // 'bsl::invoke_result', which calculates the return type manually,
         // without 'decltype' machinery, and is correct.
-#if MSVC_2019 || MSVC_2017 || MSVC_2015
+#if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
         PtrToMemFuncTest<MyClass>::apply<Arry&      , Arry>(L_);
         PtrToMemFuncTest<MyClass>::apply<Arry const&, Arry const>(L_);
 #else
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
 #endif
         PtrToMemFuncTest<MyClass>::apply<F&>(L_);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#if MSVC_2019 || MSVC_2017 || MSVC_2015
+#if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
         PtrToMemFuncTest<MyClass>::apply<Arry&&, Arry>(L_);
 #else
         PtrToMemFuncTest<MyClass>::apply<Arry&&>(L_);
@@ -376,7 +376,7 @@ int main(int argc, char *argv[])
 
         // Rvalue references to functions are special in that they are lvalues,
         // unlike rvalue references to other types, which are conditionally
-        // either lvalues or xvalues.  MSVC 2019 and earlier appears to get
+        // either lvalues or xvalues.  MSVC 2022 and earlier appears to get
         // this wrong.
 #if MSVC
         PtrToMemFuncTest<MyClass>::apply<F&&, F&&>(L_);

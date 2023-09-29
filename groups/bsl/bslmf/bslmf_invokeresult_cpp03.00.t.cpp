@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Mon Aug 14 11:38:22 2023
+// Generated on Fri Sep 29 10:46:43 2023
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.00.t.cpp
 
 // Expanded test driver only when compiling bslmf_invokeresult.cpp
@@ -138,6 +138,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define MSVC_2019 1
 #else
 #define MSVC_2019 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1930 \
+ && BSLS_PLATFORM_CMP_VERSION <= 1939
+#define MSVC_2022 1
+#else
+#define MSVC_2022 0
 #endif
 
                       // =============================================
@@ -2067,7 +2075,7 @@ int main() {
 #endif // defined(COMPILING_BSLMF_INVOKERESULT_00_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
