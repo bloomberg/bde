@@ -1,0 +1,459 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.122.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.122.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.121.0 Release" href="bde_3.121.0.html" />
+    <link rel="prev" title="BDE 3.123.0 Release" href="bde_3.123.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.122.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-122-0-highlights">BDE 3.122.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bsl-string-has-resize-and-overwrite-method"><code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> Has <code class="docutils literal notranslate"><span class="pre">resize_and_overwrite</span></code> Method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bdlf-bindutil-bind-correctly-handles-movableref-arguments"><code class="docutils literal notranslate"><span class="pre">bdlf::BindUtil::bind</span></code> Correctly Handles <code class="docutils literal notranslate"><span class="pre">MovableRef</span></code> Arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-new-features">Other New Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.122.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.121.0.html" class="btn btn-neutral float-right" title="BDE 3.121.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.123.0.html" class="btn btn-neutral float-left" title="BDE 3.123.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-122-0-release">
+<span id="bde3-122-0-top"></span><h1>BDE 3.122.0 Release<a class="headerlink" href="#bde-3-122-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-122-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.122.0 production release was
+completed on <strong>Monday, July 31, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-122-0-highlights">
+<h2>BDE 3.122.0 Highlights<a class="headerlink" href="#bde-3-122-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bsl-string-has-resize-and-overwrite-method">
+<h3><code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> Has <code class="docutils literal notranslate"><span class="pre">resize_and_overwrite</span></code> Method<a class="headerlink" href="#bsl-string-has-resize-and-overwrite-method" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> class now provides the <code class="docutils literal notranslate"><span class="pre">resize_and_overwrite</span></code> method
+– a C++23 feature – that allows one to avoid the wasted effort of zero
+filling string contents (as is done by the classic <code class="docutils literal notranslate"><span class="pre">resize</span></code>) when those
+positions are about to be overwritten.</p>
+<p>Consider the function <code class="docutils literal notranslate"><span class="pre">loadFromIstream</span></code> that adjusts the size of the
+<code class="docutils literal notranslate"><span class="pre">output</span></code> string to the new size (by <code class="docutils literal notranslate"><span class="pre">resize</span></code>) and then deposits data from
+the <code class="docutils literal notranslate"><span class="pre">input</span></code> stream to the available space (by <code class="docutils literal notranslate"><span class="pre">read</span></code>):</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loadFromIstream</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w">     </span><span class="o">*</span><span class="n">output</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="n">bsl</span><span class="o">::</span><span class="n">istream</span><span class="o">&amp;</span><span class="w">    </span><span class="n">input</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="n">bsl</span><span class="o">::</span><span class="n">streamsize</span><span class="w">  </span><span class="n">count</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Set the value of the specified &#39;output&#39; string to the next specified</span>
+<span class="w">    </span><span class="c1">// &#39;count&#39; bytes from the specified &#39;input&#39; stream.  The behavior is</span>
+<span class="w">    </span><span class="c1">// undefined unless ...</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Defensive programming checks here...</span>
+
+<span class="w">    </span><span class="n">output</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="n">count</span><span class="p">);</span><span class="w"></span>
+<span class="w">         </span><span class="c1">// If &#39;output&#39; is initially empty, we could:</span>
+<span class="w">         </span><span class="c1">//     assert(*output == bsl::string(count, &#39;\0&#39;));</span>
+
+<span class="w">    </span><span class="n">input</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">output</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">count</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Assuming <code class="docutils literal notranslate"><span class="pre">output</span></code> is initially empty, it consists of <code class="docutils literal notranslate"><span class="pre">count</span></code> <code class="docutils literal notranslate"><span class="pre">'\0'</span></code>
+characters between the return from <code class="docutils literal notranslate"><span class="pre">resize</span></code> until it is overwritten by the
+call to <code class="docutils literal notranslate"><span class="pre">read</span></code>.  Creation of that artifact is of no use here and represents
+wasted work.</p>
+<p>Alternatively:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Defensive programming checks here...</span>
+
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">populator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&amp;</span><span class="n">input</span><span class="w"> </span><span class="p">](</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">srcSize</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">input</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">srcSize</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">input</span><span class="p">.</span><span class="n">gcount</span><span class="p">();</span><span class="w">  </span><span class="c1">// String size set to actual input count.</span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">output</span><span class="o">-&gt;</span><span class="n">resize_and_overwrite</span><span class="p">(</span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">populator</span><span class="p">);</span><span class="w"></span>
+<span class="w">          </span><span class="c1">//      ^^^^^^^^^^^^^^</span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Now, the <code class="docutils literal notranslate"><span class="pre">output</span></code> string is never set to <code class="docutils literal notranslate"><span class="pre">'\0'</span></code> characters.</p>
+</div>
+<div class="section" id="bdlf-bindutil-bind-correctly-handles-movableref-arguments">
+<h3><code class="docutils literal notranslate"><span class="pre">bdlf::BindUtil::bind</span></code> Correctly Handles <code class="docutils literal notranslate"><span class="pre">MovableRef</span></code> Arguments<a class="headerlink" href="#bdlf-bindutil-bind-correctly-handles-movableref-arguments" title="Permalink to this headline">¶</a></h3>
+<p>BDE 3.122.0 fixes the behavior of <code class="docutils literal notranslate"><span class="pre">bdlf::BindUtil::bind</span></code> when it is passed
+<code class="docutils literal notranslate"><span class="pre">MovableRef</span></code> and <em>rvalue</em> reference arguments.  Prior to this release, in
+C++03, passing a <code class="docutils literal notranslate"><span class="pre">MovableRef</span></code> to <code class="docutils literal notranslate"><span class="pre">bdlf::BindUtil::bind</span></code> would result in
+the <code class="docutils literal notranslate"><span class="pre">bdlf::Bind</span></code> object storing a pointer to the passed object instead of
+move-constructing its copy, which would often result in a dangling pointer:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlf_bind.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_functional.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string.h&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">func</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">(</span><span class="s">&quot;abc&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdlf</span><span class="o">::</span><span class="n">BindUtil</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">bslmf</span><span class="o">::</span><span class="n">MovableRefUtil</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">s</span><span class="p">));</span><span class="w"></span>
+<span class="w">                                                </span><span class="c1">// binds a pointer in C++03</span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">func</span><span class="p">();</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// Pre-3.122.0&#39;: &#39;func&#39; dereferences a dangling pointer!</span>
+<span class="w">      </span><span class="c1">// Now         : &#39;func&#39; gets a copy, even via *move*, so no problem.</span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In C++11 and later, the <code class="docutils literal notranslate"><span class="pre">bdlf::Bind</span></code> object would store a copy of the
+argument, but would not move-construct it, resulting in an unnecessary copy.</p>
+<p>As of BDE 3.122.0, this code behaves as expected in all C++ versions: the
+<code class="docutils literal notranslate"><span class="pre">bdlf::Bind</span></code> object will store a move-constructed copy of the argument
+supplied to the call to <code class="docutils literal notranslate"><span class="pre">bdlf::BindUtil::bind</span></code>.</p>
+</div>
+<div class="section" id="other-new-features">
+<h3>Other New Features<a class="headerlink" href="#other-new-features" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">balcl::CommandLine</span></code> class now has additional <code class="docutils literal notranslate"><span class="pre">printUsage</span></code> overloads
+that allow the user to explicity specify the task’s name.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bdlb::NullableAllocatedValue</span></code> class now has small-object
+optimization.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bslstl_inplace</span></code> component has added tag types
+<code class="docutils literal notranslate"><span class="pre">bsl::in_place_type_t</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::in_place_index_t</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bdlf_bind: confusion with bslmf::MovableRef&lt;T&gt; args</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add aliases to &lt;bslstl_iterator.h&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘starts_with’ and the ‘ends_with’ methods to the ‘bslstl::basic_string_view’</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix issue in bdlde_quotedprintableencoder.t</p></td>
+</tr>
+<tr class="row-even"><td><p>Benchmark new ‘bdlb::NumericParseUtil:parseDouble’</p></td>
+</tr>
+<tr class="row-odd"><td><p>Provide C++23 bsl::string::resize_and_overwrite</p></td>
+</tr>
+<tr class="row-even"><td><p>balcl::Commadline optional ‘taskName’ argument for printUsage</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please add a small-object optimization to bdlb::NullableAllocatedValue</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::span usage produces warning in Sun compilation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please validate reference support for Sun Studio 12.6 for c++11 and above.</p></td>
+</tr>
+<tr class="row-even"><td><p>reduce bde nb test driver compiler warnings for gcc-10</p></td>
+</tr>
+<tr class="row-odd"><td><p>BDE: fix bslstl_string_test failure for CC 5.12.6</p></td>
+</tr>
+<tr class="row-even"><td><p>BDE: fix bslstl_array failure for CC 5.12.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce bdl nb issues 20230711</p></td>
+</tr>
+<tr class="row-even"><td><p>reduce bsl nightly build issues 20230711</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add bsl::in_place_type and bsl::in_place_index</p></td>
+</tr>
+<tr class="row-even"><td><p>bslmf_isnothrowswappable.h gcc warnings on manual builds</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce bal nb compile issues 20230712</p></td>
+</tr>
+<tr class="row-even"><td><p>reduce bal nb warnings 20230713</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix bdlde_charconvertutf16.cpp to use consistent compiler feature for u16string</p></td>
+</tr>
+<tr class="row-even"><td><p>reduce bal nb warnings 20230714</p></td>
+</tr>
+<tr class="row-odd"><td><p>normalize use of // for testing only on includes in bde</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle Removal: ball: Replace FileObserver2 in ball_log.t.cpp</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cycle Removal: bdlb: Remove transparent[hash|equalto] usage example cycle</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle Removal: bslmf:bslmf_isnothrowmoveconstructible test use of movableref</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cycle Removal: bslmt: Remove cycles related to bslmt_testutil.t.cpp</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle removal: bsls:  Remove bsls_stackaddressutil dependency on SystemTime</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cycle Removal: bslstl: bslstl_iterator.t.cpp remove cyclic dependency on bslstl_set</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle Removal: bslstl: Remove stringview.t.cpp dependency on bslstl_map</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cycle Removal: bslmt: Remove cycle with bslstl_ostream and osyncstream</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

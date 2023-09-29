@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.116.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.116.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.115.0 Release" href="bde_3.115.0.html" />
+    <link rel="prev" title="BDE 3.117.0 Release" href="bde_3.117.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.116.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-116-0-highlights">BDE 3.116.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#new-component-balb-pipetaskmanager">New Component: <code class="docutils literal notranslate"><span class="pre">balb_pipetaskmanager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bdlpcre-regex-better-support-for-duplicate-named-groups"><code class="docutils literal notranslate"><span class="pre">bdlpcre::RegEx</span></code> - better support for duplicate named groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c-20-features">C++20 Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-requests">Fixed requests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.116.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.115.0.html" class="btn btn-neutral float-right" title="BDE 3.115.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.117.0.html" class="btn btn-neutral float-left" title="BDE 3.117.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-116-0-release">
+<span id="bde3-116-0-top"></span><h1>BDE 3.116.0 Release<a class="headerlink" href="#bde-3-116-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-116-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.116.0 production release was
+completed on <strong>Wednesday, April 12, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-116-0-highlights">
+<span id="bde3-116-0-highlights"></span><h2>BDE 3.116.0 Highlights<a class="headerlink" href="#bde-3-116-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-component-balb-pipetaskmanager">
+<h3>New Component: <code class="docutils literal notranslate"><span class="pre">balb_pipetaskmanager</span></code><a class="headerlink" href="#new-component-balb-pipetaskmanager" title="Permalink to this headline">¶</a></h3>
+<p>This release introduces <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balb__pipetaskmanager.html">balb::PipeTaskManager</a>,
+a class that supports the control of running processes based on messages received via a named pipe.</p>
+<p>Notable features of <code class="docutils literal notranslate"><span class="pre">balb::PipeTaskManager</span></code> include:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>One can construct a <code class="docutils literal notranslate"><span class="pre">balb::PipeTaskManager</span></code> from a <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> to a
+(shared) <code class="docutils literal notranslate"><span class="pre">balb::ControlManager</span></code> object (the object that maps a user
+message to the appropriate callback function).  Thus one can assemble a
+single “messaging handling” configuration and share it with several “task
+managers”, each listening for messages from different named pipes.</p></li>
+<li><p>A handler for “HELP” messages is not installed by default.  However, a
+handler can be easily installed by invocation of <code class="docutils literal notranslate"><span class="pre">registerUsageHandler</span></code>
+method of <code class="docutils literal notranslate"><span class="pre">balb::ControlManager</span></code>.
+See <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balb__pipetaskmanager.html#3.4.1">{‘balb_pipetaskmanager’|Example 1}</a>.</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="bdlpcre-regex-better-support-for-duplicate-named-groups">
+<h3><code class="docutils literal notranslate"><span class="pre">bdlpcre::RegEx</span></code> - better support for duplicate named groups<a class="headerlink" href="#bdlpcre-regex-better-support-for-duplicate-named-groups" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlpcre__regex.html">bdlpcre::Regex</a> now
+supports duplicate named groups using the <code class="docutils literal notranslate"><span class="pre">(?J)</span></code> specifier or
+<code class="docutils literal notranslate"><span class="pre">k_FLAG_DUPNAMES</span></code> option.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">RegEx::k_FLAG_DUPNAMES</span></code> is included in the flags supplied to <code class="docutils literal notranslate"><span class="pre">prepare</span></code>,
+or the pattern contains a <code class="docutils literal notranslate"><span class="pre">(?J)</span></code> option setting (see <a class="reference external" href="https://www.pcre.org/current/doc/html/pcre2syntax.html#SEC16">PCRE syntax</a>) the
+<code class="docutils literal notranslate"><span class="pre">subpatternIndex(name)</span></code> method will fail if ‘name’ is used for more than one capture group.
+The <code class="docutils literal notranslate"><span class="pre">namedSubpatterns()</span></code> method should be used to get a set of (name, index)
+pairs used in the pattern.</p>
+</div>
+<div class="section" id="c-20-features">
+<h3>C++20 Features<a class="headerlink" href="#c-20-features" title="Permalink to this headline">¶</a></h3>
+<p>This release adds assorted C++20 features and aliases.</p>
+</div>
+</div>
+<div class="section" id="fixed-requests">
+<h2>Fixed requests<a class="headerlink" href="#fixed-requests" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C++20 work: Please add bsl::defaultfloat</p></td>
+</tr>
+<tr class="row-odd"><td><p>Create balb_pipetaskmanager from bassvc_defaulttaskmanager</p></td>
+</tr>
+<tr class="row-even"><td><p>balst_stacktraceresoverimpl_windows.h: Windows compilation issue.</p></td>
+</tr>
+<tr class="row-odd"><td><p>github: Fix ball_asyncfileobserver test failure</p></td>
+</tr>
+<tr class="row-even"><td><p>bdljsn:  Fix problematic string_view construction from iterators</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlde::CharConvertUtf16 support string with fixed size character type</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlpcre::RegEx - better support for duplicate named groups</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add aliases for thread-coordination classes</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add &lt;bsl_compare.h&gt; header and alias standard entities</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add &lt;bsl_numbers.h&gt; header and alias standard entity</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add &lt;bsl_bit.h&gt; header and alias standard entities</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add &lt;bsl_source_location.h&gt; header and alias standard entity</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add BDE implementation of ‘bsl::to_array’</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add aliases to &lt;bsl_atomic.h&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add aliases to &lt;bslstl_chrono.h&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add aliases for the new entities</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘contains’ method to the ‘bsl::set’ and to the ‘bsl::multiset’</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add the ‘contains’ method to the ‘bsl::unordered_map’ and to the ‘bsl::unordered_multimap’</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘starts_with’ and the ‘ends_with’ methods to the ‘bslstl::basic_string’</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::array’</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::deque’</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::list’</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::vector’</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsl::optional fails to compile with C++17 and libc++</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::type_index’</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslmt_threadattributes docs does not list Solaris as supporting thread names</p></td>
+</tr>
+<tr class="row-even"><td><p>bslmt::Semaphore - sem_init should not silently fail</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlb::NullableAllocatedValue - add &lt;, &gt;, &lt;=, &gt;= operators (already has ==, !=)</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: new libraryfeatures macros for bit_cast and make_unique_for_overwrite</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: evaluate compiler feature support and suggest next steps</p></td>
+</tr>
+<tr class="row-even"><td><p>bdljsn_jsonnumber.h - sample code not correct</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please use value initialization in bsls::SpinLock constructors</p></td>
+</tr>
+<tr class="row-even"><td><p>bdljsn_json.h - correct descriptions of classes</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdljsn_json.h - unused header bsl_deque.h included</p></td>
+</tr>
+<tr class="row-even"><td><p>Make ‘bsl::StringRefImpl’ trivially copyable</p></td>
+</tr>
+<tr class="row-odd"><td><p>correct test driver build warnings for bdlb on AIX</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix bsls_compilerfeatures test error &amp; clean-up</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdljsn_numberutil: fix warning</p></td>
+</tr>
+<tr class="row-even"><td><p>Clarify whether log records are published atomically</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix hexfloat-literal compilerfeatures test build failures in gcc cpp03 ufids</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

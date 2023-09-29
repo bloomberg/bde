@@ -94,6 +94,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
@@ -118,7 +127,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
 </ul>
 </li>
@@ -126,7 +134,7 @@
 <p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
@@ -229,17 +237,39 @@ on <strong>Monday, June 6, 2022</strong>.</p></li>
 <span id="bde3-102-0-highlights"></span><h2>BDE 3.102.0 Highlights<a class="headerlink" href="#bde-3-102-0-highlights" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="improved-guid-generation">
 <h3>Improved Guid Generation<a class="headerlink" href="#improved-guid-generation" title="Permalink to this headline">¶</a></h3>
-<p>This release fixes and improves <code class="docutils literal notranslate"><span class="pre">Guid</span></code> generation, particularly for <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/structbdlb_1_1GuidUtil.html">bdlb::GuidUtil::generateNonSecure</a> (for creating unique, but not cryptographically secure, <code class="docutils literal notranslate"><span class="pre">Guid</span></code> values)</p>
+<p>This release fixes and improves <code class="docutils literal notranslate"><span class="pre">Guid</span></code> generation, particularly for
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/structbdlb_1_1GuidUtil.html">bdlb::GuidUtil::generateNonSecure</a> (for
+creating unique, but not cryptographically secure, <code class="docutils literal notranslate"><span class="pre">Guid</span></code> values)</p>
 <ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">Guid</span></code> type is now 32-bit aligned to facilitate the removal of unnecessary copy operations in the implementation of <code class="docutils literal notranslate"><span class="pre">generateNonSecure</span></code>.</p></li>
-<li><p>The random number generator used in the implementation of <code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::generateNonSecure</span></code> reseeds in the child of a forked process, thereby ensuring that parent and child processes do not generate the same <code class="docutils literal notranslate"><span class="pre">Guid</span></code> sequence.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::generateNonSecure</span></code> previously used a PCG generator with 64 bits of state, which would result in a 50% likelihood of collision after the creation of 2^32 Guids. <code class="docutils literal notranslate"><span class="pre">generateNonSecure</span></code> now uses a random number generator with 256 bits of state (although the output <code class="docutils literal notranslate"><span class="pre">Guids</span></code> are still limited to a maximum of 122 bits), thereby reducing the probability of collision.</p></li>
-<li><p>In order to support the previous changes, the <code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::generateNonSecure</span></code> overloads taking an <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">char</span></code> array has been removed and the <code class="docutils literal notranslate"><span class="pre">generate</span></code> method taking an <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">char</span></code> array has been deprecated – The equivalent methods taking a <code class="docutils literal notranslate"><span class="pre">Guid</span></code> array should be used instead.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Guid</span></code> type is now 32-bit aligned to facilitate the removal of
+unnecessary copy operations in the implementation of <code class="docutils literal notranslate"><span class="pre">generateNonSecure</span></code>.</p></li>
+<li><p>The random number generator used in the implementation of
+<code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::generateNonSecure</span></code> reseeds in the child of a forked
+process, thereby ensuring that parent and child processes do not generate the
+same <code class="docutils literal notranslate"><span class="pre">Guid</span></code> sequence.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::generateNonSecure</span></code> previously used a PCG generator with 64
+bits of state, which would result in a 50% likelihood of collision after the
+creation of 2^32 Guids. <code class="docutils literal notranslate"><span class="pre">generateNonSecure</span></code> now uses a random number
+generator with 256 bits of state (although the output <code class="docutils literal notranslate"><span class="pre">Guids</span></code> are still
+limited to a maximum of 122 bits), thereby reducing the probability of
+collision.</p></li>
+<li><p>In order to support the previous changes, the
+<code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::generateNonSecure</span></code> overloads taking an <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">char</span></code>
+array has been removed and the <code class="docutils literal notranslate"><span class="pre">generate</span></code> method taking an <code class="docutils literal notranslate"><span class="pre">unsigned</span>
+<span class="pre">char</span></code> array has been deprecated – The equivalent methods taking a <code class="docutils literal notranslate"><span class="pre">Guid</span></code>
+array should be used instead.</p></li>
 </ul>
 </div>
 <div class="section" id="filesystemutil-changes">
 <h3>FilesystemUtil changes<a class="headerlink" href="#filesystemutil-changes" title="Permalink to this headline">¶</a></h3>
-<p>This release improves the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdls__filesystemutil.html">bdls::FilesystemUtil</a> utility, particularly for the <code class="docutils literal notranslate"><span class="pre">bdls::FilesystemUtil::getLastModificationTime</span></code> functions. File modification times are now retrieved to microsecond precision on all platforms (previously the aforementioned functions retrieved timestamps to millisecond precision on Windows and to second precision on Unix). However, microsecond timestamp precision is not guaranteed, as the accuracy and precision of any retrieved timestamps will be limited by the accuracy and precision of the underlying file system.</p>
+<p>This release improves the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdls__filesystemutil.html">bdls::FilesystemUtil</a>
+utility, particularly for the <code class="docutils literal notranslate"><span class="pre">bdls::FilesystemUtil::getLastModificationTime</span></code>
+functions. File modification times are now retrieved to microsecond precision
+on all platforms (previously the aforementioned functions retrieved timestamps
+to millisecond precision on Windows and to second precision on Unix). However,
+microsecond timestamp precision is not guaranteed, as the accuracy and
+precision of any retrieved timestamps will be limited by the accuracy and
+precision of the underlying file system.</p>
 </div>
 </div>
 <div class="section" id="fixed-requests">

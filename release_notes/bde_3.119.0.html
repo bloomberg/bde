@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>BDE 3.100.0 Release &mdash; BDE Documentation  documentation</title>
+  <title>BDE 3.119.0 Release &mdash; BDE Documentation  documentation</title>
   
 
   
@@ -22,7 +22,7 @@
   
 
   
-    <link rel="canonical" href="https://bloomberg.github.io/release_notes/BDE_3.100.0.html" />
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.119.0.html" />
 
   
   <!--[if lt IE 9]>
@@ -41,8 +41,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Archived Release Notes" href="archive/release_notes.html" />
-    <link rel="prev" title="BDE 3.101.0 Release" href="BDE_3.101.0.html" /> 
+    <link rel="next" title="BDE 3.118.0 Release" href="bde_3.118.0.html" />
+    <link rel="prev" title="BDE 3.120.1 Release" href="bde_3.120.1.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,6 +94,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.119.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-119-0-highlights">BDE 3.119.0 Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c-20-library-features">C++20 Library Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
@@ -109,16 +124,6 @@
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.100.0 Release</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bde-3-100-0-highlights">BDE 3.100.0 Highlights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#removal-of-cross-library-forward-declarations">Removal of Cross-Library Forward Declarations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#continued-addition-of-c-17-type-aliases">Continued Addition of C++17 Type Aliases</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#fixed-requests-3-100-0">Fixed requests: 3.100.0</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
 </ul>
 </li>
@@ -126,7 +131,7 @@
 <p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
@@ -188,7 +193,7 @@
         
           <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
         
-      <li>BDE 3.100.0 Release</li>
+      <li>BDE 3.119.0 Release</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -202,10 +207,10 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="archive/release_notes.html" class="btn btn-neutral float-right" title="Archived Release Notes" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="bde_3.118.0.html" class="btn btn-neutral float-right" title="BDE 3.118.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
       
       
-        <a href="BDE_3.101.0.html" class="btn btn-neutral float-left" title="BDE 3.101.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bde_3.120.1.html" class="btn btn-neutral float-left" title="BDE 3.120.1 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
       
   </div>
   
@@ -214,37 +219,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="bde-3-100-0-release">
-<span id="bde3-100-0-top"></span><h1>BDE 3.100.0 Release<a class="headerlink" href="#bde-3-100-0-release" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="bde-3-119-0-release">
+<span id="bde3-119-0-top"></span><h1>BDE 3.119.0 Release<a class="headerlink" href="#bde-3-119-0-release" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="schedule">
-<span id="bde3-100-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<span id="bde3-119-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><ul class="simple">
-<li><p>The BDE team announces that the BDE 3.100.0 production release was completed
-on <strong>Monday, May 23, 2022</strong>.</p></li>
+<li><p>The BDE team announces that the BDE 3.119.0 production release was
+completed on <strong>Monday, Jun 5, 2023</strong>.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="bde-3-100-0-highlights">
-<span id="bde3-100-0-highlights"></span><h2>BDE 3.100.0 Highlights<a class="headerlink" href="#bde-3-100-0-highlights" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="removal-of-cross-library-forward-declarations">
-<h3>Removal of Cross-Library Forward Declarations<a class="headerlink" href="#removal-of-cross-library-forward-declarations" title="Permalink to this headline">¶</a></h3>
-<p>This release applies changes to remove forward declarations for types outside
-of their unit-of-release.  This reverses a long standing BDE recommendation to
-use forward declarations where possible.  This change in coding standards, and
-its rationale, is captured in a <a class="reference external" href="https://bde.bloomberg.com/bde/knowledge_base/coding_standards.html#rule-4-4-3-rationale">recent update to the BDE coding standards</a>
-as well as a <a class="reference external" href="https://docs.google.com/document/d/1Ml9xduKC9iBndHd58tnDFrmHd8qV4vv7PwvF_9Xgo9A/">related C++ guild recommendation</a>.</p>
+<div class="section" id="bde-3-119-0-highlights">
+<h2>BDE 3.119.0 Highlights<a class="headerlink" href="#bde-3-119-0-highlights" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="continued-addition-of-c-17-type-aliases">
-<h3>Continued Addition of C++17 Type Aliases<a class="headerlink" href="#continued-addition-of-c-17-type-aliases" title="Permalink to this headline">¶</a></h3>
-<p>This release adds <code class="docutils literal notranslate"><span class="pre">bsl::</span></code> aliases for the C++17 features in
-<code class="docutils literal notranslate"><span class="pre">bsl_cstddef.h</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl_cstdlib.h</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl_ctime.h</span></code>, and <code class="docutils literal notranslate"><span class="pre">bsl_tuple.h</span></code>.
-This is part of the general effort to simplify the use of <code class="docutils literal notranslate"><span class="pre">bsl::</span></code> names, and
-in general better support C++17.</p>
+<div class="section" id="c-20-library-features">
+<h2>C++20 Library Features<a class="headerlink" href="#c-20-library-features" title="Permalink to this headline">¶</a></h2>
+<p>For compilers that support the 3-way comparison operator <code class="docutils literal notranslate"><span class="pre">&lt;=&gt;</span></code>, added support
+for the following types:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Added the header <code class="docutils literal notranslate"><span class="pre">&lt;bsl_coroutine.h&gt;</span></code>, which provides the following aliases
+for C++20 types related to coroutines:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::coroutine_traits</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::coroutine_handle</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::noop_coroutine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::noop_coroutine_promise</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::noop_coroutine_handle</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::suspend_never</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::suspend_always</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>The functions <cite>bsl::make_shared`</cite> and <code class="docutils literal notranslate"><span class="pre">bsl::allocate_shared</span></code> now have
+overloads for array element types.</p>
 </div>
-</div>
-<div class="section" id="fixed-requests-3-100-0">
-<h2>Fixed requests: 3.100.0<a class="headerlink" href="#fixed-requests-3-100-0" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
 <table class="colwidths-given docutils align-left">
 <colgroup>
 <col style="width: 100%" />
@@ -254,23 +269,39 @@ in general better support C++17.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Remove cross-package forward declaration headers from bde-classic and other bde repos</p></td>
+<tr class="row-even"><td><p>C++20 work: Add &lt;bsl_coroutine.h&gt; header and alias standard entities</p></td>
 </tr>
-<tr class="row-odd"><td><p>bslim_gtestutil: add ‘PrintTo’ supporting bsl::optional&lt;T&gt;</p></td>
+<tr class="row-odd"><td><p>C++20 work: Add breathing test for ‘bsl::ranges’ to the ‘bslim_bslintegrationtest’</p></td>
 </tr>
-<tr class="row-even"><td><p>BadWeakPtr, non-inline destructor</p></td>
+<tr class="row-even"><td><p>C++20 work: Add array suport to ‘bsl::make_shared’ and ‘bsl::allocate_shared’</p></td>
 </tr>
-<tr class="row-odd"><td><p>Create PR’s for downstream dpkg’s to allow BDE 3.100.0 or later</p></td>
+<tr class="row-odd"><td><p>Make bsl::span implicitly-constructible from vector</p></td>
 </tr>
-<tr class="row-even"><td><p>Add C++17 aliases to bsl_cstddef/cstdlib/ctime/tuple</p></td>
+<tr class="row-even"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::shared_ptr’</p></td>
 </tr>
-<tr class="row-odd"><td><p>bsls_assert check all levels are mutually exclusive</p></td>
+<tr class="row-odd"><td><p>C++20 work: add tests for spaceship operator compliance</p></td>
 </tr>
-<tr class="row-even"><td><p>bslstl_function.t case 16 fails w/ Apple Clang</p></td>
+<tr class="row-even"><td><p>Fix CPP20 on GCC9 build error in bslstl_iterator.h</p></td>
 </tr>
-<tr class="row-odd"><td><p>Apple M1: Fix bde-classic test driver failures</p></td>
+<tr class="row-odd"><td><p>C++20 work: create CPP20 COMPILERFEATUES macros</p></td>
 </tr>
-<tr class="row-even"><td><p>Release BDE 3.100.0</p></td>
+<tr class="row-even"><td><p>Address GCC 13 Test Failures</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix bsl::optional use of BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix nightly build bslh_filesystem.t failing tests</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix getSymbolicLinkTarget failing test on Windows</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix nightly build test failures for NumericParseUtil on Solaris GCC</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix bsls_assert.t.cpp in for safe2</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix example CMakeLists.txt to support BBS</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix for uninitialized variable in bslx::GenericInStream::getVersion</p></td>
+</tr>
+<tr class="row-even"><td><p>bdls::fdstreambuf writes can spin indefinitely</p></td>
 </tr>
 </tbody>
 </table>

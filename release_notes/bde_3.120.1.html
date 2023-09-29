@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.120.1 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.120.1.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.119.0 Release" href="bde_3.119.0.html" />
+    <link rel="prev" title="BDE 3.121.0 Release" href="bde_3.121.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.120.1 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-120-1-highlights">BDE 3.120.1 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bdlt-iso8601util-supports-additional-configuration-options"><code class="docutils literal notranslate"><span class="pre">bdlt::Iso8601Util</span></code> Supports Additional Configuration Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bdlma-heapbypassallocator-is-now-thread-safe"><code class="docutils literal notranslate"><span class="pre">bdlma::HeapBypassAllocator</span></code> is Now Thread Safe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c-20-features">C++20 Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.120.1 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.119.0.html" class="btn btn-neutral float-right" title="BDE 3.119.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.121.0.html" class="btn btn-neutral float-left" title="BDE 3.121.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-120-1-release">
+<span id="bde3-120-1-top"></span><h1>BDE 3.120.1 Release<a class="headerlink" href="#bde-3-120-1-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-120-1-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.120.1 production release was
+completed on <strong>Monday, July 17, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-120-1-highlights">
+<h2>BDE 3.120.1 Highlights<a class="headerlink" href="#bde-3-120-1-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bdlt-iso8601util-supports-additional-configuration-options">
+<h3><code class="docutils literal notranslate"><span class="pre">bdlt::Iso8601Util</span></code> Supports Additional Configuration Options<a class="headerlink" href="#bdlt-iso8601util-supports-additional-configuration-options" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt__iso8601util.html">Iso8601Util</a> now
+supports the parsing the “basic” ISO-8601 format <a class="reference external" href="https://www.loc.gov/standards/datetime/iso-tc154-wg5_n0038_iso_wd_8601-1_2016-02-16.pdf">described in the ISO-8601
+standard</a>.
+The “basic format” does not have the ‘-‘ characters associated with the date
+elements of a value, nor the ‘:’ characters associated with the time elements.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 53%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Format</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>default (“extended”) format</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2023-07-18T18:18:53Z</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>new (“basic”) format</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">20230718T181853Z</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Support for parsing this format must be explicitly enabled by using the new
+<a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bdl/bdlt/bdlt_iso8601utilparseconfiguration.h">bdlt::Iso8601ParseConfiguration</a> object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We discourage using the “basic” format except where required for compatibility with external data sources.</p>
+</div>
+</div>
+<div class="section" id="bdlma-heapbypassallocator-is-now-thread-safe">
+<h3><code class="docutils literal notranslate"><span class="pre">bdlma::HeapBypassAllocator</span></code> is Now Thread Safe<a class="headerlink" href="#bdlma-heapbypassallocator-is-now-thread-safe" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlma__heapbypassallocator.html">bdlma::HeapBypassAllocator</a>
+has been updated to be thread-safe.  This component can be used to allocate
+memory directly from virtual memory, bypassing the heap.</p>
+</div>
+<div class="section" id="c-20-features">
+<h3>C++20 Features<a class="headerlink" href="#c-20-features" title="Permalink to this headline">¶</a></h3>
+<p>This release adds assorted C++20 features and aliases. Including:</p>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">bsl::make_shared_for_overwrite</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::allocate_shared_for_overwrite</span></code>, used to created shared pointers managing
+default initialized values (useful, for example, to create a shared-point managing an array of integers without initializing each integer value).
+See <a class="reference external" href="https://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared">cppreference for make_shared</a>.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">bsl::basic_syncbuf</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::syncbuf</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::wsyncbuf</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::basic_osyncstream</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::osyncstream</span></code>, and <code class="docutils literal notranslate"><span class="pre">bsl::wosyncstream</span></code>.
+These components allow multiple threads synchronized access to a stream.  See
+<a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslstl/bslstl_syncbuf.h">bslstl_syncbuf</a>,
+<a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslstl/bslstl_osyncstream.h">bslstl_osyncstream</a> and
+<a class="reference external" href="https://en.cppreference.com/w/cpp/io/basic_osyncstream">cppreference for osyncstream</a></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bsls::SpinLock generates -Wdeprecated-copy warning/error in Clang 14</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlt_iso8601util allow for strings with no minus sign in the date and no colon in th</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add a BDE allocator-aware implementation of the ‘std::basic_syncbu</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add a BDE allocator-aware implementation of the ‘std::basic_osyncst</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘make_shared_for_overwrite’ and the ‘allocate_shared_for_o</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add aliases for the type traits</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add aliases to &lt;bsl_type_traits.h&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Verify that bsl containers model the appropriate C++20 concepts for</p></td>
+</tr>
+<tr class="row-even"><td><p>Implement ‘forward_like’</p></td>
+</tr>
+<tr class="row-odd"><td><p>correct bal compile warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>Please add CANONICAL header annotation to bslstl_hashtableiterator.h</p></td>
+</tr>
+<tr class="row-odd"><td><p>Use thread_local keyword in bslmt_threadlocalvariable</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlcc::Cache documentation questions</p></td>
+</tr>
+<tr class="row-odd"><td><p>Deprecate the type alias Value on ‘true_type’ and ‘false_type’</p></td>
+</tr>
+<tr class="row-even"><td><p>Build failure with Visual Studio 17.6.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Don’t use deprecated ‘{true|false}_type::VALUE’</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix compilerfeatures indentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix bsls_libraryfeatures edit mistakes</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::filesystem namespace lacks begin() and end() functions</p></td>
+</tr>
+<tr class="row-odd"><td><p>Make bdlma::HeapBypassAllocator thread-safe</p></td>
+</tr>
+<tr class="row-even"><td><p>Please add begin/end overloads for valarray and initializer_list</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix Solaris detection in numericparseutil.cpp</p></td>
+</tr>
+<tr class="row-even"><td><p>Update bslmf_isarray.h documentation for newly added traits</p></td>
+</tr>
+<tr class="row-odd"><td><p>Never use deprecated ‘{true|false}_type::VALUE’</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: ‘std::range’ and ‘bsl::array’: test failures on Windows cpp20</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

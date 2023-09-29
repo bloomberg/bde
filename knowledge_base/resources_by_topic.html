@@ -1,0 +1,660 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Resources By Topic &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/knowledge_base/resources_by_topic.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="White Papers" href="../white_papers/index.html" />
+    <link rel="prev" title="BDE C++ Coding Standards" href="coding_standards.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Resources By Topic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#allocators">Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#date-and-time">Date and Time</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calendars">Calendars</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#current-date-and-time">Current Date and Time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Date and Time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#time-zones">Time Zones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timing">Timing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conversions">Conversions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#decimal-floating-point">Decimal Floating-Point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defensive-programming">Defensive Programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#encodings-hashings">Encodings &amp; Hashings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#function-abstractions">Function Abstractions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#glossary-of-bde-terminology">Glossary of BDE Terminology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logging-and-metrics">Logging and Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#messaging">Messaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#os-operations">OS Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parsing">Parsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stack-traces-stack-recording-allocator">Stack Traces &amp; Stack-Recording Allocator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#threads">Threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#traits">Traits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vocabulary-data-structures">Vocabulary &amp; Data Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Resources By Topic</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="../white_papers/index.html" class="btn btn-neutral float-right" title="White Papers" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="coding_standards.html" class="btn btn-neutral float-left" title="BDE C++ Coding Standards" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="feature-index-top"></span><div class="section" id="resources-by-topic">
+<h1>Resources By Topic<a class="headerlink" href="#resources-by-topic" title="Permalink to this headline">¶</a></h1>
+<p>This page contains library documentation, documents, and presentations grouped
+by subject area.</p>
+<div class="section" id="allocators">
+<h2>Allocators<a class="headerlink" href="#allocators" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>BDE objects that allocate memory are designed to use a user-defined memory
+allocating mechanism (i.e., an <em>allocator</em>) that is specified on object
+construction.  Note that, unlike allocators specified as class-template
+parameters (à la policy-based design), specifying an allocator
+this way does <strong>not</strong> define a new type.  Different objects of the same type
+can use different allocator mechanisms, and still fully interact with each
+other.</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Protocol, allocators, guards, and proctors: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma.html">bslma</a></p></li>
+<li><p>Concrete allocators and pools: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlma.html">bdlma</a></p></li>
+<li><p>Allocator that records stack trace on allocations:
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balst__stacktracetestallocator.html">balst_stacktracetestallocator</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>White paper: <a class="reference internal" href="../white_papers/unleashing-aa-software.html"><span class="doc">Unleashing the Power of Allocator-Aware Software
+Infrastructure</span></a></p></li>
+<li><p>White paper: <a class="reference internal" href="../white_papers/allocator-aware-software.html"><span class="doc">Value Proposition: Allocator-Aware (AA) Software</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="date-and-time">
+<h2>Date and Time<a class="headerlink" href="#date-and-time" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>BDE Provides types for representing dates, times, and calendars, as well as
+common facilities for operating on these types (e.g., obtaining the current
+system time, converting time values between time zones).</p>
+</div></blockquote>
+<div class="section" id="calendars">
+<h3>Calendars<a class="headerlink" href="#calendars" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>A range of dates with weekly designated non-business days (i.e., weekend
+days) and other designated special days (i.e., holidays).</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Calendar protocols and types: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt.html">bdlt</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="current-date-and-time">
+<h3>Current Date and Time<a class="headerlink" href="#current-date-and-time" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Current Date/time: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt__currenttime.html">bdlt_currenttime</a>.</p></li>
+<li><p>Current Time Zone Offset: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt__localtimeoffset.html">bdlt_localtimeoffset</a>.</p></li>
+<li><p>Current Epoch Time: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsls__systemtime.html">bsls_systemtime</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h3>Date and Time<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Vocabulary types and utilities: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt.html">bdlt</a> and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__localdatetime.html">baltzo_localdatetime</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/ber_format.html"><span class="doc">BER Date and Time Format Specification.</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="time-zones">
+<h3>Time Zones<a class="headerlink" href="#time-zones" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Vocabulary type: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__localdatetime.html">baltzo_localdatetime</a>.</p></li>
+<li><p>Olson time zones: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo.html">baltzo</a>.</p></li>
+<li><p>Mapping Olson time zones with Windows time zones:
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__windowstimezoneutil.html">baltzo_windowstimezoneutil</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="timing">
+<h3>Timing<a class="headerlink" href="#timing" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Process user/system/wall times: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsls__stopwatch.html">bsls_stopwatch</a>.</p></li>
+<li><p>Manage actions at specified times: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlmt__eventscheduler.html">bdlmt_eventscheduler</a> and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlmt__timereventscheduler.html">bdlmt_timereventscheduler</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/bde_4.0_chrono.html"><span class="doc">bsl::chrono Integration with bsl and bdl</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="conversions">
+<h3>Conversions<a class="headerlink" href="#conversions" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Convert date/time values between BDE vocabulary types and ISO8601-formatted
+strings: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt__iso8601util.html">bdlt_iso8601util</a> and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt__iso8601utilconfiguration.html">bdlt_iso8601utilconfiguration</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="decimal-floating-point">
+<h2>Decimal Floating-Point<a class="headerlink" href="#decimal-floating-point" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Libraries specialized for accurate base-10 arithmetic (IEEE-754 2008):
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdldfp.html">bdldfp</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/binary_decimal_conversion.html"><span class="doc">Binary to Decimal and Back Again.</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="defensive-programming">
+<h2>Defensive Programming<a class="headerlink" href="#defensive-programming" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Redundant code providing optional run-time checks to validate preconditions
+(and invariants):</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Macros: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsls__assert.html">bsls_assert</a> and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsls__review.html">bsls_review</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>White paper: <a class="reference internal" href="../white_papers/contracts_ub_and_defensive_programming.html"><span class="doc">Contracts, Undefined Behavior, and Defensive Programming</span></a></p></li>
+<li><p>White paper: <a class="reference internal" href="../white_papers/defensive-checks-vs-input-validation.html"><span class="doc">Defensive Checking Versus Input Validation</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="encodings-hashings">
+<h2>Encodings &amp; Hashings<a class="headerlink" href="#encodings-hashings" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Base64, MD5, CRC32, UTF-8, UTF-16: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlde.html">bdlde</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/wyhash.html"><span class="doc">Selecting wyhash as the Default Hash Algorithm</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="function-abstractions">
+<h2>Function Abstractions<a class="headerlink" href="#function-abstractions" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Objects that serve as functions:</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Functor creation: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlf.html">bdlf</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="glossary-of-bde-terminology">
+<h2>Glossary of BDE Terminology<a class="headerlink" href="#glossary-of-bde-terminology" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Component: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsldoc__glossary.html">bsldoc_glossary</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="logging-and-metrics">
+<h2>Logging and Metrics<a class="headerlink" href="#logging-and-metrics" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Publish status from a running program</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Logging: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball.html">ball</a>.</p></li>
+<li><p>Metrics reporting: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balm.html">balm</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/ball_scoped_attributes.html"><span class="doc">Adding Context to your Application Log.</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="messaging">
+<h2>Messaging<a class="headerlink" href="#messaging" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Serialization of values in different formats:</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>JSON: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baljsn.html">baljsn</a> and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a>.</p></li>
+<li><p>XML: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balxml.html">balxml</a>.</p></li>
+<li><p>BER: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balber__berdecoder.html">balber_berdecoder</a> and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balber__berencoder.html">balber_berencoder</a>.</p></li>
+<li><p>BDE externalization format: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslx.html">bslx</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/bdljsn.html"><span class="doc">Introducing bdljsn::Json</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="miscellaneous">
+<h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><p>Library Documentation</p>
+<ul class="simple">
+<li><p>Bit manipulation: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__bitutil.html">bdlb_bitutil</a>.</p></li>
+<li><p>Hash functions: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__hashutil.html">bdlb_hashutil</a>.</p></li>
+<li><p>Template for nullable types: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__nullablevalue.html">bdlb_nullablevalue</a>.</p></li>
+<li><p>Discriminated <code class="docutils literal notranslate"><span class="pre">union</span></code>-like type: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__variant.html">bdlb_variant</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><div class="line-block">
+<div class="line">White paper: <a class="reference internal" href="../white_papers/embracing_modern_cpp_safely.html"><span class="doc">Embracing Modern C++ Safely</span></a></div>
+<div class="line"><a class="reference external" href="https://learning.oreilly.com/library/view/embracing-modern-c/9780137380411/">{EBK&lt;GO&gt;}</a></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="os-operations">
+<h2>OS Operations<a class="headerlink" href="#os-operations" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Platform-independent operations on files/pathnames/memory/processes/pipes:
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdls.html">bdls</a>.</p></li>
+<li><p>Messages over named pipes: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balb__pipecontrolchannel.html">balb_pipecontrolchannel</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="parsing">
+<h2>Parsing<a class="headerlink" href="#parsing" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Perl regular expressions: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlpcre__regex.html">bdlpcre_regex</a>.</p></li>
+<li><p>String tokenisation: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__tokenizer.html">bdlb_tokenizer</a>.</p></li>
+<li><p>Numeric parsing: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__numericparseutil.html">bdlb_numericparseutil</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="smart-pointers">
+<h2>Smart Pointers<a class="headerlink" href="#smart-pointers" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Mechanisms for managing resource recovery:</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Pointer with user-supplied deleter: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__managedptr.html">bslma_managedptr</a>.</p></li>
+<li><p>Thread-safe, reference-counted pointers: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__sharedptr.html">bslstl_sharedptr</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="stack-traces-stack-recording-allocator">
+<h2>Stack Traces &amp; Stack-Recording Allocator<a class="headerlink" href="#stack-traces-stack-recording-allocator" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Package: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balst.html">balst</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Standard test driver: <code class="docutils literal notranslate"><span class="pre">ASSERT</span></code>, <code class="docutils literal notranslate"><span class="pre">ASSERTV</span></code>, and print macros:
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslim__testutil.html">bslim_testutil</a>.</p></li>
+<li><p>Track memory usage: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__testallocator.html">bslma_testallocator</a>.</p></li>
+<li><p>Macros for “negative” testing: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsls__asserttest.html">bsls_asserttest</a>.</p></li>
+<li><p>Macros for testing protocols: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsls__protocoltest.html">bsls_protocoltest</a>.</p></li>
+<li><p>Macros for template testing: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsltf__templatetestfacility.html">bsltf_templatetestfacility</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/fuzz_testing.html"><span class="doc">Fuzz Testing</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="threads">
+<h2>Threads<a class="headerlink" href="#threads" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Concurrent programming:</p>
+<ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Thread Primitives: Atomic integers: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bsls__atomic.html">bsls_atomic</a>.</p></li>
+<li><p>Thread Primitives: Mutexes, semaphores, read-write locks, and
+thread-management: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslmt.html">bslmt</a>.</p></li>
+<li><p>Thread-Safe Containers: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlcc.html">bdlcc</a>.</p></li>
+<li><p>Thread Pools and Event Schedulers: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlmt.html">bdlmt</a>.</p></li>
+</ul>
+</li>
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/concurrent_queue_evaluation/paper.html"><span class="doc">Concurrent Queue Evaluation</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="traits">
+<h2>Traits<a class="headerlink" href="#traits" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Library Documentation</p>
+<ul>
+<li><p>Types and meta-functions for writing generic libraries: <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslmf.html">bslmf</a>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="vocabulary-data-structures">
+<h2>Vocabulary &amp; Data Structures<a class="headerlink" href="#vocabulary-data-structures" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Documents</p>
+<ul>
+<li><p>Article: <a class="reference internal" href="../articles/bsl_optional.html"><span class="doc">bsl::optional: An Allocator-Aware Optional Type.</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

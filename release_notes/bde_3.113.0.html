@@ -94,6 +94,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.113.1 Release</a><ul>
@@ -122,7 +131,6 @@
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
 </ul>
 </li>
@@ -130,7 +138,7 @@
 <p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
@@ -235,15 +243,15 @@ completed on <strong>Monday, January 16 2023</strong>.</p></li>
 announced, this package provides a document representation tailored to
 JSON that integrates with Bloomberg vocabulary types (BSL types,
 <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal64</span></code>).</p>
-<p>For more information, please see <a class="reference external" href="../articles/bdljsn.html">The package’s release article</a>.</p>
+<p>For more information, please see <a class="reference external" href="/bde/articles/bdljsn.html">The package’s release article</a>.</p>
 </div>
 <div class="section" id="bde-3-113-1-highlights">
 <h2>BDE 3.113.1 Highlights<a class="headerlink" href="#bde-3-113-1-highlights" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="caseless-comparisons-are-now-transparent">
 <h3>Caseless Comparisons Are Now Transparent<a class="headerlink" href="#caseless-comparisons-are-now-transparent" title="Permalink to this headline">¶</a></h3>
-<p>BDE 3.113 updates <a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdlb__caselessstringviewless.html">bdlb_caselessstringviewless</a>
-<a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdlb__caselessstringviewequalto.html">bdlb_caselessstringviewequalto</a>
-and <a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdlb__caselessstringviewhash.html">bdlb_caselessstringviewhash</a> to perform
+<p>BDE 3.113 updates <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__caselessstringviewless.html">bdlb_caselessstringviewless</a>
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__caselessstringviewequalto.html">bdlb_caselessstringviewequalto</a>
+and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlb__caselessstringviewhash.html">bdlb_caselessstringviewhash</a> to perform
 transparent comparison.  This allows for comparison of container elements (typically
 <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>) with values of closely related types (like <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code>) without
 performing a conversion, thus providing efficiency and ergonoimics in one API.</p>
@@ -282,13 +290,13 @@ a common format for PostgreSQL.</p>
 </div>
 <div class="section" id="bdljsn-json-enhancements">
 <h3>bdljsn::Json Enhancements<a class="headerlink" href="#bdljsn-json-enhancements" title="Permalink to this headline">¶</a></h3>
-<p>This release brings several enhancements to the recently-introduced <a class="reference external" href="https://bde.bloomberg.com/NonGit/Doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a>
+<p>This release brings several enhancements to the recently-introduced <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdljsn.html">bdljsn</a>
 package.  This package provides a document representation tailored to JSON that
 integrates with Bloomberg vocabulary types (BSL types, <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal64</span></code>).</p>
 <div class="section" id="user-defined-literal-support">
 <h4>User-Defined Literal Support<a class="headerlink" href="#user-defined-literal-support" title="Permalink to this headline">¶</a></h4>
 <p>The library now provides support for JSON user-defined literals, which allow
-programmers to write JSON strings that generate <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> document
+programmers to write JSON strings that generate <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html">bdljsn::Json</a> document
 objects.  This feature pairs especially well with C++ raw string literals:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdljsn</span><span class="o">::</span><span class="nn">JsonLiterals</span><span class="p">;</span><span class="w"></span>
 
@@ -308,7 +316,7 @@ objects.  This feature pairs especially well with C++ raw string literals:</p>
 <h4>Enhanced Error Messages<a class="headerlink" href="#enhanced-error-messages" title="Permalink to this headline">¶</a></h4>
 <p>We’ve improved the library’s error reporting facilities to provide
 human-readable descriptions of where parsing errors occur in invalid JSON
-documents. This is provided by the new <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsonutil.html">bdljsn::JsonUtil::printError</a>
+documents. This is provided by the new <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsonutil.html">bdljsn::JsonUtil::printError</a>
 function:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">invalidJson</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">{</span>
 <span class="s">    &quot;a&quot;: 1,</span>
@@ -336,7 +344,7 @@ function:</p>
 a complete JSON document, which <code class="docutils literal notranslate"><span class="pre">read</span></code> will not consume when parsing from a
 stream. This allows some flexibility for parsing JSON documents that are
 embedded in larger, possibly non-JSON documents. It also allows having
-multiple JSON documents in a single stream.  See <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1ReadOptions.html">bdljsn::ReadOptions</a>.</p>
+multiple JSON documents in a single stream.  See <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdljsn_1_1ReadOptions.html">bdljsn::ReadOptions</a>.</p>
 </div>
 </div>
 <div class="section" id="behavioral-change-three-bsl-container-adaptors">

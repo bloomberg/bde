@@ -41,7 +41,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Feature Index" href="feature_index.html" />
+    <link rel="next" title="Resources By Topic" href="resources_by_topic.html" />
     <link rel="prev" title="BDE 3.6.0: Production Release" href="../release_notes/archive/BDE_3.6.0.html" /> 
 </head>
 
@@ -192,7 +192,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources_by_topic.html">Resources By Topic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
@@ -266,7 +266,7 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="feature_index.html" class="btn btn-neutral float-right" title="Feature Index" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="resources_by_topic.html" class="btn btn-neutral float-right" title="Resources By Topic" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
       
       
         <a href="../release_notes/archive/BDE_3.6.0.html" class="btn btn-neutral float-left" title="BDE 3.6.0: Production Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
@@ -284,7 +284,7 @@
 <div><div class="line-block">
 <div class="line"><br /></div>
 <div class="line-block">
-<div class="line"><em>May 31, 2021</em></div>
+<div class="line"><em>Sep 19, 2023</em></div>
 </div>
 </div>
 </div></blockquote>
@@ -743,17 +743,17 @@ class is prefixed by the component name. For consistency, this is also done
 for local classes that are defined only in the anonymous namespace of the
 implementation file.</p>
 <p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
 <span class="k">struct</span><span class="w"> </span><span class="nc">LinkedList_Link</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="c1">// This &quot;struct&quot; implements the storage required for</span>
 <span class="w">    </span><span class="c1">// a linked list of elements.</span>
 
-<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">ObjectBuffer</span><span class="o">&lt;</span><span class="n">TYPE</span><span class="o">&gt;</span><span class="w">  </span><span class="n">d_data</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">LinkedList_Link</span><span class="w">          </span><span class="o">*</span><span class="n">d_next_p</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">ObjectBuffer</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="w">  </span><span class="n">d_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">LinkedList_Link</span><span class="w">            </span><span class="o">*</span><span class="n">d_next_p</span><span class="p">;</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">LinkedList_Link</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">TYPE</span><span class="o">&amp;</span><span class="w">       </span><span class="n">value</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="n">LinkedList_Link</span><span class="w">  </span><span class="o">*</span><span class="n">next</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">basicAllocator</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">LinkedList_Link</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">t_TYPE</span><span class="o">&amp;</span><span class="w">       </span><span class="n">value</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="n">LinkedList_Link</span><span class="w">    </span><span class="o">*</span><span class="n">next</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w">   </span><span class="o">*</span><span class="n">basicAllocator</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">d_data</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">d_next_p</span><span class="p">(</span><span class="n">next</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
@@ -1770,9 +1770,9 @@ enumerator may be named <code class="docutils literal notranslate"><span class="
 <span class="p">};</span><span class="w"></span>
 
 <span class="c1">// Template metafunction.</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">int</span><span class="w"> </span><span class="n">INDEX</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">int</span><span class="w"> </span><span class="n">t_INDEX</span><span class="o">&gt;</span><span class="w"></span>
 <span class="k">struct</span><span class="w"> </span><span class="nc">Fibonacci</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Fibonacci</span><span class="o">&lt;</span><span class="n">INDEX</span><span class="mi">-1</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Fibonacci</span><span class="o">&lt;</span><span class="n">INDEX</span><span class="mi">-2</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Fibonacci</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="mi">-1</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Fibonacci</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="mi">-2</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span>
 <span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Fibonacci</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 <span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Fibonacci</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
@@ -2311,10 +2311,10 @@ argument and made optional by an additional overload).</p>
 <p><strong>Example:</strong>  The allocator is the first argument here to avoid overloading
 ambiguity that would otherwise result:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">BindUtil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">FUNC</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_FUNC</span><span class="o">&gt;</span><span class="w"></span>
 <span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"></span>
 <span class="w">    </span><span class="n">ReturnTypeUnspecified</span><span class="w"> </span><span class="n">bindA</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">basicAllocator</span><span class="p">,</span><span class="w"></span>
-<span class="w">                                </span><span class="n">FUNC</span><span class="p">);</span><span class="w"></span>
+<span class="w">                                </span><span class="n">t_FUNC</span><span class="p">);</span><span class="w"></span>
 <span class="w">        </span><span class="c1">// . . .</span>
 <span class="p">};</span><span class="w"></span>
 </pre></div>
@@ -2374,10 +2374,10 @@ too long to fit on one line, they may be written on separate lines with
 no indentation.</p>
 <blockquote>
 <div><p><strong>Example:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">StreamBuf</span><span class="o">&gt;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_STREAM_BUF</span><span class="o">&gt;</span><span class="w"></span>
 <span class="kr">inline</span><span class="w"></span>
-<span class="n">GenericByteInStream</span><span class="o">&lt;</span><span class="n">StreamBuf</span><span class="o">&gt;&amp;</span><span class="w"></span>
-<span class="n">GenericByteInStream</span><span class="o">&lt;</span><span class="n">StreamBuf</span><span class="o">&gt;::</span><span class="n">getInt40</span><span class="p">(</span><span class="n">bsls</span><span class="o">::</span><span class="n">Types</span><span class="o">::</span><span class="n">Int64</span><span class="o">&amp;</span><span class="w"> </span><span class="n">variable</span><span class="p">);</span><span class="w"></span>
+<span class="n">GenericByteInStream</span><span class="o">&lt;</span><span class="n">t_STREAM_BUF</span><span class="o">&gt;&amp;</span><span class="w"></span>
+<span class="n">GenericByteInStream</span><span class="o">&lt;</span><span class="n">t_STREAM_BUF</span><span class="o">&gt;::</span><span class="n">getInt40</span><span class="p">(</span><span class="n">bsls</span><span class="o">::</span><span class="n">Types</span><span class="o">::</span><span class="n">Int64</span><span class="o">&amp;</span><span class="w"> </span><span class="n">variable</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -2951,8 +2951,8 @@ execution of the function.</p>
 <span class="w">    </span><span class="c1">// Append to the end of this array the value of the specified</span>
 <span class="w">    </span><span class="c1">// &#39;item&#39;.</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">TYPE</span><span class="o">&gt;</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">dstIndex</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">TYPE</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="p">);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">dstIndex</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">t_TYPE</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="c1">// Replace the value at the specified &#39;dstIndex&#39; in this array with</span>
 <span class="w">    </span><span class="c1">// the value of the specified &#39;item&#39; of the parameterized &#39;TYPE&#39;.</span>
 </pre></div>
@@ -4085,16 +4085,16 @@ deprecation notice, in a separate paragraph.</p>
 <p>Sometimes, the deprecation notice cannot be meaningfully expressed in a
 single line. If so, multiple lines may be used as in this example of one
 overloaded function deprecated in lieu of another:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">TARGETTYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">FACTORY</span><span class="o">&gt;</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="n">load</span><span class="p">(</span><span class="n">TARGETTYPE</span><span class="w">  </span><span class="o">*</span><span class="n">ptr</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="n">FACTORY</span><span class="w">     </span><span class="o">*</span><span class="n">factory</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="n">DeleterFunc</span><span class="w">  </span><span class="n">deleter</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TARGETTYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">t_FACTORY</span><span class="o">&gt;</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">load</span><span class="p">(</span><span class="n">t_TARGETTYPE</span><span class="w">  </span><span class="o">*</span><span class="n">ptr</span><span class="p">,</span><span class="w"></span>
+<span class="w">          </span><span class="n">t_FACTORY</span><span class="w">     </span><span class="o">*</span><span class="n">factory</span><span class="p">,</span><span class="w"></span>
+<span class="w">          </span><span class="n">DeleterFunc</span><span class="w">    </span><span class="n">deleter</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="c1">// !DEPRECATED!: Instead, use:</span>
 <span class="w">    </span><span class="c1">//..</span>
-<span class="w">    </span><span class="c1">//  template &lt;class TARGETTYPE&gt;</span>
-<span class="w">    </span><span class="c1">//  void load(TARGETTYPE  *ptr,</span>
-<span class="w">    </span><span class="c1">//            void        *factory,</span>
-<span class="w">    </span><span class="c1">//            DeleterFunc  deleter);</span>
+<span class="w">    </span><span class="c1">//  template &lt;class t_TARGETTYPE&gt;</span>
+<span class="w">    </span><span class="c1">//  void load(t_TARGETTYPE  *ptr,</span>
+<span class="w">    </span><span class="c1">//            void          *factory,</span>
+<span class="w">    </span><span class="c1">//            DeleterFunc    deleter);</span>
 <span class="w">    </span><span class="c1">//..</span>
 <span class="w">    </span><span class="c1">// Destroy the current managed object (if any) and reinitialize</span>
 <span class="w">    </span><span class="c1">// this managed pointer to manage the specified &#39;ptr&#39; using</span>

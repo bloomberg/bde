@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.117.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.117.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.116.0 Release" href="bde_3.116.0.html" />
+    <link rel="prev" title="BDE 3.118.0 Release" href="bde_3.118.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.117.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-117-0-highlights">BDE 3.117.0 Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-allocator-utilities">New Allocator Utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#potentially-breaking-change-in-bslma-usesbslmaallocator">Potentially Breaking Change in <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-component-bslma-aamodel">New component, <code class="docutils literal notranslate"><span class="pre">bslma_aamodel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-component-bslma-aatypeutil">New component, <code class="docutils literal notranslate"><span class="pre">bslma_aatypeutil</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-component-bslma-allocatorutil">New component, <code class="docutils literal notranslate"><span class="pre">bslma_allocatorutil</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bslma-usesbslmaallocator-enhancements"><code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code> enhancements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#c-20-library-features">C++20 Library Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compiler-feature-macros-deprecation">Compiler Feature Macros Deprecation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-component-bdlf-noop">New Component: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#better-stl-google-mock-support-for-bdljsn-jsonarray">Better STL/Google Mock support for <code class="docutils literal notranslate"><span class="pre">bdljsn::JsonArray</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.117.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.116.0.html" class="btn btn-neutral float-right" title="BDE 3.116.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.118.0.html" class="btn btn-neutral float-left" title="BDE 3.118.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-117-0-release">
+<span id="bde3-117-0-top"></span><h1>BDE 3.117.0 Release<a class="headerlink" href="#bde-3-117-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-117-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.117.0 production release was
+completed on <strong>Monday, May 1, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-117-0-highlights">
+<h2>BDE 3.117.0 Highlights<a class="headerlink" href="#bde-3-117-0-highlights" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="new-allocator-utilities">
+<h2>New Allocator Utilities<a class="headerlink" href="#new-allocator-utilities" title="Permalink to this headline">¶</a></h2>
+<p>In preparation for upcoming modernization of our tools for writing Allocator
+Aware (AA) classes, we are releasing a set of allocator-related utilities and
+making some needed changes to <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code>.   Client code
+in DPKG/ROBO has already been adjusted to work correctly with these
+forward-looking changes, but clients outside of that ecosystem might need
+to review the workarounds suggested below.</p>
+<p>Note that these new facilities are not yet recommended for client use.  They
+will be promoted as part of a future BDE release and explained in a
+white-paper on writing allocator aware software that will be published
+at the same time.</p>
+<div class="section" id="potentially-breaking-change-in-bslma-usesbslmaallocator">
+<h3>Potentially Breaking Change in <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code><a class="headerlink" href="#potentially-breaking-change-in-bslma-usesbslmaallocator" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code> trait will now identify types that have
+a nested <code class="docutils literal notranslate"><span class="pre">T::allocator_type</span></code> type alias that is convertible from
+<code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code> as having the trait.   This impacts any type which
+does the following:</p>
+<ol class="arabic simple">
+<li><p>Inherits publicly from an AA type.</p></li>
+<li><p>Is not fully AA itself — i.e., it does not define the appropriate
+additional constructors taking allocator arguments.</p></li>
+<li><p>Is used in a context where being identified as AA but not actually meeting
+the requirements of being AA causes issues, such as being put in a <code class="docutils literal notranslate"><span class="pre">bsl</span></code>
+container.</p></li>
+</ol>
+<p>To work around this, any such type should make <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code> an alias for
+<code class="docutils literal notranslate"><span class="pre">void</span></code>, overriding the inherited alias from its base class.  See below for
+more details.</p>
+</div>
+<div class="section" id="new-component-bslma-aamodel">
+<h3>New component, <code class="docutils literal notranslate"><span class="pre">bslma_aamodel</span></code><a class="headerlink" href="#new-component-bslma-aamodel" title="Permalink to this headline">¶</a></h3>
+<p>This new component defines four models for Allocator Aware (AA) types:
+pmr-AA, bsl-AA, and legacy-AA, and STL-AA.  Two metafunctions,
+<code class="docutils literal notranslate"><span class="pre">AAModel&lt;TYPE&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">AAModelIsSupported&lt;TYPE,</span> <span class="pre">MODEL&gt;</span></code> allow AA code to
+dispatch to the correct handling of types with different AA models, as well
+as non-AA types  These metafunctions are typically used internally within the
+new <code class="docutils literal notranslate"><span class="pre">bsl</span></code> facilities and are not needed by most developers, even those
+creating AA classes.</p>
+</div>
+<div class="section" id="new-component-bslma-aatypeutil">
+<h3>New component, <code class="docutils literal notranslate"><span class="pre">bslma_aatypeutil</span></code><a class="headerlink" href="#new-component-bslma-aatypeutil" title="Permalink to this headline">¶</a></h3>
+<p>This new component provides a number of utility functions for getting the
+allocator from an AA object in a mostly model-agnostic way.  The developer of
+an AA class containing subobjects of AA type would use
+<code class="docutils literal notranslate"><span class="pre">bslma::AATypeUtil::getAllocatorFromSubobject</span></code> to retrieve an the allocator
+from one of those subobjects, even if the subobject uses a different AA model
+than the container class.  <code class="docutils literal notranslate"><span class="pre">bslma::AATypeUtil::getAdaptedAllocator</span></code> returns
+the allocator from an object in the most interoperable format available.</p>
+</div>
+<div class="section" id="new-component-bslma-allocatorutil">
+<h3>New component, <code class="docutils literal notranslate"><span class="pre">bslma_allocatorutil</span></code><a class="headerlink" href="#new-component-bslma-allocatorutil" title="Permalink to this headline">¶</a></h3>
+<p>This new component provides a function <code class="docutils literal notranslate"><span class="pre">bslma::AllocatorUtil::adapt</span></code> that
+converts an allocator into the most interoperable format available.  If you
+need to convert between <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl:allocator</span></code>, this
+function allows you to do that without losing information.  It is especially
+useful in generic code where the allocator types you are converting between are
+not known in advance.</p>
+</div>
+<div class="section" id="bslma-usesbslmaallocator-enhancements">
+<h3><code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code> enhancements<a class="headerlink" href="#bslma-usesbslmaallocator-enhancements" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code> type trait has been enhanced in two ways:</p>
+<ol class="arabic simple">
+<li><p>If a type <code class="docutils literal notranslate"><span class="pre">T</span></code> can be constructed (converted) implicitly from
+<code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code>, then a warning is generated for compilers that
+support deprecation warnings.  The correct way to label <code class="docutils literal notranslate"><span class="pre">T</span></code> as <code class="docutils literal notranslate"><span class="pre">AA</span></code> is
+either to declare <code class="docutils literal notranslate"><span class="pre">BSLMF_NESTED_TRAIT_DECLARATION(T,</span>
+<span class="pre">bslma::UsesBslmaAllocator)</span></code> within class <code class="docutils literal notranslate"><span class="pre">T</span></code> or specialize
+<code class="docutils literal notranslate"><span class="pre">UsesBslmaAllocator&lt;T&gt;</span></code> within namespace <code class="docutils literal notranslate"><span class="pre">BloombergLP::bslma</span></code>.  A
+constructor having a single <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code> parameter should be
+declared <code class="docutils literal notranslate"><span class="pre">explicit</span></code> except in the rare situation where implicit
+construction from <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code> is desirable.</p></li>
+<li><p>If, for a type <code class="docutils literal notranslate"><span class="pre">T</span></code>, there exists a nested <code class="docutils literal notranslate"><span class="pre">T::allocator_type</span></code> that is
+convertible from <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">UsesBslmaAllocator&lt;T&gt;</span></code> will
+automatically be true.  This new features simplifies the definition of
+bsl-AA types, which must already declare <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code>.</p></li>
+</ol>
+<p>Note item 2 above means that inheriting from a class that defines
+<code class="docutils literal notranslate"><span class="pre">allocator_type</span></code> will implicitly make <code class="docutils literal notranslate"><span class="pre">UsesBslmaAllocator</span></code> true for the
+derived class, whether or not it has the correct AA constructors:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">BslAAClass</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">BslAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">alloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="n">BslAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">BslAAClass</span><span class="o">&amp;</span><span class="w">     </span><span class="n">other</span><span class="p">,</span><span class="w"></span>
+<span class="w">               </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">alloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">());</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="c1">// Automatically detected from &#39;allocator_type&#39;</span>
+<span class="n">BSLMF_ASSERT</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">UsesBslmaAllocator</span><span class="o">&lt;</span><span class="n">BslAAClass</span><span class="o">&gt;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NonAAClass</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">BslAAClass</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">NonAAClass</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">NonAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">NonAAClass</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="c1">// Error: &#39;NonAAClass&#39; incorrectly deduced to be AA.</span>
+<span class="n">BSLMF_ASSERT</span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">UsesBslmaAllocator</span><span class="o">&lt;</span><span class="n">NonAAClass</span><span class="o">&gt;</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To suppress this behavior, override <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code> as an alias for <code class="docutils literal notranslate"><span class="pre">void</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">NonAAClass</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">BslAAClass</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">;</span><span class="w">  </span><span class="c1">// Not an AA class</span>
+
+<span class="w">    </span><span class="n">NonAAClass</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">NonAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">NonAAClass</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="c1">// OK, &#39;NonAAClass&#39; no longer deduced as AA</span>
+<span class="n">BSLMF_ASSERT</span><span class="p">(</span><span class="o">!</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">UsesBslmaAllocator</span><span class="o">&lt;</span><span class="n">NonAAClass</span><span class="o">&gt;</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="c-20-library-features">
+<h2>C++20 Library Features<a class="headerlink" href="#c-20-library-features" title="Permalink to this headline">¶</a></h2>
+<p>For compilers that support the 3-way comparison operator <code class="docutils literal notranslate"><span class="pre">&lt;=&gt;</span></code>, added support
+for the following types:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::map</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::queue</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::stack</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>For libraries that meet the BSL C++20 library baseline implementation,
+provided <code class="docutils literal notranslate"><span class="pre">bsl</span></code> aliases for the following types in the <code class="docutils literal notranslate"><span class="pre">&lt;utility&gt;</span></code> header:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::cmp_equal</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::cmp_not_equal</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::cmp_less</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::cmp_greater</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::cmp_less_equal</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::cmp_greater_equal</span></code></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="compiler-feature-macros-deprecation">
+<h2>Compiler Feature Macros Deprecation<a class="headerlink" href="#compiler-feature-macros-deprecation" title="Permalink to this headline">¶</a></h2>
+<p>The macros <code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_CONSTEXPR_MEMBER</span></code> and <code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_INLINE_CONSTEXPR</span></code>
+have been deprecated, and extra documentation of correct usage of the various macros
+for keyword <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> has been added to component <code class="docutils literal notranslate"><span class="pre">bsls_keyword</span></code>.  In particular,
+current <code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_INLINE_CONSTEXPR</span></code> usage should be reconsidered, as it is prone
+to undiagnosed Undefined Behavior because of the differences between internal linkage
+and external linkage in different versions of C++.</p>
+</div>
+<div class="section" id="new-component-bdlf-noop">
+<h2>New Component: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code><a class="headerlink" href="#new-component-bdlf-noop" title="Permalink to this headline">¶</a></h2>
+<p>Introducing component <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code>, providing class template <code class="docutils literal notranslate"><span class="pre">bdlf::NoOp</span></code>, which
+does nothing.  When using an interface which requires a callable object, you can provide
+a callable which canonically does nothing (no matter the number or type of parameters)
+using this component.  See <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlf__noop.html">bdlf_noop</a> for more information.</p>
+</div>
+<div class="section" id="better-stl-google-mock-support-for-bdljsn-jsonarray">
+<h2>Better STL/Google Mock support for <code class="docutils literal notranslate"><span class="pre">bdljsn::JsonArray</span></code><a class="headerlink" href="#better-stl-google-mock-support-for-bdljsn-jsonarray" title="Permalink to this headline">¶</a></h2>
+<p>Added type names to meet the C++20 Container requirements into <code class="docutils literal notranslate"><span class="pre">JsonArray</span></code> and <code class="docutils literal notranslate"><span class="pre">JsonObject</span></code> because they are required by some Google Mock matchers.</p>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SOW19-D2 BSL Allocator Model facilities in BDE</p></td>
+</tr>
+<tr class="row-odd"><td><p>Provide bdlf_noop component</p></td>
+</tr>
+<tr class="row-even"><td><p>ninja: error: build.ninja:13881: multiple rules generate</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add &lt;bsl_stop_token.h&gt; header and alias standard entities</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add aliases to &lt;bsl_utility.h&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Remove the ‘operator!=’ from the unordered associative containers</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::map’</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::optional’</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::pair’</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::queue’</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20 work: Add the ‘operator&lt;=&gt;’ to the ‘bslstl::stack’</p></td>
+</tr>
+<tr class="row-odd"><td><p>enhance BSLS keywords for constexpr</p></td>
+</tr>
+<tr class="row-even"><td><p>BBS build system: missing dependency resolution on Windows.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Merge fallback enumerators into bde</p></td>
+</tr>
+<tr class="row-even"><td><p>Accessing an array out of bounds in ‘bslim_gtestutil’ test driver</p></td>
+</tr>
+<tr class="row-odd"><td><p>Make bdljsn::JsonArray more STL-containery</p></td>
+</tr>
+<tr class="row-even"><td><p>Cannot compile bsls_libraryfeatures.cpp on MacOS Ventura</p></td>
+</tr>
+<tr class="row-odd"><td><p>baljsn_datumutil: Fix the test.</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix JsonObject::insert SFINAE on Sun</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

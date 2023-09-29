@@ -1,0 +1,698 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.123.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.123.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.122.0 Release" href="bde_3.122.0.html" />
+    <link rel="prev" title="BDE 3.124.0 Release" href="bde_3.124.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.123.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-123-0-highlights">BDE 3.123.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bsl-now-provides-an-implementation-of-bsl-stop-token"><code class="docutils literal notranslate"><span class="pre">bsl</span></code> Now Provides an Implementation of <code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bdlb-variant-support-for-perfect-forwarding-in-createinplace"><code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> Support for Perfect Forwarding in <code class="docutils literal notranslate"><span class="pre">createInPlace</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-new-features">Other New Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.123.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.122.0.html" class="btn btn-neutral float-right" title="BDE 3.122.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_3.124.0.html" class="btn btn-neutral float-left" title="BDE 3.124.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-123-0-release">
+<span id="bde3-123-0-top"></span><h1>BDE 3.123.0 Release<a class="headerlink" href="#bde-3-123-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-123-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.123.0 production release was
+completed on <strong>Thursday, August 31, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-123-0-highlights">
+<h2>BDE 3.123.0 Highlights<a class="headerlink" href="#bde-3-123-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bsl-now-provides-an-implementation-of-bsl-stop-token">
+<h3><code class="docutils literal notranslate"><span class="pre">bsl</span></code> Now Provides an Implementation of <code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code><a class="headerlink" href="#bsl-now-provides-an-implementation-of-bsl-stop-token" title="Permalink to this headline">¶</a></h3>
+<p>BDE 3.123.0 adds <code class="docutils literal notranslate"><span class="pre">&lt;bsl_stop_token.h&gt;</span></code>, which provides an allocator-aware
+implementation of the C++20 <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code> header.</p>
+<div class="section" id="stop-tokens-and-stop-callbacks">
+<h4>Stop Tokens and Stop Callbacks<a class="headerlink" href="#stop-tokens-and-stop-callbacks" title="Permalink to this headline">¶</a></h4>
+<p>The need for cancelling an outstanding operation often comes up in asynchronous
+code.  BDE 3.xxx.x introduces a general-purpose mechanism for using and
+implementing such cancellation provided in the <code class="docutils literal notranslate"><span class="pre">&lt;bsl_stop_token.h&gt;</span></code> header.
+We intend to expand other BDE library APIs (in particular, those in the BHL
+HTTP/2 communication library) to make use of this component in the near future.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;bsl_stop_token.h&gt;</span></code> header, provides functionality to facilitate
+cooperative cancellation between threads.  The <code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code> class can be
+used to observe whether any thread has made a cancellation request on a
+corresponding <code class="docutils literal notranslate"><span class="pre">bsl::stop_source</span></code> object.  A thread that is in possession of a
+<code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code> object may also use the <code class="docutils literal notranslate"><span class="pre">bsl::stop_callback</span></code> class
+template to register callbacks that will be invoked when a cancellation request
+is made.  These classes provide the same API as their <code class="docutils literal notranslate"><span class="pre">std</span></code> counterparts
+defined in the C++20 <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code> header, except that
+<code class="docutils literal notranslate"><span class="pre">bsl::stop_callback</span></code> is allocator-aware, and the programmer can optionally
+supply an allocator when creating a <code class="docutils literal notranslate"><span class="pre">bsl::stop_source</span></code> object.</p>
+<div class="section" id="stop-token-usage-from-the-library-perspective">
+<h5>Stop Token Usage From The Library Perspective<a class="headerlink" href="#stop-token-usage-from-the-library-perspective" title="Permalink to this headline">¶</a></h5>
+<p>A library developer might offer the library clients the option of using
+<code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code> to cancel asynchronous operations.  For example,
+<code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::stop_callback</span></code> can be used to implement a
+condition variable wrapper that allows a wait to be interrupted by a
+cancellation request.  (In C++20, such functionality is available as
+<code class="docutils literal notranslate"><span class="pre">std::condition_variable_any</span></code>.)  The wrapper must hold a <code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code>
+object that is used to check whether a cancellation has been requested before
+entering a wait.  The wrapper must also ensure that the thread that requests a
+cancellation wakes up the condition variable if the condition variable is
+waiting at the time, by registering a callback that calls <code class="docutils literal notranslate"><span class="pre">broadcast</span></code>.  For
+simplicity, we will show how to implement one possible signature for the
+<code class="docutils literal notranslate"><span class="pre">wait</span></code> method.  Note below that the implementation of the <code class="docutils literal notranslate"><span class="pre">wait</span></code> method
+registers a callback which will signal the condition variable <code class="docutils literal notranslate"><span class="pre">d_condvar</span></code>
+upon cancellation.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InterruptibleConditionVariable</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">bslmt</span><span class="o">::</span><span class="n">Condition</span><span class="w"> </span><span class="n">d_condvar</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">signal</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">d_condvar</span><span class="p">.</span><span class="n">signal</span><span class="p">();</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">broadcast</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">d_condvar</span><span class="p">.</span><span class="n">broadcast</span><span class="p">();</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_PREDICATE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">wait</span><span class="p">(</span><span class="n">bslmt</span><span class="o">::</span><span class="n">Mutex</span><span class="w">           </span><span class="o">*</span><span class="n">mutex</span><span class="p">,</span><span class="w"></span>
+<span class="w">             </span><span class="n">t_PREDICATE</span><span class="w">             </span><span class="n">pred</span><span class="p">,</span><span class="w"></span>
+<span class="w">             </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">stop_token</span><span class="o">&amp;</span><span class="w">  </span><span class="n">stopToken</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Atomically unlock the specified &#39;mutex&#39; and suspend execution of</span>
+<span class="w">        </span><span class="c1">// the current thread until this condition object is signaled and the</span>
+<span class="w">        </span><span class="c1">// invocation of the specified &#39;pred&#39; subsequently returns &#39;true&#39; or</span>
+<span class="w">        </span><span class="c1">// wait is interrupted by a cancellation request observed by the</span>
+<span class="w">        </span><span class="c1">// specified &#39;stopToken&#39;.  Return 0 on success or cancellation via</span>
+<span class="w">        </span><span class="c1">// &#39;stopToken&#39;, and a nonzero value if the wait was interrupted for</span>
+<span class="w">        </span><span class="c1">// some other reason.</span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Register a callback to be invoked by the thread that makes a</span>
+<span class="w">        </span><span class="c1">// cancellation request on the stop state owned by &#39;stopToken&#39;.  This</span>
+<span class="w">        </span><span class="c1">// callback simply invokes our &#39;broadcast&#39; method, which will wake up</span>
+<span class="w">        </span><span class="c1">// any threads that are waiting below after having called &#39;wait&#39; on</span>
+<span class="w">        </span><span class="c1">// this object.</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">stop_callback</span><span class="w"> </span><span class="nf">stopCb</span><span class="p">(</span><span class="n">stopToken</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="k">this</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">broadcast</span><span class="p">();</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stopToken</span><span class="p">.</span><span class="n">stop_requested</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pred</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">                                           </span><span class="c1">// RETURN</span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d_condvar</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span><span class="w">                                         </span><span class="c1">// RETURN</span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="stop-token-usage-from-the-client-s-perspective">
+<h5>Stop Token Usage From The Client’s Perspective<a class="headerlink" href="#stop-token-usage-from-the-client-s-perspective" title="Permalink to this headline">¶</a></h5>
+<p>To illustrate the intended use of the <code class="docutils literal notranslate"><span class="pre">bsl_stop_token</span></code> component, consider an
+application built on top of a (future) BHL HTTP/2 API (which will soon be
+updated to support <code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code>.  This application will send the same
+HTTP/2 requests to multiple hosts, and then cancel all the remaining
+outstanding requests as soon as the first response is received from one of the
+remote hosts.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">multiHostRequest</span><span class="p">(</span><span class="n">bhlb</span><span class="o">::</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;</span><span class="w">       </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="n">bhls</span><span class="o">::</span><span class="n">Connector</span><span class="w">                            </span><span class="o">*</span><span class="n">connector</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">bhlb</span><span class="o">::</span><span class="n">Endpoint</span><span class="o">&gt;&amp;</span><span class="w">      </span><span class="n">endpoints</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="k">const</span><span class="w"> </span><span class="n">bhlb</span><span class="o">::</span><span class="n">HttpRequest</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;&amp;</span><span class="w">  </span><span class="n">request</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Create a stop source and get a stop token from it.</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">stop_source</span><span class="w"> </span><span class="n">stopSource</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">stop_token</span><span class="w">  </span><span class="n">stopToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stopSource</span><span class="p">.</span><span class="n">get_token</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">bool</span><span class="w">         </span><span class="n">resultLoaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">bslmt</span><span class="o">::</span><span class="n">Latch</span><span class="w"> </span><span class="n">doneLatch</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">ssize</span><span class="p">(</span><span class="n">endpoints</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">bhlc</span><span class="o">::</span><span class="n">HttpResponseHandler</span><span class="w"> </span><span class="n">handleResponse</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">bhlc</span><span class="o">::</span><span class="n">HttpResponseHandler</span><span class="p">().</span><span class="n">onResponseReceived</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;</span><span class="p">(</span><span class="w"></span>
+<span class="w">                </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">const</span><span class="w"> </span><span class="n">bhlb</span><span class="o">::</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// Request cancellation of all connection attempts and</span>
+<span class="w">                    </span><span class="c1">// any in-flight requests.  Only one thread can call</span>
+<span class="w">                    </span><span class="c1">// &#39;request_stop&#39; and have it return &#39;true&#39;, so</span>
+<span class="w">                    </span><span class="c1">// additional synchronization for loading the result is</span>
+<span class="w">                    </span><span class="c1">// not necessary.</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stopSource</span><span class="p">.</span><span class="n">request_stop</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                        </span><span class="c1">// Load the result.</span>
+<span class="w">                        </span><span class="o">*</span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">;</span><span class="w"></span>
+<span class="w">                        </span><span class="n">resultLoaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">                    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">                    </span><span class="c1">// Mark completion.</span>
+<span class="w">                    </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">arrive</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ssize</span><span class="p">(</span><span class="n">endpoints</span><span class="p">);</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Connect to the remote endpoint.</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connector</span><span class="o">-&gt;</span><span class="n">connect</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">stopToken</span><span class="p">,</span><span class="w">  </span><span class="c1">// Pass the stop token to the &#39;connect&#39; operation.</span>
+<span class="w">            </span><span class="n">endpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"></span>
+<span class="w">            </span><span class="n">bhlb</span><span class="o">::</span><span class="n">ConnectOptions</span><span class="p">(),</span><span class="w"></span>
+<span class="w">            </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="n">bhls</span><span class="o">::</span><span class="n">CompletionStatus</span><span class="o">::</span><span class="n">Enum</span><span class="w">         </span><span class="n">status</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bhls</span><span class="o">::</span><span class="n">Socket</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">socket</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bhls</span><span class="o">::</span><span class="n">CompletionStatus</span><span class="o">::</span><span class="n">e_SUCCESS</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">||</span><span class="w"></span>
+<span class="w">                    </span><span class="n">stopToken</span><span class="p">.</span><span class="n">stop_requested</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// If connection failed or cancellation was requested</span>
+<span class="w">                    </span><span class="c1">// already, do nothing other than mark completion.</span>
+<span class="w">                    </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">arrive</span><span class="p">();</span><span class="w"></span>
+<span class="w">                    </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w">                                       </span><span class="c1">// RETURN</span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Create a connection and bind it into its close callback to</span>
+<span class="w">                </span><span class="c1">// ensure it&#39;s not destroyed until it has stopped.</span>
+<span class="w">                </span><span class="k">auto</span><span class="w"> </span><span class="n">connection</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                    </span><span class="n">bsl</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">bhlc</span><span class="o">::</span><span class="n">ClientConnection</span><span class="o">&gt;</span><span class="p">(</span><span class="n">socket</span><span class="p">);</span><span class="w"></span>
+<span class="w">                </span><span class="n">connection</span><span class="o">-&gt;</span><span class="n">start</span><span class="p">(</span><span class="n">bdlf</span><span class="o">::</span><span class="n">BindUtil</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="n">bdlf</span><span class="o">::</span><span class="n">noOp</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                       </span><span class="n">connection</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Shut down the connection on stream closure.</span>
+<span class="w">                </span><span class="n">handleResponse</span><span class="p">.</span><span class="n">onStreamClosed</span><span class="p">(</span><span class="n">bdlf</span><span class="o">::</span><span class="n">BindUtil</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="w"></span>
+<span class="w">                    </span><span class="n">bhlc</span><span class="o">::</span><span class="n">ClientConnection</span><span class="o">::</span><span class="n">shutdown</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="n">connection</span><span class="p">.</span><span class="n">get</span><span class="p">()));</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Send the request, passing it the same stop token.</span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bhlc</span><span class="o">::</span><span class="n">HttpMessagingUtil</span><span class="o">::</span><span class="n">sendRequest</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                                            </span><span class="n">stopToken</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                            </span><span class="n">connection</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                                                            </span><span class="n">request</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                            </span><span class="n">handleResponse</span><span class="p">);</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// If sending the request failed, shut down the</span>
+<span class="w">                    </span><span class="c1">// connection and mark completion.</span>
+<span class="w">                    </span><span class="n">connection</span><span class="o">-&gt;</span><span class="n">shutdown</span><span class="p">();</span><span class="w"></span>
+<span class="w">                    </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">arrive</span><span class="p">();</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// If connection attempt could not be started, mark completion.</span>
+<span class="w">            </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">arrive</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Wait for all connections to complete.</span>
+<span class="w">    </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">resultLoaded</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Without the <code class="docutils literal notranslate"><span class="pre">stop_token</span></code> mechanism, cancelling multiple
+<code class="docutils literal notranslate"><span class="pre">connect</span></code>-<code class="docutils literal notranslate"><span class="pre">sendRequest</span></code> call chains would require significantly more
+bookkeeping and thread synchronization, as well as meticulous work to ensure
+that cancellation requests cannot be missed, to achieve the same result.  In
+the example below, we illustrate the additional work that would be required
+without <code class="docutils literal notranslate"><span class="pre">stop_token</span></code>.  Specifically, note the need for storing a multitude of
+<code class="docutils literal notranslate"><span class="pre">AttemptCancellationHandle</span></code> and <code class="docutils literal notranslate"><span class="pre">bhlc::ClientConnection</span></code> objects
+synchronized by a carefully managed <code class="docutils literal notranslate"><span class="pre">bsmlt::Mutex</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">multiHostRequest</span><span class="p">(</span><span class="n">bhlb</span><span class="o">::</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;</span><span class="w">       </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="n">bhls</span><span class="o">::</span><span class="n">Connector</span><span class="w">                            </span><span class="o">*</span><span class="n">connector</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">bhlb</span><span class="o">::</span><span class="n">Endpoint</span><span class="o">&gt;&amp;</span><span class="w">      </span><span class="n">endpoints</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="k">const</span><span class="w"> </span><span class="n">bhlb</span><span class="o">::</span><span class="n">HttpRequest</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;&amp;</span><span class="w">  </span><span class="n">request</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">         </span><span class="n">resultLoaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">bslmt</span><span class="o">::</span><span class="n">Latch</span><span class="w"> </span><span class="n">doneLatch</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">ssize</span><span class="p">(</span><span class="n">endpoints</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Bookkeeping and synchronization required for cancellation</span>
+<span class="w">    </span><span class="n">bslmt</span><span class="o">::</span><span class="n">Mutex</span><span class="w">                                         </span><span class="n">cancellationMutex</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bhls</span><span class="o">::</span><span class="n">Connector</span><span class="o">::</span><span class="n">AttemptCancellationHandle</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cancelHandles</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                                         </span><span class="n">endpoints</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bhlc</span><span class="o">::</span><span class="n">ClientConnection</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">connections</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                                         </span><span class="n">endpoints</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">cancelAll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Request cancellation of all connection attempts and any</span>
+<span class="w">        </span><span class="c1">// in-flight requests.  The &#39;cancellationMutex&#39; must be owned by</span>
+<span class="w">        </span><span class="c1">// this thread.</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ssize</span><span class="p">(</span><span class="n">endpoints</span><span class="p">);</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">cancelHandles</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">cancel</span><span class="p">();</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">terminate</span><span class="p">();</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">bhlc</span><span class="o">::</span><span class="n">HttpResponseHandler</span><span class="w"> </span><span class="n">handleResponse</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">          </span><span class="n">bhlc</span><span class="o">::</span><span class="n">HttpResponseHandler</span><span class="p">().</span><span class="n">onResponseReceived</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;</span><span class="p">(</span><span class="w"></span>
+<span class="w">              </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">const</span><span class="w"> </span><span class="n">bhlb</span><span class="o">::</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">bhlb</span><span class="o">::</span><span class="n">StringBody</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                  </span><span class="c1">// Load the result.</span>
+<span class="w">                  </span><span class="n">bslmt</span><span class="o">::</span><span class="n">LockGuard</span><span class="o">&lt;</span><span class="n">bslmt</span><span class="o">::</span><span class="n">Mutex</span><span class="o">&gt;</span><span class="w"> </span><span class="n">guard</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cancellationMutex</span><span class="p">);</span><span class="w"></span>
+<span class="w">                  </span><span class="o">*</span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">                  </span><span class="n">cancelAll</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">              </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Hold the mutex to avoid the data race on `cancelHandles`.</span>
+<span class="w">    </span><span class="n">bslmt</span><span class="o">::</span><span class="n">LockGuard</span><span class="o">&lt;</span><span class="n">bslmt</span><span class="o">::</span><span class="n">Mutex</span><span class="o">&gt;</span><span class="w"> </span><span class="n">guard</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cancellationMutex</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ssize</span><span class="p">(</span><span class="n">endpoints</span><span class="p">);</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Connect to the remote endpoint.</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connector</span><span class="o">-&gt;</span><span class="n">connect</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="o">&amp;</span><span class="n">cancelHandles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w">  </span><span class="c1">// Record the cancellation handle.</span>
+<span class="w">            </span><span class="n">endpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"></span>
+<span class="w">            </span><span class="n">bhlb</span><span class="o">::</span><span class="n">ConnectOptions</span><span class="p">(),</span><span class="w"></span>
+<span class="w">            </span><span class="p">[</span><span class="o">&amp;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">](</span><span class="n">bhls</span><span class="o">::</span><span class="n">CompletionStatus</span><span class="o">::</span><span class="n">Enum</span><span class="w">         </span><span class="n">status</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">bhls</span><span class="o">::</span><span class="n">Socket</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">socket</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bhls</span><span class="o">::</span><span class="n">CompletionStatus</span><span class="o">::</span><span class="n">e_SUCCESS</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// If connection failed, mark completion.</span>
+<span class="w">                    </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">arrive</span><span class="p">();</span><span class="w"></span>
+<span class="w">                    </span><span class="k">return</span><span class="p">;</span><span class="w">                                       </span><span class="c1">// RETURN</span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">bslmt</span><span class="o">::</span><span class="n">LockGuard</span><span class="o">&lt;</span><span class="n">bslmt</span><span class="o">::</span><span class="n">Mutex</span><span class="o">&gt;</span><span class="w"> </span><span class="n">guard</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cancellationMutex</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">resultLoaded</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// If &#39;result&#39; is already loaded, mark completion.</span>
+<span class="w">                    </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">arrive</span><span class="p">();</span><span class="w"></span>
+<span class="w">                    </span><span class="k">return</span><span class="p">;</span><span class="w">                                       </span><span class="c1">// RETURN</span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Record the connection for lifetime management and</span>
+<span class="w">                </span><span class="c1">// cancellation.</span>
+<span class="w">                </span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">emplace</span><span class="p">(</span><span class="n">socket</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Only mark completion when the connection has closed.</span>
+<span class="w">                </span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">start</span><span class="p">(</span><span class="n">bdlf</span><span class="o">::</span><span class="n">BindUtil</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="w"></span>
+<span class="w">                    </span><span class="n">bslmt</span><span class="o">::</span><span class="n">Latch</span><span class="o">::</span><span class="n">arrive</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="o">&amp;</span><span class="n">doneLatch</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Shut down the connection on stream closure.</span>
+<span class="w">                </span><span class="n">handleResponse</span><span class="p">.</span><span class="n">onStreamClosed</span><span class="p">(</span><span class="n">bdlf</span><span class="o">::</span><span class="n">BindUtil</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="w"></span>
+<span class="w">                    </span><span class="n">bhlc</span><span class="o">::</span><span class="n">ClientConnection</span><span class="o">::</span><span class="n">shutdown</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="o">&amp;*</span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span><span class="w"></span>
+
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bhlc</span><span class="o">::</span><span class="n">HttpMessagingUtil</span><span class="o">::</span><span class="n">sendRequest</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                                          </span><span class="o">&amp;*</span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">request</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">handleResponse</span><span class="p">);</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// If sending the request failed, shut down the</span>
+<span class="w">                    </span><span class="c1">// connection.</span>
+<span class="w">                    </span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">shutdown</span><span class="p">();</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// If connection attempt could not be started, mark completion.</span>
+<span class="w">            </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">arrive</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">guard</span><span class="p">.</span><span class="n">release</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">unlock</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Wait for all connections to complete.</span>
+<span class="w">    </span><span class="n">doneLatch</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">resultLoaded</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="bdlb-variant-support-for-perfect-forwarding-in-createinplace">
+<h3><code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> Support for Perfect Forwarding in <code class="docutils literal notranslate"><span class="pre">createInPlace</span></code><a class="headerlink" href="#bdlb-variant-support-for-perfect-forwarding-in-createinplace" title="Permalink to this headline">¶</a></h3>
+<p>BDE 3.123.0 adds support for perfect forwarding in the <code class="docutils literal notranslate"><span class="pre">createInPlace</span></code> method
+of <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>. This allows one to more efficiently construct objects
+inside of variants. As an illustration, consider how one might represent an
+abstract syntax tree for a simple grammar:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlb_variant.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_memory.h&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span><span class="w"></span>
+
+<span class="c1">// FORWARD DECLARATIONS</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">AddExpression</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="n">Expression</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">AddExpression</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// &#39;Expression&#39; is an alias to a variant of an &#39;int&#39; or another</span>
+<span class="w">    </span><span class="c1">// &#39;AddExpression&#39; object. The &#39;int&#39; alternative represents an integer</span>
+<span class="w">    </span><span class="c1">// literal expression, and the &#39;AddExpression&#39; alternative represents an</span>
+<span class="w">    </span><span class="c1">// addition of two sub-expressions.</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">AddExpression</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// CREATORS</span>
+<span class="w">    </span><span class="n">AddExpression</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">Expression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">lhs</span><span class="p">,</span><span class="w"></span>
+<span class="w">                  </span><span class="n">bsl</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">Expression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">rhs</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Create a new &#39;AddExpression&#39; syntax tree node representing the</span>
+<span class="w">        </span><span class="c1">// addition of the specified &#39;lhs&#39; and &#39;rhs&#39; sub-expressions.</span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Since <code class="docutils literal notranslate"><span class="pre">AddExpression</span></code> must be constructed with unique pointers to its
+left- and right-hand side sub-expressions, its constructor arguments cannot be
+passed in a way that creates a copy. Let’s see how the new facilities in
+<code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> can come in handy here:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">makeExampleExpression</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">Expression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">lhs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Expression</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">Expression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">rhs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Expression</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">Expression</span><span class="w"> </span><span class="n">add</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">add</span><span class="p">.</span><span class="n">createInPlace</span><span class="o">&lt;</span><span class="n">AddExpression</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">lhs</span><span class="p">),</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">rhs</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>We see that the moved-from <code class="docutils literal notranslate"><span class="pre">lhs</span></code> and <code class="docutils literal notranslate"><span class="pre">rhs</span></code> are forwarded to the constructor
+of the <code class="docutils literal notranslate"><span class="pre">AddExpression</span></code> when creating the <code class="docutils literal notranslate"><span class="pre">add</span></code> object.</p>
+</div>
+<div class="section" id="other-new-features">
+<h3>Other New Features<a class="headerlink" href="#other-new-features" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bdlb::NullableAllocatedValue</span></code> class now has additional operations
+making it more interface-compatible with <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Cycle removal: bslmt: Remove bslmt_threadgroup from bslmt_sluice.t.cpp</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20 Address build failures due to Appendix C [diff.cpp17.over]</p></td>
+</tr>
+<tr class="row-even"><td><p>C++20: Correction to compiler version documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Second batch of changes to NullableAllocatedValue</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix bsl::stop_token AIX build warning</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix bsl::stop_token Solaris build error</p></td>
+</tr>
+<tr class="row-even"><td><p>clean up more include issues in bde</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please fix BSLA_FALLTROUGH macro for clang cpp03</p></td>
+</tr>
+<tr class="row-even"><td><p>First batch of changes to NullableAllocatedValue</p></td>
+</tr>
+<tr class="row-odd"><td><p>remove unused and invalid for testing only includes in bde</p></td>
+</tr>
+<tr class="row-even"><td><p>Please add CANONICAL header annotation to bslstl_ostream.h</p></td>
+</tr>
+<tr class="row-odd"><td><p>Update bslstl_syncbuf to more closely follow BDE conventions</p></td>
+</tr>
+<tr class="row-even"><td><p>[C++20] Associative container tests don’t compile with msvc VS2019 for C++20</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cycle Removal: bslstl: Remove cycle with string-like types</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle Removal: bsls: Remove cycle between bsls_fuzztest and timeinterval</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslstl_iterator.h wrong iter_swap pulled in</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle removal: bslmt:  Remove cycles introduced by readwriterlockassert</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cycle Removal: bslmf: Remove use of IsAccessibleBaseOf from various tests</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle Removal: bdlde: Remove bdlde_hexencoder|decoder cycle</p></td>
+</tr>
+<tr class="row-odd"><td><p>balber_berencoder’s documentation looks wrong</p></td>
+</tr>
+<tr class="row-even"><td><p>correct bdlb_nullableallocatedvalue.h warning from balb_testmessages.cpp and others</p></td>
+</tr>
+<tr class="row-odd"><td><p>Clean up the NullableAllocatedValue test driver</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlb::Variant::createInPlace perfect forwarding</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlma_pool.t.cpp: TC 8 fails on clang due to throw from ‘delete’.</p></td>
+</tr>
+<tr class="row-even"><td><p>Please address unlikely leak potential in SharedPtrUtil::createUninitialized</p></td>
+</tr>
+<tr class="row-odd"><td><p>Implement ‘bsl::stop_token’</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

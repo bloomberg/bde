@@ -93,15 +93,21 @@
 <li class="toctree-l1"><a class="reference internal" href="build.html">Build Instructions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source_code.html">Source Code</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Platforms</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#current-minimum-compilers-supported">Current Minimum Compilers Supported</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tiers-of-support">Tiers of Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-minimum-compilers-supported">Current Minimum Compilers Supported</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tiers-of-support">Tiers of Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tier-1-bloomberg-production-platforms">Tier 1: Bloomberg Production Platforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tier-2-actively-supported-platforms">Tier 2: Actively Supported Platforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tier-3-user-supported-platforms">Tier 3: User Supported Platforms</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#tier-1-bloomberg-production-platforms">Tier 1: Bloomberg Production Platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tier-2-actively-supported-platforms">Tier 2: Actively Supported Platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tier-3-user-supported-platforms">Tier 3: User Supported Platforms</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#supported-compiler-versions">Supported Compiler Versions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#current-test-matrix">Current Test Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-compiler-versions">Supported Compiler Versions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#language-support-requirements">Language Support Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rationale">Rationale</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#current-test-matrix">Current Test Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compiler-patch-information">Compiler Patch Information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#msvc">MSVC</a></li>
 </ul>
 </li>
 </ul>
@@ -111,7 +117,7 @@
 <p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
@@ -207,39 +213,38 @@ compiler.</p>
 <h2>Current Minimum Compilers Supported<a class="headerlink" href="#current-minimum-compilers-supported" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>gcc-9.3</p></li>
-<li><p>MSVC 2015</p></li>
+<li><p>MSVC 2017</p></li>
 <li><p>clang-11.0 / XCode 11</p></li>
-<li><p>Sun-cc-5.13 (Solaris Studio 12.4)</p></li>
+<li><p>Sun-cc-5.15 (Solaris Studio 12.6)</p></li>
 <li><p>xlc-16.1</p></li>
 </ul>
+</div>
 <div class="section" id="tiers-of-support">
-<h3>Tiers of Support<a class="headerlink" href="#tiers-of-support" title="Permalink to this headline">¶</a></h3>
-</div>
-</div>
+<h2>Tiers of Support<a class="headerlink" href="#tiers-of-support" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="tier-1-bloomberg-production-platforms">
-<h2>Tier 1: Bloomberg Production Platforms<a class="headerlink" href="#tier-1-bloomberg-production-platforms" title="Permalink to this headline">¶</a></h2>
+<h3>Tier 1: Bloomberg Production Platforms<a class="headerlink" href="#tier-1-bloomberg-production-platforms" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>x86/Linux/gcc-9.3</p></li>
+<li><p>x86/Linux/gcc-10</p></li>
+<li><p>x86/Windows/MSVC2022</p></li>
 <li><p>x86/Windows/MSVC2019</p></li>
 <li><p>x86/Windows/MSVC2017</p></li>
-<li><p>x86/Windows/MSVC2015</p></li>
-<li><p>Sparc/Solaris/Sun-cc-5.13</p></li>
+<li><p>Sparc/Solaris/Sun-cc-5.15</p></li>
 <li><p>PowerPC/AIX/xlc-16.1</p></li>
 </ul>
 <p>All using the default production standard library.</p>
 </div>
 <div class="section" id="tier-2-actively-supported-platforms">
-<h2>Tier 2: Actively Supported Platforms<a class="headerlink" href="#tier-2-actively-supported-platforms" title="Permalink to this headline">¶</a></h2>
+<h3>Tier 2: Actively Supported Platforms<a class="headerlink" href="#tier-2-actively-supported-platforms" title="Permalink to this headline">¶</a></h3>
 <p>These platforms are not Bloomberg production platforms, but either have a large
 base of Bloomberg active users (e.g., x86/OSX/clang), or tooling that depends
 on them (e.g., Sparc/Solaris/gcc), or are expected to be production platforms
-in the future (x86/linux/gcc-9).</p>
+in the future (x86/linux/gcc-11).</p>
 <ul class="simple">
 <li><p>x86/OSX/clang</p></li>
 <li><p>Apple M1/OSX/clang <a class="footnote-reference brackets" href="#f1" id="id1">1</a></p></li>
-<li><p>x86/Linux/gcc-10+</p></li>
+<li><p>x86/Linux/gcc-11</p></li>
 <li><p>x86/Linux/clang</p></li>
-<li><p>Sparc/Solaris/gcc-9+</p></li>
+<li><p>Sparc/Solaris/gcc-10</p></li>
 </ul>
 <p class="rubric">Notes</p>
 <dl class="footnote brackets">
@@ -251,7 +256,7 @@ BDE will address issues on a best-effort basis.</p>
 </dl>
 </div>
 <div class="section" id="tier-3-user-supported-platforms">
-<h2>Tier 3: User Supported Platforms<a class="headerlink" href="#tier-3-user-supported-platforms" title="Permalink to this headline">¶</a></h2>
+<h3>Tier 3: User Supported Platforms<a class="headerlink" href="#tier-3-user-supported-platforms" title="Permalink to this headline">¶</a></h3>
 <p>These are platforms for which code has been contributed, often by motivated BDE
 users, but the BDE team does not actively support.</p>
 <ul class="simple">
@@ -266,8 +271,50 @@ This includes:</p>
 <li><p>gcc with stdcxx</p></li>
 <li><p>clang with stdc++</p></li>
 </ul>
+</div>
+</div>
 <div class="section" id="supported-compiler-versions">
-<h3>Supported Compiler Versions<a class="headerlink" href="#supported-compiler-versions" title="Permalink to this headline">¶</a></h3>
+<h2>Supported Compiler Versions<a class="headerlink" href="#supported-compiler-versions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="language-support-requirements">
+<h3>Language Support Requirements<a class="headerlink" href="#language-support-requirements" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 23%" />
+<col style="width: 19%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Language Standard</p></th>
+<th class="head"><p>GCC</p></th>
+<th class="head"><p>Clang</p></th>
+<th class="head"><p>Visual Studio</p></th>
+<th class="head"><p>Solaris Studio</p></th>
+<th class="head"><p>IBM XLC</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C++17</p></td>
+<td><p>7</p></td>
+<td><p>7</p></td>
+<td><p>2019 (MSVC 19.20)</p></td>
+<td><p>Not supported</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++20</p></td>
+<td><p>11.1</p></td>
+<td><p>15</p></td>
+<td><p>2022 (MSVC 19.30)</p></td>
+<td><p>Not supported</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="rationale">
+<h3>Rationale<a class="headerlink" href="#rationale" title="Permalink to this headline">¶</a></h3>
 <p>The question of which versions of a compiler to support is inherently tricky.
 Older versions of a compiler may not contain language or library support for
 newer features of C++.  Newer versions of a compiler may contain errors,
@@ -277,17 +324,51 @@ part of the Tier 1 platforms.  Otherwise, as a guideline, compiler versions
 released two years ago (measured from now) should be fully supported, as being
 neither too old nor too leading-edge.</p>
 </div>
+</div>
 <div class="section" id="current-test-matrix">
-<h3>Current Test Matrix<a class="headerlink" href="#current-test-matrix" title="Permalink to this headline">¶</a></h3>
+<h2>Current Test Matrix<a class="headerlink" href="#current-test-matrix" title="Permalink to this headline">¶</a></h2>
 <p>The compilers in the active test matrix for BDE:</p>
 <ul class="simple">
 <li><p>gcc-9, gcc-10, gcc-11</p></li>
-<li><p>MSVC 2015, 2017, 2019</p></li>
+<li><p>MSVC 2017, 2019, 2022</p></li>
 <li><p>Apple clang-11 (MacOS)</p></li>
-<li><p>clang-12 (Linux)</p></li>
-<li><p>Sun-cc-5.13</p></li>
+<li><p>clang-11, clang-15 (Linux)</p></li>
+<li><p>Sun C++ 5.12, 5.13, and 5.15</p></li>
 <li><p>xlc-16.1</p></li>
 </ul>
+</div>
+<div class="section" id="compiler-patch-information">
+<h2>Compiler Patch Information<a class="headerlink" href="#compiler-patch-information" title="Permalink to this headline">¶</a></h2>
+<p>The following tables catalogue known issues with compiler patch versions:</p>
+<div class="section" id="msvc">
+<h3>MSVC<a class="headerlink" href="#msvc" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 20%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Known Broken
+Version</p></th>
+<th class="head"><p>Known Fixed
+Version</p></th>
+<th class="head"><p>Observed behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1929</p></td>
+<td><p>1931</p></td>
+<td><p>Example compiler error:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>example.cpp(17): error C3861: &#39;==&#39;: identifier not found
+</pre></div>
+</div>
+<p>MSVC has a problem with unqualified name lookup for equality
+operators if multiple <code class="docutils literal notranslate"><span class="pre">using</span></code> directives are presented.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
