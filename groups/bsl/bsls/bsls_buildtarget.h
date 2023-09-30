@@ -12,6 +12,7 @@ BSLS_IDENT("$Id: $")
 //  BDE_BUILD_TARGET_NO_EXC: flag identifying exception-disabled builds
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
 //  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
+//  BDE_BUILD_SKIP_VERSION_CHECKS: turn off compiler version checks
 //  BDE_OMIT_DEPRECATED: legacy flag to deprecate a block of code
 //  BDE_OMIT_INTERNAL_DEPRECATED: legacy flag to deprecate internal-only code
 //  BDE_OPENSOURCE_PUBLICATION: marker for non-deprecated internal-only code
