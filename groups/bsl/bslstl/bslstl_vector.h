@@ -2047,7 +2047,7 @@ class vector<VALUE_TYPE *, ALLOCATOR>
         return lhs.d_impl >= rhs.d_impl;
     }
 
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
     friend
     void swap(vector& a, vector& b)
