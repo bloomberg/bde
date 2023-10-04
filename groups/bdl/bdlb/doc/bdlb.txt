@@ -162,7 +162,7 @@
 :      Provide C++03 implementation for bdlb_nullablevalue.h
 :
 : 'bdlb_nullablevalueref':
-:      Provide a template for non-owning reference to nullable objects.
+:      *Tech* *preview* for non-owning reference to nullable objects.
 :
 : 'bdlb_nullablevalueref_cpp03':                                      !PRIVATE!
 :      Provide C++03 implementation for bdlb_nullablevalueref.h

@@ -52,25 +52,27 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 89 components having 20 levels of physical
+ The 'bslmf' package currently has 90 components having 21 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  20. bslmf_isnothrowswappable
+  21. bslmf_isnothrowswappable
 
-  19. bslmf_isswappable
+  20. bslmf_isswappable
 
-  18. bslmf_forwardingreftype
+  19. bslmf_forwardingreftype
       bslmf_forwardingtype
       bslmf_invokeresult
       bslmf_util
 
-  17. bslmf_movableref
+  18. bslmf_movableref
 
-  16. bslmf_isbitwisemoveable
+  17. bslmf_isbitwisemoveable
       bslmf_iscopyconstructible
       bslmf_isnothrowmoveconstructible
+
+  16. bslmf_isbitwisecopyable
 
   15. bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
@@ -252,6 +254,9 @@
 :
 : 'bslmf_isarray':
 :      Provide a compile-time check for array types.
+:
+: 'bslmf_isbitwisecopyable':
+:      Provide a meta-function for determining bitwise copyable types.
 :
 : 'bslmf_isbitwiseequalitycomparable':
 :      Provide a type trait for bitwise equality.
