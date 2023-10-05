@@ -1,5 +1,24 @@
-bsl-internal (3.124.0.0) unstable; urgency=low
+bsl-internal (3.125.0.0) unstable; urgency=low
 
+  * 28de33275 Match #endif commit with #if (#4448)
+  * 8a38e1e14 Bumped version to 3.125.0.0
+  * 420abc132 fix invoke result tests on MSVC 2022 (#4446)
+  * 7bfe26a2b remove unnecessary testing-only includes (#4443)
+  * e39a6980e Use 'bsl::nullopt' in NullableValue instead of 'bdlb::nullOpt (replaces #4412) (#4441)
+  * 6f092a014 reduce cc-5.12.4 warnings (#4442)
+  * 06416cf4a 'codePointValue' function has been added to 'bdlde::Utf8Util'. DRQS 172943023  (#4429)
+  * 5ac97f80c correct bal td compile warning (#4440)
+  * 1d1d85dcc Regenerate bdlb_nullablevalueref_cpp03.h (#4437)
+  * 57066da95 Revert "Implement bsl::variant (DRQS 171356765) (#4374)" (#4435)
+  * 218942f9a Implement bsl::variant (DRQS 171356765) (#4374)
+  * fb3135a44 bdlb_nullablevalueref: Add Component-Preview Disclaimer (#4433)
+  * 9648758b1 Merge pull request #4306 from bchapman/bslmf_isbitwisecopyable-bal-drqs-172216599
+
+ -- Chris Cotter <ccotter14@bloomberg.net>  Wed, 4 Oct 2023 16:40:59 -0400
+
+bsl-internal (3.124.0.0) git; urgency=low
+
+  * d4420486a Changelog for version 3.124.0.0
   * b5f8629fc Bumped version to 3.124.0.0
   * 4eefd812c New component - NullableValueRef (#4428)
   * 345874adf Fix bug in moveAndAppendDataBuffers (#4432)
@@ -14,7 +33,7 @@ bsl-internal (3.124.0.0) unstable; urgency=low
   * 2a481c0b1 drqs-172804421: 'bslmt_readerwritermutex.t.cpp': Fix '*LOCKASSERT*' cycle. (#4419)
   * 460b552cc bslmf_enableif: kill depencies on is_polymorphic and is_)fundamental (#4410)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Sat, 16 Sep 2023 15:25:20 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sat, 16 Sep 2023 15:33:29 -0400
 
 bsl-internal (3.123.0.0) git; urgency=low
 
