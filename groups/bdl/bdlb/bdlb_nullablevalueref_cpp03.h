@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Sep 22 08:26:37 2023
+// Generated on Mon Oct  2 18:43:55 2023
 // Command line: sim_cpp11_features.pl bdlb_nullablevalueref.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUEREF_H
@@ -29,23 +29,26 @@
 namespace BloombergLP {
 namespace bdlb {
 
+template <class TYPE>
+class ConstNullableValueRef;
+
                         // ============================
                         // class NullableValueRef<TYPE>
                         // ============================
 
 template <class TYPE>
 class NullableValueRef {
-    // This class is a wrapper for either a 'NullableValue' or
+    // This class is a wrapper for either a 'bsl::optional' or
     // 'NullableAllocatedValue', and provides modifiable access to the wrapped
     // object.
 
     // DATA
-    void *d_referent_p;
-        // the address of the referent
+    void *d_target_p;
+        // the address of the target
 
-    bool  d_isReferentNullableValue;
-        // 'true' if the referent is a specialization of 'NullableValue',
-        // and 'false' it's a specialization of 'NullableAllocatedValue'
+    bool  d_isTargetOptional;
+        // 'true' if the target is a specialization of 'bsl::optional', and
+        // 'false' it's a specialization of 'NullableAllocatedValue'
 
   public:
     // TYPES
@@ -61,18 +64,28 @@ class NullableValueRef {
         // 'NullableAllocatedValue' object.  The behavior is undefined if the
         // target is not a 'NullableAllocatedValue'.
 
-    NullableValue<TYPE>& getNV() const;
+    bsl::optional<TYPE>& getOpt() const;
         // Return a reference providing non-const access to the held
-        // 'NullableValue' object.  The behavior is undefined if the target is
-        // not a 'bdlb::NullableValue'.
+        // 'bsl::optional' object.  The behavior is undefined if the target is
+        // not a 'bdlb::bsl::optional'.
 
-    bool hasNV() const;
-        // Return 'true' if the target of this object is a 'NullableValue', and
+    bool hasOpt() const;
+        // Return 'true' if the target of this object is a 'bsl::optional', and
         // 'false' otherwise.
+
+    // FRIENDS
+    friend class ConstNullableValueRef<TYPE>;
+
+    // TRAITS
+    BSLMF_ASSERT((
+                 bsl::is_same<TYPE,
+                              typename bsl::remove_cvref<TYPE>::type>::value));
+        // This class requires that 'TYPE' is not 'const'- or 'volatile'-
+        // qualified, nor a reference.
 
   public:
     // CREATORS
-    explicit NullableValueRef(NullableValue<TYPE>& opt);
+    explicit NullableValueRef(bsl::optional<TYPE>& opt);
         // Create a nullable object wrapper that refers to the specified 'opt'
         // object.  Note that the created wrapper does not own a copy of the
         // underlying nullable value, but instead refers to it, and so the
@@ -206,7 +219,7 @@ class NullableValueRef {
         // Assign to the target the value of the specified 'rhs', and return a
         // reference providing modifiable access to this object.
 
-    NullableValueRef<TYPE>& operator=(const NullableValue<TYPE>& rhs);
+    NullableValueRef<TYPE>& operator=(const bsl::optional<TYPE>& rhs);
         // Assign to the target the value of the specified 'rhs', and return a
         // reference providing modifiable access to this object.
 
@@ -217,9 +230,7 @@ class NullableValueRef {
 
     NullableValueRef<TYPE>& operator=(const NullableValueRef& rhs);
         // Assign to the target the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The behavior
-        // is undefined unless the target of 'rhs' has the same type as the
-        // target of this object.
+        // reference providing modifiable access to this object.
 
     void reset();
         // Reset the target to the default constructed state (i.e., to have the
@@ -440,7 +451,7 @@ bool operator>(const NullableValueRef<LHS_TYPE>& lhs,
     // ordered after 'rhs' if 'lhs' is non-null and 'rhs' is null or if both
     // are non-null and 'lhs.value()' is ordered after 'rhs.value()'.  Note
     // that this operator returns 'rhs < lhs' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
+    // 'bsl::optional' type.  Also note that this function will fail to compile
     // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -466,7 +477,7 @@ bool operator>=(const NullableValueRef<LHS_TYPE>& lhs,
     // the specified 'rhs' nullable wrapper or 'lhs' and 'rhs' have the same
     // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
     // that this operator returns '!(lhs < rhs)' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
+    // 'bsl::optional' type.  Also note that this function will fail to compile
     // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -521,8 +532,8 @@ template <class TYPE>
 bool operator<(const bsl::nullopt_t&, const NullableValueRef<TYPE>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'rhs' is not null, and 'false' otherwise.
-    // Note that 'bsl::nullopt' is ordered before any 'NullableValueRef'
-    // that is not null.
+    // Note that 'bsl::nullopt' is ordered before any 'NullableValueRef' that
+    // is not null.
 
 template <class TYPE>
 bool operator>(const NullableValueRef<TYPE>& lhs, const bsl::nullopt_t&)
@@ -562,17 +573,17 @@ bool operator>=(const bsl::nullopt_t&, const NullableValueRef<TYPE>& rhs)
 
 template <class TYPE>
 class ConstNullableValueRef {
-    // This class is a wrapper for either a 'NullableValue' or
+    // This class is a wrapper for either a 'bsl::optional' or
     // 'NullableAllocatedValue', and provides non-modifiable access to the
     // wrapped object.
 
     // DATA
-    const void *d_referent_p;
-        // the address of the referent
+    const void *d_target_p;
+        // the address of the target
 
-    bool        d_isReferentNullableValue;
-        // 'true' if the referent is a specialization of 'NullableValue',
-        // and 'false' if it's a specialization of 'NullableAllocatedValue'
+    bool        d_isTargetOptional;
+        // 'true' if the referent is a specialization of 'bsl::optional', and
+        // 'false' if it's a specialization of 'NullableAllocatedValue'.
 
   public:
     // TYPES
@@ -588,19 +599,25 @@ class ConstNullableValueRef {
         // behavior is undefined if the target is not a
         // 'bdlb::NullableAllocatedValue'.
 
-    const NullableValue<TYPE>& getNV() const;
-        // Return a pointer to the held 'bdlb::NullableValue'. The behavior is
-        // undefined if the target is not a 'bdlb::NullableValue'.
+    const bsl::optional<TYPE>& getOpt() const;
+        // Return a pointer to the held 'bdlb::bsl::optional'. The behavior is
+        // undefined if the target is not a 'bdlb::bsl::optional'.
 
-    bool hasNV() const;
+    bool hasOpt() const;
         // Return 'true' if this object currently holds a pointer to a
-        // bdlb::NullableValue, and 'false' otherwise.
+        // bdlb::bsl::optional, and 'false' otherwise.
 
+    // TRAITS
+    BSLMF_ASSERT((
+                 bsl::is_same<TYPE,
+                              typename bsl::remove_cvref<TYPE>::type>::value));
+        // This class requires that 'TYPE' is not 'const'- or 'volatile'-
+        // qualified, nor a reference.
 
   public:
 
     // CREATORS
-    explicit ConstNullableValueRef(const NullableValue<TYPE>& opt);
+    explicit ConstNullableValueRef(const bsl::optional<TYPE>& opt);
         // Create a nullable object wrapper that refers to the specified 'opt'
         // object.  Note that the created wrapper does not own a copy of the
         // underlying nullable value, but instead refers to it, and so the
@@ -611,6 +628,13 @@ class ConstNullableValueRef {
         // object.  Note that the created wrapper does not own a copy of the
         // underlying nullable value, but instead refers to it, and so the
         // lifetime of 'opt' must exceed the lifetime of the created wrapper.
+
+    ConstNullableValueRef(const NullableValueRef<TYPE>& ref);       // IMPLICIT
+        // Create a nullable object wrapper that refers to the target object of
+        // the specified 'ref' wrapper.  Note that the created wrapper does not
+        // own a copy of the underlying nullable value, but instead refers to
+        // to it, and so the lifetime of the target must exceed the lifetime of
+        // the created wrapper.
 
     ConstNullableValueRef(const ConstNullableValueRef& original);
         // Create a nullable object wrapper that refers to the target object of
@@ -859,8 +883,8 @@ template <class TYPE>
 bool operator<(const bsl::nullopt_t&,
                const ConstNullableValueRef<TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'rhs' is not null, and 'false' otherwise.
-    // Note that 'bsl::nullopt' is ordered before any
-    // 'ConstNullableValueRef' that is not null.
+    // Note that 'bsl::nullopt' is ordered before any 'ConstNullableValueRef'
+    // that is not null.
 
 template <class TYPE>
 bool operator>(const ConstNullableValueRef<TYPE>& lhs,
@@ -988,31 +1012,32 @@ inline
 bdlb::NullableAllocatedValue<TYPE>&
 bdlb::NullableValueRef<TYPE>::getNAV() const
 {
-    BSLS_ASSERT(!hasNV());
-    return *static_cast<NullableAllocatedValue<value_type> *>(d_referent_p);
+    BSLS_ASSERT(!hasOpt());
+    return *static_cast<bdlb::NullableAllocatedValue<TYPE> *>(d_target_p);
 }
 
 template <class TYPE>
 inline
-bdlb::NullableValue<TYPE>& bdlb::NullableValueRef<TYPE>::getNV() const
+bsl::optional<TYPE>&
+bdlb::NullableValueRef<TYPE>::getOpt() const
 {
-    BSLS_ASSERT(hasNV());
-    return *static_cast<NullableValue<value_type> *>(d_referent_p);
+    BSLS_ASSERT(hasOpt());
+    return *static_cast<bsl::optional<TYPE> *>(d_target_p);
 }
 
 template <class TYPE>
 inline
-bool bdlb::NullableValueRef<TYPE>::hasNV() const
+bool bdlb::NullableValueRef<TYPE>::hasOpt() const
 {
-    return d_isReferentNullableValue;
+    return d_isTargetOptional;
 }
 
 // CREATORS
 template <class TYPE>
 inline
-bdlb::NullableValueRef<TYPE>::NullableValueRef(NullableValue<TYPE>& opt)
-: d_referent_p(&opt)
-, d_isReferentNullableValue(true)
+bdlb::NullableValueRef<TYPE>::NullableValueRef(bsl::optional<TYPE>& opt)
+: d_target_p(&opt)
+, d_isTargetOptional(true)
 {
 }
 
@@ -1020,17 +1045,17 @@ template <class TYPE>
 inline
 bdlb::NullableValueRef<TYPE>::NullableValueRef(
                                              NullableAllocatedValue<TYPE>& opt)
-: d_referent_p(&opt)
-, d_isReferentNullableValue(false)
+: d_target_p(&opt)
+, d_isTargetOptional(false)
 {
 }
 
 template <class TYPE>
 inline
 bdlb::NullableValueRef<TYPE>::NullableValueRef(
-                                          const NullableValueRef& original)
-: d_referent_p(original.d_referent_p)
-, d_isReferentNullableValue(original.d_isReferentNullableValue)
+                                              const NullableValueRef& original)
+: d_target_p(original.d_target_p)
+, d_isTargetOptional(original.d_isTargetOptional)
 {
 }
 
@@ -1039,8 +1064,8 @@ template <class TYPE>
 inline
 bool bdlb::NullableValueRef<TYPE>::has_value() const BSLS_KEYWORD_NOEXCEPT
 {
-    return hasNV()
-              ? getNV ().has_value()
+    return hasOpt()
+              ? getOpt().has_value()
               : getNAV().has_value();
 }
 
@@ -1049,8 +1074,8 @@ inline
 const typename bdlb::NullableValueRef<TYPE>::value_type&
 bdlb::NullableValueRef<TYPE>::value() const
 {
-    return hasNV()
-              ? getNV ().value()
+    return hasOpt()
+              ? getOpt().value()
               : getNAV().value();
 }
 
@@ -1060,8 +1085,8 @@ inline
 const typename bdlb::NullableValueRef<TYPE>::value_type *
 bdlb::NullableValueRef<TYPE>::operator->() const
 {
-    return hasNV()
-              ? getNV ().operator->()
+    return hasOpt()
+              ? getOpt().operator->()
               : getNAV().operator->();
 }
 
@@ -1070,8 +1095,8 @@ inline
 const typename bdlb::NullableValueRef<TYPE>::value_type&
 bdlb::NullableValueRef<TYPE>::operator*() const
 {
-    return hasNV()
-              ? getNV ().operator*()
+    return hasOpt()
+              ? getOpt().operator*()
               : getNAV().operator*();
 }
 
@@ -1082,8 +1107,8 @@ TYPE bdlb::NullableValueRef<TYPE>::value_or(
                                            const ANY_TYPE& default_value) const
 {
     if (has_value()) {
-        return hasNV()
-                  ? getNV ().value()
+        return hasOpt()
+                  ? getOpt().value()
                   : getNAV().value();                                 // RETURN
     }
     return default_value;
@@ -1106,8 +1131,8 @@ inline
 TYPE& bdlb::NullableValueRef<TYPE>::emplace(
                                )
 {
-    return hasNV()
-              ? getNV ().emplace()
+    return hasOpt()
+              ? getOpt().emplace()
               : getNAV().emplace();
 }
 #endif  // BDLB_NULLABLEVALUEREF_VARIADIC_LIMIT_C >= 0
@@ -1119,8 +1144,8 @@ inline
 TYPE& bdlb::NullableValueRef<TYPE>::emplace(
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
 {
-    return hasNV()
-              ? getNV ().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1))
+    return hasOpt()
+              ? getOpt().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1))
               : getNAV().emplace(
                                 BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
 }
@@ -1135,8 +1160,8 @@ TYPE& bdlb::NullableValueRef<TYPE>::emplace(
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
 {
-    return hasNV()
-              ? getNV ().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+    return hasOpt()
+              ? getOpt().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2))
               : getNAV().emplace(
                                 BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
@@ -1155,8 +1180,8 @@ TYPE& bdlb::NullableValueRef<TYPE>::emplace(
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
 {
-    return hasNV()
-              ? getNV ().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+    return hasOpt()
+              ? getOpt().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3))
               : getNAV().emplace(
@@ -1179,8 +1204,8 @@ TYPE& bdlb::NullableValueRef<TYPE>::emplace(
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
 {
-    return hasNV()
-              ? getNV ().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+    return hasOpt()
+              ? getOpt().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4))
@@ -1207,8 +1232,8 @@ TYPE& bdlb::NullableValueRef<TYPE>::emplace(
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
 {
-    return hasNV()
-              ? getNV ().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
+    return hasOpt()
+              ? getOpt().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
@@ -1231,8 +1256,8 @@ inline
 TYPE& bdlb::NullableValueRef<TYPE>::emplace(
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
-    return hasNV()
-              ? getNV ().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...)
+    return hasOpt()
+              ? getOpt().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...)
               : getNAV().emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 // }}} END GENERATED CODE
@@ -1243,8 +1268,8 @@ inline
 typename bdlb::NullableValueRef<TYPE>::value_type *
 bdlb::NullableValueRef<TYPE>::operator->()
 {
-    return hasNV()
-              ? getNV ().operator->()
+    return hasOpt()
+              ? getOpt().operator->()
               : getNAV().operator->();
 }
 
@@ -1253,8 +1278,8 @@ inline
 typename bdlb::NullableValueRef<TYPE>::value_type&
 bdlb::NullableValueRef<TYPE>::operator*()
 {
-    return hasNV()
-              ? getNV ().operator*()
+    return hasOpt()
+              ? getOpt().operator*()
               : getNAV().operator*();
 }
 
@@ -1272,8 +1297,8 @@ inline
 bdlb::NullableValueRef<TYPE>&
 bdlb::NullableValueRef<TYPE>::operator=(const TYPE& rhs)
 {
-    if (hasNV()) {
-        getNV() = rhs;
+    if (hasOpt()) {
+        getOpt() = rhs;
     }
     else {
         getNAV() = rhs;
@@ -1285,10 +1310,14 @@ bdlb::NullableValueRef<TYPE>::operator=(const TYPE& rhs)
 template <class TYPE>
 inline
 bdlb::NullableValueRef<TYPE>&
-bdlb::NullableValueRef<TYPE>::operator=(const NullableValue<TYPE>& rhs)
+bdlb::NullableValueRef<TYPE>::operator=(const bsl::optional<TYPE>& rhs)
 {
-    BSLS_ASSERT(hasNV());
-    getNV() = rhs;
+    if (rhs.has_value()) {
+        *this = rhs.value();
+    }
+    else {
+        reset();
+    }
     return *this;
 }
 
@@ -1298,8 +1327,13 @@ bdlb::NullableValueRef<TYPE>&
 bdlb::NullableValueRef<TYPE>::operator=(
                                        const NullableAllocatedValue<TYPE>& rhs)
 {
-    BSLS_ASSERT(!hasNV());
-    getNAV() = rhs;
+    if (rhs.has_value()) {
+        *this = rhs.value();
+    }
+    else {
+        reset();
+    }
+
     return *this;
 }
 
@@ -1308,13 +1342,13 @@ inline
 bdlb::NullableValueRef<TYPE>&
 bdlb::NullableValueRef<TYPE>::operator=(const NullableValueRef& rhs)
 {
-    BSLS_ASSERT(hasNV() == rhs.hasNV());
-    if (hasNV()) {
-        getNV () = rhs.getNV ();
+    if (rhs.has_value()) {
+        *this = rhs.value();
     }
     else {
-        getNAV() = rhs.getNAV();
+        reset();
     }
+
     return *this;
 }
 
@@ -1322,8 +1356,8 @@ template <class TYPE>
 inline
 void bdlb::NullableValueRef<TYPE>::reset()
 {
-    if (hasNV()) {
-        getNV ().reset();
+    if (hasOpt()) {
+        getOpt().reset();
     }
     else {
         getNAV().reset();
@@ -1335,8 +1369,8 @@ inline
 typename bdlb::NullableValueRef<TYPE>::value_type&
 bdlb::NullableValueRef<TYPE>::value()
 {
-    return hasNV()
-              ? getNV ().value()
+    return hasOpt()
+              ? getOpt().value()
               : getNAV().value();
 }
 
@@ -1764,34 +1798,34 @@ inline
 const bdlb::NullableAllocatedValue<TYPE>&
 bdlb::ConstNullableValueRef<TYPE>::getNAV() const
 {
-    BSLS_ASSERT(!hasNV());
+    BSLS_ASSERT(!hasOpt());
     return *static_cast<const NullableAllocatedValue<value_type> *>(
-                                                                 d_referent_p);
+                                                                   d_target_p);
 }
 
 template <class TYPE>
 inline
-const bdlb::NullableValue<TYPE>&
-bdlb::ConstNullableValueRef<TYPE>::getNV() const
+const bsl::optional<TYPE>&
+bdlb::ConstNullableValueRef<TYPE>::getOpt() const
 {
-    BSLS_ASSERT(hasNV());
-    return *static_cast<const NullableValue<value_type> *>(d_referent_p);
+    BSLS_ASSERT(hasOpt());
+    return *static_cast<const bsl::optional<value_type> *>(d_target_p);
 }
 
 template <class TYPE>
 inline
-bool bdlb::ConstNullableValueRef<TYPE>::hasNV() const
+bool bdlb::ConstNullableValueRef<TYPE>::hasOpt() const
 {
-    return d_isReferentNullableValue;
+    return d_isTargetOptional;
 }
 
 // CREATORS
 template <class TYPE>
 inline
 bdlb::ConstNullableValueRef<TYPE>::ConstNullableValueRef(
-                                                const NullableValue<TYPE>& opt)
-: d_referent_p(&opt)
-, d_isReferentNullableValue(true)
+                                                const bsl::optional<TYPE>& opt)
+: d_target_p(&opt)
+, d_isTargetOptional(true)
 {
 }
 
@@ -1799,8 +1833,17 @@ template <class TYPE>
 inline
 bdlb::ConstNullableValueRef<TYPE>::ConstNullableValueRef(
                                        const NullableAllocatedValue<TYPE>& opt)
-: d_referent_p(&opt)
-, d_isReferentNullableValue(false)
+: d_target_p(&opt)
+, d_isTargetOptional(false)
+{
+}
+
+template <class TYPE>
+inline
+bdlb::ConstNullableValueRef<TYPE>::ConstNullableValueRef(
+                                             const NullableValueRef<TYPE>& ref)
+: d_target_p(ref.d_target_p)
+, d_isTargetOptional(ref.d_isTargetOptional)
 {
 }
 
@@ -1808,8 +1851,8 @@ template <class TYPE>
 inline
 bdlb::ConstNullableValueRef<TYPE>::ConstNullableValueRef(
                                          const ConstNullableValueRef& original)
-: d_referent_p(&original.d_referent_p)
-, d_isReferentNullableValue(original.d_isReferentNullableValue)
+: d_target_p(&original.d_target_p)
+, d_isTargetOptional(original.d_isTargetOptional)
 {
 }
 
@@ -1819,8 +1862,8 @@ inline
 bool
 bdlb::ConstNullableValueRef<TYPE>::has_value() const BSLS_KEYWORD_NOEXCEPT
 {
-    return hasNV()
-              ? getNV ().has_value()
+    return hasOpt()
+              ? getOpt().has_value()
               : getNAV().has_value();
 }
 
@@ -1829,8 +1872,8 @@ inline
 const typename bdlb::ConstNullableValueRef<TYPE>::value_type&
 bdlb::ConstNullableValueRef<TYPE>::value() const
 {
-    return hasNV()
-              ? getNV ().value()
+    return hasOpt()
+              ? getOpt().value()
               : getNAV().value();
 }
 
@@ -1840,8 +1883,8 @@ inline
 const typename bdlb::ConstNullableValueRef<TYPE>::value_type *
 bdlb::ConstNullableValueRef<TYPE>::operator->() const
 {
-    return hasNV()
-              ? getNV ().operator->()
+    return hasOpt()
+              ? getOpt().operator->()
               : getNAV().operator->();
 }
 
@@ -1850,8 +1893,8 @@ inline
 const typename bdlb::ConstNullableValueRef<TYPE>::value_type&
 bdlb::ConstNullableValueRef<TYPE>::operator*() const
 {
-    return hasNV()
-              ? getNV ().operator*()
+    return hasOpt()
+              ? getOpt().operator*()
               : getNAV().operator*();
 }
 
@@ -1862,8 +1905,8 @@ TYPE bdlb::ConstNullableValueRef<TYPE>::value_or(
                                            const ANY_TYPE& default_value) const
 {
     if (has_value()) {
-        return hasNV()
-                  ? getNV ().value()
+        return hasOpt()
+                  ? getOpt().value()
                   : getNAV().value();                                 // RETURN
     }
     return default_value;

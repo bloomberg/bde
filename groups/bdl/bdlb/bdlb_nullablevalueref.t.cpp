@@ -16,6 +16,7 @@
 #include <bsls_types.h>
 
 #include <bslstl_span.h>
+#include <bslstl_optional.h>              // bsl::optional, bsl::nullopt_t
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -32,8 +33,10 @@ using namespace bsl;
 //   o No memory is allocated from the global-allocator.
 // ----------------------------------------------------------------------------
 // CREATORS
+// [ 2] NullableValueRef(bsl::optional<TYPE> &);
 // [ 2] NullableValueRef(NullableValue<TYPE> &);
 // [ 2] NullableValueRef(NullableAllocatedValue<TYPE> &);
+// [ 2] ConstNullableValueRef(bsl::optional<TYPE> &);
 // [ 2] ConstNullableValueRef(NullableValue<TYPE> &);
 // [ 2] ConstNullableValueRef(NullableAllocatedValue<TYPE> &);
 //
@@ -221,8 +224,6 @@ static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
-const int   MAX_NUM_PARAMS = 5; // max in simulation of variadic templates
-
 // Define 'bsl::string' value long enough to ensure dynamic memory allocation.
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
@@ -290,7 +291,7 @@ void comparisonTest(bsl::span<TYPE> values)
     typedef typename bsl::remove_const<TYPE>::type  ValueType;
     typedef typename bsl::conditional<IS_NAV,
                               typename bdlb::NullableAllocatedValue<ValueType>,
-                              typename bdlb::NullableValue<ValueType>
+                              typename bsl::optional<ValueType>
                               >::type Obj;
 
     typedef typename bsl::conditional<IS_CONST,
@@ -573,6 +574,7 @@ void mixedComparisonTest(bsl::span<TYPE> values)
     }
 }
 
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -622,9 +624,9 @@ int main(int argc, char *argv[])
         // that are implemented with 'NullableValue', and client code that uses
         // them.  Now we want to change the data structure to use
         // 'NullableAllocatedValue', but without requiring simultaneous changes
-        // to the client code.  If the client code uses 'NullableValueRef'
-        // to access the optional values, the change will not require any
-        // source changes in the clients; a recompile is sufficient.
+        // to the client code.  If the client code uses 'NullableValueRef' to
+        // access the optional values, the change will not require any source
+        // changes in the clients; a recompile is sufficient.
         //
         // Given the following functions:
         //..
@@ -678,14 +680,18 @@ int main(int argc, char *argv[])
            << "======================================================" << endl;
 
         int                                  v = 123;
+        bsl::optional<int>                   op0;
+        bsl::optional<int>                   op1(32);
         bdlb::NullableValue<int>             nv0;
         bdlb::NullableValue<int>             nv1(33);
-        bdlb::NullableAllocatedValue<int>    av2;
-        bdlb::NullableAllocatedValue<int>    av3(34);
-        bdlb::NullableValueRef<int>      nw0(nv0);
-        bdlb::ConstNullableValueRef<int> nw1(nv1);
-        bdlb::NullableValueRef<int>      nw2(av2);
-        bdlb::ConstNullableValueRef<int> nw3(av3);
+        bdlb::NullableAllocatedValue<int>    av0;
+        bdlb::NullableAllocatedValue<int>    av1(34);
+        bdlb::NullableValueRef<int>          nw0(op0);
+        bdlb::ConstNullableValueRef<int>     nw1(op1);
+        bdlb::NullableValueRef<int>          nw2(nv0);
+        bdlb::ConstNullableValueRef<int>     nw3(nv1);
+        bdlb::NullableValueRef<int>          nw4(av0);
+        bdlb::ConstNullableValueRef<int>     nw5(av1);
 
         ASSERT(!nw0.has_value());
         ASSERT(nw0.addressOr(&v) == &v);
@@ -694,7 +700,7 @@ int main(int argc, char *argv[])
 
         ASSERT( nw1.has_value());
         ASSERT(nw1.addressOr(&v) != &v);
-        ASSERT(nw1.valueOr(v)    == 33);
+        ASSERT(nw1.valueOr(v)    == 32);
         ASSERT(nw1.valueOrNull() != NULL);
 
         ASSERT(!nw2.has_value());
@@ -704,8 +710,18 @@ int main(int argc, char *argv[])
 
         ASSERT( nw3.has_value());
         ASSERT(nw3.addressOr(&v) != &v);
-        ASSERT(nw3.valueOr(v)    == 34);
+        ASSERT(nw3.valueOr(v)    == 33);
         ASSERT(nw3.valueOrNull() != NULL);
+
+        ASSERT(!nw4.has_value());
+        ASSERT(nw4.addressOr(&v) == &v);
+        ASSERT(nw4.valueOr(v)    == v);
+        ASSERT(nw4.valueOrNull() == NULL);
+
+        ASSERT( nw5.has_value());
+        ASSERT(nw5.addressOr(&v) != &v);
+        ASSERT(nw5.valueOr(v)    == 34);
+        ASSERT(nw5.valueOrNull() != NULL);
 
         nw0.makeValueInplace(4);
         ASSERT( nw0.has_value());
@@ -714,6 +730,10 @@ int main(int argc, char *argv[])
         nw2.makeValueInplace(5);
         ASSERT( nw2.has_value());
         ASSERTV(nw2.value(), 5 == nw2);
+
+        nw4.makeValueInplace(6);
+        ASSERT( nw4.has_value());
+        ASSERTV(nw4.value(), 6 == nw4);
 
       } break;
       case 5: {
@@ -887,10 +907,47 @@ int main(int argc, char *argv[])
 
 
         if (veryVerbose)
+            cout << "Testing Manipulators on optional" << endl;
+        {
+            bsl::optional<SimpleStruct>                   op;
+            bdlb::NullableValueRef<SimpleStruct>          nw(op);
+
+            ASSERT(!nw.has_value());
+
+            nw.emplace(34);
+            ASSERT( op.has_value());
+            ASSERT( nw.has_value());
+            ASSERT(34 == op.value().d_value);
+            ASSERT(34 == nw.value().d_value);
+
+            nw->d_value = 45;
+            ASSERT( op.has_value());
+            ASSERT( nw.has_value());
+            ASSERT(45 == op.value().d_value);
+            ASSERT(45 == nw.value().d_value);
+
+            (*nw).d_value = 56;
+            ASSERT( op.has_value());
+            ASSERT( nw.has_value());
+            ASSERT(56 == op.value().d_value);
+            ASSERT(56 == nw.value().d_value);
+
+            nw.value().d_value = 67;
+            ASSERT( op.has_value());
+            ASSERT( nw.has_value());
+            ASSERT(67 == op.value().d_value);
+            ASSERT(67 == op.value().d_value);
+
+            nw.reset();
+            ASSERT(!op.has_value());
+            ASSERT(!nw.has_value());
+        }
+
+        if (veryVerbose)
             cout << "Testing Manipulators on NullableValue" << endl;
         {
             bdlb::NullableValue<SimpleStruct>             nv;
-            bdlb::NullableValueRef<SimpleStruct>      nw(nv);
+            bdlb::NullableValueRef<SimpleStruct>          nw(nv);
 
             ASSERT(!nw.has_value());
 
@@ -928,7 +985,7 @@ int main(int argc, char *argv[])
             cout << "Testing Manipulators on NullableAllocatedValue" << endl;
         {
             bdlb::NullableAllocatedValue<SimpleStruct>    av;
-            bdlb::NullableValueRef<SimpleStruct>      nw(av);
+            bdlb::NullableValueRef<SimpleStruct>          nw(av);
 
             ASSERT(!nw.has_value());
 
@@ -996,46 +1053,138 @@ int main(int argc, char *argv[])
                           << "\n============================"
                           << endl;
 
-        bdlb::NullableValue<int>             nv0;
-        bdlb::NullableValue<int>             nv1(33);
-        bdlb::NullableAllocatedValue<int>    av2;
-        bdlb::NullableAllocatedValue<int>    av3(34);
-        bdlb::NullableValueRef<int>          nw0(nv0);
-        bdlb::NullableValueRef<int>          nw1(nv1);
-        bdlb::NullableValueRef<int>          nw2(av2);
-        bdlb::NullableValueRef<int>          nw3(av3);
+        bdlb::NullableValue<int>                nv0;
+        bdlb::NullableValue<int>                nv1(33);
+        bdlb::NullableAllocatedValue<int>       av0;
+        bdlb::NullableAllocatedValue<int>       av1(34);
+        bdlb::NullableValueRef<int>             nw0(nv0);
+        bdlb::NullableValueRef<int>             nw1(nv1);
+        bdlb::NullableValueRef<int>             nw2(av0);
+        bdlb::NullableValueRef<int>             nw3(av1);
+        const bdlb::NullableValue<int>          nvN(98);
+        const bdlb::NullableAllocatedValue<int> avN(99);
+
+        // Assignment to a NullableValueRef holding a NullableValue
 
         // Assignment from a TYPE &
-        ASSERT(!nw0.has_value());
-        nw0 = 35;
-        ASSERT( nw0.has_value());
-        ASSERT(35 == nw0.value());
-        ASSERT( nv0.has_value());
-        ASSERT(35 == nv0.value());
-
-        ASSERT(!nw2.has_value());
-        nw2 = 36;
-        ASSERT( nw2.has_value());
-        ASSERT(36 == nw2.value());
-        ASSERT( av2.has_value());
-        ASSERT(36 == av2.value());
-
-        // Assignment from a NullableValueRef
         ASSERT( nw1.has_value());
-        ASSERT(33 == nw1.value());
-        nw1 = nv0;
+        nw1 = 35;
         ASSERT( nw1.has_value());
         ASSERT(35 == nw1.value());
         ASSERT( nv1.has_value());
         ASSERT(35 == nv1.value());
 
-        // Assignment from a NullableAllocatedValueRef
+        // Assignment from a NullableValue
+        ASSERT( nw1.has_value());
+        ASSERT(35 == nw1.value());
+        nw1 = nvN;
+        ASSERT( nw1.has_value());
+        ASSERT(nvN.value() == nw1.value());
+        ASSERT( nv1.has_value());
+        ASSERT(nvN.value() == nv1.value());
+
+        // Assignment from an empty NullableValue
+        ASSERT(!nw0.has_value());
+        ASSERT(!nv0.has_value());
+        nw1 = nv0;
+        ASSERT(!nw1.has_value());
+        ASSERT(!nv1.has_value());
+
+        // Assignment from a NullableAllocatedValue
+        ASSERT(!nw1.has_value());
+        nw1 = avN;
+        ASSERT( nw1.has_value());
+        ASSERT(avN.value() == nw1.value());
+        ASSERT( nv1.has_value());
+        ASSERT(avN.value() == nv1.value());
+
+        // Assignment from an empty NullableAllocatedValue
+        ASSERT( nw1.has_value());
+        ASSERT(!av0.has_value());
+        nw1 = av0;
+        ASSERT(!nv1.has_value());
+        ASSERT(!nw1.has_value());
+
+        // Assignment from a NullableValueRef holding a NullableValue
+        nv1 = 36;
+        ASSERT( nw1.has_value());
+        nw1 = nw0;
+        ASSERT(!nw1.has_value());
+        ASSERT(!nv1.has_value());
+
+        // Assignment from a NullableValueRef holding a NullableAllocatedValue
+        av1 = 37;
         ASSERT( nw3.has_value());
-        nw3 = av2;
+        ASSERT(37 == nw3.value());
+        nw1 = nw3;
+        ASSERT( nw1.has_value());
+        ASSERT(37 == nw1.value());
+        ASSERT( nv1.has_value());
+        ASSERT(37 == nv1.value());
+
+        // Assignment from an empty NullableValueRef
+        ASSERT( nw1.has_value());
+        ASSERT(37 == nw1.value());
+        ASSERT(!nw2.has_value());
+        nw1 = nw2;
+        ASSERT(!nw1.has_value());
+
+        // Assignment to a NullableValueRef holding a NullableAllocatedValue
+
+        // Assignment from a TYPE &
         ASSERT( nw3.has_value());
-        ASSERT(36 == nw3.value());
-        ASSERT( av3.has_value());
-        ASSERT(36 == av3.value());
+        nw3 = 35;
+        ASSERT( nw3.has_value());
+        ASSERT(35 == nw3.value());
+        ASSERT( av1.has_value());
+        ASSERT(35 == av1.value());
+
+        // Assignment from a NullableValue
+        ASSERT( nw3.has_value());
+        ASSERT(35 == nw3.value());
+        nw3 = nvN;
+        ASSERT( nw3.has_value());
+        ASSERT(nvN.value() == nw3.value());
+        ASSERT( av1.has_value());
+        ASSERT(nvN.value() == av1.value());
+
+        // Assignment from an empty NullableValue
+        ASSERT(!nw0.has_value());
+        ASSERT(!nv0.has_value());
+        nw3 = nv0;
+        ASSERT(!nw3.has_value());
+        ASSERT(!av1.has_value());
+
+        // Assignment from a NullableAllocatedValue
+        ASSERT(!nw3.has_value());
+        nw3 = avN;
+        ASSERT( nw3.has_value());
+        ASSERT(avN.value() == nw3.value());
+        ASSERT( av1.has_value());
+        ASSERT(avN.value() == av1.value());
+
+        // Assignment from an empty NullableAllocatedValue
+        ASSERT( nw3.has_value());
+        ASSERT(!av0.has_value());
+        nw3 = av0;
+        ASSERT(!av1.has_value());
+        ASSERT(!nw3.has_value());
+
+        // Assignment from a NullableValueRef holding a NullableValue
+        nv1 = 12;
+        ASSERT( nw1.has_value());
+        ASSERT(12 == nw1.value());
+        nw3 = nw1;
+        ASSERT( nw3.has_value());
+        ASSERT(12 == nw3.value());
+        ASSERT( av1.has_value());
+        ASSERT(12 == av1.value());
+
+        // Assignment from a NullableValueRef holding a NullableAllocatedValue
+        ASSERT(!nw2.has_value());
+        nw3 = nw2;
+        ASSERT(!nw3.has_value());
+        ASSERT(!av1.has_value());
 
         // Assignment from nullopt_t
         nw0 = bsl::nullopt;
@@ -1044,20 +1193,7 @@ int main(int argc, char *argv[])
 
         nw2 = bsl::nullopt;
         ASSERT(!nw2.has_value());
-        ASSERT(!av2.has_value());
-
-        // Assignment from a NullableValueRef
-        nw0 = nw1;
-        ASSERT( nw0.has_value());
-        ASSERT( nv0.has_value());
-        ASSERT(35 == nw0.value());
-        ASSERT(35 == nv0.value());
-
-        nw2 = nw3;
-        ASSERT( nw2.has_value());
-        ASSERT( av2.has_value());
-        ASSERT(36 == nw2.value());
-        ASSERT(36 == av2.value());
+        ASSERT(!av0.has_value());
 
         // reset
         nw0.reset();
@@ -1066,7 +1202,7 @@ int main(int argc, char *argv[])
 
         nw2.reset();
         ASSERT(!nw2.has_value());
-        ASSERT(!av2.has_value());
+        ASSERT(!av0.has_value());
 
       } break;
       case 2: {
@@ -1081,16 +1217,18 @@ int main(int argc, char *argv[])
         //:  2 The constructor must not copy the target object.
         //
         // Plan:
-        //:  1 Create four objects; two each of 'NullableValue' and
-        //:  'NullableAllocatedValue'.  Create a 'NullableValueRef' and a
+        //:  1 Create six objects; two each of 'bsl::optiona', 'NullableValue'
+        //:  and 'NullableAllocatedValue'.  Create a 'NullableValueRef' and a
         //:  'ConstNullableValueRef' for each of them.  Verify that the
         //:  contents of the wrappers match the contents of the wrapped
         //:  objects.  Then make changes to the target, and verify that both
         //:  the wrappers and the target objects change.
         //
         // Testing:
+        //   NullableValueRef(bsl::optional<TYPE> &);
         //   NullableValueRef(NullableValue<TYPE> &);
         //   NullableValueRef(NullableAllocatedValue<TYPE> &);
+        //   ConstNullableValueRef(bsl::optional<TYPE> &);
         //   ConstNullableValueRef(NullableValue<TYPE> &);
         //   ConstNullableValueRef(NullableAllocatedValue<TYPE> &);
         //   bool has_value() const;
@@ -1104,42 +1242,78 @@ int main(int argc, char *argv[])
                            "\n=================================="
                           << endl;
 
+        bsl::optional<int>                   op0;
+        bsl::optional<int>                   op1(12);
         bdlb::NullableValue<int>             nv0;
         bdlb::NullableValue<int>             nv1(13);
-        bdlb::NullableAllocatedValue<int>    av2;
-        bdlb::NullableAllocatedValue<int>    av3(14);
-        bdlb::NullableValueRef<int>      nw0(nv0);
-        bdlb::NullableValueRef<int>      nw1(nv1);
-        bdlb::NullableValueRef<int>      nw2(av2);
-        bdlb::NullableValueRef<int>      nw3(av3);
-        bdlb::ConstNullableValueRef<int> cw0(nv0);
-        bdlb::ConstNullableValueRef<int> cw1(nv1);
-        bdlb::ConstNullableValueRef<int> cw2(av2);
-        bdlb::ConstNullableValueRef<int> cw3(av3);
+        bdlb::NullableAllocatedValue<int>    av0;
+        bdlb::NullableAllocatedValue<int>    av1(14);
+        bdlb::NullableValueRef<int>          nw0(op0);
+        bdlb::NullableValueRef<int>          nw1(op1);
+        bdlb::NullableValueRef<int>          nw2(nv0);
+        bdlb::NullableValueRef<int>          nw3(nv1);
+        bdlb::NullableValueRef<int>          nw4(av0);
+        bdlb::NullableValueRef<int>          nw5(av1);
+        bdlb::ConstNullableValueRef<int>     cw0(op0);
+        bdlb::ConstNullableValueRef<int>     cw1(op1);
+        bdlb::ConstNullableValueRef<int>     cw2(nv0);
+        bdlb::ConstNullableValueRef<int>     cw3(nv1);
+        bdlb::ConstNullableValueRef<int>     cw4(av0);
+        bdlb::ConstNullableValueRef<int>     cw5(av1);
 
         ASSERT(!nw0.has_value());
         ASSERT( nw1.has_value());
         ASSERT(!nw2.has_value());
         ASSERT( nw3.has_value());
+        ASSERT(!nw4.has_value());
+        ASSERT( nw5.has_value());
 
-        ASSERT(13 == nw1.value());
-        ASSERT(14 == nw3.value());
+        ASSERT(12 == nw1.value());
+        ASSERT(13 == nw3.value());
+        ASSERT(14 == nw5.value());
 
-        nv0 = -1;
-        ASSERT( nv0.has_value());
+        op0 = -1;
+        ASSERT( op0.has_value());
         ASSERT( nw0.has_value());
-        ASSERT(-1 == nv0.value());
+        ASSERT(-1 == op0.value());
         ASSERT(-1 == nw0.value());
 
+        nv0 = -2;
+        ASSERT( nv0.has_value());
+        ASSERT( nw2.has_value());
+        ASSERT(-2 == nv0.value());
+        ASSERT(-2 == nw2.value());
+
+        av0 = -3;
+        ASSERT( av0.has_value());
+        ASSERT( nw4.has_value());
+        ASSERT(-3 == av0.value());
+        ASSERT(-3 == nw4.value());
+
+        bsl::optional<SimpleStruct>                   opC(22);
         bdlb::NullableValue<SimpleStruct>             nvC(23);
         bdlb::NullableAllocatedValue<SimpleStruct>    avC(24);
-        bdlb::NullableValueRef<SimpleStruct>      nw4(nvC);
-        bdlb::ConstNullableValueRef<SimpleStruct> cw4(avC);
+        bdlb::NullableValueRef<SimpleStruct>          nwC0(opC);
+        bdlb::NullableValueRef<SimpleStruct>          nwC1(nvC);
+        bdlb::NullableValueRef<SimpleStruct>          nwC2(avC);
+        bdlb::ConstNullableValueRef<SimpleStruct>     cwC0(opC);
+        bdlb::ConstNullableValueRef<SimpleStruct>     cwC1(nvC);
+        bdlb::ConstNullableValueRef<SimpleStruct>     cwC2(avC);
 
-        ASSERT(23 == nw4->getValue());   // calls non-const method
-        ASSERT(-1 == cw4->getValue());   // calls     const method
-        ASSERT(23 == (*nw4).getValue()); // calls non-const method
-        ASSERT(-1 == (*cw4).getValue()); // calls     const method
+        ASSERT(22 == nwC0->getValue());   // calls non-const method
+        ASSERT(23 == nwC1->getValue());   // calls non-const method
+        ASSERT(24 == nwC2->getValue());   // calls non-const method
+        ASSERT(-1 == cwC0->getValue());   // calls     const method
+        ASSERT(-1 == cwC0->getValue());   // calls     const method
+        ASSERT(-1 == cwC0->getValue());   // calls     const method
+
+        ASSERT(22 == (*nwC0).getValue());   // calls non-const method
+        ASSERT(23 == (*nwC1).getValue());   // calls non-const method
+        ASSERT(24 == (*nwC2).getValue());   // calls non-const method
+
+        ASSERT(-1 == (*cwC0).getValue());   // calls     const method
+        ASSERT(-1 == (*cwC1).getValue());   // calls     const method
+        ASSERT(-1 == (*cwC2).getValue());   // calls     const method
 
       } break;
       case 1: {
@@ -1169,51 +1343,85 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============" << endl;
 
-        bdlb::NullableValue<int>             nv0;
-        bdlb::NullableValue<int>             nv1(3);
-        bdlb::NullableAllocatedValue<int>    av2;
-        bdlb::NullableAllocatedValue<int>    av3(4);
-        bdlb::NullableValueRef<int>      nw0(nv0);
-        bdlb::NullableValueRef<int>      nw1(nv1);
-        bdlb::NullableValueRef<int>      nw2(av2);
-        bdlb::NullableValueRef<int>      nw3(av3);
-        bdlb::ConstNullableValueRef<int> cw0(nv0);
-        bdlb::ConstNullableValueRef<int> cw1(nv1);
-        bdlb::ConstNullableValueRef<int> cw2(av2);
-        bdlb::ConstNullableValueRef<int> cw3(av3);
+        bsl::optional<int>                op0;
+        bsl::optional<int>                op1(2);
+        bdlb::NullableValue<int>          nv0;
+        bdlb::NullableValue<int>          nv1(3);
+        bdlb::NullableAllocatedValue<int> av0;
+        bdlb::NullableAllocatedValue<int> av1(4);
+        bdlb::NullableValueRef<int>       nw0(op0);
+        bdlb::NullableValueRef<int>       nw1(op1);
+        bdlb::NullableValueRef<int>       nw2(nv0);
+        bdlb::NullableValueRef<int>       nw3(nv1);
+        bdlb::NullableValueRef<int>       nw4(av0);
+        bdlb::NullableValueRef<int>       nw5(av1);
+        bdlb::ConstNullableValueRef<int>  cw0(op0);
+        bdlb::ConstNullableValueRef<int>  cw1(op1);
+        bdlb::ConstNullableValueRef<int>  cw2(nv0);
+        bdlb::ConstNullableValueRef<int>  cw3(nv1);
+        bdlb::ConstNullableValueRef<int>  cw4(av0);
+        bdlb::ConstNullableValueRef<int>  cw5(av1);
 
+        ASSERT(!op0.has_value());
+        ASSERT( op1.has_value());
         ASSERT(!nv0.has_value());
         ASSERT( nv1.has_value());
-        ASSERT(!av2.has_value());
-        ASSERT( av3.has_value());
-        ASSERT(nv0.has_value() == nw0.has_value());
-        ASSERT(nv1.has_value() == nw1.has_value());
-        ASSERT(av2.has_value() == nw2.has_value());
-        ASSERT(av3.has_value() == nw3.has_value());
-        ASSERT(nv0.has_value() == cw0.has_value());
-        ASSERT(nv1.has_value() == cw1.has_value());
-        ASSERT(av2.has_value() == cw2.has_value());
-        ASSERT(av3.has_value() == cw3.has_value());
+        ASSERT(!av0.has_value());
+        ASSERT( av1.has_value());
+        ASSERT(op0.has_value() == nw0.has_value());
+        ASSERT(op1.has_value() == nw1.has_value());
+        ASSERT(nv0.has_value() == nw2.has_value());
+        ASSERT(nv1.has_value() == nw3.has_value());
+        ASSERT(av0.has_value() == nw4.has_value());
+        ASSERT(av1.has_value() == nw5.has_value());
+        ASSERT(op0.has_value() == cw0.has_value());
+        ASSERT(op1.has_value() == cw1.has_value());
+        ASSERT(nv0.has_value() == cw2.has_value());
+        ASSERT(nv1.has_value() == cw3.has_value());
+        ASSERT(av0.has_value() == nw4.has_value());
+        ASSERT(av1.has_value() == nw5.has_value());
 
-        ASSERT(nv1.value() == nw1.value());
-        ASSERT(av3.value() == nw3.value());
-        ASSERT(nv1.value() == cw1.value());
-        ASSERT(av3.value() == cw3.value());
+        ASSERT(op1.value() == nw1.value());
+        ASSERT(nv1.value() == nw3.value());
+        ASSERT(av1.value() == nw5.value());
+        ASSERT(op1.value() == cw1.value());
+        ASSERT(nv1.value() == cw3.value());
+        ASSERT(av1.value() == cw5.value());
 
         nw0 = 42;
-        ASSERT( nv0.has_value());
+        ASSERT( op0.has_value());
         ASSERT( nw0.has_value());
-        ASSERT(42 == nv0.value());
+        ASSERT(42 == op0.value());
         ASSERT(42 == nw0.value());
         // Note that even though 'cw0' provides const access, the underlying
         // object can be changed via another method.
         ASSERT( cw0.has_value());
         ASSERT(42 == cw0.value());
 
-        nw3.reset();
-        ASSERT(!nw3.has_value());
-        ASSERT(!av3.has_value());
-        ASSERT(!cw3.has_value());
+        nw2 = 43;
+        ASSERT( nv0.has_value());
+        ASSERT( nw2.has_value());
+        ASSERT(43 == nv0.value());
+        ASSERT(43 == nw2.value());
+        // Note that even though 'cw2' provides const access, the underlying
+        // object can be changed via another method.
+        ASSERT( cw2.has_value());
+        ASSERT(43 == cw2.value());
+
+        nw4 = 44;
+        ASSERT( av0.has_value());
+        ASSERT( nw4.has_value());
+        ASSERT(44 == av0.value());
+        ASSERT(44 == nw4.value());
+        // Note that even though 'cw4' provides const access, the underlying
+        // object can be changed via another method.
+        ASSERT( cw4.has_value());
+        ASSERT(44 == cw4.value());
+
+        nw5.reset();
+        ASSERT(!nw5.has_value());
+        ASSERT(!av1.has_value());
+        ASSERT(!cw5.has_value());
 
       } break;
       default: {
