@@ -126,20 +126,102 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+static void printMacroFlag(const char *name, const char *value)
+    // Print a diagnostic message to standard output about a macro (flag) of
+    // the specified 'name'.  The specified 'value' is a null pointer in case
+    // the macro with 'name' has not been defined, and a pointer to a C-string
+    // in case the macro is defined.  Not that the 'value' may be an empty
+    // string in case it has been defined with no value.
+{
+    const char *pv = value ? value[0] ? value : "<:none:>" : "<:UNDEFINED:>";
+    printf("\n%s: %s\n", name, pv);
+}
+
+static void printFlags()
+    // Print a diagnostic message to standard output if any of the preprocessor
+    // flags of interest are defined, and their value if a value had been set.
+    // An "Enter" and "Leave" message is printed unconditionally so there is
+    // some report even if all of the flags are undefined.
+{
+#define u_STR2(...) "" #__VA_ARGS__
+#define u_STR(a) u_STR2(a)
+
+#define u_PRINT_UNDEF(a_NAME) printMacroFlag(#a_NAME, 0)
+#define u_PRINT_VALUE(a_NAME) printMacroFlag(#a_NAME, u_STR(a_NAME))
+
+    puts("printFlags: Enter");
+
+    puts("\n==printFlags: bsls_buildtarget Macros==");
+
+#ifdef BDE_BUILD_TARGET_EXC
+    u_PRINT_VALUE(BDE_BUILD_TARGET_EXC);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_EXC);
+#endif
+
+#ifdef BDE_BUILD_TARGET_NO_EXC
+    u_PRINT_VALUE(BDE_BUILD_TARGET_NO_EXC);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_NO_EXC);
+#endif
+
+#ifdef BDE_BUILD_TARGET_MT
+    u_PRINT_VALUE(BDE_BUILD_TARGET_MT);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_MT);
+#endif
+
+#ifdef BDE_BUILD_TARGET_NO_MT
+    u_PRINT_VALUE(BDE_BUILD_TARGET_NO_MT);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_NO_MT);
+#endif
+
+#ifdef BDE_BUILD_SKIP_VERSION_CHECKS
+    u_PRINT_VALUE(BDE_BUILD_SKIP_VERSION_CHECKS);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_SKIP_VERSION_CHECKS);
+#endif
+
+#ifdef BDE_OMIT_DEPRECATED
+    u_PRINT_VALUE(BDE_OMIT_DEPRECATED);
+#else
+    u_PRINT_UNDEF(BDE_OMIT_DEPRECATED);
+#endif
+
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
+    u_PRINT_VALUE(BDE_OMIT_INTERNAL_DEPRECATED);
+#else
+    u_PRINT_UNDEF(BDE_OMIT_INTERNAL_DEPRECATED);
+#endif
+
+#ifdef BDE_OPENSOURCE_PUBLICATION
+    u_PRINT_VALUE(BDE_OPENSOURCE_PUBLICATION);
+#else
+    u_PRINT_UNDEF(BDE_OPENSOURCE_PUBLICATION);
+#endif
+
+    puts("\nprintFlags: Leave\n\n");
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    int verbose         = argc > 2;
+    int veryVerbose     = argc > 3;  (void)veryVerbose;
+    int veryVeryVerbose = argc > 4;
 
     setbuf(stdout, 0);    // Use unbuffered output.
 
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    if (veryVeryVerbose) {
+        printFlags();
+    }
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
@@ -160,9 +242,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
-
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -189,14 +270,13 @@ int main(int argc, char *argv[])
         //   BDE_BUILD_TARGET_MT
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMACRO BDE_BUILD_TARGET_MT"
-                            "\n=========================\n");
+        if (verbose) puts("\nMACRO BDE_BUILD_TARGET_MT"
+                          "\n=========================");
 
 #ifdef BDE_BUILDTARGET_TEST_MT
         ASSERT(0 == "bsls_buildtarget.t.cpp should not build "
                     "with BDE_BUILDTARGET_TEST_MT");
 #endif
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -223,18 +303,17 @@ int main(int argc, char *argv[])
         //   BDE_BUILD_TARGET_EXC
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMACRO BDE_BUILD_TARGET_EXC"
-                            "\n==========================\n");
+        if (verbose) puts("\nMACRO BDE_BUILD_TARGET_EXC"
+                          "\n==========================");
 
 #ifdef BDE_BUILDTARGET_TEST_EXC
         ASSERT(0 == "bsls_buildtarget.t.cpp should not build "
                     "with BDE_BUILDTARGET_TEST_EXC");
 #endif
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DATA MEMBER 'bsls::BuildTargetMt::s_isBuildTargetMt'
+        // 'BuildTargetMt::s_isBuildTargetMt' CONSTANT
         //
         // Concerns:
         //: 1 'bsls::BuildTargetMt::s_isBuildTargetMt' should be defined.
@@ -250,20 +329,18 @@ int main(int argc, char *argv[])
         //   bsls::BuildTargetMt::s_isBuildTargetMt
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nDATA MEMBER 'bsls::BuildTargetMt::s_isBuildTargetMt'"
-                   "\n====================================================\n");
+        if (verbose) puts("\n'BuildTargetMt::s_isBuildTargetMt' CONSTANT"
+                          "\n===========================================");
 
 #ifdef BDE_BUILD_TARGET_MT
         ASSERT(1 == bsls::BuildTargetMt::s_isBuildTargetMt);
 #else
         ASSERT(0 == bsls::BuildTargetMt::s_isBuildTargetMt);
 #endif
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // DATA MEMBER 'bsls::BuildTargetExc::s_isBuildTargetExc'
+        // 'BuildTargetExc::s_isBuildTargetExc' CONSTANT
         //
         // Concerns:
         //: 1 'bsls::BuildTargetExc::s_isBuildTargetExc' should be defined.
@@ -279,16 +356,14 @@ int main(int argc, char *argv[])
         //   bsls::BuildTargetExc::s_isBuildTargetExc
         // --------------------------------------------------------------------
 
-        if (verbose)
-          printf("\nDATA MEMBER 'bsls::BuildTargetExc::s_isBuildTargetExc'"
-                 "\n======================================================\n");
+        if (verbose) puts("\n'BuildTargetExc::s_isBuildTargetExc' CONSTANT"
+                          "\n=============================================");
 
 #ifdef BDE_BUILD_TARGET_EXC
         ASSERT(1 == bsls::BuildTargetExc::s_isBuildTargetExc);
 #else
         ASSERT(0 == bsls::BuildTargetExc::s_isBuildTargetExc);
 #endif
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

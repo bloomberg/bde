@@ -136,8 +136,17 @@ BSLS_IDENT("$Id: $")
 //:     settings the standard macro does not get assigned the correct value.
 //:     The values generally set (as defined in the C++ Standard) are the year
 //:     and month when the Standard was completed, and the value of this macro
-//:     should be compared with the appropriate constants -- '199711L',
-//:     '201103L', '201402L', '201703L', '202002L', etc.
+//:     should be compared with the appropriate constants:
+//:     o 199711L -- before C++11
+//:     o 201103L -- C++11
+//:     o 201402L -- C++14
+//:     o 201703L -- C++17
+//:     o 202002L -- C++20
+//:     o 202302L -- C++23
+//:     Note that compilers may report "in-between" values to indicate partial
+//:     support of a standard, so 'BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L'
+//:     normally means that *some* C++17 features are available.  Since those
+//:     values are not standardized their meaning varies.
 //:
 //: 'BSLS_COMPILERFEATURES_FORWARD_REF(T)':
 //:     This macro provides a portable way to declare a function template
@@ -1006,6 +1015,43 @@ BSLS_IDENT("$Id: $")
     #include <version>
   #endif
 #endif
+
+// ============================================================================
+//         VERIFY COMPILER VERSION SUPPORT FOR REQUESTED ISO LANGUAGE
+// ============================================================================
+
+#ifndef BDE_BUILD_SKIP_VERSION_CHECKS
+
+  // Some level of C++20 is enabled, let's verify the compiler is supported
+  #if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
+    #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 110100
+      static_assert(0, "At least version 11.1 is required for C++20 support "
+          "in GNU CC g++.  This check can be disabled by defining the "
+          "'BDE_BUILD_SKIP_VERSION_CHECKS' build flag.");
+    #endif  // Too old gcc for C++20
+
+    #if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 150000
+      static_assert(0, "At least version 15.0 is required for C++20 support "
+          "in LLVM clang.  This check can be disabled by defining the "
+          "'BDE_BUILD_SKIP_VERSION_CHECKS' build flag.");
+    #endif  // Too old clang for C++20
+
+    #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1930
+      static_assert(0, "At least version 19.30 is required for C++20 support "
+          "in MS Visual C++ (MS Visual Studio 2022).  This check can be "
+          "disabled by defining build flag 'BDE_BUILD_SKIP_VERSION_CHECKS'.");
+    #endif  // Too old MSVC for C++20
+
+    #if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+      #error "This compiler does not support C++20.  This check can be "      \
+             "disabled by defining the 'BDE_BUILD_SKIP_VERSION_CHECKS' build "\
+             "flag.  See also "                                               \
+"http://bloomberg.github.io/bde/library_information/supported_platforms.html "\
+             "for all compiler and other platform requirements."
+      BSLS_PLATFORM_COMPILER_ERROR;
+    #endif  // No C++20 on big iron
+  #endif  // C++20 features requested
+#endif  // ifndef BDE_BUILD_SKIP_VERSION_CHECKS
 
 // ============================================================================
 //                      UNIVERSAL MACRO DEFINITIONS
