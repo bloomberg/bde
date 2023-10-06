@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Sep  4 07:36:25 2023
+// Generated on Fri Oct  6 07:42:31 2023
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -2517,7 +2517,7 @@ class vector<VALUE_TYPE *, ALLOCATOR>
         return lhs.d_impl >= rhs.d_impl;
     }
 
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
     friend
     void swap(vector& a, vector& b)
@@ -6196,7 +6196,7 @@ extern template class bsl::vector<const char *>;
 #endif // ! defined(INCLUDED_BSLSTL_VECTOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
