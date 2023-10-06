@@ -71,18 +71,28 @@ static void aSsErT(bool b, const char *s, int i)
 // form null pointer constants.  See the link below for furher details.
 //     http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#903
 
-#if __cplusplus >= 201103L && !defined(BSLS_PLATFORM_CMP_MSVC)
+#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L &&                            \
+     !defined(BSLS_PLATFORM_CMP_MSVC))               ||                       \
+    (BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L &&                            \
+     defined(BSLS_PLATFORM_CMP_MSVC)            &&                            \
+     BSLS_PLATFORM_CMP_VERSION >= 1930)
+    // Although fixed on all non-MSVC platforms from C++11 onwards, this was
+    // not fixed on MSVC until MSVC 1930 (VS 2022) and only in C++20 mode.
 # define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903
 #endif
 
-#if __cplusplus >= 201103L && !defined(BSLS_PLATFORM_CMP_MSVC) \
-   && !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 60000)
+#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L &&                            \
+     !defined(BSLS_PLATFORM_CMP_MSVC)           &&                            \
+     !(defined(BSLS_PLATFORM_CMP_GNU)           &&                            \
+       BSLS_PLATFORM_CMP_VER_MAJOR < 60000))         ||                       \
+    (BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L &&                            \
+     defined(BSLS_PLATFORM_CMP_MSVC)            &&                            \
+     BSLS_PLATFORM_CMP_VERSION >= 1930)
     // There is an issue related to which conversions form a null pointer
     // literal that still needs to be tracked down to name this macro, but is
     // not implemented in gcc 4.9.2 (the most recent version tested).  It may
     // be fixed in gcc 5, we are optimistically assuming it will be fixed for
-    // gcc 6.
-
+    // gcc 6. This was fixed in MSVC 1930 (VS 2022) and only in C++20 mode.
 # define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_XXX
 #endif
 

@@ -142,6 +142,16 @@ int veryVeryVeryVerbose = 0; // For test allocators
 #define MSVC_2019 0
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
+    (BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L ||                            \
+     BSLS_PLATFORM_CMP_VERSION <= 1929)
+    // MSVC displays inconsistent behavior with reference parameters. This was
+    // fixed in MSVC 1930 (VS 2022) but only in C++20 mode.
+#define MS_REF_BUG 1
+#else
+#define MS_REF_BUG 0
+#endif
+
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 #define CLANG 1
 #else
@@ -1381,7 +1391,7 @@ int main(int argc, char *argv[])
           TEST.run<void (  rrI),  void       (   rI)  >(L_, NO );
           TEST.run<void (  rrI),  void       (  rcI)  >(L_, YES);
           TEST.run<void (  rrI),  void       (  rvI)  >(L_, NO );
-          TEST.run<void (  rrI),  void       ( rcvI)  >(L_, MSVC);
+          TEST.run<void (  rrI),  void       ( rcvI)  >(L_, MS_REF_BUG);
           TEST.run<void (  rrI),  void       (  rrI)  >(L_, YES);
           TEST.run<void (  rrI),  void       ( rrcI)  >(L_, YES);
           TEST.run<void ( rrcI),  void       (    I)  >(L_, YES);
@@ -1391,7 +1401,7 @@ int main(int argc, char *argv[])
           TEST.run<void ( rrcI),  void       (   rI)  >(L_, NO );
           TEST.run<void ( rrcI),  void       (  rcI)  >(L_, YES);
           TEST.run<void ( rrcI),  void       (  rvI)  >(L_, NO );
-          TEST.run<void ( rrcI),  void       ( rcvI)  >(L_, MSVC);
+          TEST.run<void ( rrcI),  void       ( rcvI)  >(L_, MS_REF_BUG);
           TEST.run<void ( rrcI),  void       (  rrI)  >(L_, NO );
           TEST.run<void ( rrcI),  void       ( rrcI)  >(L_, YES);
 
@@ -1401,7 +1411,7 @@ int main(int argc, char *argv[])
           TEST.run<void (    B),  void       (   cB)  >(L_, YES);
           TEST.run<void (    B),  void       (   vB)  >(L_, YES);
           TEST.run<void (    B),  void       (  cvB)  >(L_, YES);
-          TEST.run<void (    B),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (    B),  void       (   rB)  >(L_, MS_REF_BUG);
           TEST.run<void (    B),  void       (  rcB)  >(L_, YES);
           TEST.run<void (    B),  void       (  rvB)  >(L_, NO );
           TEST.run<void (    B),  void       ( rcvB)  >(L_, NO );
@@ -1411,7 +1421,7 @@ int main(int argc, char *argv[])
           TEST.run<void (   cB),  void       (   cB)  >(L_, YES);
           TEST.run<void (   cB),  void       (   vB)  >(L_, YES);
           TEST.run<void (   cB),  void       (  cvB)  >(L_, YES);
-          TEST.run<void (   cB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (   cB),  void       (   rB)  >(L_, MS_REF_BUG);
           TEST.run<void (   cB),  void       (  rcB)  >(L_, YES);
           TEST.run<void (   cB),  void       (  rvB)  >(L_, NO );
           TEST.run<void (   cB),  void       ( rcvB)  >(L_, NO );
@@ -1421,7 +1431,7 @@ int main(int argc, char *argv[])
           TEST.run<void (   vB),  void       (   cB)  >(L_, YES);
           TEST.run<void (   vB),  void       (   vB)  >(L_, YES);
           TEST.run<void (   vB),  void       (  cvB)  >(L_, YES);
-          TEST.run<void (   vB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (   vB),  void       (   rB)  >(L_, MS_REF_BUG);
           TEST.run<void (   vB),  void       (  rcB)  >(L_, YES);
           TEST.run<void (   vB),  void       (  rvB)  >(L_, NO );
           TEST.run<void (   vB),  void       ( rcvB)  >(L_, NO );
@@ -1431,7 +1441,7 @@ int main(int argc, char *argv[])
           TEST.run<void (  cvB),  void       (   cB)  >(L_, YES);
           TEST.run<void (  cvB),  void       (   vB)  >(L_, YES);
           TEST.run<void (  cvB),  void       (  cvB)  >(L_, YES);
-          TEST.run<void (  cvB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (  cvB),  void       (   rB)  >(L_, MS_REF_BUG);
           TEST.run<void (  cvB),  void       (  rcB)  >(L_, YES);
           TEST.run<void (  cvB),  void       (  rvB)  >(L_, NO );
           TEST.run<void (  cvB),  void       ( rcvB)  >(L_, NO );
@@ -1481,7 +1491,7 @@ int main(int argc, char *argv[])
           TEST.run<void (  rrB),  void       (   cB)  >(L_, YES);
           TEST.run<void (  rrB),  void       (   vB)  >(L_, YES);
           TEST.run<void (  rrB),  void       (  cvB)  >(L_, YES);
-          TEST.run<void (  rrB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (  rrB),  void       (   rB)  >(L_, MS_REF_BUG);
           TEST.run<void (  rrB),  void       (  rcB)  >(L_, YES);
           TEST.run<void (  rrB),  void       (  rvB)  >(L_, NO );
           TEST.run<void (  rrB),  void       ( rcvB)  >(L_, NO );
@@ -1645,10 +1655,10 @@ int main(int argc, char *argv[])
           TEST.run<   B (     ),    rcB      (     )  >(L_, YES);
           TEST.run<   B (     ),    rrB      (     )  >(L_, YES);
           TEST.run<   B (     ),   rrcB      (     )  >(L_, YES);
-          TEST.run<  rB (     ),      B      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),      B      (     )  >(L_, MS_REF_BUG);
           TEST.run<  rB (     ),     rB      (     )  >(L_, YES);
           TEST.run<  rB (     ),    rcB      (     )  >(L_, NO );
-          TEST.run<  rB (     ),    rrB      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),    rrB      (     )  >(L_, MS_REF_BUG);
           TEST.run<  rB (     ),   rrcB      (     )  >(L_, NO );
           TEST.run< rcB (     ),      B      (     )  >(L_, YES);
           TEST.run< rcB (     ),     rB      (     )  >(L_, YES);
@@ -1701,10 +1711,10 @@ int main(int argc, char *argv[])
           TEST.run<   B (     ),    rcD      (     )  >(L_, YES);
           TEST.run<   B (     ),    rrD      (     )  >(L_, YES);
           TEST.run<   B (     ),   rrcD      (     )  >(L_, YES);
-          TEST.run<  rB (     ),      D      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),      D      (     )  >(L_, MS_REF_BUG);
           TEST.run<  rB (     ),     rD      (     )  >(L_, YES);
           TEST.run<  rB (     ),    rcD      (     )  >(L_, NO );
-          TEST.run<  rB (     ),    rrD      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),    rrD      (     )  >(L_, MS_REF_BUG);
           TEST.run<  rB (     ),   rrcD      (     )  >(L_, NO );
           TEST.run< rcB (     ),      D      (     )  >(L_, YES);
           TEST.run< rcB (     ),     rD      (     )  >(L_, YES);
@@ -1729,10 +1739,10 @@ int main(int argc, char *argv[])
           TEST.run<   D (     ),    rcB      (     )  >(L_, NO );
           TEST.run<   D (     ),    rrB      (     )  >(L_, NO );
           TEST.run<   D (     ),   rrcB      (     )  >(L_, NO );
-          TEST.run<  rD (     ),      B      (     )  >(L_, MSVC);
+          TEST.run<  rD (     ),      B      (     )  >(L_, MS_REF_BUG);
           TEST.run<  rD (     ),     rB      (     )  >(L_, YES);
           TEST.run<  rD (     ),    rcB      (     )  >(L_, NO );
-          TEST.run<  rD (     ),    rrB      (     )  >(L_, MSVC);
+          TEST.run<  rD (     ),    rrB      (     )  >(L_, MS_REF_BUG);
           TEST.run<  rD (     ),   rrcB      (     )  >(L_, NO );
           TEST.run< rcD (     ),      B      (     )  >(L_, MSVC);
           TEST.run< rcD (     ),     rB      (     )  >(L_, YES);
@@ -1755,10 +1765,10 @@ int main(int argc, char *argv[])
           TEST.run<   DA(     ),    rcBA     (     )  >(L_, CPP_20);
           TEST.run<   DA(     ),    rrBA     (     )  >(L_, CPP_20);
           TEST.run<   DA(     ),   rrcBA     (     )  >(L_, CPP_20);
-          TEST.run<  rDA(     ),      BA     (     )  >(L_, MSVC);
+          TEST.run<  rDA(     ),      BA     (     )  >(L_, MS_REF_BUG);
           TEST.run<  rDA(     ),     rBA     (     )  >(L_, YES);
           TEST.run<  rDA(     ),    rcBA     (     )  >(L_, NO );
-          TEST.run<  rDA(     ),    rrBA     (     )  >(L_, MSVC);
+          TEST.run<  rDA(     ),    rrBA     (     )  >(L_, MS_REF_BUG);
           TEST.run<  rDA(     ),   rrcBA     (     )  >(L_, NO );
           TEST.run< rcDA(     ),      BA     (     )  >(L_, MSVC);
           TEST.run< rcDA(     ),     rBA     (     )  >(L_, YES);

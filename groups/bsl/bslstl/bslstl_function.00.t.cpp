@@ -632,21 +632,31 @@ void dumpExTest(const char *s,
 // ----------------------------------------------------------------------------
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-#define CPP_20 1
+# define CPP_20 1
 #else
-#define CPP_20 0
+# define CPP_20 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#define MSVC 1
+# define MSVC 1
 #else
-#define MSVC 0
+# define MSVC 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
-#define MSVC_2015 1
+# define MSVC_2015 1
 #else
-#define MSVC_2015 0
+# define MSVC_2015 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
+    (BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L ||                            \
+     BSLS_PLATFORM_CMP_VERSION <= 1929)
+    // MSVC displays inconsistent behavior with reference parameters. This was
+    // fixed in MSVC 1930 (VS 2022) but only in C++20 mode.
+# define MS_REF_BUG 1
+#else
+# define MS_REF_BUG 0
 #endif
 
 namespace {
@@ -7890,7 +7900,7 @@ int main(int argc, char *argv[])
         TEST(      IW    (             ),       IW&   ()        , true );
         TEST(      IW    (             ), const IW    ()        , true );
         TEST(      IW    (             ), const IW&   ()        , true );
-        TEST(      IW&   (             ),       IW    ()        , MSVC );
+        TEST(      IW&   (             ),       IW    ()        , MS_REF_BUG );
         TEST(      IW&   (             ),       IW&   ()        , true );
         TEST(      IW&   (             ), const IW    ()        , false);
         TEST(      IW&   (             ), const IW&   ()        , false);
@@ -7907,7 +7917,7 @@ int main(int argc, char *argv[])
         TEST(      IW    (             ),       IWD&  ()        , true );
         TEST(      IW    (             ), const IWD   ()        , true );
         TEST(      IW    (             ), const IWD&  ()        , true );
-        TEST(      IW&   (             ),       IWD   ()        , MSVC );
+        TEST(      IW&   (             ),       IWD   ()        , MS_REF_BUG );
         TEST(      IW&   (             ),       IWD&  ()        , true );
         TEST(      IW&   (             ), const IWD   ()        , false);
         TEST(      IW&   (             ), const IWD&  ()        , false);
@@ -7922,9 +7932,9 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         TEST(      IW    (             ),       IW&&  ()        , true );
         TEST(      IW    (             ), const IW&&  ()        , true );
-        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ),       IW&&  ()        , MS_REF_BUG );
         TEST(      IW&   (             ), const IW&&  ()        , false);
-        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ),       IW&&  ()        , MS_REF_BUG );
         TEST(      IW&   (             ), const IW&&  ()        , false);
         TEST(const IW    (             ),       IW&&  ()        , true );
         TEST(const IW    (             ), const IW&&  ()        , true );
@@ -7940,7 +7950,7 @@ int main(int argc, char *argv[])
         TEST(const IW&&  (             ), const IW&   ()        , true );
         TEST(      IW    (             ),       IWD&& ()        , true );
         TEST(      IW    (             ), const IWD&& ()        , true );
-        TEST(      IW&   (             ),       IWD&& ()        , MSVC );
+        TEST(      IW&   (             ),       IWD&& ()        , MS_REF_BUG );
         TEST(      IW&   (             ), const IWD&& ()        , false);
         TEST(const IW    (             ),       IWD&& ()        , true );
         TEST(const IW    (             ), const IWD&& ()        , true );
@@ -9541,7 +9551,7 @@ int main(int argc, char *argv[])
         TEST(      IW    (             ),       IW&   ()        , true );
         TEST(      IW    (             ), const IW    ()        , true );
         TEST(      IW    (             ), const IW&   ()        , true );
-        TEST(      IW&   (             ),       IW    ()        , MSVC );
+        TEST(      IW&   (             ),       IW    ()        , MS_REF_BUG );
         TEST(      IW&   (             ),       IW&   ()        , true );
         TEST(      IW&   (             ), const IW    ()        , false);
         TEST(      IW&   (             ), const IW&   ()        , false);
@@ -9558,7 +9568,7 @@ int main(int argc, char *argv[])
         TEST(      IW    (             ),       IWD&  ()        , true );
         TEST(      IW    (             ), const IWD   ()        , true );
         TEST(      IW    (             ), const IWD&  ()        , true );
-        TEST(      IW&   (             ),       IWD   ()        , MSVC );
+        TEST(      IW&   (             ),       IWD   ()        , MS_REF_BUG );
         TEST(      IW&   (             ),       IWD&  ()        , true );
         TEST(      IW&   (             ), const IWD   ()        , false);
         TEST(      IW&   (             ), const IWD&  ()        , false);
@@ -9573,9 +9583,9 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         TEST(      IW    (             ),       IW&&  ()        , true );
         TEST(      IW    (             ), const IW&&  ()        , true );
-        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ),       IW&&  ()        , MS_REF_BUG );
         TEST(      IW&   (             ), const IW&&  ()        , false);
-        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ),       IW&&  ()        , MS_REF_BUG );
         TEST(      IW&   (             ), const IW&&  ()        , false);
         TEST(const IW    (             ),       IW&&  ()        , true );
         TEST(const IW    (             ), const IW&&  ()        , true );
@@ -9591,7 +9601,7 @@ int main(int argc, char *argv[])
         TEST(const IW&&  (             ), const IW&   ()        , true );
         TEST(      IW    (             ),       IWD&& ()        , true );
         TEST(      IW    (             ), const IWD&& ()        , true );
-        TEST(      IW&   (             ),       IWD&& ()        , MSVC );
+        TEST(      IW&   (             ),       IWD&& ()        , MS_REF_BUG );
         TEST(      IW&   (             ), const IWD&& ()        , false);
         TEST(const IW    (             ),       IWD&& ()        , true );
         TEST(const IW    (             ), const IWD&& ()        , true );
