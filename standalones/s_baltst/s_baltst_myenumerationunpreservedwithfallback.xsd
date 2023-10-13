@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+<!-- Intentionally do not preserve enum order (i.e., we expect bas_codegen to
+     assign IDs alphabetically).  The warning issued by bas_codegen in this
+     case is expected and should be ignored. -->
+  <xs:simpleType name='MyEnumerationUnpreservedWithFallback'
+                 bdem:preserveEnumOrder='0'>
+    <xs:restriction base='xs:string'>
+      <xs:enumeration value='VALUE1'/>
+      <xs:enumeration value='VALUE2'/>
+      <xs:enumeration value='UNKNOWN' bdem:isFallbackEnumerator='true'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+<!-- Define a record with an element of the enumeration type defined above, so
+     that the enumeration won't be discarded by 'baexml_schemparser'. -->
+  <xs:complexType name="MyEnumerationUnpreservedWithFallbackRecord">
+    <xs:sequence>
+      <xs:element name="value" type="MyEnumerationUnpreservedWithFallback"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
