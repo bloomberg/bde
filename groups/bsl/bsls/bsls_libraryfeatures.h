@@ -64,6 +64,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE: type trait
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER: type trait
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE: type traits
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT: `<format>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD: `std::jthread`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY: C++23 base lib provided
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
@@ -1194,6 +1195,19 @@ BSLS_IDENT("$Id: $")
 //
 // (no current version of clang supports this feature)
 //
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT`
+///---------------------------------------
+// `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined if the `<format>` header
+// is available and supports P2216 and P2372 (which were defect reports against
+// C++20).
+//
+// This macro is defined first for the following compiler versions:
+//   - GCC 13.1
+//   - Clang 17.0 with either:
+//     - libc++ 17.0, or
+//     - libstdc++ 13.1
+//   - VS 16.11 / MSVC 19.29
+//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD`
 ///----------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` is defined if the C++20
@@ -1205,7 +1219,7 @@ BSLS_IDENT("$Id: $")
 // This macro is defined first for the following compiler versions:
 //
 //   - GCC 10.1
-//   - Microsoft Visual Studio 2019 Update 9 / <u>MSC</u>FULL_VER 192829913
+//   - Microsoft Visual Studio 2019 Update 9 / _MSC_FULL_VER 192829913
 //   - clang 18.0 with -fexperimental-library
 //
 ///`BSLS_LIBRARYFEATURES_STDCPP_GNU`
@@ -2213,6 +2227,29 @@ BSLS_IDENT("$Id: $")
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD                            1
   #endif
 
+  // This one is complicated:
+  //  - libstdc++ 13.1 defines the feature test macro to be 202106L even though
+  //    they *do* implement P2372 and P2418, which bumped the feature test
+  //    macro to 202110L.  This is GCC bug 111826.
+  //
+  //  - libc++ doesn't define the feature test macro as of version 17.  They
+  //    claim that their support for chrono formatting is incomplete.  We won't
+  //    be implementing chrono formatters anyway (since chrono is not in C++03)
+  //    so we still consider libc++ 17 to have sufficient support.
+  //
+  //  - MSVC uses the correct value.
+  #if (defined(__cpp_lib_format) && __cpp_lib_format >= 202110L) ||           \
+      (defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE >= 13) || \
+      (defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION >= 17)
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT                             1
+  #endif
+  // But also, an older version of Clang might be used with a newer version of
+  // libstdc++.  In that case, the use of `std::format` may result in bugs
+  // because Clang `consteval` support was buggy prior to version 17 (see
+  // https://github.com/llvm/llvm-project/commit/e328d68).
+  #if (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_CLANG < 170000L)
+    #undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  #endif
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
 
 // ============================================================================

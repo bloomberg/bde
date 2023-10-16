@@ -22,6 +22,8 @@ bslstl_equalto
 bslstl_errc
 bslstl_error
 bslstl_exception
+bslstl_format
+bslstl_format_cpp03
 bslstl_forwarditerator
 bslstl_function
 bslstl_function_cpp03
