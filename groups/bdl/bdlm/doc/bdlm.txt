@@ -1,0 +1,41 @@
+ bdlm.txt
+
+@PURPOSE: Provide metrics registrars.
+
+@MNEMONIC: Basic Development Library Metrics (bdlm)
+
+@DESCRIPTION: The 'bdlm' package provides a metrics registrar protocol (i.e., a
+ pure abstract interface).  In addition, 'bdlm' also provides a mechanism for
+ installing a "default metrics registrar"  that will then be visible to all BDE
+ and BDE-compliant code throughout that process.  If this mechanism is not
+ invoked explicitly, then a metrics registrar that does not subscribe metrics
+ for monitoring is used.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlm' package currently has 4 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  3. bdlm_defaultmetricsregistrar
+
+  2. bdlm_metricsregistrar
+
+  1. bdlm_metric
+     bdlm_metricdescriptor
+..
+
+/Component Synopsis
+/------------------
+: 'bdlm_defaultmetricsregistrar':
+:      Provide utilities to set/fetch the default metrics registrar.
+:
+: 'bdlm_metric':
+:      Provide a class to store metric values of different types.
+:
+: 'bdlm_metricdescriptor':
+:      Provide an attribute class to describe a metric.
+:
+: 'bdlm_metricsregistrar':
+:      Provide an abstract interface for metrics registration mechanisms.
