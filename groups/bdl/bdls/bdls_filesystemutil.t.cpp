@@ -12,17 +12,15 @@
 #include <bdlb_guid.h>
 #include <bdlb_guidutil.h>
 
+#include <bdlb_bitutil.h>
+#include <bdls_memoryutil.h>
+#include <bdls_pathutil.h>
 #include <bdlde_charconvertutf16.h>
 
 #include <bdlf_bind.h>
 
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
-
-#include <bdls_memoryutil.h>
-#include <bdls_pathutil.h>
-
-#include <bdlsb_memoutstreambuf.h>
 
 #include <bslim_testutil.h>
 
@@ -58,6 +56,7 @@
 #include <ctime>
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
+    #include <errno.h>
     #include <fcntl.h>
     #include <sys/socket.h>
     #include <sys/stat.h>
@@ -83,48 +82,71 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // typedef bsl::function<void (const char *path)> Func;
 //
+// PRIVATE CLASSES
+// [ 2] FilesystemUtil_CStringUtil
+//
 // CLASS METHODS
-// [ 3] FD open(const char * path, openPolicy, ioPolicy, truncatePolicy)
+// [ 3] FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
+// [ 3] FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
+// [ 4] int findMatchingPaths(vector<string>*, const char *)
+// [ 5] bool isRegularFile(const bsl::string&, bool)
 // [ 5] bool isRegularFile(const char *, bool)
+// [ 5] bool isDirectory(const bsl::string&, bool)
 // [ 5] bool isDirectory(const char *, bool)
 // [ 6] bool move(const char *, const char *)
 // [ 6] bool move(STR_TYPE, STR_TYPE)
+// [ 7] int rollFileChain(const bsl::string&, int)
 // [ 7] int rollFileChain(const char *, int)
+// [ 8] Offset getAvailableSpace(const bsl::string&)
 // [ 8] Offset getAvailableSpace(const char *)
 // [ 8] Offset getAvailableSpace(FileDescriptor)
 // [ 9] int getSystemTemporaryDirectory(bsl::string *path);
+// [10] Offset getFileSize(const bsl::string&)
 // [10] Offset getFileSize(const char *)
 // [10] Offset getFileSize(FileDescriptor)
-// [12] FD open(const char * p, bool writable, bool exist, bool append)
+// [11] int findMatchingPaths(vector<string> *, const char *)
+// [12] FD open(const char *p, bool writable, bool exist, bool append)
 // [13] static Offset getFileSizeLimit()
 // [14] int tryLock(FileDescriptor, bool ) (Unix)
-// [15] int tryLock(FileDescriptor, bool ) (Windows)
-// [16] int sync(char *, int , bool )
-// [17] int close(FileDescriptor )
-// [21] makeUnsafeTemporaryFilename(string *, const string_view&)
-// [22] createTemporaryFile(string *, const string_view&)
-// [23] createTemporaryDirectory(string *, const string_view&)
-// [24] int createDirectories(const char *, bool);
-// [24] int createPrivateDirectory(const string_view&);
-// [25] int visitTree(const char * , const string&, const Func&, bool);
-// [25] int visitPaths(const char * , const Func&);
-// [26] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
-// [27] bool isSymbolicLink(STRING_TYPE);
-// [27] int getSymbolicLinkTarget(STRING_TYPE *, STRING_TYPE);
+// [14] int tryLock(FileDescriptor, bool ) (Windows)
+// [15] int sync(char *, int , bool )
+// [16] int close(FileDescriptor )
+// [21] makeUnsafeTemporaryFilename(string *, const StringRef&)
+// [22] createTemporaryFile(string *, const StringRef&)
+// [23] createTemporaryDirectory(string *, const StringRef&)
+// [24] int createDirectories(const string&, bool);
+// [24] int createPrivateDirectory(const string&);
+// [25] int visitTree(const char *, const string&, const Func&, bool);
+// [25] int visitTree(const string&, const string&, const Func&, bool);
+// [25] int visitPaths(const string&, const Func&);
+// [25] int visitPaths(const char *, const Func&);
+// [26] Offset getFileSize(FileDescriptor);
+// [26] int map(FileDescriptor, void **, Offset, bsl::size_t, int);
+// [26] int mapChecked(FileDescriptor, void **, Offset, bsl::size_t, int);
+// [26] int unmap(void *, bsl::size_t);
+// [28] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
+// [29] bool isSymbolicLink(STRING_TYPE);
+// [29] int getSymbolicLinkTarget(STRING_TYPE *, STRING_TYPE);
+//
+// FREE OPERATORS
+// [27] ostream& operator<<(ostream&, Whence);
+// [27] ostream& operator<<(ostream&, ErrorType);
+// [27] ostream& operator<<(ostream&, FileOpenPolicy);
+// [27] ostream& operator<<(ostream&, FileIOPolicy);
+// [27] ostream& operator<<(ostream&, FileTruncatePolicy);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] CONCERN: findMatchingPaths incorrect on ibm 64-bit
 // [17] CONCERN: Open in append-mode behavior (particularly on windows)
 // [18] CONCERN: Unix File Permissions for 'open'
 // [19] CONCERN: Unix File Permissions for 'createDirectories' et al
 // [20] CONCERN: UTF-8 Filename handling
-// [21] CONCERN: entropy in temp file name generation
-// [22] CONCERN: file permissions
-// [23] CONCERN: directory permissions
-// [24] CONCERN: error codes for 'createDirectories'
-// [24] CONCERN: error codes for 'createPrivateDirectory'
-// [28] USAGE EXAMPLE 1
-// [29] USAGE EXAMPLE 2
+// [18] CONCERN: entropy in temp file name generation
+// [19] CONCERN: file permissions
+// [20] CONCERN: directory permissions
+// [21] CONCERN: error codes for 'createDirectories'
+// [21] CONCERN: error codes for 'createPrivateDirectory'
+// [31] TESTING USAGE EXAMPLE 2
+// [30] TESTING USAGE EXAMPLE 1
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -199,9 +221,13 @@ void aSsErT(bool condition, const char *message, int line)
 //                          GLOBAL DATA FOR TESTING
 // ----------------------------------------------------------------------------
 
+#define Q_(str)    (cout << #str << '\t' << flush);
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+enum { e_UNIX = 0, e_WINDOWS = 1 };
 #   define PS "\\"
 #else
+enum { e_UNIX = 1, e_WINDOWS = 0 };
 #   define PS "/"
 #endif
 
@@ -238,19 +264,31 @@ enum { e_IS_UNIX = 0 };
 
 typedef bdls::FilesystemUtil Obj;
 typedef bsls::Types::Int64   Int64;
+typedef bsls::Types::IntPtr  IntPtr;
 typedef bsls::Types::UintPtr UintPtr;
 
 #define INT_SIZEOF(x)    static_cast<int>(sizeof(x))
 
+template <class TYPE>
+inline
+void *castToHex(TYPE x)
+    // Cast the specified 'x', which must be a scalar, to a 'void *' so that
+    // it will show up in hex when streamed.
+{
+    return reinterpret_cast<void *>(static_cast<UintPtr>(x));
+}
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 inline
 bool isBackslash (char t)
+    // Return 'true' if 't' is '\\' and 'false' otherwise.
 {
     return t == '\\';
 }
 
 inline
 bool isForwardSlash (char t)
+    // Return 'true' if 't' is '/' and 'false' otherwise.
 {
     return t == '/';
 }
@@ -258,6 +296,8 @@ bool isForwardSlash (char t)
 #endif
 
 void localTouch(const bsl::string& fileName)
+    // Open and close the file specified by 'fileName', creating it if it
+    // doesn't exist.
 {
     Obj::FileDescriptor fd = Obj::open(fileName,
                                        Obj::e_OPEN_OR_CREATE,
@@ -268,6 +308,7 @@ void localTouch(const bsl::string& fileName)
 }
 
 void localSleep(int seconds)
+    // Sleep for the specified 'seconds' seconds.
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     sleep(seconds);
@@ -507,6 +548,16 @@ void NoOpAssertHandler(const char *, const char *, int)
 
 namespace BloombergLP {
 namespace {
+
+unsigned u_errno()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return GetLastError();
+#else
+    return errno;
+#endif
+}
+
 namespace u {
 
                               // ===============
@@ -1423,7 +1474,7 @@ TestUtil_UnixImpUtil::createEphemeralFile()
     bsl::string path;
     FileDescriptor fileDescriptor = createTemporaryFile(&path);
     if (k_INVALID_FD == fileDescriptor) {
-        return k_INVALID_FD;
+        return k_INVALID_FD;                                          // RETURN
     }
 
     int rc = ::unlink(path.c_str());
@@ -1573,15 +1624,17 @@ bool TestUtil_UnixImpUtil::isBigtimeSupportAvailable(
     lastModificationTime.tv_nsec          = 0L;
 
     int rc = ::futimens(fd, times);
-    if (0 != rc)
+    if (0 != rc) {
         return true;                                                  // RETURN
+    }
 
     // Read back the file modification time.
     struct ::stat statResult;
 
     rc = fstat(fd, &statResult);
-    if (0 != rc)
+    if (0 != rc) {
         return true;                                                  // RETURN
+    }
 
     bsl::time_t readModTime = statResult.st_mtime;
 
@@ -1766,7 +1819,7 @@ FileDescriptorCloseGuard::FileDescriptorCloseGuard(FileDescriptor descriptor)
 FileDescriptorCloseGuard::~FileDescriptorCloseGuard()
 {
     if (bdls::FilesystemUtil::k_INVALID_FD == d_fileDescriptor) {
-        return;
+        return;                                                       // RETURN
     }
 
     int rc = bdls::FilesystemUtil::close(d_fileDescriptor);
@@ -3078,7 +3131,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 29: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -3095,10 +3148,13 @@ int main(int argc, char *argv[])
         //   2) Call the 'findMatchingFilesInTimeframe' function on the list of
         //      files created with the timeframe specified as an interval
         //      in between all file creations.
+        //
+        // Testing:
+        //   TESTING USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 2"
-                          << "\n=======================" << endl;
+        if (verbose) cout << "TESTING USAGE EXAMPLE 2\n"
+                          << "=======================\n";
 
         // make sure there isn't an unfortunately named file in the way
 
@@ -3160,20 +3216,20 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 28: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Run the usage example 1
+        //: 1 Run usage example 1 and observe that none of the asserts fail.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 1"
-                          << "\n=======================" << endl;
+        if (verbose) cout << "TESTING USAGE EXAMPLE 1\n"
+                          << "=======================\n";
 
         // make sure there isn't an unfortunately named file in the way
 
@@ -3276,7 +3332,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 27: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING SYMLINKS
         //
@@ -3323,14 +3379,14 @@ int main(int argc, char *argv[])
         localTouch(file);
         ASSERT(Obj::isRegularFile(file));
 
-        ASSERT(createSymlink(dir, dir_symlink));
+        ASSERTV(u_errno(), createSymlink(dir, dir_symlink));
         ASSERT( Obj::isSymbolicLink(dir_symlink));
         ASSERT(!Obj::isSymbolicLink(dir));
         ASSERT(Obj::getSymbolicLinkTarget(&st, dir_symlink) == 0);
         ASSERT(st == dir);
         ASSERT(Obj::getSymbolicLinkTarget(&st, dir        ) != 0);
 
-        ASSERT(createSymlink(file, file_symlink));
+        ASSERTV(u_errno(), createSymlink(file, file_symlink));
         ASSERT( Obj::isSymbolicLink(file_symlink));
         ASSERT(!Obj::isSymbolicLink(file));
         ASSERT(Obj::getSymbolicLinkTarget(&st, file_symlink) == 0);
@@ -3354,7 +3410,7 @@ int main(int argc, char *argv[])
         ASSERT(st == dir);
 #endif
       } break;
-      case 26: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING GET LAST MODIFICATION TIME FOR FILE DESCRIPTORS
         //
@@ -3762,6 +3818,638 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT_LE(LINE, bdlt::DatetimeInterval(), modTimeSkew);
             LOOP_ASSERT_GT(LINE, MOD_TIME_PRECISION, modTimeSkew);
+        }
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING STREAMING OF ENUMS
+        //
+        // Testing:
+        //   ostream& operator<<(ostream&, Whence);
+        //   ostream& operator<<(ostream&, ErrorType);
+        //   ostream& operator<<(ostream&, FileOpenPolicy);
+        //   ostream& operator<<(ostream&, FileIOPolicy);
+        //   ostream& operator<<(ostream&, FileTruncatePolicy);
+        // --------------------------------------------------------------------
+
+        bsl::ostringstream oss;
+        const char *exp;
+
+#undef  STEST
+#define STEST(pfx, id)                                                        \
+        oss.str("");                                                          \
+        oss << bdls::FilesystemUtil::pfx ## id;                               \
+        ASSERTV(#pfx, #id, oss.str(), #id == oss.str());
+
+        STEST(e_, SEEK_FROM_BEGINNING);
+        STEST(e_, SEEK_FROM_CURRENT);
+        STEST(e_, SEEK_FROM_END);
+
+        STEST(k_, ERROR_LOCKING_CONFLICT);
+        STEST(k_, ERROR_LOCKING_INTERRUPTED);
+        STEST(k_, ERROR_ALREADY_EXISTS);
+        STEST(k_, ERROR_PATH_NOT_FOUND);
+        STEST(k_, ERROR_PAST_EOF);
+        STEST(k_, BAD_FILE_DESCRIPTOR);
+
+        STEST(e_, OPEN);
+        STEST(e_, CREATE);
+        STEST(e_, CREATE_PRIVATE);
+        STEST(e_, OPEN_OR_CREATE);
+
+        STEST(e_, READ_ONLY);
+        STEST(e_, WRITE_ONLY);
+        STEST(e_, APPEND_ONLY);
+        STEST(e_, READ_WRITE);
+        STEST(e_, READ_APPEND);
+
+        STEST(e_, TRUNCATE);
+        STEST(e_, KEEP);
+#undef  STEST
+
+#undef  BADTEST
+#define BADTEST(type)                                                         \
+        ASSERT(sizeof(bdls::FilesystemUtil::type) == sizeof(int));            \
+        oss.str("");                                                          \
+        {                                                                     \
+            typedef bdls::FilesystemUtil::type Type;                          \
+            const int ii = 100;                                               \
+            Type tt;                                                          \
+            bsl::memcpy(&tt, &ii, sizeof(tt));                                \
+            oss << tt;                                                        \
+        }                                                                     \
+        exp = "Invalid '" #type "' == 100";                                   \
+        ASSERTV(oss.str(), exp, exp == oss.str());
+
+        BADTEST(Whence);
+        BADTEST(ErrorType);
+        BADTEST(FileOpenPolicy);
+        BADTEST(FileIOPolicy);
+        BADTEST(FileTruncatePolicy);
+#undef  BADTEST
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING GETFILESIZE(FD), MAP/MAPCHECKED/UNMAP
+        //
+        // Concerns:
+        //: 1 That 'getFileSize' returns the offset of the end of the file,
+        //:   even if there are blocks between the start and the end that
+        //:   have been seeked past and have never been written to.
+        //:
+        //: 2 That when mapping succeeds, it has no impact on the current
+        //:   file read/write offset.
+        //:
+        //: 3 That we can map a page, then write to it, and read back the
+        //:   same values that were written.  If we read from the mapped memory
+        //:   before writing to it, it will contain the values that were in the
+        //:   file, or zero if that section of the file was never written to.
+        //:
+        //: 4 After the memory is unmapped and the file is closed, if we read
+        //:   the sections of the file that we wrote to while mapped, we will
+        //:   see the values most recently written to the memory.
+        //:
+        //: 7 That page size is a power of two (the internal implementations of
+        //:   the checks in this component make that assumption).
+        //
+        // Plan:
+        //: 1 Get the page size from 'MemoryUtil::pageSize()' and verify that
+        //:   it is a positive power of 2.
+        //:
+        //: 2 Loop twice with two different file names, in the first pass map
+        //:   with 'map', in the second, with 'mapChecked'.
+        //:
+        //: 3 Write a block to the beginning of the file, map it, access the
+        //:   mapping with a read, a write, and a read.
+        //:
+        //: 4 Seek several blocks forward and write another block.
+        //:
+        //: 6 Seek to a point between the two blocks and map it.  It has not
+        //:   been written to.  Access the mapping and verify it's all zeroes.
+        //:   Write to the mapping and read from it.
+        //:
+        //: 7 Observe the file read/write offset before and after each call to
+        //:   'map' and verify that it's unaffected.
+        //:
+        //: 8 Unmap both mapped blocks, verifying in each case that the file's
+        //:   read/write offset is unaffected.
+        //:
+        //: 9 Map another segment whose 'size' is a small fragment of a page
+        //:   size and observe that it works and that memory can be accessed.
+        //:   'man mmap' kind of sounds like this shouldn't work, but it does
+        //:   work on all platorms.  Under 'ERRORS', 'man mmap' says:
+        //..
+        //:   EINVAL We don't like addr, length, or offset (e.g., they are too
+        //:          large, or not aligned on a page boundary).
+        //..
+        //:   which sounds like a 'length' value less than a page long will be
+        //:   a problem; empirically, however, we don't find this to be the
+        //:   case.
+        //:
+        //: 10 Attempt to make with an offset not on a page boundary and
+        //:    observe that both 'map' and 'mapChecked' fail, returning the
+        //:    appropriate enum.
+        //:
+        //: 11 In the 'map' pass, map a segment that overlaps past the end of
+        //:    file, observe it succeeds and that the portion of the segment
+        //:    that was before the end of file can be accessed.
+        //:
+        //: 12 In the 'mapChecked' pass, attempt to map past the end of file
+        //:    and observe that it fails returning the appropriate enum.
+        //:
+        //: 13 Negative testing in the 'mapChecked' pass: Attempt to map with a
+        //:    negative offset, with a zero size, or with invalid bits in
+        //:    'mode' set.
+        //:
+        //: 14 Close the file and open it readonly, read through it, and
+        //:    observe that the contents are as expected.  Note that the
+        //:    segments that we 'seek'ed past without writing to them will, if
+        //:    read by 'read', appear to contain garbage.
+        //:
+        //: 15 Using the readonly file descriptor, map the whole file readonly,
+        //:    and read every byte of the mapped memory, observing that the
+        //:    segments that were written to contain the expected information,
+        //:    and that the segments seeked past constain zeroes.
+        //
+        // Tesing:
+        //   Offset getFileSize(FileDescriptor);
+        //   int map(FileDescriptor, void **, Offset, bsl::size_t, int);
+        //   int mapChecked(FileDescriptor, void **, Offset, bsl::size_t, int);
+        //   int unmap(void *, bsl::size_t);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING GETFILESIZE(FD), MAP/MAPCHECKED/UNMAP\n"
+                             "=============================================\n";
+
+        {
+            // On Unix, this test case creates a gremlin file in the current
+            // context that will disappear when the process finishes.  If we
+            // are in a temp directory, this would preclude our removing the
+            // temp directory at the end.  For this reason, do this test in the
+            // original working directory, and use filenames that consist of
+            // the temp dir name + a suffix to ensure uniqueness, and assert
+            // that we successfully clean up our test files.
+
+            ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
+        }
+
+        int rc;
+
+        // It is important to verify that page size is a power of two, since
+        // the logic of the checking in the imp of 'map' depends on it.
+
+        if (verbose) cout << "Testing page size\n";
+        const int k_PAGE_SIZE = bdls::MemoryUtil::pageSize();
+        ASSERT(1 == bdlb::BitUtil::numBitsSet(
+                                          static_cast<uint32_t>(k_PAGE_SIZE)));
+        if (verbose) P(k_PAGE_SIZE);
+
+        // Make a buffer that is one page in size.
+
+        vector<char> vBuf(k_PAGE_SIZE, '\0');
+        ASSERT(vBuf.size() == static_cast<unsigned>(k_PAGE_SIZE));
+        char *buffer = &vBuf[0];
+
+        for (int ti = 0; ti < 2; ++ti) {
+            const bool checking   = ti;
+
+            int mapMode = bdls::MemoryUtil::k_ACCESS_READ_WRITE;
+
+            bsl::string fileName(tmpWorkingDir);
+            fileName += checking ? ".checked" : ".unchecked";
+            fileName += ".bin";
+
+            if (verbose) {
+                cout << "----------------------------------------------------"
+                     << " pass " << ti << endl;
+                P(fileName);
+            }
+
+            Obj::FileDescriptor fd = Obj::open(fileName,
+                                               Obj::e_CREATE,
+                                               Obj::e_READ_WRITE);
+            ASSERT(Obj::k_INVALID_FD != fd);
+
+            bsl::memset(buffer, 0x7c, k_PAGE_SIZE);
+            rc = Obj::write(fd, buffer, k_PAGE_SIZE);
+            ASSERT(k_PAGE_SIZE == rc);
+
+            Obj::Offset off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
+            ASSERT(0 == off);
+            if (verbose) P(off);
+            Obj::Offset preMapOff = off;
+
+            void *addressA;
+            rc = checking
+               ? Obj::mapChecked(fd, &addressA, 0, k_PAGE_SIZE, mapMode)
+               : Obj::map(       fd, &addressA, 0, k_PAGE_SIZE, mapMode);
+            ASSERT(0 == rc);
+            ASSERT(addressA);
+
+            off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+            if (verbose) P(off);
+            ASSERTV(preMapOff, off, preMapOff == off);
+
+            char *startA = static_cast<char *>(addressA);
+            char *endA   = startA + k_PAGE_SIZE;
+            for (char *pc = startA; pc < endA; ++pc) {
+                ASSERTV(pc - startA, castToHex(*pc), 0x7c == *pc);
+                *pc = 0x5a;
+            }
+            for (char *pc = startA; pc < endA; ++pc) {
+                ASSERTV(pc - startA, castToHex(*pc), 0x5a == *pc);
+            }
+
+            // Skip a bunch of pages forward, then write a block.
+
+            off = Obj::seek(fd,
+                            8 * k_PAGE_SIZE,
+                            Obj::e_SEEK_FROM_BEGINNING);
+            bsl::memset(buffer, 0x2a, k_PAGE_SIZE);
+            rc = Obj::write(fd, buffer, k_PAGE_SIZE);
+            ASSERT(k_PAGE_SIZE == rc);
+
+            const Obj::Offset endOff =
+                                    Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+            ASSERT(9 * k_PAGE_SIZE == endOff);
+
+            // Seek to a random place, and call 'getFileSize' and observe that
+            // returns a value other than the current offset, and that it's the
+            // offset of end of file, even though there are a bunch of blocks
+            // that weren't written to in the middle, so it's not necessarily
+            // the number of blocks of space taken.
+
+            off = Obj::seek(fd, k_PAGE_SIZE, Obj::e_SEEK_FROM_BEGINNING);
+
+            Obj::Offset fSize = Obj::getFileSize(fd);
+            ASSERT(0 < fSize);
+            if (verbose) P(fSize);
+            ASSERT(9 * k_PAGE_SIZE == fSize);
+            ASSERT(endOff == fSize);
+            ASSERT(off != fSize);
+
+            // Now map one of the blocks in the middle that we skipped over,
+            // and observe that if we read from the mapped memory, it's all
+            // zeroes, and that we can write and read what we want from it
+            // after that.
+
+            void *addressB;
+            Obj::Offset off4 = 4 * k_PAGE_SIZE;
+            preMapOff = off;
+            rc = checking
+               ? Obj::mapChecked(fd, &addressB, off4, k_PAGE_SIZE, mapMode)
+               : Obj::map(       fd, &addressB, off4, k_PAGE_SIZE, mapMode);
+            ASSERT(0 == rc);
+            ASSERT(addressB);
+            off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+            if (verbose) P(off);
+            ASSERT(preMapOff == off);
+
+            char *startB = static_cast<char *>(addressB);
+            char *endB   = startB + k_PAGE_SIZE;
+            for (char *pc = startB; pc < endB; ++pc) {
+                ASSERTV(pc - startB, castToHex(*pc), 0x00 == *pc);
+                *pc = 0x4f;
+            }
+            for (char *pc = startB; pc < endB; ++pc) {
+                ASSERTV(pc - startB, castToHex(*pc), 0x4f == *pc);
+            }
+
+            // Set the offset to random place, unmap the two blocks, and
+            // observe the offset is unaffected.
+
+            preMapOff = Obj::seek(fd,
+                                  6 * k_PAGE_SIZE,
+                                  Obj::e_SEEK_FROM_BEGINNING);
+
+            rc = Obj::unmap(addressA, k_PAGE_SIZE);
+            ASSERT(0 == rc);
+
+            off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+            ASSERTV(preMapOff, off, preMapOff == off);
+            preMapOff = off;
+
+            rc = Obj::unmap(addressB, k_PAGE_SIZE);
+            ASSERT(0 == rc);
+
+            off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+            ASSERTV(preMapOff, off, preMapOff == off);
+
+            // Mapping with 'size' not page aligned.  Some of the doc suggests
+            // this is not allowed, but empirically, it works both on Unix and
+            // Windows, so we allow it.
+
+            addressB = 0;
+            rc = checking
+               ? Obj::mapChecked(fd,
+                                 &addressB,
+                                 3 * k_PAGE_SIZE,
+                                 k_PAGE_SIZE / 8,
+                                 mapMode)
+               : Obj::map(       fd,
+                                 &addressB,
+                                 3 * k_PAGE_SIZE,
+                                 k_PAGE_SIZE / 8,
+                                 mapMode);
+            ASSERT(0 == rc);
+            ASSERT(0 != addressB);
+
+            startB = static_cast<char *>(addressB);
+            endB   = startB + k_PAGE_SIZE / 8;
+            for (char *pc = startB; pc < endB; ++pc) {
+                ASSERTV(pc - startB, castToHex(*pc), 0x00 == *pc);
+                *pc = 0x1f;
+            }
+            for (char *pc = startB; pc < endB; ++pc) {
+                ASSERTV(pc - startB, castToHex(*pc), 0x1f == *pc);
+            }
+
+            rc = Obj::unmap(addressB, k_PAGE_SIZE / 8);
+            ASSERT(0 == rc);
+
+
+            bsls::AssertFailureHandlerGuard hG(
+                                            bsls::AssertTest::failTestDriver);
+            // Failure/Negative testing.
+
+            if (verbose) cout << "Failure/Negative testing " <<
+                             (checking ? "with" : "without") << " checking.\n";
+
+            void *addressC = 0;
+            if (checking) {
+                // Attempt to map past end of file.
+
+                rc = Obj::mapChecked(fd,
+                                     &addressC,
+                                     fSize - k_PAGE_SIZE,
+                                     2 * k_PAGE_SIZE,
+                                     mapMode);
+                ASSERTV(rc, Obj::k_ERROR_PAST_EOF == rc);
+                ASSERT(!addressC);
+                addressC = 0;
+
+                ASSERT(0 == (-k_PAGE_SIZE & (k_PAGE_SIZE - 1)));
+
+                // depending on relative sizes of 'size' & 'offset', either
+                // 'size' is interpreted as ridiculously large, or
+                // 'offset + size' wraps.
+
+                rc = Obj::mapChecked(fd,
+                                     &addressC,
+                                     3 * k_PAGE_SIZE,
+                                     -k_PAGE_SIZE,
+                                     mapMode);
+                ASSERTV(rc, Obj::k_ERROR_PAST_EOF == rc);
+                ASSERT(!addressC);
+                addressC = 0;
+                rc = 57;
+
+                // Attempt to map at illegal offset.
+
+                ASSERT_OPT_FAIL(rc = Obj::mapChecked(fd,
+                                                     &addressC,
+                                                     k_PAGE_SIZE / 2,
+                                                     k_PAGE_SIZE,
+                                                     mapMode));
+                if (verbose) { Q_(bad offset);    P_(checking);    P(rc); }
+                ASSERT(!addressC);
+                addressC = 0;
+                ASSERT(57 == rc);
+                rc = 57;
+
+                // negative offset
+
+                ASSERT_FAIL(rc = Obj::mapChecked(fd,
+                                                 &addressC,
+                                                 -k_PAGE_SIZE,
+                                                 k_PAGE_SIZE,
+                                                 mapMode));
+                ASSERT(!addressC);
+                addressC = 0;
+                ASSERT(57 == rc);
+                rc = 57;
+
+                // zero size
+
+                ASSERT_FAIL(rc = Obj::mapChecked(fd,
+                                                 &addressC,
+                                                 k_PAGE_SIZE,
+                                                 0,
+                                                 mapMode));
+                ASSERT(!addressC);
+                addressC = 0;
+                ASSERT(57 == rc);
+                rc = 57;
+
+                // illegal bit set in 'mapMode'
+
+                ASSERT_FAIL(rc = Obj::mapChecked(fd,
+                                                 &addressC,
+                                                 2 * k_PAGE_SIZE,
+                                                 k_PAGE_SIZE,
+                                                 32 | mapMode));
+                ASSERT(!addressC);
+                addressC = 0;
+                ASSERT(57 == rc);
+            }
+            else {
+                // Checking in 'map' is disabled.  Attempt to map past end of
+                // file will "succeed", but we would segfault if we accessed
+                // the section of mapped memory that is past end of file.
+
+                // Note that on Unix, this will create a '.nfs*' gremlin file
+                // that will persist for the life of the process, then
+                // disappear.
+
+                ASSERT_OPT_PASS(rc = Obj::map(fd,
+                                              &addressC,
+                                              fSize - k_PAGE_SIZE,
+                                              2 * k_PAGE_SIZE,
+                                              mapMode));
+                ASSERT(0 == rc);
+                ASSERT(0 != addressC);
+
+                char *startC = static_cast<char *>(addressC);
+                char *endC   = startC + k_PAGE_SIZE;
+                char *pc;
+                for (pc = startC; pc < endC; ++pc) {
+                    ASSERTV(pc - startC, castToHex(*pc), 0x2a == *pc);
+                }
+                if (e_WINDOWS) {
+                    // On Windows, but not on Unix, mapping past EOF grows the
+                    // file.  On Linux or Solaris, this would segfault.
+
+                    startC = pc;
+                    endC   = startC + k_PAGE_SIZE;
+                    for (pc = startC; pc < endC; ++pc) {
+                        ASSERTV(pc - startC, castToHex(*pc), 0x00 == *pc);
+                    }
+                }
+
+                rc = Obj::unmap(addressC, k_PAGE_SIZE);
+                ASSERT(0 == rc);
+            }
+            ASSERT(0 == Obj::close(fd));
+
+            fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_ONLY);
+            ASSERT(Obj::k_INVALID_FD != fd);
+
+            // Check that the file size is what we think it is.
+
+            const Obj::Offset fileSize = Obj::getFileSize(fd);
+            if (checking || e_UNIX) {
+                ASSERTV(9 * k_PAGE_SIZE, fileSize,
+                                                  9 * k_PAGE_SIZE == fileSize);
+            }
+            else {
+                // On Windows, mapping past the end of file grows the file.
+
+                ASSERTV(10 * k_PAGE_SIZE, fileSize,
+                                                 10 * k_PAGE_SIZE == fileSize);
+            }
+
+            // Examine the file and make sure the values we wrote to it are
+            // still there.
+
+            rc = Obj::read(fd, buffer, k_PAGE_SIZE);
+            ASSERT(k_PAGE_SIZE == rc);
+            for (char *pc = buffer; pc < buffer + k_PAGE_SIZE; ++pc) {
+                ASSERTV(pc - buffer, castToHex(*pc), 0x5a == *pc);
+            }
+
+            // The next 2 pages were never mapped or written to, may contain
+            // garbage if read.
+
+            off = Obj::seek(fd, 2 * k_PAGE_SIZE, Obj::e_SEEK_FROM_CURRENT);
+            ASSERT(3 * k_PAGE_SIZE == off);
+
+            rc = Obj::read(fd, buffer, k_PAGE_SIZE / 8);
+            ASSERT(k_PAGE_SIZE / 8 == rc);
+            for (char *pc = buffer, *end = buffer + k_PAGE_SIZE / 8; pc < end;
+                                                                        ++pc) {
+                ASSERTV(pc - buffer, castToHex(*pc), 0x1f == *pc);
+            }
+
+            off = Obj::seek(fd, 7 * k_PAGE_SIZE / 8, Obj::e_SEEK_FROM_CURRENT);
+            ASSERT(4 * k_PAGE_SIZE == off);
+
+            rc = Obj::read(fd, buffer, k_PAGE_SIZE);
+            ASSERT(k_PAGE_SIZE == rc);
+            for (char *pc = buffer; pc < buffer + k_PAGE_SIZE; ++pc) {
+                ASSERTV(pc - buffer, castToHex(*pc), 0x4f == *pc);
+            }
+
+            // The next 3 pages were never mapped or written to, may contain
+            // garbage if read.
+
+            off = Obj::seek(fd, 3 * k_PAGE_SIZE, Obj::e_SEEK_FROM_CURRENT);
+            ASSERT(8 * k_PAGE_SIZE == off);
+
+            rc = Obj::read(fd, buffer, k_PAGE_SIZE);
+            ASSERT(k_PAGE_SIZE == rc);
+            for (char *pc = buffer; pc < buffer + k_PAGE_SIZE; ++pc) {
+                ASSERTV(pc - buffer, castToHex(*pc), 0x2a == *pc);
+            }
+
+            off = Obj::seek(fd, 100, Obj::e_SEEK_FROM_BEGINNING);
+            ASSERT(100 == off);
+
+            // Now map the whole file readonly and examine every byte.
+
+            bsl::size_t fileSize_t =
+                                static_cast<bsl::size_t>(Obj::getFileSize(fd));
+
+            // Attempt to map for read-write a file desc that was opened read
+            // only should fail;
+
+            mapMode = bdls::MemoryUtil::k_ACCESS_READ_WRITE;
+            void *addressD = 0;
+            rc = checking
+               ? Obj::mapChecked(fd,
+                                 &addressD,
+                                 0,
+                                 fileSize_t,
+                                 mapMode)
+               : Obj::map(       fd,
+                                 &addressD,
+                                 0,
+                                 fileSize_t,
+                                 mapMode);
+            ASSERT(0 != rc);
+
+            // Now map again as read only.  Should succeed.
+
+            mapMode = bdls::MemoryUtil::k_ACCESS_READ;
+            addressD = 0;
+            rc = checking
+               ? Obj::mapChecked(fd,
+                                 &addressD,
+                                 0,
+                                 fileSize_t,
+                                 mapMode)
+               : Obj::map(       fd,
+                                 &addressD,
+                                 0,
+                                 fileSize_t,
+                                 mapMode);
+            ASSERT(0 == rc);
+            ASSERT(addressD);
+
+            const char *cAddressD = static_cast<char *>(addressD);
+
+            const char *startD = cAddressD;
+            const char *endD   = startD + k_PAGE_SIZE;
+            const char *pc;
+            for (pc = startD; pc < endD; ++pc) {
+                ASSERTV(pc - startD, castToHex(*pc), 0x5a == *pc);
+            }
+            startD = pc;
+            endD   = cAddressD + 3 * k_PAGE_SIZE;
+            for (; pc < endD; ++pc) {
+                ASSERTV(pc - startD, castToHex(*pc), 0x00 == *pc);
+            }
+            startD = endD;
+            endD   = startD + k_PAGE_SIZE / 8;
+            for (; pc < endD; ++pc) {
+                ASSERTV(pc - startD, castToHex(*pc), 0x1f == *pc);
+            }
+            startD = endD;
+            endD   = cAddressD + 4 * k_PAGE_SIZE;
+            for (; pc < endD; ++pc) {
+                ASSERTV(pc - startD, castToHex(*pc), 0x00 == *pc);
+            }
+            startD = endD;
+            endD   = startD + k_PAGE_SIZE;
+            for (; pc < endD; ++pc) {
+                ASSERTV(pc - startD, castToHex(*pc), 0x4f == *pc);
+            }
+            startD = endD;
+            endD   = cAddressD + 8 * k_PAGE_SIZE;
+            for (; pc < endD; ++pc) {
+                ASSERTV(pc - startD, castToHex(*pc), 0x00 == *pc);
+            }
+            startD = endD;
+            endD   = startD + k_PAGE_SIZE;
+            for (; pc < endD; ++pc) {
+                ASSERTV(pc - startD, castToHex(*pc), 0x2a == *pc);
+            }
+
+            if (!checking && e_WINDOWS) {
+                startD = endD;
+                endD   = startD + k_PAGE_SIZE;
+                for (; pc < endD; ++pc) {
+                    ASSERTV(pc - startD, castToHex(*pc), 0x00 == *pc);
+                }
+            }
+
+            ASSERTV((pc - cAddressD), fileSize, pc - cAddressD == fileSize);
+
+            rc = Obj::unmap(addressD, 9 * k_PAGE_SIZE);
+            ASSERT(0 == rc);
+
+            ASSERT(0 == Obj::close(fd));
+            ASSERT(0 == Obj::remove(fileName));
+            ASSERTV(fileName, !Obj::exists(fileName));
         }
       } break;
       case 25: {
@@ -5749,6 +6437,7 @@ int main(int argc, char *argv[])
         //   We cannot verify it properly.
         //
         // Testing:
+        //   Offset getAvailableSpace(const bsl::string&)
         //   Offset getAvailableSpace(const char *)
         //   Offset getAvailableSpace(FileDescriptor)
         // --------------------------------------------------------------------
@@ -5761,6 +6450,18 @@ int main(int argc, char *argv[])
             cout << "Avail = " << avail << endl;
         }
         ASSERTV(avail, 0 <= avail);
+
+        Obj::Offset avail2 = Obj::getAvailableSpace(string("."));
+        if (veryVerbose) {
+            cout << "Avail = " << avail << endl;
+        }
+
+        // This is total available space on the device.  With multiple users it
+        // can easily fluctuate a little -- make sure 'avail' and 'avail2' are
+        // rougly equal.
+
+        ASSERTV(avail, avail2, avail  < avail2 + avail2 / 16);
+        ASSERTV(avail, avail2, avail2 < avail  + avail  / 16);
 
         string fileName = ::tempFileName(test);
         Obj::FileDescriptor fd = Obj::open(fileName,
@@ -6086,6 +6787,175 @@ int main(int argc, char *argv[])
             veryVeryVerbose);
 #endif
 
+        struct Parameters {
+            const char* good;
+            const char* badNoExist;
+            const char* badWrongType;
+        };
+
+        struct ParametersByType {
+            Parameters regular;
+            Parameters directory;
+        } parameters = {
+            { "tmp.filesystemutil.case4" PS "file",
+              "tmp.filesystemutil.case4" PS "file2",
+              "tmp.filesystemutil.case4" PS "dir"  },
+            { "tmp.filesystemutil.case4" PS "dir",
+              "tmp.filesystemutil.case4" PS "dir2",
+              "tmp.filesystemutil.case4" PS "file" }
+        };
+
+        const Parameters& r = parameters.regular;
+        const Parameters& d = parameters.directory;
+
+        ASSERT(0 == Obj::createDirectories(r.good));
+
+        ::makeArbitraryFile(r.good);
+        ASSERT(0 == Obj::createDirectories(r.badWrongType, true));
+        ASSERT(true == Obj::isRegularFile(r.good));
+        ASSERT(false == Obj::isRegularFile(r.badNoExist));
+        ASSERT(false == Obj::isRegularFile(r.badWrongType));
+
+        ::makeArbitraryFile(d.badWrongType);
+        ASSERT(0 == Obj::createDirectories(d.good, true));
+        ASSERT(true == Obj::isDirectory(d.good));
+        ASSERT(false == Obj::isDirectory(d.badNoExist));
+        ASSERT(false == Obj::isDirectory(d.badWrongType));
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+        if (veryVerbose) {
+           cout << "...symbolic link tests..." << endl;
+        }
+
+        bsl::string absolute;
+        ASSERT(0 == Obj::getWorkingDirectory(&absolute));
+        bdls::PathUtil::appendRaw(&absolute, r.good);
+
+        bsl::string link = absolute;
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_rg");
+        int rc = symlink(absolute.c_str(), link.c_str());
+
+        // test invariant:
+
+        ASSERT(0 == rc);
+
+        ASSERT(false == Obj::isRegularFile(link.c_str()));
+        ASSERT(true  == Obj::isRegularFile(link.c_str(), true));
+
+        bsl::string link2 = r.good;
+        bdls::PathUtil::popLeaf(&link2);
+        bdls::PathUtil::appendRaw(&link2, "link_rg2");
+        rc = symlink(link.c_str(), link2.c_str());
+
+        // test invariant:
+
+        ASSERT(0 == rc);
+
+        ASSERT(false == Obj::isRegularFile(link2));
+        ASSERT(true  == Obj::isRegularFile(link2, true));
+
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_rbw");
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::appendRaw(&absolute, r.badWrongType);
+        rc = symlink(absolute.c_str(), link.c_str());
+
+        // test invariant:
+
+        ASSERT(0 == rc);
+
+        ASSERT(false == Obj::isRegularFile(link));
+        ASSERT(false == Obj::isRegularFile(link, true));
+
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_rbn");
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::appendRaw(&absolute, r.badNoExist);
+        rc = symlink(absolute.c_str(), link.c_str());
+
+        // test invariant:
+
+        ASSERT(0 == rc);
+
+        ASSERT(false == Obj::isRegularFile(link));
+        ASSERT(false == Obj::isRegularFile(link, true));
+
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_dg");
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::appendRaw(&absolute, d.good);
+        rc = symlink(absolute.c_str(), link.c_str());
+
+        // test invariant:
+
+        ASSERT(0 == rc);
+
+        ASSERT(false == Obj::isDirectory(link));
+        ASSERT(false == Obj::isRegularFile(link));
+        ASSERT(true  == Obj::isDirectory(link, true));
+        ASSERT(false == Obj::isRegularFile(link, true));
+
+        bdls::PathUtil::popLeaf(&link2);
+        bdls::PathUtil::appendRaw(&link2, "link_dg2");
+        rc = symlink(link.c_str(), link2.c_str());
+
+        // test invariant:
+
+        ASSERT(0 == rc);
+
+        ASSERT(false == Obj::isDirectory(link2));
+        ASSERT(false == Obj::isRegularFile(link2));
+        ASSERT(true  == Obj::isDirectory(link2, true));
+        ASSERT(false == Obj::isRegularFile(link2, true));
+
+#endif  // Symbolic link testing on non-Windows
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS  // (unix domain socket)
+        {
+            // Unix domain sockets should return 'false' for 'isRegularFile'
+            // and 'isDirectory' (DRQS 2071065).
+
+            if (veryVerbose) {
+                cout << "...unix domain socket..." << endl;
+            }
+            bsl::string filename = ::tempFileName(test);
+            Obj::remove(filename);
+
+            int socketFd = socket(AF_UNIX, SOCK_STREAM, 0);
+            LOOP_ASSERT(socketFd, socketFd >= 0);
+
+            struct sockaddr_un address;
+            address.sun_family = AF_UNIX;
+            sprintf(address.sun_path, "%s", filename.c_str());
+
+            // Add one to account for the null terminator for the filename.
+
+            const int ADDR_LEN = (int) (sizeof(address.sun_family) +
+                                        filename.size() +
+                                        1);
+
+            int rc = ::bind(socketFd, (struct sockaddr *)&address, ADDR_LEN);
+            LOOP3_ASSERT(rc, errno, strerror(errno), 0 == rc);
+
+
+            LOOP_ASSERT(filename, Obj::exists(filename));
+            LOOP_ASSERT(filename, !Obj::isDirectory(filename));
+            LOOP_ASSERT(filename, !Obj::isRegularFile(filename));
+
+            rc = Obj::close(socketFd);
+            ASSERT(0 == rc);
+
+            Obj::remove(filename);
+        }
+#endif  // BSLS_PLATFORM_OS_WINDOWS (unix domain socket)
+
+        //clean up
+
+       ASSERT(0 == Obj::remove("tmp.filesystemutil.case4", true));
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -8485,41 +9355,29 @@ int main(int argc, char *argv[])
     }
 
     ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
-    LOOP_ASSERT(tmpWorkingDir, Obj::exists(tmpWorkingDir));
+    LOOP_ASSERT(tmpWorkingDir, Obj::isDirectory(tmpWorkingDir));
 
     // Sometimes this delete won't work because of '.nfs*' gremlin files that
     // mysteriously get created in the directory.  Seems to especially happen
-    // in TC 5 for some reason.  Leave the directory behind and move on.  Also
-    // remove twice, because sometimes the first 'remove' 'sorta' fails -- it
-    // returns a negative status after successfully killing the gremlin file.
-    // Worst case, leave the file there to be cleaned up in a sweep later.
+    // in TC 4 for some reason.  Check if the directory has been removed, and
+    // attempt again to removing it, pausing longer and longer in between tries
+    // to give nfs more time to get its act together.  After a few tries, give
+    // up and leave the temporary files behind.
 
-    for (int i = 1; i <= 5; ++i) {
-        if (veryVerbose) {
-            cout << "Cleaning up " << tmpWorkingDir << " (attempt " << i << ")"
-                 << endl;
-        }
+    Obj::remove(tmpWorkingDir, true);
+
+    for (int ii = 4; ii <= 10 && Obj::isDirectory(tmpWorkingDir); ii += 2) {
+        bslmt::ThreadUtil::microSleep(0, ii);
 
         Obj::remove(tmpWorkingDir, true);
-
-        if (!Obj::exists(tmpWorkingDir)) {
-            if (veryVerbose) {
-                cout << "Clean up of " << tmpWorkingDir << " succeeded"
-                     << endl;
-            }
-
-            break;
-        }
-
-        localSleep(1);
     }
 
-    // TODO: Figure out why case 5's tmpWorkingDir is impossible to clean up...
-    //
-    // The permissions are fine, it's empty, and it removes just fine with
-    // rm -rf once the build is done...
-
-    // LOOP_ASSERT(tmpWorkingDir, !Obj::exists(tmpWorkingDir));
+    if (verbose && Obj::exists(tmpWorkingDir)) {
+        cout << "'" << tmpWorkingDir << "' left behind.\n";
+        const bsl::string& lsCmd = (e_UNIX ? "/bin/ls -laF " : "dir /o ") +
+                                                                 tmpWorkingDir;
+        bsl::system(lsCmd.c_str());
+    }
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."

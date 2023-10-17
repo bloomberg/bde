@@ -28,7 +28,9 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_managedptr.h>
+#include <bslmf_assert.h>
 #include <bslmf_movableref.h>
+
 #include <bslmt_threadutil.h>
 
 #include <bsla_maybeunused.h>
@@ -531,25 +533,28 @@ namespace {
 # endif
 
 static inline
-int performStat(const char *fileName, StatResult *statResult)
-    // Run the appropriate 'stat' or 'stat64' function on the specified
-    // 'fileName', returning the results in the specified 'statResult'.
+int performFStat(BloombergLP::bdls::FilesystemUtil::FileDescriptor  descriptor,
+                 StatResult                                        *statResult)
+    // Run the appropriate 'fstat' or 'fstat64' function on the specified file
+    // 'descriptor', returning the results in the specified 'statResult'.
 {
-# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
-    return ::stat  (fileName, statResult);
-# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
-    return ::stat64(fileName, statResult);
-# else
-#  error "'bdls_filesystemutil' does not support this platform."
-# endif
+#if   defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    return ::fstat  (descriptor, statResult);
+#elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    return ::fstat64(descriptor, statResult);
+#else
+#  error "bdls_filesystemutil: 'performFStat' does not support this platform."
+#endif
 }
 
 static inline
-int performStat(const char *fileName, StatResult *statResult, bool followLinks)
+int performStat(const char *fileName,
+                StatResult *statResult,
+                bool        followLinks = true)
     // Run the appropriate 'stat' or 'stat64' function on the specified
     // 'fileName', returning the results in the specified 'statResult', where
     // the specified 'followLinks' indicates whether symlinks are to be
-    // followed.
+    // followed using 'lstat' or 'lstat64'.
 {
 # if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
     return followLinks ?  ::stat(fileName, statResult)
@@ -1146,9 +1151,17 @@ int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool)
 {
     BSLS_ASSERT(0 != address);
     BSLS_ASSERT(0 <= numBytes);
-    BSLS_ASSERT(0 == numBytes % MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
-                     MemoryUtil::pageSize());
+
+    // The test driver verifies that page size is a multiple of 2.  Note that
+    // since page size is run time value, the compiler does not realize that
+    // it's a power of 2 and therefore cannot optimize '0 == offset % pageSize'
+    // (slow) into '0 == (offset & (pageSize - 1))' (fast).
+
+    static int pageSizeMask = MemoryUtil::pageSize() - 1;  (void) pageSizeMask;
+
+    BSLS_ASSERT(0 == (numBytes & pageSizeMask));
+    BSLS_ASSERT(0 == (reinterpret_cast<bsls::Types::UintPtr>(address) &
+                                                                pageSizeMask));
 
     // The meaning of the 'sync' flag (cause this function to be synchronous
     // vs. asynchronous) does not appear to be supported by 'FlushViewOfFile'.
@@ -1736,7 +1749,16 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
 
 FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
 {
-    return u::WindowsImpUtil::getFileSize(descriptor);
+    if (k_INVALID_FD == descriptor) {
+        return -1;                                                    // RETURN
+    }
+
+    LARGE_INTEGER li;
+    if (!::GetFileSizeEx(descriptor, &li)) {
+        return -1;                                                    // RETURN
+    }
+
+    return li.QuadPart;
 }
 
 FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
@@ -1759,7 +1781,9 @@ int u_getSymbolicLinkTarget(STRING_TYPE *result,
         return -1;                                                    // RETURN
     }
 
-    //char memory[MAXIMUM_REPARSE_DATA_BUFFER_SIZE]; //can be large so use heap
+    // 'char memory[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];' -- can be large so use
+    // heap
+
     bsl::string memory(MAXIMUM_REPARSE_DATA_BUFFER_SIZE, '\x0');
     REPARSE_DATA_BUFFER *rdb =
                          reinterpret_cast<REPARSE_DATA_BUFFER*>(memory.data());
@@ -1814,7 +1838,7 @@ int u_getSymbolicLinkTarget(STRING_TYPE *result,
       }
     }
 
-    if(!wideToNarrow(result, bsl::wstring_view(name, nameLen))) {
+    if (!wideToNarrow(result, bsl::wstring_view(name, nameLen))) {
         return -1;                                                    // RETURN
     }
     return 0;
@@ -2145,9 +2169,17 @@ int  FilesystemUtil::unmap(void *address, bsl::size_t size)
 int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool syncFlag)
 {
     BSLS_ASSERT(0 != address);
-    BSLS_ASSERT(0 == numBytes % MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
-                     MemoryUtil::pageSize());
+
+    // The test driver verifies that page size is a multiple of 2.  Note that
+    // since page size is run time value, the compiler does not realize that
+    // it's a power of 2 and therefore cannot optimize '0 == offset % pageSize'
+    // (slow) into '0 == (offset & (pageSize - 1))' (fast).
+
+    static int pageSizeMask = MemoryUtil::pageSize() - 1;  (void) pageSizeMask;
+
+    BSLS_ASSERT(0 == (numBytes & pageSizeMask));
+    BSLS_ASSERT(0 == (reinterpret_cast<bsls::Types::UintPtr>(address) &
+                                                                pageSizeMask));
 
     int rc = ::msync(address, numBytes, syncFlag ? MS_SYNC : MS_ASYNC);
 
@@ -2609,12 +2641,30 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
         return -1;                                                    // RETURN
     }
 
-    return fileStats.st_size;
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::            UnixInterfaceUtil::get_st_size(fileStats);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::TransitionalUnixInterfaceUtil::get_st_size(fileStats);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 }
 
 FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
 {
-    return u::ImpUtil::getFileSize(descriptor);
+    StatResult fileStats;
+
+    if (0 != ::performFStat(descriptor, &fileStats)) {
+        return -1;                                                    // RETURN
+    }
+
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::            UnixInterfaceUtil::get_st_size(fileStats);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::TransitionalUnixInterfaceUtil::get_st_size(fileStats);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 }
 
 FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
@@ -2953,6 +3003,7 @@ int FilesystemUtil::rollFileChain(const bsl::string_view& path, int maxSuffix)
         static_cast<int>(path.length()) + MAX_SUFFIX_LENGTH + 2;
 
     // Use a single RAII allocation to ensure exception neutrality.
+
     bsl::vector<char> bufferVector(2 * length, '\0');
     char *buffer   = bufferVector.data();
     char *fromName = buffer;
@@ -2983,6 +3034,7 @@ int FilesystemUtil::rollFileChain(const bsl::string_view& path, int maxSuffix)
         }
 
         // NUL-terminate 'fromName' so it matches 'path', removing any suffix.
+
         *fromSuffixPos = '\0';
         if (0 == maxSuffix && exists(fromName) &&
             0 != move(fromName, toName)) {
@@ -3135,6 +3187,149 @@ int FilesystemUtil::createTemporaryDirectory(std::pmr::string        *outPath,
 }
 #endif
 
+int FilesystemUtil::mapChecked(FileDescriptor   descriptor,
+                               void           **address,
+                               Offset           offset,
+                               bsl::size_t      size,
+                               int              mode)
+{
+    BSLS_ASSERT(address);
+    BSLS_ASSERT(0 == (mode & ~MemoryUtil::k_ACCESS_READ_WRITE_EXECUTE));
+    BSLS_ASSERT(0 <= offset);
+    BSLS_ASSERT(0 <  size);
+
+    // The test driver verifies that page size is a multiple of 2.  Note that
+    // since page size is run time value, the compiler does not realize that
+    // it's a power of 2 and therefore cannot optimize '0 == offset % pageSize'
+    // (slow) into '0 == (offset & (pageSize - 1))' (fast).
+
+    static const Offset pageSizeMask = MemoryUtil::pageSize() - 1;
+    BSLS_ASSERT_OPT(0 == (offset & pageSizeMask) &&
+                                               "mapChecked: page not aligned");
+
+    if (k_INVALID_FD == descriptor) {
+        return k_BAD_FILE_DESCRIPTOR;                                 // RETURN
+    }
+
+    BSLMF_ASSERT(sizeof(size) <= sizeof(offset));
+
+    const Offset endMapOffset = offset + size;
+    if (endMapOffset < offset) {
+        // 'offset + size' wrapped.  Interpret as past EOF.
+
+        return k_ERROR_PAST_EOF;                                      // RETURN
+    }
+    if (getFileSize(descriptor) < endMapOffset) {
+        return k_ERROR_PAST_EOF;                                      // RETURN
+    }
+
+    return map(descriptor, address, offset, size, mode);
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, FilesystemUtil::Whence value)
+{
+    const char *output = 0;
+    switch (value) {
+#undef   CASE
+#define  CASE(str) case FilesystemUtil::e_ ## str: output = #str; break
+      CASE(SEEK_FROM_BEGINNING);
+      CASE(SEEK_FROM_CURRENT);
+      CASE(SEEK_FROM_END);
+#undef   CASE
+      default: {
+        return stream << "Invalid 'Whence' == " << static_cast<int>(value);
+                                                                      // RETURN
+      }
+    }
+
+    return stream << output;
+}
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::ErrorType          value)
+{
+    const char *output = 0;
+    switch (value) {
+#undef   CASE
+#define  CASE(str) case FilesystemUtil::k_ ## str: output = #str; break
+      CASE(ERROR_LOCKING_CONFLICT);
+      CASE(ERROR_LOCKING_INTERRUPTED);
+      CASE(ERROR_ALREADY_EXISTS);
+      CASE(ERROR_PATH_NOT_FOUND);
+      CASE(ERROR_PAST_EOF);
+      CASE(BAD_FILE_DESCRIPTOR);
+#undef   CASE
+      default: {
+        return stream << "Invalid 'ErrorType' == " << static_cast<int>(value);
+                                                                      // RETURN
+      }
+    }
+
+    return stream << output;
+}
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::FileOpenPolicy     value)
+{
+    const char *output = 0;
+    switch (value) {
+#undef   CASE
+#define  CASE(str) case FilesystemUtil::e_ ## str: output = #str; break
+      CASE(OPEN);
+      CASE(CREATE);
+      CASE(CREATE_PRIVATE);
+      CASE(OPEN_OR_CREATE);
+#undef   CASE
+      default: {
+        return stream << "Invalid 'FileOpenPolicy' == " <<
+                                             static_cast<int>(value); // RETURN
+      }
+    }
+
+    return stream << output;
+}
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::FileIOPolicy       value)
+{
+    const char *output = 0;
+    switch (value) {
+#undef   CASE
+#define  CASE(str) case FilesystemUtil::e_ ## str: output = #str; break
+      CASE(READ_ONLY);
+      CASE(WRITE_ONLY);
+      CASE(APPEND_ONLY);
+      CASE(READ_WRITE);
+      CASE(READ_APPEND);
+#undef   CASE
+      default: {
+        return stream << "Invalid 'FileIOPolicy' == " <<
+                                             static_cast<int>(value); // RETURN
+      }
+    }
+
+    return stream << output;
+}
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::FileTruncatePolicy value)
+{
+    const char *output = 0;
+    switch (value) {
+#undef   CASE
+#define  CASE(str) case FilesystemUtil::e_ ## str: output = #str; break
+      CASE(TRUNCATE);
+      CASE(KEEP);
+#undef   CASE
+      default: {
+        return stream << "Invalid 'FileTruncatePolicy' == " <<
+                                             static_cast<int>(value); // RETURN
+      }
+    }
+
+    return stream << output;
+}
+
 }  // close package namespace
 
 namespace {
@@ -3150,8 +3345,7 @@ namespace u {
 // CLASS METHODS
 long UnixInterfaceUtil::get_st_mtim_nsec(const stat& stat)
 {
-    (void) stat;
-     return stat.BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER;
+    return stat.BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER;
 }
 
 UnixInterfaceUtil::time_t UnixInterfaceUtil::get_st_mtime(const stat& stat)

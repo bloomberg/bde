@@ -378,7 +378,7 @@ struct FilesystemUtil {
                                                    // grow files by
     };
 
-    enum {
+    enum ErrorType {
         k_ERROR_LOCKING_CONFLICT    =  1,  // value representing a failure to
                                            // obtain a lock on a file
 
@@ -395,6 +395,9 @@ struct FilesystemUtil {
                                            // more components of the path
                                            // either not existing or not being
                                            // a directory
+
+        k_ERROR_PAST_EOF            =  5,  // 'mapChecked' attempted to map
+                                           // region past the end of file.
 
         k_BAD_FILE_DESCRIPTOR       = -1   // value indicating a bad file
                                            // descriptor was supplied
@@ -833,8 +836,10 @@ struct FilesystemUtil {
         // 'bslstl::StringRef'.
 
     static Offset getFileSize(FileDescriptor descriptor);
-        // Return the size, in bytes, of the file with the specified
-        // 'descriptor', or a negative value if an error occurs.
+        // Return the size, in bytes, of the file or directory specified by the
+        // specified open 'descriptor', or a negative value if an error occurs.
+        // Note that the size of a symbolic link is the size of the file or
+        // directory to which it points.
 
     static Offset getFileSizeLimit();
         // Return the file size limit for this process, 'k_OFFSET_MAX' if no
@@ -926,6 +931,31 @@ struct FilesystemUtil {
         // and an attempt to access the mapped memory beyond the end of the
         // file will result in undefined behavior (i.e., this function does not
         // grow the file to guarantee it can accommodate the mapped region).
+        // Also note that mapping past the end of file may return 0, but any
+        // access of the resulting mapped memory may segfault.
+
+    static int mapChecked(FileDescriptor   descriptor,
+                          void           **address,
+                          Offset           offset,
+                          bsl::size_t      size,
+                          int              mode);
+        // Map the region of the specified 'size' bytes, starting at the
+        // specified 'offset' bytes into the file with the specified
+        // 'descriptor' to memory, and load into the specified 'address' of the
+        // mapped area.  Return 0 on success, 'k_ERROR_PAST_EOF' if an attempt
+        // is made to map past the end of file, and a non-zero value otherwise.
+        // The access permissions for mapping memory are defined by the
+        // specified 'mode', which may be a combination of
+        // 'MemoryUtil::k_ACCESS_READ', 'MemoryUtil::k_ACCESS_WRITE' and
+        // 'MemoryUtil::k_ACCESS_EXECUTE', though on some platforms they must
+        // be a subset of the file permissions.  The behavior is undefined
+        // unless bits in 'mode' other than
+        // 'MemoryUtil::k_ACCESS_READ_WRITE_EXECUTE' are all clear, unless
+        // '0 <= offset', and unless '0 < size', and unless the 'offset' is a
+        // multiple of 'MemoryUtil::pageSize()'.  Note that on failure, the
+        // value of 'address' is undefined.  Also note that the check against
+        // mapping past the end of file and all assertions are done before the
+        // call to map the file.
 
     static int unmap(void *address, bsl::size_t size);
         // Unmap the memory mapping with the specified base 'address' and
@@ -1352,6 +1382,36 @@ const char *FilesystemUtil_CStringUtil::flatten(const TYPE&)
     BSLMF_ASSERT(("Unsupported parameter type." && !sizeof(TYPE)));
     return 0;
 }
+
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream& stream, FilesystemUtil::Whence value);
+    // Output the specified 'value' to the specified 'stream', in
+    // human-readable form.  If 'value' is not a valid 'Whence' value, report
+    // that it is invalid and output it as an integer.
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::ErrorType          value);
+    // Output the specified 'value' to the specified 'stream', in
+    // human-readable form.  If 'value' is not a valid 'ErrorType' value,
+    // report that it is invalid and output it as an integer.
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::FileOpenPolicy     value);
+    // Output the specified 'value' to the specified 'stream', in
+    // human-readable form.  If 'value' is not a valid 'FileOpenPolicy' value,
+    // report that it is invalid and output it as an integer.
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::FileIOPolicy       value);
+    // Output the specified 'value' to the specified 'stream', in
+    // human-readable form.  If 'value' is not a valid 'FileIOPolicy' value,
+    // report that it is invalid and output it as an integer.
+
+bsl::ostream& operator<<(bsl::ostream&                      stream,
+                         FilesystemUtil::FileTruncatePolicy value);
+    // Output the specified 'value' to the specified 'stream', in
+    // human-readable form.  If 'value' is not a valid 'FileTruncatePolicy'
+    // value, report that it is invalid and output it as an integer.
 
 }  // close package namespace
 }  // close enterprise namespace
