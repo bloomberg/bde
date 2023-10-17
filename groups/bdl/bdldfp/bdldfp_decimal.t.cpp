@@ -1,5 +1,7 @@
 // bdldfp_decimal.t.cpp                                               -*-C++-*-
 #include <bdldfp_decimal.h>
+#include <bdldfp_decimal.fwd.h>
+
 #include <bdldfp_uint128.h>
 
 #include <bdlb_nullablevalue.h>
