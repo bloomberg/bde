@@ -54,62 +54,6 @@ BSLS_IDENT("$Id: $")
 #else
 
 namespace bsl {
-
-template <class t_CHAR>
-class bslstl_format_PushBackIterator {
-  private:
-    // PRIVATE MANIPULATORS
-    template <class t_CONTAINER>
-    static void pushBackImpl(void *container, t_CHAR value)
-    {
-        static_cast<t_CONTAINER*>(container)->push_back(value);
-    }
-
-    // DATA
-    void  *d_container_p;
-    void (*d_pushBack_p)(void*, t_CHAR);
-
-  public:
-    // TYPES
-    typedef std::output_iterator_tag iterator_category;
-    typedef void                     difference_type;
-    typedef void                     value_type;
-    typedef void                     reference;
-    typedef void                     pointer;
-
-    // CREATORS
-    template <class t_CONTAINER>
-    bslstl_format_PushBackIterator(
-            t_CONTAINER& container,
-            typename enable_if<!is_same<typename remove_cv<t_CONTAINER>::type,
-                                        bslstl_format_PushBackIterator>::value,
-                               int>::type = 0)
-    : d_container_p(BSLS_UTIL_ADDRESSOF(container))
-    , d_pushBack_p(pushBackImpl<t_CONTAINER>)
-    {}
-
-    // MANIPULATORS
-    bslstl_format_PushBackIterator& operator*()
-    {
-        return *this;
-    }
-
-    void operator=(t_CHAR value)
-    {
-        d_pushBack_p(d_container_p, value);
-    }
-
-    bslstl_format_PushBackIterator& operator++()
-    {
-        return *this;
-    }
-
-    bslstl_format_PushBackIterator operator++(int)
-    {
-        return *this;
-    }
-};
-
 template <class t_ITERATOR>
 class bslstl_format_TruncatingIterator {
   private:
@@ -203,8 +147,6 @@ using std::basic_format_context;
 using std::basic_format_parse_context;
 using std::basic_format_string;
 using std::format_args;
-using format_context =
-              basic_format_context<bslstl_format_PushBackIterator<char>, char>;
 using std::format_error;
 using std::format_parse_context;
 using std::format_string;
@@ -217,8 +159,6 @@ using std::make_wformat_args;
 using std::vformat_to;
 using std::visit_format_arg;
 using std::wformat_args;
-using wformat_context =
-        basic_format_context<bslstl_format_PushBackIterator<wchar_t>, wchar_t>;
 using std::wformat_parse_context;
 using std::wformat_string;
 
@@ -480,9 +420,6 @@ class format_error : public std::runtime_error {
 
 template <class t_OUT, class t_CHAR>
 class basic_format_context;
-
-typedef basic_format_context<bslstl_format_PushBackIterator<char>, char>
-    format_context;
 
 template <class t_CHAR>
 class basic_format_parse_context {
@@ -1015,7 +952,7 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
 template <class... t_ARGS>
 void format_to(string *out, string_view fmtstr, const t_ARGS&... args)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args...);
+    format_to(std::back_inserter(*out), fmtstr, args...);
 }
 
 template <class... t_ARGS>

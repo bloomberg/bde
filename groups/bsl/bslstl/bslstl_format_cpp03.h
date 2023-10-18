@@ -21,68 +21,12 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct 18 13:39:37 2023
+// Generated on Wed Oct 18 16:05:22 2023
 // Command line: sim_cpp11_features.pl bslstl_format.h
 
 #ifdef COMPILING_BSLSTL_FORMAT_H
 
 namespace bsl {
-
-template <class t_CHAR>
-class bslstl_format_PushBackIterator {
-  private:
-    // PRIVATE MANIPULATORS
-    template <class t_CONTAINER>
-    static void pushBackImpl(void *container, t_CHAR value)
-    {
-        static_cast<t_CONTAINER*>(container)->push_back(value);
-    }
-
-    // DATA
-    void  *d_container_p;
-    void (*d_pushBack_p)(void*, t_CHAR);
-
-  public:
-    // TYPES
-    typedef std::output_iterator_tag iterator_category;
-    typedef void                     difference_type;
-    typedef void                     value_type;
-    typedef void                     reference;
-    typedef void                     pointer;
-
-    // CREATORS
-    template <class t_CONTAINER>
-    bslstl_format_PushBackIterator(
-            t_CONTAINER& container,
-            typename enable_if<!is_same<typename remove_cv<t_CONTAINER>::type,
-                                        bslstl_format_PushBackIterator>::value,
-                               int>::type = 0)
-    : d_container_p(BSLS_UTIL_ADDRESSOF(container))
-    , d_pushBack_p(pushBackImpl<t_CONTAINER>)
-    {}
-
-    // MANIPULATORS
-    bslstl_format_PushBackIterator& operator*()
-    {
-        return *this;
-    }
-
-    void operator=(t_CHAR value)
-    {
-        d_pushBack_p(d_container_p, value);
-    }
-
-    bslstl_format_PushBackIterator& operator++()
-    {
-        return *this;
-    }
-
-    bslstl_format_PushBackIterator operator++(int)
-    {
-        return *this;
-    }
-};
-
 template <class t_ITERATOR>
 class bslstl_format_TruncatingIterator {
   private:
@@ -176,8 +120,6 @@ using std::basic_format_context;
 using std::basic_format_parse_context;
 using std::basic_format_string;
 using std::format_args;
-using format_context =
-              basic_format_context<bslstl_format_PushBackIterator<char>, char>;
 using std::format_error;
 using std::format_parse_context;
 using std::format_string;
@@ -190,8 +132,6 @@ using std::make_wformat_args;
 using std::vformat_to;
 using std::visit_format_arg;
 using std::wformat_args;
-using wformat_context =
-        basic_format_context<bslstl_format_PushBackIterator<wchar_t>, wchar_t>;
 using std::wformat_parse_context;
 using std::wformat_string;
 
@@ -453,9 +393,6 @@ class format_error : public std::runtime_error {
 
 template <class t_OUT, class t_CHAR>
 class basic_format_context;
-
-typedef basic_format_context<bslstl_format_PushBackIterator<char>, char>
-    format_context;
 
 template <class t_CHAR>
 class basic_format_parse_context {
@@ -1818,7 +1755,7 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
 #if BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 0
 void format_to(string *out, string_view fmtstr)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr);
+    format_to(std::back_inserter(*out), fmtstr);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 0
 
@@ -1826,7 +1763,7 @@ void format_to(string *out, string_view fmtstr)
 template <class t_ARGS_01>
 void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01);
+    format_to(std::back_inserter(*out), fmtstr, args_01);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 1
 
@@ -1836,8 +1773,8 @@ template <class t_ARGS_01,
 void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_02& args_02)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 2
 
@@ -1849,9 +1786,9 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_02& args_02,
                                                 const t_ARGS_03& args_03)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 3
 
@@ -1865,10 +1802,10 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_03& args_03,
                                                 const t_ARGS_04& args_04)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03,
-                                                                  args_04);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03,
+                                                args_04);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 4
 
@@ -1884,11 +1821,11 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_04& args_04,
                                                 const t_ARGS_05& args_05)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03,
-                                                                  args_04,
-                                                                  args_05);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03,
+                                                args_04,
+                                                args_05);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 5
 
@@ -1906,12 +1843,12 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_05& args_05,
                                                 const t_ARGS_06& args_06)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03,
-                                                                  args_04,
-                                                                  args_05,
-                                                                  args_06);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03,
+                                                args_04,
+                                                args_05,
+                                                args_06);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 6
 
@@ -1931,13 +1868,13 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_06& args_06,
                                                 const t_ARGS_07& args_07)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03,
-                                                                  args_04,
-                                                                  args_05,
-                                                                  args_06,
-                                                                  args_07);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03,
+                                                args_04,
+                                                args_05,
+                                                args_06,
+                                                args_07);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 7
 
@@ -1959,14 +1896,14 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_07& args_07,
                                                 const t_ARGS_08& args_08)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03,
-                                                                  args_04,
-                                                                  args_05,
-                                                                  args_06,
-                                                                  args_07,
-                                                                  args_08);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03,
+                                                args_04,
+                                                args_05,
+                                                args_06,
+                                                args_07,
+                                                args_08);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 8
 
@@ -1990,15 +1927,15 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_08& args_08,
                                                 const t_ARGS_09& args_09)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03,
-                                                                  args_04,
-                                                                  args_05,
-                                                                  args_06,
-                                                                  args_07,
-                                                                  args_08,
-                                                                  args_09);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03,
+                                                args_04,
+                                                args_05,
+                                                args_06,
+                                                args_07,
+                                                args_08,
+                                                args_09);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 9
 
@@ -2024,16 +1961,16 @@ void format_to(string *out, string_view fmtstr, const t_ARGS_01& args_01,
                                                 const t_ARGS_09& args_09,
                                                 const t_ARGS_10& args_10)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args_01,
-                                                                  args_02,
-                                                                  args_03,
-                                                                  args_04,
-                                                                  args_05,
-                                                                  args_06,
-                                                                  args_07,
-                                                                  args_08,
-                                                                  args_09,
-                                                                  args_10);
+    format_to(std::back_inserter(*out), fmtstr, args_01,
+                                                args_02,
+                                                args_03,
+                                                args_04,
+                                                args_05,
+                                                args_06,
+                                                args_07,
+                                                args_08,
+                                                args_09,
+                                                args_10);
 }
 #endif  // BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 10
 
@@ -3188,7 +3125,7 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
 template <class... t_ARGS>
 void format_to(string *out, string_view fmtstr, const t_ARGS&... args)
 {
-    format_to(bslstl_format_PushBackIterator<char>(*out), fmtstr, args...);
+    format_to(std::back_inserter(*out), fmtstr, args...);
 }
 
 template <class... t_ARGS>
