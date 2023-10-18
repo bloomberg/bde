@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct 18 16:05:22 2023
+// Generated on Wed Oct 18 16:24:17 2023
 // Command line: sim_cpp11_features.pl bslstl_format.h
 
 #ifdef COMPILING_BSLSTL_FORMAT_H
@@ -89,21 +89,21 @@ class bslstl_format_TruncatingIterator {
     }
 };
 
-struct FormatterBase {
-    typedef void bslstl_format_IsEnabledFormatter;
-};
-
 template <class t_FORMATTER, class = void>
-struct bslstl_format_IsEnabled : false_type {};
+struct bslstl_format_IsEnabled : true_type {};
 
 template <class t_FORMATTER>
 struct bslstl_format_IsEnabled<
     t_FORMATTER,
-    typename t_FORMATTER::bslstl_format_IsEnabledFormatter> : true_type {
+    typename t_FORMATTER::bslstl_format_IsPrimaryFormatterTemplate>
+: false_type {
 };
 
-template <class t_ARG, class t_CHAR>
+template <class t_ARG, class t_CHAR = char>
 struct formatter {
+  public:
+    typedef void bslstl_format_IsPrimaryFormatterTemplate;
+
   private:
     // NOT IMPLEMENTED
     formatter(const formatter&) BSLS_KEYWORD_DELETED;
@@ -337,7 +337,7 @@ void vformat_to(wstring *out, const std::locale& loc, std::wstring_view fmt, wfo
 }
 
 template <>
-struct formatter<int, char> : std::formatter<int, char>, FormatterBase {};
+struct formatter<int, char> : std::formatter<int, char> {};
 
 template <class t_TYPE>
 constexpr bool bslstl_format_isStdBasicString = false;
@@ -766,7 +766,7 @@ struct format_to_n_result {
 
 // FORMATTER SPECIALIZATIONS
 template <>
-struct formatter<int, char> : FormatterBase {
+struct formatter<int, char> {
     format_parse_context::iterator parse(format_parse_context& pc)
     {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
@@ -787,7 +787,7 @@ struct formatter<int, char> : FormatterBase {
 };
 
 template <>
-struct formatter<string_view, char> : FormatterBase {
+struct formatter<string_view, char> {
     format_parse_context::iterator parse(format_parse_context& pc)
     {
         if (pc.begin() != pc.end() && *pc.begin() != '}') {
@@ -3174,7 +3174,7 @@ format_to_n(t_OUT                                                 out,
 namespace bsl {
 // FORMATTER SPECIALIZATIONS
 template <>
-struct formatter<string, char> : FormatterBase {
+struct formatter<string, char> {
     BSL_FORMAT_CONSTEXPR format_parse_context::iterator
     parse(format_parse_context& pc)
     {

@@ -90,7 +90,7 @@ struct FormattableType {
 
 namespace bsl {
 template <>
-struct formatter<FormattableType, char> : FormatterBase {
+struct formatter<FormattableType, char> {
     formatter<int, char> d_formatter;
 
     BSL_FORMAT_CONSTEXPR format_parse_context::iterator parse(
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
                           bsl::string("Here is a simple equation"),
                           x, y, x + y),
               "Here is a simple equation: 1 + 2 = 3");
-        ASSERT(!bslstl_format_IsEnabled<NonFormattableType>::value);
+        ASSERT(!bslstl_format_IsEnabled<bsl::formatter<NonFormattableType> >::value);
         FormattableType ft;
         ft.x = 37;
         check(bsl::format("The value of {1} is {0}", ft.x, ft),
