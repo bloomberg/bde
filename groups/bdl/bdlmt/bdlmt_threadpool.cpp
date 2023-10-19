@@ -9,6 +9,12 @@
 
 #include <bdlmt_threadpool.h>
 
+#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_metric.h>
+#include <bdlm_metricdescriptor.h>
+
+#include <bdlf_bind.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
@@ -21,20 +27,35 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#include <bslmt_lockguard.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>           // for testing only
+#include <bslmt_lockguard.h>         // for testing only
+#include <bslmt_threadattributes.h>  // for testing only
+#include <bslmt_threadutil.h>        // for testing only
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
 
-#include <bsl_climits.h>  // 'INT_MAX'
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
+
+namespace {
+
+void backlogMetric(BloombergLP::bdlm::Metric      *value,
+                   BloombergLP::bdlmt::ThreadPool *object)
+{
+    *value = BloombergLP::bdlm::Metric::Gauge(  object->numPendingJobs()
+                                              - object->numWaitingThreads());
+}
+
+}  // close unnamed namespace
 
 namespace BloombergLP {
-
 namespace bdlmt {
+
                          // ==================
                          // ThreadPoolWaitNode
                          // ==================
@@ -109,6 +130,31 @@ void ThreadPool::doEnqueueJob(bslmf::MovableRef<Job> job)
 {
     d_queue.push_back(bslmf::MovableRefUtil::move(job));
     wakeThreadIfNeeded();
+}
+
+void ThreadPool::initialize(const bsl::string_view& metricsIdentifier)
+{
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(s_defaultThreadName);
+    }
+
+    // Force all threads to be detached.
+
+    d_threadAttributes.setDetachedState(
+                                   bslmt::ThreadAttributes::e_CREATE_DETACHED);
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    initBlockSet();
+#endif
+
+    d_backlogHandle = d_metricsRegistrar_p->registerCollectionCallback(
+                                   bdlm::MetricDescriptor("bdlm",
+                                                          "backlog",
+                                                          "bdlmt.threadpool",
+                                                          metricsIdentifier),
+                                   bdlf::BindUtil::bind(&backlogMetric,
+                                                        bdlf::PlaceHolders::_1,
+                                                        this));
 }
 
 void ThreadPool::wakeThreadIfNeeded()
@@ -367,6 +413,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
     BSLS_ASSERT(0          <= minThreads);
     BSLS_ASSERT(minThreads <= maxThreads);
@@ -374,18 +421,39 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
 
-    if (d_threadAttributes.threadName().empty()) {
-        d_threadAttributes.setThreadName(s_defaultThreadName);
-    }
+    bsl::stringstream identifier;
+    identifier << bsl::hex << static_cast<void *>(this);
 
-    // Force all threads to be detached.
+    initialize(identifier.str());
+}
 
-    d_threadAttributes.setDetachedState(
-                                   bslmt::ThreadAttributes::e_CREATE_DETACHED);
+ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
+                       int                             minThreads,
+                       int                             maxThreads,
+                       int                             maxIdleTime,
+                       const bsl::string_view&         metricsIdentifier,
+                       bdlm::MetricsRegistrar         *metricsRegistrar,
+                       bslma::Allocator               *basicAllocator)
+: d_queue(basicAllocator)
+, d_threadAttributes(threadAttributes, basicAllocator)
+, d_maxThreads(maxThreads)
+, d_minThreads(minThreads)
+, d_threadCount(0)
+, d_createFailures(0)
+, d_numActiveThreads(0)
+, d_enabled(0)
+, d_waitHead(0)
+, d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar(
+                                                             metricsRegistrar))
+{
+    BSLS_ASSERT(0          <= minThreads);
+    BSLS_ASSERT(minThreads <= maxThreads);
+    BSLS_ASSERT(0          <= maxIdleTime);
 
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    initBlockSet();
-#endif
+    d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
+
+    initialize(metricsIdentifier);
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -404,29 +472,53 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
     BSLS_ASSERT(0                        <= minThreads);
     BSLS_ASSERT(minThreads               <= maxThreads);
     BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
     BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
-    if (d_threadAttributes.threadName().empty()) {
-        d_threadAttributes.setThreadName(s_defaultThreadName);
-    }
+    bsl::stringstream identifier;
+    identifier << bsl::hex << static_cast<void *>(this);
 
-    // Force all threads to be detached.
+    initialize(identifier.str());
+}
 
-    d_threadAttributes.setDetachedState(
-                                   bslmt::ThreadAttributes::e_CREATE_DETACHED);
+ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
+                       int                             minThreads,
+                       int                             maxThreads,
+                       bsls::TimeInterval              maxIdleTime,
+                       const bsl::string_view&         metricsIdentifier,
+                       bdlm::MetricsRegistrar         *metricsRegistrar,
+                       bslma::Allocator               *basicAllocator)
+: d_queue(basicAllocator)
+, d_threadAttributes(threadAttributes, basicAllocator)
+, d_maxThreads(maxThreads)
+, d_minThreads(minThreads)
+, d_threadCount(0)
+, d_createFailures(0)
+, d_maxIdleTime(maxIdleTime)
+, d_numActiveThreads(0)
+, d_enabled(0)
+, d_waitHead(0)
+, d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar(
+                                                             metricsRegistrar))
+{
+    BSLS_ASSERT(0                        <= minThreads);
+    BSLS_ASSERT(minThreads               <= maxThreads);
+    BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
+    BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    initBlockSet();
-#endif
+    initialize(metricsIdentifier);
 }
 
 ThreadPool::~ThreadPool()
 {
     shutdown();
+
+    d_metricsRegistrar_p->removeCollectionCallback(d_backlogHandle);
 }
 
 // MANIPULATORS

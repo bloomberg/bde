@@ -9,6 +9,10 @@
 
 #include <bdlmt_threadpool.h>
 
+#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_metricdescriptor.h>
+#include <bdlm_metricsregistrar.h>
+
 #include <bslmt_configuration.h>
 
 #include <bslma_testallocator.h>
@@ -40,6 +44,7 @@
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -65,7 +70,9 @@ using namespace bsl;  // automatically added by script
 //                              OVERVIEW
 //
 // [3 ] ThreadPool(const Attributes&, int, int, TimeInterval,Allocator *);
+// [3 ] ThreadPool(tA, min, max, TI maxIdleTime, mI, *mR, *bA = 0);
 // [6 ] ThreadPool(const Attributes&, int, int, int ,Allocator *);
+// [6 ] ThreadPool(tA, min, max, int maxIdleTime, mI, *mR, *bA = 0);
 // [3 ] ~ThreadPool();
 // [  ] int enqueueJob(bsl::function<void()>);
 // [4 ] int enqueueJob(ThreadPoolJobFunc , void *);
@@ -169,6 +176,113 @@ int test;
 int verbose;
 int veryVerbose;
 int veryVeryVerbose;
+
+// ============================================================================
+//                       GLOBAL CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
+
+                        // ==========================
+                        // class TestMetricsRegistrar
+                        // ==========================
+
+class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
+    // This class implements a pure abstract interface for clients and
+    // suppliers of metrics registrars.  The implemtation does not register
+    // callbacks with any monitoring system, but does track registrations to
+    // enable testing of thread-enabled objects metric registration.
+
+    // DATA
+    bsl::vector<bdlm::MetricDescriptor> d_descriptors;
+    bsl::set<int>                       d_handles;
+
+  public:
+    // CREATORS
+    TestMetricsRegistrar();
+        // Create a 'TestMetricsRegistrar'.
+
+    ~TestMetricsRegistrar();
+        // Destroy this object.
+
+    // MANIPULATORS
+    CallbackHandle registerCollectionCallback(
+                                const bdlm::MetricDescriptor& metricDescriptor,
+                                const Callback&               callback);
+        // Do nothing with the specified 'metricsDescriptor' and 'callback'.
+        // Return a callback handle that will be verified in
+        // 'removeCollectionCallback'.
+
+    int removeCollectionCallback(const CallbackHandle& handle);
+        // Do nothing with the specified 'handle'.  Assert the supplied
+        // 'handle' matches what was provided by 'registerCollectionCallback'.
+        // Return 0.
+
+    void reset();
+        // Return this object to its constructed state.
+    
+    // ACCESSORS
+    bool verify(const bsl::string& name);
+        // Return 'true' if the registered descriptors match the ones expected
+        // for the supplied 'name' and the provided callback handles were
+        // removed, and 'false' otherwise.
+};
+
+                        // --------------------------
+                        // class TestMetricsRegistrar
+                        // --------------------------
+
+// CREATORS
+TestMetricsRegistrar::TestMetricsRegistrar()
+{
+}
+
+TestMetricsRegistrar::~TestMetricsRegistrar()
+{
+}
+
+// MANIPULATORS
+bdlm::MetricsRegistrar::CallbackHandle
+                              TestMetricsRegistrar::registerCollectionCallback(
+                                const bdlm::MetricDescriptor& metricDescriptor,
+                                const Callback&               /* callback */)
+{
+    d_descriptors.push_back(metricDescriptor);
+
+    int h = 7 + static_cast<int>(d_descriptors.size());
+    d_handles.insert(h);
+
+    return h;
+}
+
+int TestMetricsRegistrar::removeCollectionCallback(
+                                                  const CallbackHandle& handle)
+{
+    d_handles.erase(handle);
+    return 0;
+}
+
+void TestMetricsRegistrar::reset()
+{
+    d_descriptors.clear();
+    d_handles.clear();
+}
+
+// ACCESSORS
+bool TestMetricsRegistrar::verify(const bsl::string& name)
+{
+    ASSERT(d_handles.empty());
+    ASSERT(1 == d_descriptors.size());
+    ASSERT(d_descriptors[0].metricNamespace() == "bdlm");
+    ASSERT(d_descriptors[0].metricName()      == "backlog");
+    ASSERT(d_descriptors[0].objectTypeName()  == "bdlmt.threadpool");
+    ASSERT(name.empty() || d_descriptors[0].objectIdentifier() == name);
+    
+    return d_handles.empty()
+        && 1 == d_descriptors.size()
+        && d_descriptors[0].metricNamespace() == "bdlm"
+        && d_descriptors[0].metricName()      == "backlog"
+        && d_descriptors[0].objectTypeName()  == "bdlmt.threadpool"
+        && (name.empty() || d_descriptors[0].objectIdentifier() == name);
+}
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -1564,10 +1678,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   For each of a sequence of independent min/max threads and idle
         //   time values represented by integer value, construct a threadpool
-        //   object and verify that the values are as expected.
+        //   object and verify that the values are as expected.  Verify the
+        //   threadpool correctly registers metrics.
         //
         // Testing:
         //   ThreadPool(const Attributes&, int, int, int, Allocator *);
+        //   ThreadPool(tA, min, max, int maxIdleTime, mI, *mR, *bA = 0);
         //   int maxIdleTime() const;
         // --------------------------------------------------------------------
 
@@ -1593,6 +1709,12 @@ int main(int argc, char *argv[])
 
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                            &defaultRegistrar);
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int          MIN  = VALUES[i].d_minThreads;
             const int          MAX  = VALUES[i].d_maxThreads;
@@ -1601,18 +1723,56 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadAttributes attr;
 
-            Obj        mX(attr, MIN, MAX, IDLE);
-            const Obj& X = mX;
+            {
+                Obj        mX(attr, MIN, MAX, IDLE);
+                const Obj& X = mX;
 
-            if (veryVerbose) {
-                T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                if (veryVerbose) {
+                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                }
+
+                ASSERTV(i, MIN      == X.minThreads());
+                ASSERTV(i, MAX      == X.maxThreads());
+                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                ASSERTV(i, IDLE     == X.maxIdleTime());
+                ASSERTV(i, 0        == X.threadFailures());
             }
+            ASSERT(defaultRegistrar.verify(""));
+            defaultRegistrar.reset();
 
-            ASSERTV(i, MIN      == X.minThreads());
-            ASSERTV(i, MAX      == X.maxThreads());
-            ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
-            ASSERTV(i, IDLE     == X.maxIdleTime());
-            ASSERTV(i, 0        == X.threadFailures());
+            {
+                Obj        mX(attr, MIN, MAX, IDLE, "a", 0);
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                }
+
+                ASSERTV(i, MIN      == X.minThreads());
+                ASSERTV(i, MAX      == X.maxThreads());
+                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                ASSERTV(i, IDLE     == X.maxIdleTime());
+                ASSERTV(i, 0        == X.threadFailures());
+            }
+            ASSERT(defaultRegistrar.verify("a"));
+            defaultRegistrar.reset();
+
+            {
+                Obj        mX(attr, MIN, MAX, IDLE, "b", &otherRegistrar);
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                }
+
+                ASSERTV(i, MIN      == X.minThreads());
+                ASSERTV(i, MAX      == X.maxThreads());
+                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                ASSERTV(i, IDLE     == X.maxIdleTime());
+                ASSERTV(i, 0        == X.threadFailures());
+            }
+            ASSERT(otherRegistrar.verify("b"));
+            otherRegistrar.reset();
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1623,6 +1783,9 @@ int main(int argc, char *argv[])
 
             ASSERT_PASS(Obj(attr,  10,  10, 1000));
             ASSERT_FAIL(Obj(attr,  10,  10,   -1));
+
+            ASSERT_PASS(Obj(attr,  10,  10, 1000, "", 0));
+            ASSERT_FAIL(Obj(attr,  10,  10,   -1, "", 0));
         }
       } break;
       case 5: {
@@ -2082,13 +2245,15 @@ int main(int argc, char *argv[])
         // Plan:
         //   For each of a sequence of independent min/max threads and idle
         //   time values, construct a threadpool object and verify that the
-        //   values are as expected.
+        //   values are as expected.  Verify the threadpool correctly registers
+        //   metrics.
         //
         // Testing:
         //   int minThreads() const;
         //   int maxThreads() const;
         //   bsls::TimeInterval maxIdleTime() const;
         //   ThreadPool(const Attributes&, int, int, TimeInterval,Allocator *);
+        //   ThreadPool(tA, min, max, TI maxIdleTime, mI, *mR, *bA = 0);
         //   ~ThreadPool();
         // --------------------------------------------------------------------
 
@@ -2112,6 +2277,13 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            TestMetricsRegistrar defaultRegistrar;
+            TestMetricsRegistrar otherRegistrar;
+
+            bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                            &defaultRegistrar);
+            
             for (int i = 0; i < NUM_VALUES; ++i) {
                 // SEC and NANOSEC conflict with Solaris macros
                 // DRQS 169029388
@@ -2124,17 +2296,58 @@ int main(int argc, char *argv[])
                 const bsls::TimeInterval IDLE_TIME(k_SEC, k_NANOSEC);
                 bslmt::ThreadAttributes  attr;
 
-                Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME);
-                const Obj& X = mX;
+                {
+                    Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME);
+                    const Obj& X = mX;
 
-                if (veryVerbose) {
-                    T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                    }
+
+                    ASSERTV(i, k_MIN     == X.minThreads());
+                    ASSERTV(i, k_MAX     == X.maxThreads());
+                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                    ASSERTV(i, 0         == X.threadFailures());
                 }
+                ASSERT(defaultRegistrar.verify(""));
+                defaultRegistrar.reset();
 
-                ASSERTV(i, k_MIN     == X.minThreads());
-                ASSERTV(i, k_MAX     == X.maxThreads());
-                ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
-                ASSERTV(i, 0         == X.threadFailures());
+                {
+                    Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "a", 0);
+                    const Obj& X = mX;
+
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                    }
+
+                    ASSERTV(i, k_MIN     == X.minThreads());
+                    ASSERTV(i, k_MAX     == X.maxThreads());
+                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                    ASSERTV(i, 0         == X.threadFailures());
+                }
+                ASSERT(defaultRegistrar.verify("a"));
+                defaultRegistrar.reset();
+
+                {
+                    Obj        mX(attr,
+                                  k_MIN,
+                                  k_MAX,
+                                  IDLE_TIME,
+                                  "b",
+                                  &otherRegistrar);
+                    const Obj& X = mX;
+
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                    }
+
+                    ASSERTV(i, k_MIN     == X.minThreads());
+                    ASSERTV(i, k_MAX     == X.maxThreads());
+                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                    ASSERTV(i, 0         == X.threadFailures());
+                }
+                ASSERT(otherRegistrar.verify("b"));
+                otherRegistrar.reset();
             }
 
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
@@ -2228,6 +2441,19 @@ int main(int argc, char *argv[])
                     ASSERT_PASS(Obj(attr,   9,  10, TimeInterval( 1,  0)));
                     ASSERT_FAIL(Obj(attr,  10,  10, TimeInterval(-1, -1)));
 
+                    ASSERT_PASS(Obj(attr,   0, 100, TimeInterval( 1,  0),
+                                    "", 0));
+                    ASSERT_FAIL(Obj(attr,  -1, 100, TimeInterval( 1,  0),
+                                    "", 0));
+                    ASSERT_FAIL(Obj(attr,  11,  10, TimeInterval( 1,  0),
+                                    "", 0));
+                    ASSERT_PASS(Obj(attr,  10,  10, TimeInterval( 1,  0),
+                                    "", 0));
+                    ASSERT_PASS(Obj(attr,   9,  10, TimeInterval( 1,  0),
+                                    "", 0));
+                    ASSERT_FAIL(Obj(attr,  10,  10, TimeInterval(-1, -1),
+                                    "", 0));
+
                     TimeInterval VALID;
                     VALID.setTotalMilliseconds(INT_MAX);
                     TimeInterval INVALID(VALID);
@@ -2235,6 +2461,9 @@ int main(int argc, char *argv[])
 
                     ASSERT_PASS(Obj(attr,  9,  10, VALID  ));
                     ASSERT_FAIL(Obj(attr,  9,  10, INVALID));
+
+                    ASSERT_PASS(Obj(attr,  9,  10, VALID  , "", 0));
+                    ASSERT_FAIL(Obj(attr,  9,  10, INVALID, "", 0));
                 }
             }
         }
