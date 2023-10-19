@@ -27,6 +27,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>
 #endif
 
+#include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
@@ -58,7 +59,7 @@ template <class t_ITERATOR>
 class bslstl_format_TruncatingIterator {
   private:
     // TYPES
-    typedef typename std::iterator_traits<t_ITERATOR>::difference_type DT;
+    typedef typename iterator_traits<t_ITERATOR>::difference_type DT;
 
     // DATA
     t_ITERATOR d_iterator;
@@ -87,7 +88,7 @@ class bslstl_format_TruncatingIterator {
         return *this;
     }
 
-    void operator=(typename std::iterator_traits<t_ITERATOR>::value_type x)
+    void operator=(typename iterator_traits<t_ITERATOR>::value_type x)
     {
         if (d_count++ < d_limit) {
             *d_iterator++ = x;
@@ -788,7 +789,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format_impl(
 template <class t_OUT>
 struct format_to_n_result {
     t_OUT                                                 out;
-    typename std::iterator_traits<t_OUT>::difference_type size;
+    typename iterator_traits<t_OUT>::difference_type size;
 };
 
 // FORMATTER SPECIALIZATIONS
@@ -881,7 +882,9 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
 {
     format_parse_context pc(fmtstr, sizeof...(args));
     typedef basic_format_context<t_OUT, char> FC;
-    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args)...};
+    // extra arg prevents empty initializer list
+    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args)...,
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs + sizeof...(args)); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -981,10 +984,10 @@ size_t formatted_size(string_view fmtstr, const t_ARGS&... args)
 
 template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
-            const t_ARGS&...                                      args)
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
+            const t_ARGS&...                                 args)
 {
     if (n < 0) n = 0;
     bslstl_format_TruncatingIterator<t_OUT> it(out, n);

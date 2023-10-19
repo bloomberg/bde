@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 19 10:07:18 2023
+// Generated on Thu Oct 19 10:18:13 2023
 // Command line: sim_cpp11_features.pl bslstl_format.h
 
 #ifdef COMPILING_BSLSTL_FORMAT_H
@@ -31,7 +31,7 @@ template <class t_ITERATOR>
 class bslstl_format_TruncatingIterator {
   private:
     // TYPES
-    typedef typename std::iterator_traits<t_ITERATOR>::difference_type DT;
+    typedef typename iterator_traits<t_ITERATOR>::difference_type DT;
 
     // DATA
     t_ITERATOR d_iterator;
@@ -60,7 +60,7 @@ class bslstl_format_TruncatingIterator {
         return *this;
     }
 
-    void operator=(typename std::iterator_traits<t_ITERATOR>::value_type x)
+    void operator=(typename iterator_traits<t_ITERATOR>::value_type x)
     {
         if (d_count++ < d_limit) {
             *d_iterator++ = x;
@@ -761,7 +761,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format_impl(
 template <class t_OUT>
 struct format_to_n_result {
     t_OUT                                                 out;
-    typename std::iterator_traits<t_OUT>::difference_type size;
+    typename iterator_traits<t_OUT>::difference_type size;
 };
 
 // FORMATTER SPECIALIZATIONS
@@ -863,7 +863,7 @@ t_OUT format_to(t_OUT out, string_view fmtstr)
 {
     format_parse_context pc(fmtstr,  0u);
     typedef basic_format_context<t_OUT, char> FC;
-    basic_format_arg<FC> fargs[] = {};
+    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  0u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -932,7 +932,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01)
 {
     format_parse_context pc(fmtstr,  1u);
     typedef basic_format_context<t_OUT, char> FC;
-    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args_01)};
+    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args_01),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  1u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1004,7 +1005,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
     format_parse_context pc(fmtstr,  2u);
     typedef basic_format_context<t_OUT, char> FC;
     basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args_01),
-                                    basic_format_arg<FC>(args_02)};
+                                    basic_format_arg<FC>(args_02),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  2u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1079,7 +1081,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
     typedef basic_format_context<t_OUT, char> FC;
     basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args_01),
                                     basic_format_arg<FC>(args_02),
-                                    basic_format_arg<FC>(args_03)};
+                                    basic_format_arg<FC>(args_03),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  3u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1157,7 +1160,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
     basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args_01),
                                     basic_format_arg<FC>(args_02),
                                     basic_format_arg<FC>(args_03),
-                                    basic_format_arg<FC>(args_04)};
+                                    basic_format_arg<FC>(args_04),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  4u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1238,7 +1242,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
                                     basic_format_arg<FC>(args_02),
                                     basic_format_arg<FC>(args_03),
                                     basic_format_arg<FC>(args_04),
-                                    basic_format_arg<FC>(args_05)};
+                                    basic_format_arg<FC>(args_05),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  5u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1322,7 +1327,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
                                     basic_format_arg<FC>(args_03),
                                     basic_format_arg<FC>(args_04),
                                     basic_format_arg<FC>(args_05),
-                                    basic_format_arg<FC>(args_06)};
+                                    basic_format_arg<FC>(args_06),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  6u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1409,7 +1415,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
                                     basic_format_arg<FC>(args_04),
                                     basic_format_arg<FC>(args_05),
                                     basic_format_arg<FC>(args_06),
-                                    basic_format_arg<FC>(args_07)};
+                                    basic_format_arg<FC>(args_07),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  7u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1499,7 +1506,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
                                     basic_format_arg<FC>(args_05),
                                     basic_format_arg<FC>(args_06),
                                     basic_format_arg<FC>(args_07),
-                                    basic_format_arg<FC>(args_08)};
+                                    basic_format_arg<FC>(args_08),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  8u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1592,7 +1600,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
                                     basic_format_arg<FC>(args_06),
                                     basic_format_arg<FC>(args_07),
                                     basic_format_arg<FC>(args_08),
-                                    basic_format_arg<FC>(args_09)};
+                                    basic_format_arg<FC>(args_09),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs +  9u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -1688,7 +1697,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS_01& args_01,
                                     basic_format_arg<FC>(args_07),
                                     basic_format_arg<FC>(args_08),
                                     basic_format_arg<FC>(args_09),
-                                    basic_format_arg<FC>(args_10)};
+                                    basic_format_arg<FC>(args_10),
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs + 10u); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -2723,9 +2733,9 @@ size_t formatted_size(string_view fmtstr, const t_ARGS_01& args_01,
 #if BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr)
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr)
 {
     if (n < 0) n = 0;
     bslstl_format_TruncatingIterator<t_OUT> it(out, n);
@@ -2740,9 +2750,9 @@ format_to_n(t_OUT                                                 out,
 #if BSLSTL_FORMAT_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01)
 {
     if (n < 0) n = 0;
@@ -2759,9 +2769,9 @@ format_to_n(t_OUT                                                 out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02)
 {
@@ -2781,9 +2791,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03)
@@ -2806,9 +2816,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03,
@@ -2834,9 +2844,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03,
@@ -2865,9 +2875,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03,
@@ -2899,9 +2909,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03,
@@ -2936,9 +2946,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03,
@@ -2976,9 +2986,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03,
@@ -3019,9 +3029,9 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_09,
                        class t_ARGS_10>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
             const t_ARGS_01& args_01,
             const t_ARGS_02& args_02,
             const t_ARGS_03& args_03,
@@ -3060,7 +3070,8 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
 {
     format_parse_context pc(fmtstr, sizeof...(args));
     typedef basic_format_context<t_OUT, char> FC;
-    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args)...};
+    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args)...,
+                                    basic_format_arg<FC>()};
     FC fc(out, fargs, fargs + sizeof...(args)); 
     string_view::iterator it = pc.begin();
     bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
@@ -3154,10 +3165,10 @@ size_t formatted_size(string_view fmtstr, const t_ARGS&... args)
 
 template <class t_OUT, class... t_ARGS>
 format_to_n_result<t_OUT>
-format_to_n(t_OUT                                                 out,
-            typename std::iterator_traits<t_OUT>::difference_type n,
-            string_view                                           fmtstr,
-            const t_ARGS&...                                      args)
+format_to_n(t_OUT                                            out,
+            typename iterator_traits<t_OUT>::difference_type n,
+            string_view                                      fmtstr,
+            const t_ARGS&...                                 args)
 {
     if (n < 0) n = 0;
     bslstl_format_TruncatingIterator<t_OUT> it(out, n);
