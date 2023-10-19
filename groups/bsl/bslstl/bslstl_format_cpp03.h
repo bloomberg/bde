@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 19 09:51:35 2023
+// Generated on Thu Oct 19 10:07:18 2023
 // Command line: sim_cpp11_features.pl bslstl_format.h
 
 #ifdef COMPILING_BSLSTL_FORMAT_H
@@ -830,16 +830,16 @@ struct bslstl_format_FormatVisitor {
     {
         formatter<int, t_CHAR> f;
         d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
-        d_formatContext_p->advance_to(as_const(f).format(x,
-                                                         *d_formatContext_p));
+        d_formatContext_p->advance_to(
+                               bsl::as_const(f).format(x, *d_formatContext_p));
     }
 
     void operator()(string_view sv) const
     {
         formatter<string_view, t_CHAR> f;
         d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
-        d_formatContext_p->advance_to(as_const(f).format(sv,
-                                                         *d_formatContext_p));
+        d_formatContext_p->advance_to(
+                              bsl::as_const(f).format(sv, *d_formatContext_p));
     }
 
     void operator()(const handle& h) const

@@ -857,16 +857,16 @@ struct bslstl_format_FormatVisitor {
     {
         formatter<int, t_CHAR> f;
         d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
-        d_formatContext_p->advance_to(as_const(f).format(x,
-                                                         *d_formatContext_p));
+        d_formatContext_p->advance_to(
+                               bsl::as_const(f).format(x, *d_formatContext_p));
     }
 
     void operator()(string_view sv) const
     {
         formatter<string_view, t_CHAR> f;
         d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
-        d_formatContext_p->advance_to(as_const(f).format(sv,
-                                                         *d_formatContext_p));
+        d_formatContext_p->advance_to(
+                              bsl::as_const(f).format(sv, *d_formatContext_p));
     }
 
     void operator()(const handle& h) const
