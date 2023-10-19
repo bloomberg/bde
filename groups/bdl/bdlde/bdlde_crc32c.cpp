@@ -703,7 +703,7 @@ class Crc32cCalculator {
     unsigned int operator()(const unsigned char *data,
                             bsl::size_t          length,
                             unsigned int         crc) const;
-        // Invoke the global function that calculates CRC3-C passing to this
+        // Invoke the global function that calculates CRC32-C passing to this
         // function the specified 'data', 'length' and 'crc' parameters.  Note
         // that if 'data' is 0, then 'length' must also be 0.
 };
