@@ -712,7 +712,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 template <class t_VISITOR, class t_CONTEXT>
 decltype(auto) visit_format_arg(t_VISITOR&& v, basic_format_arg<t_CONTEXT> a)
 {
-    return bsl::visit(std::forward<t_VISITOR> v, a.d_value);
+    return bsl::visit(std::forward<t_VISITOR>(v), a.d_value);
 }
 #else
 template <class t_VISITOR, class t_CONTEXT>

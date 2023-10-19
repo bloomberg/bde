@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct 18 16:24:17 2023
+// Generated on Thu Oct 19 09:51:35 2023
 // Command line: sim_cpp11_features.pl bslstl_format.h
 
 #ifdef COMPILING_BSLSTL_FORMAT_H
@@ -685,7 +685,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 template <class t_VISITOR, class t_CONTEXT>
 decltype(auto) visit_format_arg(t_VISITOR&& v, basic_format_arg<t_CONTEXT> a)
 {
-    return bsl::visit(std::forward<t_VISITOR> v, a.d_value);
+    return bsl::visit(std::forward<t_VISITOR>(v), a.d_value);
 }
 #else
 template <class t_VISITOR, class t_CONTEXT>
