@@ -1,7 +1,26 @@
-bsl-internal (3.125.0.0) unstable; urgency=low
+bsl-internal (3.126.0.0) unstable; urgency=low
 
+  * 7ae4f2e2d Bumped version to 3.126.0.0
+  * 67c4968fd Update comment in bdlde_crc32c.cpp: CRC3-C -> CRC32-C (#4468)
+  * 54fa023ca Drqs 172873913/bdlmt threadpool teom (#4465)
+  * 4feaa3031 bdls_filesystemutil: Created 'mapChecked', added operator<< for all e… (#2128)
+  * 1fd5e7f82 Adding bdldfp_decimal.fwd.h (#4449)
+  * ae393e6fa Integration/teom 20230830 (#4461)
+  * 791476059 Add string enumeration with preserveEnumOrder='0' to s_baltst (DRQS 173223261) (#4460)
+  * 732052efa Add example of int enumeration to s_baltst (#4458)
+  * 315fd526c Merge pull request #4447 from afeher/drqs-172800848-validate-min-cmp-ver
+  * 763f97149 bslstl_function and bsl_nullptr test driver fixes for MSVC 2022 C++20 (#4454)
+  * 2d1e7a7d6 Regenerate bslstl_vector_cpp03.h, missed in #4448 (#4453)
+  * cddb2d925 Revamp NullableValueRef {DRQS 173091340} (#4445)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Oct 2023 10:56:18 -0400
+
+bsl-internal (3.125.0.0) git; urgency=low
+
+  * 40231fe79 Changelog for version 3.125.0.0
   * 28de33275 Match #endif commit with #if (#4448)
   * 8a38e1e14 Bumped version to 3.125.0.0
+  * 7eb115676 Compiler minimum version check for C++20.
   * 420abc132 fix invoke result tests on MSVC 2022 (#4446)
   * 7bfe26a2b remove unnecessary testing-only includes (#4443)
   * e39a6980e Use 'bsl::nullopt' in NullableValue instead of 'bdlb::nullOpt (replaces #4412) (#4441)
@@ -14,7 +33,7 @@ bsl-internal (3.125.0.0) unstable; urgency=low
   * fb3135a44 bdlb_nullablevalueref: Add Component-Preview Disclaimer (#4433)
   * 9648758b1 Merge pull request #4306 from bchapman/bslmf_isbitwisecopyable-bal-drqs-172216599
 
- -- Chris Cotter <ccotter14@bloomberg.net>  Wed, 4 Oct 2023 16:40:59 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 5 Oct 2023 10:36:54 -0400
 
 bsl-internal (3.124.0.0) git; urgency=low
 
