@@ -310,6 +310,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlcc_boundedqueue.h>
 
+#include <bdlm_metricsregistrar.h>
+
 #include <bslmf_movableref.h>
 
 #include <bslmt_barrier.h>
@@ -430,7 +432,26 @@ class FixedThreadPool {
                                                   // blocked in managed threads
 #endif
 
+    bdlm::MetricsRegistrar  *d_metricsRegistrar_p;
+                                                  // metrics registrar
+
+    bdlm::MetricsRegistrar::CallbackHandle
+                            d_backlogHandle;
+                                           // callback handle used with
+                                           // 'd_metricsRegistrar' for the
+                                           // backlog metric
+
+    bdlm::MetricsRegistrar::CallbackHandle
+                            d_usedCapacityHandle;
+                                           // callback handle used with
+                                           // 'd_metricsRegistrar' for the
+                                           // used capacity metric
+
     // PRIVATE MANIPULATORS
+    void initialize(const bsl::string_view& metricsIdentifier);
+        // Construct a thread pool using the stored attributes and the
+        // specified 'metricsIdentifier' to identify this thread pool.
+
     void workerThread();
         // The main function executed by each worker thread.
 
@@ -452,8 +473,25 @@ class FixedThreadPool {
         // threads and a job queue of capacity sufficient to enqueue the
         // specified 'maxNumPendingJobs' without blocking.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless '1 <= numThreads'.
+        // the currently installed default allocator is used.  Use the
+        // currently installed default metrics registrar to report metrics.
+        // The behavior is undefined unless '1 <= numThreads'.
+
+    FixedThreadPool(int                      numThreads,
+                    int                      maxNumPendingJobs,
+                    const bsl::string_view&  metricsIdentifier,
+                    bdlm::MetricsRegistrar  *metricsRegistrar,
+                    bslma::Allocator        *basicAllocator = 0);
+        // Construct a thread pool with the specified 'numThreads' number of
+        // threads, a job queue of capacity sufficient to enqueue the specified
+        // 'maxNumPendingJobs' without blocking, the specified
+        // 'metricsIdentifier' to be used to identify this thread pool, and the
+        // specified 'metricsRegistrar' to be used for reporting metrics.  If
+        // 'metricsRegistrar' is 0, the currently installed default registrar
+        // is used.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // '1 <= numThreads'.
 
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
@@ -464,8 +502,26 @@ class FixedThreadPool {
         // sufficient to enqueue the specified 'maxNumPendingJobs' without
         // blocking.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
+        // allocator is used.  Use the currently installed default metrics
+        // registrar to report metrics.  The behavior is undefined unless
         // '1 <= numThreads'.
+
+    FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
+                    int                             numThreads,
+                    int                             maxNumPendingJobs,
+                    const bsl::string_view&         metricsIdentifier,
+                    bdlm::MetricsRegistrar         *metricsRegistrar,
+                    bslma::Allocator               *basicAllocator = 0);
+        // Construct a thread pool with the specified 'threadAttributes',
+        // 'numThreads' number of threads, a job queue with capacity sufficient
+        // to enqueue the specified 'maxNumPendingJobs' without blocking, the
+        // specified 'metricsIdentifier' to be used to identify this thread
+        // pool, and the specified 'metricsRegistrar' to be used for reporting
+        // metrics.  If 'metricsRegistrar' is 0, the currently installed
+        // default registrar is used.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The behavior is undefined
+        // unless '1 <= numThreads'.
 
     ~FixedThreadPool();
         // Remove all pending jobs from the queue without executing them, block
