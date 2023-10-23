@@ -28,14 +28,16 @@ set(${target}_INCLUDE_FILES
 target_include_directories(
     ${target}
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-        $<INSTALL_INTERFACE:include/${target}>
-)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+
+bbs_add_target_thread_flags(${target} PRIVATE)
 
 # This variable controls the set of headers to install
 set(${target}_INCLUDE_FILES ${${target}_INCLUDE_FILES} PARENT_SCOPE)
 
-bbs_add_target_thread_flags(${target} PRIVATE)
+# Set install path for headers instead of INSTALL_INTERFACE
+set_target_properties(${target} PROPERTIES INCLUDES_INSTALL_PATH "include/${target}")
+
 
 bbs_install_target(${target})
 bbs_emit_pkg_config(${target})
