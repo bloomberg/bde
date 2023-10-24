@@ -354,8 +354,8 @@ void logMessageHandler(bsls::LogSeverity::Enum  severity,
     match.push_back("::");
     match.push_back("StdExceptUtil");
     match.push_back("::");
-    match.push_back(e_DEMANGLE_PARENS ? "throwLengthError"
-                                      : "throwLengthError(c");
+    match.push_back(e_DEMANGLE_PARENS ? "throwLengthError(c"
+                                      : "throwLengthError");
     if (e_HAS_SOURCE) {
         match.push_back("source:bslstl_stdexceptutil.cpp");
     }
