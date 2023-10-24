@@ -61,7 +61,8 @@ endif()
 target_include_directories(
     ${target}
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+        $<INSTALL_INTERFACE:include>)
 
 set(${target}_INCLUDE_FILES
     pcre2.h

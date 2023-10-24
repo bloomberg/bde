@@ -28,7 +28,8 @@ set(${target}_INCLUDE_FILES
 target_include_directories(
     ${target}
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+        $<INSTALL_INTERFACE:include>)
 
 bbs_add_target_thread_flags(${target} PRIVATE)
 
