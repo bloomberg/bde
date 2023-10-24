@@ -23,6 +23,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -66,9 +67,11 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // CLASS METHOD
 // [ 2] bsl::ostream& printStackTrace(ostream& s, int max, bool demangle);
+// [ 5] void preExceptionStackTraceLog(const char *, const char *);
+
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 // [ 3] CONCERN: 'printStackTrace' works for routine in static library
 // [ 4] CONCERN: 'printStackTrace' works for inline routine on stack
 
@@ -270,9 +273,6 @@ bool checkOutput(const bsl::string&               str,
 {
     const int ts = testStatus;
 
-    bslma::TestAllocator localAllocator;
-    bdlma::SequentialAllocator sa(&localAllocator);
-
     if (e_PLAT_WIN && !e_DEBUG_ON) {
         return true;                                                  // RETURN
     }
@@ -281,7 +281,6 @@ bool checkOutput(const bsl::string&               str,
     for (bsl::size_t vecI = 0, posN = 0; vecI < matches.size(); ++vecI) {
         bsl::size_t newPos = str.find(matches[vecI], posN);
         ASSERTV(vecI, matches[vecI], str, str.substr(posN), NPOS != newPos);
-
 
         if (!e_PLAT_WIN) {
             posN = NPOS != newPos ? newPos : posN;
@@ -305,6 +304,106 @@ bool checkOutput(const bsl::string&               str,
     return ts == testStatus;
 }
 
+bool isColonPair(const char *pc)
+{
+    return ':' == *pc && ':' == pc[1] && '\0' == pc[2];
+}
+
+namespace CASE_5 {
+
+bool messageLogged = false;
+
+void logMessageHandler(bsls::LogSeverity::Enum  severity,
+                       const char              *file,
+                       int                      line,
+                       const char              *message)
+{
+    enum { e_HAS_SOURCE =
+                      !(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
+                                !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON };
+
+    const size_t NPOS = bsl::string::npos;
+
+    messageLogged = true;
+
+    bslma::TestAllocator ta;
+    bsl::string output(message, &ta);
+    bsl::string fileStr(file, &ta);
+
+    if (veryVerbose) {
+        bsl::size_t pos = fileStr.find_last_of("/\\");
+        ASSERT(NPOS != pos);
+        pos = NPOS == pos ? 0 : pos;
+        P_(severity);    P_(file + pos + 1);    P(line);
+        P(output);
+    }
+
+    ASSERT(bsls::LogSeverity::e_FATAL == severity);
+    ASSERT(NPOS != fileStr.find("balst_stacktraceprintutil.cpp"));
+    ASSERT(0 < line);
+
+    bsl::vector<const char *> match(&ta);
+    match.push_back("About to throw ");
+    match.push_back("std::length_error");
+    match.push_back("test case 5");
+    match.push_back("Stack Trace:\n");
+
+    match.push_back("BloombergLP");
+    match.push_back("::");
+    match.push_back("bslstl");
+    match.push_back("::");
+    match.push_back("StdExceptUtil");
+    match.push_back("::");
+    match.push_back(e_DEMANGLE_PARENS ? "throwLengthError"
+                                      : "throwLengthError(c");
+    if (e_HAS_SOURCE) {
+        match.push_back("source:bslstl_stdexceptutil.cpp");
+    }
+
+    for (int ii = 0; ii < 4; ++ii) {
+        if (e_DEMANGLE_PARENS) {
+            match.push_back("CASE_5");
+            match.push_back("::");
+        }
+        match.push_back(e_DEMANGLE_PARENS ? "recurseAndThrow(int"
+                                          : "recurseAndThrow");
+        if (e_HAS_SOURCE) {
+            match.push_back("source:balst_stacktraceprintutil.t.cpp");
+        }
+        match.push_back("\n");
+    }
+    match.push_back("main");
+    if (e_HAS_SOURCE) {
+        match.push_back("source:balst_stacktraceprintutil.t.cpp");
+    }
+    match.push_back("\n");
+    if (!e_DEMANGLE_COLONS) {
+        match.erase(bsl::remove_if(match.begin(),
+                                   match.end(),
+                                   isColonPair),
+                    match.end());
+    }
+
+    ASSERT(checkOutput(output, match));
+}
+
+void recurseAndThrow(int *depth)
+    // Recurse to the specified 'depth', then print out the stack trace to
+    // 'cout'.
+{
+    if (--*depth > 0) {
+        (*bslim::TestUtil::makeFunctionCallNonInline(&recurseAndThrow))(depth);
+    }
+    else {
+        bslstl::StdExceptUtil::throwLengthError("test case 5");
+    }
+
+    ++*depth;   // Prevent compiler from optimizing tail recursion as a
+                // loop.
+}
+
+}  // close namespace CASE_5
+
                                 // -------
                                 // case 4
                                 // -------
@@ -312,11 +411,6 @@ bool checkOutput(const bsl::string&               str,
 namespace CASE_4 {
 
 // Pointer to be set to inline '&PrintUtil::forTestingOnlyDump'.
-
-bool isColonPair(const char *pc)
-{
-    return ':' == *pc && ':' == pc[1] && '\0' == pc[2];
-}
 
 void top()
 {
@@ -825,6 +919,7 @@ void recurseAndPrintStack(int *depth)
 // manually edited to wrap and fit neatly within 79 character lines.  Also note
 // the program name is truncated to 32 characters in length.
 
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -858,7 +953,7 @@ int main(int argc, char *argv[])
     out_p = verbose ? &cout : &dummyOstream;
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -883,6 +978,50 @@ int main(int argc, char *argv[])
         int depth = 5;
         recurseAndPrintStack(&depth);
         ASSERT(5 == depth);
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING PRE-THROW LOGGER
+        //
+        // Concerns:
+        //: 1 That the pre throw logger works as designed.
+        //
+        // Plan:
+        //: 1 Set a ptr to the pre-throw logger as the hook for the
+        //:   'std::length_error' exception.
+        //:
+        //: 2 Set out own 'logMessageHandler' function to capture the output
+        //:   of 'BSLS_LOG_*'.  This function will check the the output is
+        //:   as expected.
+        //:
+        //: 3 Recurse a bunch, then throw a length error.
+        //
+        // Testing:
+        //   void preExceptionStackTraceLog(const char *, const char *);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING PRE-THROW LOGGER\n"
+                             "========================\n";
+
+        bsls::Log::setLogMessageHandler(&CASE_5::logMessageHandler);
+
+        bslstl::StdExceptUtil::setLengthErrorHook(
+                       &balst::StackTracePrintUtil::preExceptionStackTraceLog);
+
+        bool caught = false;
+        try {
+            int depth = 5;
+            (*bslim::TestUtil::makeFunctionCallNonInline(
+                                            &CASE_5::recurseAndThrow))(&depth);
+            ASSERT(0);
+        } catch (const std::length_error& exception) {
+            bsl::string_view sv(exception.what());
+            ASSERTV(sv, sv == "test case 5");
+            caught = true;
+        }
+
+        ASSERT(CASE_5::messageLogged);
+        ASSERT(caught);
       } break;
       case 4: {
         // --------------------------------------------------------------------

@@ -19,6 +19,25 @@ BSLS_IDENT("$Id: $")
 // classes.  This valuable where header files define function templates or
 // inline functions that may throw these types as exceptions.
 //
+///Pre-Throw Hooks
+///---------------
+// For each exception type supported by this component, there is a "pre throw
+// hook", a function pointer that is normally null, but can be set to non-null,
+// and if set, the function pointer is called prior to the throw, which gives
+// the client a chance to log a message prior to the throw.
+//
+// If the pre-throw hook is set to 'StdExceptUtil::logCheapStackTrace', a cheap
+// stack trace will be logged, enabling the client to use
+// '/bb/bin/showfunc.tsk' on the cheap stack trace to get a stack trace with
+// symbols.  When running 'showfunc.tsk', pipe the output through 'c++filt' to
+// get demangled symbols.
+//
+// If the pre-throw hook is set to
+// 'balst::StackTracePrintUtil::preExceptionStackTraceLog', a full multi-line
+// stack trace with symbols will be logged, with, on some platforms, symbol
+// demangling, line numbers, and source file names.  This alternative is much
+// slower than the cheap stack trace.
+//
 ///Usage
 ///-----
 // First we declare a function template that wants to throw a standard
@@ -66,7 +85,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_platform.h>
+
+#include <stddef.h>
 
 namespace BloombergLP {
 
@@ -80,7 +100,44 @@ struct StdExceptUtil {
     // This 'struct' provides a namespace for 'static' utility functions that
     // throw standard library exceptions.
 
+    // PUBLIC TYPES
+    typedef void (*PreThrowHook)(const char *exceptionName,
+                                 const char *message);
+        // This is the type of function pointer that can be set.  One such
+        // static function pointer exists for each exception type supported by
+        // this component.  Functions called to throw exceptions examine their
+        // respective pointer, and if it's non-null, call it and then throw
+        // after it returns.  Note that it is recommended that the hook
+        // function log a greppable statement such as "About to throw
+        // <exceptionName>".
+
     // CLASS METHODS
+    static void logCheapStackTrace(const char *exceptionName,
+                                   const char *message);
+        // Log "About to throw ", then the specified 'exceptionName', then the
+        // specified 'logMessage', then log a cheap stack trace with fatal
+        // severity.  This function is intended as a candidate for setting to
+        // the pre-throw hooks.
+        //
+        // A slower alternative to this, which logs a full, multi-line stack
+        // trace with resolved symbols and, on many platforms, line numbers and
+        // source file names, is
+        // 'balst::StackTracePrintUtil::preExceptionStackTraceLog'.
+
+    static void setRuntimeErrorHook(   PreThrowHook hook);
+    static void setLogicErrorHook(     PreThrowHook hook);
+    static void setDomainErrorHook(    PreThrowHook hook);
+    static void setInvalidArgumentHook(PreThrowHook hook);
+    static void setLengthErrorHook(    PreThrowHook hook);
+    static void setOutOfRangeHook(     PreThrowHook hook);
+    static void setRangeErrorHook(     PreThrowHook hook);
+    static void setOverflowErrorHook(  PreThrowHook hook);
+    static void setUnderflowErrorHook( PreThrowHook hook);
+        // Set the pre throw hook for the specified exception type to the
+        // specified 'hook'.  If 'hook' is passed 0, that means that no
+        // pre-throw function will be called (the state before any of these
+        // settors is called).
+
     BSLS_ANNOTATION_NORETURN
     static void throwRuntimeError(const char *message);
         // Throw a 'std::runtime_error' exception supplying the specified

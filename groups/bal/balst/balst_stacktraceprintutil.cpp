@@ -15,7 +15,13 @@ BSLS_IDENT_RCSID(balst_stacktraceprintutil_cpp,"$Id$ $CSID$")
 #include <balst_stacktrace.h>
 #include <balst_stacktraceutil.h>
 
+#include <bdlsb_memoutstreambuf.h>
+
+#include <bdlma_heapbypassallocator.h>
+
 #include <bsls_assert.h>
+#include <bsls_bsltestutil.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_stackaddressutil.h>
 
@@ -87,6 +93,29 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
     }
 
     return StackTraceUtil::printFormatted(stream, st);
+}
+
+void StackTracePrintUtil::preExceptionStackTraceLog(const char *exceptionName,
+                                                    const char *message)
+{
+    // Use this 'streambuf' approach rather than 'bsl::ostringstream' since
+    // that would involve the 'str()' accessor which would completely copy the
+    // data using the default allocator.
+
+    bdlma::HeapBypassAllocator alloc;
+    bdlsb::MemOutStreamBuf     sb(8192, &alloc);
+    bsl::ostream               os(&sb);
+
+    (*bsls::BslTestUtil::makeFunctionCallNonInline(&printStackTrace))(
+                                                             os, 128, true, 1);
+    os << bsl::ends;
+
+    // We have to use bsls_log because balst has no dependency on ball.
+
+    BSLS_LOG_FATAL("About to throw %s, %s\nStack Trace:\n%s",
+                   exceptionName,
+                   message,
+                   sb.data());
 }
 
 }  // close package namespace

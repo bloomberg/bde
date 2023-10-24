@@ -1,7 +1,9 @@
 // bslstl_stdexceptutil.t.cpp                                         -*-C++-*-
 #include <bslstl_stdexceptutil.h>
 
+#include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_log.h>
 
 #include <stdexcept>    //  yes, we want the native std here
 
@@ -20,31 +22,48 @@ using namespace std;
 //
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -53,8 +72,11 @@ static void aSsErT(int c, const char *s, int i) {
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//                  GLOBAL HELPER FUNCTIONS/VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
+
+int verbose;
+int veryVerbose;
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -107,17 +129,248 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
+namespace BSLSTL_STDEXCEPTUTIL_TEST_CASE_2 {
+
+namespace TC = BSLSTL_STDEXCEPTUTIL_TEST_CASE_2;
+
+typedef bslstl::StdExceptUtil Util;
+
+bsls::LogSeverity::Enum  severity;
+char                     sourceFileNameBuf[8192];
+int                      lineNumber;
+char                     outBuf[8192];
+
+bool                     caught;
+
+void logMessageHandler(bsls::LogSeverity::Enum  severity,
+                       const char              *file,
+                       int                      line,
+                       const char              *message)
+{
+    namespace TC = BSLSTL_STDEXCEPTUTIL_TEST_CASE_2;
+
+    TC::severity = severity;
+    strcpy(TC::sourceFileNameBuf, file);
+    TC::lineNumber = line;
+    strcpy(TC::outBuf, message);
+
+    if (veryVerbose) {
+        P_(severity);    P_(file);    P_(line);    P(message);
+    }
+}
+
+void clear()
+{
+    Util::PreThrowHook segfault;    // calling this function will segfault
+    memset(&segfault, 0xa5, sizeof(segfault));
+    Util::setRuntimeErrorHook(segfault);
+    Util::setLogicErrorHook(segfault);
+    Util::setDomainErrorHook(segfault);
+    Util::setInvalidArgumentHook(segfault);
+    Util::setLengthErrorHook(segfault);
+    Util::setOutOfRangeHook(segfault);
+    Util::setRangeErrorHook(segfault);
+    Util::setOverflowErrorHook(segfault);
+    Util::setUnderflowErrorHook(segfault);
+
+    memset(&TC::severity, 0xa5, sizeof(TC::severity));
+    memset(TC::sourceFileNameBuf, 0xa5, sizeof(TC::sourceFileNameBuf));
+    TC::lineNumber = -1;
+    memset(TC::outBuf, 0xa5, sizeof(TC::outBuf));
+
+    TC::caught = false;
+}
+
+void check(const char *exceptionName, const char *message)
+{
+    ASSERT(bsls::LogSeverity::e_FATAL == TC::severity);
+    char *pc = strstr(TC::sourceFileNameBuf, ".cpp");
+    ASSERT(pc);
+    strcpy(pc, ".t.cpp");
+    ASSERT(!strcmp(TC::sourceFileNameBuf, __FILE__));
+    ASSERT(0 < TC::lineNumber);
+    char aboutBuf[256];
+    sprintf(aboutBuf, "About to throw %s", exceptionName);
+    ASSERTV(TC::outBuf, strstr(TC::outBuf, aboutBuf));
+    ASSERTV(TC::outBuf, exceptionName, strstr(TC::outBuf, exceptionName));
+    ASSERT(strstr(TC::outBuf, message));
+    ASSERTV(TC::outBuf, strstr(TC::outBuf, "/bb/bin/showfunc.tsk "));
+
+    // count blanks after showfunc
+
+    unsigned count = 0;
+    pc = strstr(outBuf, ".tsk ");
+    ASSERT(pc);
+    pc += 4;
+    while ((pc = strchr(pc, ' '))) {
+        ++count;
+        ++pc;
+    }
+    ASSERT(6 <= count);
+}
+
+int top(const char *message)
+{
+    {
+        try {
+            TC::clear();
+            Util::setRuntimeErrorHook(&Util::logCheapStackTrace);
+            Util::throwRuntimeError(message);
+            ASSERT(0);
+        }
+        catch (const std::runtime_error& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::runtime_error", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setLogicErrorHook(&Util::logCheapStackTrace);
+            Util::throwLogicError(message);
+            ASSERT(0);
+        }
+        catch (const std::logic_error& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::logic_error", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setDomainErrorHook(&Util::logCheapStackTrace);
+            Util::throwDomainError(message);
+            ASSERT(0);
+        }
+        catch (const std::domain_error& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::domain_error", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setInvalidArgumentHook(&Util::logCheapStackTrace);
+            Util::throwInvalidArgument(message);
+            ASSERT(0);
+        }
+        catch (const std::invalid_argument& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::invalid_argument", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setLengthErrorHook(&Util::logCheapStackTrace);
+            Util::throwLengthError(message);
+            ASSERT(0);
+        }
+        catch (const std::length_error& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::length_error", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setOutOfRangeHook(&Util::logCheapStackTrace);
+            Util::throwOutOfRange(message);
+            ASSERT(0);
+        }
+        catch (const std::out_of_range& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::out_of_range", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setRangeErrorHook(&Util::logCheapStackTrace);
+            Util::throwRangeError(message);
+            ASSERT(0);
+        }
+        catch (const std::range_error& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::range_error", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setOverflowErrorHook(&Util::logCheapStackTrace);
+            Util::throwOverflowError(message);
+            ASSERT(0);
+        }
+        catch (const std::overflow_error& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::overflow_error", message);
+    }
+
+    {
+        try {
+            TC::clear();
+            Util::setUnderflowErrorHook(&Util::logCheapStackTrace);
+            Util::throwUnderflowError(message);
+            ASSERT(0);
+        }
+        catch (const std::underflow_error& exc)
+        {
+            TC::caught = true;
+        }
+        TC::check("std::underflow_error", message);
+    }
+
+    return 1;
+}
+
+template <class FUNC_PTR>
+int recurser(int *depth, FUNC_PTR func, const char *message)
+    // Recurse to the specified 'depth' and then call
+    // 'testThrowingWithCheapStackTrace'.
+{
+    const int depthIn = *depth;
+
+    int rc = --*depth <= 0
+           ? (*bsls::BslTestUtil::makeFunctionCallNonInline(func))(message)
+           : (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                                   &recurser<FUNC_PTR>))(depth, func, message);
+    *depth += rc;
+
+    ASSERT(depthIn == *depth);
+
+    return 1;
+}
+
+}  // close namespace BSLSTL_STDEXCEPTUTIL_TEST_CASE_2
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
     // int veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST:
         //
@@ -141,6 +394,34 @@ int main(int argc, char *argv[])
 #else
         callTestFunction();
 #endif // defined BDE_BUILD_TARGET_EXC
+     } break;
+     case 2: {
+        // --------------------------------------------------------------------
+        // HOOK / STACKTRACE TEST
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============");
+
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) printf(
+                "\nThis case is not run as it relies on exception support.\n");
+#else
+        namespace TC = BSLSTL_STDEXCEPTUTIL_TEST_CASE_2;
+
+        bsls::Log::setLogMessageHandler(TC::logMessageHandler);
+
+        int depth = 5;
+        TC::recurser(&depth, &TC::top, "test case 2");
+        ASSERT(5 == depth);
+#endif
      } break;
      case 1: {
         // --------------------------------------------------------------------

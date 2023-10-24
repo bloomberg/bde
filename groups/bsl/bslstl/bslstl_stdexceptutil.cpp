@@ -5,16 +5,35 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_exceptionutil.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
+#include <bsls_stackaddressutil.h>
 
 #include <stdexcept>
 #include <string>
 
-#ifdef BDE_BUILD_TARGET_EXC
-    #define U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(x) do{}while(false)
-#else
-    #define U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(x) (void)(x)
-#endif
+namespace {
+namespace u {
+
+using namespace BloombergLP;
+using namespace bslstl;
+
+// TYPES
+enum { k_MAX_BYTES_PER_PTR = sizeof(void *) * 2 };
+
+// DATA
+StdExceptUtil::PreThrowHook runtimeErrorHook;
+StdExceptUtil::PreThrowHook logicErrorHook;
+StdExceptUtil::PreThrowHook domainErrorHook;
+StdExceptUtil::PreThrowHook invalidArgumentHook;
+StdExceptUtil::PreThrowHook lengthErrorHook;
+StdExceptUtil::PreThrowHook outOfRangeHook;
+StdExceptUtil::PreThrowHook rangeErrorHook;
+StdExceptUtil::PreThrowHook overflowErrorHook;
+StdExceptUtil::PreThrowHook underflowErrorHook;
+
+}  // close namespace u
+}  // close unnamed namespace
 
 namespace BloombergLP {
 namespace bslstl {
@@ -24,76 +43,156 @@ namespace bslstl {
                         //====================
 
 // CLASS METHODS
+void StdExceptUtil::logCheapStackTrace(const char *exceptionName,
+                                       const char *message)
+{
+    enum { k_MAX_FRAMES = 128,
+           k_CHEAP_STACK_BUF_SIZE = 1024 +
+                                 k_MAX_FRAMES * (u::k_MAX_BYTES_PER_PTR + 1) };
+
+    char cheapStackBuf[k_CHEAP_STACK_BUF_SIZE];
+    bsls::StackAddressUtil::formatCheapStack(cheapStackBuf,
+                                             k_CHEAP_STACK_BUF_SIZE,
+                                             0);
+
+    BSLS_LOG_FATAL("About to throw %s, %s %s",
+                   exceptionName,
+                   message,
+                   cheapStackBuf);
+}
+
+void StdExceptUtil::setRuntimeErrorHook(PreThrowHook hook)
+{
+    u::runtimeErrorHook = hook;
+}
+
+void StdExceptUtil::setLogicErrorHook(PreThrowHook hook)
+{
+    u::logicErrorHook = hook;
+}
+void StdExceptUtil::setDomainErrorHook(PreThrowHook hook)
+{
+    u::domainErrorHook = hook;
+}
+
+void StdExceptUtil::setInvalidArgumentHook(PreThrowHook hook)
+{
+    u::invalidArgumentHook = hook;
+}
+
+void StdExceptUtil::setLengthErrorHook(PreThrowHook hook)
+{
+    u::lengthErrorHook = hook;
+}
+
+void StdExceptUtil::setOutOfRangeHook(PreThrowHook hook)
+{
+    u::outOfRangeHook = hook;
+}
+
+void StdExceptUtil::setRangeErrorHook(PreThrowHook hook)
+{
+    u::rangeErrorHook = hook;
+}
+
+void StdExceptUtil::setOverflowErrorHook(PreThrowHook hook)
+{
+    u::overflowErrorHook = hook;
+}
+
+void StdExceptUtil::setUnderflowErrorHook(PreThrowHook hook)
+{
+    u::underflowErrorHook = hook;
+}
+
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
-    BSLS_THROW(std::runtime_error(message));
+    if (u::runtimeErrorHook) {
+        (*u::runtimeErrorHook)("std::runtime_error", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::runtime_error(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwLogicError(const char *message)
 {
-    BSLS_THROW(std::logic_error(message));
+    if (u::logicErrorHook) {
+        (*u::logicErrorHook)("std::logic_error", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::logic_error(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwDomainError(const char *message)
 {
-    BSLS_THROW(std::domain_error(message));
+    if (u::domainErrorHook) {
+        (*u::domainErrorHook)("std::domain_error", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::domain_error(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
-    BSLS_THROW(std::invalid_argument(message));
+    if (u::invalidArgumentHook) {
+        (*u::invalidArgumentHook)("std::invalid_argument", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::invalid_argument(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwLengthError(const char *message)
 {
-    BSLS_THROW(std::length_error(message));
+    if (u::lengthErrorHook) {
+        (*u::lengthErrorHook)("std::length_error", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::length_error(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
-    BSLS_THROW(std::out_of_range(message));
+    if (u::outOfRangeHook) {
+        (*u::outOfRangeHook)("std::out_of_range", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::out_of_range(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwRangeError(const char *message)
 {
-    BSLS_THROW(std::range_error(message));
+    if (u::rangeErrorHook) {
+        (*u::rangeErrorHook)("std::range_error", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::range_error(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwOverflowError(const char *message)
 {
-    BSLS_THROW(std::overflow_error(message));
+    if (u::overflowErrorHook) {
+        (*u::overflowErrorHook)("std::overflow_error", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::overflow_error(message));
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
-    BSLS_THROW(std::underflow_error(message));
+    if (u::underflowErrorHook) {
+        (*u::underflowErrorHook)("std::underflow_error", message);
+    }
 
-    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
+    BSLS_THROW(std::underflow_error(message));
 }
 
 }  // close package namespace
