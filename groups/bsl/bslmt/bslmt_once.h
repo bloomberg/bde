@@ -348,6 +348,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_buildtarget.h>
 #include <bsls_platform.h>
 
+#include <bsl_exception.h>
+
 namespace BloombergLP {
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -494,6 +496,7 @@ class OnceGuard {
     Once::OnceLock  d_onceLock;
     Once           *d_once;
     State           d_state;
+    int             d_num_exceptions; // exceptions active at construction
 
     // NOT IMPLEMENTED
     OnceGuard(const OnceGuard&);
@@ -510,12 +513,7 @@ class OnceGuard {
         // Destroy this object.  If this object is not in an "in-progress"
         // state, do nothing.  If this object is in an "in-progress" state and
         // is being destroyed in the course of normal processing, then call
-        // 'leave' on the associated 'Once' object.  Due to a bug in the MS
-        // VC++ 2003 compiler, the behavior is undefined if this destructor is
-        // called in the course of stack-unwinding during exception processing
-        // (i.e., if an exception escapes from the one-time code region.
-        // [Eventually, we hope to call 'cancel' if this destructor is called
-        // during exception-processing.]
+        // 'leave' on the associated 'Once' object.
 
     // MANIPULATORS
     void setOnce(Once *once);
@@ -586,6 +584,7 @@ inline
 bslmt::OnceGuard::OnceGuard(Once *once)
 : d_once(once)
 , d_state(e_NOT_ENTERED)
+, d_num_exceptions(bsl::uncaught_exceptions())
 {
 }
 

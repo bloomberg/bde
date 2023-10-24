@@ -78,15 +78,9 @@ bslmt::OnceGuard::~OnceGuard()
     if (e_IN_PROGRESS != d_state) {
         return;                                                       // RETURN
     }
-#if ! defined(BSLS_PLATFORM_CMP_MSVC)
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    else if (0 != bsl::uncaught_exceptions()) {
-# else
-    else if (bsl::uncaught_exception()) {
-# endif
+    else if (d_num_exceptions < bsl::uncaught_exceptions()) {
         d_once->cancel(&d_onceLock);
     }
-#endif
     else {
         d_once->leave(&d_onceLock);
     }

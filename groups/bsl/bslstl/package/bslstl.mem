@@ -20,6 +20,7 @@ bslstl_deque_cpp03
 bslstl_equalto
 bslstl_errc
 bslstl_error
+bslstl_exception
 bslstl_forwarditerator
 bslstl_function
 bslstl_function_cpp03

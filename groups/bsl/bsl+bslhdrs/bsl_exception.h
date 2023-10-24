@@ -18,6 +18,8 @@ BSLS_IDENT("$Id: $")
 
 #include <exception>
 
+#include <bslstl_exception.h> // uncaught_exceptions
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -43,12 +45,6 @@ namespace bsl {
     using std::set_unexpected;
     using std::unexpected;
     using std::unexpected_handler;
-#endif
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    // Not defined until C++17
-
-    using std::uncaught_exceptions;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 121 components having 10 levels of physical
+ The 'bslstl' package currently has 122 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -133,6 +133,7 @@
 
    1. bslstl_bidirectionalnodepool_cpp03                              !PRIVATE!
       bslstl_deque_cpp03                                              !PRIVATE!
+      bslstl_exception
       bslstl_function_cpp03                                           !PRIVATE!
       bslstl_function_invokerutil_cpp03                               !PRIVATE!
       bslstl_hashtable_cpp03                                          !PRIVATE!
@@ -221,6 +222,9 @@
 :
 : 'bslstl_error':
 :      Provide standard compliant versions of <system_error> classes.
+:
+: 'bslstl_exception':
+:      Provide an implementation of 'uncaught_exceptions' for pre-C++17 systems
 :
 : 'bslstl_forwarditerator':
 :      Provide a template to create STL-compliant forward iterators.
