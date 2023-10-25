@@ -1,6 +1,7 @@
 // bslmf_resulttype.t.cpp                                             -*-C++-*-
 #include <bslmf_resulttype.h>
 
+#include <bslmf_integralconstant.h>   // for testing only
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
@@ -98,17 +99,14 @@ struct BothResultTypes {
 };
 
 template <class TYPE, class = void>
-struct HasType {
+struct HasType : public bsl::false_type {
     // Metafunction with value 'true' if 'TYPE::type' names a valid type.
-
-    enum { VALUE = false };
 };
 
 template <class TYPE>
-struct HasType<TYPE, BSLMF_VOIDTYPE(typename TYPE::type)> {
+struct HasType<TYPE, BSLMF_VOIDTYPE(typename TYPE::type)>
+: public bsl::true_type {
     // Specialization for when 'TYPE::type' names a valid type.
-
-    enum { VALUE = true };
 };
 
 struct WithType {
@@ -353,19 +351,19 @@ int main(int argc, char *argv[])
 #define ASSERT_SAME(...) \
         ASSERT((bsl::is_same<__VA_ARGS__>::value))
 
-        ASSERT(  HasType<ResultType<STDResultType  > >::VALUE);
-        ASSERT(  HasType<ResultType<BDEResultType  > >::VALUE);
-        ASSERT(  HasType<ResultType<BothResultTypes> >::VALUE);
-        ASSERT(! HasType<ResultType<NoResultType   > >::VALUE);
+        ASSERT(  HasType<ResultType<STDResultType  > >::value);
+        ASSERT(  HasType<ResultType<BDEResultType  > >::value);
+        ASSERT(  HasType<ResultType<BothResultTypes> >::value);
+        ASSERT(! HasType<ResultType<NoResultType   > >::value);
 
         ASSERT_SAME(ResultType<STDResultType  >::type, short);
         ASSERT_SAME(ResultType<BDEResultType  >::type, int  );
         ASSERT_SAME(ResultType<BothResultTypes>::type, unsigned short);
 
-        ASSERT((  HasType<ResultType<STDResultType  , float> >::VALUE));
-        ASSERT((  HasType<ResultType<BDEResultType  , float> >::VALUE));
-        ASSERT((  HasType<ResultType<BothResultTypes, float> >::VALUE));
-        ASSERT((  HasType<ResultType<NoResultType   , float> >::VALUE));
+        ASSERT((  HasType<ResultType<STDResultType  , float> >::value));
+        ASSERT((  HasType<ResultType<BDEResultType  , float> >::value));
+        ASSERT((  HasType<ResultType<BothResultTypes, float> >::value));
+        ASSERT((  HasType<ResultType<NoResultType   , float> >::value));
 
         ASSERT_SAME(ResultType<STDResultType  , float>::type , short);
         ASSERT_SAME(ResultType<BDEResultType  , float>::type , int  );
@@ -376,7 +374,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(ResultType<const volatile STDResultType>::type, short);
         ASSERT_SAME(ResultType<volatile BDEResultType      >::type, int  );
         ASSERT_SAME(ResultType<const BothResultTypes>::type, unsigned short);
-        ASSERT(! HasType<ResultType<const NoResultType   > >::VALUE);
+        ASSERT(! HasType<ResultType<const NoResultType   > >::value);
 
         ASSERT_SAME(ResultType<const STDResultType   , float>::type , short);
         ASSERT_SAME(ResultType<volatile BDEResultType, float>::type , int  );
@@ -390,7 +388,7 @@ int main(int argc, char *argv[])
         // TEST APPARATUS
         //
         // Concerns:
-        //: 1 'HasType<T>::VALUE' is 'true' if and only if 'T::type' is a valid
+        //: 1 'HasType<T>::value' is 'true' if and only if 'T::type' is a valid
         //:   type.
         //
         // Plan:
@@ -405,8 +403,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTEST APPARATUS"
                             "\n==============\n");
 
-        ASSERT(false == HasType<NoResultType>::VALUE);
-        ASSERT(true  == HasType<WithType>::VALUE);
+        ASSERT(false == HasType<NoResultType>::value);
+        ASSERT(true  == HasType<WithType>::value);
 
       } break;
       default: {

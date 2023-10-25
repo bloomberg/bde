@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 // structure to the beginning of 'd_t', which is also the total size of the
 // structure minus the size of 'd_t':
 //..
-//  bsls::AlignmentImpCalc<T>::VALUE == sizeof(X) - sizeof(T);
+//  bsls::AlignmentImpCalc<T>::value == sizeof(X) - sizeof(T);
 //..
 // Since 'sizeof' yields a compile-time constant, the alignment can be computed
 // at compile time.
@@ -96,8 +96,8 @@ BSLS_IDENT("$Id: $")
 // types, 'short' and the 'MyStruct' we just defined:
 //..
 //  enum {
-//      SHORT_ALIGNMENT     = bsls::AlignmentImpCalc<short   >::VALUE,
-//      MY_STRUCT_ALIGNMENT = bsls::AlignmentImpCalc<MyStruct>::VALUE };
+//      SHORT_ALIGNMENT     = bsls::AlignmentImpCalc<short   >::value,
+//      MY_STRUCT_ALIGNMENT = bsls::AlignmentImpCalc<MyStruct>::value };
 //..
 // Finally, we observe the values of our alignments, we observe that
 // the size of the 2 objects is a multiple of each object's alignment
@@ -177,9 +177,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Here, we calculate alignments for our 3 types with 'AlignmentImpCalc'.
 //..
-//  const int INT_ALIGNMENT = bsls::AlignmentImpCalc<int      >::VALUE;
-//  const int A_ALIGNMENT   = bsls::AlignmentImpCalc<MyStructA>::VALUE;
-//  const int B_ALIGNMENT   = bsls::AlignmentImpCalc<MyStructB>::VALUE;
+//  const int INT_ALIGNMENT = bsls::AlignmentImpCalc<int      >::value;
+//  const int A_ALIGNMENT   = bsls::AlignmentImpCalc<MyStructA>::value;
+//  const int B_ALIGNMENT   = bsls::AlignmentImpCalc<MyStructB>::value;
 //..
 // Now, for each alignment requirement we just calculated, we utilize
 // 'ConvertAlignmentToType' to determine the fundamental or pointer
@@ -195,9 +195,9 @@ BSLS_IDENT("$Id: $")
 // all the type determined by 'ConvertAlignmentToType' have sizes
 // equal to their alignment requirements:
 //..
-//  assert(INT_ALIGNMENT == bsls::AlignmentImpCalc<IntAlignType >::VALUE);
-//  assert(A_ALIGNMENT   == bsls::AlignmentImpCalc<ThisAlignType>::VALUE);
-//  assert(B_ALIGNMENT   == bsls::AlignmentImpCalc<ThatAlignType>::VALUE);
+//  assert(INT_ALIGNMENT == bsls::AlignmentImpCalc<IntAlignType >::value);
+//  assert(A_ALIGNMENT   == bsls::AlignmentImpCalc<ThisAlignType>::value);
+//  assert(B_ALIGNMENT   == bsls::AlignmentImpCalc<ThatAlignType>::value);
 //
 //  assert(INT_ALIGNMENT == sizeof(IntAlignType));
 //  assert(A_ALIGNMENT   == sizeof(ThisAlignType));

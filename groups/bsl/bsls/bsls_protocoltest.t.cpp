@@ -708,9 +708,9 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) printf("\tbsls_ProtocolTest_IsAbstract\n");
 
-            ASSERT(bsls::ProtocolTest_IsAbstract<MyInterface>::VALUE);
+            ASSERT(bsls::ProtocolTest_IsAbstract<MyInterface>::value);
             ASSERT(
-                !bsls::ProtocolTest_IsAbstract<NotAbstractInterface>::VALUE);
+                !bsls::ProtocolTest_IsAbstract<NotAbstractInterface>::value);
 
             if (veryVerbose) printf("\tbsls_ProtocolTest::operator->()\n");
 

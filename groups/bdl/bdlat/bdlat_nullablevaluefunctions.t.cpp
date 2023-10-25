@@ -14,6 +14,7 @@
 #include <bslim_testutil.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>   // for testing only
 #include <bslmf_issame.h>
 
 #include <bsls_review.h>
@@ -288,8 +289,7 @@ namespace Obj = bdlat_NullableValueFunctions;
 
     // TRAITS
     template <>
-    struct IsNullableValue<your::YourNullableValue> {
-        enum { VALUE = 1 };
+    struct IsNullableValue<your::YourNullableValue> : public bsl::true_type {
     };
 
     template <>
@@ -419,8 +419,7 @@ namespace Obj = bdlat_NullableValueFunctions;
 
     // TRAITS
     template <>
-    struct IsNullableValue<mine::MyNullableValue> {
-        enum { VALUE = 1 };
+    struct IsNullableValue<mine::MyNullableValue> : public bsl::true_type {
     };
 
     template <>
@@ -452,7 +451,7 @@ namespace Obj = bdlat_NullableValueFunctions;
     void usageMakeObject()
     {
         BSLMF_ASSERT(bdlat_NullableValueFunctions::
-                     IsNullableValue<mine::MyNullableValue>::VALUE);
+                     IsNullableValue<mine::MyNullableValue>::value);
 
         mine::MyNullableValue object;
         ASSERT( bdlat_NullableValueFunctions::isNull(object));
@@ -594,7 +593,7 @@ namespace Obj = bdlat_NullableValueFunctions;
             // 'false == bdlat_NullableValueFunctions::isNull(object))'.
         {
             BSLMF_ASSERT(bdlat_NullableValueFunctions
-                                ::IsNullableValue<NULLABLE_VALUE_TYPE>::VALUE);
+                                ::IsNullableValue<NULLABLE_VALUE_TYPE>::value);
 
             BSLS_ASSERT(!bdlat_NullableValueFunctions::isNull(object));
 
@@ -621,7 +620,7 @@ namespace Obj = bdlat_NullableValueFunctions;
             // overload for the 'NULLABLE_VALUE_TYPE'.
         {
             BSLMF_ASSERT(bdlat_NullableValueFunctions
-                                ::IsNullableValue<NULLABLE_VALUE_TYPE>::VALUE);
+                                ::IsNullableValue<NULLABLE_VALUE_TYPE>::value);
 
             BSLS_ASSERT(object);
             BSLS_ASSERT(!bdlat_NullableValueFunctions::isNull(*object));
@@ -844,8 +843,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting meta-functions"
                           << "\n======================" << endl;
 
-        ASSERT(0 == Obj::IsNullableValue<int>::VALUE);
-        ASSERT(1 == Obj::IsNullableValue<bdlb::NullableValue<int> >::VALUE);
+        ASSERT(0 == Obj::IsNullableValue<int>::value);
+        ASSERT(1 == Obj::IsNullableValue<bdlb::NullableValue<int> >::value);
 
         typedef Obj::ValueType<bdlb::NullableValue<int> >::Type ValueType;
         ASSERT(1 == (bslmf::IsSame<ValueType, int>::value));

@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraitnil.h>
 
-#include <bslmf_metaint.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_switch.h>
 
 namespace BloombergLP {
@@ -53,19 +53,15 @@ struct SelectTrait {
 
     // PUBLIC TYPES
     enum {
-        SELECTION = (HasTrait<TYPE, TRAIT1>::VALUE ? 1 :
-                     HasTrait<TYPE, TRAIT2>::VALUE ? 2 :
-                     HasTrait<TYPE, TRAIT3>::VALUE ? 3 :
-                     HasTrait<TYPE, TRAIT4>::VALUE ? 4 :
-                     HasTrait<TYPE, TRAIT5>::VALUE ? 5 :
+        SELECTION = (HasTrait<TYPE, TRAIT1>::value ? 1 :
+                     HasTrait<TYPE, TRAIT2>::value ? 2 :
+                     HasTrait<TYPE, TRAIT3>::value ? 3 :
+                     HasTrait<TYPE, TRAIT4>::value ? 4 :
+                     HasTrait<TYPE, TRAIT5>::value ? 5 :
                      0)
             // Integral value indicating which trait was selected: 1 for
             // 'TRAIT1', 2 for 'TRAIT2', etc., and 0 if none were selected.
     };
-
-    typedef bslmf::MetaInt<SELECTION> MetaSelection;
-        // A meta-value representing the same thing a 'SELECTION', but as a
-        // type instead of as an integer.
 
     typedef typename bslmf::Switch<SELECTION,
                                    TypeTraitNil,

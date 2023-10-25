@@ -1865,8 +1865,7 @@ bsl::ostream& MySequenceWithDefaultValues::print(
     namespace bdlat_SequenceFunctions {
 
         template <>
-        struct IsSequence<usage::EmployeeRecord> {
-            enum { VALUE = 1 };
+        struct IsSequence<usage::EmployeeRecord> : public bsl::true_type {
         };
 
     }  // close namespace 'bdlat_SequenceFunctions'

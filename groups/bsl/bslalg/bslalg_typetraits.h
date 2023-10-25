@@ -207,7 +207,7 @@ BSLS_IDENT("$Id: $")
 //                 location, value, allocator,
 //                 typename bsl::conditional<
 //                        HasTrait<TYPE,
-//                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+//                                 bslalg::TypeTraitUsesBslmaAllocator>::value,
 //                        bslalg::TypeTraitUsesBslmaAllocator,
 //                        bslalg::TypeTraitNil>::type());
 //      }

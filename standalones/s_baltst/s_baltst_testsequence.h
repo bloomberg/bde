@@ -674,8 +674,8 @@ void bdlat_valueTypeReset(TestSequence<V0, V1, V2> *object)
 namespace bdlat_SequenceFunctions {
 
 template <class V0, class V1, class V2>
-struct IsSequence<s_baltst::TestSequence<V0, V1, V2> > {
-    enum { VALUE = 1 };
+struct IsSequence<s_baltst::TestSequence<V0, V1, V2> >
+: public bsl::true_type {
 };
 
 }  // close bdlat_SequenceFunctions namespace

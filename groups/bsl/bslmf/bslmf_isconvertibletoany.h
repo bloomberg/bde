@@ -66,13 +66,13 @@ class IsConvertibleToAny_Imp {
     };
 
   public:
-    typedef typename bsl::is_convertible<t_TYPE, UniqueType>::type Type;
-        // 'Type' is defined as 'bsl::true_type' if 't_TYPE' is convertible to
+    typedef typename bsl::is_convertible<t_TYPE, UniqueType>::type type;
+        // 'type' is defined as 'bsl::true_type' if 't_TYPE' is convertible to
         // 'UniqueType' and 'bsl::false_type' otherwise.
 };
 
 template <class t_TYPE>
-struct IsConvertibleToAny : IsConvertibleToAny_Imp<t_TYPE>::Type {
+struct IsConvertibleToAny : IsConvertibleToAny_Imp<t_TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 't_TYPE' is convertible to any other type.  This
     // 'struct' derives from 'bsl::true_type' if 't_TYPE' is convertible to any

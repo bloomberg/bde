@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // The two meta-functions are functionally equivalent.  The major difference
 // between them is that the result for 'bsl::is_pointer' is indicated by the
 // class member 'value', while the result for 'bslmf::IsPointer' is indicated
-// by the class member 'VALUE'.
+// by the class member 'value'.
 //
 // Note that 'bsl::is_pointer' should be preferred over 'bslmf::IsPointer', and
 // in general, should be used by new components.

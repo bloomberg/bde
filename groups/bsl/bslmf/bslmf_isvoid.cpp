@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslmf_metaint.h>      // for testing only
+#include <bslmf_integralconstant.h>      // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.

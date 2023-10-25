@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<Container,        Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<Empty,            Obj>::VALUE));
-        ASSERT(( bslalg::HasTrait<AnotherContainer, Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<Container,        Obj>::value));
+        ASSERT((!bslalg::HasTrait<Empty,            Obj>::value));
+        ASSERT(( bslalg::HasTrait<AnotherContainer, Obj>::value));
 
       } break;
       default: {

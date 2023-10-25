@@ -133,6 +133,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_movableref.h>
+#include <bslmf_tag.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
@@ -162,9 +163,9 @@ namespace {
 
     enum {
         // These constants are used in the overloads below, when the last
-        // argument is of type 'bslmf::MetaInt<N> *', indicating that
-        // 'VALUE_TYPE' has the traits for which the enumerator equal to 'N' is
-        // named.
+        // argument is of type 'bsl::integral_constant<int, N>', indicating
+        // that 'VALUE_TYPE' has the traits for which the enumerator equal to
+        // 'N' is named.
 
         NIL_TRAITS              = 0,
         BITWISE_MOVEABLE_TRAITS = 1,
@@ -223,15 +224,17 @@ struct DequePrimitives {
         // element destructor calls).
 
     template <class ALLOCATOR>
-    static void destruct(Iterator   begin,
-                         Iterator   end,
-                         ALLOCATOR  allocator,
-                         bslmf::MetaInt<NIL_TRAITS> *);
+    static void destruct(
+                Iterator                                             begin,
+                Iterator                                             end,
+                ALLOCATOR                                            allocator,
+                bsl::integral_constant<int, NIL_TRAITS>);
     template <class ALLOCATOR>
-    static void destruct(Iterator   begin,
-                         Iterator   end,
-                         ALLOCATOR  allocator,
-                         bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+    static void destruct(
+                Iterator                                             begin,
+                Iterator                                             end,
+                ALLOCATOR                                            allocator,
+                bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
         // Call the destructor on each of the elements of a deque of
         // parameterized 'VALUE_TYPE' in the specified range '[begin .. end)'.
         // The behavior is undefined unless 'begin <= end'.  Note that this
@@ -258,23 +261,25 @@ struct DequePrimitives {
         // 'fromBegin <= first <= last <= fromEnd'.
 
     template <class ALLOCATOR>
-    static Iterator erase(Iterator                   *toBegin,
-                          Iterator                   *toEnd,
-                          Iterator                    fromBegin,
-                          Iterator                    first,
-                          Iterator                    last,
-                          Iterator                    fromEnd,
-                          ALLOCATOR                   allocator,
-                          bslmf::MetaInt<NIL_TRAITS> *);
+    static Iterator erase(
+                Iterator                                            *toBegin,
+                Iterator                                            *toEnd,
+                Iterator                                             fromBegin,
+                Iterator                                             first,
+                Iterator                                             last,
+                Iterator                                             fromEnd,
+                ALLOCATOR                                            allocator,
+                bsl::integral_constant<int, NIL_TRAITS>);
     template <class ALLOCATOR>
-    static Iterator erase(Iterator                                *toBegin,
-                          Iterator                                *toEnd,
-                          Iterator                                 fromBegin,
-                          Iterator                                 first,
-                          Iterator                                 last,
-                          Iterator                                 fromEnd,
-                          ALLOCATOR                                allocator,
-                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+    static Iterator erase(
+               Iterator                                             *toBegin,
+               Iterator                                             *toEnd,
+               Iterator                                              fromBegin,
+               Iterator                                              first,
+               Iterator                                              last,
+               Iterator                                              fromEnd,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
         // Call the destructor on each of the elements of a deque of
         // parameterized 'VALUE_TYPE' in the specified range '[first .. last)'.
         // Shift the elements from the smaller of the specified range
@@ -305,30 +310,31 @@ struct DequePrimitives {
 
     template <class ALLOCATOR>
     static void insertAndMoveToBack(
-                          Iterator                                *toEnd,
-                          Iterator                                 fromEnd,
-                          Iterator                                 position,
-                          size_type                                numElements,
-                          const VALUE_TYPE&                        value,
-                          ALLOCATOR                                allocator,
-                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+             Iterator                                             *toEnd,
+             Iterator                                              fromEnd,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
     template <class ALLOCATOR>
     static void insertAndMoveToBack(
-                          Iterator                                *toEnd,
-                          Iterator                                 fromEnd,
-                          Iterator                                 position,
-                          size_type                                numElements,
-                          const VALUE_TYPE&                        value,
-                          ALLOCATOR                                allocator,
-                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+             Iterator                                             *toEnd,
+             Iterator                                              fromEnd,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
-    static void insertAndMoveToBack(Iterator                   *toEnd,
-                                    Iterator                    fromEnd,
-                                    Iterator                    position,
-                                    size_type                   numElements,
-                                    const VALUE_TYPE&           value,
-                                    ALLOCATOR                   allocator,
-                                    bslmf::MetaInt<NIL_TRAITS> *);
+    static void insertAndMoveToBack(
+             Iterator                                             *toEnd,
+             Iterator                                              fromEnd,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, NIL_TRAITS>);
         // Insert the specified 'numElements' copies of the specified 'value'
         // at the specified 'position', by moving the elements in the range
         // '[position .. fromEnd)' forward by 'numElements' position.  Pass the
@@ -376,28 +382,28 @@ struct DequePrimitives {
 
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+               Iterator                                             *toEnd,
+               Iterator                                              fromEnd,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+               Iterator                                             *toEnd,
+               Iterator                                              fromEnd,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
-                                      Iterator                      *toEnd,
-                                      Iterator                       fromEnd,
-                                      Iterator                       position,
-                                      bslmf::MovableRef<VALUE_TYPE>  value,
-                                      ALLOCATOR                      allocator,
-                                      bslmf::MetaInt<NIL_TRAITS>    *);
+               Iterator                                             *toEnd,
+               Iterator                                              fromEnd,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, NIL_TRAITS>);
         // Insert the specified move-insertable 'value' at the specified
         // 'position' by moving the elements in the range
         // '[position .. fromEnd)' forward by 1 position; pass the specified
@@ -427,30 +433,31 @@ struct DequePrimitives {
 
     template <class ALLOCATOR>
     static void insertAndMoveToFront(
-                          Iterator                                *toBegin,
-                          Iterator                                 fromBegin,
-                          Iterator                                 position,
-                          size_type                                numElements,
-                          const VALUE_TYPE&                        value,
-                          ALLOCATOR                                allocator,
-                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+             Iterator                                             *toBegin,
+             Iterator                                              fromBegin,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
     template <class ALLOCATOR>
     static void insertAndMoveToFront(
-                          Iterator                                *toBegin,
-                          Iterator                                 fromBegin,
-                          Iterator                                 position,
-                          size_type                                numElements,
-                          const VALUE_TYPE&                        value,
-                          ALLOCATOR                                allocator,
-                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+             Iterator                                             *toBegin,
+             Iterator                                              fromBegin,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
-    static void insertAndMoveToFront(Iterator                   *toBegin,
-                                     Iterator                    fromBegin,
-                                     Iterator                    position,
-                                     size_type                   numElements,
-                                     const VALUE_TYPE&           value,
-                                     ALLOCATOR                   allocator,
-                                     bslmf::MetaInt<NIL_TRAITS> *);
+    static void insertAndMoveToFront(
+             Iterator                                             *toBegin,
+             Iterator                                              fromBegin,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, NIL_TRAITS>);
         // Insert the specified 'numElements' copies of the specified 'value'
         // at the specified 'position', by moving the elements in the range
         // '[fromBegin .. position)' backward by 'numElements' position.  Pass
@@ -499,28 +506,28 @@ struct DequePrimitives {
 
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+               Iterator                                             *toBegin,
+               Iterator                                              fromBegin,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+               Iterator                                             *toBegin,
+               Iterator                                              fromBegin,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
-                                      Iterator                      *toBegin,
-                                      Iterator                       fromBegin,
-                                      Iterator                       position,
-                                      bslmf::MovableRef<VALUE_TYPE>  value,
-                                      ALLOCATOR                      allocator,
-                                      bslmf::MetaInt<NIL_TRAITS>    *);
+               Iterator                                             *toBegin,
+               Iterator                                              fromBegin,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, NIL_TRAITS>);
         // Insert the specified move-insertable 'value' at the specified
         // 'position' by moving the elements in the range
         // '[fromBegin .. position)' backward by 1 position; pass the specified
@@ -551,28 +558,28 @@ struct DequePrimitives {
 
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToBackDispatch(
-                           Iterator                                *toEnd,
-                           Iterator                                 fromEnd,
-                           Iterator                                 position,
-                           ALLOCATOR                                allocator,
-                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
-                           Args&&...                                arguments);
+              Iterator                                             *toEnd,
+              Iterator                                              fromEnd,
+              Iterator                                              position,
+              ALLOCATOR                                             allocator,
+              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
+              Args&&...                                             arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToBackDispatch(
-                           Iterator                                *toEnd,
-                           Iterator                                 fromEnd,
-                           Iterator                                 position,
-                           ALLOCATOR                                allocator,
-                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
-                           Args&&...                                arguments);
+              Iterator                                             *toEnd,
+              Iterator                                              fromEnd,
+              Iterator                                              position,
+              ALLOCATOR                                             allocator,
+              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
+              Args&&...                                             arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToBackDispatch(
-                                     Iterator                   *toEnd,
-                                     Iterator                    fromEnd,
-                                     Iterator                    position,
-                                     ALLOCATOR                   allocator,
-                                     bslmf::MetaInt<NIL_TRAITS> *,
-                                     Args&&...                   arguments);
+             Iterator                                              *toEnd,
+             Iterator                                               fromEnd,
+             Iterator                                               position,
+             ALLOCATOR                                              allocator,
+             bsl::integral_constant<int, NIL_TRAITS>,
+             Args&&...                                              arguments);
         // Insert at the specified 'position' a newly created 'VALUE_TYPE'
         // object, constructed by forwarding the specified 'allocator' (if
         // required) and the specified (variable number of) 'arguments' to the
@@ -604,28 +611,28 @@ struct DequePrimitives {
 
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToFrontDispatch(
-                           Iterator                                *toBegin,
-                           Iterator                                 fromBegin,
-                           Iterator                                 position,
-                           ALLOCATOR                                allocator,
-                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
-                           Args&&...                                arguments);
+              Iterator                                             *toBegin,
+              Iterator                                              fromBegin,
+              Iterator                                              position,
+              ALLOCATOR                                             allocator,
+              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
+              Args&&...                                             arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToFrontDispatch(
-                           Iterator                                *toBegin,
-                           Iterator                                 fromBegin,
-                           Iterator                                 position,
-                           ALLOCATOR                                allocator,
-                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
-                           Args&&...                                arguments);
+              Iterator                                             *toBegin,
+              Iterator                                              fromBegin,
+              Iterator                                              position,
+              ALLOCATOR                                             allocator,
+              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
+              Args&&...                                             arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToFrontDispatch(
-                                      Iterator                   *toBegin,
-                                      Iterator                    fromBegin,
-                                      Iterator                    position,
-                                      ALLOCATOR                   allocator,
-                                      bslmf::MetaInt<NIL_TRAITS> *,
-                                      Args&&...                   arguments);
+              Iterator                                             *toBegin,
+              Iterator                                              fromBegin,
+              Iterator                                              position,
+              ALLOCATOR                                             allocator,
+              bsl::integral_constant<int, NIL_TRAITS>,
+              Args&&...                                             arguments);
         // Insert at the specified 'position' a newly created 'VALUE_TYPE'
         // object, constructed by forwarding the specified 'allocator' (if
         // required) and the specified (variable number of) 'arguments' to the
@@ -767,20 +774,21 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                        const VALUE_TYPE&  value,
                                        ALLOCATOR          allocator);
     template <class ALLOCATOR>
-    static void uninitializedFillNBack(Iterator                   *toEnd,
-                                       Iterator                    fromEnd,
-                                       size_type                   numElements,
-                                       const VALUE_TYPE&           value,
-                                       ALLOCATOR                   allocator,
-                                       bslmf::MetaInt<NIL_TRAITS> *);
+static void uninitializedFillNBack(
+                     Iterator                                    *toEnd,
+                     Iterator                                     fromEnd,
+                     size_type                                    numElements,
+                     const VALUE_TYPE&                            value,
+                     ALLOCATOR                                    allocator,
+                     bsl::integral_constant<int, NIL_TRAITS>);
     template <class ALLOCATOR>
     static void uninitializedFillNBack(
-                                   Iterator                       *toEnd,
-                                   Iterator                        fromEnd,
-                                   size_type                       numElements,
-                                   const VALUE_TYPE&               value,
-                                   ALLOCATOR                       allocator,
-                                   bslmf::MetaInt<NON_NIL_TRAITS> *);
+                      Iterator                                    *toEnd,
+                      Iterator                                     fromEnd,
+                      size_type                                    numElements,
+                      const VALUE_TYPE&                            value,
+                      ALLOCATOR                                    allocator,
+                      bsl::integral_constant<int, NON_NIL_TRAITS>);
 
     template <class ALLOCATOR>
     static void uninitializedFillNFront(Iterator          *toBegin,
@@ -790,20 +798,20 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                         ALLOCATOR          allocator);
     template <class ALLOCATOR>
     static void uninitializedFillNFront(
-                                       Iterator                   *toBegin,
-                                       Iterator                    fromBegin,
-                                       size_type                   numElements,
-                                       const VALUE_TYPE&           value,
-                                       ALLOCATOR                   allocator,
-                                       bslmf::MetaInt<NIL_TRAITS> *);
+                      Iterator                                   *toBegin,
+                      Iterator                                    fromBegin,
+                      size_type                                   numElements,
+                      const VALUE_TYPE&                           value,
+                      ALLOCATOR                                   allocator,
+                      bsl::integral_constant<int, NIL_TRAITS>);
     template <class ALLOCATOR>
     static void uninitializedFillNFront(
-                                   Iterator                       *toBegin,
-                                   Iterator                        fromBegin,
-                                   size_type                       numElements,
-                                   const VALUE_TYPE&               value,
-                                   ALLOCATOR                       allocator,
-                                   bslmf::MetaInt<NON_NIL_TRAITS> *);
+                      Iterator                                    *toBegin,
+                      Iterator                                     fromBegin,
+                      size_type                                    numElements,
+                      const VALUE_TYPE&                            value,
+                      ALLOCATOR                                    allocator,
+                      bsl::integral_constant<int, NON_NIL_TRAITS>);
 
     template <class ALLOCATOR>
     static void valueInititalizeN(Iterator  *toEnd,
@@ -812,18 +820,20 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                   ALLOCATOR  allocator);
 
     template <class ALLOCATOR>
-    static void valueInititalizeN(Iterator  *toEnd,
-                                  Iterator   fromEnd,
-                                  size_type  numElements,
-                                  ALLOCATOR  allocator,
-                                  bslmf::MetaInt<NIL_TRAITS> *);
+    static void valueInititalizeN(
+                      Iterator                                    *toEnd,
+                      Iterator                                     fromEnd,
+                      size_type                                    numElements,
+                      ALLOCATOR                                    allocator,
+                      bsl::integral_constant<int, NIL_TRAITS>);
 
     template <class ALLOCATOR>
-    static void valueInititalizeN(Iterator  *toEnd,
-                                  Iterator   fromEnd,
-                                  size_type  numElements,
-                                  ALLOCATOR  allocator,
-                                  bslmf::MetaInt<NON_NIL_TRAITS> *);
+    static void valueInititalizeN(
+                      Iterator                                    *toEnd,
+                      Iterator                                     fromEnd,
+                      size_type                                    numElements,
+                      ALLOCATOR                                    allocator,
+                      bsl::integral_constant<int, NON_NIL_TRAITS>);
 };
 
                     // =======================================
@@ -1063,28 +1073,30 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(Iterator   begin,
               : NIL_TRAITS
     };
 
-    return destruct(begin, end, allocator, (bslmf::MetaInt<VALUE>*) 0);
+    return destruct(begin,
+                    end,
+                    allocator,
+                    bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-                      ::destruct(Iterator                                 ,
-                                 Iterator                                 ,
-                                 ALLOCATOR                                ,
-                                 bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(
+                          Iterator,
+                          Iterator,
+                          ALLOCATOR,
+                          bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
 {
     // No-op.
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-                                   ::destruct(
-                                         Iterator                    begin,
-                                         Iterator                    end,
-                                         ALLOCATOR                   allocator,
-                                         bslmf::MetaInt<NIL_TRAITS> *)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(
+                             Iterator                                begin,
+                             Iterator                                end,
+                             ALLOCATOR                               allocator,
+                             bsl::integral_constant<int, NIL_TRAITS>)
 {
     for (; !(begin == end); ++begin) {
         bsl::allocator_traits<ALLOCATOR>::destroy(allocator,
@@ -1113,24 +1125,29 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(Iterator  *toBegin,
               : NIL_TRAITS
     };
 
-    return erase(toBegin, toEnd, fromBegin, first, last, fromEnd, allocator,
-                 (bslmf::MetaInt<VALUE>*) 0);
+    return erase(toBegin,
+                 toEnd,
+                 fromBegin,
+                 first,
+                 last,
+                 fromEnd,
+                 allocator,
+                 bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 typename
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::Iterator
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-                                  ::erase(
-                                         Iterator                   *toBegin,
-                                         Iterator                   *toEnd,
-                                         Iterator                    fromBegin,
-                                         Iterator                    first,
-                                         Iterator                    last,
-                                         Iterator                    fromEnd,
-                                         ALLOCATOR                   allocator,
-                                         bslmf::MetaInt<NIL_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(
+                            Iterator                                *toBegin,
+                            Iterator                                *toEnd,
+                            Iterator                                 fromBegin,
+                            Iterator                                 first,
+                            Iterator                                 last,
+                            Iterator                                 fromEnd,
+                            ALLOCATOR                                allocator,
+                            bsl::integral_constant<int, NIL_TRAITS>)
 {
     if (first == last) {  // Nothing to delete, bail out fast
         *toBegin = fromBegin;
@@ -1168,15 +1185,15 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 typename
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::Iterator
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-                 ::erase(Iterator                                *toBegin,
-                         Iterator                                *toEnd,
-                         Iterator                                 fromBegin,
-                         Iterator                                 first,
-                         Iterator                                 last,
-                         Iterator                                 fromEnd,
-                         ALLOCATOR                                ,
-                         bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(
+               Iterator                                             *toBegin,
+               Iterator                                             *toEnd,
+               Iterator                                              fromBegin,
+               Iterator                                              first,
+               Iterator                                              last,
+               Iterator                                              fromEnd,
+               ALLOCATOR,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
 {
     size_type frontSize = first - fromBegin;
     size_type backSize  = fromEnd - last;
@@ -1219,21 +1236,26 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
               ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
     };
 
-    insertAndMoveToBack(toEnd, fromEnd, position, numElements, value,
-                        allocator, (bslmf::MetaInt<VALUE>*)0);
+    insertAndMoveToBack(toEnd,
+                        fromEnd,
+                        position,
+                        numElements,
+                        value,
+                        allocator,
+                        bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-   ::insertAndMoveToBack(Iterator                                *toEnd,
-                         Iterator                                 fromEnd,
-                         Iterator                                 position,
-                         size_type                                numElements,
-                         const VALUE_TYPE&                        value,
-                         ALLOCATOR                                allocator,
-                         bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
+             Iterator                                             *toEnd,
+             Iterator                                              fromEnd,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
 {
     size_type backSize = fromEnd - position;
     Iterator  end      = fromEnd;
@@ -1265,14 +1287,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-   ::insertAndMoveToBack(Iterator                                *toEnd,
-                         Iterator                                 fromEnd,
-                         Iterator                                 position,
-                         size_type                                numElements,
-                         const VALUE_TYPE&                        value,
-                         ALLOCATOR                                allocator,
-                         bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
+             Iterator                                             *toEnd,
+             Iterator                                              fromEnd,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
 {
     typedef DequePrimitives_ExternalDequeElementGuard<VALUE_TYPE,
                                                       BLOCK_LENGTH,
@@ -1320,15 +1342,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-                  ::insertAndMoveToBack(
-                                       Iterator                   *toEnd,
-                                       Iterator                    fromEnd,
-                                       Iterator                    position,
-                                       size_type                   numElements,
-                                       const VALUE_TYPE&           value,
-                                       ALLOCATOR                   allocator,
-                                       bslmf::MetaInt<NIL_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
+                          Iterator                                *toEnd,
+                          Iterator                                 fromEnd,
+                          Iterator                                 position,
+                          size_type                                numElements,
+                          const VALUE_TYPE&                        value,
+                          ALLOCATOR                                allocator,
+                          bsl::integral_constant<int, NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -1491,19 +1512,19 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
                             position,
                             MoveUtil::move(lvalue),
                             allocator,
-                            (bslmf::MetaInt<VALUE> *)0);
+                            bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+               Iterator                                             *toEnd,
+               Iterator                                              fromEnd,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -1527,12 +1548,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+               Iterator                                             *toEnd,
+               Iterator                                              fromEnd,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -1565,7 +1586,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
                                       Iterator                       position,
                                       bslmf::MovableRef<VALUE_TYPE>  value,
                                       ALLOCATOR                      allocator,
-                                      bslmf::MetaInt<NIL_TRAITS>    *)
+                                      bsl::integral_constant<int, NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -1628,21 +1649,26 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
               ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
     };
 
-    insertAndMoveToFront(toBegin, fromBegin, position, numElements, value,
-                         allocator, (bslmf::MetaInt<VALUE>*)0);
+    insertAndMoveToFront(toBegin,
+                         fromBegin,
+                         position,
+                         numElements,
+                         value,
+                         allocator,
+                         bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-  ::insertAndMoveToFront(Iterator                                *toBegin,
-                         Iterator                                 fromBegin,
-                         Iterator                                 position,
-                         size_type                                numElements,
-                         const VALUE_TYPE&                        value,
-                         ALLOCATOR                                allocator,
-                         bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
+             Iterator                                             *toBegin,
+             Iterator                                              fromBegin,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
 {
     size_type frontSize = position - fromBegin;
     Iterator  begin     = fromBegin;
@@ -1674,15 +1700,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-    ::insertAndMoveToFront(
-                          Iterator                                *toBegin,
-                          Iterator                                 fromBegin,
-                          Iterator                                 position,
-                          size_type                                numElements,
-                          const VALUE_TYPE&                        value,
-                          ALLOCATOR                                allocator,
-                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
+             Iterator                                             *toBegin,
+             Iterator                                              fromBegin,
+             Iterator                                              position,
+             size_type                                             numElements,
+             const VALUE_TYPE&                                     value,
+             ALLOCATOR                                             allocator,
+             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
 {
     typedef DequePrimitives_ExternalDequeElementGuard<VALUE_TYPE,
                                                       BLOCK_LENGTH,
@@ -1728,15 +1753,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
-                 ::insertAndMoveToFront(
-                                       Iterator                   *toBegin,
-                                       Iterator                    fromBegin,
-                                       Iterator                    position,
-                                       size_type                   numElements,
-                                       const VALUE_TYPE&           value,
-                                       ALLOCATOR                   allocator,
-                                       bslmf::MetaInt<NIL_TRAITS> *)
+DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
+                          Iterator                                *toBegin,
+                          Iterator                                 fromBegin,
+                          Iterator                                 position,
+                          size_type                                numElements,
+                          const VALUE_TYPE&                        value,
+                          ALLOCATOR                                allocator,
+                          bsl::integral_constant<int, NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -1882,19 +1906,19 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
                              position,
                              MoveUtil::move(lvalue),
                              allocator,
-                             (bslmf::MetaInt<VALUE> *)0);
+                             bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+               Iterator                                             *toBegin,
+               Iterator                                              fromBegin,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -1917,12 +1941,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            bslmf::MovableRef<VALUE_TYPE>            value,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+               Iterator                                             *toBegin,
+               Iterator                                              fromBegin,
+               Iterator                                              position,
+               bslmf::MovableRef<VALUE_TYPE>                         value,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -1954,7 +1978,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
                                       Iterator                       position,
                                       bslmf::MovableRef<VALUE_TYPE>  value,
                                       ALLOCATOR                      allocator,
-                                      bslmf::MetaInt<NIL_TRAITS>    *)
+                                      bsl::integral_constant<int, NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -2020,7 +2044,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
                             fromEnd,
                             position,
                             allocator,
-                            (bslmf::MetaInt<VALUE> *)0,
+                            bsl::integral_constant<int, VALUE>(),
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 }
 
@@ -2028,12 +2052,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
-                            Args&&...                                arguments)
+               Iterator                                             *toEnd,
+               Iterator                                              fromEnd,
+               Iterator                                              position,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
+               Args&&...                                             arguments)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -2057,12 +2081,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
-                            Args&&...                                arguments)
+               Iterator                                             *toEnd,
+               Iterator                                              fromEnd,
+               Iterator                                              position,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
+               Args&&...                                             arguments)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -2090,12 +2114,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                                         Iterator                   *toEnd,
-                                         Iterator                    fromEnd,
-                                         Iterator                    position,
-                                         ALLOCATOR                   allocator,
-                                         bslmf::MetaInt<NIL_TRAITS> *,
-                                         Args&&...                   arguments)
+                            Iterator                                *toEnd,
+                            Iterator                                 fromEnd,
+                            Iterator                                 position,
+                            ALLOCATOR                                allocator,
+                            bsl::integral_constant<int, NIL_TRAITS>,
+                            Args&&...                                arguments)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -2180,7 +2204,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
                             fromBegin,
                             position,
                             allocator,
-                            (bslmf::MetaInt<VALUE> *)0,
+                            bsl::integral_constant<int, VALUE>(),
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 }
 
@@ -2188,12 +2212,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *,
-                            Args&&...                                arguments)
+               Iterator                                             *toBegin,
+               Iterator                                              fromBegin,
+               Iterator                                              position,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
+               Args&&...                                             arguments)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -2216,12 +2240,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
-                            Args&&...                                arguments)
+               Iterator                                             *toBegin,
+               Iterator                                              fromBegin,
+               Iterator                                              position,
+               ALLOCATOR                                             allocator,
+               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
+               Args&&...                                             arguments)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -2248,12 +2272,12 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                                         Iterator                   *toBegin,
-                                         Iterator                    fromBegin,
-                                         Iterator                    position,
-                                         ALLOCATOR                   allocator,
-                                         bslmf::MetaInt<NIL_TRAITS> *,
-                                         Args&&...                   arguments)
+                            Iterator                                *toBegin,
+                            Iterator                                 fromBegin,
+                            Iterator                                 position,
+                            ALLOCATOR                                allocator,
+                            bsl::integral_constant<int, NIL_TRAITS>,
+                            Args&&...                                arguments)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -3054,8 +3078,12 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
               : NIL_TRAITS
     };
 
-    uninitializedFillNFront(toBegin, fromBegin, numElements, value, allocator,
-                            (bslmf::MetaInt<VALUE>*)0);
+    uninitializedFillNFront(toBegin,
+                            fromBegin,
+                            numElements,
+                            value,
+                            allocator,
+                            bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE>
@@ -3067,7 +3095,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
                                        size_type                   numElements,
                                        const VALUE_TYPE&           value,
                                        ALLOCATOR                   allocator,
-                                       bslmf::MetaInt<NIL_TRAITS> *)
+                                       bsl::integral_constant<int, NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               1,
@@ -3094,7 +3122,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
                                    size_type                       numElements,
                                    const VALUE_TYPE&               value,
                                    ALLOCATOR                       allocator,
-                                   bslmf::MetaInt<NON_NIL_TRAITS> *)
+                                   bsl::integral_constant<int, NON_NIL_TRAITS>)
 {
     *toBegin = fromBegin;  // necessary in case 'numElements = 0'
     for ( ; 0 < numElements; --numElements) {
@@ -3133,8 +3161,12 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
               : NIL_TRAITS
     };
 
-    uninitializedFillNBack(toEnd, fromEnd, numElements, value, allocator,
-                           (bslmf::MetaInt<VALUE>*)0);
+    uninitializedFillNBack(toEnd,
+                           fromEnd,
+                           numElements,
+                           value,
+                           allocator,
+                           bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE>
@@ -3146,7 +3178,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
                                        size_type                   numElements,
                                        const VALUE_TYPE&           value,
                                        ALLOCATOR                   allocator,
-                                       bslmf::MetaInt<NIL_TRAITS> *)
+                                       bsl::integral_constant<int, NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               1,
@@ -3173,7 +3205,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
                                    size_type                       numElements,
                                    const VALUE_TYPE&               value,
                                    ALLOCATOR                       allocator,
-                                   bslmf::MetaInt<NON_NIL_TRAITS> *)
+                                   bsl::integral_constant<int, NON_NIL_TRAITS>)
 {
     *toEnd = fromEnd;  // necessary in case 'numElements = 0'
     for ( ; 0 < numElements; --numElements) {
@@ -3214,17 +3246,18 @@ DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
                       fromEnd,
                       numElements,
                       allocator,
-                      (bslmf::MetaInt<VALUE>*)0);
+                      bsl::integral_constant<int, VALUE>());
 }
 
 template <class VALUE_TYPE>
 template <class ALLOCATOR>
 void
-DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
-                                                  Iterator   fromEnd,
-                                                  size_type  numElements,
-                                                  ALLOCATOR  allocator,
-                                                  bslmf::MetaInt<NIL_TRAITS> *)
+DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
+                          Iterator                                *toEnd,
+                          Iterator                                 fromEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                                allocator,
+                          bsl::integral_constant<int, NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               1,
@@ -3245,11 +3278,11 @@ template <class VALUE_TYPE>
 template <class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
-                                              Iterator  *toEnd,
-                                              Iterator   fromEnd,
-                                              size_type  numElements,
-                                              ALLOCATOR  allocator,
-                                              bslmf::MetaInt<NON_NIL_TRAITS> *)
+                      Iterator                                    *toEnd,
+                      Iterator                                     fromEnd,
+                      size_type                                    numElements,
+                      ALLOCATOR                                    allocator,
+                      bsl::integral_constant<int, NON_NIL_TRAITS>)
 {
     *toEnd = fromEnd;  // necessary in case 'numElements = 0'
     for ( ; 0 < numElements; --numElements) {

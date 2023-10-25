@@ -31,8 +31,7 @@ BSLS_IDENT("$Id: $")
 // are not deemed to be fundamental by either trait.  In expected use, the
 // result for 'bsl::is_fundamental' is indicated by the class member 'value',
 // while the result for 'bslmf::Fundamental' is indicated by the class member
-// 'VALUE'.  In practice, both traits support both names of the result value,
-// although the all-caps 'VALUE' form is deprecated.
+// 'value'.
 //
 // Note that 'bsl::is_fundamental' should be preferred over
 // 'bslmf::Fundamental', and in general, should be used by new components.
@@ -260,7 +259,7 @@ struct IsFundamental
 : IsFundamental_Imp<typename bsl::remove_cv<t_TYPE>::type>::type {
     // This 'struct' template implements a meta-function for checking if a type
     // is fundamental, or a reference to a fundamental type.  The static
-    // constant 'VALUE' member will be 1 if 't_TYPE' is fundamental and 0
+    // constant 'value' member will be 1 if 't_TYPE' is fundamental and 0
     // otherwise.
 };
 

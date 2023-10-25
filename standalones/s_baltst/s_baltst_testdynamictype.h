@@ -705,8 +705,7 @@ bdlat_TypeCategory::Value bdlat_typeCategorySelect(
 
 template <class VALUE_TYPE>
 struct bdlat_TypeCategoryDeclareDynamic<
-    s_baltst::TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = 1 };
+    s_baltst::TestDynamicType<VALUE_TYPE> > : public bsl::true_type {
 };
 
 namespace s_baltst {
@@ -738,8 +737,8 @@ struct ElementType<s_baltst::TestDynamicType<VALUE_TYPE> > {
 };
 
 template <class VALUE_TYPE>
-struct IsArray<s_baltst::TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsArray<VALUE_TYPE>::VALUE };
+struct IsArray<s_baltst::TestDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsArray<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_ArrayFunctions namespace
@@ -752,8 +751,8 @@ struct bdlat_IsBasicChoice<s_baltst::TestDynamicType<VALUE_TYPE> >
 namespace bdlat_ChoiceFunctions {
 
 template <class VALUE_TYPE>
-struct IsChoice<s_baltst::TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsChoice<VALUE_TYPE>::VALUE };
+struct IsChoice<s_baltst::TestDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsChoice<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_ChoiceFunctions namespace
@@ -792,8 +791,8 @@ struct BaseType<s_baltst::TestDynamicType<VALUE_TYPE> > {
 };
 
 template <class VALUE_TYPE>
-struct IsCustomizedType<s_baltst::TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsCustomizedType<VALUE_TYPE>::VALUE };
+struct IsCustomizedType<s_baltst::TestDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsCustomizedType<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_CustomizedTypeFunctions namespace
@@ -806,8 +805,8 @@ struct bdlat_IsBasicEnumeration<s_baltst::TestDynamicType<VALUE_TYPE> >
 namespace bdlat_EnumFunctions {
 
 template <class VALUE_TYPE>
-struct IsEnumeration<s_baltst::TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsEnumeration<VALUE_TYPE>::VALUE };
+struct IsEnumeration<s_baltst::TestDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsEnumeration<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_EnumFunctions namespace
@@ -841,8 +840,8 @@ struct ValueType<s_baltst::TestDynamicType<VALUE_TYPE> > {
 };
 
 template <class VALUE_TYPE>
-struct IsNullableValue<s_baltst::TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsNullableValue<VALUE_TYPE>::VALUE };
+struct IsNullableValue<s_baltst::TestDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsNullableValue<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_NullableValueFunctions namespace
@@ -855,8 +854,8 @@ struct bdlat_IsBasicSequence<s_baltst::TestDynamicType<VALUE_TYPE> >
 namespace bdlat_SequenceFunctions {
 
 template <class VALUE_TYPE>
-struct IsSequence<s_baltst::TestDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsSequence<VALUE_TYPE>::VALUE };
+struct IsSequence<s_baltst::TestDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsSequence<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_SequenceFunctions namespace

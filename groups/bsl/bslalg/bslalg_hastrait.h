@@ -12,16 +12,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::HasTrait: legacy mechanism for detecting type traits
 //
-//@SEE_ALSO: bslalg_typetraits
+//@SEE_ALSO: bslalg_typetraits, bslmf_integralconstant
 //
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::HasTrait',
 // that is a legacy mechanism for detecting traits.  'bslalg::HasTrait' takes
-// two template parameters, 'TYPE' and 'TRAIT', and provides a 'Type' member.
-// 'bslalg::HasTrait<TYPE, TRAIT>::Type' evaluates to 'bslmf::MetaInt<1>' if
-// the (template parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
-// 'bslmf::MetaInt<0>' otherwise.  ('bslalg::HasTrait' also provides a 'VALUE'
-// member where 'bslalg::HasTrait<TYPE, TRAIT>::VALUE' evaluates to 1 if the
-// 'TYPE' type has the 'TRAIT' trait, and to 0 otherwise.)
+// two template parameters, 'TYPE' and 'TRAIT'.
+// 'bslalg::HasTrait<TYPE, TRAIT>' inherits from 'bsl::true_type' if the
+// (template parameter) 'TYPE' has the (template parameter) 'TRAIT', and
+// inherits from 'bsl::false_type' otherwise.
 //
 // 'bslalg::HasTrait' is *not* a general-purpose trait detection facility.  It
 // is intended to be used in conjunction with the legacy (deprecated) 'bslalg'
@@ -56,7 +54,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_metaint.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_removecv.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -72,18 +70,13 @@ namespace bslalg {
                        // ===============
 
 template <class TYPE, class TRAIT>
-struct HasTrait {
-    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the (template
+struct HasTrait : public bsl::integral_constant<
+                      bool,
+                      TRAIT::template Metafunction<
+                          typename bsl::remove_cv<TYPE>::type>::value> {
+    // This meta-function evaluates to 'bsl::true_type' if the (template
     // parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
-    // 'bslmf::MetaInt<0>' otherwise.
-
-  public:
-    enum {
-        VALUE = TRAIT::template
-                       Metafunction<typename bsl::remove_cv<TYPE>::type>::value
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
+    // 'bsl::false_type' otherwise.
 };
 
 }  // close package namespace

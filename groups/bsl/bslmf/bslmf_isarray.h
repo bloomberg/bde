@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // before 'is_array' was standardized.  The two meta-functions are functionally
 // equivalent.  The major difference between them is that the result for
 // 'bsl::is_array' is indicated by the class member 'value', while the result
-// for 'bslmf::IsArray' is indicated by the class member 'VALUE'.
+// for 'bslmf::IsArray' is indicated by the class member 'value'.
 //
 // Note that 'bsl::is_array' should be preferred over 'bslmf::IsArray', and in
 // general, should be used by new components.

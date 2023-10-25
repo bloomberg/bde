@@ -125,8 +125,9 @@ void bdlat_valueTypeReset(TestCustomizedType<VALUE_TYPE, BASE_TYPE> *object);
 namespace bdlat_CustomizedTypeFunctions {
 
 template <class VALUE_TYPE, class BASE_TYPE>
-struct IsCustomizedType<s_baltst::TestCustomizedType<VALUE_TYPE, BASE_TYPE> > {
-    enum { VALUE = 1 };
+struct IsCustomizedType<s_baltst::TestCustomizedType<VALUE_TYPE, BASE_TYPE> >
+: public bsl::true_type
+{
 };
 
 template <class VALUE_TYPE, class BASE_TYPE>

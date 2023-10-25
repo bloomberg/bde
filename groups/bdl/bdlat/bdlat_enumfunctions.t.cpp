@@ -17,7 +17,10 @@
 #include <bdlb_string.h>
 
 #include <bslalg_typetraits.h>
+
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>   // for testing only
+
 #include <bsls_assert.h>
 
 #include <bsl_cctype.h>
@@ -234,8 +237,7 @@ void bdlat_enumToString(bsl::string *result, const PolygonType& value)
 // TYPE TRAITS
 namespace bdlat_EnumFunctions {
 template <>
-struct IsEnumeration<test::PolygonType> {
-    enum { VALUE = 1 };
+struct IsEnumeration<test::PolygonType> : public bsl::true_type {
 };
 }  // close namespace bdlat_EnumFunctions
 
@@ -959,12 +961,10 @@ bool mine::bdlat_enumIsFallback(const ImageType& value)
 //..
 namespace bdlat_EnumFunctions {
 template <>
-struct IsEnumeration<mine::ImageType> {
-    enum { VALUE = 1 };
+struct IsEnumeration<mine::ImageType> : public bsl::true_type {
 };
 template <>
-struct HasFallbackEnumerator<mine::ImageType> {
-    enum { VALUE = 1 };
+struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
 };
 }  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
@@ -1349,25 +1349,25 @@ int main(int argc, char *argv[])
                           << "======================" "\n";
 
         // P-1
-        BSLMF_ASSERT(0 == BEF::IsEnumeration<test::PlainEnum>::VALUE);
-        BSLMF_ASSERT(0 == BEF::HasFallbackEnumerator<test::PlainEnum>::VALUE);
+        BSLMF_ASSERT(0 == BEF::IsEnumeration<test::PlainEnum>::value);
+        BSLMF_ASSERT(0 == BEF::HasFallbackEnumerator<test::PlainEnum>::value);
         // P-2
         BSLMF_ASSERT(1 ==
-                     BEF::IsEnumeration<test::PrimaryColor::Value>::VALUE);
+                     BEF::IsEnumeration<test::PrimaryColor::Value>::value);
         BSLMF_ASSERT(
-            0 == BEF::HasFallbackEnumerator<test::PrimaryColor::Value>::VALUE);
+            0 == BEF::HasFallbackEnumerator<test::PrimaryColor::Value>::value);
         // P-3
-        BSLMF_ASSERT(1 == BEF::IsEnumeration<test::PolygonType>::VALUE);
+        BSLMF_ASSERT(1 == BEF::IsEnumeration<test::PolygonType>::value);
         BSLMF_ASSERT(0 ==
-                     BEF::HasFallbackEnumerator<test::PolygonType>::VALUE);
+                     BEF::HasFallbackEnumerator<test::PolygonType>::value);
         // P-4
         BSLMF_ASSERT(
-            1 == BEF::IsEnumeration<test::MyEnumWithFallback::Value>::VALUE);
+            1 == BEF::IsEnumeration<test::MyEnumWithFallback::Value>::value);
         BSLMF_ASSERT(1 == BEF::HasFallbackEnumerator<
-                              test::MyEnumWithFallback::Value>::VALUE);
+                              test::MyEnumWithFallback::Value>::value);
         // P-5
-        BSLMF_ASSERT(1 == BEF::IsEnumeration<mine::ImageType>::VALUE);
-        BSLMF_ASSERT(1 == BEF::HasFallbackEnumerator<mine::ImageType>::VALUE);
+        BSLMF_ASSERT(1 == BEF::IsEnumeration<mine::ImageType>::value);
+        BSLMF_ASSERT(1 == BEF::HasFallbackEnumerator<mine::ImageType>::value);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -16,6 +16,8 @@
 #include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 
+#include <bslmf_integralconstant.h>   // for testing only
+
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
@@ -327,8 +329,7 @@ namespace BloombergLP {
 namespace bdlat_CustomizedTypeFunctions {
 
     template <>
-    struct IsCustomizedType<mine::Cusip> {
-        enum { VALUE = 1 };
+    struct IsCustomizedType<mine::Cusip> : public bsl::true_type {
     };
 
 }  // close namespace bdlat_CustomizedTypeFunctions
@@ -402,8 +403,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting meta-functions"
                           << "\n======================" << endl;
 
-        ASSERT(0 == Obj::IsCustomizedType<bsl::string>::VALUE);
-        ASSERT(1 == Obj::IsCustomizedType<Cusip>::VALUE);
+        ASSERT(0 == Obj::IsCustomizedType<bsl::string>::value);
+        ASSERT(1 == Obj::IsCustomizedType<Cusip>::value);
 
         typedef Obj::BaseType<Cusip>::Type BaseType;
         ASSERT(1 == (bslmf::IsSame<BaseType, bsl::string>::value));

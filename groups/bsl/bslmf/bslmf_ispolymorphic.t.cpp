@@ -24,7 +24,7 @@ using namespace BloombergLP;
 // are functionally equivalent, we will use the same set of types for both.
 //
 //-----------------------------------------------------------------------------
-// [ 1] BloombergLP::bslmf::IsPolymorphic::VALUE
+// [ 1] BloombergLP::bslmf::IsPolymorphic::value
 // [ 3] bsl::is_polymorphic::value
 //
 //-----------------------------------------------------------------------------
@@ -982,7 +982,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPolymorphic::VALUE'
+        // 'bslmf::IsPolymorphic::value'
         //   Ensure that 'bslmf::IsPolymorphic' returns the correct values for
         //   a variety of template parameter types.
         //
@@ -1007,10 +1007,10 @@ int main(int argc, char *argv[])
         //   for each concern.
         //
         // Testing:
-        //   bslmf::IsPolymorphic::VALUE
+        //   bslmf::IsPolymorphic::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bslmf::IsPolymorphic::VALUE'\n"
+        if (verbose) printf("\n'bslmf::IsPolymorphic::value'\n"
                             "\n=============================\n");
 
         ASSERT(0 == bslmf::IsPolymorphic<void>::value);

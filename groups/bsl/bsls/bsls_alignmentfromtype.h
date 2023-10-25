@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Creating a Static "Database" of Types
 /// - - - - - - - - - - - - - - - - - - - - - - - -
-// The following shows how 'bsls::AlignmentFromType<T>::VALUE' can be used to
+// The following shows how 'bsls::AlignmentFromType<T>::value' can be used to
 // create a static "database" of types storing their size and required
 // alignment.
 //
@@ -67,10 +67,10 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  static const my_ElemAttr MY_ATTRIBUTES[] = {
-//     { MY_CHAR,     sizeof(char),   bsls::AlignmentFromType<char>::VALUE   },
-//     { MY_INT,      sizeof(int),    bsls::AlignmentFromType<int>::VALUE    },
-//     { MY_DOUBLE,   sizeof(double), bsls::AlignmentFromType<double>::VALUE },
-//     { MY_POINTER,  sizeof(void *), bsls::AlignmentFromType<void *>::VALUE }
+//     { MY_CHAR,     sizeof(char),   bsls::AlignmentFromType<char>::value   },
+//     { MY_INT,      sizeof(int),    bsls::AlignmentFromType<int>::value    },
+//     { MY_DOUBLE,   sizeof(double), bsls::AlignmentFromType<double>::value },
+//     { MY_POINTER,  sizeof(void *), bsls::AlignmentFromType<void *>::value }
 //  };
 //..
 //

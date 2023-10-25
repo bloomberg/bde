@@ -118,8 +118,8 @@ void bdlat_enumToString(bsl::string                        *result,
 namespace bdlat_EnumFunctions {
 
 template <class E0, class E1, class E2>
-struct IsEnumeration<s_baltst::TestEnumeration<E0, E1, E2> > {
-    enum { VALUE = 1 };
+struct IsEnumeration<s_baltst::TestEnumeration<E0, E1, E2> >
+: public bsl::true_type {
 };
 
 }  // close bdlat_EnumFunctions namespace

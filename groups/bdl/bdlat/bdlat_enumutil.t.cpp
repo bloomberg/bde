@@ -207,8 +207,7 @@ void bdlat_enumToString(bsl::string *result, const PolygonType& value)
 namespace BloombergLP {
 namespace bdlat_EnumFunctions {
 template <>
-struct IsEnumeration<test::PolygonType> {
-    enum { VALUE = 1 };
+struct IsEnumeration<test::PolygonType> : public bsl::true_type {
 };
 }  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
@@ -374,12 +373,10 @@ bool mine::bdlat_enumIsFallback(const ImageType& value)
 //..
 namespace bdlat_EnumFunctions {
 template <>
-struct IsEnumeration<mine::ImageType> {
-    enum { VALUE = 1 };
+struct IsEnumeration<mine::ImageType> : public bsl::true_type {
 };
 template <>
-struct HasFallbackEnumerator<mine::ImageType> {
-    enum { VALUE = 1 };
+struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
 };
 }  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace

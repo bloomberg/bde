@@ -57,7 +57,7 @@ class TestTaggedValue_ArrayBase {
 
     // CLASS DATA
     enum {
-        k_IS_ARRAY = bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE
+        k_IS_ARRAY = bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::value
     };
 
   private:
@@ -111,7 +111,7 @@ class TestTaggedValue_ChoiceBase {
 
   public:
     // CLASS DATA
-    enum { k_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::VALUE };
+    enum { k_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::value };
 
   private:
     // PRIVATE MANIPULATORS
@@ -178,7 +178,7 @@ class TestTaggedValue_CustomizedTypeBase {
     // CLASS DATA
     enum {
         k_IS_CUSTOMIZED_TYPE =
-            bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::VALUE
+            bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::value
     };
 
   private:
@@ -269,7 +269,7 @@ class TestTaggedValue_EnumerationBase {
     // CLASS DATA
     enum {
         k_IS_ENUMERATION =
-            bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::VALUE
+            bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::value
     };
 
   private:
@@ -328,7 +328,7 @@ class TestTaggedValue_NullableValueBase {
     // CLASS DATA
     enum {
         k_IS_NULLABLE_VALUE =
-            bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::VALUE
+            bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::value
     };
 
   private:
@@ -383,7 +383,7 @@ class TestTaggedValue_SequenceBase {
   public:
     // CLASS DATA
     enum {
-        k_IS_SEQUENCE = bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::VALUE
+        k_IS_SEQUENCE = bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::value
     };
 
   private:
@@ -539,10 +539,10 @@ bsl::size_t bdlat_arraySize(
 namespace bdlat_ArrayFunctions {
 
 template <class TAG_TYPE, class VALUE_TYPE>
-struct IsArray<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
-    enum {
-        VALUE = s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_ARRAY
-    };
+struct IsArray<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_ARRAY> {
 };
 
 template <class TAG_TYPE, class VALUE_TYPE>
@@ -604,10 +604,10 @@ struct bdlat_IsBasicChoice<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
 namespace bdlat_ChoiceFunctions {
 
 template <class TAG_TYPE, class VALUE_TYPE>
-struct IsChoice<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
-    enum {
-        VALUE = s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_CHOICE
-    };
+struct IsChoice<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_CHOICE> {
 };
 
 }  // close bdlat_ChoiceFunctions namespace
@@ -637,11 +637,10 @@ struct bdlat_IsBasicCustomizedType<
 namespace bdlat_CustomizedTypeFunctions {
 
 template <class TAG_TYPE, class VALUE_TYPE>
-struct IsCustomizedType<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
-    enum {
-        VALUE = s_baltst::TestTaggedValue<TAG_TYPE,
-                                          VALUE_TYPE>::k_IS_CUSTOMIZED_TYPE
-    };
+struct IsCustomizedType<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_CUSTOMIZED_TYPE> {
 };
 
 template <class TAG_TYPE, class VALUE_TYPE>
@@ -662,11 +661,10 @@ bdlat_TypeCategory::Value bdlat_typeCategorySelect(
 
 template <class TAG_TYPE, class VALUE_TYPE>
 struct bdlat_TypeCategoryDeclareDynamic<
-    s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
-    enum {
-        VALUE =
-            s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_DYNAMIC_TYPE
-    };
+    s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_DYNAMIC_TYPE> {
 };
 
 namespace s_baltst {
@@ -701,11 +699,10 @@ struct bdlat_IsBasicEnumeration<
 namespace bdlat_EnumFunctions {
 
 template <class TAG_TYPE, class VALUE_TYPE>
-struct IsEnumeration<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
-    enum {
-        VALUE =
-            s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_ENUMERATION
-    };
+struct IsEnumeration<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_ENUMERATION> {
 };
 
 }  // close bdlat_EnumFunctions namespace
@@ -735,11 +732,10 @@ bool bdlat_nullableValueIsNull(
 namespace bdlat_NullableValueFunctions {
 
 template <class TAG_TYPE, class VALUE_TYPE>
-struct IsNullableValue<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
-    enum {
-        VALUE = s_baltst::TestTaggedValue<TAG_TYPE,
-                                          VALUE_TYPE>::k_IS_NULLABLE_VALUE
-    };
+struct IsNullableValue<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_NULLABLE_VALUE> {
 };
 
 template <class TAG_TYPE, class VALUE_TYPE>
@@ -811,10 +807,10 @@ struct bdlat_IsBasicSequence<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
 namespace bdlat_SequenceFunctions {
 
 template <class TAG_TYPE, class VALUE_TYPE>
-struct IsSequence<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> > {
-    enum {
-        VALUE = s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_SEQUENCE
-    };
+struct IsSequence<s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE> >
+: public bsl::integral_constant<
+      bool,
+      s_baltst::TestTaggedValue<TAG_TYPE, VALUE_TYPE>::k_IS_SEQUENCE> {
 };
 
 }  // close bdlat_SequenceFunctions namespace

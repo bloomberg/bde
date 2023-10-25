@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 // 'buffer' is sufficiently aligned to accommodate a 'MaxAlignedType' object:
 //..
 //      int alignment = bsls::AlignmentFromType<
-//                                 bsls::AlignmentUtil::MaxAlignedType>::VALUE;
+//                                 bsls::AlignmentUtil::MaxAlignedType>::value;
 //      int offset =
 //                bsls::AlignmentUtil::calculateAlignmentOffset(
 //                                                             buffer.d_buffer,
@@ -133,7 +133,7 @@ BSLS_IDENT("$Id: $")
 // alignment of a 'short' on the current platform:
 //..
 //      assert(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
-//                                     bsls::AlignmentFromType<short>::VALUE));
+//                                     bsls::AlignmentFromType<short>::value));
 //
 //      assert(bsls::AlignmentUtil::is2ByteAligned(shortPtr5));
 //..
@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      assert(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
 //                                    objPtr,
-//                                    bsls::AlignmentFromType<MyType>::VALUE));
+//                                    bsls::AlignmentFromType<MyType>::value));
 //..
 // Assuming 'buffer' has sufficient capacity, and the alignments for 'char',
 // 'short', and 'MyType' are, respectively, 1, 2, and 8, we would expect this

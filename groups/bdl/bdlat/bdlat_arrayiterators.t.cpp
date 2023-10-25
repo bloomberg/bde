@@ -250,7 +250,7 @@ namespace bdlat_ArrayFunctions {
     };
 
     template <int SIZE, class TYPE>
-    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
+    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bsl::true_type {
     };
 }  // close namespace bdlat_ArrayFunctions
 }  // close enterprise namespace

@@ -38,9 +38,9 @@ BSLS_IDENT("$Id: $")
 //..
 // The meta-functions 'IsEnumeration' and 'HasFallbackEnumerator' indicate
 // whether a type supports the above functions.  If the compile-time constant
-// 'IsEnumeration<TYPE>::VALUE' is declared to be nonzero, the type must
+// 'IsEnumeration<TYPE>::value' is declared to be nonzero, the type must
 // support the first four functions listed above.  If the compile-time constant
-// 'HasFallbackEnumerator<TYPE>::VALUE' is declared to be nonzero, the type
+// 'HasFallbackEnumerator<TYPE>::value' is declared to be nonzero, the type
 // must also support the last three functions listed above.
 //
 // This component provides default implementations of the above listed
@@ -342,7 +342,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_matchanytype.h>
-#include <bslmf_metaint.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -362,31 +361,26 @@ namespace bdlat_EnumFunctions {
 
     // META-FUNCTIONS
     template <class TYPE>
-    struct IsEnumeration {
+    struct IsEnumeration
+    : public bsl::integral_constant<
+        bool,
+        bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value> {
         // This 'struct' should be specialized for third-party types that need
         // to expose "enumeration" behavior.  See the component-level
         // documentation for further information.
-
-        enum {
-            VALUE = bslalg::HasTrait<TYPE,
-                                     bdlat_TypeTraitBasicEnumeration>::VALUE
-        };
     };
 
     template <class TYPE>
-    struct HasFallbackEnumerator {
+    struct HasFallbackEnumerator
+    : public bsl::integral_constant<
+        bool,
+        bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::value> {
         // This 'struct' should be specialized for third-party types that need
         // to declare the fact that they have a fallback enumerator value.
         // Clients that specialize this struct must ensure that if
-        // 'HasFallbackEnumerator<TYPE>::VALUE' is true, then
-        // 'IsEnumeration<TYPE>::VALUE' is also true; otherwise, the behavior
+        // 'HasFallbackEnumerator<TYPE>::value' is true, then
+        // 'IsEnumeration<TYPE>::value' is also true; otherwise, the behavior
         // is undefined.
-
-        enum {
-            VALUE =
-                bslalg::HasTrait<TYPE,
-                                 bdlat_TypeTraitHasFallbackEnumerator>::VALUE
-        };
     };
 
     // MANIPULATORS
@@ -570,7 +564,7 @@ template <class TYPE>
 inline
 int bdlat_EnumFunctions::makeFallback(TYPE *result)
 {
-    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::value> tag;
     return bdlat_EnumFunctions_ImplUtil::makeFallback(result, tag);
 }
 
@@ -579,7 +573,7 @@ template <class TYPE>
 inline
 bool bdlat_EnumFunctions::hasFallback(const TYPE& value)
 {
-    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::value> tag;
     return bdlat_EnumFunctions_ImplUtil::hasFallback(value, tag);
 }
 
@@ -587,7 +581,7 @@ template <class TYPE>
 inline
 bool bdlat_EnumFunctions::isFallback(const TYPE& value)
 {
-    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::value> tag;
     return bdlat_EnumFunctions_ImplUtil::isFallback(value, tag);
 }
 
@@ -615,7 +609,7 @@ template <class TYPE>
 int bdlat_EnumFunctions_ImplUtil::makeFallback(TYPE *result, bsl::true_type)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::value);
 #endif
     using bdlat_EnumFunctions::bdlat_enumMakeFallback;
     return bdlat_enumMakeFallback(result);
@@ -633,7 +627,7 @@ bool bdlat_EnumFunctions_ImplUtil::hasFallback(const TYPE& value,
                                                bsl::true_type)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::value);
 #endif
     using bdlat_EnumFunctions::bdlat_enumHasFallback;
     return bdlat_enumHasFallback(value);
@@ -652,7 +646,7 @@ bool bdlat_EnumFunctions_ImplUtil::isFallback(const TYPE& value,
                                               bsl::true_type)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::value);
 #endif
     using bdlat_EnumFunctions::bdlat_enumIsFallback;
     return bdlat_enumIsFallback(value);
@@ -687,7 +681,7 @@ int bdlat_EnumFunctions::bdlat_enumFromString(TYPE       *result,
                                               int         stringLength)
 {
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value));
 
     typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     return Wrapper::fromString(result, string, stringLength);
@@ -699,9 +693,9 @@ int bdlat_EnumFunctions::bdlat_enumMakeFallback(TYPE *result)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value));
     BSLMF_ASSERT(
-        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::VALUE));
+        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::value));
 #endif
 
     typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
@@ -714,7 +708,7 @@ inline
 void bdlat_EnumFunctions::bdlat_enumToInt(int *result, const TYPE& value)
 {
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value));
 
     *result = static_cast<int>(value);
 }
@@ -725,7 +719,7 @@ void bdlat_EnumFunctions::bdlat_enumToString(bsl::string *result,
                                              const TYPE&  value)
 {
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value));
 
     typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     *result = Wrapper::toString(value);
@@ -737,9 +731,9 @@ bool bdlat_EnumFunctions::bdlat_enumHasFallback(const TYPE& value)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value));
     BSLMF_ASSERT(
-        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::VALUE));
+        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::value));
 #endif
 
     typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
@@ -752,9 +746,9 @@ bool bdlat_EnumFunctions::bdlat_enumIsFallback(const TYPE& value)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value));
     BSLMF_ASSERT(
-        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::VALUE));
+        (bslalg::HasTrait<TYPE, bdlat_TypeTraitHasFallbackEnumerator>::value));
 #endif
 
     typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;

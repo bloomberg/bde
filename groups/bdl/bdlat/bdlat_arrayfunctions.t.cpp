@@ -16,6 +16,7 @@
 #include <bslalg_typetraits.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>   // for testing only
 #include <bslmf_issame.h>             // for testing only
 
 #include <bsl_algorithm.h> // 'bsl::max', 'bsl::copy', 'bsl::fill'
@@ -212,7 +213,7 @@ namespace bdlat_ArrayFunctions {
     };
 
     template <int SIZE, class TYPE>
-    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
+    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bsl::true_type {
     };
 }  // close namespace bdlat_ArrayFunctions
 }  // close enterprise namespace
@@ -521,8 +522,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 
     // TRAITS
     template <>
-    struct IsArray<your::YourFloatArray> {
-        enum { VALUE = 1 };
+    struct IsArray<your::YourFloatArray> : public bsl::true_type {
     };
 
     template <>
@@ -718,8 +718,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 
     // TRAITS
     template <>
-    struct IsArray<mine::MyIntArray> {
-        enum { VALUE = 1 };
+    struct IsArray<mine::MyIntArray> : public bsl::true_type {
     };
 
     template <>
@@ -745,7 +744,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 //..
     void usageMakeArray()
     {
-        BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<mine::MyIntArray>::VALUE);
+        BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<mine::MyIntArray>::value);
 
         mine::MyIntArray array;
         ASSERT(0 == bdlat_ArrayFunctions::size(array));
@@ -874,7 +873,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
             // undefined unless '0 <= index' and
             // 'index < bdlat_ArrayFunctions::size(object)'.
         {
-            BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::VALUE);
+            BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::value);
 
             typedef typename bdlat_ArrayFunctions
                                    ::ElementType<ARRAY_TYPE>::Type ElementType;
@@ -900,7 +899,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
             // is undefined unless '0 <= index' and
             // 'index < bdlat_ArrayFunctions::size(*object)'.
         {
-            BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::VALUE);
+            BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::value);
 
             typedef typename bdlat_ArrayFunctions::ElementType<ARRAY_TYPE>
                                                             ::Type ElementType;
@@ -1146,16 +1145,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting meta-functions"
                           << "\n======================" << endl;
 
-        ASSERT(0 == bdlat_ArrayFunctions::IsArray<int>::VALUE);
+        ASSERT(0 == bdlat_ArrayFunctions::IsArray<int>::value);
 
         typedef
             Obj::ElementType<Test::FixedArray<9, short> >::Type FAElementType;
         ASSERT(1 ==
-           (bdlat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::VALUE));
+           (bdlat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::value));
         ASSERT(1 == (bslmf::IsSame<FAElementType, short>::value));
 
         typedef Obj::ElementType<bsl::vector<int> >::Type VecElementType;
-        ASSERT(1 == bdlat_ArrayFunctions::IsArray<bsl::vector<int> >::VALUE);
+        ASSERT(1 == bdlat_ArrayFunctions::IsArray<bsl::vector<int> >::value);
         ASSERT(1 == (bslmf::IsSame<VecElementType, int>::value));
 
       } break;

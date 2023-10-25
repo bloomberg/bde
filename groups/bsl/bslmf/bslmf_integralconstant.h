@@ -162,9 +162,19 @@ BSLS_IDENT("$Id: $")
     BSLS_DEPRECATE_FEATURE("bsl", "legacy_true_and_false_VALUE", \
                                    "use standard, lower-case, 'value' instead")
 
+#define BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
+    // TODO: Remove this macro when 'VALUE' is removed from integral_constant
+    // This is required for the migration strategy from 'VALUE' to 'value'. It
+    // is used to enable workarounds for when downstream code still depends on
+    // and uses 'VALUE' rather than 'value'.
+
 namespace BloombergLP {
 namespace bslmf {
-template <int> struct MetaInt;
+template <int> struct
+BSLS_DEPRECATE_FEATURE("bsl",
+                       "bslmf_MetaInt",
+                       "use 'integral_constant' instead")
+MetaInt;
 }  // close package namespace
 }  // close enterprise namespace
 

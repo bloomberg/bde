@@ -25,7 +25,7 @@ using namespace std;
 // most-strictly aligned member.
 //
 //-----------------------------------------------------------------------------
-// [ 1] bsls::AlignmentFromType<T>::VALUE
+// [ 1] bsls::AlignmentFromType<T>::value
 //
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE -- Ensure the usage example compiles and works.
@@ -88,7 +88,7 @@ namespace Usage {
 ///-----
 ///Usage Example 1
 ///- - - - - - - -
-// The following shows how 'bsls::AlignmentFromType<T>::VALUE' can be used to
+// The following shows how 'bsls::AlignmentFromType<T>::value' can be used to
 // create a static "database" of types storing their size and required
 // alignment.
 //
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING META-FUNCTION bsls::AlignmentFromType<T>::VALUE
+        // TESTING META-FUNCTION bsls::AlignmentFromType<T>::value
         //   Ensure that alignment values are correctly computed.
         //   Ensure that alignment of structs is computed as alignment of
         //   most restrictive member.
@@ -518,7 +518,7 @@ int main(int argc, char *argv[])
         //   constructor.
         //
         // PLAN
-        //   To test 'bsls::AlignmentFromType<T>::VALUE', we must instantiate
+        //   To test 'bsls::AlignmentFromType<T>::value', we must instantiate
         //   'bsls::AlignmentFromType' for several types and test that the
         //   VALUE member has the expected value.  Since the alignment
         //   requirements for char, short and int are 1, 2 and 4 on all
@@ -541,10 +541,10 @@ int main(int argc, char *argv[])
         //   Ad-hoc test data.
         //
         // TESTING
-        //   bsls::AlignmentFromType<T>::VALUE
+        //   bsls::AlignmentFromType<T>::value
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTest bsls::AlignmentFromType<T>::VALUE"
+        if (verbose) cout << "\nTest bsls::AlignmentFromType<T>::value"
                           << "\n======================================"
                           << endl;
 

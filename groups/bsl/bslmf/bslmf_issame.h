@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // The two meta-functions are functionally equivalent.  The major difference
 // between them is that the result for 'bsl::is_same' is indicated by the class
 // member 'value', while the result for 'bslmf::IsSame' is indicated by the
-// class member 'VALUE'.
+// class member 'value'.
 //
 // Note that 'bsl::is_same' should be preferred over 'bslmf::IsSame', and in
 // general, should be used by new components.

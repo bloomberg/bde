@@ -140,20 +140,21 @@ bdlat_TypeCategory::Value bdlat_typeCategorySelect(const MyDynamicType& obj)
 namespace bdlat_SequenceFunctions {
 
     template <>
-    struct IsSequence<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsSequence<test::MyDynamicType> : bsl::true_type { };
 }  // close namespace bdlat_SequenceFunctions
 
 namespace bdlat_ChoiceFunctions {
 
     template <>
-    struct IsChoice<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsChoice<test::MyDynamicType> : bsl::true_type { };
 
 }  // close namespace bdlat_ChoiceFunctions
 
 namespace bdlat_ArrayFunctions {
 
     template <>
-    struct IsArray<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsArray<test::MyDynamicType> : bsl::true_type {
+    };
 
     template <>
     struct ElementType<test::MyDynamicType> { typedef int Type; };
@@ -163,14 +164,14 @@ namespace bdlat_ArrayFunctions {
 namespace bdlat_EnumFunctions {
 
     template <>
-    struct IsEnumeration<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsEnumeration<test::MyDynamicType> : bsl::true_type { };
 
 }  // close namespace bdlat_EnumFunctions
 
 namespace bdlat_NullableValueFunctions {
 
     template <>
-    struct IsNullableValue<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsNullableValue<test::MyDynamicType> : bsl::true_type { };
 
     template <>
     struct ValueType<test::MyDynamicType> { typedef int Type; };
@@ -230,12 +231,11 @@ struct BaseType<u::PartialCustomizedType<BASE_TYPE> > {
 };
 
 template <class BASE_TYPE>
-struct IsCustomizedType<u::PartialCustomizedType<BASE_TYPE> > {
+struct IsCustomizedType<u::PartialCustomizedType<BASE_TYPE> >
+: public bsl::true_type {
     // This 'struct' provides a definition of the
     // 'bdlat_CustomizedTypeFunctions::IsCustomizedType' meta-function for all
     // specializations of 'PartialCustomizedType'.
-
-    enum { VALUE = 1 };
 };
 
 } // close bdlat_CustomizedTypeFunctions
@@ -359,8 +359,8 @@ bdlat_TypeCategory::Value bdlat_typeCategorySelect(
 }  // close unnamed namespace
 
 template <class VALUE_TYPE>
-struct bdlat_TypeCategoryDeclareDynamic<u::PartialDynamicType<VALUE_TYPE> > {
-    enum { VALUE = 1 };
+struct bdlat_TypeCategoryDeclareDynamic<u::PartialDynamicType<VALUE_TYPE> >
+: public bsl::true_type {
 };
 
 namespace bdlat_ArrayFunctions {
@@ -368,8 +368,8 @@ namespace bdlat_ArrayFunctions {
 // No specialization of 'ElementType' need be provided for this test.
 
 template <class VALUE_TYPE>
-struct IsArray<u::PartialDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsArray<VALUE_TYPE>::VALUE };
+struct IsArray<u::PartialDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsArray<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_ArrayFunctions namespace
@@ -377,8 +377,8 @@ struct IsArray<u::PartialDynamicType<VALUE_TYPE> > {
 namespace bdlat_ChoiceFunctions {
 
 template <class VALUE_TYPE>
-struct IsChoice<u::PartialDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsChoice<VALUE_TYPE>::VALUE };
+struct IsChoice<u::PartialDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsChoice<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_ChoiceFunctions namespace
@@ -388,7 +388,7 @@ namespace u {
 
 template <
     class VALUE_TYPE,
-    int = bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::VALUE>
+    int = bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::value>
 struct PartialDynamicType_BaseTypeImpl {
     // This meta-function 'struct' provides the calculation of the
     // 'BaseType' for the 'CustomizedType' category of a 'PartialDynamicType'
@@ -418,8 +418,8 @@ struct BaseType<u::PartialDynamicType<VALUE_TYPE> > {
 };
 
 template <class VALUE_TYPE>
-struct IsCustomizedType<u::PartialDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsCustomizedType<VALUE_TYPE>::VALUE };
+struct IsCustomizedType<u::PartialDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsCustomizedType<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_CustomizedTypeFunctions namespace
@@ -427,8 +427,8 @@ struct IsCustomizedType<u::PartialDynamicType<VALUE_TYPE> > {
 namespace bdlat_EnumFunctions {
 
 template <class VALUE_TYPE>
-struct IsEnumeration<u::PartialDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsEnumeration<VALUE_TYPE>::VALUE };
+struct IsEnumeration<u::PartialDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsEnumeration<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_EnumFunctions namespace
@@ -438,7 +438,7 @@ namespace u {
 
 template <class VALUE_TYPE,
           int =
-              bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::VALUE>
+              bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::value>
 struct PartialDynamicType_ValueTypeImpl {
     // This meta-function 'struct' provides the calculation of the
     // 'ValueType' for the 'NullableValue' category of a 'PartialDynamicType'
@@ -463,8 +463,8 @@ struct PartialDynamicType_ValueTypeImpl<VALUE_TYPE, 0> {
 namespace bdlat_NullableValueFunctions {
 
 template <class VALUE_TYPE>
-struct IsNullableValue<u::PartialDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsNullableValue<VALUE_TYPE>::VALUE };
+struct IsNullableValue<u::PartialDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsNullableValue<VALUE_TYPE>::value> {
 };
 
 template <class VALUE_TYPE>
@@ -478,8 +478,8 @@ struct ValueType<u::PartialDynamicType<VALUE_TYPE> > {
 namespace bdlat_SequenceFunctions {
 
 template <class VALUE_TYPE>
-struct IsSequence<u::PartialDynamicType<VALUE_TYPE> > {
-    enum { VALUE = IsSequence<VALUE_TYPE>::VALUE };
+struct IsSequence<u::PartialDynamicType<VALUE_TYPE> >
+: public bsl::integral_constant<bool, IsSequence<VALUE_TYPE>::value> {
 };
 
 }  // close bdlat_SequenceFunctions namespace
@@ -499,7 +499,7 @@ int bdlat_typeCategoryAccessArray(
     // invocation of 'accessor'.
 {
     typedef typename
-             bsl::conditional<bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE,
+             bsl::conditional<bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::value,
                               bdlat_TypeCategory::Array,
                               bslmf::Nil>::type Tag;
 
@@ -518,7 +518,7 @@ int bdlat_typeCategoryAccessChoice(
     // invocation of 'accessor'.
 {
     typedef typename
-           bsl::conditional<bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::VALUE,
+           bsl::conditional<bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::value,
                             bdlat_TypeCategory::Choice,
                             bslmf::Nil>::type Tag;
 
@@ -537,7 +537,7 @@ int bdlat_typeCategoryAccessCustomizedType(
     // Return the result from the invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
-        bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::VALUE,
+        bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::value,
         bdlat_TypeCategory::CustomizedType,
         bslmf::Nil>::type Tag;
 
@@ -556,7 +556,7 @@ int bdlat_typeCategoryAccessEnumeration(
     // invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
-        bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::VALUE,
+        bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::value,
         bdlat_TypeCategory::Enumeration,
         bslmf::Nil>::type Tag;
 
@@ -575,7 +575,7 @@ int bdlat_typeCategoryAccessNullableValue(
     // Return the result from the invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
-        bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::VALUE,
+        bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::value,
         bdlat_TypeCategory::NullableValue,
         bslmf::Nil>::type Tag;
 
@@ -594,7 +594,7 @@ int bdlat_typeCategoryAccessSequence(
     // Return the result from the invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
-        bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::VALUE,
+        bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::value,
         bdlat_TypeCategory::Sequence,
         bslmf::Nil>::type Tag;
 

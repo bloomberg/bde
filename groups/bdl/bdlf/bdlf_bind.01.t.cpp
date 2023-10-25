@@ -4848,16 +4848,16 @@ DEFINE_TEST_CASE(2) {
         if (verbose) printf("\tAsserting traits of test classes.\n");
         {
             ASSERT(0 == (bslalg::HasTrait<NoAllocTestArg<1>,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+                                 bslalg::TypeTraitUsesBslmaAllocator>::value));
 
             ASSERT(0 == (bslalg::HasTrait<NoAllocTestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+                                 bslalg::TypeTraitUsesBslmaAllocator>::value));
 
             ASSERT(1 == (bslalg::HasTrait<AllocTestArg<1>,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+                                 bslalg::TypeTraitUsesBslmaAllocator>::value));
 
             ASSERT(1 == (bslalg::HasTrait<AllocTestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+                                 bslalg::TypeTraitUsesBslmaAllocator>::value));
         }
 
         typedef NoAllocTestType        *FUNC;

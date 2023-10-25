@@ -6,6 +6,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>   // for testing only
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -183,15 +184,25 @@ template<class T> no& operator == (const T&, const T&);
 template<class T> no& operator != (const T&, const T&);
 
 template <class T>
+struct op_equal_size {
+    enum { SIZE = sizeof(*(T *)(0) == *(T *)(0)) };
+};
+
+template <class T>
+struct op_not_equal_size {
+    enum { SIZE = sizeof(*(T *)(0) != *(T *)(0)) };
+};
+
+template <class T>
 struct op_equal_exist
-{
-    enum { value = (sizeof(*(T*)(0) == *(T*)(0)) != sizeof(no)) };
+: public bsl::integral_constant<bool,
+                                (op_equal_size<T>::SIZE != sizeof(no))> {
 };
 
 template <class T>
 struct op_not_equal_exist
-{
-    enum { value = (sizeof(*(T*)(0) != *(T*)(0)) != sizeof(no)) };
+: public bsl::integral_constant<bool,
+                                (op_not_equal_size<T>::SIZE != sizeof(no))> {
 };
 
 }  // close namespace check

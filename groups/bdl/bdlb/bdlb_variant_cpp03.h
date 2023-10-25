@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 13 12:02:39 2023
+// Generated on Fri Oct 13 11:34:37 2023
 // Command line: sim_cpp11_features.pl bdlb_variant.h
 
 #ifdef COMPILING_BDLB_VARIANT_H
@@ -63,12 +63,11 @@ typedef struct { char a[2]; } Variant_ReturnValueHelper_NoType;
 BSLMF_ASSERT(sizeof(Variant_ReturnValueHelper_YesType)
              != sizeof(Variant_ReturnValueHelper_NoType));
 
-template <class VISITOR>
-struct Variant_ReturnValueHelper {
-    // This struct is a component-private meta-function.  Do *not* use.  This
-    // meta-function checks whether the template parameter type 'VISITOR' has
-    // the member 'ResultType' defined using "SFINAE" (Substitution Failure Is
-    // Not An Error).
+struct Variant_ReturnValueHelper_Matcher {
+    // This struct is a component-private struct.  Do *not* use.  This provides
+    // functions, the matching of which are used by Variant_ReturnValueHelper
+    // to determine whether the template parameter type 'VISITOR' has the
+    // member 'ResultType' defined.
 
     template <class T>
     static Variant_ReturnValueHelper_YesType match(
@@ -78,19 +77,19 @@ struct Variant_ReturnValueHelper {
         // Return 'YesType' if 'T::ResultType' exists, and 'NoType' otherwise.
         // Note that if 'T::ResultType' exists, then the first function is a
         // better match than the ellipsis version.
+};
 
-    enum {
-        value =
-         sizeof(match<VISITOR>(0)) == sizeof(Variant_ReturnValueHelper_YesType)
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
-      , VALUE =
-         sizeof(match<VISITOR>(0)) == sizeof(Variant_ReturnValueHelper_YesType)
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
-
-    };
-        // A 'value' of 'true' indicates 'VISITOR::ResultType' exists, and
-        // 'false' otherwise.
+template <class VISITOR>
+struct Variant_ReturnValueHelper
+: public bsl::integral_constant<
+      bool,
+      sizeof(Variant_ReturnValueHelper_Matcher::match<VISITOR>(0)) ==
+          sizeof(Variant_ReturnValueHelper_YesType)> {
+    // This struct is a component-private meta-function.  Do *not* use.  This
+    // meta-function checks whether the template parameter type 'VISITOR' has
+    // the member 'ResultType' defined using "SFINAE" (Substitution Failure Is
+    // Not An Error).  A 'value' of 'true' indicates 'VISITOR::ResultType'
+    // exists, and 'false' otherwise.
 };
 
                    // =====================================

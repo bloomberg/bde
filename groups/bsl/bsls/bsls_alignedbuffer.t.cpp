@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
         //   For a representative set of combinations of SIZE and ALIGNMENT,
         //   instantiate bsls::AlignedBuffer<SIZE, ALIGNMENT> (a.k.a. Buff) and
         //   verify that:
-        //   - bsls::AlignmentFromType<Buff>::VALUE == ALIGNMENT
+        //   - bsls::AlignmentFromType<Buff>::value == ALIGNMENT
         //   - sizeof(Buff) >= SIZE
         //   - sizeof(Buff) % ALIGNMENT == 0
         //   - sizeof(Buff) - SIZE < ALIGNMENT

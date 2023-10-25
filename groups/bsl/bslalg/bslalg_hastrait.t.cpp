@@ -139,11 +139,11 @@ unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= bslalg::HasTrait<TYPE, bslxyz::TypeTraitIsBlue>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslxyz::TypeTraitIsBlue>::value
               ? TRAIT_BLUE
               : 0;
 
-    result |= bslalg::HasTrait<TYPE, bslxyz::TypeTraitIsGreen>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslxyz::TypeTraitIsGreen>::value
               ? TRAIT_GREEN
               : 0;
 

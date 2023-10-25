@@ -137,6 +137,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typecategory.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>
+
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -272,7 +274,11 @@ int NullableValueUtil::accessValueByCategory(const TYPE& object,
                                              ACCESSOR&   accessor)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
+#  ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
     BSLMF_ASSERT((bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
+#  else
+    BSLMF_ASSERT((bdlat_NullableValueFunctions::IsNullableValue<TYPE>::value));
+#  endif
 #endif
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(object) ==
                 bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY);
@@ -289,7 +295,11 @@ int NullableValueUtil::manipulateValueByCategory(TYPE         *object,
                                                  MANIPULATOR&  manipulator)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
+#  ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
     BSLMF_ASSERT((bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
+#  else
+    BSLMF_ASSERT((bdlat_NullableValueFunctions::IsNullableValue<TYPE>::value));
+#  endif
 #endif
     BSLS_ASSERT(object);
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(*object) ==

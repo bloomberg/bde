@@ -535,11 +535,11 @@ inline
 const char *bdlat_TypeName_Imp::className(const TYPE *object)
 {
     const int k_HAS_BASIC_CHOICE_TRAIT =
-                     bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE;
+                     bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::value;
     const int k_HAS_BASIC_SEQUENCE_TRAIT =
-                   bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE;
+                   bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::value;
     const int k_HAS_BASIC_CUSTOMIZED_TYPE_TRAIT =
-             bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::VALUE;
+             bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::value;
 
     enum {
         HAS_CLASS_NAME = k_HAS_BASIC_CHOICE_TRAIT
@@ -547,7 +547,7 @@ const char *bdlat_TypeName_Imp::className(const TYPE *object)
                        | k_HAS_BASIC_CUSTOMIZED_TYPE_TRAIT,
 
         IS_BASIC_ENUMERATION =
-                bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE,
+                bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::value,
 
         SELECTOR = (HAS_CLASS_NAME ? 0 : (IS_BASIC_ENUMERATION ? 1 : 2))
     };

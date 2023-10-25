@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 //
 // The two meta-functions are functionally equivalent.  The major difference
 // between them is that the result for 'bsl::is_void' is indicated by the
-// class member 'value', while the result for 'bslmf::IsVoid' is indicated
-// by the class member 'VALUE'.
+// class member 'value', while the result for 'bslmf::IsVoid' is indicated by
+// the class member 'value'.
 //
 // Note that 'bsl::is_void' should be preferred over 'bslmf::IsVoid', and in
 // general, should be used by new components.
@@ -78,6 +78,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_integralconstant.h>
 #include <bslmf_metaint.h>
 #include <bslmf_removecv.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -142,8 +143,8 @@ template <class t_TYPE>
 struct IsVoid : bsl::is_void<t_TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 't_TYPE' is the (possibly cv-qualified) 'void'
-    // type.  This 'struct' derives from 'bslmf::MetaInt<1>' if 't_TYPE' is the
-    // 'void' type, and 'bslmf::MetaInt<0>' otherwise.
+    // type.  This 'struct' derives from 'bsl::true_type' if 't_TYPE' is the
+    // 'void' type, and 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_void', and the use of 'bsl::is_void' should be preferred.

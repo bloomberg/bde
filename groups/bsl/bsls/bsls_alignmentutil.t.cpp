@@ -760,7 +760,7 @@ static
         //     and sizeof(MaxAlignedType) == BSLS_MAX_ALIGNMENT
         //
         // Plan:
-        //   Use bsls::AlignmentUtilFromType<T>::VALUE to verify
+        //   Use bsls::AlignmentUtilFromType<T>::value to verify
         //   alignment of MaxAlignedType.
         //
         // Tactics:

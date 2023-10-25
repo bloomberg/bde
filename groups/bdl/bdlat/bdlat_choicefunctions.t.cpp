@@ -22,6 +22,8 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#include <bslmf_integralconstant.h>   // for testing only
+
 #include <bsls_assert.h>
 
 #include <bdlb_string.h>
@@ -565,8 +567,7 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
     namespace bdlat_ChoiceFunctions {
 
     template <>
-    struct IsChoice<mine::MyChoice> {
-        enum { VALUE = 1 };
+    struct IsChoice<mine::MyChoice> : public bsl::true_type {
     };
 
     }  // close namespace bdlat_ChoiceFunctions
@@ -769,9 +770,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting meta-functions"
                           << "\n======================" << endl;
 
-        ASSERT(0 == Obj::IsChoice<int>::VALUE);
-        ASSERT(1 == Obj::IsChoice<geom::Figure>::VALUE);
-        ASSERT(1 == Obj::IsChoice<mine::MyChoice>::VALUE);
+        ASSERT(0 == Obj::IsChoice<int>::value);
+        ASSERT(1 == Obj::IsChoice<geom::Figure>::value);
+        ASSERT(1 == Obj::IsChoice<mine::MyChoice>::value);
 
       } break;
       case 1: {

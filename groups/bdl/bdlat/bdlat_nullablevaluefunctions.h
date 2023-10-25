@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlat_NullableValueFunctions' namespace:
 //
 //: o the meta-function 'IsNullableValue' contains a compile-time constant
-//:   'VALUE' that is non-zero if the parameterized 'TYPE' exposes "nullable"
+//:   'value' that is non-zero if the parameterized 'TYPE' exposes "nullable"
 //:   behavior, and
 //:
 //: o the 'ValueType' meta-function contains a 'typedef' 'Type' that specifies
@@ -236,7 +236,7 @@ BSLS_IDENT("$Id: $")
 //  void usageMakeObject()
 //  {
 //      BSLMF_ASSERT(bdlat_NullableValueFunctions::
-//                   IsNullableValue<mine::MyNullableValue>::VALUE);
+//                   IsNullableValue<mine::MyNullableValue>::value);
 //
 //      mine::MyNullableValue object;
 //      assert( bdlat_NullableValueFunctions::isNull(object));
@@ -378,7 +378,7 @@ BSLS_IDENT("$Id: $")
 //          // 'false == bdlat_NullableValueFunctions::isNull(object))'.
 //      {
 //          BSLMF_ASSERT(bdlat_NullableValueFunctions
-//                              ::IsNullableValue<NULLABLE_VALUE_TYPE>::VALUE);
+//                              ::IsNullableValue<NULLABLE_VALUE_TYPE>::value);
 //
 //          BSLS_ASSERT(!bdlat_NullableValueFunctions::isNull(object));
 //
@@ -404,7 +404,7 @@ BSLS_IDENT("$Id: $")
 //          // overload for the 'NULLABLE_VALUE_TYPE'.
 //      {
 //          BSLMF_ASSERT(bdlat_NullableValueFunctions
-//                              ::IsNullableValue<NULLABLE_VALUE_TYPE>::VALUE);
+//                              ::IsNullableValue<NULLABLE_VALUE_TYPE>::value);
 //
 //          BSLS_ASSERT(object);
 //          BSLS_ASSERT(!bdlat_NullableValueFunctions::isNull(*object));
@@ -568,7 +568,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bslmf_metaint.h>
+#include <bslmf_integralconstant.h>
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
@@ -593,14 +593,10 @@ namespace bdlat_NullableValueFunctions {
 
     // META-FUNCTIONS
     template <class TYPE>
-    struct IsNullableValue {
+    struct IsNullableValue : bsl::false_type {
         // This 'struct' should be specialized for third-party types that need
         // to expose "nullable" behavior.  See the component-level
         // documentation for further information.
-
-        enum {
-            VALUE = 0
-        };
     };
 
     template <class TYPE>
@@ -651,11 +647,8 @@ namespace bdlat_NullableValueFunctions {
 
     // META-FUNCTIONS
     template <class TYPE>
-    struct IsNullableValue<bdlb::NullableValue<TYPE> > {
-        enum {
-            VALUE = 1
-        };
-    };
+    struct IsNullableValue<bdlb::NullableValue<TYPE> > : public bsl::true_type
+    {};
 
     template <class TYPE>
     struct ValueType<bdlb::NullableValue<TYPE> > {
@@ -695,10 +688,8 @@ namespace bdlat_NullableValueFunctions {
 
     // META-FUNCTIONS
     template <class TYPE>
-    struct IsNullableValue<bdlb::NullableAllocatedValue<TYPE> > {
-        enum {
-            VALUE = 1
-        };
+    struct IsNullableValue<bdlb::NullableAllocatedValue<TYPE> >
+    : public bsl::true_type {
     };
 
     template <class TYPE>

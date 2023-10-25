@@ -137,8 +137,8 @@ int main(int argc, char *argv[])
         Obj mX;
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<PairLike,        Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotAPair,        Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<PairLike,        Obj>::value));
+        ASSERT((!bslalg::HasTrait<NotAPair,        Obj>::value));
 
         // As written, 'bslmf::IsPair' cannot be detected by 'bslalg::HasTrait'
         // if it is ascribed to a type using 'BSLMF_NESTED_TRAIT_DECLARATION'.
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
         // the implementation of 'bslalg::HasStlIterators' for an example of
         // the "fix".
 
-        ASSERT((!bslalg::HasTrait<AnotherPairLike, Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<AnotherPairLike, Obj>::value));
 
       } break;
       default: {

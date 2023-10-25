@@ -117,10 +117,10 @@ int main(int argc, char *argv[])
         Obj mX;
         (void) mX;
 
-        ASSERT((bslalg::HasTrait<void,           Obj>::VALUE));
-        ASSERT((bslalg::HasTrait<volatile int&,  Obj>::VALUE));
-        ASSERT((bslalg::HasTrait<double(int...), Obj>::VALUE));
-        ASSERT((bslalg::HasTrait<Empty,          Obj>::VALUE));
+        ASSERT((bslalg::HasTrait<void,           Obj>::value));
+        ASSERT((bslalg::HasTrait<volatile int&,  Obj>::value));
+        ASSERT((bslalg::HasTrait<double(int...), Obj>::value));
+        ASSERT((bslalg::HasTrait<Empty,          Obj>::value));
 
       } break;
       default: {

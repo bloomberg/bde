@@ -32,7 +32,7 @@ using namespace BloombergLP;
 // [ 4] bslmf::IsVoid conversion to bool
 // [ 4] bslmf::IsVoid conversion to bslmf::MetaInt
 // [ 3] bsl::is_void::type
-// [ 3] bslmf::IsVoid::Type
+// [ 3] bslmf::IsVoid::type
 // [ 2] bsl::is_void::value
 // [ 2] bsl::is_void_v
 // [ 2] bslmf::IsVoid::value
@@ -126,18 +126,6 @@ bool isTrueType() { return false; }
 
 template <>
 bool isTrueType<bsl::true_type>() { return true; }
-
-template <class PREDICATE>
-bool isMeta0Type() { return false; }
-
-template <>
-bool isMeta0Type<bslmf::MetaInt<0> >() { return true; }
-
-template <class PREDICATE>
-bool isMeta1Type() { return false; }
-
-template <>
-bool isMeta1Type<bslmf::MetaInt<1> >() { return true; }
 
 }  // close unnamed namespace
 
@@ -310,14 +298,14 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'bslmf::IsVoid::Type' and 'bsl::is_void::type'
+        // TESTING 'bslmf::IsVoid::type' and 'bsl::is_void::type'
         //
         // Concerns:
         //: 1 The meta-function 'bslmf::IsVoid' contains a nested type alias
-        //:   named 'Type'.
+        //:   named 'type'.
         //:
-        //: 2 The alias 'Type' is unambiguously either 'bslmf::MetaInt<0>' or
-        //:   'bslmf::MetaInt<1>'.
+        //: 2 The alias 'type' is unambiguously either 'bsl::false_type' or
+        //:   'bsl::true_type'.
         //:
         //: 3 The meta-function 'bsl::is_void' contains a nested type alias
         //:   named 'type'.
@@ -327,17 +315,13 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Define two meta-functions that return 'true' either if the
-        //:   (template parameter) type is 'bslmf::MetaInt<1>' or if the
-        //:   (template parameter) type is 'bslmf::MetaInt<0>'.
+        //:   (template parameter) type is 'bsl::true_type' or if the (template
+        //:   parameter) type is 'bsl::false_type'.
         //:
         //: 2 For 'bslmf::IsVoid' instantiated on a variety of ('void' and
         //:   non-'void') types, verify the return value of the meta-function
-        //:   defined in P-1 for the 'Type' alias of each instantiation.
+        //:   defined in P-1 for the 'type' alias of each instantiation.
         //:   (C-1..2)
-        //:
-        //: 3 Define two meta-functions that return 'true' either if the
-        //:   (template parameter) type is 'bsl::true_type' or if the (template
-        //:   parameter) type is 'bsl::false_type'.
         //:
         //: 4 For 'bsl::is_void' instantiated on a variety of ('void' and
         //:   non-'void') types, verify the return value of the meta-function
@@ -345,28 +329,15 @@ int main(int argc, char *argv[])
         //:   (C-3..4)
         //
         // Testing:
-        //   bslmf::IsVoid::Type
+        //   bslmf::IsVoid::type
         //   bsl::is_void::type
         // --------------------------------------------------------------------
 
         if (verbose)
-          printf("\nTESTING 'bslmf::IsVoid::Type' and 'bsl::is_void::type'"
+          printf("\nTESTING 'bslmf::IsVoid::type' and 'bsl::is_void::type'"
                  "\n======================================================\n");
 
-        // 'bslmf::IsVoid::Type'
-        ASSERT(isMeta1Type <bslmf::IsVoid<void>::Type>());
-        ASSERT(isMeta1Type <bslmf::IsVoid<const void>::Type>());
-        ASSERT(isMeta1Type <bslmf::IsVoid<volatile void>::Type>());
-        ASSERT(isMeta1Type <bslmf::IsVoid<const volatile void>::Type>());
-        ASSERT(isMeta0Type<bslmf::IsVoid<void *>::Type>());
-        ASSERT(isMeta0Type<bslmf::IsVoid<void *&>::Type>());
-        ASSERT(isMeta0Type<bslmf::IsVoid<void()>::Type>());
-        ASSERT(isMeta0Type<bslmf::IsVoid<void(*)()>::Type>());
-        ASSERT(isMeta0Type<bslmf::IsVoid<void *Empty::*>::Type>());
-        ASSERT(isMeta0Type<bslmf::IsVoid<bslmf::IsVoid<void> >::Type>());
-        ASSERT(isMeta0Type<bslmf::IsVoid<Incomplete>::Type>());
-
-        // 'bsl::is_void::type'
+        // 'bsl::IsVoid::type'
         ASSERT(isTrueType <bslmf::IsVoid<void>::type>());
         ASSERT(isTrueType <bslmf::IsVoid<const void>::type>());
         ASSERT(isTrueType <bslmf::IsVoid<volatile void>::type>());
@@ -378,6 +349,19 @@ int main(int argc, char *argv[])
         ASSERT(isFalseType<bslmf::IsVoid<void *Empty::*>::type>());
         ASSERT(isFalseType<bslmf::IsVoid<bslmf::IsVoid<void> >::type>());
         ASSERT(isFalseType<bslmf::IsVoid<Incomplete>::type>());
+
+        // 'bsl::is_void::type'
+        ASSERT(isTrueType <bsl::is_void<void>::type>());
+        ASSERT(isTrueType <bsl::is_void<const void>::type>());
+        ASSERT(isTrueType <bsl::is_void<volatile void>::type>());
+        ASSERT(isTrueType <bsl::is_void<const volatile void>::type>());
+        ASSERT(isFalseType<bsl::is_void<void *>::type>());
+        ASSERT(isFalseType<bsl::is_void<void *&>::type>());
+        ASSERT(isFalseType<bsl::is_void<void()>::type>());
+        ASSERT(isFalseType<bsl::is_void<void(*)()>::type>());
+        ASSERT(isFalseType<bsl::is_void<void *Empty::*>::type>());
+        ASSERT(isFalseType<bsl::is_void<bsl::is_void<void> >::type>());
+        ASSERT(isFalseType<bsl::is_void<Incomplete>::type>());
 
       } break;
       case 2: {

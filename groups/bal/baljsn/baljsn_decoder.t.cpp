@@ -36547,8 +36547,7 @@ struct bdlat_IsBasicEnumeration<test::Enumeration0> : bsl::true_type {};
 namespace bdlat_EnumFunctions {
 
 template <>
-struct IsEnumeration<test::Enumeration0> {
-    enum { VALUE = 1 };
+struct IsEnumeration<test::Enumeration0> : public bsl::true_type {
 };
 
 }  // close bdlat_EnumFunctions namespace

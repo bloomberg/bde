@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 // The two meta-functions are functionally equivalent.  The major difference
 // between them is that the result for 'bsl::is_class' is indicated by the
 // class member 'value', while the result for 'bslmf::IsClass' is indicated by
-// the class member 'VALUE'.
+// the class member 'value'.
 //
 // Note that 'bsl::is_class' should be preferred over 'bslmf::IsClass', and in
 // general, should be used by new components.

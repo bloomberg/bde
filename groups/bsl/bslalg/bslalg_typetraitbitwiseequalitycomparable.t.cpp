@@ -149,9 +149,9 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<AlmostTrivial,     Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotTrivial,        Obj>::VALUE));
-        ASSERT(( bslalg::HasTrait<AnotherNotTrivial, Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AlmostTrivial,     Obj>::value));
+        ASSERT((!bslalg::HasTrait<NotTrivial,        Obj>::value));
+        ASSERT(( bslalg::HasTrait<AnotherNotTrivial, Obj>::value));
 
       } break;
 

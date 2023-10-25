@@ -427,8 +427,8 @@ int main(int argc, char *argv[])
         //   For a representative set of TYPE template parameters
         //   instantiate bsls::ObjectBuffer<TYPE> (a.k.a. Buff) and
         //   verify that:
-        //   - bsls::AlignmentFromType<Buff>::VALUE ==
-        //                                 bsls::AlignmentFromType<TYPE>::VALUE
+        //   - bsls::AlignmentFromType<Buff>::value ==
+        //                                 bsls::AlignmentFromType<TYPE>::value
         //   - sizeof(Buff) == sizeof(TYPE)
         //
         // Testing:

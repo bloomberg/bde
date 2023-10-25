@@ -737,7 +737,7 @@ namespace BloombergLP {
 namespace bdlat_EnumFunctions {
 
     template <>
-    struct IsEnumeration<TestEnum::Value> : bslmf::MetaInt<1> {
+    struct IsEnumeration<TestEnum::Value> : bsl::true_type {
     };
 
     template <>

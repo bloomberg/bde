@@ -20,18 +20,16 @@ BSLS_IDENT("$Id: $")
 // 'bsl::is_convertible' meta-function.  All these meta-functions may be used
 // to check whether an implicit conversion exists from one type to another.
 //
-// 'bsl::is_convertible' meets the requirements of the 'is_convertible'
-// template defined in the C++11 standard [meta.rel], while
-// 'bslmf::IsConvertible' was devised before 'is_convertible' was standardized.
+// When compiling on C++11 or later, both meta-functions are aliases to the
+// standard library implementation std::is_convertible.
 //
+// When compiling on C++03 'bsl::is_convertible' meets the requirements of the
+// 'is_convertible' template defined in the C++11 standard [meta.rel], while
+// 'bslmf::IsConvertible' was devised before 'is_convertible' was standardized.
 // The two meta-functions are functionally equivalent except that
 // 'bsl::is_convertible' does not allow its template parameter types to be
 // incomplete types according to the C++11 standard while
-// 'bslmf::IsConvertible' tests conversions involving incomplete types.  The
-// other major difference between them is that the result for
-// 'bsl::is_convertible' is indicated by the class members 'value' and 'type',
-// whereas the result for 'bslmf::IsConvertible' is indicated by the class
-// members 'VALUE' and 'Type'.
+// 'bslmf::IsConvertible' tests conversions involving incomplete types.
 //
 // Note that 'bsl::is_convertible' should be preferred over
 // 'bslmf::IsConvertible', and in general, should be used by new components.

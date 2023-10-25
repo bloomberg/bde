@@ -22,7 +22,7 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 2] bslmf::IsClass::VALUE
+// [ 2] bslmf::IsClass::value
 // [ 1] bsl::is_class::value
 // [ 1] bsl::is_class_v
 // ----------------------------------------------------------------------------
@@ -274,36 +274,36 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsClass::VALUE'
+        // 'bslmf::IsClass::value'
         //   Ensure that the static data member 'VALUE' of 'bslmf::IsClass'
         //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 1 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   primitive type.
         //:
-        //: 2 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 2 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   'enum' type.
         //:
-        //: 3 'IsClass::VALUE' is 1 when 'TYPE' is a (possibly cv-qualified)
+        //: 3 'IsClass::value' is 1 when 'TYPE' is a (possibly cv-qualified)
         //:   'class', 'struct', or 'union' type.
         //:
-        //: 4 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 4 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   pointer or pointer-to-member type.
         //:
-        //: 5 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 5 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   function type.
         //
         // Plan:
-        //   Verify that 'bslmf::IsClass::VALUE' has the correct value for each
+        //   Verify that 'bslmf::IsClass::value' has the correct value for each
         //   (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
-        //   bslmf::IsClass::VALUE
+        //   bslmf::IsClass::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsClass::VALUE'\n"
+        if (verbose) printf("'bslmf::IsClass::value'\n"
                             "=======================\n");
 
         // C-1

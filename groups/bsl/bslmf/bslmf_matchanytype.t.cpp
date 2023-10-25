@@ -104,12 +104,12 @@ struct HasHorridCtorY : public Y {
 };
 
 template <int i>
-struct MetaInt { char d_array[i + 1]; };
+struct MyMetaInt { char d_array[i + 1]; };
 
-#define METAINT_TO_UINT(metaint)   (sizeof(metaint) - 1)
+#define METAINT_TO_UINT(mymetaint)   (sizeof(mymetaint) - 1)
 
-MetaInt<1> isX(const X&);
-MetaInt<0> isX(const bslmf::MatchAnyType&);
+MyMetaInt<1> isX(const X&);
+MyMetaInt<0> isX(const bslmf::MatchAnyType&);
 
 }  // close namespace USAGE_TYPEREP_NAMESPACE
 

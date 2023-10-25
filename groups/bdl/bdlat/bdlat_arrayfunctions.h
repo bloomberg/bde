@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // The "array" type must also define two meta-functions in the
 // 'bdlat_ArrayFunctions' namespace:
 //
-//: o the meta-function 'IsArray' contains a compile-time constant 'VALUE' that
+//: o the meta-function 'IsArray' contains a compile-time constant 'value' that
 //:   is non-zero if the parameterized 'TYPE' exposes "array" behavior, and
 //:
 //: o the 'ElementType' meta-function contains a 'typedef' 'Type' that
@@ -295,7 +295,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void usageMakeArray()
 //  {
-//      BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<mine::MyIntArray>::VALUE);
+//      BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<mine::MyIntArray>::value);
 //
 //      mine::MyIntArray array;
 //      assert(0 == bdlat_ArrayFunctions::size(array));
@@ -424,7 +424,7 @@ BSLS_IDENT("$Id: $")
 //          // undefined unless '0 <= index' and
 //          // 'index < bdlat_ArrayFunctions::size(object)'.
 //      {
-//          BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::VALUE);
+//          BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::value);
 //
 //          typedef typename bdlat_ArrayFunctions
 //                                 ::ElementType<ARRAY_TYPE>::Type ElementType;
@@ -450,7 +450,7 @@ BSLS_IDENT("$Id: $")
 //          // is undefined unless '0 <= index' and
 //          // 'index < bdlat_ArrayFunctions::size(*object)'.
 //      {
-//          BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::VALUE);
+//          BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::value);
 //
 //          typedef typename bdlat_ArrayFunctions::ElementType<ARRAY_TYPE>
 //                                                          ::Type ElementType;
@@ -651,7 +651,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlat_bdeatoverrides.h>
 
-#include <bslmf_metaint.h>
+#include <bslmf_integralconstant.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -675,15 +675,10 @@ namespace bdlat_ArrayFunctions {
         // the type of element stored in an array of the parameterized 'TYPE'.
 
     template <class TYPE>
-    struct IsArray {
+    struct IsArray : bsl::false_type {
         // This 'struct' should be specialized for third-party types that are
         // need to expose "array" behavior.  See the component-level
         // documentation for further information.
-
-        // TYPES
-        enum {
-            VALUE = 0
-        };
     };
 
     // MANIPULATORS
@@ -732,7 +727,7 @@ namespace bdlat_ArrayFunctions {
 
     // META-FUNCTIONS
     template <class TYPE, class ALLOC>
-    struct IsArray<bsl::vector<TYPE, ALLOC> > : bslmf::MetaInt<1> {
+    struct IsArray<bsl::vector<TYPE, ALLOC> > : bsl::true_type {
     };
 
     template <class TYPE, class ALLOC>

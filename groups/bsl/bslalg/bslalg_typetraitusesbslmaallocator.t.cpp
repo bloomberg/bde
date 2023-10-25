@@ -140,9 +140,9 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<AllocatorAware,        Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotAllocating,         Obj>::VALUE));
-        ASSERT(( bslalg::HasTrait<AnotherAllocatorAware, Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AllocatorAware,        Obj>::value));
+        ASSERT((!bslalg::HasTrait<NotAllocating,         Obj>::value));
+        ASSERT(( bslalg::HasTrait<AnotherAllocatorAware, Obj>::value));
 
       } break;
       default: {

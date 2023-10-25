@@ -30,7 +30,7 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 2] bslmf::IsEnum::VALUE
+// [ 2] bslmf::IsEnum::value
 // [ 1] bsl::is_enum::value
 // [ 1] bsl::is_enum_v
 // ----------------------------------------------------------------------------
@@ -296,47 +296,47 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bslmf::IsEnum::VALUE'
+        // TESTING 'bslmf::IsEnum::value'
         //   Ensure that the static data member 'VALUE' of 'bslmf::IsEnum'
         //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 1 'IsEnum::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   primitive type.
         //:
-        //: 2 'IsEnum::VALUE' is 1 when 'TYPE' is a (possibly cv-qualified)
+        //: 2 'IsEnum::value' is 1 when 'TYPE' is a (possibly cv-qualified)
         //:   'enum' type, and is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   reference to an enumerated type.
         //:
-        //: 3 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 3 'IsEnum::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   'class', 'struct', or 'union' type.
         //:
-        //: 4 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 4 'IsEnum::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   pointer or pointer-to-member type.
         //:
-        //: 5 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 5 'IsEnum::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   user-defined type having conversions to integral or enumerated
         //:   type, or a reference to such a user-defined type.
         //:
-        //: 6 'IsEnum::VALUE' is 0 when 'TYPE' is a function or function
+        //: 6 'IsEnum::value' is 0 when 'TYPE' is a function or function
         //:   reference type.
         //:
-        //: 7 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 7 'IsEnum::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   array type.
         //:
-        //: 8 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //: 8 'IsEnum::value' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   'void' type.
         //
         // Plan:
-        //: 1 Verify that 'bslmf::IsEnum::VALUE' has the correct value for each
+        //: 1 Verify that 'bslmf::IsEnum::value' has the correct value for each
         //:   (template parameter) 'TYPE' in the concerns.  (C-1..5)
         //
         // Testing:
-        //   bslmf::IsEnum::VALUE
+        //   bslmf::IsEnum::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'bslmf::IsEnum::VALUE'\n"
+        if (verbose) printf("TESTING 'bslmf::IsEnum::value'\n"
                             "==============================\n");
 
         // C-1

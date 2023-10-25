@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
         //
         // PLAN
         //   1) Verify that 'SIZE == sizeof(bsls::AlignmentImpTag<SIZE>)'.
-        //   2) Verify that the 'bsls::AlignmentImpCalc<TYPE>::VALUE returns
+        //   2) Verify that the 'bsls::AlignmentImpCalc<TYPE>::value returns
         //      the correct alignment for various values of 'TYPE'.
         //   3) Verify that 'bsls::AlignmentImpPriorityToType<PRIORITY>::Type'
         //      returns the correct type for various values of PRIORITY.

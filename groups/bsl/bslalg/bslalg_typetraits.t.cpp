@@ -4,7 +4,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_conditional.h>
-#include <bslmf_metaint.h>
+#include <bslmf_integralconstant.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
@@ -123,34 +123,34 @@ unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::value
               ? TRAIT_BITWISEMOVEABLE
               : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::value
               ? TRAIT_BITWISECOPYABLE
               : 0;
     result |= bslalg::HasTrait<
                           TYPE,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::value
               ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
               : 0;
     result |= bslalg::HasTrait<
                              TYPE,
-                             bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
+                             bslalg::TypeTraitBitwiseEqualityComparable>::value
               ? TRAIT_BITWISEEQUALITYCOMPARABLE
               : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitPair>::value
               ? TRAIT_PAIR
               : 0;
     result |= bslalg::HasTrait<TYPE,
-                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+                               bslalg::TypeTraitUsesBslmaAllocator>::value
               ? TRAIT_USESBSLMAALLOCATOR
               : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::value
               ? TRAIT_HASSTLITERATORS
               : 0;
     result |= bslalg::HasTrait<TYPE,
-                               bslalg::TypeTraitHasPointerSemantics>::VALUE
+                               bslalg::TypeTraitHasPointerSemantics>::value
               ? TRAIT_HASPOINTERSEMANTICS
               : 0;
 
@@ -433,7 +433,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
                 location, value, allocator,
                 typename bsl::conditional<
                   bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+                                   bslalg::TypeTraitUsesBslmaAllocator>::value,
                   bslalg::TypeTraitUsesBslmaAllocator,
                   bslalg::TypeTraitNil>::type());
         }

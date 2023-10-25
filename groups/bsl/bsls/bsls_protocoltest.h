@@ -201,7 +201,7 @@ namespace bsls {
 template <class T>
 struct ProtocolTest_IsAbstract;
     // This class template is a compile-time meta-function, parameterized with
-    // type 'T', the output of which is 'VALUE', which will be 'true' if 'T' is
+    // type 'T', the output of which is 'value', which will be 'true' if 'T' is
     // abstract and 'false' otherwise.  On some platforms, the 'IsAbstract'
     // test makes use of the fact that a type 'an array of objects of an
     // abstract type' (e.g., 'T[1]') cannot exist.  Note that it is only an
@@ -216,7 +216,7 @@ struct ProtocolTest_IsAbstract;
 
 template <class T>
 struct ProtocolTest_IsAbstract {
-    enum { VALUE = std::is_abstract<T>::value };
+    enum { value = std::is_abstract<T>::value };
 };
 
 #elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000
@@ -252,7 +252,7 @@ struct ProtocolTest_IsClassTypeImp {
     // compilers that apply P0929 to that mode.  Note that in this mode,
     // 'std::is_class' is not available.
 
-    enum { VALUE = false };
+    enum { value = false };
 };
 
 template <class T>
@@ -266,7 +266,7 @@ struct ProtocolTest_IsClassTypeImp<
     // compilers that apply P0929 to that mode.  Note that in this mode,
     // 'std::is_class' is not available.
 
-    enum { VALUE = true };
+    enum { value = true };
 };
 
 template <class T>
@@ -278,7 +278,7 @@ struct ProtocolTest_IsClassType {
     // Note that in this mode, 'std::is_class' is not available.
 
     enum {
-        VALUE = ProtocolTest_IsClassTypeImp<void, T>::VALUE
+        value = ProtocolTest_IsClassTypeImp<void, T>::value
     };
 };
 
@@ -360,15 +360,15 @@ struct ProtocolTest_IsReturnableImpUtil {
 template <class T>
 struct ProtocolTest_IsReturnable {
     // This component-private, meta-function 'struct' template provides a
-    // compile-time constant 'VALUE' class member with the value 'true' if the
+    // compile-time constant 'value' class member with the value 'true' if the
     // supplied 'T' type can be returned from a function-call expression, and
-    // provides a 'VALUE' class member with the value 'false' otherwise.  This
+    // provides a 'value' class member with the value 'false' otherwise.  This
     // meta-function is used in the implementation of the
     // 'ProtocolTest_IsAbstract' meta-function when compiling in C++03 mode on
     // compilers that apply P0929 to that mode.
 
     enum {
-        VALUE = sizeof(ProtocolTest_YesType) ==
+        value = sizeof(ProtocolTest_YesType) ==
                 sizeof(ProtocolTest_IsReturnableImpUtil::test<T>(0))
     };
 };
@@ -377,18 +377,18 @@ struct ProtocolTest_IsReturnable {
 template <class T>
 struct ProtocolTest_IsAbstract {
     // This component-private, meta-function 'struct' template provides a
-    // compile-time constant 'VALUE' class member with the value 'true' if the
+    // compile-time constant 'value' class member with the value 'true' if the
     // supplied 'T' type is an abstract class type (or, and this is a defect,
     // if 'T' is a class type with a private destructor), and provides a
-    // 'VALUE' class member with the value 'false' otherwise.  This
+    // 'value' class member with the value 'false' otherwise.  This
     // meta-function matches the behavior 'std::is_abstract' would have if it
     // were available except for non-abstract types with a private destructor,
     // and is for use when compiling in C++03 mode on compilers that apply
     // P0929 to that mode.
 
     enum {
-        VALUE = ProtocolTest_IsClassType<T>::VALUE &&
-                !ProtocolTest_IsReturnable<T>::VALUE
+        value = ProtocolTest_IsClassType<T>::value &&
+                !ProtocolTest_IsReturnable<T>::value
     };
 };
 
@@ -397,8 +397,8 @@ struct ProtocolTest_IsAbstract {
 template <class T>
 struct ProtocolTest_IsAbstract {
     // This component-private, meta-function 'struct' template provides a
-    // compile-time constant 'VALUE' class member with the value 'true' if the
-    // supplied 'T' type is an abstract class type, and provides a 'VALUE'
+    // compile-time constant 'value' class member with the value 'true' if the
+    // supplied 'T' type is an abstract class type, and provides a 'value'
     // class member with the value 'false' otherwise.  This meta-function
     // matches the behavior 'std::is_abstract' would have if it were
     // available on C++03 platforms.
@@ -412,7 +412,7 @@ struct ProtocolTest_IsAbstract {
     template <class U>
     static YesType test(...);
 
-    enum { VALUE = sizeof(test<T>(0)) == sizeof(YesType) };
+    enum { value = sizeof(test<T>(0)) == sizeof(YesType) };
 };
 
 #endif
@@ -916,7 +916,7 @@ bool ProtocolTest<BSLS_TESTIMP>::testAbstract()
     trace("inside ProtocolTest::testAbstract()");
     startTest();
 
-    if (!ProtocolTest_IsAbstract<ProtocolType>::VALUE) {
+    if (!ProtocolTest_IsAbstract<ProtocolType>::value) {
         d_status.fail();
     }
 

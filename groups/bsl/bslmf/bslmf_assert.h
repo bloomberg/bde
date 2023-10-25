@@ -89,6 +89,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsla_maybeunused.h>
 
+#include <bslmf_integralconstant.h>
+
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
@@ -142,11 +144,9 @@ struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
     // compilation will fail (assert failure).
 
 template <>
-struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<true> {
+struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<true> : public bsl::true_type {
     // Specialization for value 1 (true).  Referencing this specialization will
     // allow compilation to succeed (assert succeeded).
-
-    enum { VALUE = 1 };
 };
 
 namespace bslmf {

@@ -228,8 +228,7 @@ void bdlat_valueTypeReset(TestChoice<C0, C1, C2> *object);
 namespace bdlat_ChoiceFunctions {
 
 template <class C0, class C1, class C2>
-struct IsChoice<s_baltst::TestChoice<C0, C1, C2> > {
-    enum { VALUE = 1 };
+struct IsChoice<s_baltst::TestChoice<C0, C1, C2> > : public bsl::true_type {
 };
 
 }  // close namespace bdlat_ChoiceFunctions

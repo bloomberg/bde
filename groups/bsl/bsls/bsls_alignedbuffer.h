@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 ///Single-Object Buffers
 ///---------------------
 // Although, for a given type 'T',
-// 'bsls::AlignedBuffer<sizeof(T), bsls::AlignmentFromType<T>::VALUE>' will
+// 'bsls::AlignedBuffer<sizeof(T), bsls::AlignmentFromType<T>::value>' will
 // produce a buffer properly sized and aligned to hold a 'T' object, it is
 // simpler and clearer to use 'bsls::ObjectBuffer<T>' for this purpose.  See
 // the 'bsls_objectbuffer' component for more information.
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 // the buffer would be maximally aligned, which could be wasteful on some
 // platforms.
 //..
-//  const int MY_ALIGNMENT = bsls::AlignmentFromType<int>::VALUE;
+//  const int MY_ALIGNMENT = bsls::AlignmentFromType<int>::value;
 //  bsls::AlignedBuffer<1000, MY_ALIGNMENT> my_AllocBuffer;
 //  const char* my_AllocEnd = my_AllocBuffer.buffer() + 1000;
 //  char *my_AllocPtr = my_AllocBuffer.buffer();

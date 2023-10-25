@@ -127,7 +127,7 @@ BSLS_IDENT("$Id$")
 // the buffered sequential allocator, but nonetheless be aligned to the
 // alignment requirement of 'Node'.
 //..
-//      enum { k_ALIGNMENT = bsls::AlignmentFromType<Node>::VALUE };
+//      enum { k_ALIGNMENT = bsls::AlignmentFromType<Node>::value };
 //      bdlma::AligningAllocator aligningAllocator(k_ALIGNMENT, &bsAlloc);
 //..
 // Next, we define a null-terminated array of strings we would like to store in

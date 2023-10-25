@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<PointerLike,        Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<ValueLike,          Obj>::VALUE));
-        ASSERT(( bslalg::HasTrait<AnotherPointerLike, Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<PointerLike,        Obj>::value));
+        ASSERT((!bslalg::HasTrait<ValueLike,          Obj>::value));
+        ASSERT(( bslalg::HasTrait<AnotherPointerLike, Obj>::value));
 
       } break;
       default: {

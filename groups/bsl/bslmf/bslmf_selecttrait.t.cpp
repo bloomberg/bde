@@ -185,13 +185,13 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //      enum {
 //          VALUE = HasTrait<TARGET_TYPE,
 //                                  TypeTraitUsesBslmaAllocator
-//                                 >::VALUE ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
+//                                 >::value ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
 //                : HasTrait<TARGET_TYPE,
 //                                  TypeTraitBitwiseCopyable
-//                                 >::VALUE ? Imp::BITWISE_COPYABLE_TRAITS
+//                                 >::value ? Imp::BITWISE_COPYABLE_TRAITS
 //                : HasTrait<TARGET_TYPE,
 //                                  TypeTraitPair
-//                                 >::VALUE ? Imp::PAIR_TRAITS
+//                                 >::value ? Imp::PAIR_TRAITS
 //                : Imp::NIL_TRAITS
 //      };
 //      Imp::copyConstruct(address, original, allocator,
