@@ -190,12 +190,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace bdlat_EnumFunctions {
 //  template <>
-//  struct IsEnumeration<mine::ImageType> {
-//      enum { VALUE = 1 };
+//  struct IsEnumeration<mine::ImageType> : bsl::true_type {
 //  };
 //  template <>
-//  struct HasFallbackEnumerator<mine::ImageType> {
-//      enum { VALUE = 1 };
+//  struct HasFallbackEnumerator<mine::ImageType> : bsl::true_type {
 //  };
 //  }  // close namespace bdlat_EnumFunctions
 //  }  // close enterprise namespace

@@ -250,8 +250,7 @@ BSLS_IDENT("$Id: $")
 //  namespace bdlat_CustomizedTypeFunctions {
 //
 //      template <>
-//      struct IsCustomizedType<mine::Cusip> {
-//          enum { VALUE = 1 };
+//      struct IsCustomizedType<mine::Cusip> : bsl::true_type {
 //      };
 //
 //  } // close namespace 'bdlat_CustomizedTypeFunctions'

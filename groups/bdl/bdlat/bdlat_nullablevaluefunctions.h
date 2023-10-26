@@ -203,8 +203,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // TRAITS
 //  template <>
-//  struct IsNullableValue<mine::MyNullableValue> {
-//      enum { VALUE = 1 };
+//  struct IsNullableValue<mine::MyNullableValue> : bsl::true_type {
 //  };
 //
 //  template <>

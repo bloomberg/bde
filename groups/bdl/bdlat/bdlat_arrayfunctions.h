@@ -268,8 +268,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // TRAITS
 //  template <>
-//  struct IsArray<mine::MyIntArray> {
-//      enum { VALUE = 1 };
+//  struct IsArray<mine::MyIntArray> : bsl::true_type {
 //  };
 //
 //  template <>

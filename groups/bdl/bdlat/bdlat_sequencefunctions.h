@@ -484,8 +484,7 @@ BSLS_IDENT("$Id: $")
 //  namespace bdlat_SequenceFunctions {
 //
 //  template <>
-//  struct IsSequence<mine::MySequence> {
-//      enum { VALUE = 1 };
+//  struct IsSequence<mine::MySequence> : bsl::true_type {
 //  };
 //
 //  }  // close namespace bdlat_SequenceFunctions

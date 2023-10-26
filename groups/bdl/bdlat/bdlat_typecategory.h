@@ -771,8 +771,8 @@ BSLS_IDENT("$Id: $")
 //  namespace BloombergLP {
 //
 //      template <>
-//      struct bdlat_TypeCategoryDeclareDynamic<mine::MyDynamicType> {
-//          enum { VALUE = 1 };
+//      struct bdlat_TypeCategoryDeclareDynamic<mine::MyDynamicType>
+//      : bsl::true_type {
 //      };
 //
 //  }  // close enterprise namespace

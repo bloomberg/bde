@@ -247,12 +247,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace bdlat_EnumFunctions {
 //  template <>
-//  struct IsEnumeration<mine::ImageType> {
-//      enum { VALUE = 1 };
+//  struct IsEnumeration<mine::ImageType> : public bsl::true_type {
 //  };
 //  template <>
-//  struct HasFallbackEnumerator<mine::ImageType> {
-//      enum { VALUE = 1 };
+//  struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
 //  };
 //  }  // close namespace 'bdlat_EnumFunctions'
 //  }  // close namespace 'BloombergLP'
@@ -564,7 +562,11 @@ template <class TYPE>
 inline
 int bdlat_EnumFunctions::makeFallback(TYPE *result)
 {
+#ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+#else
     bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::value> tag;
+#endif
     return bdlat_EnumFunctions_ImplUtil::makeFallback(result, tag);
 }
 
@@ -573,7 +575,11 @@ template <class TYPE>
 inline
 bool bdlat_EnumFunctions::hasFallback(const TYPE& value)
 {
+#ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+#else
     bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::value> tag;
+#endif
     return bdlat_EnumFunctions_ImplUtil::hasFallback(value, tag);
 }
 
@@ -581,7 +587,11 @@ template <class TYPE>
 inline
 bool bdlat_EnumFunctions::isFallback(const TYPE& value)
 {
+#ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
+    bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::VALUE> tag;
+#else
     bsl::integral_constant<bool, HasFallbackEnumerator<TYPE>::value> tag;
+#endif
     return bdlat_EnumFunctions_ImplUtil::isFallback(value, tag);
 }
 
@@ -609,7 +619,11 @@ template <class TYPE>
 int bdlat_EnumFunctions_ImplUtil::makeFallback(TYPE *result, bsl::true_type)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
+# ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+# else
     BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::value);
+# endif
 #endif
     using bdlat_EnumFunctions::bdlat_enumMakeFallback;
     return bdlat_enumMakeFallback(result);
@@ -627,7 +641,11 @@ bool bdlat_EnumFunctions_ImplUtil::hasFallback(const TYPE& value,
                                                bsl::true_type)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
+# ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+# else
     BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::value);
+# endif
 #endif
     using bdlat_EnumFunctions::bdlat_enumHasFallback;
     return bdlat_enumHasFallback(value);
@@ -646,7 +664,11 @@ bool bdlat_EnumFunctions_ImplUtil::isFallback(const TYPE& value,
                                               bsl::true_type)
 {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
+# ifdef BSL_INTEGRAL_CONSTANT_ALLOW_BDLAT_LEGACY_SPECIALIZATIONS
+    BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE);
+# else
     BSLMF_ASSERT(bdlat_EnumFunctions::IsEnumeration<TYPE>::value);
+# endif
 #endif
     using bdlat_EnumFunctions::bdlat_enumIsFallback;
     return bdlat_enumIsFallback(value);

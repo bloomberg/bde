@@ -355,8 +355,7 @@ BSLS_IDENT("$Id: $")
 //  namespace bdlat_ChoiceFunctions {
 //
 //  template <>
-//  struct IsChoice<mine::MyChoice> {
-//      enum { VALUE = 1 };
+//  struct IsChoice<mine::MyChoice> : bsl::true_type {
 //  };
 //
 //  }  // close namespace bdlat_ChoiceFunctions
