@@ -1915,7 +1915,7 @@ bool operator!=(const Datum& lhs, const Datum& rhs);
     // returns 'false'.  Two strings do not have the same value if they have
     // different lengths or values at one of the respective character position
     // are not the same.  Two 'DatumUdt' objects are not equal if they have
-    // different pointer or type values.  Two 'bdemf_Nil' values are always
+    // different pointer or type values.  Two 'bslmf::Nil' values are always
     // equal.  Two datums with 'NaN' values are never equal.  Two datums that
     // hold arrays of datums have different values if the underlying arrays
     // have different lengths or invoking '==' operator on at least one of the
