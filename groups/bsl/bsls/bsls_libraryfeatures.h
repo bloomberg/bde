@@ -2232,10 +2232,10 @@ BSLS_IDENT("$Id: $")
   //    they *do* implement P2372 and P2418, which bumped the feature test
   //    macro to 202110L.  This is GCC bug 111826.
   //
-  //  - libc++ doesn't define the feature test macro as of version 17.  They
-  //    claim that their support for chrono formatting is incomplete.  We won't
-  //    be implementing chrono formatters anyway (since chrono is not in C++03)
-  //    so we still consider libc++ 17 to have sufficient support.
+  //: o libc++ doesn't define the feature test macro as of version 17 because
+  //:   they haven't implemented chrono time zones yet.  We should still use
+  //:   libc++'s `<format>` despite the missing functionality, because we won't
+  //:   be backporting the formatters for chrono time zones anyway.
   //
   //  - MSVC uses the correct value.
   #if (defined(__cpp_lib_format) && __cpp_lib_format >= 202110L) ||           \
