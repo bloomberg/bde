@@ -9,6 +9,10 @@
 
 #include <bdlmt_timereventscheduler.h>
 
+#include <bdlm_defaultmetricsregistrar.h>
+#include <bdlm_metricdescriptor.h>
+#include <bdlm_metricsregistrar.h>
+
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
@@ -20,12 +24,16 @@
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
-#include <bslmt_timedsemaphore.h>
-#include <bslmt_semaphore.h>
+
 #include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedsemaphore.h>
+
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -41,6 +49,9 @@
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_ostream.h>
+#include <bsl_set.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -92,52 +103,59 @@ using bsl::ptrdiff_t;
 // 'numClocks' may be concurrently scheduled.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [01] bdlmt::TimerEventScheduler(allocator = 0);
+// [ 1] bdlmt::TimerEventScheduler(allocator = 0);
+// [ 1] bdlmt::TimerEventScheduler(mI, mR, allocator = 0);
 // [19] bdlmt::TimerEventScheduler(clockType, allocator = 0);
+// [19] bdlmt::TimerEventScheduler(clockType, mI, mR, allocator = 0);
 //
-// [08] bdlmt::TimerEventScheduler(dispatcher, allocator = 0);
+// [ 8] bdlmt::TimerEventScheduler(dispatcher, allocator = 0);
+// [ 8] bdlmt::TimerEventScheduler(dispatcher, mI, mR, allocator = 0);
 // [20] bdlmt::TimerEventScheduler(disp, clockType, alloc = 0);
+// [20] bdlmt::TimerEventScheduler(disp, clockType, mI, mR, alloc = 0);
 //
 // [21] bdlmt::TimerEventScheduler(nE, nC, bA = 0);
+// [21] bdlmt::TimerEventScheduler(nE, nC, mI, mR, bA = 0);
 // [22] bdlmt::TimerEventScheduler(nE, nC, cT, bA = 0);
+// [22] bdlmt::TimerEventScheduler(nE, nC, cT, mI, mR, bA = 0);
 //
 // [23] bdlmt::TimerEventScheduler(nE, nC, disp, bA = 0);
+// [23] bdlmt::TimerEventScheduler(nE, nC, disp, mI, mR, bA = 0);
 // [24] bdlmt::TimerEventScheduler(nE, nC, disp, cT, bA = 0);
+// [24] bdlmt::TimerEventScheduler(nE, nC, disp, cT, mI, mR, bA = 0);
 //
-//
-// [01] ~bdlmt::TimerEventScheduler();
+// [ 1] ~bdlmt::TimerEventScheduler();
 //
 // MANIPULATORS
-// [09] int start();
+// [ 9] int start();
 //
 // [16] int start(const bslmt::ThreadAttributes& threadAttributes);
 //
-// [09] void stop();
+// [ 9] void stop();
 //
-// [02] Handle scheduleEvent(time, callback);
+// [ 2] Handle scheduleEvent(time, callback);
 //
 // [12] int rescheduleEvent(handle, newTime);
 //
 // [12] int rescheduleEvent(handle, key, newTime);
 //
-// [03] int cancelEvent(Handle handle, bool wait=false);
+// [ 3] int cancelEvent(Handle handle, bool wait=false);
 //
-// [04] void cancelAllEvents(bool wait=false);
+// [ 4] void cancelAllEvents(bool wait=false);
 // [17] void cancelAllEvents(bool wait=false);
 //
-// [02] Handle startClock(interval, callback, startTime=bsls::TimeInterval(0));
+// [ 2] Handle startClock(interval, callback, startTime=bsls::TimeInterval(0));
 //
-// [05] int cancelClock(Handle handle, bool wait=false);
+// [ 5] int cancelClock(Handle handle, bool wait=false);
 //
-// [06] void cancelAllClocks(bool wait=false);
+// [ 6] void cancelAllClocks(bool wait=false);
 //
 // ACCESSORS
 // [25] bsls::SystemClockType::Enum clockType();
 // [27] bsls::TimeInterval now();
 // ----------------------------------------------------------------------------
-// [01] BREATHING TEST
+// [ 1] BREATHING TEST
 // [28] DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
-// [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
+// [ 7] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [26] CLOCK-REPLACEMENT BREATHING TEST
@@ -306,16 +324,16 @@ void noop()
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
 // On Windows, the thread name will only be set if we're running on Windows 10,
-// version 1607 or later, otherwise it will be empty. AIX does not support
+// version 1607 or later, otherwise it will be empty.  AIX does not support
 // thread naming.
 static const bool k_threadNameCanBeEmpty = true;
 #else
 static const bool k_threadNameCanBeEmpty = false;
 #endif
 
-                         // ==========================
-                         // function executeInParallel
-                         // ==========================
+                        // ==========================
+                        // function executeInParallel
+                        // ==========================
 
 static void executeInParallel(int                               numThreads,
                               bslmt::ThreadUtil::ThreadFunction func)
@@ -342,9 +360,9 @@ static void executeInParallel(int                               numThreads,
     }
 }
 
-                              // ===============
-                              // class TestClass
-                              // ===============
+                             // ===============
+                             // class TestClass
+                             // ===============
 
 class TestClass {
     // This class encapsulates the data associated with a clock or an event.
@@ -530,9 +548,9 @@ bsl::ostream& operator << (bsl::ostream& os, const TestClass& testObject)
     return os;
 }
 
-                              // ================
-                              // class TestClass1
-                              // ================
+                             // ================
+                             // class TestClass1
+                             // ================
 
 struct TestClass1 {
     // This class define a function 'callback' that is used as a callback for a
@@ -590,9 +608,9 @@ struct TestClass1 {
     }
 };
 
-                              // ================
-                              // class TestClass2
-                              // ================
+                             // ================
+                             // class TestClass2
+                             // ================
 
 struct TestClass2 {
     // This class define a function 'callback' that is used as a callback for a
@@ -646,9 +664,9 @@ struct TestClass2 {
     }
 };
 
-                            // ====================
-                            // class TestPrintClass
-                            // ====================
+                           // ====================
+                           // class TestPrintClass
+                           // ====================
 
 struct TestPrintClass {
     // This class define a function 'callback' that prints a message.  This
@@ -725,19 +743,132 @@ static void cancelAllClocksCallback(Obj *scheduler, int wait)
 }
 
 // ============================================================================
-//                 HELPER CLASSES AND FUNCTIONS FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ============================================================================
 
+                        // ==========================
+                        // class TestMetricsRegistrar
+                        // ==========================
+
+class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
+    // This class implements a pure abstract interface for clients and
+    // suppliers of metrics registrars.  The implemtation does not register
+    // callbacks with any monitoring system, but does track registrations to
+    // enable testing of thread-enabled objects metric registration.
+
+    // DATA
+    bsl::vector<bdlm::MetricDescriptor> d_descriptors;
+    bsl::set<int>                       d_handles;
+    bslmt::Mutex                        d_mutex;
+
+  public:
+    // CREATORS
+    TestMetricsRegistrar();
+        // Create a 'TestMetricsRegistrar'.
+
+    ~TestMetricsRegistrar();
+        // Destroy this object.
+
+    // MANIPULATORS
+    CallbackHandle registerCollectionCallback(
+                                const bdlm::MetricDescriptor& metricDescriptor,
+                                const Callback&               callback);
+        // Do nothing with the specified 'metricsDescriptor' and 'callback'.
+        // Return a callback handle that will be verified in
+        // 'removeCollectionCallback'.
+
+    int removeCollectionCallback(const CallbackHandle& handle);
+        // Do nothing with the specified 'handle'.  Assert the supplied
+        // 'handle' matches what was provided by 'registerCollectionCallback'.
+        // Return 0.
+
+    void reset();
+        // Return this object to its constructed state.
+    
+    // ACCESSORS
+    bool verify(const bsl::string& name);
+        // Return 'true' if the registered descriptors match the ones expected
+        // for the supplied 'name' and the provided callback handles were
+        // removed, and 'false' otherwise.
+};
+
+                        // --------------------------
+                        // class TestMetricsRegistrar
+                        // --------------------------
+
+// CREATORS
+TestMetricsRegistrar::TestMetricsRegistrar()
+{
+}
+
+TestMetricsRegistrar::~TestMetricsRegistrar()
+{
+}
+
+// MANIPULATORS
+bdlm::MetricsRegistrar::CallbackHandle
+                              TestMetricsRegistrar::registerCollectionCallback(
+                                const bdlm::MetricDescriptor& metricDescriptor,
+                                const Callback&               /* callback */)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    
+    d_descriptors.push_back(metricDescriptor);
+
+    int h = 7 + static_cast<int>(d_descriptors.size());
+    d_handles.insert(h);
+
+    return h;
+}
+
+int TestMetricsRegistrar::removeCollectionCallback(
+                                                  const CallbackHandle& handle)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    
+    d_handles.erase(handle);
+    return 0;
+}
+
+void TestMetricsRegistrar::reset()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    
+    d_descriptors.clear();
+    d_handles.clear();
+}
+
+// ACCESSORS
+bool TestMetricsRegistrar::verify(const bsl::string& name)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    
+    ASSERT(d_handles.empty());
+    ASSERT(1 == d_descriptors.size());
+    ASSERT(d_descriptors[0].metricNamespace() == "bdlm");
+    ASSERT(d_descriptors[0].metricName()      == "startlag");
+    ASSERT(d_descriptors[0].objectTypeName()  == "bdlmt.timereventscheduler");
+    ASSERT(name.empty() || d_descriptors[0].objectIdentifier() == name);
+    
+    return d_handles.empty()
+        && 1 == d_descriptors.size()
+        && d_descriptors[0].metricNamespace() == "bdlm"
+        && d_descriptors[0].metricName()      == "startlag"
+        && d_descriptors[0].objectTypeName()  == "bdlmt.timereventscheduler"
+        && (name.empty() || d_descriptors[0].objectIdentifier() == name);
+}
+
 // ----------------------------------------------------------------------------
-//                      USAGE EXAMPLE RELATED ENTITIES
+//                       USAGE EXAMPLE RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
+
 {
 
-                              // ================
-                              // class my_Session
-                              // ================
+                             // ================
+                             // class my_Session
+                             // ================
 
 class my_Session{
   public:
@@ -751,9 +882,9 @@ int my_Session::processData(void *, int)
     return 0;
 }
 
-                              // ===============
-                              // class my_Server
-                              // ===============
+                             // ===============
+                             // class my_Server
+                             // ===============
 
 class My_Server {
 
@@ -835,7 +966,9 @@ void My_Server::dataAvailable(My_Server::Connection *connection,
 // ============================================================================
 //                         CASE 20 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24
+
 {
 
 void dispatcherFunction(bsl::function<void()> functor)
@@ -849,7 +982,9 @@ void dispatcherFunction(bsl::function<void()> functor)
 // ============================================================================
 //                         CASE 20 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23
+
 {
 
 void dispatcherFunction(bsl::function<void()> functor)
@@ -863,21 +998,27 @@ void dispatcherFunction(bsl::function<void()> functor)
 // ============================================================================
 //                         CASE 22 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_22
+
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_22
 // ============================================================================
 //                         CASE 21 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21
+
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21
 // ============================================================================
 //                         CASE 20 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20
+
 {
 
 void dispatcherFunction(bsl::function<void()> functor)
@@ -891,14 +1032,18 @@ void dispatcherFunction(bsl::function<void()> functor)
 // ============================================================================
 //                         CASE 19 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19
+
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19
 // ============================================================================
 //                         CASE 17 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_18
+
 {
 struct Func {
     const int                       d_eventIndex;
@@ -915,7 +1060,6 @@ struct Func {
         // 'true'
     static bsls::AtomicBool         s_finished;
         // indicates all events have run
-
 
     explicit
     Func(int index) : d_eventIndex(index) {}
@@ -947,7 +1091,9 @@ void Func::operator()()
 // ============================================================================
 //                         CASE 17 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_17
+
 {
 struct Func {
     static const Obj *s_scheduler;
@@ -1080,6 +1226,7 @@ int               Recurser::s_iterations = 0;
 // ----------------------------------------------------------------------------
 
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
+
 {
     struct Slowfunctor {
         typedef bsl::list<double>       dateTimeList;
@@ -1139,10 +1286,11 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
 
 // ----------------------------------------------------------------------------
-//                         CASE 13 RELATED ENTITIES
+//                          CASE 13 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_13
+
 {
 
 void countInvoked(bsls::AtomicInt *numInvoked)
@@ -1212,14 +1360,18 @@ int maxNodeIndex(int numBits)
 // ============================================================================
 //                         CASE 12 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_12
+
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_12
 // ============================================================================
 //                         CASE 11 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_11
+
 {
 
 enum {
@@ -1232,7 +1384,7 @@ bool  testTimingFailure = false;
 
 bslmt::Barrier barrier(NUM_THREADS);
 bslma::TestAllocator ta;
-Obj x(&ta);
+Obj *pX = 0;
 
 TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 
@@ -1248,10 +1400,10 @@ void *workerThread11(void *arg)
       case 0: {
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
-              x.scheduleEvent(now + T6,
-                              bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                     &testObj[id]));
-              x.cancelAllEvents();
+              pX->scheduleEvent(now + T6,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                       &testObj[id]));
+              pX->cancelAllEvents();
               bsls::TimeInterval elapsed =
                                     bsls::SystemTime::nowRealtimeClock() - now;
               if (!testTimingFailure) {
@@ -1270,10 +1422,10 @@ void *workerThread11(void *arg)
       case 1: {
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
-              x.startClock(T6,
-                           bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                  &testObj[id]));
-              x.cancelAllClocks();
+              pX->startClock(T6,
+                             bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                    &testObj[id]));
+              pX->cancelAllClocks();
               bsls::TimeInterval elapsed =
                                     bsls::SystemTime::nowRealtimeClock() - now;
               if (!testTimingFailure) {
@@ -1298,7 +1450,9 @@ void *workerThread11(void *arg)
 // ============================================================================
 //                         CASE 10 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_10
+
 {
 
 enum {
@@ -1311,7 +1465,7 @@ bool  testTimingFailure = false;
 
 bslmt::Barrier barrier(NUM_THREADS);
 bslma::TestAllocator ta;
-Obj x(&ta);
+Obj *pX = 0;
 
 TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 
@@ -1333,8 +1487,9 @@ void *workerThread10(void *arg)
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               Handle h =
-                  x.scheduleEvent(now + T6,
-                                  bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                  pX->scheduleEvent(now + T6,
+                                    bdlf::MemFnUtil::memFn(
+                                                         &TestClass1::callback,
                                                          &testObj[id]));
               if (veryVeryVerbose) {
                   int *handle = reinterpret_cast<int *>(
@@ -1343,7 +1498,7 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded event: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
               }
-              if (0 != x.cancelEvent(h) && !testTimingFailure) {
+              if (0 != pX->cancelEvent(h) && !testTimingFailure) {
                   // We tried and the 'cancelEvent' failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
                   // 'cancelEvent' should have succeeded.
@@ -1367,9 +1522,9 @@ void *workerThread10(void *arg)
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               Handle h =
-                  x.startClock(T6,
-                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                      &testObj[id]));
+                  pX->startClock(T6,
+                                 bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                        &testObj[id]));
               if (veryVeryVerbose) {
                   void *handle = reinterpret_cast<void *>(
                                   static_cast<bsl::uintptr_t>(h & 0x8fffffff));
@@ -1377,7 +1532,7 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded clock: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
               }
-              if (0 != x.cancelClock(h) && !testTimingFailure) {
+              if (0 != pX->cancelClock(h) && !testTimingFailure) {
                   // We tried and the 'cancelClock' failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
                   // 'cancelClock' should have succeeded.
@@ -1404,7 +1559,9 @@ void *workerThread10(void *arg)
 // ============================================================================
 //                          CASE 9 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
+
 {
 
 void postSema(bslmt::TimedSemaphore *sema)
@@ -1440,11 +1597,11 @@ void startStopConcurrencyTest()
     // thread that's busy executing an event, it will start a second dispatcher
     // thread with the result that there can be two dispatcher threads running.
     //
-    // To expose this issue, block the scheduler's dispatcher thread using
-    // a job that waits on a semaphore, and from another thread, stop it.
-    // At that point, starting it will (in the current implementation)
-    // corrupt the scheduler's state, the most likely manifestation of which
-    // will be that it can no longer be stopped.
+    // To expose this issue, block the scheduler's dispatcher thread using a
+    // job that waits on a semaphore, and from another thread, stop it.  At
+    // that point, starting it will (in the current implementation) corrupt the
+    // scheduler's state, the most likely manifestation of which will be that
+    // it can no longer be stopped.
 
     bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(bsls::SystemClockType::e_MONOTONIC, &ta);
@@ -1482,7 +1639,7 @@ void startStopConcurrencyTest()
     // Finish 'start'ing
     bslmt::ThreadUtil::join(startThread);
 
-    // 'stop' should be able to finish without any problem now. If it takes
+    // 'stop' should be able to finish without any problem now.  If it takes
     // anything approaching a second, it's deadlocked.
 
     int rc = stopSema.timedWait(
@@ -1513,7 +1670,9 @@ void startStopConcurrencyTest()
 // ============================================================================
 //                          CASE 8 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8
+
 {
 
 void dispatcherFunction(bsl::function<void()> functor)
@@ -1527,12 +1686,12 @@ void dispatcherFunction(bsl::function<void()> functor)
 // ============================================================================
 //                          CASE 7 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_7
+
 {
 
-void schedulingCallback(Obj        *scheduler,
-                        TestClass1 *event,
-                        TestClass1 *clock)
+void schedulingCallback(Obj *scheduler, TestClass1 *event, TestClass1 *clock)
     // Schedule the specified 'event' and the specified 'clock' on the
     // specified 'scheduler'.  Schedule the clock first to ensure that it will
     // get executed before the event does.
@@ -1770,7 +1929,9 @@ void test7_f()
 // ============================================================================
 //                          CASE 6 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6
+
 {
 
 void test6_a()
@@ -1936,7 +2097,9 @@ void test6_c()
 // ============================================================================
 //                          CASE 5 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5
+
 {
 struct Unblock {
     Obj            *d_scheduler_p;
@@ -1968,14 +2131,18 @@ struct Unblock {
 // ============================================================================
 //                          CASE 4 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4
+
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4
 // ============================================================================
 //                          CASE 3 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_3
+
 {
 
 void test3_a()
@@ -2117,7 +2284,7 @@ void test3_d()
         myMicroSleep(T3, 0);
         ASSERT( 0 == testObj.numExecuted() );
     }
-    // Else should we complain that too much time has elapsed?  In any case,
+    // Else should we complain that too much time has elapsed? In any case,
     // this is not a failure, do not stop.
 }
 
@@ -2221,7 +2388,9 @@ void test3_g()
 // ============================================================================
 //                          CASE 2 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2
+
 {
 
 struct TestCase2Data {
@@ -2347,7 +2516,9 @@ bool testCallbacks(int                  *failures,
 // ============================================================================
 //                          CASE 1 RELATED ENTITIES
 // ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1
+
 {
 
 void test1_a()
@@ -2489,8 +2660,8 @@ void test1_c()
 
 void test1_d()
 {
-    // Create and start a scheduler object, schedule 3 events at T,
-    // T2, T3.  Invoke 'cancelAllEvents' and verify it.
+    // Create and start a scheduler object, schedule 3 events at T, T2, T3.
+    // Invoke 'cancelAllEvents' and verify it.
 
     const bsls::TimeInterval T(1 * DECI_SEC);
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -2521,9 +2692,8 @@ void test1_d()
 
     // It is possible that h1 (more likely), h2, or h3 (less likely) have run
     // before they got cancelled because of delays.  (Happened once on xlC-8.2i
-    // in 64 bit mode...)  But in either case, cancelling the event again
-    // should fail.  However the numExecuted() test below may be 1 in that
-    // case.
+    // in 64 bit mode...) But in either case, cancelling the event again should
+    // fail.  However the numExecuted() test below may be 1 in that case.
 
     ASSERT( 0 != x.cancelEvent(h1) );
     ASSERT( 0 != x.cancelEvent(h2) );
@@ -2547,14 +2717,14 @@ void test1_d()
         nExec = testObj3.numExecuted();
         ASSERTV(nExec, 0 == nExec);
     }
-    // Else should we complain that too much time has elapsed?  In any case,
+    // Else should we complain that too much time has elapsed? In any case,
     // this is not a failure, do not stop.
 }
 
 void test1_e()
 {
-    // Create and start a scheduler object, schedule an event at
-    // T2, cancelling it at T3 should result in failure.
+    // Create and start a scheduler object, schedule an event at T2, cancelling
+    // it at T3 should result in failure.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -2609,7 +2779,7 @@ void test1_f()
         int nExec = testObj.numExecuted();
         ASSERTV(nExec, 0 == nExec);
     }
-    // Else should we complain that too much time has elapsed?  In any case,
+    // Else should we complain that too much time has elapsed? In any case,
     // this is not a failure, do not stop.
 }
 
@@ -2693,8 +2863,8 @@ void test1_h()
     // Create and start a scheduler object, schedule a clock of T3 interval,
     // verify that clock callback gets invoked at expected times.  The reason
     // we cannot test that 1 == X.numClocks() is that the clocks may be in the
-    // middle of execution (popped and not yet rescheduled, in which case
-    // 0 == X.numClocks()).
+    // middle of execution (popped and not yet rescheduled, in which case 0 ==
+    // X.numClocks()).
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
@@ -3130,8 +3300,8 @@ int main(int argc, char *argv[])
         // Construct the scheduler
         bdlmt::TimerEventScheduler scheduler;
 
-        // Construct the time-source.
-        // Install the time-source in the scheduler.
+        // Construct the time-source.  Install the time-source in the
+        // scheduler.
         bdlmt::TimerEventSchedulerTestTimeSource timeSource(&scheduler);
 
         // Retrieve the initial time held in the time-source.
@@ -3293,6 +3463,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::TimerEventScheduler(nE, nC, disp, cT, bA = 0);
+        //   bdlmt::TimerEventScheduler(nE, nC, disp, cT, mI, mR, bA = 0);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3300,6 +3471,12 @@ int main(int argc, char *argv[])
                           << "(nE, nC, disp, cT, bA = 0)'" << endl
                           << "================================="
                           << "===========================" << endl;
+
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24;
         using namespace bdlf::PlaceHolders;
@@ -3325,6 +3502,37 @@ int main(int argc, char *argv[])
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
 
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, dispatcher, bsls::SystemClockType::e_MONOTONIC);
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4,
+                  4,
+                  dispatcher,
+                  bsls::SystemClockType::e_MONOTONIC,
+                  "a",
+                  0);
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4,
+                  4,
+                  dispatcher,
+                  bsls::SystemClockType::e_MONOTONIC,
+                  "b",
+                  &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case 23: {
         // -----------------------------------------------------------------
@@ -3345,6 +3553,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::TimerEventScheduler(nE, nC, disp, bA = 0);
+        //   bdlmt::TimerEventScheduler(nE, nC, disp, mI, mR, bA = 0);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3352,6 +3561,12 @@ int main(int argc, char *argv[])
                           << "(nE, nC, disp, bA = 0)'" << endl
                           << "================================="
                           << "=======================" << endl;
+
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23;
         using namespace bdlf::PlaceHolders;
@@ -3375,6 +3590,28 @@ int main(int argc, char *argv[])
         myMicroSleep(T2, 0);
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
+
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, dispatcher);
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, dispatcher, "a", 0);
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, dispatcher, "b", &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case 22: {
         // -----------------------------------------------------------------
@@ -3394,6 +3631,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::TimerEventScheduler(nE, nC, cT, bA = 0);
+        //   bdlmt::TimerEventScheduler(nE, nC, cT, mI, mR, bA = 0);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3401,6 +3639,12 @@ int main(int argc, char *argv[])
                           << "(nE, nC, cT, bA = 0)'" << endl
                           << "================================="
                           << "=====================" << endl;
+
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_22;
         using namespace bdlf::PlaceHolders;
@@ -3422,6 +3666,31 @@ int main(int argc, char *argv[])
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
 
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, bsls::SystemClockType::e_MONOTONIC);
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, bsls::SystemClockType::e_MONOTONIC, "a", 0);
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4,
+                  4,
+                  bsls::SystemClockType::e_MONOTONIC,
+                  "b",
+                  &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case 21: {
         // -----------------------------------------------------------------
@@ -3441,6 +3710,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::TimerEventScheduler(nE, nC, bA = 0);
+        //   bdlmt::TimerEventScheduler(nE, nC, mI, mR, bA = 0);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3448,6 +3718,12 @@ int main(int argc, char *argv[])
                           << "(nE, nC, bA = 0)'" << endl
                           << "================================="
                           << "=================" << endl;
+
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21;
         using namespace bdlf::PlaceHolders;
@@ -3469,6 +3745,27 @@ int main(int argc, char *argv[])
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
 
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4);
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, "a", static_cast<bdlm::MetricsRegistrar *>(0));
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, "b", &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case 20: {
         // -----------------------------------------------------------------
@@ -3489,6 +3786,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::TimerEventScheduler(disp, clockType, alloc = 0);
+        //   bdlmt::TimerEventScheduler(disp, clockType, mI, mR, alloc = 0);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3496,6 +3794,12 @@ int main(int argc, char *argv[])
                           << "(disp, clockType, alloc = 0)'" << endl
                           << "================================="
                           << "=============================" << endl;
+
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
@@ -3520,6 +3824,30 @@ int main(int argc, char *argv[])
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
 
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC);
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC, "a", 0);
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher,
+                  bsls::SystemClockType::e_MONOTONIC,
+                  "b",
+                  &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case 19: {
         // -----------------------------------------------------------------
@@ -3539,6 +3867,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::TimerEventScheduler(clockType, allocator = 0);
+        //   bdlmt::TimerEventScheduler(clockType, mI, mR, allocator = 0);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3546,6 +3875,12 @@ int main(int argc, char *argv[])
                           << "(clockType, allocator = 0)'" << endl
                           << "================================="
                           << "===========================" << endl;
+
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19;
         using namespace bdlf::PlaceHolders;
@@ -3567,6 +3902,27 @@ int main(int argc, char *argv[])
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
 
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x(bsls::SystemClockType::e_MONOTONIC);
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(bsls::SystemClockType::e_MONOTONIC, "a", 0);
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(bsls::SystemClockType::e_MONOTONIC, "b", &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case 18: {
         // -----------------------------------------------------------------
@@ -3610,7 +3966,7 @@ int main(int argc, char *argv[])
         mX.start();
 
         // make sure the events all run
-        while(!Func::s_finished.loadAcquire()) {
+        while (!Func::s_finished.loadAcquire()) {
             bslmt::ThreadUtil::yield();
             sleepUntilMs(10);
         }
@@ -3964,8 +4320,8 @@ int main(int argc, char *argv[])
         if (verbose) { P_(L_); P(ii); }
 // TBD
 #if 0
-        // This has been commented out because it is really inappropriate to
-        // be testing the accuracy of the 'microSleep' method in this component
+        // This has been commented out because it is really inappropriate to be
+        // testing the accuracy of the 'microSleep' method in this component
         // -- especially since it can be really unreasonably slow on a heavily
         // loaded machine (i.e., during the nighttime runs).  Testing of that
         // routine has been moved to 'bslmt_threadutil.t.cpp'.
@@ -3983,8 +4339,8 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // -----------------------------------------------------------------
-        // TESTING CONCERN: Maximum number of concurrently scheduled events
-        // and clocks.
+        // TESTING CONCERN: Maximum number of concurrently scheduled events and
+        // clocks.
         //
         // Concerns:
         //   Given 'numEvents' and 'numClocks' (where
@@ -4203,6 +4559,10 @@ int main(int argc, char *argv[])
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_11;
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
+
+        Obj x(&ta);
+        pX = &x;
+
         ASSERT( 0 == x.start() );
 
         executeInParallel(NUM_THREADS, workerThread11);
@@ -4269,6 +4629,10 @@ int main(int argc, char *argv[])
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_10;
 
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
+
+        Obj x(&ta);
+        pX = &x;
+
         ASSERT( 0 == x.start() );
 
         executeInParallel(NUM_THREADS, workerThread10);
@@ -4556,6 +4920,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlmt::TimerEventScheduler(dispatcher, allocator = 0);
+        //   bdlmt::TimerEventScheduler(dispatcher, mI, mR, allocator = 0);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4563,6 +4928,12 @@ int main(int argc, char *argv[])
                           << "(dispatcher, allocator = 0)'" << endl
                           << "================================="
                           << "============================" << endl;
+
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8;
         using namespace bdlf::PlaceHolders;
@@ -4587,6 +4958,27 @@ int main(int argc, char *argv[])
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
 
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher);
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher, "a", 0);
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher, "b", &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case 7: {
         // -----------------------------------------------------------------
@@ -5559,6 +5951,12 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
+        TestMetricsRegistrar defaultRegistrar;
+        TestMetricsRegistrar otherRegistrar;
+
+        ASSERT(0 == bdlm::DefaultMetricsRegistrar::setDefaultMetricsRegistrar(
+                                                           &defaultRegistrar));
+
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1;
 
         typedef void (*Func)();
@@ -5575,6 +5973,28 @@ int main(int argc, char *argv[])
         }
 
         tg.joinAll();
+
+        // verify metric registration
+
+        defaultRegistrar.reset();
+
+        {
+            Obj x;
+        }
+        ASSERT(defaultRegistrar.verify(""));
+        defaultRegistrar.reset();
+
+        {
+            Obj x("a", static_cast<bdlm::MetricsRegistrar *>(0));
+        }
+        ASSERT(defaultRegistrar.verify("a"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x("b", &otherRegistrar);
+        }
+        ASSERT(otherRegistrar.verify("b"));
+        otherRegistrar.reset();
       } break;
       case -1: {
         // --------------------------------------------------------------------
