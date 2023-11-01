@@ -344,6 +344,16 @@ class SequentialPool {
 
     typedef bsl::uint64_t uint64_t;  // to support old toolchains
 
+    // PRIVATE CLASS FUNCTIONS
+    static uint64_t initAlwaysUnavailable(bsls::Types::size_type initialSize);
+    static uint64_t initAlwaysUnavailable(
+                                         bsls::Types::size_type initialSize,
+                                         bsls::Types::size_type maxBufferSize);
+        // Calculate the value of 'd_alwaysUnavailable' for the specified
+        // 'initialSize'.  Optionally specify 'maxBufferSize' that reduces the
+        // maximum allocation size managed via 'd_geometricBin'; otherwise
+        // limited to '1 << k_NUM_GEOMETRIC_BIN'.
+
     // DATA
     BufferManager                  d_bufferManager;  // memory manager for
                                                      // current buffer
@@ -362,7 +372,7 @@ class SequentialPool {
                                                      // geometric growth
                                                      // strategy
 
-    uint64_t                       d_alwaysUnavailable;
+    const uint64_t                 d_alwaysUnavailable;
                                                      // bitmask of bins never
                                                      // available to supply
                                                      // memory (reflects the
@@ -559,7 +569,7 @@ class SequentialPool {
         // default-constructed state, retaining the alignment and growth
         // strategies, and the initial and maximum buffer sizes in effect
         // following construction.  The effect of subsequently - to this
-        // invokation of 'release' - using a pointer obtained from this object
+        // invocation of 'release' - using a pointer obtained from this object
         // prior to this call to 'release' is undefined.
 
     void rewind();
@@ -567,7 +577,7 @@ class SequentialPool {
         // underlying allocator *only* memory that was allocated outside of the
         // typical internal buffer growth of this pool (i.e., large blocks).
         // All retained memory will be used to satisfy subsequent allocations.
-        // The effect of subsequently - to this invokation of 'rewind' - using
+        // The effect of subsequently - to this invocation of 'rewind' - using
         // a pointer obtained from this object prior to this call to 'rewind'
         // is undefined.
 
@@ -599,8 +609,8 @@ class SequentialPool {
 
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to allocate memory.  Note
-        // that this allocator can not be used to deallocate memory
-        // allocated through this pool.
+        // that this allocator can not be used to deallocate memory allocated
+        // through this pool.
 };
 
 }  // close package namespace
