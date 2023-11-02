@@ -211,6 +211,7 @@ std::string concrete_error_category::message(int) const
 {
     ASSERT(false);
     abort();
+    return std::string();
 }
 
 const char *concrete_error_category::name() const BSLS_KEYWORD_NOEXCEPT

@@ -94,6 +94,7 @@ namespace BloombergLP {
 namespace bsls {
 
 struct Stopwatch {
+    Stopwatch() {}
 };
 
 }

@@ -1182,6 +1182,8 @@ struct TestFunctionsAlloc {
 struct TestConstFunctor {
     typedef int ResultType;
 
+    TestConstFunctor() {}
+
     int operator()(const char *arg) const
     {
         ASSERT(!bsl::strcmp("woof", arg));

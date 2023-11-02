@@ -274,6 +274,7 @@ namespace u {
 class TestCustomizedType {
   public:
     // CREATORS
+    TestCustomizedType() {}
 };
 
 }  // close namespace u

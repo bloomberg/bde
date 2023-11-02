@@ -1503,8 +1503,8 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
-    bsls::Types::Int64   numDeallocations;
-    bsls::Types::Int64   numAllocations;
+    bsls::Types::Int64   numDeallocations = 0;
+    bsls::Types::Int64   numAllocations   = 0;
 
     (void) numDeallocations;
     (void) numAllocations;
