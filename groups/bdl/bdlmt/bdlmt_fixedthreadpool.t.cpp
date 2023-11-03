@@ -40,6 +40,7 @@
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_sstream.h>
@@ -214,6 +215,7 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
     // DATA
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
     bsl::set<int>                       d_handles;
+    bsl::map<bsl::string, int>          d_count;
 
   public:
     // CREATORS
@@ -224,6 +226,10 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Destroy this object.
 
     // MANIPULATORS
+    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor);
+        // Return the incremented invocation count of this method with the
+        // provided 'metricDescriptor' attributes, excluding object identifier.
+
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -240,6 +246,14 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Return this object to its constructed state.
     
     // ACCESSORS
+    bsl::string defaultNamespace();
+        // Return the namespace attribute value to be used as the default value
+        // for 'MetricDescriptor' instances.
+
+    bsl::string defaultObjectIdentifierPrefix();
+        // Return a string to be used as the default prefix for a
+        // 'MetricDescriptor' object identifier attribute value.
+
     bool verify(const bsl::string& name);
         // Return 'true' if the registered descriptors match the ones expected
         // for the supplied 'name' and the provided callback handles were
@@ -260,6 +274,14 @@ TestMetricsRegistrar::~TestMetricsRegistrar()
 }
 
 // MANIPULATORS
+int TestMetricsRegistrar::incrementInstanceCount(
+                                const bdlm::MetricDescriptor& metricDescriptor)
+{
+    return ++d_count[  metricDescriptor.metricNamespace() + '.'
+                     + metricDescriptor.metricName() + '.'
+                     + metricDescriptor.objectTypeName()];
+}
+
 bdlm::MetricsRegistrar::CallbackHandle
                               TestMetricsRegistrar::registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
@@ -284,32 +306,43 @@ void TestMetricsRegistrar::reset()
 {
     d_descriptors.clear();
     d_handles.clear();
+    d_count.clear();
 }
 
 // ACCESSORS
+bsl::string TestMetricsRegistrar::defaultNamespace()
+{
+    return "bdlm";
+}
+
+bsl::string TestMetricsRegistrar::defaultObjectIdentifierPrefix()
+{
+    return "svc";
+}
+
 bool TestMetricsRegistrar::verify(const bsl::string& name)
 {
     ASSERT(d_handles.empty());
     ASSERT(2 == d_descriptors.size());
-    ASSERT(d_descriptors[0].metricNamespace() == "bdlm");
-    ASSERT(d_descriptors[0].metricName()      == "backlog");
-    ASSERT(d_descriptors[0].objectTypeName()  == "bdlmt.fixedthreadpool");
-    ASSERT(name.empty() || d_descriptors[0].objectIdentifier() == name);
-    ASSERT(d_descriptors[1].metricNamespace() == "bdlm");
-    ASSERT(d_descriptors[1].metricName()      == "usedcapacity");
-    ASSERT(d_descriptors[1].objectTypeName()  == "bdlmt.fixedthreadpool");
-    ASSERT(name.empty() || d_descriptors[1].objectIdentifier() == name);
+    ASSERT(d_descriptors[0].metricNamespace()  == "bdlm");
+    ASSERT(d_descriptors[0].metricName()       == "backlog");
+    ASSERT(d_descriptors[0].objectTypeName()   == "bdlmt.fixedthreadpool");
+    ASSERT(d_descriptors[0].objectIdentifier() == name);
+    ASSERT(d_descriptors[1].metricNamespace()  == "bdlm");
+    ASSERT(d_descriptors[1].metricName()       == "usedcapacity");
+    ASSERT(d_descriptors[1].objectTypeName()   == "bdlmt.fixedthreadpool");
+    ASSERT(d_descriptors[1].objectIdentifier() == name);
     
     return d_handles.empty()
         && 2 == d_descriptors.size()
-        && d_descriptors[0].metricNamespace() == "bdlm"
-        && d_descriptors[0].metricName()      == "backlog"
-        && d_descriptors[0].objectTypeName()  == "bdlmt.fixedthreadpool"
-        && (name.empty() || d_descriptors[0].objectIdentifier() == name)
-        && d_descriptors[1].metricNamespace() == "bdlm"
-        && d_descriptors[1].metricName()      == "usedcapacity"
-        && d_descriptors[1].objectTypeName()  == "bdlmt.fixedthreadpool"
-        && (name.empty() || d_descriptors[1].objectIdentifier() == name);
+        && d_descriptors[0].metricNamespace()  == "bdlm"
+        && d_descriptors[0].metricName()       == "backlog"
+        && d_descriptors[0].objectTypeName()   == "bdlmt.fixedthreadpool"
+        && d_descriptors[0].objectIdentifier() == name
+        && d_descriptors[1].metricNamespace()  == "bdlm"
+        && d_descriptors[1].metricName()       == "usedcapacity"
+        && d_descriptors[1].objectTypeName()   == "bdlmt.fixedthreadpool"
+        && d_descriptors[1].objectIdentifier() == name;
 }
 
 // ============================================================================
@@ -2263,7 +2296,19 @@ int main(int argc, char *argv[])
                     ASSERTV(i, 0              == X.numThreadsStarted());
                     ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
                 }
-                ASSERT(defaultRegistrar.verify(""));
+                ASSERT(defaultRegistrar.verify("svc.ftp.1"));
+                defaultRegistrar.reset();
+
+                {
+                    Obj x(THREADS, QUEUE_CAPACITY, "", 0, &testAllocator);
+
+                    const Obj& X = x;
+
+                    ASSERTV(i, THREADS        == X.numThreads());
+                    ASSERTV(i, 0              == X.numThreadsStarted());
+                    ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+                }
+                ASSERT(defaultRegistrar.verify("svc.ftp.1"));
                 defaultRegistrar.reset();
 
                 {
@@ -2304,7 +2349,25 @@ int main(int argc, char *argv[])
                     ASSERTV(i, 0              == X.numThreadsStarted());
                     ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
                 }
-                ASSERT(defaultRegistrar.verify(""));
+                ASSERT(defaultRegistrar.verify("svc.ftp.1"));
+                defaultRegistrar.reset();
+
+                {
+                    bslmt::ThreadAttributes attr;
+                    Obj x(attr,
+                          THREADS,
+                          QUEUE_CAPACITY,
+                          "",
+                          0,
+                          &testAllocator);
+
+                    const Obj& X = x;
+
+                    ASSERTV(i, THREADS        == X.numThreads());
+                    ASSERTV(i, 0              == X.numThreadsStarted());
+                    ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+                }
+                ASSERT(defaultRegistrar.verify("svc.ftp.1"));
                 defaultRegistrar.reset();
 
                 {

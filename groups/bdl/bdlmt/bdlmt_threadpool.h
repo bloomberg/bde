@@ -544,10 +544,11 @@ class ThreadPool {
         // 'maxIdleTime' idle time (in milliseconds) after which a thread may
         // be considered for destruction.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the
-        // currently installed default metrics registrar to report metrics.
-        // The behavior is undefined unless '0 <= minThreads',
-        // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.
+        // the currently installed default allocator is used.  Use the default
+        // identifier generation for the metrics identifier.  Use the currently
+        // installed default metrics registrar to report metrics.  The behavior
+        // is undefined unless '0 <= minThreads', 'minThreads <= maxThreads',
+        // and '0 <= maxIdleTime'.
 
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
@@ -562,12 +563,14 @@ class ThreadPool {
         // idle time (in milliseconds) after which a thread may be considered
         // for destruction, the specified 'metricsIdentifier' to be used to
         // identify this thread pool, and the specified 'metricsRegistrar' to
-        // be used for reporting metrics.  If 'metricsRegistrar' is 0,
-        // the currently installed default registrar is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '0 <= minThreads',
-        // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.
+        // be used for reporting metrics.  If 'metricsIdentifier' is empty,
+        // use the default identifier generation for the metrics identifier.
+        // If 'metricsRegistrar' is 0, the currently installed default
+        // registrar is used.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // '0 <= minThreads', 'minThreads <= maxThreads', and
+        // '0 <= maxIdleTime'.
 
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
@@ -580,7 +583,8 @@ class ThreadPool {
         // 'maxIdleTime' idle time after which a thread may be considered for
         // destruction.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Use the currently installed default metrics
+        // allocator is used.  Use the default identifier generation for the
+        // metrics identifier.  Use the currently installed default metrics
         // registrar to report metrics.  The behavior is undefined unless
         // '0 <= minThreads', 'minThreads <= maxThreads', '0 <= maxIdleTime',
         // and the 'maxIdleTime' has a value less than or equal to 'INT_MAX'
@@ -599,13 +603,15 @@ class ThreadPool {
         // idle time after which a thread may be considered for destruction,
         // the specified 'metricsIdentifier' to be used to identify this thread
         // pool, and the specified 'metricsRegistrar' to be used for reporting
-        // metrics.    If 'metricsRegistrar' is 0, the currently installed
-        // default registrar is used.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless '0 <= minThreads', 'minThreads <= maxThreads',
-        // '0 <= maxIdleTime', and the 'maxIdleTime' has a value less than or
-        // equal to 'INT_MAX' milliseconds.
+        // metrics.  If 'metricsIdentifier' is empty, use the default
+        // identifier generation for the metrics identifier.  If
+        // 'metricsRegistrar' is 0, the currently installed default registrar
+        // is used.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // '0 <= minThreads', 'minThreads <= maxThreads', '0 <= maxIdleTime',
+        // and the 'maxIdleTime' has a value less than or equal to 'INT_MAX'
+        // milliseconds.
 
     ~ThreadPool();
         // Call 'shutdown()' and destroy this thread pool.

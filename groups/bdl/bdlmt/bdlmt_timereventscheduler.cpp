@@ -32,11 +32,10 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 #include <bsl_climits.h>   // for 'CHAR_BIT'
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-
-#include <climits>
 
 namespace BloombergLP {
 namespace {
@@ -197,7 +196,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                                          clockData->time().totalMicroseconds();
         }
         else {
-            scheduler->d_cachedClockMicroseconds = INT64_MAX;
+            scheduler->d_cachedClockMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
         }
 
         TimerEventScheduler::EventItem *eventData = 0;
@@ -207,7 +207,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                                          eventData->time().totalMicroseconds();
         }
         else {
-            scheduler->d_cachedEventMicroseconds = INT64_MAX;
+            scheduler->d_cachedEventMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
         }
 
         // Note it is possible for an event in the dispatcher thread (and only
@@ -226,7 +227,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                             clockData[clockIdx + 1].time().totalMicroseconds();
                 }
                 else {
-                    scheduler->d_cachedClockMicroseconds = INT64_MAX;
+                    scheduler->d_cachedClockMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
                 }
                 ClockDataPtr cd(clockData[clockIdx].data());
                 if (!cd->d_isCancelled) {
@@ -245,7 +247,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                         eventData[*eventIdxPtr + 1].time().totalMicroseconds();
                 }
                 else {
-                    scheduler->d_cachedEventMicroseconds = INT64_MAX;
+                    scheduler->d_cachedEventMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
                 }
                 --scheduler->d_numEvents;
                 scheduler->d_dispatcherFunctor(eventData[*eventIdxPtr].data());
@@ -261,7 +264,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                             clockData[clockIdx + 1].time().totalMicroseconds();
             }
             else {
-                scheduler->d_cachedClockMicroseconds = INT64_MAX;
+                scheduler->d_cachedClockMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
             }
             const bsls::TimeInterval& clockTime = clockData[clockIdx].time();
             ClockDataPtr cd(clockData[clockIdx].data());
@@ -283,7 +287,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                         eventData[*eventIdxPtr + 1].time().totalMicroseconds();
             }
             else {
-                scheduler->d_cachedEventMicroseconds = INT64_MAX;
+                scheduler->d_cachedEventMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
             }
             --scheduler->d_numEvents;
             scheduler->d_dispatcherFunctor(eventData[*eventIdxPtr].data());
@@ -380,21 +385,23 @@ namespace bdlmt {
 const char TimerEventScheduler::s_defaultThreadName[16] = { "bdl.TimerEvent" };
 
 // PRIVATE MANIPULATORS
-void TimerEventScheduler::initialize()
-{
-    bsl::stringstream identifier;
-    identifier << bsl::hex << static_cast<void *>(this);
-
-    initialize(identifier.str());
-}
-
 void TimerEventScheduler::initialize(const bsl::string_view& metricsIdentifier)
 {
+    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultNamespace(),
+                              "startlag",
+                              "bdlmt.timereventscheduler",
+                              metricsIdentifier);
+
+    if (metricsIdentifier.empty()) {
+        bsl::stringstream identifier;
+        identifier << d_metricsRegistrar_p->defaultObjectIdentifierPrefix()
+                   << ".tes."
+                   << d_metricsRegistrar_p->incrementInstanceCount(md);
+        md.setObjectIdentifier(identifier.str());
+    }
+
     d_metricsCallbackHandle = d_metricsRegistrar_p->registerCollectionCallback(
-                            bdlm::MetricDescriptor("bdlm",
-                                                   "startlag",
-                                                   "bdlmt.timereventscheduler",
-                                                   metricsIdentifier),
+                            md,
                             bdlf::BindUtil::bind(&startLagMetric,
                                                  bdlf::PlaceHolders::_1,
                                                  this));
@@ -440,7 +447,7 @@ TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -497,7 +504,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_clockType(clockType)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -555,7 +562,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -613,7 +620,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_clockType(clockType)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -676,7 +683,7 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -747,7 +754,7 @@ TimerEventScheduler::TimerEventScheduler(
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -820,7 +827,7 @@ TimerEventScheduler::TimerEventScheduler(
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -893,7 +900,7 @@ TimerEventScheduler::TimerEventScheduler(
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
 
-    initialize();
+    initialize("");
 }
 
 TimerEventScheduler::TimerEventScheduler(
@@ -1216,7 +1223,8 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
 // ACCESSORS
 bsls::TimeInterval TimerEventScheduler::nextPendingEventTime() const
 {
-    bsls::Types::Int64 minTime = INT64_MAX;
+    bsls::Types::Int64 minTime =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 

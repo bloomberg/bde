@@ -40,6 +40,9 @@ class NotMonitoredMetricsRegistrar : public MetricsRegistrar {
         // Destroy this object.
 
     // MANIPULATORS
+    int incrementInstanceCount(const MetricDescriptor& metricDescriptor);
+        // Do nothing with the specified 'metricDescriptor'.  Return 0.
+
     CallbackHandle registerCollectionCallback(
                                       const MetricDescriptor& metricDescriptor,
                                       const Callback&         callback);
@@ -48,6 +51,13 @@ class NotMonitoredMetricsRegistrar : public MetricsRegistrar {
 
     int removeCollectionCallback(const CallbackHandle& handle);
         // Do nothing with the specified 'handle'.  Return 0.
+
+    // ACCESSORS
+    bsl::string defaultNamespace();
+        // Return an empty string.
+
+    bsl::string defaultObjectIdentifierPrefix();
+        // Return an empty string.
 };
 
                     // ----------------------------------
@@ -64,6 +74,12 @@ NotMonitoredMetricsRegistrar::~NotMonitoredMetricsRegistrar()
 }
 
 // MANIPULATORS
+int NotMonitoredMetricsRegistrar::incrementInstanceCount(
+                                const MetricDescriptor& /* metricDescriptor */)
+{
+    return 0;
+}
+
 MetricsRegistrar::CallbackHandle
                       NotMonitoredMetricsRegistrar::registerCollectionCallback(
                                 const MetricDescriptor& /* metricDescriptor */,
@@ -76,6 +92,17 @@ int NotMonitoredMetricsRegistrar::removeCollectionCallback(
                                             const CallbackHandle& /* handle */)
 {
     return 0;
+}
+
+// ACCESSORS
+bsl::string NotMonitoredMetricsRegistrar::defaultNamespace()
+{
+    return bsl::string();
+}
+
+bsl::string NotMonitoredMetricsRegistrar::defaultObjectIdentifierPrefix()
+{
+    return bsl::string();
 }
 
                       // ------------------------------

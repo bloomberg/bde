@@ -49,6 +49,7 @@
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_ostream.h>
+#include <bsl_map.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -759,6 +760,7 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
     // DATA
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
     bsl::set<int>                       d_handles;
+    bsl::map<bsl::string, int>          d_count;
     bslmt::Mutex                        d_mutex;
 
   public:
@@ -770,6 +772,10 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Destroy this object.
 
     // MANIPULATORS
+    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor);
+        // Return the incremented invocation count of this method with the
+        // provided 'metricDescriptor' attributes, excluding object identifier.
+
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -786,6 +792,14 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Return this object to its constructed state.
     
     // ACCESSORS
+    bsl::string defaultNamespace();
+        // Return the namespace attribute value to be used as the default value
+        // for 'MetricDescriptor' instances.
+
+    bsl::string defaultObjectIdentifierPrefix();
+        // Return a string to be used as the default prefix for a
+        // 'MetricDescriptor' object identifier attribute value.
+
     bool verify(const bsl::string& name);
         // Return 'true' if the registered descriptors match the ones expected
         // for the supplied 'name' and the provided callback handles were
@@ -806,6 +820,14 @@ TestMetricsRegistrar::~TestMetricsRegistrar()
 }
 
 // MANIPULATORS
+int TestMetricsRegistrar::incrementInstanceCount(
+                                const bdlm::MetricDescriptor& metricDescriptor)
+{
+    return ++d_count[  metricDescriptor.metricNamespace() + '.'
+                     + metricDescriptor.metricName() + '.'
+                     + metricDescriptor.objectTypeName()];
+}
+
 bdlm::MetricsRegistrar::CallbackHandle
                               TestMetricsRegistrar::registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
@@ -836,26 +858,37 @@ void TestMetricsRegistrar::reset()
     
     d_descriptors.clear();
     d_handles.clear();
+    d_count.clear();
 }
 
 // ACCESSORS
+bsl::string TestMetricsRegistrar::defaultNamespace()
+{
+    return "bdlm";
+}
+
+bsl::string TestMetricsRegistrar::defaultObjectIdentifierPrefix()
+{
+    return "svc";
+}
+
 bool TestMetricsRegistrar::verify(const bsl::string& name)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     
     ASSERT(d_handles.empty());
     ASSERT(1 == d_descriptors.size());
-    ASSERT(d_descriptors[0].metricNamespace() == "bdlm");
-    ASSERT(d_descriptors[0].metricName()      == "startlag");
-    ASSERT(d_descriptors[0].objectTypeName()  == "bdlmt.timereventscheduler");
-    ASSERT(name.empty() || d_descriptors[0].objectIdentifier() == name);
+    ASSERT(d_descriptors[0].metricNamespace()  == "bdlm");
+    ASSERT(d_descriptors[0].metricName()       == "startlag");
+    ASSERT(d_descriptors[0].objectTypeName()   == "bdlmt.timereventscheduler");
+    ASSERT(d_descriptors[0].objectIdentifier() == name);
     
     return d_handles.empty()
         && 1 == d_descriptors.size()
-        && d_descriptors[0].metricNamespace() == "bdlm"
-        && d_descriptors[0].metricName()      == "startlag"
-        && d_descriptors[0].objectTypeName()  == "bdlmt.timereventscheduler"
-        && (name.empty() || d_descriptors[0].objectIdentifier() == name);
+        && d_descriptors[0].metricNamespace()  == "bdlm"
+        && d_descriptors[0].metricName()       == "startlag"
+        && d_descriptors[0].objectTypeName()   == "bdlmt.timereventscheduler"
+        && d_descriptors[0].objectIdentifier() == name;
 }
 
 // ----------------------------------------------------------------------------
@@ -3509,7 +3542,18 @@ int main(int argc, char *argv[])
         {
             Obj x(4, 4, dispatcher, bsls::SystemClockType::e_MONOTONIC);
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4,
+                  4,
+                  dispatcher,
+                  bsls::SystemClockType::e_MONOTONIC,
+                  "",
+                  0);
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {
@@ -3598,7 +3642,13 @@ int main(int argc, char *argv[])
         {
             Obj x(4, 4, dispatcher);
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, dispatcher, "", 0);
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {
@@ -3673,7 +3723,13 @@ int main(int argc, char *argv[])
         {
             Obj x(4, 4, bsls::SystemClockType::e_MONOTONIC);
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, bsls::SystemClockType::e_MONOTONIC, "", 0);
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {
@@ -3752,7 +3808,13 @@ int main(int argc, char *argv[])
         {
             Obj x(4, 4);
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(4, 4, "", static_cast<bdlm::MetricsRegistrar *>(0));
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {
@@ -3831,7 +3893,13 @@ int main(int argc, char *argv[])
         {
             Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC);
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC, "", 0);
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {
@@ -3909,7 +3977,13 @@ int main(int argc, char *argv[])
         {
             Obj x(bsls::SystemClockType::e_MONOTONIC);
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(bsls::SystemClockType::e_MONOTONIC, "", 0);
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {
@@ -4965,7 +5039,13 @@ int main(int argc, char *argv[])
         {
             Obj x(dispatcher);
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x(dispatcher, "", 0);
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {
@@ -5981,7 +6061,13 @@ int main(int argc, char *argv[])
         {
             Obj x;
         }
-        ASSERT(defaultRegistrar.verify(""));
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
+        defaultRegistrar.reset();
+
+        {
+            Obj x("", static_cast<bdlm::MetricsRegistrar *>(0));
+        }
+        ASSERT(defaultRegistrar.verify("svc.tes.1"));
         defaultRegistrar.reset();
 
         {

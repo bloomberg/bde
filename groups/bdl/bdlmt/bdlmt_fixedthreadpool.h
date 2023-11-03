@@ -473,9 +473,10 @@ class FixedThreadPool {
         // threads and a job queue of capacity sufficient to enqueue the
         // specified 'maxNumPendingJobs' without blocking.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the
-        // currently installed default metrics registrar to report metrics.
-        // The behavior is undefined unless '1 <= numThreads'.
+        // the currently installed default allocator is used.  Use the default
+        // identifier generation for the metrics identifier.  Use the currently
+        // installed default metrics registrar to report metrics.  The behavior
+        // is undefined unless '1 <= numThreads'.
 
     FixedThreadPool(int                      numThreads,
                     int                      maxNumPendingJobs,
@@ -487,11 +488,12 @@ class FixedThreadPool {
         // 'maxNumPendingJobs' without blocking, the specified
         // 'metricsIdentifier' to be used to identify this thread pool, and the
         // specified 'metricsRegistrar' to be used for reporting metrics.  If
-        // 'metricsRegistrar' is 0, the currently installed default registrar
-        // is used.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
-        // '1 <= numThreads'.
+        // 'metricsIdentifier' is empty, use the default identifier generation
+        // for the metrics identifier.  If 'metricsRegistrar' is 0, the
+        // currently installed default registrar is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '1 <= numThreads'.
 
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
@@ -502,7 +504,8 @@ class FixedThreadPool {
         // sufficient to enqueue the specified 'maxNumPendingJobs' without
         // blocking.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Use the currently installed default metrics
+        // allocator is used.  Use the default identifier generation for the
+        // metrics identifier.  Use the currently installed default metrics
         // registrar to report metrics.  The behavior is undefined unless
         // '1 <= numThreads'.
 
@@ -517,11 +520,13 @@ class FixedThreadPool {
         // to enqueue the specified 'maxNumPendingJobs' without blocking, the
         // specified 'metricsIdentifier' to be used to identify this thread
         // pool, and the specified 'metricsRegistrar' to be used for reporting
-        // metrics.  If 'metricsRegistrar' is 0, the currently installed
-        // default registrar is used.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless '1 <= numThreads'.
+        // metrics.  If 'metricsIdentifier' is empty, use the default
+        // identifier generation for the metrics identifier.  If
+        // 'metricsRegistrar' is 0, the currently installed default registrar
+        // is used.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // '1 <= numThreads'.
 
     ~FixedThreadPool();
         // Remove all pending jobs from the queue without executing them, block

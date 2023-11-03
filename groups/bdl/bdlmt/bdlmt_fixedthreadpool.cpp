@@ -103,20 +103,34 @@ void FixedThreadPool::initialize(const bsl::string_view& metricsIdentifier)
     initBlockSet(&d_blockSet);
 #endif
 
+    bdlm::MetricDescriptor mdBacklog(d_metricsRegistrar_p->defaultNamespace(),
+                                     "backlog",
+                                     "bdlmt.fixedthreadpool",
+                                     metricsIdentifier);
+
+    bdlm::MetricDescriptor mdUsedCapacity(
+                                      d_metricsRegistrar_p->defaultNamespace(),
+                                      "usedcapacity",
+                                      "bdlmt.fixedthreadpool",
+                                      metricsIdentifier);
+
+    if (metricsIdentifier.empty()) {
+        bsl::stringstream identifier;
+        identifier << d_metricsRegistrar_p->defaultObjectIdentifierPrefix()
+                   << ".ftp."
+                   << d_metricsRegistrar_p->incrementInstanceCount(mdBacklog);
+        mdBacklog.setObjectIdentifier(identifier.str());
+        mdUsedCapacity.setObjectIdentifier(identifier.str());
+    }
+
     d_backlogHandle = d_metricsRegistrar_p->registerCollectionCallback(
-                                bdlm::MetricDescriptor("bdlm",
-                                                       "backlog",
-                                                       "bdlmt.fixedthreadpool",
-                                                       metricsIdentifier),
+                                mdBacklog,
                                 bdlf::BindUtil::bind(&backlogMetric,
                                                      bdlf::PlaceHolders::_1,
                                                      this));
 
     d_usedCapacityHandle = d_metricsRegistrar_p->registerCollectionCallback(
-                                 bdlm::MetricDescriptor("bdlm",
-                                                        "usedcapacity",
-                                                        "bdlmt.fixedthreadpool",
-                                                        metricsIdentifier),
+                                 mdUsedCapacity,
                                  bdlf::BindUtil::bind(&usedCapacityMetric,
                                                       bdlf::PlaceHolders::_1,
                                                       this));
@@ -182,10 +196,7 @@ FixedThreadPool::FixedThreadPool(
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    bsl::stringstream identifier;
-    identifier << bsl::hex << static_cast<void *>(this);
-
-    initialize(identifier.str());
+    initialize("");
 }
 
 FixedThreadPool::FixedThreadPool(
@@ -224,10 +235,7 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    bsl::stringstream identifier;
-    identifier << bsl::hex << static_cast<void *>(this);
-
-    initialize(identifier.str());
+    initialize("");
 }
 
 FixedThreadPool::FixedThreadPool(int                      numThreads,

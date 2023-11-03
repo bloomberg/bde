@@ -545,9 +545,6 @@ class TimerEventScheduler {
 
   private:
     // PRIVATE MANIPULATORS
-    void initialize();
-        // Initialize this event scheduler using the stored attributes.
-
     void initialize(const bsl::string_view& metricsIdentifier);
         // Initialize this event scheduler using the stored attributes and the
         // specified 'metricsIdentifier' to identify this event scheduler.
@@ -569,7 +566,8 @@ class TimerEventScheduler {
         // time intervals (see {Supported Clock-Types} in the component
         // documentation).  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Use the currently installed default
+        // default allocator is used.  Use the default identifier generation
+        // for the metrics identifier.  Use the currently installed default
         // metrics registrar to report metrics.  Note that the maximal number
         // of scheduled non-recurring events and recurring events defaults to
         // an implementation defined constant.
@@ -583,12 +581,14 @@ class TimerEventScheduler {
         // intervals (see {Supported Clock-Types} in the component
         // documentation), the specified 'metricsIdentifier' to be used to
         // identify this event scheduler, and the specified 'metricsRegistrar'
-        // to be used for reporting metrics.  If 'metricsRegistrar' is 0, the
-        // currently installed default registrar is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Note that the
-        // maximal number of scheduled non-recurring events and recurring
-        // events defaults to an implementation defined constant.
+        // to be used for reporting metrics.  If 'metricsIdentifier' is empty,
+        // use the default identifier generation for the metrics identifier.
+        // If 'metricsRegistrar' is 0, the currently installed default
+        // registrar is used.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  Note that the maximal number of
+        // scheduled non-recurring events and recurring events defaults to an
+        // implementation defined constant.
 
     explicit TimerEventScheduler(
                               bsls::SystemClockType::Enum  clockType,
@@ -599,10 +599,11 @@ class TimerEventScheduler {
         // indicate the epoch used for all time intervals (see {Supported
         // Clock-Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the
-        // currently installed default metrics registrar to report metrics.
-        // Note that the maximal number of scheduled non-recurring events and
-        // recurring events defaults to an implementation defined constant.
+        // the currently installed default allocator is used.  Use the default
+        // identifier generation for the metrics identifier.  Use the currently
+        // installed default metrics registrar to report metrics.  Note that
+        // the maximal number of scheduled non-recurring events and recurring
+        // events defaults to an implementation defined constant.
 
     explicit TimerEventScheduler(
                               bsls::SystemClockType::Enum  clockType,
@@ -616,12 +617,13 @@ class TimerEventScheduler {
         // in the component documentation), the specified 'metricsIdentifier'
         // to be used to identify this event scheduler, and the specified
         // 'metricsRegistrar' to be used for reporting metrics.  If
-        // 'metricsRegistrar' is 0, the currently installed default registrar
-        // is used.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Note that the maximal number of scheduled
-        // non-recurring events and recurring events defaults to an
-        // implementation defined constant.
+        // 'metricsIdentifier' is empty, use the default identifier generation
+        // for the metrics identifier.  If 'metricsRegistrar' is 0, the
+        // currently installed default registrar is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Note that the
+        // maximal number of scheduled non-recurring events and recurring
+        // events defaults to an implementation defined constant.
 
     explicit TimerEventScheduler(const Dispatcher&  dispatcherFunctor,
                                  bslma::Allocator  *basicAllocator = 0);
@@ -631,7 +633,8 @@ class TimerEventScheduler {
         // intervals (see {Supported Clock-Types} in the component
         // documentation).  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Use the currently installed default
+        // default allocator is used.  Use the default identifier generation
+        // for the metrics identifier.  Use the currently installed default
         // metrics registrar to report metrics.  Note that the maximal number
         // of scheduled non-recurring events and recurring events defaults to
         // an implementation defined constant.
@@ -646,12 +649,14 @@ class TimerEventScheduler {
         // intervals (see {Supported Clock-Types} in the component
         // documentation), the specified 'metricsIdentifier' to be used to
         // identify this event scheduler, and the specified 'metricsRegistrar'
-        // to be used for reporting metrics.  If 'metricsRegistrar' is 0, the
-        // currently installed default registrar is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Note that the
-        // maximal number of scheduled non-recurring events and recurring
-        // events defaults to an implementation defined constant.
+        // to be used for reporting metrics.  If 'metricsIdentifier' is empty,
+        // use the default identifier generation for the metrics identifier.
+        // If 'metricsRegistrar' is 0, the currently installed default
+        // registrar is used.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  Note that the maximal number of
+        // scheduled non-recurring events and recurring events defaults to an
+        // implementation defined constant.
 
     explicit TimerEventScheduler(
                               const Dispatcher&            dispatcherFunctor,
@@ -663,10 +668,11 @@ class TimerEventScheduler {
         // the epoch used for all time intervals (see {Supported Clock-Types}
         // in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the
-        // currently installed default metrics registrar to report metrics.
-        // Note that the maximal number of scheduled non-recurring events and
-        // recurring events defaults to an implementation defined constant.
+        // the currently installed default allocator is used.  Use the default
+        // identifier generation for the metrics identifier.  Use the currently
+        // installed default metrics registrar to report metrics.  Note that
+        // the maximal number of scheduled non-recurring events and recurring
+        // events defaults to an implementation defined constant.
 
     explicit TimerEventScheduler(
                               const Dispatcher&            dispatcherFunctor,
@@ -681,12 +687,13 @@ class TimerEventScheduler {
         // the component documentation), the specified 'metricsIdentifier' to
         // be used to identify this event scheduler, and the specified
         // 'metricsRegistrar' to be used for reporting metrics.  If
-        // 'metricsRegistrar' is 0, the currently installed default registrar
-        // is used.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Note that the maximal number of scheduled
-        // non-recurring events and recurring events defaults to an
-        // implementation defined constant.
+        // 'metricsIdentifier' is empty, use the default identifier generation
+        // for the metrics identifier.  If 'metricsRegistrar' is 0, the
+        // currently installed default registrar is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Note that the
+        // maximal number of scheduled non-recurring events and recurring
+        // events defaults to an implementation defined constant.
 
     TimerEventScheduler(int               numEvents,
                         int               numClocks,
@@ -699,8 +706,9 @@ class TimerEventScheduler {
         // (see {Supported Clock-Types} in the component documentation).
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.  The behavior is undefined unless
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.  The behavior is undefined unless
         // '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                      numEvents,
@@ -716,12 +724,13 @@ class TimerEventScheduler {
         // (see {Supported Clock-Types} in the component documentation), the
         // specified 'metricsIdentifier' to be used to identify this event
         // scheduler, and the specified 'metricsRegistrar' to be used for
-        // reporting metrics.  If 'metricsRegistrar' is 0, the currently
-        // installed default registrar is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless '0 <= numEvents < 2**24' and
-        // '0 <= numClocks < 2**24'.
+        // reporting metrics.  If 'metricsIdentifier' is empty, use the default
+        // identifier generation for the metrics identifier.  If
+        // 'metricsRegistrar' is 0, the currently installed default registrar
+        // is used.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                          numEvents,
                         int                          numClocks,
@@ -735,7 +744,8 @@ class TimerEventScheduler {
         // used for all time intervals (see {Supported Clock-Types} in the
         // component documentation).  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  Use the currently installed
+        // installed default allocator is used.  Use the default identifier
+        // generation for the metrics identifier.  Use the currently installed
         // default metrics registrar to report metrics.  The behavior is
         // undefined unless '0 <= numEvents < 2**24' and
         // '0 <= numClocks < 2**24'.
@@ -755,11 +765,13 @@ class TimerEventScheduler {
         // component documentation), the specified 'metricsIdentifier' to be
         // used to identify this event scheduler, and the specified
         // 'metricsRegistrar' to be used for reporting metrics.  If
-        // 'metricsRegistrar' is 0, the currently installed default registrar
-        // is used.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
-        // '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
+        // 'metricsIdentifier' is empty, use the default identifier generation
+        // for the metrics identifier.  If 'metricsRegistrar' is 0, the
+        // currently installed default registrar is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '0 <= numEvents < 2**24' and
+        // '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                numEvents,
                         int                numClocks,
@@ -773,8 +785,9 @@ class TimerEventScheduler {
         // (see {Supported Clock-Types} in the component documentation).
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.  The behavior is undefined unless
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.  The behavior is undefined unless
         // '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                      numEvents,
@@ -791,12 +804,13 @@ class TimerEventScheduler {
         // (see {Supported Clock-Types} in the component documentation), the
         // specified 'metricsIdentifier' to be used to identify this event
         // scheduler, and the specified 'metricsRegistrar' to be used for
-        // reporting metrics.  If 'metricsRegistrar' is 0, the currently
-        // installed default registrar is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless '0 <= numEvents < 2**24' and
-        // '0 <= numClocks < 2**24'.
+        // reporting metrics.  If 'metricsIdentifier' is empty, use the default
+        // identifier generation for the metrics identifier.  If
+        // 'metricsRegistrar' is 0, the currently installed default registrar
+        // is used.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                          numEvents,
                         int                          numClocks,
@@ -811,7 +825,8 @@ class TimerEventScheduler {
         // used for all time intervals (see {Supported Clock-Types} in the
         // component documentation).  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  Use the currently installed
+        // installed default allocator is used.  Use the default identifier
+        // generation for the metrics identifier.  Use the currently installed
         // default metrics registrar to report metrics.  The behavior is
         // undefined unless '0 <= numEvents < 2**24' and
         // '0 <= numClocks < 2**24'.
@@ -832,11 +847,13 @@ class TimerEventScheduler {
         // component documentation), the specified 'metricsIdentifier' to be
         // used to identify this event scheduler, and the specified
         // 'metricsRegistrar' to be used for reporting metrics.  If
-        // 'metricsRegistrar' is 0, the currently installed default registrar
-        // is used.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
-        // '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
+        // 'metricsIdentifier' is empty, use the default identifier generation
+        // for the metrics identifier.  If 'metricsRegistrar' is 0, the
+        // currently installed default registrar is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '0 <= numEvents < 2**24' and
+        // '0 <= numClocks < 2**24'.
 
     ~TimerEventScheduler();
         // Stop this scheduler, discard all the unprocessed events and destroy

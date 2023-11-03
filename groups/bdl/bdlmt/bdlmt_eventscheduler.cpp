@@ -26,11 +26,10 @@ BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-
-#include <climits>
 
 // Implementation note: The 'EventData' and 'RecurringEventData' structures
 // contain two different 'bsl::function's.  The first one, named 'd_callback',
@@ -322,21 +321,23 @@ void EventScheduler::dispatchEvents()
     }
 }
 
-void EventScheduler::initialize()
-{
-    bsl::stringstream identifier;
-    identifier << bsl::hex << static_cast<void *>(this);
-
-    initialize(identifier.str());
-}
-
 void EventScheduler::initialize(const bsl::string_view& metricsIdentifier)
 {
+    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultNamespace(),
+                              "startlag",
+                              "bdlmt.eventscheduler",
+                              metricsIdentifier);
+
+    if (metricsIdentifier.empty()) {
+        bsl::stringstream identifier;
+        identifier << d_metricsRegistrar_p->defaultObjectIdentifierPrefix()
+                   << ".es."
+                   << d_metricsRegistrar_p->incrementInstanceCount(md);
+        md.setObjectIdentifier(identifier.str());
+    }
+
     d_metricsCallbackHandle = d_metricsRegistrar_p->registerCollectionCallback(
-                                 bdlm::MetricDescriptor("bdlm",
-                                                        "startlag",
-                                                        "bdlmt.eventscheduler",
-                                                        metricsIdentifier),
+                                 md,
                                  bdlf::BindUtil::bind(&startLagMetric,
                                                       bdlf::PlaceHolders::_1,
                                                       this));
@@ -455,7 +456,7 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(const bsl::string_view&  metricsIdentifier,
@@ -501,7 +502,7 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_clockType(clockType)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
@@ -550,7 +551,7 @@ EventScheduler::EventScheduler(
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(
@@ -599,7 +600,7 @@ EventScheduler::EventScheduler(
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(
@@ -649,7 +650,7 @@ EventScheduler::EventScheduler(
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(
@@ -699,7 +700,7 @@ EventScheduler::EventScheduler(
 , d_clockType(clockType)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(
@@ -751,7 +752,7 @@ EventScheduler::EventScheduler(
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(
@@ -802,7 +803,7 @@ EventScheduler::EventScheduler(
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
 , d_metricsRegistrar_p(bdlm::DefaultMetricsRegistrar::metricsRegistrar())
 {
-    initialize();
+    initialize("");
 }
 
 EventScheduler::EventScheduler(
@@ -1172,7 +1173,8 @@ bool EventScheduler::isStarted() const
 
 bsls::TimeInterval EventScheduler::nextPendingEventTime() const
 {
-    bsls::Types::Int64 minTime = INT64_MAX;
+    bsls::Types::Int64 minTime =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 

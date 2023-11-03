@@ -21,6 +21,8 @@
 
 #include <bsl_cstddef.h>
 #include <bsl_iostream.h>
+#include <bsl_map.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -119,6 +121,12 @@ namespace {
 typedef bdlm::MetricsRegistrar ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
+    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor)
+    {
+        (void)metricDescriptor;
+        return markDone();
+    }
+
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback)
@@ -131,6 +139,16 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int removeCollectionCallback(const CallbackHandle& handle)
     {
         (void)handle;
+        return markDone();
+    }
+
+    bsl::string defaultNamespace()
+    {
+        return markDone();
+    }
+
+    bsl::string defaultObjectIdentifierPrefix()
+    {
         return markDone();
     }
 };
@@ -241,8 +259,11 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         // metrics registrars.
 
         // DATA
-        my_MetricsMonitor *d_monitor_p;  // pointer to monitor to use for
-                                         // metrics (held, not owned)
+        my_MetricsMonitor          *d_monitor_p;  // pointer to monitor to use
+                                                  // for metrics (held, not
+                                                  // owned)
+
+        bsl::map<bsl::string, int>  d_count;      // instance counts
 
       public:
         // CREATORS
@@ -254,6 +275,12 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
             // Destroy this object.
 
         // MANIPULATORS
+        int incrementInstanceCount(
+                               const bdlm::MetricDescriptor& metricDescriptor);
+            // Return the incremented invocation count of this method with the
+            // provided 'metricDescriptor' attributes, excluding object
+            // identifier.
+
         CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -268,6 +295,15 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
             // Remove the callback associated with the specified 'handle'.
             // Return 0 on success, or a non-zero value if 'handle' cannot be
             // found.
+
+        // ACCESSORS
+        bsl::string defaultNamespace();
+            // Return the namespace attribute value to be used as the default
+            // value for 'MetricDescriptor' instances.
+
+        bsl::string defaultObjectIdentifierPrefix();
+            // Return a string to be used as the default prefix for a
+            // 'MetricDescriptor' object identifier attribute value.
     };
 //..
 // Then, we implement the methods of 'myMetricsRegistrar':
@@ -280,6 +316,15 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 
     my_MetricsRegistrar::~my_MetricsRegistrar()
     {
+    }
+
+    // MANIPULATORS
+    int my_MetricsRegistrar::incrementInstanceCount(
+                                const bdlm::MetricDescriptor& metricDescriptor)
+    {
+        return ++d_count[  metricDescriptor.metricNamespace() + '.'
+                         + metricDescriptor.metricName() + '.'
+                         + metricDescriptor.objectTypeName()];
     }
 
     bdlm::MetricsRegistrar::CallbackHandle
@@ -299,6 +344,17 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
                           const bdlm::MetricsRegistrar::CallbackHandle& handle)
     {
         return d_monitor_p->removeCallback(handle);
+    }
+
+    // ACCESSORS
+    bsl::string my_MetricsRegistrar::defaultNamespace()
+    {
+        return "bdlm";
+    }
+
+    bsl::string my_MetricsRegistrar::defaultObjectIdentifierPrefix()
+    {
+        return "svc";
     }
 //..
 // Next, we provide the metric method, 'my_metric', which will compute its

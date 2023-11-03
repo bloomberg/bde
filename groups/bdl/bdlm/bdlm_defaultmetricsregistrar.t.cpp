@@ -116,6 +116,9 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Destroy this object.
 
     // MANIPULATORS
+    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor);
+        // Do nothing with the specified 'metricDescriptor'.  Return 0.
+
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -124,6 +127,13 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
 
     int removeCollectionCallback(const CallbackHandle& handle);
         // Do nothing with the specified 'handle'.  Return 0.
+
+    // ACCESSORS
+    bsl::string defaultNamespace();
+        // Return an empty string.
+
+    bsl::string defaultObjectIdentifierPrefix();
+        // Return an empty string.
 };
 
                         // --------------------------
@@ -140,6 +150,12 @@ TestMetricsRegistrar::~TestMetricsRegistrar()
 }
 
 // MANIPULATORS
+int TestMetricsRegistrar::incrementInstanceCount(
+                          const bdlm::MetricDescriptor& /* metricDescriptor */)
+{
+    return 0;
+}
+
 bdlm::MetricsRegistrar::CallbackHandle
                               TestMetricsRegistrar::registerCollectionCallback(
                           const bdlm::MetricDescriptor& /* metricDescriptor */,
@@ -152,6 +168,17 @@ int TestMetricsRegistrar::removeCollectionCallback(
                                             const CallbackHandle& /* handle */)
 {
     return 0;
+}
+
+// ACCESSORS
+bsl::string TestMetricsRegistrar::defaultNamespace()
+{
+    return bsl::string();
+}
+
+bsl::string TestMetricsRegistrar::defaultObjectIdentifierPrefix()
+{
+    return bsl::string();
 }
 
 // ============================================================================

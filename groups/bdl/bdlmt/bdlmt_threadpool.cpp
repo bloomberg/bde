@@ -147,11 +147,21 @@ void ThreadPool::initialize(const bsl::string_view& metricsIdentifier)
     initBlockSet();
 #endif
 
+    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultNamespace(),
+                              "backlog",
+                              "bdlmt.threadpool",
+                              metricsIdentifier);
+
+    if (metricsIdentifier.empty()) {
+        bsl::stringstream identifier;
+        identifier << d_metricsRegistrar_p->defaultObjectIdentifierPrefix()
+                   << ".tp."
+                   << d_metricsRegistrar_p->incrementInstanceCount(md);
+        md.setObjectIdentifier(identifier.str());
+    }
+
     d_backlogHandle = d_metricsRegistrar_p->registerCollectionCallback(
-                                   bdlm::MetricDescriptor("bdlm",
-                                                          "backlog",
-                                                          "bdlmt.threadpool",
-                                                          metricsIdentifier),
+                                   md,
                                    bdlf::BindUtil::bind(&backlogMetric,
                                                         bdlf::PlaceHolders::_1,
                                                         this));
@@ -421,10 +431,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
 
-    bsl::stringstream identifier;
-    identifier << bsl::hex << static_cast<void *>(this);
-
-    initialize(identifier.str());
+    initialize("");
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -479,10 +486,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
     BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
     BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
-    bsl::stringstream identifier;
-    identifier << bsl::hex << static_cast<void *>(this);
-
-    initialize(identifier.str());
+    initialize("");
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,

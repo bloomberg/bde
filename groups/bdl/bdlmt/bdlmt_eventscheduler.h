@@ -769,9 +769,6 @@ class EventScheduler {
         // event queues at their scheduled times.  Note that this method
         // implements the dispatching thread.
 
-    void initialize();
-        // Initialize this event scheduler using the stored attributes.
-
     void initialize(const bsl::string_view& metricsIdentifier);
         // Initialize this event scheduler using the stored attributes and the
         // specified 'metricsIdentifier' to identify this event scheduler.
@@ -850,8 +847,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.
 
     explicit EventScheduler(const bsl::string_view&  metricsIdentifier,
                             bdlm::MetricsRegistrar  *metricsRegistrar,
@@ -862,10 +860,12 @@ class EventScheduler {
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     explicit EventScheduler(bsls::SystemClockType::Enum  clockType,
                             bslma::Allocator            *basicAllocator = 0);
@@ -875,8 +875,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals (see {Supported
         // Clock Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the
-        // currently installed default metrics registrar to report metrics.
+        // the currently installed default allocator is used.  Use the default
+        // identifier generation for the metrics identifier.  Use the currently
+        // installed default metrics registrar to report metrics.
 
     explicit EventScheduler(bsls::SystemClockType::Enum  clockType,
                             const bsl::string_view&      metricsIdentifier,
@@ -889,10 +890,12 @@ class EventScheduler {
         // Types} in the component documentation), the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     explicit EventScheduler(
@@ -904,8 +907,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.
 
     explicit EventScheduler(
                          const bsl::chrono::system_clock&,
@@ -918,10 +922,12 @@ class EventScheduler {
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     explicit EventScheduler(
                          const bsl::chrono::steady_clock&,
@@ -932,8 +938,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.
 
     explicit EventScheduler(
                          const bsl::chrono::steady_clock&,
@@ -946,10 +953,12 @@ class EventScheduler {
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 #endif
 
     explicit EventScheduler(const Dispatcher&  dispatcherFunctor,
@@ -960,8 +969,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.
 
     explicit EventScheduler(const Dispatcher&        dispatcherFunctor,
                             const bsl::string_view&  metricsIdentifier,
@@ -973,10 +983,12 @@ class EventScheduler {
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     EventScheduler(const Dispatcher&            dispatcherFunctor,
                    bsls::SystemClockType::Enum  clockType,
@@ -987,8 +999,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals (see {Supported
         // Clock Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Use the
-        // currently installed default metrics registrar to report metrics.
+        // the currently installed default allocator is used.  Use the default
+        // identifier generation for the metrics identifier.  Use the currently
+        // installed default metrics registrar to report metrics.
 
     EventScheduler(const Dispatcher&            dispatcherFunctor,
                    bsls::SystemClockType::Enum  clockType,
@@ -998,14 +1011,16 @@ class EventScheduler {
         // Create an event scheduler using the specified 'dispatcherFunctor'
         // (see {The Dispatcher Thread and the Dispatcher Functor} in the
         // component-level documentation), using the specified 'clockType' to
-        // indicate the epoch used for all time intervals (see {Supported
-        // Clock Types} in the component documentation), the specified
+        // indicate the epoch used for all time intervals (see {Supported Clock
+        // Types} in the component documentation), the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
@@ -1017,8 +1032,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.
 
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
                    const bsl::chrono::system_clock&,
@@ -1031,10 +1047,12 @@ class EventScheduler {
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
                    const bsl::chrono::steady_clock&,
@@ -1045,8 +1063,9 @@ class EventScheduler {
         // to indicate the epoch used for all time intervals.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Use the currently installed default metrics registrar to
-        // report metrics.
+        // used.  Use the default identifier generation for the metrics
+        // identifier.  Use the currently installed default metrics registrar
+        // to report metrics.
 
     EventScheduler(const Dispatcher&                 dispatcherFunctor,
                    const bsl::chrono::steady_clock&,
@@ -1059,10 +1078,12 @@ class EventScheduler {
         // indicate the epoch used for all time intervals, the specified
         // 'metricsIdentifier' to be used to identify this event scheduler, and
         // the specified 'metricsRegistrar' to be used for reporting metrics.
-        // If 'metricsRegistrar' is 0, the currently installed default
-        // registrar is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // If 'metricsIdentifier' is empty, use the default identifier
+        // generation for the metrics identifier.  If 'metricsRegistrar' is 0,
+        // the currently installed default registrar is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 #endif
 
     ~EventScheduler();
@@ -1203,9 +1224,9 @@ class EventScheduler {
         // invoking 'cancelEvent').  The 'epochTime' is an absolute time
         // represented as an interval from some epoch, which is determined by
         // the clock indicated at construction (see {Supported Clock Types} in
-        // the component documentation).  This method guarantees that the
-        // event will occur at or after 'epochTime'.  'epochTime' may be in the
-        // past, in which case the event will be executed as soon as possible.
+        // the component documentation).  This method guarantees that the event
+        // will occur at or after 'epochTime'.  'epochTime' may be in the past,
+        // in which case the event will be executed as soon as possible.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     template <class t_CLOCK, class t_DURATION>
@@ -1589,10 +1610,10 @@ class EventSchedulerTestTimeSource {
     // CREATORS
     explicit
     EventSchedulerTestTimeSource(EventScheduler *scheduler);
-        // Create a test time-source object that will control the
-        // "system-time" observed by the specified 'scheduler'.  Initialize
-        // 'now' to be an arbitrary time value.  The behavior is undefined if
-        // any methods have previously been called on 'scheduler'.
+        // Create a test time-source object that will control the "system-time"
+        // observed by the specified 'scheduler'.  Initialize 'now' to be an
+        // arbitrary time value.  The behavior is undefined if any methods have
+        // previously been called on 'scheduler'.
 
     // MANIPULATORS
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);

@@ -128,8 +128,11 @@ BSLS_IDENT("$Id: $")
 //      // metrics registrars.
 //
 //      // DATA
-//      my_MetricsMonitor *d_monitor_p;  // pointer to monitor to use for
-//                                       // metrics (held, not owned)
+//      my_MetricsMonitor          *d_monitor_p;  // pointer to monitor to use
+//                                                // for metrics (held, not
+//                                                // owned)
+//
+//      bsl::map<bsl::string, int>  d_count;      // instance counts
 //
 //    public:
 //      // CREATORS
@@ -141,6 +144,10 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object.
 //
 //      // MANIPULATORS
+//      int instanceCount(const bdlm::MetricDescriptor& metricDescriptor);
+//          // Return the invocation count of this method with the provided
+//          // 'metricDescriptor' attributes, excluding object identifier.
+//
 //      CallbackHandle registerCollectionCallback(
 //                              const bdlm::MetricDescriptor& metricDescriptor,
 //                              const Callback&               callback);
@@ -155,6 +162,15 @@ BSLS_IDENT("$Id: $")
 //          // Remove the callback associated with the specified 'handle'.
 //          // Return 0 on success, or a non-zero value if 'handle' cannot be
 //          // found.
+//
+//      // ACCESSORS
+//      bsl::string defaultNamespace();
+//          // Return the namespace attribute value to be used as the default
+//          // value for 'MetricDescriptor' instances.
+//
+//      bsl::string defaultObjectIdentifierPrefix();
+//          // Return a string to be used as the default prefix for a
+//          // 'MetricDescriptor' object identifier attribute value.
 //  };
 //..
 // Then, we implement the methods of 'myMetricsRegistrar':
@@ -167,6 +183,15 @@ BSLS_IDENT("$Id: $")
 //
 //  my_MetricsRegistrar::~my_MetricsRegistrar()
 //  {
+//  }
+//
+//  // MANIPULATORS
+//  int my_MetricsRegistrar::instanceCount(
+//                              const bdlm::MetricDescriptor& metricDescriptor)
+//  {
+//      return ++d_count[  metricDescriptor.metricNamespace() + '.'
+//                       + metricDescriptor.metricName() + '.'
+//                       + metricDescriptor.objectTypeName()];
 //  }
 //
 //  bdlm::MetricsRegistrar::CallbackHandle
@@ -186,6 +211,17 @@ BSLS_IDENT("$Id: $")
 //                        const bdlm::MetricsRegistrar::CallbackHandle& handle)
 //  {
 //      return d_monitor_p->removeCallback(handle);
+//  }
+//
+//  // ACCESSORS
+//  bsl::string my_MetricsRegistrar::defaultNamespace()
+//  {
+//      return "bdlm";
+//  }
+//
+//  bsl::string my_MetricsRegistrar::defaultObjectIdentifierPrefix()
+//  {
+//      return "svc";
 //  }
 //..
 // Next, we provide the metric method, 'my_metric', which will compute its
@@ -230,6 +266,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 
 #include <bsl_functional.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace bdlm {
@@ -257,6 +294,22 @@ class MetricsRegistrar {
         // Destroy this 'MetricsRegistrar'.
 
     // MANIPULATORS
+    virtual int incrementInstanceCount(
+                                 const MetricDescriptor& metricDescriptor) = 0;
+        // Return the incremented invocation count of this method with the
+        // provided 'metricDescriptor' attributes, excluding object identifier.
+        // Note that:
+        //..
+        //    int rv = incrementInstanceCount(metricDescriptor);
+        //..
+        // and:
+        //..
+        //    MetricDescriptor md(metricDescriptor);
+        //    md.setObjectIdentifier("");
+        //    int rv = incrementInstanceCount(md);
+        //..
+        // are functionally equivalent.
+
     virtual CallbackHandle registerCollectionCallback(
                                       const MetricDescriptor& metricDescriptor,
                                       const Callback&         callback) = 0;
@@ -269,6 +322,15 @@ class MetricsRegistrar {
     virtual int removeCollectionCallback(const CallbackHandle& handle) = 0;
         // Remove the callback associated with the specified 'handle'.  Return
         // 0 on success, or a non-zero value if 'handle' cannot be found.
+
+    // ACCESSORS
+    virtual bsl::string defaultNamespace() = 0;
+        // Return the namespace attribute value to be used as the default value
+        // for 'MetricDescriptor' instances.
+
+    virtual bsl::string defaultObjectIdentifierPrefix() = 0;
+        // Return a string to be used as the default prefix for a
+        // 'MetricDescriptor' object identifier attribute value.
 };
 
 }  // close package namespace

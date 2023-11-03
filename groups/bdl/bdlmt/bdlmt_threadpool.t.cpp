@@ -19,12 +19,12 @@
 
 #include <bdlf_bind.h>
 
-#include <bslmt_barrier.h>    // For test only
-#include <bslmt_latch.h>    // For test only
-#include <bslmt_lockguard.h>  // For test only
+#include <bslmt_barrier.h>           // for test only
+#include <bslmt_latch.h>             // for test only
+#include <bslmt_lockguard.h>         // for test only
 #include <bslmt_testutil.h>
-#include <bslmt_threadattributes.h>     // For test only
-#include <bslmt_threadutil.h>     // For test only
+#include <bslmt_threadattributes.h>  // for test only
+#include <bslmt_threadutil.h>        // for test only
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -44,6 +44,7 @@
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -194,6 +195,7 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
     // DATA
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
     bsl::set<int>                       d_handles;
+    bsl::map<bsl::string, int>          d_count;
 
   public:
     // CREATORS
@@ -204,6 +206,10 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Destroy this object.
 
     // MANIPULATORS
+    int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor);
+        // Return the incremented invocation count of this method with the
+        // provided 'metricDescriptor' attributes, excluding object identifier.
+
     CallbackHandle registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
                                 const Callback&               callback);
@@ -220,6 +226,14 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Return this object to its constructed state.
     
     // ACCESSORS
+    bsl::string defaultNamespace();
+        // Return the namespace attribute value to be used as the default value
+        // for 'MetricDescriptor' instances.
+
+    bsl::string defaultObjectIdentifierPrefix();
+        // Return a string to be used as the default prefix for a
+        // 'MetricDescriptor' object identifier attribute value.
+
     bool verify(const bsl::string& name);
         // Return 'true' if the registered descriptors match the ones expected
         // for the supplied 'name' and the provided callback handles were
@@ -240,6 +254,14 @@ TestMetricsRegistrar::~TestMetricsRegistrar()
 }
 
 // MANIPULATORS
+int TestMetricsRegistrar::incrementInstanceCount(
+                                const bdlm::MetricDescriptor& metricDescriptor)
+{
+    return ++d_count[  metricDescriptor.metricNamespace() + '.'
+                     + metricDescriptor.metricName() + '.'
+                     + metricDescriptor.objectTypeName()];
+}
+
 bdlm::MetricsRegistrar::CallbackHandle
                               TestMetricsRegistrar::registerCollectionCallback(
                                 const bdlm::MetricDescriptor& metricDescriptor,
@@ -264,9 +286,20 @@ void TestMetricsRegistrar::reset()
 {
     d_descriptors.clear();
     d_handles.clear();
+    d_count.clear();
 }
 
 // ACCESSORS
+bsl::string TestMetricsRegistrar::defaultNamespace()
+{
+    return "bdlm";
+}
+
+bsl::string TestMetricsRegistrar::defaultObjectIdentifierPrefix()
+{
+    return "svc";
+}
+
 bool TestMetricsRegistrar::verify(const bsl::string& name)
 {
     ASSERT(d_handles.empty());
@@ -274,14 +307,14 @@ bool TestMetricsRegistrar::verify(const bsl::string& name)
     ASSERT(d_descriptors[0].metricNamespace() == "bdlm");
     ASSERT(d_descriptors[0].metricName()      == "backlog");
     ASSERT(d_descriptors[0].objectTypeName()  == "bdlmt.threadpool");
-    ASSERT(name.empty() || d_descriptors[0].objectIdentifier() == name);
+    ASSERT(d_descriptors[0].objectIdentifier() == name);
     
     return d_handles.empty()
         && 1 == d_descriptors.size()
-        && d_descriptors[0].metricNamespace() == "bdlm"
-        && d_descriptors[0].metricName()      == "backlog"
-        && d_descriptors[0].objectTypeName()  == "bdlmt.threadpool"
-        && (name.empty() || d_descriptors[0].objectIdentifier() == name);
+        && d_descriptors[0].metricNamespace()  == "bdlm"
+        && d_descriptors[0].metricName()       == "backlog"
+        && d_descriptors[0].objectTypeName()   == "bdlmt.threadpool"
+        && d_descriptors[0].objectIdentifier() == name;
 }
 
 // ============================================================================
@@ -1737,7 +1770,24 @@ int main(int argc, char *argv[])
                 ASSERTV(i, IDLE     == X.maxIdleTime());
                 ASSERTV(i, 0        == X.threadFailures());
             }
-            ASSERT(defaultRegistrar.verify(""));
+            ASSERT(defaultRegistrar.verify("svc.tp.1"));
+            defaultRegistrar.reset();
+
+            {
+                Obj        mX(attr, MIN, MAX, IDLE, "", 0);
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                }
+
+                ASSERTV(i, MIN      == X.minThreads());
+                ASSERTV(i, MAX      == X.maxThreads());
+                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                ASSERTV(i, IDLE     == X.maxIdleTime());
+                ASSERTV(i, 0        == X.threadFailures());
+            }
+            ASSERT(defaultRegistrar.verify("svc.tp.1"));
             defaultRegistrar.reset();
 
             {
@@ -2309,7 +2359,23 @@ int main(int argc, char *argv[])
                     ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
                     ASSERTV(i, 0         == X.threadFailures());
                 }
-                ASSERT(defaultRegistrar.verify(""));
+                ASSERT(defaultRegistrar.verify("svc.tp.1"));
+                defaultRegistrar.reset();
+
+                {
+                    Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "", 0);
+                    const Obj& X = mX;
+
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                    }
+
+                    ASSERTV(i, k_MIN     == X.minThreads());
+                    ASSERTV(i, k_MAX     == X.maxThreads());
+                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                    ASSERTV(i, 0         == X.threadFailures());
+                }
+                ASSERT(defaultRegistrar.verify("svc.tp.1"));
                 defaultRegistrar.reset();
 
                 {
