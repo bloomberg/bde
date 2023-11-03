@@ -22,6 +22,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef BSLS_PLATFORM_CMP_IBM
+#pragma report(disable, "1540-1297")
+#endif
+
 using namespace BloombergLP;
 
 // ----------------------------------------------------------------------------

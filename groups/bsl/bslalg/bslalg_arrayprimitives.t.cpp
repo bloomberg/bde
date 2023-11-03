@@ -31,6 +31,9 @@
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strlen'
 
+#ifdef BSLS_PLATFORM_CMP_IBM
+#pragma report(disable, "1540-0216")
+#endif
 
 using namespace BloombergLP;
 

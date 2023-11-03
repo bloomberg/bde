@@ -57,6 +57,11 @@
 #undef std
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_IBM
+#pragma report(disable, "1540-0700")
+#pragma report(disable, "1540-2924")
+#endif
+
 using namespace BloombergLP;
 using bsls::NameOf;
 using bsls::nameOfType;

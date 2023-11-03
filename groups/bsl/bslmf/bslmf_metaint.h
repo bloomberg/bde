@@ -103,6 +103,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_deprecatefeature.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 
@@ -128,7 +129,17 @@ MetaInt : public bsl::integral_constant<int, t_INT_VALUE> {
 
     // TYPES
     typedef MetaInt<t_INT_VALUE>    Type;
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+// Suppress a compile warning on xlc for negative unsigned values.
+#pragma report(disable, "1540-0724")
+#endif
+
     typedef bslmf::Tag<t_INT_VALUE> Tag;
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+#pragma report(pop)
+#endif
 
     enum { VALUE = t_INT_VALUE };
 

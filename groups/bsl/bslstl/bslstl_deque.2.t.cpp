@@ -2,6 +2,12 @@
 #define BSLSTL_DEQUE_0T_AS_INCLUDE
 #include <bslstl_deque.0.t.cpp>
 
+#ifdef BSLS_PLATFORM_CMP_IBM
+#pragma report(disable, "1540-0306")
+#pragma report(disable, "1540-0308")
+#pragma report(disable, "1540-0309")
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------

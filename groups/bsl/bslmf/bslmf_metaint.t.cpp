@@ -3,10 +3,16 @@
 #include <bslmf_metaint.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <limits.h>
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+#pragma report(disable, "1540-0700")
+#pragma report(disable, "1540-0724")
+#endif
 
 using namespace BloombergLP;
 using namespace bslmf;

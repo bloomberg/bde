@@ -3,10 +3,15 @@
 #include <bsls_keyword.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, hidevf)
+#endif
 
 using namespace BloombergLP;
 using namespace std;
