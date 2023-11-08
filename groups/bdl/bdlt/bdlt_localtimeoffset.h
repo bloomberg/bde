@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlt::LocalTimeOffset: namespace for local time offset functions
 //
-//@SEE_ALSO: bsls_timeinterval, bsls_systemtime, bsls_currenttime
+//@SEE_ALSO: bsls_timeinterval, bsls_systemtime, bdlt_currenttime
 //
 //@DESCRIPTION: This component provides a 'struct', 'bdlt::LocalTimeOffset', in
 // which are defined a series of static methods for using a callback function
