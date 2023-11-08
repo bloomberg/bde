@@ -29,6 +29,10 @@
 #include <bsl_streambuf.h>
 #include <bsl_c_math.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
 using namespace BloombergLP;
 
 using bsl::cout;

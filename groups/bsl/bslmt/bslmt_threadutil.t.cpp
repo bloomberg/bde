@@ -1573,7 +1573,7 @@ extern "C" void *secondClearanceTest(void *vStackSize)
 
     static int diff;
 
-    for (;; pc += growth) {
+    for (int i = 0; i < 2000000000; ++i, pc += growth) {
         *pc = 0;
         diff =  stackSize - (int) myAbs(pc - &c);
 
@@ -3196,8 +3196,9 @@ int main(int argc, char *argv[])
 
         Q(Test 0 Completed);
 
-        for (clearanceTestAllocaSize = clearanceTestStackSize / 2;;
-                                              clearanceTestAllocaSize += 100) {
+        for (clearanceTestAllocaSize = clearanceTestStackSize / 2;
+             clearanceTestAllocaSize <= 1000000000;
+             clearanceTestAllocaSize += 100) {
             int diff = clearanceTestStackSize - clearanceTestAllocaSize;
             P(diff);
 

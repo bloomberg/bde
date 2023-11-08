@@ -29,6 +29,10 @@
 
 #include <typeinfo>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
 using namespace BloombergLP;
 using namespace BloombergLP::bdldfp;
 using namespace bsl;

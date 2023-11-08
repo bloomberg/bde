@@ -1200,9 +1200,9 @@ bsl::size_t SingleProducerSingleConsumerBoundedQueue<TYPE>::numElements() const
         return d_popCapacity;                                         // RETURN
     }
 
-    return pushIndex >= popIndex
-         ? pushIndex - popIndex
-         : pushIndex + d_popCapacity - popIndex;
+    return static_cast<bsl::size_t>(  pushIndex >= popIndex
+                                    ? pushIndex - popIndex
+                                    : pushIndex + d_popCapacity - popIndex);
 }
 
 template <class TYPE>

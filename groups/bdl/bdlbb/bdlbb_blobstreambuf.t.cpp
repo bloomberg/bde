@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
                 {
                     bdlbb::InBlobStreamBuf  in(&blob);
                     bdlbb::OutBlobStreamBuf out(&blob);
-                    data[i] = EOF_VAL;
+                    data[i] = static_cast<char>(EOF_VAL);
                     LOOP_ASSERT(i, k_DATA_LENGTH ==
                                                out.sputn(data, k_DATA_LENGTH));
                     LOOP_ASSERT(i, DATA_LENGTH_STREAMOFF ==

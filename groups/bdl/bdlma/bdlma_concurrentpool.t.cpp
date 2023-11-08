@@ -1813,7 +1813,12 @@ int main(int argc, char *argv[]) {
 
         bool caught = false;
         try {
+#ifdef BSLS_PLATFORM_CMP_AIX
+            // avoid infinite loop warning
+            for (int i = 0; i < 2000000000; ++i) {
+#else
             while (1) {
+#endif
                 mX.allocate();
             }
         }

@@ -63,6 +63,10 @@
 #include <bsl_vector.h>
 #include <bsl_unordered_map.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 

@@ -160,7 +160,9 @@ bool causesMemoryFault(void *address, int offset, char value)
     // specified 'offset' from the specified 'address' causes a memory fault,
     // and 'false' otherwise.
 {
-    bool faultFlag = false;
+    volatile bool faultFlag = false;  // 'volatile' to avoid warnings regarding
+                                      // variable being clobbered by 'longjmp'
+                                      // or 'vfork'
 
     // Register a signal handler for the duration of this function.
 

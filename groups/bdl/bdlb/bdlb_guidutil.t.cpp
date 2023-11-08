@@ -44,6 +44,10 @@
 #include <processthreadsapi.h>
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Waggressive-loop-optimizations"
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 

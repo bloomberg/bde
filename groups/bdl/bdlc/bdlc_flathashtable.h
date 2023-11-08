@@ -1206,8 +1206,8 @@ bsl::size_t FlatHashTable<KEY,
 
     if (0 < capacity) {
         capacity = capacity > k_MIN_CAPACITY
-                 ? bdlb::BitUtil::roundUpToBinaryPower(
-                                          static_cast<bsl::uint64_t>(capacity))
+                ? static_cast<bsl::size_t>(bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<bsl::uint64_t>(capacity)))
                  : k_MIN_CAPACITY;
     }
 
@@ -1233,8 +1233,8 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
 {
     if (0 < capacity) {
         d_capacity = capacity > k_MIN_CAPACITY
-                   ? bdlb::BitUtil::roundUpToBinaryPower(
-                                          static_cast<bsl::uint64_t>(capacity))
+                ? static_cast<bsl::size_t>(bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<bsl::uint64_t>(capacity)))
                    : k_MIN_CAPACITY;
 
         d_groupControlShift = static_cast<int>(

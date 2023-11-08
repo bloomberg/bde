@@ -12,6 +12,8 @@
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_currenttime.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>                      // for testing only
@@ -1370,7 +1372,7 @@ void BenchmarkSuite::run(int   iterations,
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
         Decimal64      aSmallDecimal64(BDLDFP_DECIMAL_DD(1.));
-        unsigned char *result =
+        BSLA_MAYBE_UNUSED unsigned char *result =
             bdldfp::DecimalConvertUtil::decimal64ToVariableWidthEncoding(
                                                               buffer,
                                                               aSmallDecimal64);
@@ -12464,8 +12466,8 @@ int main(int argc, char *argv[])
             {
                 // Testing assumption that 'Time' fits into 48 bits
                 bdlt::Time         time(24);
-                short              s;
-                int                i;
+                short              s = 0;
+                int                i = 0;
                 bsls::Types::Int64 ll;
 
                 // 24:00:00.000000

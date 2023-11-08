@@ -201,6 +201,11 @@ int testStatus = 0;
 
 void aSsErT(bool condition, const char *message, int line)
 {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
     if (condition) {
         cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
@@ -209,6 +214,10 @@ void aSsErT(bool condition, const char *message, int line)
             ++testStatus;
         }
     }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 }
 
 }  // close unnamed namespace

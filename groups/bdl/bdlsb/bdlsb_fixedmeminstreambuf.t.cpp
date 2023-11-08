@@ -925,8 +925,6 @@ int main(int argc, char **argv)
                 const Obj::pos_type START_POS = DATA[i].d_startPos;
                 const Obj::off_type OFFSET    = DATA[i].d_offset;
                 const Obj::pos_type RETVAL    = DATA[i].d_retVal;
-                const Obj::pos_type FINAL_POS = (0 <= RETVAL ? RETVAL :
-                                                               START_POS);
 
                 if (veryVerbose) {
                     T_ P_(LINE) P_(START_POS) P_(OFFSET) P(RETVAL)

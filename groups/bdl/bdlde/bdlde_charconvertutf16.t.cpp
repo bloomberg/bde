@@ -6182,8 +6182,8 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
         {
             int sts;
             const char *endTraverse;
-            ASSERT(RANDOM_CODE_POINTS - 1 == bdlde::Utf8Util::advanceIfValid(
-                                                      &sts,
+            ASSERT(static_cast<int>(RANDOM_CODE_POINTS) - 1 ==
+                      bdlde::Utf8Util::advanceIfValid(&sts,
                                                       &endTraverse,
                                                       begin,
                                                       RANDOM_CODE_POINTS - 1));

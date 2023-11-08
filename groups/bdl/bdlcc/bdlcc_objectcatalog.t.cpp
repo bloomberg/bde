@@ -1718,8 +1718,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
             *pc = 0;
         }
         ASSERT(LENGTH == ii);
-        ASSERT(static_cast<unsigned>(LENGTH) ==
-                               bsl::count(specCopy + 0, specCopy + LENGTH, 0));
+        ASSERT(LENGTH == bsl::count(specCopy + 0, specCopy + LENGTH, 0));
 
         setData(ampersand(v), '5');
     }

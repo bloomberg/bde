@@ -19,6 +19,10 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 
+#ifdef BSLS_PLATFORM_CMP_AIX
+#pragma report(disable, "1540-1297")
+#endif
+
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::endl;
