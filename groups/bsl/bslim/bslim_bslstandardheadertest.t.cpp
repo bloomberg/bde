@@ -2371,9 +2371,12 @@ int main(int argc, char *argv[])
                           "\n=============================================\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
         BSLMF_ASSERT(__cpp_lib_atomic_ref >= 201806L);
         int value = 0;
         (void) bsl::atomic_ref<int>{value};
+#endif
 
         BSLMF_ASSERT(__cpp_lib_char8_t >= 201907L);
         (void) bsl::atomic_char8_t{};
@@ -3282,7 +3285,7 @@ int main(int argc, char *argv[])
                            "\nTESTING C++20 'bsl_source_location.h' HEADER"
                            "\n============================================\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
         BSLMF_ASSERT(__cpp_lib_source_location >= 201907L);
 
         const bsl::source_location sl = bsl::source_location::current();
@@ -3306,7 +3309,7 @@ int main(int argc, char *argv[])
         //: 1 Verify that
         //:    o '__cpp_lib_endian >= 201907L',
         //:    o '__cpp_lib_bit_cast >= 201806L',
-        //:    o '__cpp_lib_bitops >= 201907L',
+        //:    o '__cpp_lib_bitops >= 201907L' (except on libc++),
         //:    o '__cpp_lib_int_pow2 >= 202002L'.
         //:
         //: 2 Form some valid expressions with every name with 'bsl' prefix and
@@ -3326,7 +3329,10 @@ int main(int argc, char *argv[])
         BSLMF_ASSERT(__cpp_lib_bit_cast >= 201806L);
         ASSERT(bsl::bit_cast<unsigned>(1) == 1U);
 
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+        // LLVM libc++ doesn't define this (but defines the functions)
         BSLMF_ASSERT(__cpp_lib_bitops >= 201907L);
+#endif
 
         ASSERT(bsl::rotl(1U, 1) == 2U);
         ASSERT(bsl::rotl(~(~0U >> 1), 1) == 1U);
@@ -3514,13 +3520,16 @@ int main(int argc, char *argv[])
                               bsl::barrier<CompletionFunction> >));
 
        bsl::latch latch(0);
+       (void) latch;
        ASSERT((bsl::is_same_v<std::latch, bsl::latch>));
 
        bsl::counting_semaphore countingSemaphore(0);
+       (void) countingSemaphore;
        ASSERT((bsl::is_same_v<std::counting_semaphore<1>,
                               bsl::counting_semaphore<1> >));
 
        bsl::binary_semaphore binarySemaphore(0);
+       (void) binarySemaphore;
        ASSERT((bsl::is_same_v<std::binary_semaphore, bsl::binary_semaphore>));
 #endif
 

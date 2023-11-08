@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
 
 #include <source_location>
 
@@ -30,7 +30,7 @@ namespace bsl {
 
 }  // close package namespace
 
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
 
 #endif
 

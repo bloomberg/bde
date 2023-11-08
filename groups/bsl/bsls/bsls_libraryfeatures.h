@@ -48,6 +48,8 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED: 'result_of' et al. gone
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS: '<concepts>'
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: '<ranges>'
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION: '<source_location>'
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF: 'atomic_ref'
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES:
 //                                                'atomic_[un]signed_lock_free'
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS:
@@ -515,7 +517,6 @@ BSLS_IDENT("$Id: $")
 //:   o '<latch>'
 //:   o '<numbers>'
 //:   o '<semaphore>'
-//:   o '<source_location>'
 //:   o '<span>'
 //:   o '<stop_token>'
 //:
@@ -1006,6 +1007,39 @@ BSLS_IDENT("$Id: $")
 //:       o libc++ version 15, or
 //:       o libstdc++ version 12
 //:   o Microsoft Visual Studio 2022 17.2 / MSVC 19.32
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION'
+///------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION' macro is defined if the
+// native standard library provides the '<source_location>' header and
+// implements all required C++20 content with no major issues.
+//
+// This macro is defined if the standard '__cpp_lib_source_location'
+// feature-test macro is defined and '__cpp_lib_source_location >= 201907L'.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 11.1
+//:   o clang 15 when compiling against either:
+//:       o libc++ version 16, or
+//:       o libstdc++ version 11
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF'
+///--------------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF' macro is defined if the
+// 'bsl::atomic_ref' type is available with C++20 semantics.
+//
+// This macro is defined if the standard '__cpp_lib_atomic_ref'
+// feature-test macro is defined and '__cpp_lib_atomic_ref >= 201806L'.
+//
+// This macro is defined first for the following compiler versions:
+//
+//:   o GCC 11.1
+//:   o clang 15 when compiling against libstdc++ version 11
+//:   o Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no curent version of libc++ supports this feature)
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES'
 ///--------------------------------------------------------------
@@ -2006,6 +2040,16 @@ BSLS_IDENT("$Id: $")
 
   #if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 202110L
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES                             1
+  #endif
+
+  #if defined(__cpp_lib_source_location) &&                                   \
+      __cpp_lib_source_location >= 201907L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION                    1
+  #endif
+
+  #if defined(__cpp_lib_atomic_ref) &&                                        \
+      __cpp_lib_atomic_ref >= 201806L
+    #define BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF                         1
   #endif
 
   #if defined(__cpp_lib_atomic_lock_free_type_aliases) &&                     \

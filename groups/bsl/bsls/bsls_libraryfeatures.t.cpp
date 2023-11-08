@@ -106,12 +106,16 @@
     #include <ranges>
 #endif
 
+// Verify assumption that <source_location> can be included.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+    #include <source_location>
+#endif
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     #include <barrier>
     #include <latch>
     #include <semaphore>
     #include <span>
-    #include <stop_token>
 #endif
 
 // Verify assumption that <version> can be included.
@@ -207,6 +211,8 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
@@ -425,7 +431,21 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined =
 #else
                                                                          false;
 #endif
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+                                                                          true;
+#else
+                                                                         false;
+#endif
 
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
+                                                                          true;
+#else
+                                                                         false;
+#endif
 static const
 bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
@@ -1393,6 +1413,20 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION));
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF));
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
@@ -1887,23 +1921,29 @@ int main(int argc, char *argv[])
         //:
         //: 3 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' is defined only when the
         //:   native standard library provides it.
+        //
+        //: 3 'BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION' is defined only
+        //:   when the native standard library provides it.
         //:
-        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' is
+        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF' is
         //:   defined only when the native standard library provides it.
         //:
-        //: 5 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is
+        //: 5 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' is
         //:   defined only when the native standard library provides it.
         //:
-        //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
+        //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is
+        //:   defined only when the native standard library provides it.
+        //:
+        //: 7 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
         //:   is defined only when the native standard library provides it.
         //:
-        //: 7 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' is
+        //: 8 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' is
         //:   defined only when the native standard library provides it.
         //:
-        //: 8 'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR' is defined only when
+        //: 9 'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR' is defined only when
         //:   the native standard library provides it.
         //:
-        //: 9 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' is defined only
+        //:10 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' is defined only
         //:   when the native standard library provides it.
         //
         // Plan:
@@ -1914,6 +1954,8 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS
@@ -1932,6 +1974,8 @@ int main(int argc, char *argv[])
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES);
+            PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION);
+            PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS);
            PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS);
@@ -1952,7 +1996,24 @@ int main(int argc, char *argv[])
 
             (void)std::ranges::data(v);
             std::ranges::take_view   tv(v, 3);
+            (void)tv;
             std::ranges::owning_view ov(std::move(v));
+            (void)ov;
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+        {
+            const std::source_location s = std::source_location::current();
+            (void) s;
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
+        {
+            int dummy;
+            int &dummy2 = dummy;
+            (void)std::atomic_ref{dummy2};
         }
 #endif
 
@@ -2249,7 +2310,6 @@ int main(int argc, char *argv[])
         //:   o 'barrier'
         //:   o 'latch'
         //:   o 'countingSemaphore'
-        //:   o 'nostopstate'
         //:   o 'to_array'
         //:   o 'remove_cvref'
         //:   o 'type_identity'
@@ -2293,10 +2353,6 @@ int main(int argc, char *argv[])
 
             (void)countingSemaphore;
             (void)binarySemaphore;
-        }
-
-        {
-            (void)std::nostopstate;
         }
 
         {
