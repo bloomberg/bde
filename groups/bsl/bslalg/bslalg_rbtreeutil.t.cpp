@@ -813,10 +813,8 @@ const char *tempFileName(bool verboseFlag)
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bael", 0, result);
 #else
-    char *temp = tempnam(0, "bael");
-    strncpy(result, temp, MAX_LENGTH - 1);
-    result[MAX_LENGTH - 1] = '\0';
-    free(temp);
+    sprintf(result, "baelXXXXXX");
+    close(mkstemp(result));
 #endif
 
     if (verboseFlag) printf("\tUse %s as a base filename.\n", result);

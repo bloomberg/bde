@@ -350,11 +350,10 @@ bool tempFileName(char *result)
         return false;                                                 // RETURN
     }
 #else
-    char *fn = tempnam(0, "bsls");
-    if (fn) {
-        strncpy(result, fn, k_PATH_BUFFER_SIZE - 1);
-        result[k_PATH_BUFFER_SIZE - 1] = '\0';
-        free(fn);
+    sprintf(result, "bslsXXXXXX");
+    int fd = mkstemp(result);
+    if (-1 != fd) {
+        close(fd);
     } else {
         return false;                                                 // RETURN
     }

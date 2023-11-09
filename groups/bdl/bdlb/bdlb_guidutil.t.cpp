@@ -312,10 +312,8 @@ bsl::string tempFileName(bool verboseFlag)
     enum { k_MAX_LENGTH = 4096 };
     static char result[k_MAX_LENGTH];
 
-    char *temp = tempnam(0, "bdlb_guidutil");
-    strncpy(result, temp, k_MAX_LENGTH);
-    result[k_MAX_LENGTH - 1] = '\0';
-    free(temp);
+    sprintf(result, "bdlb_guidutilXXXXXX");
+    close(mkstemp(result));
 
     if (verboseFlag) printf("\tUse %s as a base filename.\n", result);
 
