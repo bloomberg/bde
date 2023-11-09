@@ -8,11 +8,9 @@ BSLS_IDENT("$Id: $")
 /*
 //@PURPOSE: Provide functionality of the corresponding C Standard header.
 //
-//@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
-// defined in the corresponding C standard header.  Include the native
-// compiler-provided standard header, and also directly include Bloomberg's
-// implementation of the C standard type (if one exists).  Finally, place the
-// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+//@CANONICAL_HEADER: string.h
+//
+//@DESCRIPTION: Include the native compiler-provided standard header.
 */
 
 #include <string.h>
