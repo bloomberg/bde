@@ -308,9 +308,10 @@ class ReaderWriterLock {
                                          // that holds the write reservation if
                                          // one exists
 
-    volatile SignalState d_signalState;
+    SignalState          d_signalState;  // current signal sate
 
-    bsls::AtomicBool     d_owned;
+    bsls::AtomicBool     d_owned;        // flag indicating whether this lock
+                                         // is owned by some thread
 
     // NOT IMPLEMENTED
     ReaderWriterLock(const ReaderWriterLock&);
