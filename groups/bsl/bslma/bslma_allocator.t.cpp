@@ -1,6 +1,7 @@
 // bslma_allocator.t.cpp                                              -*-C++-*-
 
 #include <bslma_allocator.h>
+#include <bslma_allocator.fwd.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>

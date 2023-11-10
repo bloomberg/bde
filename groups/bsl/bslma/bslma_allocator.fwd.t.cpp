@@ -1,32 +1,22 @@
-// bdldfp_decimal.fwd.t.cpp                                           -*-C++-*-
-#include <bdldfp_decimal.fwd.h>
+// bslma_allocator.fwd.t.cpp                                          -*-C++-*-
+#include <bslma_allocator.fwd.h>
 
-#include <bslim_testutil.h>
+#include <bsls_bsltestutil.h>
 
-#include <bsl_iostream.h>
-#include <bsl_ostream.h>
-
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::atoi;
 
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test forward declares IEEE-754 decimal floating-point
-// types.
+// The component under test forward declares memory-allocation mechanisms.
 // ----------------------------------------------------------------------------
 // TYPES
-//: o 'Decimal32'
-//: o 'Decimal64'
-//: o 'Decimal128'
+//: o 'Allocator'
 //
 // ----------------------------------------------------------------------------
 // [ 1] FORWARD DECLARATIONS
@@ -34,7 +24,7 @@ using bsl::atoi;
 
 
 // ============================================================================
-//                     STANDARD BDE ASSERT TEST FUNCTION
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -44,8 +34,7 @@ int testStatus = 0;
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
-        cout << "Error " __FILE__ "(" << line << "): " << message
-             << "    (failed)" << endl;
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
 
         if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;
@@ -57,27 +46,26 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 // ============================================================================
-//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT BSLIM_TESTUTIL_ASSERT
-#define ASSERTV BSLIM_TESTUTIL_ASSERTV
+#define ASSERT BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q BSLIM_TESTUTIL_Q    // Quote identifier literally.
-#define P BSLIM_TESTUTIL_P    // Print identifier and value.
-#define P_ BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_ BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_ BSLIM_TESTUTIL_L_  // current Line number
-
+#define Q BSLS_BSLTESTUTIL_Q    // Quote identifier literally.
+#define P BSLS_BSLTESTUTIL_P    // Print identifier and value.
+#define P_ BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_ BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_ BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //               STANDARD FORWARDING HEADER TESTING UTILITIES
@@ -90,8 +78,8 @@ namespace u {
 
 template <class TYPE> bool isIncomplete(int(*)[sizeof(TYPE)]);
 template <class TYPE> bool isIncomplete(...);
-    // Return 'true' when invoked with literal '0' argument if 'T&' is
-    // incomplete, 'false' if 'T' is complete.
+    // Return 'true' when invoked with literal '0' argument if 'TYPE' is
+    // incomplete, 'false' if 'TYPE' is complete.
 
                     // --------------------------------
                     // 'isIncomplete' function template
@@ -132,7 +120,7 @@ int main(int argc, char* argv[])
     bool     veryVerbose = argc > 3;  (void)veryVerbose;
     bool veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 1: {
@@ -161,20 +149,18 @@ int main(int argc, char* argv[])
         if (verbose) printf("\nFORWARD DECLARATIONS"
                             "\n====================\n");
 
-        ASSERT(u::isIncomplete<bdldfp::Decimal32>(0));
-        ASSERT(u::isIncomplete<bdldfp::Decimal64>(0));
-        ASSERT(u::isIncomplete<bdldfp::Decimal128>(0));
+        ASSERT(u::isIncomplete<bslma::Allocator>(0));
 
         testTypeCompleteness ();
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status - " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;
@@ -183,16 +169,13 @@ int main(int argc, char* argv[])
 // Verify that the primary header can be included *after* the forwarding
 // header.
 
-#include <bdldfp_decimal.h>
+#include <bslma_allocator.h>
 
 // Verify that the primary header defined the types only declared by '.fwd.h'.
 
 static void testTypeCompleteness ()
 {
-    ASSERT(!u::isIncomplete<bdldfp::Decimal32>(0));
-    ASSERT(!u::isIncomplete<bdldfp::Decimal64>(0));
-    ASSERT(!u::isIncomplete<bdldfp::Decimal128>(0));
-
+    ASSERT(!u::isIncomplete<bslma::Allocator>(0));
 }
 
 // ----------------------------------------------------------------------------

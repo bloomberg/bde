@@ -365,6 +365,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#include <bslma_allocator.fwd.h>
+
 #include <bslscm_version.h>
 
 #include <bslma_deleterhelper.h>
