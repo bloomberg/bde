@@ -722,10 +722,10 @@ const char *bdlat_TypeName_Imp::name(const bdlt::TimeTz *)
 template <class TYPE>
 const char *bdlat_TypeName_Imp::name(const bsl::vector<TYPE> *)
 {
-    static const int MAX_LEN = 100;
-    static char name[MAX_LEN + 1];
-    static bool initialized = false;
-    static TYPE * volatile pointer;
+    static const int  MAX_LEN = 100;
+    static char       name[MAX_LEN + 1];
+    static bool       initialized = false;
+    static TYPE      *pointer;
 
     if (! initialized) {
         // This is thread-safe because even if two threads execute this code
