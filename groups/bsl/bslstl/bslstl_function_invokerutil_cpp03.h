@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Sat Oct 21 21:08:52 2023
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
@@ -2624,6 +2624,11 @@ struct Function_InvokerUtil_IsExplicitlyConvertible
 : Function_InvokerUtil_IsExplicitlyConvertibleImp<void, FROM, TO> {
 };
 
+template <class FROM_TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible<FROM_TO, FROM_TO>
+: bsl::true_type {
+};
+
 
 template <class VOID_TYPE, class FROM, class TO>
 struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
@@ -2632,7 +2637,7 @@ struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
 template <class FROM, class TO>
 struct Function_InvokerUtil_IsExplicitlyConvertibleImp<
     typename bslmf::VoidType<decltype(
-        static_cast<TO>(std::declval<FROM>()))>::type,
+       static_cast<TO>(std::declval<FROM>()))>::type,
     FROM,
     TO> : bsl::true_type {
 };
@@ -2745,6 +2750,11 @@ struct Function_InvokerUtil_IsExplicitlyConvertible
 : Function_InvokerUtil_IsExplicitlyConvertibleImp<void, FROM, TO> {
 };
 
+template <class FROM_TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible<FROM_TO, FROM_TO>
+: bsl::true_type {
+};
+
 
 template <class VOID_TYPE, class FROM, class TO>
 struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
@@ -2753,7 +2763,7 @@ struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
 template <class FROM, class TO>
 struct Function_InvokerUtil_IsExplicitlyConvertibleImp<
     typename bslmf::VoidType<decltype(
-        static_cast<TO>(std::declval<FROM>()))>::type,
+       static_cast<TO>(std::declval<FROM>()))>::type,
     FROM,
     TO> : bsl::true_type {
 };
@@ -8497,7 +8507,7 @@ invoke(const Function_Rep                            *rep,
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION_INVOKERUTIL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -12,6 +12,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
@@ -49,6 +50,7 @@ using bsls::NameOf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] STRANGE BEHAVIOR
+// [ 2] DRQS 170974958
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -164,6 +166,40 @@ void SimulatedLambdaWithPointer::operator()() const
     *d_b_p = d_s;
 }
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+struct NonCopyableDeleted
+    // A structure that cannot be copied.
+{
+    NonCopyableDeleted() = default;
+    NonCopyableDeleted(const NonCopyableDeleted&) = delete;
+    NonCopyableDeleted& operator=(const NonCopyableDeleted&) = delete;
+};
+
+NonCopyableDeleted FuncNonCopyableDeleted()
+    // Return a default constructed 'NonCopyable' object.
+{
+    return NonCopyableDeleted();
+}
+
+struct NonCopyableNotDefined
+    // A structure that cannot be copied.
+{
+    NonCopyableNotDefined() = default;
+
+private:
+    // NOT IMPLEMENTED
+    NonCopyableNotDefined(const NonCopyableNotDefined&);
+    NonCopyableNotDefined& operator=(const NonCopyableNotDefined&);
+};
+
+NonCopyableNotDefined FuncNonCopyableNotDefined()
+    // Return a default constructed 'NonCopyable' object.
+{
+    return NonCopyableNotDefined();
+}
+#endif
+
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -179,6 +215,74 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING FIX FOR DRQS 170974958
+        //
+        // Concerns:
+        //: 1 A function object can be created from a function or lambda that
+        //:   returns a type that cannot be copied.
+        //
+        // Plan:
+        //: 1 Create two function objects; one from a lambda and one from a
+        //:   function pointer.
+        //:
+        //: 2 Call the function objects and assign the results to a local
+        //:   variable.  This requires RVO (present in C++17 or later).
+        //
+        // Testing:
+        //   DRQS 170974958
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FIX FOR DRQS 170974958"
+                            "\n==============================\n");
+
+    // These tests require "return value optimization", so that the call to the
+    // (not present) copy-constructor is elided.  This is a C++17 feature.
+    // MSVC 2019 (and before) do not implement "return value optimization", so
+    // these tests will not work on that platform.   MSVC 2022 is fine.
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+# if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1930
+        {
+            typedef bsl::function<NonCopyableDeleted()> Obj;
+
+            auto l = []{ return FuncNonCopyableDeleted(); };
+            Obj  fFunction(FuncNonCopyableDeleted);
+            Obj  fLambda(l);
+
+            // Returning a non-copyable object from a function requires the
+            // "return value optimization", a feature of C++17.  Before C++17,
+            // this code will fail to compile with an error "call to deleted
+            // constructor of 'NonCopyable'" - but that has nothing to do with
+            // bsl::function.
+
+            NonCopyableDeleted o1 = fFunction();
+            NonCopyableDeleted o2 = fLambda();
+            (void) o1;
+            (void) o2;
+        }
+
+        {
+            typedef bsl::function<NonCopyableNotDefined()> Obj;
+
+            auto l = []{ return NonCopyableNotDefined(); };
+            Obj  fFunction(FuncNonCopyableNotDefined);
+            Obj  fLambda(l);
+
+            // Returning a non-copyable object from a function requires the
+            // "return value optimization", a feature of C++17.  Before C++17,
+            // this code will fail to link with an error "cant' find
+            // constructor" - but that has nothing to do with bsl::function.
+
+            NonCopyableNotDefined o1 = fFunction();
+            NonCopyableNotDefined o2 = fLambda();
+            (void) o1;
+            (void) o2;
+        }
+# endif
+#endif
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // STRANGE BEHAVIOR

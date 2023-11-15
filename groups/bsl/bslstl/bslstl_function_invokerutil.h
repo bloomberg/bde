@@ -516,6 +516,15 @@ struct Function_InvokerUtil_IsExplicitlyConvertible
     // 'static_cast<TO>(std::declval<FROM>())' is well-formed.
 };
 
+template <class FROM_TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible<FROM_TO, FROM_TO>
+: bsl::true_type {
+    // A type is always explicitly convertible to itself.  This is important
+    // for classes with deleted copy constructors and/or assignment operators,
+    // because starting in C++17, they can be returned from functions, due to
+    // "return value optimization (RVO)".
+};
+
       // ===============================================================
       // template struct Function_InvokerUtil_IsExplicitlyConvertibleImp
       // ===============================================================
@@ -533,7 +542,7 @@ struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
 template <class FROM, class TO>
 struct Function_InvokerUtil_IsExplicitlyConvertibleImp<
     typename bslmf::VoidType<decltype(
-        static_cast<TO>(std::declval<FROM>()))>::type,
+       static_cast<TO>(std::declval<FROM>()))>::type,
     FROM,
     TO> : bsl::true_type {
     // This component-private 'struct' template provides a partial
