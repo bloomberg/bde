@@ -627,6 +627,13 @@ BSLS_IDENT("$Id$")
 
 namespace BloombergLP {
 namespace bdldfp {
+
+typedef Decimal_Type32  Decimal32;
+typedef Decimal_Type64  Decimal64;
+typedef Decimal_Type128 Decimal128;
+    // The decimal floating-point types are typedefs to the unspecified
+    // implementation types.
+
                             // ====================
                             // class Decimal_Type32
                             // ====================
