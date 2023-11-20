@@ -147,7 +147,7 @@ void ThreadPool::initialize(const bsl::string_view& metricsIdentifier)
     initBlockSet();
 #endif
 
-    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultNamespace(),
+    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultMetricNamespace(),
                               "backlog",
                               "bdlmt.threadpool",
                               metricsIdentifier);

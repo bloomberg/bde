@@ -19,6 +19,11 @@ BSLS_IDENT("$Id$")
 // The intended use of this component is illustrated in
 // {'bdlm_metricsregistrar'|Usage}.
 
+#include <bslma_allocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsl_string.h>
 
 namespace BloombergLP {
@@ -43,6 +48,10 @@ class MetricDescriptor {
     friend bool operator!=(const MetricDescriptor&, const MetricDescriptor&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricDescriptor,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
     MetricDescriptor(bslma::Allocator *basicAllocator = 0);
         // Create an object of this class having the default attribute values.

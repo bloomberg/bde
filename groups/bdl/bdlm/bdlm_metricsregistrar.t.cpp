@@ -47,8 +47,13 @@ using bsl::endl;
 // [ 1] virtual ~MetricsRegistrar();
 //
 // MANIPULATORS
+// [ 1] virtual int incrementInstanceCount(metricDescriptor) = 0;
 // [ 1] virtual CH registerCollectionCallback(metricDescriptor, cb) = 0;
 // [ 1] virtual int removeCollectionCallback(const CH& handle) = 0;
+//
+// ACCESSORS
+// [ 1] virtual const bsl::string& defaultMetricNamespace() const = 0;
+// [ 1] virtual c bsl::string& defaultObjectIdentifierPrefix() c = 0;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
@@ -142,12 +147,12 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         return markDone();
     }
 
-    bsl::string defaultNamespace()
+    const bsl::string& defaultMetricNamespace() const
     {
         return markDone();
     }
 
-    bsl::string defaultObjectIdentifierPrefix()
+    const bsl::string& defaultObjectIdentifierPrefix() const
     {
         return markDone();
     }
@@ -259,11 +264,18 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         // metrics registrars.
 
         // DATA
-        my_MetricsMonitor          *d_monitor_p;  // pointer to monitor to use
-                                                  // for metrics (held, not
-                                                  // owned)
+        my_MetricsMonitor          *d_monitor_p;               // pointer to
+                                                               // monitor to
+                                                               // use for
+                                                               // metrics (held
+                                                               // not owned)
 
-        bsl::map<bsl::string, int>  d_count;      // instance counts
+        bsl::string                 d_metricNamespace;         // namespace
+
+        bsl::string                 d_objectIdentifierPrefix;  // prefix
+
+        bsl::map<bsl::string, int>  d_count;                   // instance
+                                                               // counts
 
       public:
         // CREATORS
@@ -297,11 +309,11 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
             // found.
 
         // ACCESSORS
-        bsl::string defaultNamespace();
+        const bsl::string& defaultMetricNamespace() const;
             // Return the namespace attribute value to be used as the default
             // value for 'MetricDescriptor' instances.
 
-        bsl::string defaultObjectIdentifierPrefix();
+        const bsl::string& defaultObjectIdentifierPrefix() const;
             // Return a string to be used as the default prefix for a
             // 'MetricDescriptor' object identifier attribute value.
     };
@@ -347,14 +359,15 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     }
 
     // ACCESSORS
-    bsl::string my_MetricsRegistrar::defaultNamespace()
+    const bsl::string& my_MetricsRegistrar::defaultMetricNamespace() const
     {
-        return "bdlm";
+        return d_metricNamespace;
     }
 
-    bsl::string my_MetricsRegistrar::defaultObjectIdentifierPrefix()
+    const bsl::string&
+                     my_MetricsRegistrar::defaultObjectIdentifierPrefix() const
     {
-        return "svc";
+        return d_objectIdentifierPrefix;
     }
 //..
 // Next, we provide the metric method, 'my_metric', which will compute its
@@ -487,8 +500,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   virtual ~MetricsRegistrar();
+        //   virtual int incrementInstanceCount(metricDescriptor) = 0;
         //   virtual CH registerCollectionCallback(metricDescriptor, cb) = 0;
         //   virtual int removeCollectionCallback(const CH& handle) = 0;
+        //   virtual const bsl::string& defaultMetricNamespace() const = 0;
+        //   virtual c bsl::string& defaultObjectIdentifierPrefix() c = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl

@@ -216,6 +216,8 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
     bsl::set<int>                       d_handles;
     bsl::map<bsl::string, int>          d_count;
+    bsl::string                         d_metricNamespace;
+    bsl::string                         d_objectIdentifierPrefix;
 
   public:
     // CREATORS
@@ -246,15 +248,15 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Return this object to its constructed state.
     
     // ACCESSORS
-    bsl::string defaultNamespace();
+    const bsl::string& defaultMetricNamespace() const;
         // Return the namespace attribute value to be used as the default value
         // for 'MetricDescriptor' instances.
 
-    bsl::string defaultObjectIdentifierPrefix();
+    const bsl::string& defaultObjectIdentifierPrefix() const;
         // Return a string to be used as the default prefix for a
         // 'MetricDescriptor' object identifier attribute value.
 
-    bool verify(const bsl::string& name);
+    bool verify(const bsl::string& name) const;
         // Return 'true' if the registered descriptors match the ones expected
         // for the supplied 'name' and the provided callback handles were
         // removed, and 'false' otherwise.
@@ -266,6 +268,8 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
 
 // CREATORS
 TestMetricsRegistrar::TestMetricsRegistrar()
+: d_metricNamespace("bdlm")
+, d_objectIdentifierPrefix("svc")
 {
 }
 
@@ -310,17 +314,17 @@ void TestMetricsRegistrar::reset()
 }
 
 // ACCESSORS
-bsl::string TestMetricsRegistrar::defaultNamespace()
+const bsl::string& TestMetricsRegistrar::defaultMetricNamespace() const
 {
-    return "bdlm";
+    return d_metricNamespace;
 }
 
-bsl::string TestMetricsRegistrar::defaultObjectIdentifierPrefix()
+const bsl::string& TestMetricsRegistrar::defaultObjectIdentifierPrefix() const
 {
-    return "svc";
+    return d_objectIdentifierPrefix;
 }
 
-bool TestMetricsRegistrar::verify(const bsl::string& name)
+bool TestMetricsRegistrar::verify(const bsl::string& name) const
 {
     ASSERT(d_handles.empty());
     ASSERT(2 == d_descriptors.size());

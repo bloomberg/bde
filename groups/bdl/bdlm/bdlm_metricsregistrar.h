@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 // monitoring mechanism and remove a collection object from monitoring,
 // respectively.
 //
-// The 'registerCollectionCallback' method supplies a metric name, collection
-// object instance identifier, and a collection object to a monitoring system.
-// Specific monitoring systems may modify this name and identifier.
+// The 'registerCollectionCallback' method supplies a metric descriptor and a
+// collection callback to a monitoring system.  Specific monitoring systems may
+// adapt the provided metric descriptor attributes to their needs.
 //
 ///Thread Safety
 ///-------------
@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing the 'bdlt::TimetableLoader' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing the 'bdlm::MetricsRegistrar' Protocol
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates an elided concrete implementation of the
 // 'bdlm::MetricsRegistrar' protocol that allows for registering metric
 // callback functions with a monitoring system.
@@ -128,11 +128,18 @@ BSLS_IDENT("$Id: $")
 //      // metrics registrars.
 //
 //      // DATA
-//      my_MetricsMonitor          *d_monitor_p;  // pointer to monitor to use
-//                                                // for metrics (held, not
-//                                                // owned)
+//      my_MetricsMonitor          *d_monitor_p;               // pointer to
+//                                                             // monitor to
+//                                                             // use for
+//                                                             // metrics (held
+//                                                             // not owned)
 //
-//      bsl::map<bsl::string, int>  d_count;      // instance counts
+//      bsl::string                 d_metricNamespace;         // namespace
+//
+//      bsl::string                 d_objectIdentifierPrefix;  // prefix
+//
+//      bsl::map<bsl::string, int>  d_count;                   // instance
+//                                                             // counts
 //
 //    public:
 //      // CREATORS
@@ -144,9 +151,11 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object.
 //
 //      // MANIPULATORS
-//      int instanceCount(const bdlm::MetricDescriptor& metricDescriptor);
-//          // Return the invocation count of this method with the provided
-//          // 'metricDescriptor' attributes, excluding object identifier.
+//      int incrementInstanceCount(
+//                             const bdlm::MetricDescriptor& metricDescriptor);
+//          // Return the incremented invocation count of this method with the
+//          // provided 'metricDescriptor' attributes, excluding object
+//          // identifier.
 //
 //      CallbackHandle registerCollectionCallback(
 //                              const bdlm::MetricDescriptor& metricDescriptor,
@@ -164,11 +173,11 @@ BSLS_IDENT("$Id: $")
 //          // found.
 //
 //      // ACCESSORS
-//      bsl::string defaultNamespace();
+//      const bsl::string& defaultMetricNamespace() const;
 //          // Return the namespace attribute value to be used as the default
 //          // value for 'MetricDescriptor' instances.
 //
-//      bsl::string defaultObjectIdentifierPrefix();
+//      const bsl::string& defaultObjectIdentifierPrefix() const;
 //          // Return a string to be used as the default prefix for a
 //          // 'MetricDescriptor' object identifier attribute value.
 //  };
@@ -186,7 +195,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  int my_MetricsRegistrar::instanceCount(
+//  int my_MetricsRegistrar::incrementInstanceCount(
 //                              const bdlm::MetricDescriptor& metricDescriptor)
 //  {
 //      return ++d_count[  metricDescriptor.metricNamespace() + '.'
@@ -214,14 +223,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
-//  bsl::string my_MetricsRegistrar::defaultNamespace()
+//  const bsl::string& my_MetricsRegistrar::defaultMetricNamespace() const
 //  {
-//      return "bdlm";
+//      return d_metricNamespace;
 //  }
 //
-//  bsl::string my_MetricsRegistrar::defaultObjectIdentifierPrefix()
+//  const bsl::string&
+//                   my_MetricsRegistrar::defaultObjectIdentifierPrefix() const
 //  {
-//      return "svc";
+//      return d_objectIdentifierPrefix;
 //  }
 //..
 // Next, we provide the metric method, 'my_metric', which will compute its
@@ -324,11 +334,11 @@ class MetricsRegistrar {
         // 0 on success, or a non-zero value if 'handle' cannot be found.
 
     // ACCESSORS
-    virtual bsl::string defaultNamespace() = 0;
+    virtual const bsl::string& defaultMetricNamespace() const = 0;
         // Return the namespace attribute value to be used as the default value
         // for 'MetricDescriptor' instances.
 
-    virtual bsl::string defaultObjectIdentifierPrefix() = 0;
+    virtual const bsl::string& defaultObjectIdentifierPrefix() const = 0;
         // Return a string to be used as the default prefix for a
         // 'MetricDescriptor' object identifier attribute value.
 };

@@ -31,6 +31,9 @@ class NotMonitoredMetricsRegistrar : public MetricsRegistrar {
     // suppliers of metrics registrars.  The implementation does not register
     // callbacks with any monitoring system.
 
+    // DATA
+    bsl::string d_emptyString;  // empty string
+
   public:
     // CREATORS
     NotMonitoredMetricsRegistrar();
@@ -53,10 +56,10 @@ class NotMonitoredMetricsRegistrar : public MetricsRegistrar {
         // Do nothing with the specified 'handle'.  Return 0.
 
     // ACCESSORS
-    bsl::string defaultNamespace();
+    const bsl::string& defaultMetricNamespace() const;
         // Return an empty string.
 
-    bsl::string defaultObjectIdentifierPrefix();
+    const bsl::string& defaultObjectIdentifierPrefix() const;
         // Return an empty string.
 };
 
@@ -95,14 +98,15 @@ int NotMonitoredMetricsRegistrar::removeCollectionCallback(
 }
 
 // ACCESSORS
-bsl::string NotMonitoredMetricsRegistrar::defaultNamespace()
+const bsl::string& NotMonitoredMetricsRegistrar::defaultMetricNamespace() const
 {
-    return bsl::string();
+    return d_emptyString;
 }
 
-bsl::string NotMonitoredMetricsRegistrar::defaultObjectIdentifierPrefix()
+const bsl::string&
+            NotMonitoredMetricsRegistrar::defaultObjectIdentifierPrefix() const
 {
-    return bsl::string();
+    return d_emptyString;
 }
 
                       // ------------------------------

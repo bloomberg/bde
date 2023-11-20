@@ -107,6 +107,9 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
     // suppliers of metrics registrars.  The implemtation does not register
     // callbacks with any monitoring system.
 
+    // DATA
+    bsl::string d_emptyString;  // empty string
+    
   public:
     // CREATORS
     TestMetricsRegistrar();
@@ -129,10 +132,10 @@ class TestMetricsRegistrar : public bdlm::MetricsRegistrar {
         // Do nothing with the specified 'handle'.  Return 0.
 
     // ACCESSORS
-    bsl::string defaultNamespace();
+    const bsl::string& defaultMetricNamespace() const;
         // Return an empty string.
 
-    bsl::string defaultObjectIdentifierPrefix();
+    const bsl::string& defaultObjectIdentifierPrefix() const;
         // Return an empty string.
 };
 
@@ -171,14 +174,14 @@ int TestMetricsRegistrar::removeCollectionCallback(
 }
 
 // ACCESSORS
-bsl::string TestMetricsRegistrar::defaultNamespace()
+const bsl::string& TestMetricsRegistrar::defaultMetricNamespace() const
 {
-    return bsl::string();
+    return d_emptyString;
 }
 
-bsl::string TestMetricsRegistrar::defaultObjectIdentifierPrefix()
+const bsl::string& TestMetricsRegistrar::defaultObjectIdentifierPrefix() const
 {
-    return bsl::string();
+    return d_emptyString;
 }
 
 // ============================================================================

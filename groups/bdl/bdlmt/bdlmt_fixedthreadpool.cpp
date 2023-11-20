@@ -103,16 +103,17 @@ void FixedThreadPool::initialize(const bsl::string_view& metricsIdentifier)
     initBlockSet(&d_blockSet);
 #endif
 
-    bdlm::MetricDescriptor mdBacklog(d_metricsRegistrar_p->defaultNamespace(),
-                                     "backlog",
-                                     "bdlmt.fixedthreadpool",
-                                     metricsIdentifier);
+    bdlm::MetricDescriptor mdBacklog(
+                                d_metricsRegistrar_p->defaultMetricNamespace(),
+                                "backlog",
+                                "bdlmt.fixedthreadpool",
+                                metricsIdentifier);
 
     bdlm::MetricDescriptor mdUsedCapacity(
-                                      d_metricsRegistrar_p->defaultNamespace(),
-                                      "usedcapacity",
-                                      "bdlmt.fixedthreadpool",
-                                      metricsIdentifier);
+                                d_metricsRegistrar_p->defaultMetricNamespace(),
+                                "usedcapacity",
+                                "bdlmt.fixedthreadpool",
+                                metricsIdentifier);
 
     if (metricsIdentifier.empty()) {
         bsl::stringstream identifier;

@@ -323,7 +323,7 @@ void EventScheduler::dispatchEvents()
 
 void EventScheduler::initialize(const bsl::string_view& metricsIdentifier)
 {
-    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultNamespace(),
+    bdlm::MetricDescriptor md(d_metricsRegistrar_p->defaultMetricNamespace(),
                               "startlag",
                               "bdlmt.eventscheduler",
                               metricsIdentifier);
