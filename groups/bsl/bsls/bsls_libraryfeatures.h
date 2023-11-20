@@ -726,10 +726,10 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED' macro is defined for
 // libraries that do not export names removed in C++20, such as
-// 'std::uncaught_exception'.  Although these names remain present in some
-// standard library implementations (e.g., gcc),
-// 'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED' is the equivalent of
-// '__cplusplus >= 202002L'.
+// 'std::uncaught_exception'.  Although the removal of deprecated C++20 types
+// is conceptually equivalent to '__cplusplus >= 202002L', some standard
+// library implementations may continue to expose the features, and some may
+// provide configuration flags to expose the deprecated library features.
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
@@ -1585,6 +1585,7 @@ BSLS_IDENT("$Id: $")
     #endif
     #if _GLIBCXX_USE_DEPRECATED
         #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
     #endif
 #endif
 
@@ -1847,6 +1848,7 @@ BSLS_IDENT("$Id: $")
 
     #if _GLIBCXX_USE_DEPRECATED
         #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
     #endif
 #endif
 
@@ -1956,6 +1958,16 @@ BSLS_IDENT("$Id: $")
           #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
         #else
           #define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED           1
+        #endif
+    #endif
+
+    // If _HAS_FEATURES_REMOVED_IN_CXX20 is defined, use its value as the
+    // deciding one for whether the C++20 deprecated names are gone.
+    #if defined _HAS_FEATURES_REMOVED_IN_CXX20
+        #if _HAS_FEATURES_REMOVED_IN_CXX20
+          #undef BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
+        #else
+          #define BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED           1
         #endif
     #endif
 #endif
