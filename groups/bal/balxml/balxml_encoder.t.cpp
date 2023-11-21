@@ -22,6 +22,8 @@
 
 #include <s_baltst_address.h>
 #include <s_baltst_employee.h>
+#include <s_baltst_customizedbase64binary.h>
+#include <s_baltst_customizedhexbinary.h>
 #include <s_baltst_generatetestarray.h>
 #include <s_baltst_generatetestchoice.h>
 #include <s_baltst_generatetestcustomizedtype.h>
@@ -35,6 +37,8 @@
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
 #include <s_baltst_mysequencewithattributes.h>
+#include <s_baltst_mysequencewithcustomizedbase64binary.h>
+#include <s_baltst_mysequencewithcustomizedhexbinary.h>
 #include <s_baltst_mysequencewithdecimalattribute.h>
 #include <s_baltst_mysequencewithdoubleattribute.h>
 #include <s_baltst_mysequencewithprecisiondecimalattribute.h>
@@ -108,17 +112,30 @@ namespace test = BloombergLP::s_baltst;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// ----------------------------------------------------------------------------
-//
-// CREATORS
-//
-// MANIPULATORS
-//
-// ACCESSORS
+// The component under test is an encoder that encodes a parameterized 'TYPE'
+// to XML text.
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [19] USAGE EXAMPLE
+// [20] USAGE EXAMPLE
+// [19] ENCODING CUSTOMIZED HEX AND BASE64 BINARY DATA
 // [18] REPRODUCE SCENARIO FROM DRQS 169438741
+// [17] TESTING DECIMAL ATTRIBUTE ENCODING
+// [16] TESTING FORMATTER OPTION CALCULATION
+// [15] Testing Decimal64
+// [14] TESTING NILLABLE ELEMENT ENCODING
+// [13] TESTING THE 'TestXmlElement' TEST FACILITY
+// [12] TESTING XML HEADER WITH 'outputXMLHeader' option (DRQS 22278116)
+// [11] TESTING NILLABLES WITH 'outputXSIAlias' option (DRQS 29523606)
+// [10] TESTING ENCODING OF NILLABLES
+// [ 9] TESTING ENCODING OF SIMPLE CONTENT
+// [ 8] TESTING ENCODING OF XML ATTRIBUTES
+// [ 7] TESTING ENCODING OF ANONYMOUS CHOICE
+// [ 6] TESTING ENCODING OF NULLABLES
+// [ 5] TESTING ENCODING OF ARRAYS
+// [ 4] TESTING ENCODING OF CHOICE
+// [ 3] TESTING ENCODING OF SEQUENCE
+// [ 2] TESTING USAGE OF TypesPrinterUtil
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -3902,7 +3919,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -3919,6 +3936,146 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // ENCODING CUSTOMIZED HEX AND BASE64 BINARY DATA
+        //   This case tests that the encoder can encode elements that are
+        //   restrictions of 'xs:hexBinary' and 'xs:base64Binary' types.  These
+        //   types are represented as 'bdlat' customized types having
+        //   'bsl::vector<char>' as a base type, and are distinguished by their
+        //   formatting mode.  The former type has the "hex" mode, and the
+        //   latter has the "base64" mode.
+        //
+        // Concerns:
+        //: 1 Customized types having a 'bsl::vector<char>' base types are
+        //:   encodable if they have the hex or base64 formatting mode.
+        //
+        // Plan:
+        //: 1 Encode a test sequence type that contains an attribute having a
+        //:   customized 'bsl::vector<char>' type with the base64 formatting
+        //:   mode and verify that the output is valid according to the XSD
+        //:   specification for a restriction on a 'xs:base64Binary'. (C-1)
+        //:
+        //: 2 Encode a test sequence type that contains an attribute having a
+        //:   customized 'bsl::vector<char>' type with the hex formatting
+        //:   mode and verify that the output is valid according to the XSD
+        //:   specification for a restriction on a 'xs:hexBinary'. (C-1)
+        //
+        // Testing:
+        //   ENCODING CUSTOMIZED HEX AND BASE64 BINARY DATA
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nENCODING CUSTOMIZED HEX AND BASE64 BINARY DATA"
+                          << "\n=============================================="
+                          << endl;
+
+        if (veryVerbose) cout << "\nCustomized Base64 Binary"
+                              << "\n------------------------"
+                              << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input_p;
+                const char *d_result_p;
+            } DATA[] = {
+#define PREFIX \
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" \
+    "<MySequenceWithCustomizedBase64Binary xmlns:xsi=" \
+        "\"http://www.w3.org/2001/XMLSchema-instance\">"
+
+#define SUFFIX \
+    "</MySequenceWithCustomizedBase64Binary>"
+
+                { L_, ""    , PREFIX "<element></element>"         SUFFIX },
+                { L_, "a"   , PREFIX "<element>YQ==</element>"     SUFFIX },
+                { L_, "ab"  , PREFIX "<element>YWI=</element>"     SUFFIX },
+                { L_, "abc" , PREFIX "<element>YWJj</element>"     SUFFIX },
+                { L_, "abcd", PREFIX "<element>YWJjZA==</element>" SUFFIX }
+
+#undef SUFFIX
+#undef PREFIX
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int              LINE   = DATA[i].d_line;
+                const bsl::string_view INPUT  = DATA[i].d_input_p;
+                const bsl::string_view RESULT = DATA[i].d_result_p;
+
+                balxml::EncoderOptions options;
+                balxml::Encoder        encoder(&options, 0, 0);
+
+                const bsl::vector<char> data(INPUT.data(),
+                                             INPUT.data() + INPUT.length());
+                const s_baltst::CustomizedBase64Binary base64Binary(data);
+                s_baltst::MySequenceWithCustomizedBase64Binary object;
+                object.element() = base64Binary;
+
+                bdlsb::MemOutStreamBuf resultBuf;
+                const int rc = encoder.encode(&resultBuf, object);
+                ASSERTV(LINE, rc, 0 == rc);
+
+                const bsl::string_view result(resultBuf.data(),
+                                              resultBuf.length());
+                ASSERTV(LINE, RESULT, result, result == RESULT);
+            }
+        }
+
+        if (veryVerbose) cout << "\nCustomized Hex Binary"
+                              << "\n---------------------"
+                              << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input_p;
+                const char *d_result_p;
+            } DATA[] = {
+#define PREFIX \
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" \
+    "<MySequenceWithCustomizedHexBinary xmlns:xsi=" \
+        "\"http://www.w3.org/2001/XMLSchema-instance\">"
+
+#define SUFFIX \
+    "</MySequenceWithCustomizedHexBinary>"
+
+                { L_, ""    , PREFIX "<element></element>"         SUFFIX },
+                { L_, "a"   , PREFIX "<element>61</element>"       SUFFIX },
+                { L_, "ab"  , PREFIX "<element>6162</element>"     SUFFIX },
+                { L_, "abc" , PREFIX "<element>616263</element>"   SUFFIX },
+                { L_, "abcd", PREFIX "<element>61626364</element>" SUFFIX }
+
+#undef SUFFIX
+#undef PREFIX
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int              LINE   = DATA[i].d_line;
+                const bsl::string_view INPUT  = DATA[i].d_input_p;
+                const bsl::string_view RESULT = DATA[i].d_result_p;
+
+                balxml::EncoderOptions options;
+                balxml::Encoder        encoder(&options, 0, 0);
+
+                const bsl::vector<char> data(INPUT.data(),
+                                             INPUT.data() + INPUT.length());
+                const s_baltst::CustomizedHexBinary hexBinary(data);
+                s_baltst::MySequenceWithCustomizedHexBinary object;
+                object.element() = hexBinary;
+
+                bdlsb::MemOutStreamBuf resultBuf;
+                const int rc = encoder.encode(&resultBuf, object);
+                ASSERTV(LINE, rc, 0 == rc);
+
+                const bsl::string_view result(resultBuf.data(),
+                                              resultBuf.length());
+                ASSERTV(LINE, RESULT, result, result == RESULT);
+            }
+        }
+
       } break;
       case 18: {
         // --------------------------------------------------------------------

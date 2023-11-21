@@ -36,6 +36,8 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <s_baltst_customizedbase64binary.h>
+#include <s_baltst_customizedhexbinary.h>
 #include <s_baltst_customizedstring.h>
 #include <s_baltst_generatetestarray.h>
 #include <s_baltst_generatetestnullablevalue.h>
@@ -2086,6 +2088,86 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        {
+            typedef s_baltst::CustomizedHexBinary Type;
+
+            const char chars[] = { 'a', 'b', 'c', 'd' };
+
+            const bsl::vector<char> v0;
+            const bsl::vector<char> v1(chars, chars + 1);
+            const bsl::vector<char> v2(chars, chars + 2);
+            const bsl::vector<char> v3(chars, chars + 3);
+            const bsl::vector<char> v4(chars, chars + 4);
+
+            static const struct {
+                int         d_lineNum;
+                Type        d_input;
+                const char *d_result;
+            } DATA[] = {
+                //line    input                result
+                //----    -----                ------
+                { L_,     Type(v0),            ""              },
+                { L_,     Type(v1),            "YQ=="          },
+                { L_,     Type(v2),            "YWI="          },
+                { L_,     Type(v3),            "YWJj"          },
+                { L_,     Type(v4),            "YWJjZA=="      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE   = DATA[i].d_lineNum;
+                const Type  INPUT  = DATA[i].d_input;
+                const char *RESULT = DATA[i].d_result;
+
+                bsl::stringstream ss;
+
+                Util::printDefault(ss, Type(INPUT));
+
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        {
+            typedef s_baltst::CustomizedBase64Binary Type;
+
+            const char chars[] = { 'a', 'b', 'c', 'd' };
+
+            const bsl::vector<char> v0;
+            const bsl::vector<char> v1(chars, chars + 1);
+            const bsl::vector<char> v2(chars, chars + 2);
+            const bsl::vector<char> v3(chars, chars + 3);
+            const bsl::vector<char> v4(chars, chars + 4);
+
+            static const struct {
+                int         d_lineNum;
+                Type        d_input;
+                const char *d_result;
+            } DATA[] = {
+                //line    input                result
+                //----    -----                ------
+                { L_,     Type(v0),            ""              },
+                { L_,     Type(v1),            "YQ=="          },
+                { L_,     Type(v2),            "YWI="          },
+                { L_,     Type(v3),            "YWJj"          },
+                { L_,     Type(v4),            "YWJjZA=="      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE   = DATA[i].d_lineNum;
+                const Type  INPUT  = DATA[i].d_input;
+                const char *RESULT = DATA[i].d_result;
+
+                bsl::stringstream ss;
+
+                Util::printDefault(ss, Type(INPUT));
+
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
         if (verbose) cout << "\nUsing date and time types." << endl;
         {
             const struct {
@@ -4095,6 +4177,49 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
+
+        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        {
+            typedef s_baltst::CustomizedHexBinary Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
+
+                const bsl::vector<char> data(INPUT, INPUT + INPUT_LENGTH);
+
+                Type mX(data); const Type& X = mX;
+                bsl::stringstream ss;
+
+                Util::printHex(ss, X);
+
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        {
+            typedef s_baltst::CustomizedBase64Binary Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
+
+                const bsl::vector<char> data(INPUT, INPUT + INPUT_LENGTH);
+
+                Type mX(data); const Type& X = mX;
+                bsl::stringstream ss;
+
+                Util::printHex(ss, X);
+
+                ASSERTV(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
       } break;
       case 3: {
         // --------------------------------------------------------------------

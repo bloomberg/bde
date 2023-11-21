@@ -27,6 +27,8 @@
 #include <s_baltst_address.h>
 #include <s_baltst_customint.h>
 #include <s_baltst_customstring.h>
+#include <s_baltst_customizedbase64binary.h>
+#include <s_baltst_customizedhexbinary.h>
 #include <s_baltst_employee.h>
 #include <s_baltst_enumerated.h>
 #include <s_baltst_generatetestarray.h>
@@ -42,6 +44,8 @@
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
 #include <s_baltst_mysequencewithattributes.h>
+#include <s_baltst_mysequencewithcustomizedbase64binary.h>
+#include <s_baltst_mysequencewithcustomizedhexbinary.h>
 #include <s_baltst_mysequencewithnillables.h>
 #include <s_baltst_mysequencewithnullables.h>
 #include <s_baltst_mysimplecontent.h>
@@ -193,6 +197,7 @@ namespace Test = s_baltst;
 // [ 1] BREATHING TEST
 // [16] USAGE EXAMPLES
 // [22] REPRODUCE SCENARIO FROM DRQS 169438741
+// [23] DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
 // [-1] TESTING VALID & INVALID UTF-8: e_STRING
 // [-1] TESTING VALID & INVALID UTF-8: e_STREAMBUF
 // [-1] TESTING VALID & INVALID UTF-8: e_ISTREAM
@@ -4413,6 +4418,167 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 23: {
+        // --------------------------------------------------------------------
+        // DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
+        //   This case tests that the decoder can decode elements that are
+        //   restrictions of 'xs:hexBinary' and 'xs:base64Binary' types.  These
+        //   types are represented as 'bdlat' customized types having
+        //   'bsl::vector<char>' as a base type, and are distinguished by their
+        //   formatting mode.  The former type has the "hex" mode, and the
+        //   latter has the "base64" mode.
+        //
+        // Concerns:
+        //: 1 Customized types having a 'bsl::vector<char>' base types are
+        //:   decodable if they have the hex or base64 formatting mode.
+        //
+        // Plan:
+        //: 1 Decode a test sequence type that contains an attribute having a
+        //:   customized 'bsl::vector<char>' type with the base64 formatting
+        //:   mode from input that is valid according to the XSD specification
+        //:   for a restriction on a 'xs:base64Binary' and verify success.
+        //:   (C-1)
+        //:
+        //: 2 Decode a test sequence type that contains an attribute having a
+        //:   customized 'bsl::vector<char>' type with the hex formatting
+        //:   mode from input that is valid according to the XSD specification
+        //:   for a restriction on a 'xs:hexBinary' and verify success. (C-1)
+        //
+        // Testing:
+        //   DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nDECODING CUSTOMIZED HEX AND BASE64 BINARY DATA"
+                          << "\n=============================================="
+                          << endl;
+
+        if (veryVerbose) cout << "\nCustomized Base64 Binary"
+                              << "\n------------------------"
+                              << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input_p;
+                const char *d_result_p;
+            } DATA[] = {
+#define PREFIX \
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" \
+    "<MySequenceWithCustomizedBase64Binary xmlns:xsi=" \
+        "\"http://www.w3.org/2001/XMLSchema-instance\">"
+
+#define SUFFIX \
+    "</MySequenceWithCustomizedBase64Binary>"
+
+                { L_, PREFIX "<element></element>"         SUFFIX, ""     },
+                { L_, PREFIX "<element>YQ==</element>"     SUFFIX, "a"    },
+                { L_, PREFIX "<element>YWI=</element>"     SUFFIX, "ab"   },
+                { L_, PREFIX "<element>YWJj</element>"     SUFFIX, "abc"  },
+                { L_, PREFIX "<element>YWJjZA==</element>" SUFFIX, "abcd" }
+
+#undef SUFFIX
+#undef PREFIX
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int              LINE   = DATA[i].d_line;
+                const bsl::string_view INPUT  = DATA[i].d_input_p;
+                const bsl::string_view RESULT = DATA[i].d_result_p;
+
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errorInfo;
+                balxml::DecoderOptions options;
+
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errorInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
+
+                s_baltst::MySequenceWithCustomizedBase64Binary object;
+
+                const int rc = decoder.decode(&isb, &object);
+                ASSERTV(LINE, rc, 0 == rc);
+
+                const bsl::vector<char> RESULT_DATA(
+                                                RESULT.data(),
+                                                RESULT.data() + RESULT.size());
+
+                const bsl::vector<char>& data =
+                              bdlat_CustomizedTypeFunctions::convertToBaseType(
+                                  object.element());
+
+                ASSERTV(LINE, RESULT, RESULT_DATA == data);
+            }
+        }
+
+        if (veryVerbose) cout << "\nCustomized Hex Binary"
+                              << "\n---------------------"
+                              << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input_p;
+                const char *d_result_p;
+            } DATA[] = {
+#define PREFIX \
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" \
+    "<MySequenceWithCustomizedHexBinary xmlns:xsi=" \
+        "\"http://www.w3.org/2001/XMLSchema-instance\">"
+
+#define SUFFIX \
+    "</MySequenceWithCustomizedHexBinary>"
+
+                { L_, PREFIX "<element></element>"         SUFFIX, ""     },
+                { L_, PREFIX "<element>61</element>"       SUFFIX, "a"    },
+                { L_, PREFIX "<element>6162</element>"     SUFFIX, "ab"   },
+                { L_, PREFIX "<element>616263</element>"   SUFFIX, "abc"  },
+                { L_, PREFIX "<element>61626364</element>" SUFFIX, "abcd" }
+
+#undef SUFFIX
+#undef PREFIX
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int              LINE   = DATA[i].d_line;
+                const bsl::string_view INPUT  = DATA[i].d_input_p;
+                const bsl::string_view RESULT = DATA[i].d_result_p;
+
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errorInfo;
+                balxml::DecoderOptions options;
+
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errorInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
+
+                s_baltst::MySequenceWithCustomizedHexBinary object;
+
+                const int rc = decoder.decode(&isb, &object);
+                ASSERTV(LINE, rc, 0 == rc);
+
+                const bsl::vector<char> RESULT_DATA(
+                                                RESULT.data(),
+                                                RESULT.data() + RESULT.size());
+
+                const bsl::vector<char>& data =
+                              bdlat_CustomizedTypeFunctions::convertToBaseType(
+                                  object.element());
+
+                ASSERTV(LINE, RESULT, RESULT_DATA == data);
+            }
+        }
+
+      } break;
       case 22: {
         // --------------------------------------------------------------------
         // REPRODUCE SCENARIO FROM DRQS 169438741

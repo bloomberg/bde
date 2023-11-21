@@ -8,6 +8,8 @@
 ./generate s_baltst_bigrecord.xsd
 ./generate s_baltst_customint.xsd
 ./generate s_baltst_customizedstring.xsd
+./generate s_baltst_customizedhexbinary.xsd
+./generate s_baltst_customizedbase64binary.xsd
 ./generate s_baltst_customstring.xsd
 ./generate s_baltst_employee.xsd
 ./generate s_baltst_enumerated.xsd
@@ -22,6 +24,8 @@
 ./generate s_baltst_mysequencewithchoice.xsd
 ./generate s_baltst_mysequencewithchoicearray.xsd
 ./generate s_baltst_mysequencewithchoices.xsd
+./generate s_baltst_mysequencewithcustomizedbase64binary.xsd
+./generate s_baltst_mysequencewithcustomizedhexbinary.xsd
 ./generate s_baltst_mysequencewithdecimalattribute.xsd
 ./generate s_baltst_mysequencewithdoubleattribute.xsd
 ./generate s_baltst_mysequencewithnillable.xsd

@@ -8,6 +8,8 @@
   <xs:include schemaLocation='s_baltst_basicrecord.xsd'/>
   <xs:include schemaLocation='s_baltst_bigrecord.xsd'/>
   <xs:include schemaLocation='s_baltst_customint.xsd'/>
+  <xs:include schemaLocation='s_baltst_customizedbase64binary.xsd'/>
+  <xs:include schemaLocation='s_baltst_customizedhexbinary.xsd'/>
   <xs:include schemaLocation='s_baltst_customizedstring.xsd'/>
   <xs:include schemaLocation='s_baltst_customstring.xsd'/>
   <xs:include schemaLocation='s_baltst_employee.xsd'/>
@@ -25,6 +27,9 @@
   <xs:include schemaLocation='s_baltst_mysequencewithchoice.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithchoicearray.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithchoices.xsd'/>
+  <xs:include
+      schemaLocation='s_baltst_mysequencewithcustomizedbase64binary.xsd'/>
+  <xs:include schemaLocation='s_baltst_mysequencewithcustomizedhexbinary.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithdecimalattribute.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithdoubleattribute.xsd'/>
   <xs:include schemaLocation='s_baltst_mysequencewithnillable.xsd'/>
@@ -58,6 +63,10 @@
               type='CustomInt'/>
   <xs:element name='CustomizedString'
               type='CustomizedString'/>
+  <xs:element name='CustomizedBase64Binary'
+              type='CustomizedBase64Binary'/>
+  <xs:element name='CustomizedHexBinary'
+              type='CustomizedHexBinary'/>
   <xs:element name='CustomString'
               type='CustomString'/>
   <xs:element name='Employee'
@@ -88,6 +97,10 @@
               type='MySequenceWithChoiceArray'/>
   <xs:element name='MySequenceWithChoices'
               type='MySequenceWithChoices'/>
+  <xs:element name='MySequenceWithCustomizedBase64Binary'
+              type='MySequenceWithCustomizedBase64Binary'/>
+  <xs:element name='MySequenceWithCustomizedHexBinary'
+              type='MySequenceWithCustomizedHexBinary'/>
   <xs:element name='MySequenceWithDecimalAttribute'
               type='MySequenceWithDecimalAttribute'/>
   <xs:element name='MySequenceWithDoubleAttribute'

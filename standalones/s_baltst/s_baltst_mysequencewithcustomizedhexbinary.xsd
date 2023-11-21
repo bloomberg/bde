@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:include schemaLocation='s_baltst_customizedhexbinary.xsd'/>
+
+  <xs:complexType name='MySequenceWithCustomizedHexBinary'>
+    <xs:sequence>
+      <xs:element name='element'
+                  type='CustomizedHexBinary'
+                  bdem:cppheader='s_baltst_customizedhexbinary.h'/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

@@ -263,6 +263,13 @@ struct TypesParserUtil_Imp {
     // CLASS METHODS
 
                             // BASE64 FUNCTIONS
+
+    template <class TYPE>
+    static int parseBase64(TYPE                            *result,
+                           const char                      *input,
+                           int                              inputLength,
+                           bdlat_TypeCategory::CustomizedType);
+
     template <class TYPE>
     static int parseBase64(TYPE                            *result,
                            const char                      *input,
@@ -480,6 +487,12 @@ struct TypesParserUtil_Imp {
                             bdlat_TypeCategory::Array);
 
                             // HEX FUNCTIONS
+
+    template <class TYPE>
+    static int parseHex(TYPE                               *result,
+                        const char                         *input,
+                        int                                 inputLength,
+                        bdlat_TypeCategory::CustomizedType);
 
     template <class TYPE>
     static int parseHex(TYPE                            *result,
@@ -1007,6 +1020,28 @@ int TypesParserUtil::parseText(TYPE       *result,
 template <class TYPE>
 inline
 int TypesParserUtil_Imp::parseBase64(
+                               TYPE                               *result,
+                               const char                         *input,
+                               int                                 inputLength,
+                               bdlat_TypeCategory::CustomizedType)
+{
+    enum { k_FAILURE = -1 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType base;
+
+    if (0 != TypesParserUtil::parseBase64(&base, input, inputLength)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
+}
+
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseBase64(
                                   TYPE                            *result,
                                   const char                      *input,
                                   int                              inputLength,
@@ -1357,6 +1392,28 @@ int TypesParserUtil_Imp::parseDefault(bsl::vector<char>         *result,
 }
 
 // HEX FUNCTIONS
+
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseHex(
+                               TYPE                               *result,
+                               const char                         *input,
+                               int                                 inputLength,
+                               bdlat_TypeCategory::CustomizedType)
+{
+    enum { k_FAILURE = -1 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType base;
+
+    if (0 != TypesParserUtil::parseHex(&base, input, inputLength)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
+}
 
 template <class TYPE>
 inline

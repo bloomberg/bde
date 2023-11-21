@@ -345,6 +345,13 @@ struct TypesPrintUtil_Imp {
 
     template <class TYPE>
     static bsl::ostream& printBase64(
+                            bsl::ostream&                       stream,
+                            const TYPE&                         object,
+                            const EncoderOptions               *encoderOptions,
+                            bdlat_TypeCategory::CustomizedType);
+
+    template <class TYPE>
+    static bsl::ostream& printBase64(
                                bsl::ostream&                    stream,
                                const TYPE&                      object,
                                const EncoderOptions            *encoderOptions,
@@ -661,6 +668,13 @@ struct TypesPrintUtil_Imp {
 
     template <class TYPE>
     static bsl::ostream& printHex(
+                            bsl::ostream&                       stream,
+                            const TYPE&                         object,
+                            const EncoderOptions               *encoderOptions,
+                            bdlat_TypeCategory::CustomizedType);
+
+    template <class TYPE>
+    static bsl::ostream& printHex(
                                bsl::ostream&                    stream,
                                const TYPE&                      object,
                                const EncoderOptions            *encoderOptions,
@@ -692,7 +706,7 @@ struct TypesPrintUtil_Imp {
                                   const EncoderOptions      *encoderOptions,
                                   bdlat_TypeCategory::Array);
 
-                            // LIST FUNCTIONS
+                               // LIST FUNCTIONS
 
     template <class TYPE>
     static bsl::ostream& printList(bsl::ostream&              stream,
@@ -1212,6 +1226,19 @@ bsl::ostream& TypesPrintUtil::printText(bsl::ostream&         stream,
                          // -------------------------
 
 // BASE64 FUNCTIONS
+template <typename TYPE>
+inline
+bsl::ostream& TypesPrintUtil_Imp::printBase64(
+                               bsl::ostream&                    stream,
+                               const TYPE&                      object,
+                               const EncoderOptions            *encoderOptions,
+                               bdlat_TypeCategory::CustomizedType)
+{
+    return TypesPrintUtil::printBase64(
+                      stream,
+                      bdlat_CustomizedTypeFunctions::convertToBaseType(object),
+                      encoderOptions);
+}
 
 template <typename TYPE>
 inline
@@ -1819,6 +1846,19 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 }
 
 // HEX FUNCTIONS
+template <typename TYPE>
+inline
+bsl::ostream& TypesPrintUtil_Imp::printHex(
+                            bsl::ostream&                       stream,
+                            const TYPE&                         object,
+                            const EncoderOptions               *encoderOptions,
+                            bdlat_TypeCategory::CustomizedType)
+{
+    return TypesPrintUtil::printHex(
+                      stream,
+                      bdlat_CustomizedTypeFunctions::convertToBaseType(object),
+                      encoderOptions);
+}
 
 template <typename TYPE>
 inline

@@ -53,6 +53,8 @@
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <s_baltst_customizedbase64binary.h>
+#include <s_baltst_customizedhexbinary.h>
 #include <s_baltst_generatetestarray.h>
 #include <s_baltst_generatetestnullablevalue.h>
 #include <s_baltst_testplaceholder.h>
@@ -2890,6 +2892,30 @@ int main(int argc, char *argv[])
                 const Type IN_VEC(IN.begin(), IN.end());
                 ASSERTV(LINE, ENCODED, DECODED, IN_VEC, IN_VEC == DECODED);
             }
+            {
+                typedef s_baltst::CustomizedBase64Binary Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseHex(&mDecoded,
+                                                  ENCODED.data(),
+                                                  intLength(ENCODED)));
+
+                const bsl::vector<char> data(IN.begin(), IN.end());
+                const Type IN_CUST(data);
+                ASSERTV(LINE, ENCODED, DECODED, IN_CUST, IN_CUST == DECODED);
+            }
+            {
+                typedef s_baltst::CustomizedHexBinary Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseHex(&mDecoded,
+                                                  ENCODED.data(),
+                                                  intLength(ENCODED)));
+
+                const bsl::vector<char> data(IN.begin(), IN.end());
+                const Type IN_CUST(data);
+                ASSERTV(LINE, ENCODED, DECODED, IN_CUST, IN_CUST == DECODED);
+            }
         }
       } break;
       case 10: {
@@ -3723,6 +3749,30 @@ int main(int argc, char *argv[])
 
                 const Type IN_VEC(IN.begin(), IN.end());
                 ASSERTV(LINE, ENCODED, DECODED, IN_VEC, IN_VEC == DECODED);
+            }
+            {
+                typedef s_baltst::CustomizedBase64Binary Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseBase64(&mDecoded,
+                                                     ENCODED.data(),
+                                                     intLength(ENCODED)));
+
+                const bsl::vector<char> data(IN.begin(), IN.end());
+                const Type IN_CUST(data);
+                ASSERTV(LINE, ENCODED, DECODED, IN_CUST, IN_CUST == DECODED);
+            }
+            {
+                typedef s_baltst::CustomizedHexBinary Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseBase64(&mDecoded,
+                                                     ENCODED.data(),
+                                                     intLength(ENCODED)));
+
+                const bsl::vector<char> data(IN.begin(), IN.end());
+                const Type IN_CUST(data);
+                ASSERTV(LINE, ENCODED, DECODED, IN_CUST, IN_CUST == DECODED);
             }
         }
       } break;
@@ -6485,6 +6535,55 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
+
+        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        {
+            typedef s_baltst::CustomizedBase64Binary Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const int          INPUT_LENGTH  =
+                                      static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bsl::size_t  RESULT_LENGTH = bsl::strlen(RESULT);
+
+                const bsl::vector<char> data(RESULT, RESULT + RESULT_LENGTH);
+                const Type EXPECTED_RESULT(data);
+
+                Type mX;  const Type& X = mX;
+
+                int retCode = Util::parseHex(&mX, INPUT, INPUT_LENGTH);
+
+                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
+                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        {
+            typedef s_baltst::CustomizedHexBinary Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const int          INPUT_LENGTH  =
+                                      static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bsl::size_t  RESULT_LENGTH = bsl::strlen(RESULT);
+
+                const bsl::vector<char> data(RESULT, RESULT + RESULT_LENGTH);
+                const Type EXPECTED_RESULT(data);
+
+                Type mX;  const Type& X = mX;
+
+                int retCode = Util::parseHex(&mX, INPUT, INPUT_LENGTH);
+
+                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
+                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+            }
+        }
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -7171,6 +7270,55 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
+
+        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        {
+            typedef s_baltst::CustomizedBase64Binary Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const int          INPUT_LENGTH  =
+                                      static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bsl::size_t  RESULT_LENGTH = bsl::strlen(RESULT);
+
+                const bsl::vector<char> data(RESULT, RESULT + RESULT_LENGTH);
+                const Type EXPECTED_RESULT(data);
+
+                Type mX;  const Type& X = mX;
+
+                int retCode = Util::parseBase64(&mX, INPUT, INPUT_LENGTH);
+
+                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
+                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        {
+            typedef s_baltst::CustomizedHexBinary Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const int          INPUT_LENGTH  =
+                                      static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bsl::size_t  RESULT_LENGTH = bsl::strlen(RESULT);
+
+                const bsl::vector<char> data(RESULT, RESULT + RESULT_LENGTH);
+                const Type EXPECTED_RESULT(data);
+
+                Type mX;  const Type& X = mX;
+
+                int retCode = Util::parseBase64(&mX, INPUT, INPUT_LENGTH);
+
+                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
+                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+            }
+        }
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
