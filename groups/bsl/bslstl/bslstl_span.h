@@ -167,6 +167,7 @@ namespace bsl {
 
 #include <bslstl_array.h>
 #include <bslstl_iterator.h>
+#include <bslstl_string.h>
 #include <bslstl_vector.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -270,13 +271,13 @@ struct Span_Utility
             typename bsl::enable_if<
                               !bsl::is_array<TP>::value, bsl::nullptr_t>::type,
         // data(cont) and size(cont) are well formed
-            decltype(data(std::declval<TP>())),
-            decltype(size(std::declval<TP>())),
+            decltype(bsl::data(std::declval<TP>())),
+            decltype(bsl::size(std::declval<TP>())),
         // The underlying types are compatible
             typename bsl::enable_if<
                 Span_Utility::IsArrayConvertible<
                    typename bsl::remove_pointer<
-                                   decltype(data(std::declval<TP &>()))>::type,
+                              decltype(bsl::data(std::declval<TP &>()))>::type,
                    ELEMENT_TYPE>::value,
                 bsl::nullptr_t>::type
             > >
@@ -665,6 +666,36 @@ class span<TYPE, dynamic_extent> {
         // Construct a span from the specified bsl::vector 'v'.  This
         // constructor participates in overload resolution only if
         // 'const t_OTHER_TYPE(*)[]' is convertible to 'element_type(*)[]'.
+
+    template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+    span(bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& s,
+         typename bsl::enable_if<
+               Span_Utility::IsArrayConvertible<
+                                            CHAR_TYPE, element_type>::value,
+               void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
+        // Construct a span from the specified bsl::string 's'.  This
+        // constructor participates in overload resolution only if
+        // 'CHAR_TYPE(*)[]' is convertible to 'element_type(*)[]'.
+
+    template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+    span(const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& s,
+         typename bsl::enable_if<
+             Span_Utility::IsArrayConvertible<
+                                      const CHAR_TYPE, element_type>::value,
+               void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
+        // Construct a span from the specified bsl::string 's'.  This
+        // constructor participates in overload resolution only if
+        // 'const CHAR_TYPE(*)[]' is convertible to 'element_type(*)[]'.
+
+    template<class CHAR_TYPE, class CHAR_TRAITS>
+    span(const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& sv,
+         typename bsl::enable_if<
+             Span_Utility::IsArrayConvertible<
+                                      const CHAR_TYPE, element_type>::value,
+               void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
+        // Construct a span from the specified bsl::string_view 'sv'.  This
+        // constructor participates in overload resolution only if
+        // 'const CHAR_TYPE(*)[]' is convertible to 'element_type(*)[]'.
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -1296,6 +1327,42 @@ inline bsl::span<TYPE, bsl::dynamic_extent>::span(
                       void *>::type)
 : d_data_p(v.data())
 , d_size(v.size())
+{
+}
+
+template <class TYPE>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline bsl::span<TYPE, bsl::dynamic_extent>::span(
+                      bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& s,
+                      typename bsl::enable_if<Span_Utility::IsArrayConvertible<
+                                               CHAR_TYPE, element_type>::value,
+                      void *>::type)
+: d_data_p(s.data())
+, d_size(s.size())
+{
+}
+
+template <class TYPE>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline bsl::span<TYPE, bsl::dynamic_extent>::span(
+                 const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& s,
+                 typename bsl::enable_if<Span_Utility::IsArrayConvertible<
+                                         const CHAR_TYPE, element_type>::value,
+                 void *>::type)
+: d_data_p(s.data())
+, d_size(s.size())
+{
+}
+
+template <class TYPE>
+template <class CHAR_TYPE, class CHAR_TRAITS>
+inline bsl::span<TYPE, bsl::dynamic_extent>::span(
+                 const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& sv,
+                 typename bsl::enable_if<Span_Utility::IsArrayConvertible<
+                                         const CHAR_TYPE, element_type>::value,
+                 void *>::type)
+: d_data_p(sv.data())
+, d_size(sv.size())
 {
 }
 #endif

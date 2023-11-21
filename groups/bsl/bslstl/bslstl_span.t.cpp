@@ -12,6 +12,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_array.h>
+#include <bslstl_string.h>
 #include <bslstl_vector.h>
 
 #include <stdio.h>
@@ -328,6 +329,34 @@ void TestContainerConstructors()
         bsl::span<const int> carrD(cVec);
         ASSERT(cVec.data() == carrD.data());
         ASSERT(30          == carrD.size());
+    }
+
+    bsl::string           str("ABCDE");
+    const bsl::string&    cStr = str;
+    // from a bsl::string (dynamic span only)
+    {
+        bsl::span<char> strD(str);
+        ASSERT(str.data() == strD.data());
+        ASSERT(5          == strD.size());
+
+        bsl::span<const char> cstrD(str);
+        ASSERT(str.data() == cstrD.data());
+        ASSERT(5          == cstrD.size());
+    }
+
+    // from a const bsl::string (dynamic span only)
+    {
+        bsl::span<const char> cstrD(cStr);
+        ASSERT(str.data() == cstrD.data());
+        ASSERT(5          == cstrD.size());
+    }
+
+    bsl::string_view      sv(str);
+    // from a string_view (dynamic span only)
+    {
+        bsl::span<const char> cstrD(sv);
+        ASSERT(sv.data() == cstrD.data());
+        ASSERT(5         == cstrD.size());
     }
 }
 
