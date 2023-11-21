@@ -1,4 +1,4 @@
-/ balm_bdlmmetricsregistrar.h                                        -*-C++-*-
+// balm_bdlmmetricsregistrar.h                                        -*-C++-*-
 
 #ifndef INCLUDED_BALM_BDLMMETRICSREGISTRAR
 #define INCLUDED_BALM_BDLMMETRICSREGISTRAR
