@@ -590,16 +590,16 @@ int main(int argc, char* argv[])
                 // Also apply the object's 'allocator' accessor, as well as
                 // that of 'Z'.
 
-                LOOP_ASSERT(LINE, &oa == X.metricNamespace().allocator());
-                LOOP_ASSERT(LINE, &oa == X.metricName().allocator());
-                LOOP_ASSERT(LINE, &oa == X.objectTypeName().allocator());
-                LOOP_ASSERT(LINE, &oa == X.objectIdentifier().allocator());
+                ASSERTV(LINE, &oa == X.metricNamespace().get_allocator());
+                ASSERTV(LINE, &oa == X.metricName().get_allocator());
+                ASSERTV(LINE, &oa == X.objectTypeName().get_allocator());
+                ASSERTV(LINE, &oa == X.objectIdentifier().get_allocator());
 
-                LOOP_ASSERT(LINE, &scratch == Z.metricNamespace().allocator());
-                LOOP_ASSERT(LINE, &scratch == Z.metricName().allocator());
-                LOOP_ASSERT(LINE, &scratch == Z.objectTypeName().allocator());
-                LOOP_ASSERT(LINE,
-                                 &scratch == Z.objectIdentifier().allocator());
+                ASSERTV(LINE, &scratch == Z.metricNamespace().get_allocator());
+                ASSERTV(LINE, &scratch == Z.metricName().get_allocator());
+                ASSERTV(LINE, &scratch == Z.objectTypeName().get_allocator());
+                ASSERTV(LINE,
+                        &scratch == Z.objectIdentifier().get_allocator());
 
                 // Verify no allocation from the non-object allocator.
 
@@ -894,10 +894,10 @@ int main(int argc, char* argv[])
 
             Obj mX(mns, mn, otn, oi);  const Obj& X = mX;
 
-            ASSERT(&defaultAllocator == X.metricNamespace().allocator());
-            ASSERT(&defaultAllocator == X.metricName().allocator());
-            ASSERT(&defaultAllocator == X.objectTypeName().allocator());
-            ASSERT(&defaultAllocator == X.objectIdentifier().allocator());
+            ASSERT(&defaultAllocator == X.metricNamespace().get_allocator());
+            ASSERT(&defaultAllocator == X.metricName().get_allocator());
+            ASSERT(&defaultAllocator == X.objectTypeName().get_allocator());
+            ASSERT(&defaultAllocator == X.objectIdentifier().get_allocator());
 
             ASSERT(mns == X.metricNamespace());
             ASSERT(mn  == X.metricName());
@@ -918,10 +918,10 @@ int main(int argc, char* argv[])
 
             Obj mX(mns, mn, otn, oi, &sa);  const Obj& X = mX;
 
-            ASSERT(&sa == X.metricNamespace().allocator());
-            ASSERT(&sa == X.metricName().allocator());
-            ASSERT(&sa == X.objectTypeName().allocator());
-            ASSERT(&sa == X.objectIdentifier().allocator());
+            ASSERT(&sa == X.metricNamespace().get_allocator());
+            ASSERT(&sa == X.metricName().get_allocator());
+            ASSERT(&sa == X.objectTypeName().get_allocator());
+            ASSERT(&sa == X.objectIdentifier().get_allocator());
 
             ASSERT(mns == X.metricNamespace());
             ASSERT(mn  == X.metricName());
@@ -987,10 +987,10 @@ int main(int argc, char* argv[])
             ASSERT(empty == X.objectTypeName());
             ASSERT(empty == X.objectIdentifier());
 
-            ASSERT(&defaultAllocator == X.metricNamespace().allocator());
-            ASSERT(&defaultAllocator == X.metricName().allocator());
-            ASSERT(&defaultAllocator == X.objectTypeName().allocator());
-            ASSERT(&defaultAllocator == X.objectIdentifier().allocator());
+            ASSERT(&defaultAllocator == X.metricNamespace().get_allocator());
+            ASSERT(&defaultAllocator == X.metricName().get_allocator());
+            ASSERT(&defaultAllocator == X.objectTypeName().get_allocator());
+            ASSERT(&defaultAllocator == X.objectIdentifier().get_allocator());
         }
         {
             if (verbose) {
@@ -1007,10 +1007,10 @@ int main(int argc, char* argv[])
             ASSERT(empty == X.objectTypeName());
             ASSERT(empty == X.objectIdentifier());
 
-            ASSERT(&sa == X.metricNamespace().allocator());
-            ASSERT(&sa == X.metricName().allocator());
-            ASSERT(&sa == X.objectTypeName().allocator());
-            ASSERT(&sa == X.objectIdentifier().allocator());
+            ASSERT(&sa == X.metricNamespace().get_allocator());
+            ASSERT(&sa == X.metricName().get_allocator());
+            ASSERT(&sa == X.objectTypeName().get_allocator());
+            ASSERT(&sa == X.objectIdentifier().get_allocator());
         }
         {
             if (verbose) {
