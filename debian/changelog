@@ -1,5 +1,40 @@
-bsl-internal (3.126.0.0) unstable; urgency=low
+bsl-internal (3.127.0.0) unstable; urgency=low
 
+  * 038cb6c30 Bumped version to 3.127.0.0
+  * 70e70ffa1 Remove use of deprecated 'allocator' method (#4505)
+  * 1209b06ed Add constructors taking bsl::basic_string to span for C++03 (#4500)
+  * 6bc1d370d Fixed broken comment (#4506)
+  * fcecc5e05 balxml: Support Customized Binary Data (#4498)
+  * ffd0511f2 Drqs 171602974/balm bdlmmetricsregistrar teom (#4490)
+  * cd6840157 Undefine BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED where feasible (#4496)
+  * 03604e0af Restore typedefs for decimal types (#4497)
+  * a78aeb139 Handle returns of non-copyable types in bsl::function {DRQS 170974958} (#4451)
+  * 788626156 Unnecessary 'volatile' qualifier has been removed (#4486)
+  * 3aa93894b Unnecessary 'volatile' qualifier has been removed (#4489)
+  * d906fd49b Bslma allocator forwarding header drqs 173385383 (#4479)
+  * 5d249af00 '@CANONICAL_HEADER' annotations have been added to 'bsl_c_*' headers (#4485)
+  * 3279b9337 add uses bslma allocator trait where needed (#4493)
+  * 9b823ab4c remove use of 'tempnam' (#4492)
+  * 9fa6da1b5 correct warnings (#4491)
+  * ff4dc6ad7 C++20 libc++ fixes (#4463)
+  * cf59243b6 Drqs 173353817/bdlm metricsregistrar augment teom (#4480)
+  * 64765572e Drqs 173411520/nb ibm sun 20231103 (#4484)
+  * 5dcf4ea86 Add  values for C++20 and c++23 (#4474)
+  * d18614ac0 fix xlc test driver compile warnings (#4481)
+  * b5c0fb6a8 drqs-156027255: 'bdlma_sequentialpool': Improve 'd_alwaysUnavailable' init. (#4478)
+  * 55ed3e5b0 Drqs 172873938/bdlmt timereventscheduler teom (#4476)
+  * a43839cd0 Drqs 172873932/bdlmt eventscheduler teom (#4472)
+  * 97af8c2ed python-bloomberg-codecs workaround (#4477)
+  * 1891143db Remove bde integral_constant VALUE usage (#4422)
+  * 82427462c Implement bsl::uncaught_exceptions {DRQS 173143272} (#4457)
+  * e5ba50edd Fix install path and INSTALL_INTERFACE property for thirdparties (#4471)
+  * c0582bd5d add metric registrar creators (#4469)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Nov 2023 12:24:45 -0500
+
+bsl-internal (3.126.0.0) git; urgency=low
+
+  * 4b80a2c56 Changelog for version 3.126.0.0
   * 7ae4f2e2d Bumped version to 3.126.0.0
   * 67c4968fd Update comment in bdlde_crc32c.cpp: CRC3-C -> CRC32-C (#4468)
   * 54fa023ca Drqs 172873913/bdlmt threadpool teom (#4465)
@@ -13,7 +48,7 @@ bsl-internal (3.126.0.0) unstable; urgency=low
   * 2d1e7a7d6 Regenerate bslstl_vector_cpp03.h, missed in #4448 (#4453)
   * cddb2d925 Revamp NullableValueRef {DRQS 173091340} (#4445)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Oct 2023 10:56:18 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Oct 2023 11:06:53 -0400
 
 bsl-internal (3.125.0.0) git; urgency=low
 
