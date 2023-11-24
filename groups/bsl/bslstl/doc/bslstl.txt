@@ -111,6 +111,7 @@
       bslstl_compare
       bslstl_complex
       bslstl_equalto
+      bslstl_exception
       bslstl_function_isreferencecompatible                           !PRIVATE!
       bslstl_function_smallobjectoptimization                         !PRIVATE!
       bslstl_hash
@@ -133,7 +134,6 @@
 
    1. bslstl_bidirectionalnodepool_cpp03                              !PRIVATE!
       bslstl_deque_cpp03                                              !PRIVATE!
-      bslstl_exception
       bslstl_function_cpp03                                           !PRIVATE!
       bslstl_function_invokerutil_cpp03                               !PRIVATE!
       bslstl_hashtable_cpp03                                          !PRIVATE!
@@ -224,7 +224,7 @@
 :      Provide standard compliant versions of <system_error> classes.
 :
 : 'bslstl_exception':
-:      Provide an implementation of 'uncaught_exceptions' for pre-C++17 systems
+:      Provide an implementation of 'uncaught_exceptions'.
 :
 : 'bslstl_forwarditerator':
 :      Provide a template to create STL-compliant forward iterators.

@@ -31,7 +31,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balm' package currently has 21 components having 13 levels of physical
+ The 'balm' package currently has 22 components having 13 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -42,7 +42,8 @@
 
   11. balm_stopwatchscopedguard
 
-  10. balm_integermetric
+  10. balm_bdlmmetricsregistrar
+      balm_integermetric
       balm_metric
 
    9. balm_defaultmetricsmanager
@@ -73,6 +74,9 @@
 
 /Component Synopsis
 /------------------
+: 'balm_bdlmmetricsregistrar':
+:      Provide a concrete instance of the 'bdlm' metrics registrar.
+:
 : 'balm_category':
 :      Provide a representation of a metric category.
 :

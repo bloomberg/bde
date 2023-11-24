@@ -125,6 +125,7 @@
       bslmf_if                                           !DEPRECATED!
       bslmf_makeintegersequence
       bslmf_matchanytype
+      bslmf_metaint                                      !DEPRECATED!
       bslmf_removecv
       bslmf_selecttrait
 
@@ -137,7 +138,6 @@
       bslmf_isconst
       bslmf_isreference
       bslmf_isvolatile
-      bslmf_metaint                                      !DEPRECATED!
       bslmf_nthparameter
       bslmf_removeconst
       bslmf_removeextent
@@ -145,10 +145,12 @@
       bslmf_removevolatile
       bslmf_resulttype
       bslmf_switch
+      bslmf_tag
       bslmf_typeidentity
       bslmf_typelist
 
-   3. bslmf_isarray
+   3. bslmf_assert
+      bslmf_isarray
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isreferencewrapper
@@ -156,10 +158,8 @@
       bslmf_issame
       bslmf_istransparentpredicate
       bslmf_nil
-      bslmf_tag
 
    2. bslmf_allocatorargt
-      bslmf_assert
       bslmf_booleantestable
       bslmf_integralconstant
       bslmf_voidtype
