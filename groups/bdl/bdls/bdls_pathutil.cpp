@@ -363,21 +363,21 @@ int u_getExtension(STR_TYPE                *extension,
     int hasLeaf = PathUtil::getLeaf(&leaf, path, rootEnd);
 
     if (hasLeaf != 0) {
-        return -1;                                                        // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (leaf == "." || leaf == "..") {
-        return -1;                                                        // RETURN
+        return -1;                                                    // RETURN
     }
 
     bsl::size_t lastDotIndex = leaf.find_last_of(".");
 
     if (lastDotIndex == 0 || lastDotIndex == bsl::string::npos) {
-        return -1;                                                        // RETURN
+        return -1;                                                    // RETURN
     }
 
     extension->assign(&leaf[lastDotIndex], leaf.size() - lastDotIndex);
-    return 0;                                                             // RETURN
+    return 0;                                                         // RETURN
 }
 
 template <class STR_TYPE>
@@ -430,9 +430,17 @@ int u_getRoot(STR_TYPE *root, const bsl::string_view& path, int rootEnd)
 
 }  // close unnamed namespace
 
-                              // ===============
+                              // ---------------
                               // struct PathUtil
-                              // ===============
+                              // ---------------
+
+// CLASS DATA
+const char PathUtil::k_SEPARATOR =
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                                   '\\';
+#else
+                                   '/';
+#endif
 
 // CLASS METHODS
 int PathUtil::appendIfValid(bsl::string             *path,

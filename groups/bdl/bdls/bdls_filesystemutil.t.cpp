@@ -27,6 +27,7 @@
 #include <bsla_maybeunused.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_systemtime.h>
@@ -76,6 +77,7 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+using bsls::NameOf;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -111,9 +113,15 @@ using namespace bsl;
 // [14] int tryLock(FileDescriptor, bool ) (Windows)
 // [15] int sync(char *, int , bool )
 // [16] int close(FileDescriptor )
-// [21] makeUnsafeTemporaryFilename(string *, const StringRef&)
-// [22] createTemporaryFile(string *, const StringRef&)
-// [23] createTemporaryDirectory(string *, const StringRef&)
+// [21] makeUnsafeTemporaryFilename(bsl::string *,const bsl::string_view&)
+// [21] makeUnsafeTemporaryFilename(std::string *,const bsl::string_view&)
+// [21] makeUnsafeTemporaryFilename(pmr::string *,const bsl::string_view&)
+// [22] createTemporaryFile(bsl::string *, const bsl::string_view&)
+// [22] createTemporaryFile(std::string *, const bsl::string_view&)
+// [22] createTemporaryFile(std::pmr::::string *, const bsl::string_view&)
+// [23] createTemporaryDirectory(bsl::string *, const string_view&)
+// [23] createTemporaryDirectory(std::string *, const string_view&)
+// [23] createTemporaryDirectory(std::pmr::::string *, const string_view&)
 // [24] int createDirectories(const string&, bool);
 // [24] int createPrivateDirectory(const string&);
 // [25] int visitTree(const char *, const string&, const Func&, bool);
@@ -127,6 +135,9 @@ using namespace bsl;
 // [28] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
 // [29] bool isSymbolicLink(STRING_TYPE);
 // [29] int getSymbolicLinkTarget(STRING_TYPE *, STRING_TYPE);
+// [30] createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
+// [30] createTemporarySubdirectory(std::string*, const bsl::string_view&)
+// [30] createTemporarySubdirectory(pmr::string*, const bsl::string_view&)
 //
 // FREE OPERATORS
 // [27] ostream& operator<<(ostream&, Whence);
@@ -145,8 +156,8 @@ using namespace bsl;
 // [20] CONCERN: directory permissions
 // [21] CONCERN: error codes for 'createDirectories'
 // [21] CONCERN: error codes for 'createPrivateDirectory'
-// [31] TESTING USAGE EXAMPLE 2
-// [30] TESTING USAGE EXAMPLE 1
+// [32] TESTING USAGE EXAMPLE 2
+// [31] TESTING USAGE EXAMPLE 1
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1928,6 +1939,203 @@ namespace UsageExample2 {
 // ----------------------------------------------------------------------------
 
 template <class STRING_TYPE>
+void testCase30_createTemporarySubdirectory(int verbose, int veryVerbose)
+{
+    const char *TYPE = NameOf<STRING_TYPE>();
+
+    if (verbose) cout << "\n\tTesting " << TYPE << endl;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#define SC "\\"
+#else
+#define SC "/"
+#endif
+    const int   ERROR            = Obj::k_ERROR_PATH_NOT_FOUND;
+    bsl::string workingDirectory = "";
+    Obj::getWorkingDirectory(&workingDirectory);
+    const char * const CURRENT_DIRECTORY = workingDirectory.c_str();
+
+    static const struct {
+        int         d_line;             // source line number
+
+        const char *d_root;             // root path to pass to the method
+
+        const char *d_expectedRoot;     // expected root part of the result
+                                        // path
+
+        int         d_expectedResult;   // expected return value
+
+        bool        d_createDirectory;  // flag indicating whether we need to
+                                        // create parent directory with this
+                                        // name
+    } PATHS[] = {
+        //LINE   ROOT                 EXP ROOT            EXP RESULT  DIR
+        //----   -------------------  -----------------   ----------  ------
+        { L_,    "",                  "",                 0,          false },
+        { L_,    "a",                 "a",                0,          true  },
+        { L_,    "a" SC,              "a",                0,          false },
+        { L_,    "abc",               "abc",              0,          true  },
+        { L_,    "abc" SC,            "abc",              0,          false },
+        { L_,    "abcde",             "abcde",            0,          true  },
+        { L_,    "abcde" SC,          "abcde",            0,          false },
+        { L_,    "abcde" SC "ab",     "abcde" SC "ab",    0,          true  },
+        { L_,    "abcde" SC "ab" SC,  "abcde" SC "ab",    0,          false },
+        { L_,    CURRENT_DIRECTORY,   CURRENT_DIRECTORY,  0,          false },
+        { L_,    "cba",               "NA",               ERROR,      false },
+        { L_,    "edcba",             "NA",               ERROR,      false },
+    };
+    const int NUM_PATHS = sizeof PATHS / sizeof *PATHS;
+
+    static const struct {
+        int         d_line;    // source line number
+        const char *d_prefix;  // directory name prefix to pass to the method
+    } PREFIXES[] = {
+        //LINE   PREFIX
+        //----   -------
+        { L_,    ""      },
+        { L_,    "a"     },
+        { L_,    "aa"    },
+        { L_,    "abc"   },
+        { L_,    "abcde" },
+    };
+    const int NUM_PREFIXES = sizeof PREFIXES / sizeof *PREFIXES;
+
+    // Add auxiliary directories.
+
+    for (int i = 0; i < NUM_PATHS; ++i) {
+        const int   LINE             = PATHS[i].d_line;
+        const bool  CREATE_DIRECTORY = PATHS[i].d_createDirectory;
+
+        if (CREATE_DIRECTORY) {
+            bsl::string PATH = PATHS[i].d_root;
+            if (!Obj::isDirectory(PATH)) {
+                int result = Obj::createPrivateDirectory(PATH);
+                ASSERTV(LINE, PATH, result, 0 == result);
+                ASSERTV(LINE, PATH, Obj::isDirectory(PATH));
+            }
+        }
+    }
+
+    if (verbose) cout << "\t\tTesting basic behavior."<< endl;
+    {
+        for (int i = 0; i < NUM_PATHS; ++i) {
+            const int        ROOT_LINE  = PATHS[i].d_line;
+            bsl::string_view ROOT       = PATHS[i].d_root;
+            bsl::string_view EXP_ROOT   = PATHS[i].d_expectedRoot;
+            int              EXP_RESULT = PATHS[i].d_expectedResult;
+
+            for (int j = 0; j < NUM_PREFIXES; ++j) {
+                const int        PREFIX_LINE = PREFIXES[j].d_line;
+                bsl::string_view PREFIX      = PREFIXES[j].d_prefix;
+
+                if (veryVerbose) {
+                    T_ T_ T_ P_(ROOT_LINE) P_(ROOT) P_(PREFIX_LINE) P(PREFIX)
+                }
+
+                bsl::string expectedPath = EXP_ROOT.data();
+                if (!EXP_ROOT.empty()) {
+                    const char separator =
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                                           '\\';
+#else
+                                           '/';
+#endif
+                    expectedPath.push_back(separator);
+                    expectedPath.append(PREFIX);
+                }
+
+                STRING_TYPE resultPath = "";
+                int         rc = Obj::createTemporarySubdirectory(&resultPath,
+                                                                  ROOT,
+                                                                  PREFIX);
+
+                ASSERTV(TYPE, ROOT_LINE, PREFIX_LINE, resultPath.c_str(), rc,
+                        EXP_RESULT == rc);
+                if (0 == EXP_RESULT) {
+                    // Verify that correct path was used.
+
+                    ASSERTV(TYPE, ROOT_LINE, PREFIX_LINE, expectedPath,
+                            resultPath.c_str(),
+                            0 == bsl::strncmp(expectedPath.c_str(),
+                                              resultPath.c_str(),
+                                              expectedPath.length()));
+
+                    // Verify that suffix is added to the new directory name.
+
+                    ASSERTV(TYPE, ROOT_LINE, PREFIX_LINE, expectedPath,
+                            resultPath.c_str(),
+                            expectedPath.length() < resultPath.length());
+
+                    // Verify that the new directory exists.
+
+                    ASSERTV(TYPE, ROOT_LINE, PREFIX_LINE, resultPath.c_str(),
+                            Obj::isDirectory(resultPath));
+
+                    // Verify new directory permissions.
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                    if (verbose) {
+                        cout << "\t\t\tDirectory permissions check is skipped "
+                             << "on Windows\n";
+                    }
+#else
+                    struct stat info;
+                    memset(&info, 0, sizeof(info));
+                    ASSERT(0 == ::stat(resultPath.c_str(), &info));
+                    info.st_mode &= 0777;
+                    ASSERT((S_IRUSR|S_IWUSR|S_IXUSR) == info.st_mode);
+                    if ((verbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode)
+                     || veryVerbose) {
+                        cout <<"\t\tTemp file permissions 0"
+                             << bsl::oct
+                             << static_cast<unsigned>(info.st_mode)
+                             << endl;
+                    }
+#endif
+
+                    // And that it can be accessed.
+
+                    STRING_TYPE temp;
+                    rc = Obj::createTemporarySubdirectory(&temp,
+                                                          resultPath.c_str(),
+                                                          "");
+
+                    ASSERTV(TYPE, ROOT_LINE, PREFIX_LINE, temp.c_str(), rc,
+                            0 == rc);
+                    ASSERTV(TYPE, ROOT_LINE, PREFIX_LINE, temp.c_str(),
+                            Obj::isDirectory(temp));
+
+                    ASSERT(0 == Obj::remove(temp));
+                    ASSERT(0 == Obj::remove(resultPath));
+                }
+                else {
+                    ASSERTV(TYPE, ROOT_LINE, PREFIX_LINE, resultPath.c_str(),
+                            "" == resultPath);
+                }
+            }
+        }
+    }
+
+    if (verbose) cout << "\n\t\tNegative Testing." << endl;
+    {
+        bsls::AssertTestHandlerGuard hG;
+        STRING_TYPE      *nullPtr    = 0;
+        STRING_TYPE       resultPath = "";
+        bsl::string_view  prefix     = "";
+        bsl::string_view  root  = "";
+
+        ASSERT_PASS(Obj::createTemporarySubdirectory(&resultPath,
+                                                     root,
+                                                     prefix));
+        ASSERT(0 == Obj::remove(resultPath));
+
+        ASSERT_FAIL(Obj::createTemporarySubdirectory(nullPtr, root, prefix));
+    }
+
+#undef SC
+}
+
+template <class STRING_TYPE>
 void testCase23_createTemporaryDirectory(const char         *typeName,
                                          int                 test,
                                          const bsl::string&  tmpWorkingDir,
@@ -3131,7 +3339,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -3216,7 +3424,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -3226,6 +3434,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Run usage example 1 and observe that none of the asserts fail.
+        //
+        // Testing:
+        //   TESTING USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING USAGE EXAMPLE 1\n"
@@ -3331,6 +3542,72 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING 'createTemporarySubdirectory' METHOD
+        //
+        // Concerns:
+        //: 1 The 'createTemporarySubdirectory' creates a new nested directory.
+        //:
+        //: 2 The directory has a randomly generated suffix in its name.
+        //:
+        //: 3 The created directory has the correct permissions.
+        //:
+        //: 4 The directory is fully functional (e.g. additional nested
+        //:   directories can be created within it).
+        //:
+        //: 5 Composite root paths are correctly handled.
+        //:
+        //: 6 Trailing separator symbol in the passed root path is omitted.
+        //:
+        //: 7 Absolute and relative root paths are correctly handled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   root paths (including empty, composite, relative, absolute and
+        //:   non-existent ones).
+        //:
+        //: 2 Using the table-driven technique, specify a set of distinct
+        //:   directory name prefixes.
+        //:
+        //: 3 For each row 'R1' in the table of P-1
+        //:
+        //:   1 For each row 'R2' in the table of P-2
+        //:
+        //:     1 Create a directory using the 'createTemporarySubdirectory'.
+        //:
+        //:     2 Verify that the name of created directory contains generated
+        //:       suffix.  (C-2)
+        //:
+        //:     3 Verify that the created directory exists and has expected
+        //:       permissions.  (C-1, 3, 5..7)
+        //:
+        //:     4 Create a subdirectory of the directory using the
+        //:       'createTemporarySubdirectory' and verify its presence.
+        //:
+        //:     5 Verify that the subdirectory and directory can be
+        //:       successfully deleted.  (C-4)
+        //
+        // Testing:
+        //   createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
+        //   createTemporarySubdirectory(std::string*, const bsl::string_view&)
+        //   createTemporarySubdirectory(pmr::string*, const bsl::string_view&)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "\nTESTING 'createTemporarySubdirectory' METHOD"
+                    "\n============================================\n";
+        }
+
+        testCase30_createTemporarySubdirectory<bsl::string>(verbose,
+                                                            veryVerbose);
+        testCase30_createTemporarySubdirectory<std::string>(verbose,
+                                                            veryVerbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        testCase30_createTemporarySubdirectory<std::pmr::string>(verbose,
+                                                                 veryVerbose);
+#endif
       } break;
       case 29: {
         // --------------------------------------------------------------------
@@ -4778,7 +5055,9 @@ int main(int argc, char *argv[])
         //: 2 Check names, types, and permission. (C-2,4)
         //
         // Testing:
-        //   createTemporaryDirectory(string *, const string_view&)
+        //   createTemporaryDirectory(bsl::string *, const string_view&)
+        //   createTemporaryDirectory(std::string *, const string_view&)
+        //   createTemporaryDirectory(std::pmr::::string *, const string_view&)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4823,7 +5102,9 @@ int main(int argc, char *argv[])
         //: 2 Check names, types, and permissions. (C-2,3,4)
         //
         // Testing:
-        //   createTemporaryFile(string *, const string_view&)
+        //   createTemporaryFile(bsl::string *, const bsl::string_view&)
+        //   createTemporaryFile(std::string *, const bsl::string_view&)
+        //   createTemporaryFile(std::pmr::::string *, const bsl::string_view&)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4895,7 +5176,9 @@ int main(int argc, char *argv[])
         //:       sure that at least one such pair differs by at least 3.
         //
         // Testing:
-        //   makeUnsafeTemporaryFilename(string *, const string_view&)
+        //   makeUnsafeTemporaryFilename(bsl::string *,const bsl::string_view&)
+        //   makeUnsafeTemporaryFilename(std::string *,const bsl::string_view&)
+        //   makeUnsafeTemporaryFilename(pmr::string *,const bsl::string_view&)
         // --------------------------------------------------------------------
 
         if (verbose) {

@@ -685,6 +685,31 @@ struct FilesystemUtil {
         // directory (and any files subsequently created in it) is left to the
         // caller.
 
+    static int createTemporarySubdirectory(
+                                        bsl::string             *outPath,
+                                        const bsl::string_view&  rootDirectory,
+                                        const bsl::string_view&  prefix);
+    static int createTemporarySubdirectory(
+                                        std::string             *outPath,
+                                        const bsl::string_view&  rootDirectory,
+                                        const bsl::string_view&  prefix);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int createTemporarySubdirectory(
+                                        std::pmr::string        *outPath,
+                                        const bsl::string_view&  rootDirectory,
+                                        const bsl::string_view&  prefix);
+#endif
+        // Create a new directory with a name constructed by appending an
+        // automatically-generated suffix to the specified 'prefix' within the
+        // specified 'rootDirectory'.  A non-zero return value indicates that
+        // no such directory could be created; otherwise the name of the
+        // directory created is assigned to the specified 'outPath'.  The
+        // directory is created with permissions restricted, as closely as
+        // possible, to the caller only.  If the 'rootDirectory' is a relative
+        // path, the directory is created relative to the process current
+        // directory.  Responsibility for deleting the directory (and any files
+        // subsequently created in it) is left to the caller.
+
     static void makeUnsafeTemporaryFilename(bsl::string             *outPath,
                                             const bsl::string_view&  prefix);
     static void makeUnsafeTemporaryFilename(std::string             *outPath,

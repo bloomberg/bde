@@ -309,6 +309,14 @@ struct PathUtil {
     // filesystem operations or accesses the filesystem as part of its
     // implementation.
 
+    // PUBLIC CLASS DATA
+    static const char k_SEPARATOR;
+                          // character used as a preferred path separator; use
+                          // of this constant is strongly discouraged (as
+                          // platforms, like Windows, may support multiple
+                          // separators in different contexts), instead prefer
+                          // functions to join and split path strings
+
     // CLASS METHODS
     static int appendIfValid(bsl::string             *path,
                              const bsl::string_view&  filename);

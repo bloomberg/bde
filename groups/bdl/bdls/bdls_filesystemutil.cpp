@@ -893,6 +893,294 @@ int removeFile(const char *path)
 
 #endif
 
+namespace {
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+template <class STRING_TYPE>
+int u_getSystemTemporaryDirectory(STRING_TYPE *path)
+{
+    WCHAR wpath[MAX_PATH + 1];
+    const DWORD getTempPathStatus = ::GetTempPathW(MAX_PATH, wpath);
+    if (0 == getTempPathStatus) {
+        return -1;                                                    // RETURN
+    }
+
+    STRING_TYPE result;
+    int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&result, wpath);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    *path = bslmf::MovableRefUtil::move(result);
+    return 0;
+}
+
+template <class STRING_TYPE>
+int u_getSymbolicLinkTarget(STRING_TYPE *result,
+                            const char  *path)
+{
+    BSLS_ASSERT(path);
+    BSLS_ASSERT(result);
+
+    bsl::wstring wide;
+    if (!narrowToWide(&wide, path)) {
+        return -1;                                                    // RETURN
+    }
+
+    // 'char memory[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];' -- can be large so use
+    // heap
+
+    bsl::string memory(MAXIMUM_REPARSE_DATA_BUFFER_SIZE, '\x0');
+    REPARSE_DATA_BUFFER *rdb =
+                         reinterpret_cast<REPARSE_DATA_BUFFER*>(memory.data());
+
+    HANDLE hFile = CreateFileW(
+        wide.c_str(),
+        FILE_READ_ATTRIBUTES,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        NULL,
+        OPEN_EXISTING,
+        FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS,
+        NULL
+    );
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return -1;                                                    // RETURN
+    }
+
+    DWORD bytesReturned;
+    bool ok = DeviceIoControl(
+        hFile,
+        FSCTL_GET_REPARSE_POINT,
+        0,
+        0,
+        rdb,
+        MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+        &bytesReturned,
+        0
+    );
+    CloseHandle(hFile);
+    if (!ok) {
+        return -1;                                                    // RETURN
+    }
+
+    const wchar_t *name;
+    size_t         nameLen;
+    switch (rdb->ReparseTag) {
+      case IO_REPARSE_TAG_SYMLINK: {  // symlink
+        name =
+              rdb->SymbolicLinkReparseBuffer.PathBuffer +
+              rdb->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t);
+        nameLen =
+              rdb->SymbolicLinkReparseBuffer.PrintNameLength / sizeof(wchar_t);
+      } break;
+      case IO_REPARSE_TAG_MOUNT_POINT: {  // directory junction
+        name =  rdb->MountPointReparseBuffer.PathBuffer +
+                rdb->MountPointReparseBuffer.PrintNameOffset / sizeof(wchar_t);
+        nameLen =
+                rdb->MountPointReparseBuffer.PrintNameLength / sizeof(wchar_t);
+      } break;
+      default: {
+        return -1;                                                    // RETURN
+      }
+    }
+
+    if (!wideToNarrow(result, bsl::wstring_view(name, nameLen))) {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+template <class STRING_TYPE>
+int u_getWorkingDirectory(STRING_TYPE *path)
+{
+    BSLS_ASSERT(path);
+
+    enum { BUFFER_SIZE = 4096 };
+    wchar_t buffer[BUFFER_SIZE];
+
+    wchar_t *retval = _wgetcwd(buffer, BUFFER_SIZE);
+    if (buffer == retval && wideToNarrow(path, buffer)) {
+        //our contract requires an absolute path
+
+        return bdls::PathUtil::isRelative(*path);                     // RETURN
+    }
+    return -1;
+}
+
+#else  // BSLS_PLATFORM_OS_WINDOWS
+
+template <class STRING_TYPE>
+int u_getSystemTemporaryDirectory(STRING_TYPE *path)
+{
+    // 'TMPDIR' is not chosen arbitrarily, it is an environment variable that
+    // all versions of the IEEE Std 1003.1 (POSIX) specification mandate exist
+    // and contain a path-name of a directory made available for programs that
+    // need a place to create temporary files.
+
+    const char *const tmpdir = ::getenv("TMPDIR");
+    if (0 == tmpdir) {
+        return -1;                                                    // RETURN
+    }
+
+    *path = tmpdir;
+    return 0;
+}
+
+template <class STRING_TYPE>
+int u_getSymbolicLinkTarget(STRING_TYPE *result,
+                            const char  *path)
+{
+    BSLS_ASSERT(path);
+    BSLS_ASSERT(result);
+
+    char buffer[4096];
+
+    ssize_t nBytes = ::readlink(path, buffer, sizeof buffer);
+    if (nBytes >= 0) {
+        result->assign(buffer, nBytes);
+        return 0;                                                     // RETURN
+    }
+    // 'errno' contains the error code
+    return -1;
+}
+
+template <class STRING_TYPE>
+int u_getWorkingDirectory(STRING_TYPE *path)
+{
+    BSLS_ASSERT(path);
+
+    enum {BUFFER_SIZE = 4096};
+    char buffer[BUFFER_SIZE];
+
+    char *retval = getcwd(buffer, BUFFER_SIZE);
+    if (buffer == retval) {
+        *path = buffer;
+
+        //our contract requires an absolute path
+
+        return bdls::PathUtil::isRelative(*path);                     // RETURN
+    }
+    return -1;
+}
+
+#endif  // !BSLS_PLATFORM_OS_WINDOWS
+
+template <class VECTOR_TYPE>
+int u_findMatchingPaths(VECTOR_TYPE *result, const char *pattern)
+{
+    BSLS_ASSERT(result);
+
+    result->clear();
+    return bdls::FilesystemUtil::visitPaths(
+        pattern,
+        bdlf::BindUtil::bind(
+            &pushBackWrapper<VECTOR_TYPE>, result, bdlf::PlaceHolders::_1));
+}
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+BSLA_MAYBE_UNUSED
+int posix_fallocate(...)
+    // Always return -1.  Overload resolution makes this function inferior to
+    // the real 'posix_fallocate' provded it exists.  (It doesn't on Solaris 10
+    // and earlier.)
+{
+    return -1;
+}
+#endif
+
+template <class STRING_TYPE>
+bdls::FilesystemUtil::FileDescriptor u_createTemporaryFile(
+                                              STRING_TYPE             *outPath,
+                                              const bsl::string_view&  prefix)
+{
+    BSLS_ASSERT(outPath);
+
+    bdls::FilesystemUtil::FileDescriptor result;
+    STRING_TYPE                          localOutPath = *outPath;
+    for (int i = 0; i < 10; ++i) {
+        bdls::FilesystemUtil::makeUnsafeTemporaryFilename(&localOutPath,
+                                                          prefix);
+        result = bdls::FilesystemUtil::open(
+                                        localOutPath.c_str(),
+                                        bdls::FilesystemUtil::e_CREATE_PRIVATE,
+                                        bdls::FilesystemUtil::e_READ_WRITE);
+        if (result != bdls::FilesystemUtil::k_INVALID_FD) {
+            *outPath = localOutPath;
+            break;
+        }
+    }
+    return result;
+}
+
+template <class STRING_TYPE>
+void u_makeUnsafeTemporaryFilename(STRING_TYPE             *outPath,
+                                   const bsl::string_view&  prefix)
+{
+    BSLS_ASSERT(outPath);
+
+    char suffix[8];
+    bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
+    bsls::Types::Uint64 tid =
+                    bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::selfId());
+    using bslh::hashAppend;
+    bslh::DefaultHashAlgorithm hashee;
+    hashAppend(hashee, now);
+    hashAppend(hashee, prefix);
+    hashAppend(hashee, *outPath);
+    hashAppend(hashee, tid);
+    hashAppend(hashee, getProcessId());
+    bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
+    for (int i = 0; i < int(sizeof(suffix)); ++i) {
+        static const char s[63] =
+              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        suffix[i] = s[hash % 62];
+        hash /= 62;
+    }
+    outPath->assign(prefix.data(), prefix.length());
+    outPath->append(suffix, sizeof(suffix));
+}
+
+template <class STRING_TYPE>
+int u_createTemporaryDirectory(STRING_TYPE             *outPath,
+                               const bsl::string_view&  prefix)
+{
+    BSLS_ASSERT(outPath);
+
+    int result;
+    STRING_TYPE localOutPath = *outPath;
+    for (int i = 0; i < 10; ++i) {
+        bdls::FilesystemUtil::makeUnsafeTemporaryFilename(&localOutPath,
+                                                          prefix);
+        result = bdls::FilesystemUtil::createPrivateDirectory(localOutPath);
+        if (result == 0) {
+            *outPath = localOutPath;
+            break;
+        }
+    }
+    return result;
+}
+
+template <class STRING_TYPE>
+int u_createTemporarySubdirectory(STRING_TYPE             *outPath,
+                                  const bsl::string_view&  rootDirectory,
+                                  const bsl::string_view&  prefix)
+{
+    BSLS_ASSERT(outPath);
+
+    bsl::string compositePrefix(rootDirectory);
+
+    int rc = bdls::PathUtil::appendIfValid(&compositePrefix, prefix);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+    if (!rootDirectory.empty() && prefix.empty()) {
+        compositePrefix.push_back(bdls::PathUtil::k_SEPARATOR);
+    }
+
+    return u_createTemporaryDirectory(outPath, compositePrefix.c_str());
+}
+
+}  // close unnamed namespace
+
                         // ----------------------------
                         // struct bdls::FilesystemUtil
                         // ----------------------------
@@ -1448,27 +1736,6 @@ int FilesystemUtil::visitPaths(
     return numFiles;
 }
 
-namespace {
-template <class STRING_TYPE>
-int u_getSystemTemporaryDirectory(STRING_TYPE *path)
-{
-    WCHAR wpath[MAX_PATH + 1];
-    const DWORD getTempPathStatus = ::GetTempPathW(MAX_PATH, wpath);
-    if (0 == getTempPathStatus) {
-        return -1;                                                    // RETURN
-    }
-
-    STRING_TYPE result;
-    int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&result, wpath);
-    if (0 != rc) {
-        return -1;                                                    // RETURN
-    }
-
-    *path = bslmf::MovableRefUtil::move(result);
-    return 0;
-}
-}  // close unnamed namespace
-
 int FilesystemUtil::visitTree(
                          const bsl::string_view&                      root,
                          const bsl::string_view&                      pattern,
@@ -1768,102 +2035,6 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
     return k_OFFSET_MAX;
 }
 
-namespace {
-template <class STRING_TYPE>
-int u_getSymbolicLinkTarget(STRING_TYPE *result,
-                            const char  *path)
-{
-    BSLS_ASSERT(path);
-    BSLS_ASSERT(result);
-
-    bsl::wstring wide;
-    if (!narrowToWide(&wide, path)) {
-        return -1;                                                    // RETURN
-    }
-
-    // 'char memory[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];' -- can be large so use
-    // heap
-
-    bsl::string memory(MAXIMUM_REPARSE_DATA_BUFFER_SIZE, '\x0');
-    REPARSE_DATA_BUFFER *rdb =
-                         reinterpret_cast<REPARSE_DATA_BUFFER*>(memory.data());
-
-    HANDLE hFile = CreateFileW(
-        wide.c_str(),
-        FILE_READ_ATTRIBUTES,
-        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        NULL,
-        OPEN_EXISTING,
-        FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS,
-        NULL
-    );
-    if (hFile == INVALID_HANDLE_VALUE) {
-        return -1;                                                    // RETURN
-    }
-
-    DWORD bytesReturned;
-    bool ok = DeviceIoControl(
-        hFile,
-        FSCTL_GET_REPARSE_POINT,
-        0,
-        0,
-        rdb,
-        MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
-        &bytesReturned,
-        0
-    );
-    CloseHandle(hFile);
-    if (!ok) {
-        return -1;                                                    // RETURN
-    }
-
-    const wchar_t *name;
-    size_t         nameLen;
-    switch (rdb->ReparseTag) {
-      case IO_REPARSE_TAG_SYMLINK: {  // symlink
-        name =
-              rdb->SymbolicLinkReparseBuffer.PathBuffer +
-              rdb->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t);
-        nameLen =
-              rdb->SymbolicLinkReparseBuffer.PrintNameLength / sizeof(wchar_t);
-      } break;
-      case IO_REPARSE_TAG_MOUNT_POINT: {  // directory junction
-        name =  rdb->MountPointReparseBuffer.PathBuffer +
-                rdb->MountPointReparseBuffer.PrintNameOffset / sizeof(wchar_t);
-        nameLen =
-                rdb->MountPointReparseBuffer.PrintNameLength / sizeof(wchar_t);
-      } break;
-      default: {
-        return -1;                                                    // RETURN
-      }
-    }
-
-    if (!wideToNarrow(result, bsl::wstring_view(name, nameLen))) {
-        return -1;                                                    // RETURN
-    }
-    return 0;
-}
-}  // close unnamed namespace
-
-namespace {
-template <class STRING_TYPE>
-int u_getWorkingDirectory(STRING_TYPE *path)
-{
-    BSLS_ASSERT(path);
-
-    enum { BUFFER_SIZE = 4096 };
-    wchar_t buffer[BUFFER_SIZE];
-
-    wchar_t *retval = _wgetcwd(buffer, BUFFER_SIZE);
-    if (buffer == retval && wideToNarrow(path, buffer)) {
-        //our contract requires an absolute path
-
-        return PathUtil::isRelative(*path);                           // RETURN
-    }
-    return -1;
-}
-}  // close unnamed namespace
-
 int FilesystemUtil::setWorkingDirectory(const char *path)
 {
     BSLS_ASSERT(path);
@@ -1881,7 +2052,6 @@ int FilesystemUtil::setWorkingDirectory(const char *path)
     return status;
 }
 }  // close package namespace
-
 #else
 // unix specific implementation
 
@@ -2335,25 +2505,6 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     return u::ImpUtil::getLastModificationTime(time, descriptor);
 }
 
-namespace {
-template <class STRING_TYPE>
-int u_getSystemTemporaryDirectory(STRING_TYPE *path)
-{
-    // 'TMPDIR' is not chosen arbitrarily, it is an environment variable that
-    // all versions of the IEEE Std 1003.1 (POSIX) specification mandate exist
-    // and contain a path-name of a directory made available for programs that
-    // need a place to create temporary files.
-
-    const char *const tmpdir = ::getenv("TMPDIR");
-    if (0 == tmpdir) {
-        return -1;                                                    // RETURN
-    }
-
-    *path = tmpdir;
-    return 0;
-}
-}  // close unnamed namespace
-
 int FilesystemUtil::visitPaths(
                              const char                               *pattern,
                              const bsl::function<void(const char *)>&  visitor)
@@ -2697,47 +2848,6 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
     }
 }
 
-namespace {
-template <class STRING_TYPE>
-int u_getSymbolicLinkTarget(STRING_TYPE *result,
-                            const char  *path)
-{
-    BSLS_ASSERT(path);
-    BSLS_ASSERT(result);
-
-    char buffer[4096];
-
-    ssize_t nBytes = ::readlink(path, buffer, sizeof buffer);
-    if (nBytes >= 0) {
-        result->assign(buffer, nBytes);
-        return 0;                                                     // RETURN
-    }
-    // 'errno' contains the error code
-    return -1;
-}
-}  // close unnamed namespace
-
-namespace {
-template <class STRING_TYPE>
-int u_getWorkingDirectory(STRING_TYPE *path)
-{
-    BSLS_ASSERT(path);
-
-    enum {BUFFER_SIZE = 4096};
-    char buffer[BUFFER_SIZE];
-
-    char *retval = getcwd(buffer, BUFFER_SIZE);
-    if (buffer == retval) {
-        *path = buffer;
-
-        //our contract requires an absolute path
-
-        return PathUtil::isRelative(*path);                           // RETURN
-    }
-    return -1;
-}
-}  // close unnamed namespace
-
 int FilesystemUtil::setWorkingDirectory(const char *path)
 {
     BSLS_ASSERT(path);
@@ -2866,20 +2976,6 @@ int FilesystemUtil::createPrivateDirectory(const char *path)
     return makeDirectory(path, true);
 }
 
-namespace {
-template <class VECTOR_TYPE>
-int u_findMatchingPaths(VECTOR_TYPE *result, const char *pattern)
-{
-    BSLS_ASSERT(result);
-
-    result->clear();
-    return FilesystemUtil::visitPaths(
-        pattern,
-        bdlf::BindUtil::bind(
-            &pushBackWrapper<VECTOR_TYPE>, result, bdlf::PlaceHolders::_1));
-}
-}  // close unnamed namespace
-
 int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                                       const char               *pattern)
 {
@@ -2902,22 +2998,6 @@ int FilesystemUtil::findMatchingPaths(
 }
 #endif
 
-}  // close package namespace
-
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
-namespace {
-BSLA_MAYBE_UNUSED
-int posix_fallocate(...)
-    // Always return -1.  Overload resolution makes this function inferior to
-    // the real 'posix_fallocate' provded it exists.  (It doesn't on Solaris 10
-    // and earlier.)
-{
-    return -1;
-}
-}  // close unnamed namespace
-#endif
-
-namespace bdls {
 int FilesystemUtil::growFile(FileDescriptor         descriptor,
                              FilesystemUtil::Offset size,
                              bool                   reserveFlag,
@@ -3045,30 +3125,6 @@ int FilesystemUtil::rollFileChain(const bsl::string_view& path, int maxSuffix)
     return maxSuffix;
 }
 
-namespace {
-template <class STRING_TYPE>
-FilesystemUtil::FileDescriptor u_createTemporaryFile(
-                                              STRING_TYPE             *outPath,
-                                              const bsl::string_view&  prefix)
-{
-    BSLS_ASSERT(outPath);
-
-    FilesystemUtil::FileDescriptor result;
-    STRING_TYPE localOutPath = *outPath;
-    for (int i = 0; i < 10; ++i) {
-        FilesystemUtil::makeUnsafeTemporaryFilename(&localOutPath, prefix);
-        result = FilesystemUtil::open(localOutPath.c_str(),
-                                      FilesystemUtil::e_CREATE_PRIVATE,
-                                      FilesystemUtil::e_READ_WRITE);
-        if (result != FilesystemUtil::k_INVALID_FD) {
-            *outPath = localOutPath;
-            break;
-        }
-    }
-    return result;
-}
-}  // close unnamed namespace
-
 FilesystemUtil::FileDescriptor FilesystemUtil::createTemporaryFile(
                                               bsl::string             *outPath,
                                               const bsl::string_view&  prefix)
@@ -3092,36 +3148,6 @@ FilesystemUtil::FileDescriptor FilesystemUtil::createTemporaryFile(
 }
 #endif
 
-namespace {
-template <class STRING_TYPE>
-void u_makeUnsafeTemporaryFilename(STRING_TYPE             *outPath,
-                                   const bsl::string_view&  prefix)
-{
-    BSLS_ASSERT(outPath);
-
-    char suffix[8];
-    bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
-    bsls::Types::Uint64 tid =
-                    bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::selfId());
-    using bslh::hashAppend;
-    bslh::DefaultHashAlgorithm hashee;
-    hashAppend(hashee, now);
-    hashAppend(hashee, prefix);
-    hashAppend(hashee, *outPath);
-    hashAppend(hashee, tid);
-    hashAppend(hashee, getProcessId());
-    bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
-    for (int i = 0; i < int(sizeof(suffix)); ++i) {
-        static const char s[63] =
-              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        suffix[i] = s[hash % 62];
-        hash /= 62;
-    }
-    outPath->assign(prefix.data(), prefix.length());
-    outPath->append(suffix, sizeof(suffix));
-}
-}  // close unnamed namespace
-
 void FilesystemUtil::makeUnsafeTemporaryFilename(
                                               bsl::string             *outPath,
                                               const bsl::string_view&  prefix)
@@ -3144,28 +3170,6 @@ void FilesystemUtil::makeUnsafeTemporaryFilename(
     u_makeUnsafeTemporaryFilename(outPath, prefix);
 }
 #endif
-
-
-namespace {
-template <class STRING_TYPE>
-int u_createTemporaryDirectory(STRING_TYPE             *outPath,
-                               const bsl::string_view&  prefix)
-{
-    BSLS_ASSERT(outPath);
-
-    int result;
-    STRING_TYPE localOutPath = *outPath;
-    for (int i = 0; i < 10; ++i) {
-        FilesystemUtil::makeUnsafeTemporaryFilename(&localOutPath, prefix);
-        result = FilesystemUtil::createPrivateDirectory(localOutPath);
-        if (result == 0) {
-            *outPath = localOutPath;
-            break;
-        }
-    }
-    return result;
-}
-}  // close unnamed namespace
 
 int FilesystemUtil::createTemporaryDirectory(bsl::string             *outPath,
                                              const bsl::string_view&  prefix)
@@ -3184,6 +3188,32 @@ int FilesystemUtil::createTemporaryDirectory(std::pmr::string        *outPath,
                                              const bsl::string_view&  prefix)
 {
     return u_createTemporaryDirectory(outPath, prefix);
+}
+#endif
+
+int FilesystemUtil::createTemporarySubdirectory(
+                                        bsl::string             *outPath,
+                                        const bsl::string_view&  rootDirectory,
+                                        const bsl::string_view&  prefix)
+{
+    return u_createTemporarySubdirectory(outPath, rootDirectory, prefix);
+}
+
+int FilesystemUtil::createTemporarySubdirectory(
+                                        std::string             *outPath,
+                                        const bsl::string_view&  rootDirectory,
+                                        const bsl::string_view&  prefix)
+{
+    return u_createTemporarySubdirectory(outPath, rootDirectory, prefix);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int FilesystemUtil::createTemporarySubdirectory(
+                                        std::pmr::string        *outPath,
+                                        const bsl::string_view&  rootDirectory,
+                                        const bsl::string_view&  prefix)
+{
+    return u_createTemporarySubdirectory(outPath, rootDirectory, prefix);
 }
 #endif
 

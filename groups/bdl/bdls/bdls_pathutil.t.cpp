@@ -39,9 +39,14 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 4] int appendIfValid(bsl::string *, const bsl::string_view& );
-// [ 5] void splitFilename(string_view*, string_view*, const string_view&, int);
+// [ 5] void splitFilename(string_view*, string_view*, const string_view&,int);
+// [ 6] void getExtension(bsl::string*, const string_view&, int);
 // ----------------------------------------------------------------------------
-// [ 6] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
+// [ 1] Native Parsing Test
+// [ 2] Leafless append test
+// [ 3] Special path parsing test
+// [ 7] TESTING SEPARATOR CONSTANT
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1237,7 +1242,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch(test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1264,6 +1269,54 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
         usageExample<std::pmr::string>();
 #endif
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING SEPARATOR CONSTANT
+        //
+        // Concerns:
+        //: 1 The 'k_SEPARATOR' represents valid path separator on any
+        //:   supported platform.
+        //
+        // Plan:
+        //: 1 Explicitly append 'k_SEPARATOR' and some string representing
+        //:   filename to another string, representing path.  Compose a
+        //:   reference value using the 'appendIfValid' function.  Compare the
+        //:   results.
+        //:
+        //: 2 Extract filenames from both paths using the 'getLeaf' function
+        //:  and compare them.  (C-1)
+        //
+        // Testing:
+        //   TESTING SEPARATOR CONSTANT
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SEPARATOR CONSTANT" << endl
+                          << "==========================" << endl;
+
+        const char *PATH     = "path";
+        const char *FILENAME = "filename";
+
+        bsl::string      resultStr   = PATH;
+        bsl::string      expectedStr = PATH;
+        bsl::string_view filename    = FILENAME;
+
+        resultStr += Obj::k_SEPARATOR;
+        resultStr += filename;
+
+        Obj::appendIfValid(&expectedStr, filename);
+
+        ASSERTV(expectedStr, resultStr, expectedStr == resultStr);
+
+        bsl::string resultLeaf;
+        bsl::string expectedLeaf;
+
+        ASSERTV(0 == Obj::getLeaf(&resultLeaf,   resultStr.data()));
+        ASSERTV(0 == Obj::getLeaf(&expectedLeaf, expectedStr.data()));
+
+        ASSERTV(expectedLeaf, resultLeaf, expectedLeaf == resultLeaf);
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
