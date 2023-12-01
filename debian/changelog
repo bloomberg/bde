@@ -1,5 +1,13 @@
-bsl-internal (3.127.0.0) unstable; urgency=low
+bsl-internal (3.127.1.0) unstable; urgency=low
 
+  * c3aa00f07 Bumped version to 3.127.1.0
+  * b0e576013 Revert "Add  values for C++20 and c++23 (#4474)" (#4515)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Dec 2023 15:03:00 -0500
+
+bsl-internal (3.127.0.0) git; urgency=low
+
+  * bdb17c19a Changelog for version 3.127.0.0
   * 038cb6c30 Bumped version to 3.127.0.0
   * 70e70ffa1 Remove use of deprecated 'allocator' method (#4505)
   * 1209b06ed Add constructors taking bsl::basic_string to span for C++03 (#4500)
@@ -30,7 +38,7 @@ bsl-internal (3.127.0.0) unstable; urgency=low
   * e5ba50edd Fix install path and INSTALL_INTERFACE property for thirdparties (#4471)
   * c0582bd5d add metric registrar creators (#4469)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Nov 2023 12:24:45 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Nov 2023 12:34:19 -0500
 
 bsl-internal (3.126.0.0) git; urgency=low
 
