@@ -6,6 +6,28 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
+// Recommended practice for formatters (needs to be added to the google doc or
+// something later):
+//: o If you will define a formatter for your type 'T', do so in the same
+//:   component header that defines 'T' itself.  This avoids issues due to
+//:   users forgetting to include the header for the formatter.
+//: o Define either 'std::formatter<T>' or 'bsl::formatter<T>', but not both.
+//: o If you need to support C++03, then you should define 'bsl::formatter<T>'.
+//:   Note that in C++20, we provide a partial specialization of
+//:   'std::formatter<T>' that will delegate to 'bsl::formatter<T>'.
+//: o If you only need to support C++20, then one possibility is to define
+//:   'std::formatter<T>' only.  Note that 'bsl::format' will use
+//:   'std::formatter<T>' in C++20 mode.  Note, however, that if you do this,
+//:   then 'bsl::formatter<T>' will be disabled.
+//: o If for some reason you need to define both 'bsl::formatter<T>' and
+//:   'std::formatter<T>', then you should define 'bsl::formatter<T>' first and
+//:   then define 'std::formatter<T>' to inherit from 'bsl::formatter<T>'.
+//:   Doing it the other way around will lead to compilation errors because
+//:   when 'std::formatter<T>' is instantiated, there will be a check to see
+//:   whether it can delegate to 'bsl::formatter<T>', which will instantiate
+//:   'bsl::formatter<T>', but this instantiation will then recursively depend
+//:   on 'std::formatter<T>'.
+
 #include <bslscm_version.h>
 
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
