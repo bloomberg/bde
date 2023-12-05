@@ -45,16 +45,6 @@ int Severity::fromAscii(Severity::Level *level,
                 return 0;                                             // RETURN
             }
           } break;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-          case 'N': {
-            if ('o' == (string[1] | 0x20)
-             && 'n' == (string[2] | 0x20)
-             && 'e' == (string[3] | 0x20)) {
-                *level = Severity::BAEL_NONE;
-                return 0;                                             // RETURN
-            }
-          } break;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
           case 'W': {
             if ('a' == (string[1] | 0x20)
              && 'r' == (string[2] | 0x20)
@@ -120,9 +110,6 @@ const char *Severity::toAscii(Severity::Level value)
       case 128: return "INFO";
       case 160: return "DEBUG";
       case 192: return "TRACE";
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      case 224: return "NONE";
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
       default:  return "(* UNKNOWN *)";
     }
 }

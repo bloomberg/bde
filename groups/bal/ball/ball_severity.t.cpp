@@ -1,13 +1,5 @@
 // ball_severity.t.cpp                                                -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_severity.h>
 
 #include <bdlb_string.h>
@@ -109,11 +101,7 @@ typedef ball::Severity       Class;
 typedef Class::Level         Enum;
 typedef bsls::Types::IntPtr  IntPtr;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-const int NUM_ENUMS = Class::BAEL_LENGTH;
-#else
 const int NUM_ENUMS = Class::e_LENGTH;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -211,10 +199,7 @@ int main(int argc, char *argv[])
             {  Class::e_WARN,   "WARN",                  3 << 5          },
             {  Class::e_INFO,   "INFO",                  4 << 5          },
             {  Class::e_DEBUG,  "DEBUG",                 5 << 5          },
-            {  Class::e_TRACE,  "TRACE",                 6 << 5          },
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-            {  Class::BAEL_NONE,"NONE",                  7 << 5          },
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+            {  Class::e_TRACE,  "TRACE",                 6 << 5          }
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;

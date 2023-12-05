@@ -1,13 +1,4 @@
 // ball_severityutil.t.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <ball_severityutil.h>
 
 #include <ball_severity.h>
@@ -223,17 +214,6 @@ int main(int argc, char *argv[])
             { L_,        "INFO",          true,    },
             { L_,        "DEBUG",         true,    },
             { L_,        "TRACE",         true,    },
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-            { L_,        "NONE",          true,    },
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-            { L_,        "oFf",           true,    },
-            { L_,        "fAtAl",         true,    },
-            { L_,        "eRrOr",         true,    },
-            { L_,        "wArN",          true,    },
-            { L_,        "iNfO",          true,    },
-            { L_,        "dEbUg",         true,    },
-            { L_,        "tRaCe",         true,    },
-            { L_,        "nOnE",          true,    },
 
             { L_,        "oFf",           true,    },
             { L_,        "fAtAl",         true,    },
@@ -242,7 +222,14 @@ int main(int argc, char *argv[])
             { L_,        "iNfO",          true,    },
             { L_,        "dEbUg",         true,    },
             { L_,        "tRaCe",         true,    },
-            { L_,        "nOnE",          true,    },
+
+            { L_,        "oFf",           true,    },
+            { L_,        "fAtAl",         true,    },
+            { L_,        "eRrOr",         true,    },
+            { L_,        "wArN",          true,    },
+            { L_,        "iNfO",          true,    },
+            { L_,        "dEbUg",         true,    },
+            { L_,        "tRaCe",         true,    },
 
             { L_,        "OF",            false,   },
             { L_,        "FATA",          false,   },
@@ -251,7 +238,6 @@ int main(int argc, char *argv[])
             { L_,        "INF",           false,   },
             { L_,        "DEBU",          false,   },
             { L_,        "TRAC",          false,   },
-            { L_,        "NON",           false,   },
 
             { L_,        "OFFa",          false,   },
             { L_,        "FATALa",        false,   },
@@ -260,7 +246,6 @@ int main(int argc, char *argv[])
             { L_,        "INFOa",         false,   },
             { L_,        "DEBUGa",        false,   },
             { L_,        "TRACEa",        false,   },
-            { L_,        "NONEa",         false,   },
 
             { L_,        "xxyyzz",        false,   },
             { L_,        "xFATAL",        false,   },
@@ -327,9 +312,7 @@ int main(int argc, char *argv[])
             { L_,        "INFO",            0,       Class::e_INFO  },
             { L_,        "DEBUG",           0,       Class::e_DEBUG },
             { L_,        "TRACE",           0,       Class::e_TRACE },
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-            { L_,        "NONE",            0,       Class::BAEL_NONE  },
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
             { L_,        "oFf",             0,       Class::e_OFF   },
             { L_,        "fAtAl",           0,       Class::e_FATAL },
             { L_,        "eRrOr",           0,       Class::e_ERROR },
@@ -353,7 +336,6 @@ int main(int argc, char *argv[])
             { L_,        "INF",            -1,       initialValue },
             { L_,        "DEBU",           -1,       initialValue },
             { L_,        "TRAC",           -1,       initialValue },
-            { L_,        "NON",            -1,       initialValue },
 
             { L_,        "OFFa",           -1,       initialValue },
             { L_,        "FATALa",         -1,       initialValue },
@@ -362,7 +344,6 @@ int main(int argc, char *argv[])
             { L_,        "INFOa",          -1,       initialValue },
             { L_,        "DEBUGa",         -1,       initialValue },
             { L_,        "TRACEa",         -1,       initialValue },
-            { L_,        "NONEa",          -1,       initialValue },
 
             { L_,        "xxyyzz",         -1,       initialValue },
             { L_,        "xFATAL",         -1,       initialValue },
@@ -412,10 +393,7 @@ int main(int argc, char *argv[])
                Class::e_WARN,
                Class::e_INFO,
                Class::e_DEBUG,
-               Class::e_TRACE,
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-               Class::BAEL_NONE
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+               Class::e_TRACE
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -465,9 +443,7 @@ int main(int argc, char *argv[])
             { L_,        "INFO",          true,    },
             { L_,        "DEBUG",         true,    },
             { L_,        "TRACE",         true,    },
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-            { L_,        "NONE",          true,    },
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+            { L_,        "NONE",          false,   },
 
             { L_,        "oFf",           true,    },
             { L_,        "fAtAl",         true,    },
@@ -492,7 +468,6 @@ int main(int argc, char *argv[])
             { L_,        "INF",           false,   },
             { L_,        "DEBU",          false,   },
             { L_,        "TRAC",          false,   },
-            { L_,        "NON",           false,   },
 
             { L_,        "OFFa",          false,   },
             { L_,        "FATALa",        false,   },
@@ -501,7 +476,6 @@ int main(int argc, char *argv[])
             { L_,        "INFOa",         false,   },
             { L_,        "DEBUGa",        false,   },
             { L_,        "TRACEa",        false,   },
-            { L_,        "NONEa",         false,   },
 
             { L_,        "xxyyzz",        false,   },
             { L_,        "xFATAL",        false,   },
@@ -563,9 +537,7 @@ int main(int argc, char *argv[])
             { L_,        "INFO",            0,       Class::e_INFO  },
             { L_,        "DEBUG",           0,       Class::e_DEBUG },
             { L_,        "TRACE",           0,       Class::e_TRACE },
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-            { L_,        "NONE",            0,       Class::BAEL_NONE  },
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
             { L_,        "oFf",             0,       Class::e_OFF   },
             { L_,        "fAtAl",           0,       Class::e_FATAL },
             { L_,        "eRrOr",           0,       Class::e_ERROR },
@@ -589,7 +561,6 @@ int main(int argc, char *argv[])
             { L_,        "INF",            -1,       initialValue },
             { L_,        "DEBU",           -1,       initialValue },
             { L_,        "TRAC",           -1,       initialValue },
-            { L_,        "NON",            -1,       initialValue },
 
             { L_,        "OFFa",           -1,       initialValue },
             { L_,        "FATALa",         -1,       initialValue },
@@ -598,7 +569,6 @@ int main(int argc, char *argv[])
             { L_,        "INFOa",          -1,       initialValue },
             { L_,        "DEBUGa",         -1,       initialValue },
             { L_,        "TRACEa",         -1,       initialValue },
-            { L_,        "NONEa",          -1,       initialValue },
 
             { L_,        "xxyyzz",         -1,       initialValue },
             { L_,        "xFATAL",         -1,       initialValue },
