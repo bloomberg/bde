@@ -1,9 +1,17 @@
-bsl-internal (3.127.1.0) unstable; urgency=low
+bsl-internal (3.127.2.0) unstable; urgency=low
 
+  * 6b967bd65 Bumped version to 3.127.2.0
+  * 107eba717 Remove BAEL_NONE severity level (#4520)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 5 Dec 2023 16:03:20 -0500
+
+bsl-internal (3.127.1.0) git; urgency=low
+
+  * 090a05290 Changelog for version 3.127.1.0
   * c3aa00f07 Bumped version to 3.127.1.0
   * b0e576013 Revert "Add  values for C++20 and c++23 (#4474)" (#4515)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Dec 2023 15:03:00 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Dec 2023 15:03:53 -0500
 
 bsl-internal (3.127.0.0) git; urgency=low
 
