@@ -53,12 +53,6 @@ int SeverityUtil::fromAsciiCaseless(Severity::Level *level, const char *name)
         *level = Severity::e_TRACE;
         return BALL_SUCCESS;                                          // RETURN
     }
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    if (bdlb::String::areEqualCaseless("NONE", 4, name)) {
-        *level = Severity::BAEL_NONE;
-        return BALL_SUCCESS;                                          // RETURN
-    }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     return BALL_FAILURE;
 }
 
@@ -72,9 +66,6 @@ bool SeverityUtil::isValidNameCaseless(const char *name)
         || bdlb::String::areEqualCaseless("WARN",  4, name)
         || bdlb::String::areEqualCaseless("INFO",  4, name)
         || bdlb::String::areEqualCaseless("DEBUG", 5, name)
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        || bdlb::String::areEqualCaseless("NONE",  4, name)
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         || bdlb::String::areEqualCaseless("TRACE", 5, name);
 }
 

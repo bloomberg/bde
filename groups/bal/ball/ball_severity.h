@@ -1,12 +1,4 @@
 // ball_severity.h                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_SEVERITY
 #define INCLUDED_BALL_SEVERITY
 
@@ -115,8 +107,6 @@ BSLS_IDENT("$Id: $")
 #undef DEBUG
 #pragma push_macro("TRACE")
 #undef TRACE
-#pragma push_macro("NONE")
-#undef NONE
 
 #endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -149,7 +139,6 @@ struct Severity {
       , BAEL_INFO  = e_INFO
       , BAEL_DEBUG = e_DEBUG
       , BAEL_TRACE = e_TRACE
-      , BAEL_NONE  = 224
 
 #ifndef OFF
       , OFF   = e_OFF
@@ -172,18 +161,12 @@ struct Severity {
 #ifndef TRACE
       , TRACE = e_TRACE
 #endif
-#ifndef NONE
-      , NONE  = BAEL_NONE
-#endif
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
         e_LENGTH = 7
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_LENGTH = e_LENGTH + 1
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'e_LENGTH' to be the number of enumerators in the 'Level'
         // enumeration.
@@ -256,7 +239,6 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, Severity::Level rhs)
 #pragma pop_macro("INFO")
 #pragma pop_macro("DEBUG")
 #pragma pop_macro("TRACE")
-#pragma pop_macro("NONE")
 
 #endif
 #endif
