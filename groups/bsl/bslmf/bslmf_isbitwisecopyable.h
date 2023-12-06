@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 //      // non-static function member ptr
 //..
 // The following 2 types are neither trivially nor bitwise copyable:
-///..
+//..
 //  typedef int& MyFundamentalTypeRef;
 //      // reference (not bitwise copyable)
 //
