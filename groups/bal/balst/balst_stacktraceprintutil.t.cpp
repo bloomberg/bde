@@ -67,7 +67,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // CLASS METHOD
 // [ 2] bsl::ostream& printStackTrace(ostream& s, int max, bool demangle);
-// [ 5] void preExceptionStackTraceLog(const char *, const char *);
+// [ 5] void logExceptionStackTrace(const char *, const char *);
 
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -233,6 +233,12 @@ typedef long      unsigned int UintPtr;
 
 typedef bsls::Types::IntPtr    IntPtr;
 
+#define U_PUSH_COLONS(matchVec)  do {                                         \
+        if (e_DEMANGLE_COLONS) {                                              \
+            matchVec.push_back("::");                                         \
+        }                                                                     \
+    } while (false)
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -304,11 +310,6 @@ bool checkOutput(const bsl::string&               str,
     return ts == testStatus;
 }
 
-bool isColonPair(const char *pc)
-{
-    return ':' == *pc && ':' == pc[1] && '\0' == pc[2];
-}
-
 namespace CASE_5 {
 
 bool messageLogged = false;
@@ -349,11 +350,11 @@ void logMessageHandler(bsls::LogSeverity::Enum  severity,
     match.push_back("Stack Trace:\n");
 
     match.push_back("BloombergLP");
-    match.push_back("::");
+    U_PUSH_COLONS(match);
     match.push_back("bslstl");
-    match.push_back("::");
+    U_PUSH_COLONS(match);
     match.push_back("StdExceptUtil");
-    match.push_back("::");
+    U_PUSH_COLONS(match);
     match.push_back(e_DEMANGLE_PARENS ? "throwLengthError(c"
                                       : "throwLengthError");
     if (e_HAS_SOURCE) {
@@ -363,7 +364,7 @@ void logMessageHandler(bsls::LogSeverity::Enum  severity,
     for (int ii = 0; ii < 4; ++ii) {
         if (e_DEMANGLE_PARENS) {
             match.push_back("CASE_5");
-            match.push_back("::");
+            U_PUSH_COLONS(match);
         }
         match.push_back(e_DEMANGLE_PARENS ? "recurseAndThrow(int"
                                           : "recurseAndThrow");
@@ -377,12 +378,6 @@ void logMessageHandler(bsls::LogSeverity::Enum  severity,
         match.push_back("source:balst_stacktraceprintutil.t.cpp");
     }
     match.push_back("\n");
-    if (!e_DEMANGLE_COLONS) {
-        match.erase(bsl::remove_if(match.begin(),
-                                   match.end(),
-                                   isColonPair),
-                    match.end());
-    }
 
     ASSERT(checkOutput(output, match));
 }
@@ -438,11 +433,11 @@ void top()
         // Windows often doesn't provide the source file name.
 
         matches.push_back("BloombergLP");
-        matches.push_back("::");
+        U_PUSH_COLONS(matches);
         matches.push_back("balst");
-        matches.push_back("::");
+        U_PUSH_COLONS(matches);
         matches.push_back("StackTracePrintUtil_Test");
-        matches.push_back("::");
+        U_PUSH_COLONS(matches);
         matches.push_back(e_DEMANGLE_PARENS
                              ? "printStackTraceToString(bsl::basic_string<char"
                              : "printStackTraceToString");
@@ -458,20 +453,14 @@ void top()
         matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
         matches.push_back(inExec.c_str());
         matches.push_back("\n");
-        if (!e_DEMANGLE_COLONS) {
-            matches.erase(bsl::remove_if(matches.begin(),
-                                         matches.end(),
-                                         isColonPair),
-                          matches.end());
-        }
     }
     else {
         matches.push_back("BloombergLP");
-        matches.push_back("::");
+        U_PUSH_COLONS(matches);
         matches.push_back("balst");
-        matches.push_back("::");
+        U_PUSH_COLONS(matches);
         matches.push_back("StackTracePrintUtil_Test");
-        matches.push_back("::");
+        U_PUSH_COLONS(matches);
         matches.push_back(e_DEMANGLE_PARENS
                              ? "printStackTraceToString(bsl::basic_string<char"
                              : "printStackTraceToString");
@@ -481,12 +470,6 @@ void top()
         matches.push_back("\n");
         matches.push_back("main");
         matches.push_back("\n");
-        if (!e_DEMANGLE_COLONS) {
-            matches.erase(bsl::remove_if(matches.begin(),
-                                         matches.end(),
-                                         isColonPair),
-                          matches.end());
-        }
     }
 
     checkOutput(dump, matches);
@@ -987,26 +970,29 @@ int main(int argc, char *argv[])
         //: 1 That the pre throw logger works as designed.
         //
         // Plan:
-        //: 1 Set a ptr to the pre-throw logger as the hook for the
+        //: 1 Set a pointer to the pre-throw logger as the hook for the
         //:   'std::length_error' exception.
         //:
-        //: 2 Set out own 'logMessageHandler' function to capture the output
-        //:   of 'BSLS_LOG_*'.  This function will check the the output is
-        //:   as expected.
+        //: 2 Set the 'bsls::Log::logMessageHandler' function to a function in
+        //:   this test driver to capture the output of 'BSLS_LOG_*'.  This
+        //:   function will check the the output is as expected.
         //:
-        //: 3 Recurse a bunch, then throw a length error.
+        //: 3 Recurse a few times, then throw a length error.
         //
         // Testing:
-        //   void preExceptionStackTraceLog(const char *, const char *);
+        //   void logExceptionStackTrace(const char *, const char *);
         // --------------------------------------------------------------------
 
+#ifndef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "Test skipped, requires exceptions.\n";
+#else
         if (verbose) cout << "TESTING PRE-THROW LOGGER\n"
                              "========================\n";
 
         bsls::Log::setLogMessageHandler(&CASE_5::logMessageHandler);
 
         bslstl::StdExceptUtil::setLengthErrorHook(
-                       &balst::StackTracePrintUtil::preExceptionStackTraceLog);
+                          &balst::StackTracePrintUtil::logExceptionStackTrace);
 
         bool caught = false;
         try {
@@ -1022,6 +1008,7 @@ int main(int argc, char *argv[])
 
         ASSERT(CASE_5::messageLogged);
         ASSERT(caught);
+#endif    // BDE_BUILD_TARGET_EXC
       } break;
       case 4: {
         // --------------------------------------------------------------------

@@ -95,19 +95,29 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
     return StackTraceUtil::printFormatted(stream, st);
 }
 
-void StackTracePrintUtil::preExceptionStackTraceLog(const char *exceptionName,
-                                                    const char *message)
+void StackTracePrintUtil::logExceptionStackTrace(const char *exceptionName,
+                                                 const char *message)
 {
+    enum { k_MAX_STACK_TRACE_DEPTH        = 128,
+                // Enough to cover most stack traces, not so deep as to require
+                // huge amounts of memory.
+
+           k_LONG_STACK_TRACE_LINE_LENGTH = 256,
+
+           k_STREAMBUF_MEMORY_SIZE        = k_MAX_STACK_TRACE_DEPTH *
+                                              k_LONG_STACK_TRACE_LINE_LENGTH };
+
     // Use this 'streambuf' approach rather than 'bsl::ostringstream' since
-    // that would involve the 'str()' accessor which would completely copy the
-    // data using the default allocator.
+    // 'BSLS_LOG_FATAL' requires a 'const char *' and the only way to get that
+    // out of an 'ostringsteam' is via '.str().c_str()' which would copy the
+    // whole thing using the default allocator.
 
     bdlma::HeapBypassAllocator alloc;
-    bdlsb::MemOutStreamBuf     sb(8192, &alloc);
+    bdlsb::MemOutStreamBuf     sb(k_STREAMBUF_MEMORY_SIZE, &alloc);
     bsl::ostream               os(&sb);
 
     (*bsls::BslTestUtil::makeFunctionCallNonInline(&printStackTrace))(
-                                                             os, 128, true, 1);
+                                         os, k_MAX_STACK_TRACE_DEPTH, true, 1);
     os << bsl::ends;
 
     // We have to use bsls_log because balst has no dependency on ball.
