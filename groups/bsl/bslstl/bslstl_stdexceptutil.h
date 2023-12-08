@@ -22,9 +22,9 @@ BSLS_IDENT("$Id: $")
 ///Pre-Throw Hooks
 ///---------------
 // For each exception type supported by this component, there is a "pre throw
-// hook", a function pointer that is normally null, but can be set to non-null,
-// and if set, the function pointer is called prior to the throw, which gives
-// the client a chance to log a message prior to the throw.
+// hook", a function pointer that is normally null.  If that pointer is set to
+// a function, that function is called prior to the throw.  This gives the
+// client a chance to log a message.
 //
 // If the pre-throw hook is set to 'StdExceptUtil::logCheapStackTrace', a cheap
 // stack trace will be logged, enabling the client to use
@@ -33,10 +33,11 @@ BSLS_IDENT("$Id: $")
 // get demangled symbols.
 //
 // If the pre-throw hook is set to
-// 'balst::StackTracePrintUtil::preExceptionStackTraceLog', a full multi-line
+// 'balst::StackTracePrintUtil::logExceptionStackTrace', a full multi-line
 // stack trace with symbols will be logged, with, on some platforms, symbol
-// demangling, line numbers, and source file names.  This alternative is much
-// slower than the cheap stack trace.
+// demangling, line numbers, and source file names.  This alternative requires
+// considerable disk access and is therefore orders of magnitude slower than
+// the cheap stack trace.
 //
 ///Usage
 ///-----
@@ -115,14 +116,12 @@ struct StdExceptUtil {
     static void logCheapStackTrace(const char *exceptionName,
                                    const char *message);
         // Log "About to throw ", then the specified 'exceptionName', then the
-        // specified 'logMessage', then log a cheap stack trace with fatal
+        // specified 'message', then log a cheap stack trace with warning
         // severity.  This function is intended as a candidate for setting to
-        // the pre-throw hooks.
-        //
-        // A slower alternative to this, which logs a full, multi-line stack
-        // trace with resolved symbols and, on many platforms, line numbers and
-        // source file names, is
-        // 'balst::StackTracePrintUtil::preExceptionStackTraceLog'.
+        // the pre-throw hooks.  Note that a far slower alternative to this,
+        // which logs a full, multi-line stack trace with resolved symbols and,
+        // on many platforms, line numbers and source file names, is
+        // 'balst::StackTracePrintUtil::logExceptionStackTrace'.
 
     static void setRuntimeErrorHook(   PreThrowHook hook);
     static void setLogicErrorHook(     PreThrowHook hook);
@@ -134,9 +133,8 @@ struct StdExceptUtil {
     static void setOverflowErrorHook(  PreThrowHook hook);
     static void setUnderflowErrorHook( PreThrowHook hook);
         // Set the pre throw hook for the specified exception type to the
-        // specified 'hook'.  If 'hook' is passed 0, that means that no
-        // pre-throw function will be called (the state before any of these
-        // settors is called).
+        // specified 'hook'.  If 'hook' is passed 0, or if the settor was never
+        // called, that means that no pre-throw function will be called.
 
     BSLS_ANNOTATION_NORETURN
     static void throwRuntimeError(const char *message);

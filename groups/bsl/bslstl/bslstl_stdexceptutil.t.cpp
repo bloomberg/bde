@@ -7,7 +7,6 @@
 
 #include <stdexcept>    //  yes, we want the native std here
 
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -18,8 +17,19 @@ using namespace std;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//
-//
+// [ 2] void logCheapStackTrace(const char *, const char *);
+// [ 2] void setRuntimeErrorHook(   PreThrowHook);
+// [ 2] void setLogicErrorHook(     PreThrowHook);
+// [ 2] void setDomainErrorHook(    PreThrowHook);
+// [ 2] void setInvalidArgumentHook(PreThrowHook);
+// [ 2] void setLengthErrorHook(    PreThrowHook);
+// [ 2] void setOutOfRangeHook(     PreThrowHook);
+// [ 2] void setRangeErrorHook(     PreThrowHook);
+// [ 2] void setOverflowErrorHook(  PreThrowHook);
+// [ 2] void setUnderflowErrorHook( PreThrowHook);
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -159,182 +169,156 @@ void logMessageHandler(bsls::LogSeverity::Enum  severity,
     }
 }
 
+void failAssert(const char *, const char *)
+{
+    BSLS_ASSERT_INVOKE_NORETURN("fail");
+}
+
 void clear()
 {
-    Util::PreThrowHook segfault;    // calling this function will segfault
-    memset(&segfault, 0xa5, sizeof(segfault));
-    Util::setRuntimeErrorHook(segfault);
-    Util::setLogicErrorHook(segfault);
-    Util::setDomainErrorHook(segfault);
-    Util::setInvalidArgumentHook(segfault);
-    Util::setLengthErrorHook(segfault);
-    Util::setOutOfRangeHook(segfault);
-    Util::setRangeErrorHook(segfault);
-    Util::setOverflowErrorHook(segfault);
-    Util::setUnderflowErrorHook(segfault);
+    Util::setRuntimeErrorHook(&failAssert);
+    Util::setLogicErrorHook(&failAssert);
+    Util::setDomainErrorHook(&failAssert);
+    Util::setInvalidArgumentHook(&failAssert);
+    Util::setLengthErrorHook(&failAssert);
+    Util::setOutOfRangeHook(&failAssert);
+    Util::setRangeErrorHook(&failAssert);
+    Util::setOverflowErrorHook(&failAssert);
+    Util::setUnderflowErrorHook(&failAssert);
 
     memset(&TC::severity, 0xa5, sizeof(TC::severity));
     memset(TC::sourceFileNameBuf, 0xa5, sizeof(TC::sourceFileNameBuf));
     TC::lineNumber = -1;
     memset(TC::outBuf, 0xa5, sizeof(TC::outBuf));
-
-    TC::caught = false;
 }
 
-void check(const char *exceptionName, const char *message)
+void verifyLogContent(const char *exceptionName, const char *message)
 {
-    ASSERT(bsls::LogSeverity::e_FATAL == TC::severity);
+    // Verify severity.
+
+    ASSERT(bsls::LogSeverity::e_WARN == TC::severity);
+
+    // The should file name should be the imp file of this component.  Verify
+    // that by substituting '.t.cpp' for '.cpp' and then comparing to
+    // '__FILE__'.
+
     char *pc = strstr(TC::sourceFileNameBuf, ".cpp");
     ASSERT(pc);
     strcpy(pc, ".t.cpp");
     ASSERT(!strcmp(TC::sourceFileNameBuf, __FILE__));
+
+    // Verify the line number was positive.
+
     ASSERT(0 < TC::lineNumber);
+
+    // Verify outBuf contains "About to throw <exceptionName>"
+
     char aboutBuf[256];
-    sprintf(aboutBuf, "About to throw %s", exceptionName);
+    strcpy(aboutBuf, "About to throw ");
+    strcat(aboutBuf, exceptionName);
     ASSERTV(TC::outBuf, strstr(TC::outBuf, aboutBuf));
-    ASSERTV(TC::outBuf, exceptionName, strstr(TC::outBuf, exceptionName));
+
+    // Verify outBuf contains 'message'
+
     ASSERT(strstr(TC::outBuf, message));
+
+    // Verify outBuf
+
     ASSERTV(TC::outBuf, strstr(TC::outBuf, "/bb/bin/showfunc.tsk "));
 
-    // count blanks after showfunc
+    // After the 'showfunc.tsk' should be the cheap stack trace -- a series
+    // of addresses of stack frames separated by space.  Confirm there are
+    // at least 6 spaces
 
-    unsigned count = 0;
-    pc = strstr(outBuf, ".tsk ");
-    ASSERT(pc);
-    pc += 4;
-    while ((pc = strchr(pc, ' '))) {
-        ++count;
-        ++pc;
+    int count = 0;
+    for (pc = strstr(outBuf, ".tsk ") + 4; *pc; ++pc) {
+        count += ' ' == *pc;
     }
     ASSERT(6 <= count);
 }
 
-int top(const char *message)
+void verifyTypeOfCaughtException(const std::exception&  exc,
+                                 const char            *exceptionName)
 {
-    {
-        try {
-            TC::clear();
-            Util::setRuntimeErrorHook(&Util::logCheapStackTrace);
-            Util::throwRuntimeError(message);
-            ASSERT(0);
-        }
-        catch (const std::runtime_error& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::runtime_error", message);
-    }
+#define U_TEST_EXC(name)                                                      \
+    if (!strcmp(exceptionName, #name)) {                                      \
+        ASSERTV(exceptionName, #name, dynamic_cast<const std::name *>(&exc)); \
+        return;                                                               \
+    }                                                                 // RETURN
 
-    {
-        try {
-            TC::clear();
-            Util::setLogicErrorHook(&Util::logCheapStackTrace);
-            Util::throwLogicError(message);
-            ASSERT(0);
-        }
-        catch (const std::logic_error& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::logic_error", message);
-    }
+    U_TEST_EXC(runtime_error)
+    U_TEST_EXC(logic_error)
+    U_TEST_EXC(domain_error)
+    U_TEST_EXC(invalid_argument)
+    U_TEST_EXC(length_error)
+    U_TEST_EXC(out_of_range)
+    U_TEST_EXC(range_error)
+    U_TEST_EXC(overflow_error)
+    U_TEST_EXC(underflow_error)
 
-    {
-        try {
-            TC::clear();
-            Util::setDomainErrorHook(&Util::logCheapStackTrace);
-            Util::throwDomainError(message);
-            ASSERT(0);
-        }
-        catch (const std::domain_error& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::domain_error", message);
-    }
+#undef U_TEST_EXC
 
-    {
-        try {
-            TC::clear();
-            Util::setInvalidArgumentHook(&Util::logCheapStackTrace);
-            Util::throwInvalidArgument(message);
-            ASSERT(0);
-        }
-        catch (const std::invalid_argument& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::invalid_argument", message);
-    }
+    ASSERTV(exceptionName, 0 && "exception name not matched");
+}
 
-    {
-        try {
-            TC::clear();
-            Util::setLengthErrorHook(&Util::logCheapStackTrace);
-            Util::throwLengthError(message);
-            ASSERT(0);
-        }
-        catch (const std::length_error& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::length_error", message);
-    }
+int throwAndCatchExceptionsAndCheckLogging(const char *message)
+{
+    typedef void (*SetHookFunc)(Util::PreThrowHook);
 
-    {
-        try {
-            TC::clear();
-            Util::setOutOfRangeHook(&Util::logCheapStackTrace);
-            Util::throwOutOfRange(message);
-            ASSERT(0);
-        }
-        catch (const std::out_of_range& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::out_of_range", message);
-    }
+    BSLS_ANNOTATION_NORETURN
+    typedef void(*ThrowFunc)(const char *);
 
-    {
-        try {
-            TC::clear();
-            Util::setRangeErrorHook(&Util::logCheapStackTrace);
-            Util::throwRangeError(message);
-            ASSERT(0);
-        }
-        catch (const std::range_error& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::range_error", message);
-    }
+#define U_TABLE_LINE(setHookFunc, throwFunc, exceptionName)                   \
+        { L_, &Util::setHookFunc, &Util::throwFunc, exceptionName }
 
-    {
-        try {
-            TC::clear();
-            Util::setOverflowErrorHook(&Util::logCheapStackTrace);
-            Util::throwOverflowError(message);
-            ASSERT(0);
-        }
-        catch (const std::overflow_error& exc)
-        {
-            TC::caught = true;
-        }
-        TC::check("std::overflow_error", message);
-    }
+    static const struct Data {
+        int          d_line;
+        SetHookFunc  d_setHookFunc;
+        ThrowFunc    d_throwFunc;
+        const char  *d_exceptionName;
+    } DATA[] = {
+        U_TABLE_LINE(setRuntimeErrorHook, throwRuntimeError, "runtime_error"),
+        U_TABLE_LINE(setLogicErrorHook,   throwLogicError,   "logic_error"),
+        U_TABLE_LINE(setDomainErrorHook,  throwDomainError,  "domain_error"),
+        U_TABLE_LINE(setInvalidArgumentHook, throwInvalidArgument,
+                                                           "invalid_argument"),
+        U_TABLE_LINE(setLengthErrorHook,  throwLengthError, "length_error"),
+        U_TABLE_LINE(setOutOfRangeHook,   throwOutOfRange,  "out_of_range"),
+        U_TABLE_LINE(setRangeErrorHook,   throwRangeError,  "range_error"),
+        U_TABLE_LINE(setOverflowErrorHook, throwOverflowError,
+                                                             "overflow_error"),
+        U_TABLE_LINE(setUnderflowErrorHook, throwUnderflowError,
+                                                            "underflow_error")
+    };
+#undef U_TABLE_LINE
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    {
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&        data           = DATA[ti];
+        const int          LINE           = data.d_line;
+        const SetHookFunc  SET_HOOK_FUNC  = data.d_setHookFunc;
+        const ThrowFunc    THROW_FUNC     = data.d_throwFunc;
+        const char        *EXCEPTION_NAME = data.d_exceptionName;
+
+        char fullExceptionName[128] = { "std::" };
+        strcat(fullExceptionName, EXCEPTION_NAME);
+
+        TC::caught = false;
         try {
             TC::clear();
-            Util::setUnderflowErrorHook(&Util::logCheapStackTrace);
-            Util::throwUnderflowError(message);
-            ASSERT(0);
+            (*SET_HOOK_FUNC)(&Util::logCheapStackTrace);
+            (*THROW_FUNC)(message);
+            ASSERTV(LINE, EXCEPTION_NAME, 0 && "throw failed");
         }
-        catch (const std::underflow_error& exc)
-        {
+        catch (const std::exception& exc) {
+            ASSERTV(LINE, EXCEPTION_NAME, exc.what(), message,
+                                                 !strcmp(exc.what(), message));
+            verifyTypeOfCaughtException(exc, EXCEPTION_NAME);
             TC::caught = true;
         }
-        TC::check("std::underflow_error", message);
+
+        ASSERTV(LINE, EXCEPTION_NAME, TC::caught);
+        TC::verifyLogContent(fullExceptionName, message);
     }
 
     return 1;
@@ -343,7 +327,15 @@ int top(const char *message)
 template <class FUNC_PTR>
 int recurser(int *depth, FUNC_PTR func, const char *message)
     // Recurse to the specified 'depth' and then call
-    // 'testThrowingWithCheapStackTrace'.
+    // 'throwAndCatchExceptionsAndCheckLogging'.
+    //
+    // We want to recurse several times here so that the stack trace will have
+    // some depth to traverse.  This is non-trivial because optimizers are very
+    // motivated to inline function calls and replace calls at the end of
+    // functions with simple jumps.  Most of that manipulation and checking of
+    // the 'depth' variable after the function calls it intended to force the
+    // optimizer to do funciton calls and return from them rather than simply
+    // chaining.
 {
     const int depthIn = *depth;
 
@@ -400,26 +392,54 @@ int main(int argc, char *argv[])
         // HOOK / STACKTRACE TEST
         //
         // Concerns:
+        //: 1 That the 'set*Hook' functions work.
+        //:
+        //: 2 That 'logCheapStackTrace' works.
         //
         // Plan:
+        //: 1 Set the 'bsls::Log' message handler to 'TC::logMessageHandler' to
+        //:   capture 'bsls::Log' output in state in the 'TC' namespace.
+        //:
+        //: 2 Call 'TC::recurser' which will recurse a few times and then
+        //:   call 'TC::throwAndCatchExceptionsAndCheckLogging'.
+        //:
+        //: 3 'TC::throwAndCatchExceptionsAndCheckLogging' does a table-driven
+        //:   iteration through all the supported exception types, one at a
+        //:   time, setting the pre throw hook for the exception type under
+        //:   test (and only that type) to 'logCheapStackTrace', and then
+        //:   throwing the exception, which is then caught as a reference to
+        //:   base class 'std::excption', and then verified through dynamic
+        //:   cast to0 be of the exception type expected.  The output of
+        //:   'logCheapStackTrace' is then checked and verified to be correct
         //
         // Testing:
-        //
+        //   void logCheapStackTrace(const char *, const char *);
+        //   void setRuntimeErrorHook(   PreThrowHook);
+        //   void setLogicErrorHook(     PreThrowHook);
+        //   void setDomainErrorHook(    PreThrowHook);
+        //   void setInvalidArgumentHook(PreThrowHook);
+        //   void setLengthErrorHook(    PreThrowHook);
+        //   void setOutOfRangeHook(     PreThrowHook);
+        //   void setRangeErrorHook(     PreThrowHook);
+        //   void setOverflowErrorHook(  PreThrowHook);
+        //   void setUnderflowErrorHook( PreThrowHook);
         // --------------------------------------------------------------------
-
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
 
 #if !defined(BDE_BUILD_TARGET_EXC)
         if (verbose) printf(
-                "\nThis case is not run as it relies on exception support.\n");
+                "Test case 2 is not run as it relies on exception support.\n");
 #else
+        if (verbose) printf("HOOK / STACKTRACE TEST\n"
+                            "======================\n");
+
         namespace TC = BSLSTL_STDEXCEPTUTIL_TEST_CASE_2;
 
         bsls::Log::setLogMessageHandler(TC::logMessageHandler);
 
         int depth = 5;
-        TC::recurser(&depth, &TC::top, "test case 2");
+        TC::recurser(&depth,
+                     &TC::throwAndCatchExceptionsAndCheckLogging,
+                     "test case 2");
         ASSERT(5 == depth);
 #endif
      } break;
