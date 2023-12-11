@@ -13,7 +13,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // in their dylib.  We can just call it.  Otherwise, we simulate it from the
 // older call 'uncaught_exception'.
 
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) ||    \
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && !defined(BSLS_PLATFORM_CMP_SUN) ||    \
     defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC) ||   \
     defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
 #define UNCAUGHT_EXCEPTIONS_SIMULATED 0
