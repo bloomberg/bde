@@ -2124,15 +2124,8 @@ BSLS_IDENT("$Id: $")
 
 // Catch attempts to link C++14 objects with C++17 objects (for example).
 
-// NOTE: The 'BDE_BLOCK_CPP20_LINK_CHECKS' macro suppresses link coercion
-// symbol(s) and permits linking of c++20 object files with BDE libraries
-// built with c++17 flags. The resulting library and/or binary is ABI unstable
-// and must not be used in the production environment, as different object
-// files will disagree about the data layout of some types, potentially
-// resulting in failures at runtime that are very difficult to diagnose.
-//
-// The flag is provided as a temporary workaround for for one specific internal
-// usage.
+// NOTE: See 'bsls_buildtarget.h' for documentation of the
+// 'BDE_BLOCK_CPP20_LINK_CHECKS' macro, which must not be used in production.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY)
 #define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP23_ABI

@@ -13,6 +13,7 @@ BSLS_IDENT("$Id: $")
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
 //  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
 //  BDE_BUILD_SKIP_VERSION_CHECKS: turn off compiler version checks
+//  BDE_BLOCK_CPP20_LINK_CHECKS: allow C++20 and C++17 code to link together
 //  BDE_OMIT_DEPRECATED: legacy flag to deprecate a block of code
 //  BDE_OMIT_INTERNAL_DEPRECATED: legacy flag to deprecate internal-only code
 //  BDE_OPENSOURCE_PUBLICATION: marker for non-deprecated internal-only code
@@ -26,7 +27,30 @@ BSLS_IDENT("$Id: $")
 // the case unless overridden by defining the 'BDE_BUILD_TARGET_NO_EXC' macro),
 // and whether it was multi-threaded (which is enabled unless overridden by
 // defining the 'BDE_BUILD_TARGET_NO_MT' macro).  The types defined by this
-// component should not be used directly.
+// component should not be used directly.  This component also documents macros
+// that can be used to disable checks that are performed elsewhere.
+//
+///Compiler Version Check Macro
+///----------------------------
+// By design, programs using BDE fail to build if support for a C++ standard
+// version is requested but the compiler's support for that standard is not
+// sufficiently stable (possibly causing issues at runtime that are very
+// difficult to debug).  We provide the macro 'BDE_BUILD_SKIP_VERSION_CHECKS'
+// to disable these checks for the purpose of testing and experimenting with
+// different compiler configurations.  This macro should **not** be defined for
+// integrated production builds such as dpkg, as doing so may result in
+// unstable code being deployed to production.
+//
+///Standard Version Inconsistency Check Macro
+///------------------------------------------
+// C++ object files built using a particular standard version must be linked
+// with BDE libraries built using the same standard version, or else the
+// program will be ill formed, no diagnostic required (IFNDR) and may exhibit
+// issues at runtime that are very difficult to debug.  However, as a temporary
+// workaround for one specific internal usage, we provide the macro
+// 'BDE_BLOCK_CPP20_LINK_CHECKS', which allows user code built with C++20 to
+// link with BDE libraries built with C++17.  **Under no circumstances should
+// this macro be defined in a production build.**
 //
 ///Deprecation Control Macros
 ///--------------------------
