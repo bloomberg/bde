@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.61.0: Production Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/BDE_3.61.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.60.0: Production Release" href="BDE_3.60.0.html" />
+    <link rel="prev" title="BDE 3.61.1: Production Release" href="BDE_3.61.1.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.127.0.html">BDE 3.127.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.126.0.html">BDE 3.126.0 Release</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bde_3.125.0.html">BDE 3.125.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.6.html">BDE 3.99.6 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.3.html">BDE 3.99.3 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.2.html">BDE 3.99.2 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.1.html">BDE 3.99.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.0.html">BDE 3.99.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.98.0.html">BDE 3.98.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.97.0.html">BDE 3.97.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.96.0.html">BDE 3.96.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.95.0.html">BDE 3.95.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.94.0.html">BDE 3.94.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.93.1.html">BDE 3.93.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.93.0.html">BDE 3.93.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.92.0.html">BDE 3.92.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.91.1.html">BDE 3.91.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.90.0.html">BDE 3.90.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.89.0.html">BDE 3.89.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.88.0.html">BDE 3.88.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.87.1.html">BDE 3.87.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.87.0.html">BDE 3.87.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.86.0.html">BDE 3.86.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.85.0.html">BDE 3.85.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.84.0.html">BDE 3.84.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.83.0.html">BDE 3.83.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.82.0.html">BDE 3.82.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.81.0.html">BDE 3.81.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.80.0.html">BDE 3.80.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.79.0.html">BDE 3.79.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.78.0.html">BDE 3.78.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.77.0.html">BDE 3.77.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.76.1.html">BDE 3.76.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.76.0.html">BDE 3.76.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.75.1.html">BDE 3.75.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.74.0.html">BDE 3.74.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.73.1.html">BDE 3.73.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.73.0.html">BDE 3.73.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.72.0.html">BDE 3.72.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.71.0.html">BDE 3.71.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.70.0.html">BDE 3.70.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.69.0.html">BDE 3.69.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.68.0.html">BDE 3.68.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.67.0.html">BDE 3.67.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.66.0.html">BDE 3.66.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.65.0.html">BDE 3.65.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.64.0.html">BDE 3.64.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.62.0.html">BDE 3.62.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.61.1.html">BDE 3.61.1: Production Release</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">BDE 3.61.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bde-3-61-0-highlights">BDE 3.61.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fixed-requests-3-61-0">Fixed requests: 3.61.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.60.0.html">BDE 3.60.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.59.0.html">BDE 3.59.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.58.0.html">BDE 3.58.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.57.0.html">BDE 3.57.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.56.0.html">BDE 3.56.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.55.0.html">BDE 3.55.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.54.0.html">BDE 3.54.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.53.0.html">BDE 3.53.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.52.0.html">BDE 3.52.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.51.0.html">BDE 3.51.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.50.0.html">BDE 3.50.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.49.0.html">BDE 3.49.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.48.1.html">BDE 3.48.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.47.0.html">BDE 3.47.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.46.2.html">BDE 3.46.2: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.46.1.html">BDE 3.46.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.46.0.html">BDE 3.46.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.45.2.html">BDE 3.45.2: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.45.0.html">BDE 3.45.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.44.0.html">BDE 3.44.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.42.0.html">BDE 3.42.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.41.0.html">BDE 3.41.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.40.0.html">BDE 3.40.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.39.0.html">BDE 3.39.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.38.0.html">BDE 3.38.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.37.1.html">BDE 3.37.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.36.0.html">BDE 3.36.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.35.0.html">BDE 3.35.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.34.0.html">BDE 3.34.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.33.1.html">BDE 3.33.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.32.0.html">BDE 3.32.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.31.0.html">BDE 3.31.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.30.0.html">BDE 3.30.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.29.0.html">BDE 3.29.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.28.0.html">BDE 3.28.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.27.0.html">BDE 3.27.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.26.0.html">BDE 3.26.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.25.0.html">BDE 3.25.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.24.0.html">BDE 3.24.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.23.1.html">BDE 3.23.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.21.0.html">BDE 3.21.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.20.0.html">BDE 3.20.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.19.0.html">BDE 3.19.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.18.0.html">BDE 3.18.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.17.0.html">BDE 3.17.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.16.0.html">BDE 3.16.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.15.0.html">BDE 3.15.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.14.0.html">BDE 3.14.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.13.0.html">BDE 3.13.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.12.0.html">BDE 3.12.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.11.0.html">BDE 3.11.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.10.0.html">BDE 3.10.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.9.0.html">BDE 3.9.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.8.0.html">BDE 3.8.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.1.html">BDE 3.7.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.0.html">BDE 3.7.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.6.0.html">BDE 3.6.0: Production Release</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+          <li><a href="archived_release_notes.html">Archived Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.61.0: Production Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="BDE_3.60.0.html" class="btn btn-neutral float-right" title="BDE 3.60.0: Production Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="BDE_3.61.1.html" class="btn btn-neutral float-left" title="BDE 3.61.1: Production Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-61-0-production-release">
+<span id="bde3-61-0-top"></span><h1>BDE 3.61.0: Production Release<a class="headerlink" href="#bde-3-61-0-production-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-61-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team is pleased to announce that the BDE 3.61.0 production release
+was completed on <strong>Monday, Aug 24, 2020</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-61-0-highlights">
+<span id="bde3-61-0-highlights"></span><h2>BDE 3.61.0 Highlights<a class="headerlink" href="#bde-3-61-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-style-of-allocator-aware-component-interface-being-gradually-introduced">
+<h3>New style of Allocator-Aware Component Interface Being Gradually Introduced<a class="headerlink" href="#new-style-of-allocator-aware-component-interface-being-gradually-introduced" title="Permalink to this headline">¶</a></h3>
+<p>In the future, <code class="docutils literal notranslate"><span class="pre">BDE</span></code> allocator-aware components will allocate memory from a <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;char&gt;</span></code> object
+rather than a <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code> pointer.</p>
+<p>These changes are transparent to clients of the affected packages: <code class="docutils literal notranslate"><span class="pre">bslma::Allocator*</span></code> arguments can still be
+passed in and the correct conversions will occur.</p>
+<p>The document describing this new approach is still a work in progress, and other teams should not yet adopt this
+development style, but if you wish to see what the new style will look like, you can take a look at components
+in <code class="docutils literal notranslate"><span class="pre">baltzo</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb</span></code>.</p>
+<p>For example, here’s the difference in the default constructors in <code class="docutils literal notranslate"><span class="pre">baltzo::Zoneinfo</span></code>:</p>
+<div class="section" id="older-style">
+<h4>Older Style<a class="headerlink" href="#older-style" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_default.h&gt;</span><span class="cp"></span>
+
+<span class="c1">// ....</span>
+
+<span class="w"> </span><span class="c1">// CREATORS</span>
+<span class="w"> </span><span class="k">explicit</span><span class="w"> </span><span class="n">Zoneinfo</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">basicAllocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">     </span><span class="c1">// Create a &#39;Zoneinfo&#39; object having the values:</span>
+<span class="w">     </span><span class="c1">//..</span>
+<span class="w">     </span><span class="c1">//  numTransitions() == 0</span>
+<span class="w">     </span><span class="c1">//  identifier()     == &quot;&quot;</span>
+<span class="w">     </span><span class="c1">//..</span>
+<span class="w">     </span><span class="c1">// Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If</span>
+<span class="w">     </span><span class="c1">// &#39;basicAllocator&#39; is 0, the currently installed default allocator is</span>
+<span class="w">     </span><span class="c1">// used.</span>
+
+<span class="w"> </span><span class="c1">// ....</span>
+
+<span class="w"> </span><span class="c1">// ACCESSORS</span>
+<span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="nf">allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">     </span><span class="c1">// Return the allocator used by this object to supply memory.  Note</span>
+<span class="w">     </span><span class="c1">// that if no allocator was supplied at construction the currently</span>
+<span class="w">     </span><span class="c1">// installed default allocator is used.</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="new-style">
+<h4>New Style<a class="headerlink" href="#new-style" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_stdallocator.h&gt;</span><span class="cp"></span>
+
+<span class="c1">// ....</span>
+
+<span class="w"> </span><span class="c1">// TYPES</span>
+<span class="w"> </span><span class="k">typedef</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">;</span><span class="w"></span>
+
+<span class="w"> </span><span class="c1">// CREATORS</span>
+<span class="w"> </span><span class="n">Zoneinfo</span><span class="p">();</span><span class="w"></span>
+<span class="w"> </span><span class="k">explicit</span><span class="w"> </span><span class="n">Zoneinfo</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+<span class="w">     </span><span class="c1">// Create a &#39;Zoneinfo&#39; object having the values:</span>
+<span class="w">     </span><span class="c1">//..</span>
+<span class="w">     </span><span class="c1">//  numTransitions() == 0</span>
+<span class="w">     </span><span class="c1">//  identifier()     == &quot;&quot;</span>
+<span class="w">     </span><span class="c1">//..</span>
+<span class="w">     </span><span class="c1">// Optionally specify an &#39;allocator&#39; (e.g., the address of a</span>
+<span class="w">     </span><span class="c1">// &#39;bslma::Allocator&#39; object) to supply memory; otherwise, the default</span>
+<span class="w">     </span><span class="c1">// allocator is used.</span>
+
+<span class="w"> </span><span class="c1">// ....</span>
+
+<span class="w"> </span><span class="c1">// ACCESSORS</span>
+<span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="nf">allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">     </span><span class="c1">// !DEPRECATED!: Use &#39;get_allocator()&#39; instead.</span>
+<span class="w">     </span><span class="c1">//</span>
+<span class="w">     </span><span class="c1">// Return the allocator used by this object to supply memory.  Note</span>
+<span class="w">     </span><span class="c1">// that if no allocator was supplied at construction the currently</span>
+<span class="w">     </span><span class="c1">// installed default allocator is used.</span>
+
+<span class="w"> </span><span class="n">allocator_type</span><span class="w"> </span><span class="nf">get_allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">     </span><span class="c1">// Return the allocator used by this object to supply memory.  Note</span>
+<span class="w">     </span><span class="c1">// that if no allocator was supplied at construction the default</span>
+<span class="w">     </span><span class="c1">// allocator in effect at construction is used.</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="baljsn-datumutil-decode-methods-now-support-depth-limiting">
+<h3><code class="docutils literal notranslate"><span class="pre">baljsn::DatumUtil::decode</span></code> methods now support depth-limiting<a class="headerlink" href="#baljsn-datumutil-decode-methods-now-support-depth-limiting" title="Permalink to this headline">¶</a></h3>
+<p>In order to make <code class="docutils literal notranslate"><span class="pre">baljsn::DatumUtil::decode</span></code> more robust, the methods limit the
+depth of nested array and object elements to 64 levels by default.</p>
+<p>This default can be overridden by passing in an appropriately constructed
+<code class="docutils literal notranslate"><span class="pre">baljsn::DatumDecoderOptions</span></code> instance.</p>
+</div>
+<div class="section" id="baljsn-datumutil-behavior-w-r-t-duplicate-map-keys-clarified">
+<h3><code class="docutils literal notranslate"><span class="pre">baljsn::DatumUtil</span></code> behavior w.r.t. duplicate map keys clarified<a class="headerlink" href="#baljsn-datumutil-behavior-w-r-t-duplicate-map-keys-clarified" title="Permalink to this headline">¶</a></h3>
+<p>The documentation for <code class="docutils literal notranslate"><span class="pre">baljsn::DatumUtil</span></code> now clarifies what happens if duplicate
+keys are present in a <code class="docutils literal notranslate"><span class="pre">Datum</span></code> being encoded (the <em>first</em> key/value pair is encoded,
+and the others are ignored) or in a <code class="docutils literal notranslate"><span class="pre">JSON</span></code> string being decoded (<em>all</em> key/value pairs
+will be present in the corresponding <code class="docutils literal notranslate"><span class="pre">Datum</span></code> <code class="docutils literal notranslate"><span class="pre">map</span></code>.</p>
+</div>
+</div>
+<div class="section" id="fixed-requests-3-61-0">
+<h2>Fixed requests: 3.61.0<a class="headerlink" href="#fixed-requests-3-61-0" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>DRQS 153876375 P3: Please add date(time) extended binary format to BER codec</p></td>
+</tr>
+<tr class="row-odd"><td><p>BDE balxml::ElementAttribute::namespaceId User After Free</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix gcc9 __LINE__related test failures</p></td>
+</tr>
+<tr class="row-odd"><td><p>AP2 upgrade of baltzo and bdld</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::ostringstream does not support C++ swap() member</p></td>
+</tr>
+<tr class="row-odd"><td><p>Document baljsn_datumutil’s behavior w.r.t. duplicate keys</p></td>
+</tr>
+<tr class="row-even"><td><p>Add depth limiting to baljsn::DatumUtil::decode</p></td>
+</tr>
+<tr class="row-odd"><td><p>BDE clone, build 7/7/2020, fails some unit tests (xlc version12-012019)</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlbb::PooledBlobBufferFactory releases memory still referenced by shared_ptr</p></td>
+</tr>
+<tr class="row-odd"><td><p>Poor ctor signature and documentation for bslmt::LockGuard</p></td>
+</tr>
+<tr class="row-even"><td><p>Investigate BDE fuzz testing crashes</p></td>
+</tr>
+<tr class="row-odd"><td><p>fuzz: ‘baenet_httpparserutil’: global overflow</p></td>
+</tr>
+<tr class="row-even"><td><p>fuzz: ‘bdlde_quotedprintabledecoder’: global buffer overflow</p></td>
+</tr>
+<tr class="row-odd"><td><p>fuzz: ‘baljsn_parserutil’: heap overflow</p></td>
+</tr>
+<tr class="row-even"><td><p>fuzz: ‘bdlde_utf8util’: assert failure</p></td>
+</tr>
+<tr class="row-odd"><td><p>fuzz: ‘bdldfp_decimalconvertutil’: assert failure</p></td>
+</tr>
+<tr class="row-even"><td><p>fuzz: ‘baljsn_parserutil’: assert failure</p></td>
+</tr>
+<tr class="row-odd"><td><p>fuzz: ‘baljsn_tokenizer’: assert failure</p></td>
+</tr>
+<tr class="row-even"><td><p>bsls::ByteOrderUtil::swapBytes raises error when running with UBSAN</p></td>
+</tr>
+<tr class="row-odd"><td><p>ATAN2(x,y) actually returns ATAN2(x,x)</p></td>
+</tr>
+<tr class="row-even"><td><p>stringbuf case 18 is failing for dbg_exc_mt_cpp17</p></td>
+</tr>
+<tr class="row-odd"><td><p>dpkg buildall fails for PIC builds on bhl, a_bhlbte</p></td>
+</tr>
+<tr class="row-even"><td><p>bael.cfg neglects the case that no space before &lt;&lt; BALL_LOG_END</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslstl_error.t.cpp test case 5 crashes on AIX</p></td>
+</tr>
+<tr class="row-even"><td><p>baljsn_printutil.t test failure on AIX</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlbb_simpleblobbufferfactory.t test failure on AIX</p></td>
+</tr>
+<tr class="row-even"><td><p>Release BDE 3.61.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslstl_stringbuf test driver has error</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

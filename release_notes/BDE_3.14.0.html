@@ -1,0 +1,678 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.14.0: Production Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/BDE_3.14.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.13.0: Production Release" href="BDE_3.13.0.html" />
+    <link rel="prev" title="BDE 3.15.0: Production Release" href="BDE_3.15.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_3.127.0.html">BDE 3.127.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.126.0.html">BDE 3.126.0 Release</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bde_3.125.0.html">BDE 3.125.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.124.0.html">BDE 3.124.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.123.0.html">BDE 3.123.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.122.0.html">BDE 3.122.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.121.0.html">BDE 3.121.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.120.1.html">BDE 3.120.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.119.0.html">BDE 3.119.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.118.0.html">BDE 3.118.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.117.0.html">BDE 3.117.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.116.0.html">BDE 3.116.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.115.0.html">BDE 3.115.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.114.0.html">BDE 3.114.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.113.0.html">BDE 3.113.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.112.0.html">BDE 3.112.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.111.0.html">BDE 3.111.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bde_3.110.0.html">BDE 3.110.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.109.0.html">BDE 3.109.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.108.0.html">BDE 3.108.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.107.0.html">BDE 3.107.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.106.0.html">BDE 3.106.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.105.0.html">BDE 3.105.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.104.0.html">BDE 3.104.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.6.html">BDE 3.99.6 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.3.html">BDE 3.99.3 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.2.html">BDE 3.99.2 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.1.html">BDE 3.99.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.99.0.html">BDE 3.99.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.98.0.html">BDE 3.98.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.97.0.html">BDE 3.97.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.96.0.html">BDE 3.96.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.95.0.html">BDE 3.95.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.94.0.html">BDE 3.94.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.93.1.html">BDE 3.93.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.93.0.html">BDE 3.93.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.92.0.html">BDE 3.92.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.91.1.html">BDE 3.91.1 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.90.0.html">BDE 3.90.0 Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.89.0.html">BDE 3.89.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.88.0.html">BDE 3.88.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.87.1.html">BDE 3.87.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.87.0.html">BDE 3.87.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.86.0.html">BDE 3.86.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.85.0.html">BDE 3.85.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.84.0.html">BDE 3.84.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.83.0.html">BDE 3.83.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.82.0.html">BDE 3.82.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.81.0.html">BDE 3.81.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.80.0.html">BDE 3.80.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.79.0.html">BDE 3.79.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.78.0.html">BDE 3.78.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.77.0.html">BDE 3.77.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.76.1.html">BDE 3.76.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.76.0.html">BDE 3.76.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.75.1.html">BDE 3.75.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.74.0.html">BDE 3.74.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.73.1.html">BDE 3.73.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.73.0.html">BDE 3.73.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.72.0.html">BDE 3.72.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.71.0.html">BDE 3.71.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.70.0.html">BDE 3.70.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.69.0.html">BDE 3.69.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.68.0.html">BDE 3.68.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.67.0.html">BDE 3.67.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.66.0.html">BDE 3.66.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.65.0.html">BDE 3.65.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.64.0.html">BDE 3.64.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.62.0.html">BDE 3.62.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.61.1.html">BDE 3.61.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.61.0.html">BDE 3.61.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.60.0.html">BDE 3.60.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.59.0.html">BDE 3.59.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.58.0.html">BDE 3.58.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.57.0.html">BDE 3.57.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.56.0.html">BDE 3.56.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.55.0.html">BDE 3.55.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.54.0.html">BDE 3.54.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.53.0.html">BDE 3.53.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.52.0.html">BDE 3.52.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.51.0.html">BDE 3.51.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.50.0.html">BDE 3.50.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.49.0.html">BDE 3.49.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.48.1.html">BDE 3.48.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.47.0.html">BDE 3.47.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.46.2.html">BDE 3.46.2: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.46.1.html">BDE 3.46.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.46.0.html">BDE 3.46.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.45.2.html">BDE 3.45.2: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.45.0.html">BDE 3.45.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.44.0.html">BDE 3.44.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.42.0.html">BDE 3.42.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.41.0.html">BDE 3.41.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.40.0.html">BDE 3.40.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.39.0.html">BDE 3.39.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.38.0.html">BDE 3.38.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.37.1.html">BDE 3.37.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.36.0.html">BDE 3.36.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.35.0.html">BDE 3.35.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.34.0.html">BDE 3.34.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.33.1.html">BDE 3.33.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.32.0.html">BDE 3.32.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.31.0.html">BDE 3.31.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.30.0.html">BDE 3.30.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.29.0.html">BDE 3.29.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.28.0.html">BDE 3.28.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.27.0.html">BDE 3.27.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.26.0.html">BDE 3.26.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.25.0.html">BDE 3.25.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.24.0.html">BDE 3.24.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.23.1.html">BDE 3.23.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.21.0.html">BDE 3.21.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.20.0.html">BDE 3.20.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.19.0.html">BDE 3.19.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.18.0.html">BDE 3.18.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.17.0.html">BDE 3.17.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.16.0.html">BDE 3.16.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.15.0.html">BDE 3.15.0: Production Release</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">BDE 3.14.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bde-3-14-0-highlights">BDE 3.14.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.13.0.html">BDE 3.13.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.12.0.html">BDE 3.12.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.11.0.html">BDE 3.11.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.10.0.html">BDE 3.10.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.9.0.html">BDE 3.9.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.8.0.html">BDE 3.8.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.1.html">BDE 3.7.1: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.7.0.html">BDE 3.7.0: Production Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BDE_3.6.0.html">BDE 3.6.0: Production Release</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+          <li><a href="archived_release_notes.html">Archived Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.14.0: Production Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="BDE_3.13.0.html" class="btn btn-neutral float-right" title="BDE 3.13.0: Production Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="BDE_3.15.0.html" class="btn btn-neutral float-left" title="BDE 3.15.0: Production Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-14-0-production-release">
+<span id="bde3-14-0-top"></span><h1>BDE 3.14.0: Production Release<a class="headerlink" href="#bde-3-14-0-production-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-14-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team is pleased to announce that the BDE 3.14.0 production release
+was completed on <strong>Monday, October 15, 2018</strong></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-14-0-highlights">
+<span id="bde3-14-0-highlights"></span><h2>BDE 3.14.0 Highlights<a class="headerlink" href="#bde-3-14-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="enhancements-for-c-14">
+<h3>Enhancements for C++14<a class="headerlink" href="#enhancements-for-c-14" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="overview">
+<h4>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>This features introduces a set of enhancements to the BSL library to make it
+more C++14 conformant. The changes makes available, in the <code class="docutils literal notranslate"><span class="pre">bsl</span></code>-namespace,
+new functions and features that were added to the standard library as part of
+C++14.</p>
+<p>The most notable parts of this update are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl</span></code> aliases for many C++14 features implemented in the native
+standard library.</p></li>
+<li><p>User-defined literals for <code class="docutils literal notranslate"><span class="pre">complex</span></code>, <code class="docutils literal notranslate"><span class="pre">chrono</span></code>, and <code class="docutils literal notranslate"><span class="pre">string</span></code>.</p></li>
+<li><p>Template aliases and varible templates for the result types and values of
+the type traits meta-functions.</p></li>
+<li><p>Compile-time integer sequences class <code class="docutils literal notranslate"><span class="pre">bsl::integer_sequence</span></code> that can
+be used when compiling in C++11 mode.</p></li>
+<li><p>A set of macros to identify if the current platform’s standard library
+and the compiler settings for this platform support various C++14
+features.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="aliases-to-stl-functions">
+<h4>Aliases to STL functions<a class="headerlink" href="#aliases-to-stl-functions" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update imports the following functions and types defined in the C++14
+standard into <code class="docutils literal notranslate"><span class="pre">bsl</span></code>-namespace:</p>
+<table class="hlist"><tr><td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bit_not</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cbegin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cend</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">crbegin</span></code></p></li>
+</ul>
+</td><td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">crend</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hexfloat</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">io_errc</span></code></p></li>
+</ul>
+</td><td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">is_error_code_enum</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iostream_category</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make_reverse_iterator</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make_error_code</span></code></p></li>
+</ul>
+</td><td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">make_error_condition</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make_unique</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rbegin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rend</span></code></p></li>
+</ul>
+</td><td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">quoted</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shared_lock</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shared_timed_mutex</span></code></p></li>
+</ul>
+</td></tr></table>
+</div></blockquote>
+</div>
+<div class="section" id="user-defined-literals">
+<h4>User-defined literals<a class="headerlink" href="#user-defined-literals" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update imports UDLs defined in the native library into <code class="docutils literal notranslate"><span class="pre">bsl</span></code>-namespace
+for <code class="docutils literal notranslate"><span class="pre">chrono</span></code> and <code class="docutils literal notranslate"><span class="pre">complex</span></code>.</p>
+<p>It also adds Bloomberg’s implementation of UDLs for <code class="docutils literal notranslate"><span class="pre">chrono</span></code>, <code class="docutils literal notranslate"><span class="pre">complex</span></code>
+and <code class="docutils literal notranslate"><span class="pre">string</span></code> that can be used in a client code when compiling in C++11
+mode:</p>
+<ul class="simple">
+<li><p>UDLs for <code class="docutils literal notranslate"><span class="pre">bsl::chrono</span></code>: <code class="docutils literal notranslate"><span class="pre">_h</span></code>, <code class="docutils literal notranslate"><span class="pre">_min</span></code>, <code class="docutils literal notranslate"><span class="pre">_s</span></code>, <code class="docutils literal notranslate"><span class="pre">_ms</span></code>, <code class="docutils literal notranslate"><span class="pre">_us</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_ns</span></code></p></li>
+<li><p>UDLs for <code class="docutils literal notranslate"><span class="pre">bsl::complex</span></code>: <code class="docutils literal notranslate"><span class="pre">_i</span></code>, <code class="docutils literal notranslate"><span class="pre">_if</span></code>, <code class="docutils literal notranslate"><span class="pre">_il</span></code></p></li>
+<li><p>UDLs for <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>: <code class="docutils literal notranslate"><span class="pre">_s</span></code>, <code class="docutils literal notranslate"><span class="pre">_S</span></code></p></li>
+</ul>
+<p>Note that Bloomberg’s UDLs are preceded with the <code class="docutils literal notranslate"><span class="pre">_</span></code> symbol to avoid
+ambiguity between the UDLs defined the <code class="docutils literal notranslate"><span class="pre">bsl</span></code> namespace and UDLs introduced
+in the C++14 standard and implemented in the native library.</p>
+</div></blockquote>
+</div>
+<div class="section" id="template-aliases">
+<h4>Template aliases<a class="headerlink" href="#template-aliases" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update adds template aliases <em>metafunction-name</em>_t for the result of the
+type traits meta-functions declared in <code class="docutils literal notranslate"><span class="pre">&lt;bsl_type_traits.h&gt;</span></code> and
+meta-functiond from <code class="docutils literal notranslate"><span class="pre">bslmf</span></code> package. Note that these aliases can be used
+when compiling in C++11 mode if template aliases are supported by the current
+compiler settings for this platform.</p>
+</div></blockquote>
+</div>
+<div class="section" id="variable-templates">
+<h4>Variable templates<a class="headerlink" href="#variable-templates" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update adds variable templates <em>metafunction-name</em>_v for the values of
+the type traits meta-functions defined in <code class="docutils literal notranslate"><span class="pre">&lt;bsl_type_traits.h&gt;</span></code>. Note that
+this feature is actually part of the C++17 standard, but is available in
+<code class="docutils literal notranslate"><span class="pre">bsl</span></code> when compiling in C++14 mode if the current compiler settings allow
+support variable templates.</p>
+</div></blockquote>
+</div>
+<div class="section" id="compile-time-integer-sequences">
+<h4>Compile-time integer sequences<a class="headerlink" href="#compile-time-integer-sequences" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update provides Bloomberg’s implementation of the compile-time integer
+sequences class <code class="docutils literal notranslate"><span class="pre">bsl::integer_sequence</span></code>. Note that this  class can be used
+in a client code when compiling in C++11 mode.</p>
+</div></blockquote>
+</div>
+<div class="section" id="associative-containers">
+<h4>Associative containers<a class="headerlink" href="#associative-containers" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update adds the following enchancements for associative containers:</p>
+<ul class="simple">
+<li><p>Restores <code class="docutils literal notranslate"><span class="pre">iterator</span> <span class="pre">erase(iterator);</span></code> overload removed in the C++11
+standard for associative containers.</p></li>
+<li><p>Adds a heterogeneous comparison lookup member function <code class="docutils literal notranslate"><span class="pre">find</span></code>, <code class="docutils literal notranslate"><span class="pre">count</span></code>,
+<code class="docutils literal notranslate"><span class="pre">lower_bound</span></code>, <code class="docutils literal notranslate"><span class="pre">upper_bound</span></code> and <code class="docutils literal notranslate"><span class="pre">equal_range</span></code> overloads to
+associative containers.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bsl-basic-string-enhancements">
+<h4><code class="docutils literal notranslate"><span class="pre">bsl::basic_string</span></code> enhancements<a class="headerlink" href="#bsl-basic-string-enhancements" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p>Adds a new constructor overload to <code class="docutils literal notranslate"><span class="pre">bsl::basic_string(other,</span> <span class="pre">pos,</span>
+<span class="pre">allocator)</span></code> to construct a <code class="docutils literal notranslate"><span class="pre">bsl::basic_string</span></code> object having the
+specified <code class="docutils literal notranslate"><span class="pre">other</span></code> string used as source to initiaize the string with, the
+<cite>pos</cite> position of the first character to include and the <cite>alloc</cite> allocator
+to supply memory.</p></li>
+<li><p>Sets a default argument <code class="docutils literal notranslate"><span class="pre">count</span> <span class="pre">=</span> <span class="pre">npos</span></code> in the declaration of a member
+function <code class="docutils literal notranslate"><span class="pre">bsl::basic_string::assign(str,</span> <span class="pre">pos,</span> <span class="pre">count</span> <span class="pre">=</span> <span class="pre">npos);</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="replace-bsls-cpp11-with-bsls-keyword-macros">
+<h4>Replace BSLS_CPP11 with BSLS_KEYWORD macros<a class="headerlink" href="#replace-bsls-cpp11-with-bsls-keyword-macros" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>All macros defined in <code class="docutils literal notranslate"><span class="pre">&lt;bsls_cpp11.h&gt;</span></code> that begin with <code class="docutils literal notranslate"><span class="pre">BSLS_CPP11_</span></code> are
+replaced with macros that begin with <code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_</span></code> defined in the
+<code class="docutils literal notranslate"><span class="pre">&lt;bsls_keyword.h&gt;</span></code> header. All macros defined in the <code class="docutils literal notranslate"><span class="pre">&lt;bsls_cpp11.h&gt;</span></code>
+header are <strong>DEPRECATED</strong>.</p>
+</div></blockquote>
+</div>
+<div class="section" id="new-macros">
+<h4>New macros<a class="headerlink" href="#new-macros" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update adds new macros into <code class="docutils literal notranslate"><span class="pre">&lt;bsls_keyword.h&gt;</span></code> header:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_CONSTEXPR_RELAXED</span></code> macro that instantiates to <code class="docutils literal notranslate"><span class="pre">constexpr</span></code>
+when compiling in C++14 mode.  Note that this is distinct from
+<code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_CONSTEXPR</span></code> (which instantiates to <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> in C++11
+mode and C++14) and should be used in contexts where the <code class="docutils literal notranslate"><span class="pre">constexpr</span></code>
+would not be valid for a C++11 compiler (but is for a C++14 compiler).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_INLINE_VARIABLE</span></code> macro that instantiates to <code class="docutils literal notranslate"><span class="pre">inline</span></code> when
+compiling in C++17 mode to allow for C++17 inline variable definitions.</p></li>
+</ul>
+<p>The update adds new macros into <code class="docutils literal notranslate"><span class="pre">&lt;bsls_libraryfeatures.h&gt;</span></code> header:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE</span></code> is defined if the standard
+stream classes all have the C++11 mandated move operations (constructor
+and assignment operator).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY</span></code> is defined to identify
+whether the current platform’s standard library supports a baseline set of
+C++14 library features.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE</span></code> is defined if the
+current platform’s standard library and the compiler settings for this
+platform support C++11 features required to support
+<code class="docutils literal notranslate"><span class="pre">bsl::integer_sequence</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY</span></code> is defined to identify
+whether the current platform’s standard library supports a baseline set of
+C++17 library features.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_LIBRARYFEATURES_STDCPP_&lt;standard</span> <span class="pre">library</span> <span class="pre">implemetation&gt;</span></code>: a set of
+macros to identify the current platform’s standard library implementation.</p></li>
+</ul>
+<p>The update adds new macros into <code class="docutils literal notranslate"><span class="pre">&lt;bsls_compilerfeatures.h&gt;</span></code> header:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED</span></code> is defined if
+<code class="docutils literal notranslate"><span class="pre">constexpr</span></code> with C++14 semantics is supported by the current compiler
+settings for this platform.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE</span></code> is defined if
+<code class="docutils literal notranslate"><span class="pre">__has_include</span></code> is supported by the current compiler settings for this
+platform.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE</span></code> is defined if inline
+namespaces introduced in the C++11 standard are supported by the current
+compiler settings for this platform.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES</span></code> is defined if inline
+variables introduced in the C++17 standard are supported by the current
+compiler settings for this platform.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS</span></code> is defined if member
+functions with trailing reference qualifiers (e.g., <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">myfunc(int)</span>
+<span class="pre">&amp;&amp;</span></code>) are supported by the current compiler settings for this platform.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES</span></code> is defined if variable
+templates introduced in the C++14 standard are supported by the current
+compiler settings for this platform.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="fix-bsl-method-declarations">
+<h4>Fix BSL method declarations<a class="headerlink" href="#fix-bsl-method-declarations" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>The update marks methods of STL components implemented in BSL as <code class="docutils literal notranslate"><span class="pre">noexcept</span></code>
+and <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> where required by the C++14 standard.</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="new-component-bsls-review-and-enhancements-to-bsls-assert">
+<h3>New Component: <code class="docutils literal notranslate"><span class="pre">bsls_review</span></code> and Enhancements to <code class="docutils literal notranslate"><span class="pre">bsls_assert</span></code><a class="headerlink" href="#new-component-bsls-review-and-enhancements-to-bsls-assert" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>A new component, <code class="docutils literal notranslate"><span class="pre">bsls_review</span></code>, has been added to provide
+non-terminating checks as a (temporary) transitional step in adding
+new <code class="docutils literal notranslate"><span class="pre">bsls_assert</span></code> checks into stable production systems.</p>
+<ul class="simple">
+<li><p>The new component provides a set of macros (<code class="docutils literal notranslate"><span class="pre">BSLS_REVIEW</span></code>,
+<code class="docutils literal notranslate"><span class="pre">BSLS_REVIEW_SAFE</span></code>, and <code class="docutils literal notranslate"><span class="pre">BSLS_REVIEW_OPT</span></code>) to parallel those in
+<code class="docutils literal notranslate"><span class="pre">bsls_assert</span></code> but call a different failure handler which is allowed to
+return.</p></li>
+<li><p>The default handler for failed review macros is to log and continue -
+instrumenting code to identify issues without risking bringing down running
+systems.</p></li>
+<li><p>New build options have been provided for <code class="docutils literal notranslate"><span class="pre">bsls_assert</span></code> to allow safely
+enabling assertions at various levels in “review mode” to track if they
+would fail if fully enabled.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="correcting-issue-with-json-decoding">
+<h3>Correcting Issue with JSON Decoding<a class="headerlink" href="#correcting-issue-with-json-decoding" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>A long standing error has been identified in the JSON decoding component
+<code class="docutils literal notranslate"><span class="pre">baljsn::Decoder</span></code> (due to an underlying problem in <code class="docutils literal notranslate"><span class="pre">baljsn::ParserUtil</span></code>)
+that causes the parsing of “long” <code class="docutils literal notranslate"><span class="pre">bdlt::Datetime</span></code>, <code class="docutils literal notranslate"><span class="pre">bdlt::Time</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> to fail even though <code class="docutils literal notranslate"><span class="pre">bdlt::Iso8601Util</span></code> succeeds in parsing
+the string.  Specifically, valid strings including timezone data may be
+incorrectly rejected due to their length.  This is the result of the
+constants taken from <code class="docutils literal notranslate"><span class="pre">bdlt::Iso8601Util</span></code> for the maximum length of the
+three data types being incorrect.  This error has been in production for a
+long time (well before the addition of microseconds to <code class="docutils literal notranslate"><span class="pre">bdlt::Datetime</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bdlt::Time</span></code> over two years ago).</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 34%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Class</p></th>
+<th class="head"><p>previous max length</p></th>
+<th class="head"><p>current max length</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bdlt::Datetime</span></code></p></td>
+<td><p>26</p></td>
+<td><p>32</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bdlt::Time</span></code></p></td>
+<td><p>15</p></td>
+<td><p>21</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code></p></td>
+<td><p>10</p></td>
+<td><p>16</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="new-class-bdlcc-singleproducerqueue">
+<h3>New Class: <code class="docutils literal notranslate"><span class="pre">bdlcc::SingleProducerQueue</span></code><a class="headerlink" href="#new-class-bdlcc-singleproducerqueue" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>The new class, <code class="docutils literal notranslate"><span class="pre">bdlcc::SingleProducerQueue</span></code>, is ideal for synchronization
+and communication between threads in a producer-consumer model when there is
+only one producer thread.</p>
+</div></blockquote>
+</div>
+<div class="section" id="pcre2-library-updated">
+<h3><code class="docutils literal notranslate"><span class="pre">pcre2</span></code> Library Updated<a class="headerlink" href="#pcre2-library-updated" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>This release updates the <code class="docutils literal notranslate"><span class="pre">pcre2</span></code> library used by <code class="docutils literal notranslate"><span class="pre">bdlpcre</span></code> from version
+10.20 to the current 10.32, improving JIT performance and adding minor regex
+language enhancements</p>
+</div></blockquote>
+<span class="target" id="bde3-14-0-fixed"></span></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

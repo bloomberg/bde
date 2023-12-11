@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.127.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_3.127.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.126.0 Release" href="bde_3.126.0.html" />
+    <link rel="prev" title="Release Notes" href="release_notes.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.127.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-127-0-highlights">BDE 3.127.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#forwarding-headers-for-bslma-allocator-and-bdldfp-decimal">Forwarding Headers for <code class="docutils literal notranslate"><span class="pre">bslma_allocator</span></code> and <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#non-copyable-type-support-added-to-bsl-function">Non-Copyable Type Support Added to <code class="docutils literal notranslate"><span class="pre">bsl::function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#removal-of-bael-none-severity-value">Removal of BAEL_NONE severity value</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#standard-library-aliasing-policy-update">Standard Library Aliasing Policy Update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-features">New Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.126.0.html">BDE 3.126.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.127.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.126.0.html" class="btn btn-neutral float-right" title="BDE 3.126.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="release_notes.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-127-0-release">
+<span id="bde3-127-0-top"></span><h1>BDE 3.127.0 Release<a class="headerlink" href="#bde-3-127-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-127-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.127.0 production release was
+completed on <strong>Wednesday, December 6, 2023</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-127-0-highlights">
+<h2>BDE 3.127.0 Highlights<a class="headerlink" href="#bde-3-127-0-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="forwarding-headers-for-bslma-allocator-and-bdldfp-decimal">
+<h3>Forwarding Headers for <code class="docutils literal notranslate"><span class="pre">bslma_allocator</span></code> and <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code><a class="headerlink" href="#forwarding-headers-for-bslma-allocator-and-bdldfp-decimal" title="Permalink to this headline">¶</a></h3>
+<p>In this release, BDE introduces <em>Forwarding Headers</em> for the components
+<code class="docutils literal notranslate"><span class="pre">bslma_allocator</span></code> and <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code>. Forwarding Headers are header files
+that provide forward declarations for a component, but no definitions. Modeled
+after the standard <code class="docutils literal notranslate"><span class="pre">iosfwd</span></code> header that provides forward declarations for the
+input/output library, these headers are useful for reducing compile times when
+only forward declarations are needed. The forwarding headers for these
+components are named <code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.h</span></code> and <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal.fwd.h</span></code>,
+respectively.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>BDE and the C++ community at Bloomberg
+<a class="reference external" href="https://docs.google.com/document/d/1Ml9xduKC9iBndHd58tnDFrmHd8qV4vv7PwvF_9Xgo9A">discourage forward declaring types from a different library,</a>
+as this prevents that library from refactoring in the future.</p>
+</div>
+<p>We will be providing documentation for how to create forwarding headers
+in the near future.</p>
+<p>As an example, the <code class="docutils literal notranslate"><span class="pre">Employee</span></code> class provided by the following header file
+depends only on the declaration of <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code>, but does not depend
+on its definition (e.g., <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code> is used in-name-only). So,
+the header file can include <code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.h</span></code> instead of
+<code class="docutils literal notranslate"><span class="pre">bslma_allocator.h</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// mypkg_employee.h</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span><span class="cp"></span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">mypgk</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">                             </span><span class="c1">// ==============</span>
+<span class="w">                             </span><span class="c1">// class Employee</span>
+<span class="w">                             </span><span class="c1">// ==============</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Employee</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// DATA</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">d_firstName</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">d_lastName</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// CREATORS</span>
+<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">Employee</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">basicAllocator</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="p">}</span><span class="w"> </span><span class="c1">// close package namespace</span>
+</pre></div>
+</div>
+<p>Now, if the <code class="docutils literal notranslate"><span class="pre">Employee(bslma::Allocator</span> <span class="pre">*basicAllocator)</span></code> constructor is
+defined in the <code class="docutils literal notranslate"><span class="pre">.cpp</span></code> file, that file can include
+<code class="docutils literal notranslate"><span class="pre">bslma_allocator.h</span></code> to have access to the definition of <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code>,
+which will be required to use it in the implementation:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// mypkg_employee.cpp</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span><span class="cp"></span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">mypkg</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">                             </span><span class="c1">// ==============</span>
+<span class="w">                             </span><span class="c1">// class Employee</span>
+<span class="w">                             </span><span class="c1">// ==============</span>
+
+<span class="c1">// CREATORS</span>
+<span class="n">Employee</span><span class="o">::</span><span class="n">Employee</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">basicAllocator</span><span class="p">)</span><span class="w"></span>
+<span class="o">:</span><span class="w"> </span><span class="n">d_firstName</span><span class="p">(</span><span class="n">basicAllocator</span><span class="p">)</span><span class="w"></span>
+<span class="p">,</span><span class="w"> </span><span class="n">d_lastName</span><span class="p">(</span><span class="n">basicAllocator</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// ...</span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close package namespace</span>
+</pre></div>
+</div>
+<p>BDE will provide forwarding headers on a case-by-case basis, generally for
+common vocabulary types.</p>
+</div>
+<div class="section" id="non-copyable-type-support-added-to-bsl-function">
+<h3>Non-Copyable Type Support Added to <code class="docutils literal notranslate"><span class="pre">bsl::function</span></code><a class="headerlink" href="#non-copyable-type-support-added-to-bsl-function" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bsl::function</span></code> now supports callable objects that return a non-copyable type.
+This feature requires the language feature “copy elision” that was introduced in
+C++17.</p>
+<p>For example:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">NonCopyable</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">NonCopyable</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">NonCopyable</span><span class="w"> </span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">NonCopyable</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">NonCopyable</span><span class="w"> </span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="n">NonCopyable</span><span class="w"> </span><span class="nf">Func</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NonCopyable</span><span class="p">();</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">NonCopyable</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">Func</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">NonCopyable</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">();</span><span class="w">  </span><span class="c1">// call the function directly</span>
+<span class="n">NonCopyable</span><span class="w"> </span><span class="n">two</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">();</span><span class="w">     </span><span class="c1">// call using bsl::function</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://en.cppreference.com/w/cpp/language/copy_elision">https://en.cppreference.com/w/cpp/language/copy_elision</a> for more about
+copy-elision.</p>
+</div>
+<div class="section" id="removal-of-bael-none-severity-value">
+<h3>Removal of BAEL_NONE severity value<a class="headerlink" href="#removal-of-bael-none-severity-value" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">BAEL_NONE</span></code> severity level value was removed from the list of the valid log
+severity levels.  This value had no clear meaning - in some usage contexts it was
+equivalent to <code class="docutils literal notranslate"><span class="pre">e_OFF</span></code> while in some other contexts - <code class="docutils literal notranslate"><span class="pre">e_TRACE</span></code>. If your code still
+uses this value, please map it a one of the valid severity levels.</p>
+</div>
+<div class="section" id="standard-library-aliasing-policy-update">
+<h3>Standard Library Aliasing Policy Update<a class="headerlink" href="#standard-library-aliasing-policy-update" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">bsl</span></code> library will alias library features removed in C++20 where those
+features:</p>
+<ol class="arabic simple">
+<li><p>Were previously aliased by <code class="docutils literal notranslate"><span class="pre">bsl</span></code> in C++17, and</p></li>
+<li><p>They continue to be provided by the compiler’s standard library
+implementation</p></li>
+</ol>
+</div>
+<div class="section" id="new-features">
+<h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::span&lt;char&gt;</span></code> objects now support construction from <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>
+and <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code>.</p></li>
+<li><p>Link-coercion symbols have been added to the BDE libraries for C++20 and
+C++23. These symbols prevent code compiled with different language versions
+from linking against BDE libraries built in C++20 or C++23 mode, which
+prevents silent ABI breakage.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Overnight build error in balm</p></td>
+</tr>
+<tr class="row-odd"><td><p>BDE 4 allocator changes: bdlm_metricdescriptor.t build failure</p></td>
+</tr>
+<tr class="row-even"><td><p>Support for the bsl::span(CONTAINER) constructor on C++03 platforms</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce bdlf_bind.t.cpp compile warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>remove use of tempnam</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce nb issues 20231108</p></td>
+</tr>
+<tr class="row-even"><td><p>Remove unnecessary ‘volatile’ qualifier from the ‘bslmt_readerwriterlock’</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove unnecessary ‘volatile’ qualifier from the ‘bdlat_typename’</p></td>
+</tr>
+<tr class="row-even"><td><p>Please add &#64;CANONICAL_HEADER for standard C library headers (bsl_c_*.h)</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce bsl and bdl test driver warnings for bsl and bdl</p></td>
+</tr>
+<tr class="row-even"><td><p>Create forwarding header for bslma_allocator</p></td>
+</tr>
+<tr class="row-odd"><td><p>augment metrics registrar for default namespace and descriptor instance counter</p></td>
+</tr>
+<tr class="row-even"><td><p>balxml::TypesPrintUtil fails to print customized types as hex</p></td>
+</tr>
+<tr class="row-odd"><td><p>BDE C++ standard coercion symbols for c++20 and up.</p></td>
+</tr>
+<tr class="row-even"><td><p>Protect using declaration for std::atomic_ref in apple clang++</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsl::not1 for C++03 and C++20 build compatibility</p></td>
+</tr>
+<tr class="row-even"><td><p>update bdlmt::TimerEventScheduler for monitoring</p></td>
+</tr>
+<tr class="row-odd"><td><p>update bdlmt::EventScheduler for monitoring</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::function does not work with lambdas returning non-copyable objects</p></td>
+</tr>
+<tr class="row-odd"><td><p>please investigate ‘maxBufferSize’ logic in bdlma_sequentialpool</p></td>
+</tr>
+<tr class="row-even"><td><p>BDE C++ standard coercion symbols for C++20 and up.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

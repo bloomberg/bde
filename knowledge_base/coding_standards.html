@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Resources By Topic" href="resources_by_topic.html" />
-    <link rel="prev" title="BDE 3.6.0: Production Release" href="../release_notes/archive/BDE_3.6.0.html" /> 
+    <link rel="prev" title="BDE 3.6.0: Production Release" href="../release_notes/BDE_3.6.0.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -269,7 +269,7 @@
         <a href="resources_by_topic.html" class="btn btn-neutral float-right" title="Resources By Topic" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
       
       
-        <a href="../release_notes/archive/BDE_3.6.0.html" class="btn btn-neutral float-left" title="BDE 3.6.0: Production Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../release_notes/BDE_3.6.0.html" class="btn btn-neutral float-left" title="BDE 3.6.0: Production Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
       
   </div>
   
@@ -284,7 +284,7 @@
 <div><div class="line-block">
 <div class="line"><br /></div>
 <div class="line-block">
-<div class="line"><em>Sep 19, 2023</em></div>
+<div class="line"><em>October 12, 2023</em></div>
 </div>
 </div>
 </div></blockquote>
@@ -1375,6 +1375,35 @@ directives should follow the same ordering scheme as is used in header files
 (Rule <a class="reference internal" href="#rule-4-3-5"><span class="std std-ref">4.3.5</span></a>).</p>
 </dd>
 </dl>
+<p id="rule-5-6-1"><em>5.6.1</em></p>
+<blockquote>
+<div><p>Any include directives used by the test driver that refer to components in
+the same package and <em>not</em> otherwise used by the component itself must appear
+in the component’s implementation file and appended with the comment:</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// for testing only</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The for-testing-only include directives must <em>not</em> introduce any cycle of
+physical dependency into the package (see Rule <a class="reference internal" href="#rule-3-1-8"><span class="std std-ref">3.1.8</span></a>) and
+must be sorted alphabetically with include directives of other components
+from the component’s package, if any (Rule <a class="reference internal" href="#rule-4-3-5"><span class="std std-ref">4.3.5</span></a>).</p>
+<p><strong>Note:</strong> To maximize the potential for re-use, component authors should aim
+for a component to have as small a set of dependencies as can be reasonably
+achieved, including for-testing-only dependencies.  The <code class="docutils literal notranslate"><span class="pre">//</span> <span class="pre">for</span> <span class="pre">testing</span>
+<span class="pre">only</span></code> comment serves to highlight when additional dependencies are added to
+a component through testing.</p>
+</div></blockquote>
+<table class="docutils align-right">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rule-5-6-1-rationale"><span class="std std-ref">[rationale]</span></a></p></td>
+</tr>
+</tbody>
+</table>
 <dl class="simple" id="rule-5-7">
 <dt><em>5.7</em></dt><dd><p>Redundant include guards must not be used in the implementation file.</p>
 </dd>
@@ -4250,6 +4279,28 @@ or the build of our downstream client code at our enterprise scale on any of
 our production platforms at Bloomberg.</p>
 </dd>
 </dl>
+<p id="rule-5-6-1-rationale"><span id="section-5-rationale"></span><em>R.5.6.1 Rationale:</em> <a class="reference internal" href="#rule-5-6-1"><span class="std std-ref">Rule 5.6.1</span></a></p>
+<blockquote>
+<div><p>The requirement to append the <code class="docutils literal notranslate"><span class="pre">//</span> <span class="pre">for</span> <span class="pre">testing</span> <span class="pre">only</span></code> labels serve to remind
+developers that such additions may adversely effect the reuse of the
+component <em>and</em> explain their presence to future developers (or automated
+tools) lest those directives be deemed superfluous as they are not required
+by the component itself.</p>
+<p>By adding testing-only dependencies to those of the component itself, we
+ensure that such dependencies do not introduce cycles.  Avoiding any
+test-driver introduced cycles enables a bottom-up testing strategy such that
+tests for a component can be written in terms of lower-level components that
+have been tested independently.</p>
+<table class="docutils align-right">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rule-5-6-1"><span class="std std-ref">[Back to Rule 5.6.1]</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 </div>
 <div class="section" id="r-7-3-rationale-function-signatures">
 <span id="section-7-3-rationale"></span><h3><a class="toc-backref" href="#id73">R.7.3 Rationale: Function Signatures</a><a class="headerlink" href="#r-7-3-rationale-function-signatures" title="Permalink to this headline">¶</a></h3>

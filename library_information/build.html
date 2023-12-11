@@ -226,7 +226,14 @@ configured on the system:</p>
 <li><p><a class="reference external" href="https://cmake.org/">CMake</a> (version 3.15 or later)</p></li>
 <li><p><a class="reference external" href="https://ninja-build.org/">Ninja</a> (recommended) or <a class="reference external" href="https://www.gnu.org/software/make/">GNU Make</a></p></li>
 <li><p><a class="reference external" href="https://www.python.org">Python</a> ( only for BDE wrappers )</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pkg-config</span></code> ( For external dependencies resolution )</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">pkg-config</span></code> is required to resolve external build dependencies for
+the high level BDE libraries. This tool is not required to build
+<code class="docutils literal notranslate"><span class="pre">bde</span></code> itself as it does not have external dependencies.</p>
+</div>
 </div></blockquote>
 </div>
 <div class="section" id="download-bde-tools">
