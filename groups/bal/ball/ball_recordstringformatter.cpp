@@ -549,7 +549,7 @@ void PrintUtil::appendValue(bsl::string *result,
                             const char  *format,
                             T            value)
 {
-    char buffer[16];
+    char buffer[24];
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
