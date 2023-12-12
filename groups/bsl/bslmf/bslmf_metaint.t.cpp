@@ -536,12 +536,23 @@ int main(int argc, char *argv[])
         // The following tests will not compile if the current compiler
         // supports static asserts.
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#pragma GCC diagnostic ignored "-Wenum-compare"
+#endif
+
         // 'VALUE' is signed:
         ASSERT(bslmf::MetaInt<(unsigned) 5>::VALUE !=
                bslmf::MetaInt<(unsigned)-5>::VALUE);
 
         ASSERT(bslmf::MetaInt<           5>::VALUE !=
                bslmf::MetaInt<          -5>::VALUE);
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
 #endif
       } break;
       default: {

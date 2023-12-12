@@ -45,6 +45,10 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wstringop-overread"
+#endif
+
 // CONVENIENCE
 using namespace BloombergLP;
 using bsl::cout;

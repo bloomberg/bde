@@ -739,7 +739,7 @@ int main(int argc, char *argv[])
         // rely on system clocks having a small enough resolution to notice
         // 'epsA'.  Verify that lagTime is positive.
 
-        int lagTime = X.lagTime();
+        bsls::Types::Int64 lagTime = X.lagTime();
         LOOP_ASSERT(lagTime, 0 < lagTime);
 
         if (verbose) { P_(sleepTime) P(lagTime); }

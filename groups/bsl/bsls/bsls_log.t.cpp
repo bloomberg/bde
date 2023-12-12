@@ -21,6 +21,10 @@
 # include <stdint.h>    // SIZE_MAX.  Cannot include on all Windows platforms.
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+
 using namespace BloombergLP;
 
 // ============================================================================

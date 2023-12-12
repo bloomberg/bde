@@ -1348,8 +1348,7 @@ int main(int argc, char *argv[])
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (std::size_t i = 0; i < NUM_VALUES; ++i) {
-                const int   VAL   = VALUES[i].d_value;
-                const Int64 VAL64 = VALUES[i].d_value;
+                const int VAL = VALUES[i].d_value;
 
                 for (std::size_t j = 0; j < NUM_VALUES; ++j) {
                     const int   VAL2 = VALUES[j].d_value;

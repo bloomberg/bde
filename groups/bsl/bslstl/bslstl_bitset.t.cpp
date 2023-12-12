@@ -1,6 +1,8 @@
 // bslstl_bitset.t.cpp                                                -*-C++-*-
 #include <bslstl_bitset.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
@@ -504,8 +506,9 @@ bool isPrime(int candidate)
 // Next, we compute 'sqrt(candidate)', which is as far as we need to look:
 //..
     // We need to cast the 'sqrt' argument to avoid an overload ambiguity.
-    const int sqrtOfCandidate = std::sqrt(static_cast<double>(candidate))
-                                + 0.01;  // fudge factor
+    const int sqrtOfCandidate = static_cast<int>(
+                                      std::sqrt(static_cast<double>(candidate))
+                                                + 0.01);  // fudge factor
 //..
 // Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
 // eliminate non-primes:
@@ -675,15 +678,16 @@ int main(int argc, char *argv[])
             bsl::bitset<32> b;
             size_t          i = 0;
             size_t          j = 0;
-            bool            x = true;
+
+            BSLA_MAYBE_UNUSED bool x = true;
 
             // The only public way to construct 'reference' objects is to call
             // 'operator[]' on a bitset, which is not 'noexcept' itself.
             // Therefore, we must construct 'reference' objects outside the
             // expressions tested with the 'noexcept' operator.
 
-            bsl::bitset<32>::reference       ref = b[i];
-            const bsl::bitset<32>::reference REF = b[j];
+            BSLA_MAYBE_UNUSED bsl::bitset<32>::reference       ref = b[i];
+            BSLA_MAYBE_UNUSED const bsl::bitset<32>::reference REF = b[j];
 
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
@@ -717,7 +721,7 @@ int main(int argc, char *argv[])
         //  constexpr bitset(unsigned long long val) noexcept;
         //..
         {
-            unsigned long long val = 1;
+            BSLA_MAYBE_UNUSED unsigned long long val = 1;
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
@@ -740,7 +744,8 @@ int main(int argc, char *argv[])
         {
             bsl::bitset<32> b;
             bsl::bitset<32> rhs;
-            size_t          pos = 0U;
+
+            BSLA_MAYBE_UNUSED size_t pos = 0U;
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
@@ -780,7 +785,8 @@ int main(int argc, char *argv[])
         {
             bsl::bitset<32> b;
             bsl::bitset<32> rhs;
-            size_t          pos = 0U;
+
+            BSLA_MAYBE_UNUSED size_t pos = 0U;
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.count()));

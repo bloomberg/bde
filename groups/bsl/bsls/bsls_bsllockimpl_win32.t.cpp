@@ -274,6 +274,8 @@ int main(int argc, char *argv[])
 
             ASSERT(MAIN_THREAD == info.d_firstIn);
         }
+#else
+        ASSERT(1);
 #endif  // BSLS_PLATFORM_OS_WINDOWS
       } break;
       default: {

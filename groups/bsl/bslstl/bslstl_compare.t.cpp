@@ -191,6 +191,8 @@ int main(int argc, char *argv[])
         ASSERT(bsl::is_lteq(1 <=> 2));
         ASSERT(bsl::is_gt(1 <=> 0));
         ASSERT(bsl::is_gteq(1 <=> 0));
+#else
+        ASSERT(1);
 #endif
       } break;
       default: {

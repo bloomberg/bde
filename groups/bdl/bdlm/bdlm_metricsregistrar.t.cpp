@@ -125,6 +125,8 @@ namespace {
 
 typedef bdlm::MetricsRegistrar ProtocolClass;
 
+static bsl::string s_returnString;
+
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int incrementInstanceCount(const bdlm::MetricDescriptor& metricDescriptor)
     {
@@ -149,12 +151,14 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 
     const bsl::string& defaultMetricNamespace() const
     {
-        return markDone();
+        markDone();
+        return s_returnString;
     }
 
     const bsl::string& defaultObjectIdentifierPrefix() const
     {
-        return markDone();
+        markDone();
+        return s_returnString;
     }
 };
 

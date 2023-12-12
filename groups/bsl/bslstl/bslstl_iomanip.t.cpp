@@ -1031,7 +1031,8 @@ int main(int argc, char *argv[])
             ASSERTV(stream.str().c_str(),
                     "$test %$custom%$ delimiters$" == stream.str());
         }
-
+#else
+        ASSERT(1);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
       } break;
       default: {

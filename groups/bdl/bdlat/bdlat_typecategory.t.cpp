@@ -23,6 +23,10 @@
 
 #include <bdlb_nullablevalue.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wstringop-overread"
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 

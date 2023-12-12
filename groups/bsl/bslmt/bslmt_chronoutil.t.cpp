@@ -653,6 +653,8 @@ int main(int argc, char *argv[])
                                            bsls::SystemClockType::e_REALTIME));
         ASSERT(!bslmt::ChronoUtil::isMatchingClock<AnotherClock>(
                                           bsls::SystemClockType::e_MONOTONIC));
+#else
+        ASSERT(1);
 #endif
       } break;
       default: {

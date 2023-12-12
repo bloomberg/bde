@@ -35,6 +35,10 @@
 # include <unistd.h>
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wstringop-overread"
+#endif
+
 // Ensure that the 'BSLMT_TESTUTIL_*' macros do not require:
 //  using namespace BloombergLP;
 //  using namespace bsl;

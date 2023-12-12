@@ -1865,7 +1865,7 @@ void TestDriver::testCase29()
                     const int INVALID_EXP1 = -102;
                     const int INVALID_EXP2 =   91;
 
-                    Obj X; Obj *X_P(&X);
+                    Obj X(V); Obj *X_P(&X);
 
                     ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP1));
                     ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP2));
@@ -2067,7 +2067,7 @@ void TestDriver::testCase29()
                     const int INVALID_EXP1 = -399;
                     const int INVALID_EXP2 =  370;
 
-                    Obj X; Obj *X_P(&X);
+                    Obj X(V); Obj *X_P(&X);
 
                     ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP1));
                     ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP2));

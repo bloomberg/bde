@@ -696,8 +696,9 @@ int main(int argc, char *argv[])
             const bsl::string CALLS  = DATA[i].d_methodCalls;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            if (veryVerbose)
+            if (veryVerbose) {
                 T_ P_(LINE) P_(INDENT) P_(SPL) P_(CALLS) P(EXP);
+            }
 
             bsl::ostringstream os;
 
@@ -842,7 +843,9 @@ int main(int argc, char *argv[])
             const int         IIL  = DATA[i].d_initialIndentLevel;
             const int         SPL  = DATA[i].d_spacesPerLevel;
 
-            if (veryVerbose) T_ P_(LINE) P_(ES) P_(IIL) P(SPL);
+            if (veryVerbose) {
+                T_ P_(LINE) P_(ES) P_(IIL) P(SPL);
+            }
 
             testPutValue(LINE, L_, ES, IIL, SPL, A,    DP,   true);
             testPutValue(LINE, L_, ES, IIL, SPL, B,    DP,   true);
@@ -891,7 +894,9 @@ int main(int argc, char *argv[])
                     // j == 0, output as value of element, i.e. w/o indentation
                     // j == 1, output as array element, i.e. with indentation
 
-                    if (veryVeryVerbose) T_ T_ P(j);
+                    if (veryVeryVerbose) {
+                        T_ T_ P(j);
+                    }
 
                     bsl::ostringstream os;
                     bsl::ostringstream exp;

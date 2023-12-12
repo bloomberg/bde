@@ -1270,7 +1270,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase28_dispatch()
 
                     bool empty = 0 == ZZ.size();
 
-                    const typename Obj::value_type *pointers[2];
+                    const typename Obj::value_type *pointers[2] = { 0, 0 };
                     storeFirstNElemAddr(pointers, Z,
                                         sizeof pointers / sizeof *pointers);
 

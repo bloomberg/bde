@@ -17,7 +17,6 @@
 #endif
 
 #include <bslstl_sharedptr.h>
-
 #include <bslstl_badweakptr.h>
 
 #include <bslalg_autoscalardestructor.h>
@@ -2562,7 +2561,7 @@ struct NothrowAndBitwiseMovableTestType {
 
     // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
     // to include data to ensure that our tests work as intended.
-    BSLA_MAYBE_UNUSED int dummy_d;
+    int dummy_d;
 
   public:
     // TRAITS
@@ -2603,7 +2602,7 @@ struct NonNothrowAndNonBitwiseMovableTestType {
 
     // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
     // to include data to ensure that our tests work as intended.
-    BSLA_MAYBE_UNUSED int dummy_d;
+    int dummy_d;
 
   public:
     // CREATORS
@@ -2640,7 +2639,7 @@ struct CountConstructorsAndDestructors {
 
     // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
     // to include data to ensure that our tests work as intended.
-    BSLA_MAYBE_UNUSED int d_dummy;
+    int d_dummy;
 
   public:
     // CREATORS
@@ -2671,7 +2670,7 @@ struct SometimesThrowOnConstruction {
 
     // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
     // to include data to ensure that our tests work as intended.
-    BSLA_MAYBE_UNUSED int d_dummy;
+    int d_dummy;
 
   public:
     // CREATORS

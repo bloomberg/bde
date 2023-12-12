@@ -2,6 +2,12 @@
 #define BSLSTL_LIST_0T_AS_INCLUDE
 #include <bslstl_list.0.t.cpp>
 
+#include <bsla_maybeunused.h>
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -355,7 +361,7 @@ void TestDriver2<TYPE, ALLOC>::testCase34_noexcept()
     //..
 
     {
-        Obj mX;  const Obj& X = mX;
+        Obj mX;  BSLA_MAYBE_UNUSED const Obj& X = mX;
         Obj mY;
 
         ASSERT(false
@@ -384,7 +390,7 @@ void TestDriver2<TYPE, ALLOC>::testCase34_noexcept()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX;  BSLA_MAYBE_UNUSED const Obj& X = mX;
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.begin()));
@@ -426,7 +432,7 @@ void TestDriver2<TYPE, ALLOC>::testCase34_noexcept()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX;  BSLA_MAYBE_UNUSED const Obj& X = mX;
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.empty()));

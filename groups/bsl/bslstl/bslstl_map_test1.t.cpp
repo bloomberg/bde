@@ -8,6 +8,8 @@
 #include <bslstl_randomaccessiterator.h>
 #include <bslstl_string.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_rangecompare.h>
 #include <bslalg_scalarprimitives.h>
 
@@ -1690,7 +1692,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase27()
                 Obj *srcPtr = new (fa) Obj(&sa);
                 Obj& mZ = *srcPtr;  const Obj& Z = gg(&mZ, SPEC);
 
-                const typename Obj::value_type *pointers[2];
+                const typename Obj::value_type *pointers[2] = { 0, 0 };
                 storeFirstNElemAddr(pointers, Z,
                                     sizeof pointers / sizeof *pointers);
 
@@ -2448,7 +2450,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    const KEY   ZK = TestValues("y")[0].first;   // A value not in any spec.
+    BSLA_MAYBE_UNUSED const KEY ZK = TestValues("y")[0].first;
+                                                    // A value not in any spec.
+
     const VALUE ZV = TestValues("z")[0].second;  // A value not in any spec.
 
     if (verbose) printf("Testing elemental access for '%s'.\n",

@@ -6,6 +6,8 @@
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
@@ -515,6 +517,7 @@ TYPE& copyAssignTo(TYPE *dst, const TYPE& src)
 }
 
 template <>
+BSLA_MAYBE_UNUSED
 bsltf::MoveOnlyAllocTestType&
 copyAssignTo(bsltf::MoveOnlyAllocTestType        *dst,
              const bsltf::MoveOnlyAllocTestType&  src)
@@ -525,6 +528,7 @@ copyAssignTo(bsltf::MoveOnlyAllocTestType        *dst,
 }
 
 template <>
+BSLA_MAYBE_UNUSED
 bsltf::WellBehavedMoveOnlyAllocTestType&
 copyAssignTo(bsltf::WellBehavedMoveOnlyAllocTestType        *dst,
              const bsltf::WellBehavedMoveOnlyAllocTestType&  src)
@@ -9046,7 +9050,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase3_verifySpec()
                                                   // too
 
         const bool empty = 0 == LENGTH;
-        char deletedVal;
+        char deletedVal = 0;
         if (!empty) {
             // Erase the first node and observe that spec no longer matches.
 

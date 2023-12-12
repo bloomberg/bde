@@ -744,6 +744,7 @@ int main(int argc, char *argv[])
                                   "in pre-C++11 mode or if the compiler "
                                   "does not support inline namespaces.\n"); }
 
+        ASSERT(1);
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
       } break;

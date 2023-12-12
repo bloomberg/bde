@@ -163,6 +163,7 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) printf("Cannot test 'bsl::ratio' in pre-C++11 mode.\n");
+        ASSERT(1);
 #else
         if (verbose) printf("\tTest basic 'ratio' functionality.\n");
         {
@@ -352,7 +353,6 @@ int main(int argc, char *argv[])
                             bsl::ratio_divide<ThreeHalfs, NegTwo3rds>::type,
                             bsl::ratio<-9,4>>::value));
         }
-
 #endif
       } break;
       default: {

@@ -1548,7 +1548,7 @@ int main(int argc, char *argv[])
             const Key   KEY   = "Hello";
             const Value VALUE = 4;
 
-            Class::Handle handle;
+            Class::Handle handle = 0;
 
             ASSERT(true  == mX.insert(&handle, KEY, VALUE));
 

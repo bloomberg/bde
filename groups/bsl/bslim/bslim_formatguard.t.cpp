@@ -12,6 +12,10 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wstringop-overread"
+#endif
+
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;

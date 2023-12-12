@@ -4535,7 +4535,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
         switch (RandomValueUtil::generateInInterval<int>(
             randomValueLoader, 0, k_NUM_SUPPORTED_TYPES - 1)) {
           case e_BOOL: {
-            bool value;
+            bool value = false;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4549,7 +4549,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_CHAR: {
-            char value;
+            char value = 0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4563,7 +4563,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_SIGNED_CHAR: {
-            signed char value;
+            signed char value = 0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4577,7 +4577,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_UNSIGNED_CHAR: {
-            unsigned char value;
+            unsigned char value = 0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4591,7 +4591,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_INT: {
-            int value;
+            int value = 0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4605,7 +4605,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_INT64: {
-            bsls::Types::Int64 value;
+            bsls::Types::Int64 value = 0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4619,7 +4619,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_UINT: {
-            unsigned int value;
+            unsigned int value = 0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4633,7 +4633,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_UINT64: {
-            bsls::Types::Uint64 value;
+            bsls::Types::Uint64 value = 0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4647,7 +4647,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_FLOAT: {
-            float value;
+            float value = 0.0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);
@@ -4672,7 +4672,7 @@ void checksumAppend(HASHALG& hashAlg, const GetValueFingerprint& object)
             checksumAppend(hashAlg, numBytes);
           } break;
           case e_DOUBLE: {
-            double value;
+            double value = 0.0;
             int numBytes = 0;
             ImplUtil::getRandomValue(
                 &value, &numBytes, randomValueLoader, encoderOptions);

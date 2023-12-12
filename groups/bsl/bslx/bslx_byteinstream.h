@@ -994,7 +994,7 @@ ByteInStream& ByteInStream::getVersion(int& version)
         return *this;                                                 // RETURN
     }
 
-    unsigned char tmp;
+    unsigned char tmp = 0;
     getUint8(tmp);
     version = tmp;
 

@@ -4911,7 +4911,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase29()
 
                     bool empty = 0 == ZZ.size();
 
-                    typename Obj::const_pointer pointers[2];
+                    typename Obj::const_pointer pointers[2] = { 0, 0 };
                     storeFirstNElemAddr(pointers,
                                         Z,
                                         sizeof pointers / sizeof *pointers);
@@ -5330,7 +5330,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase28()
                 Obj&        mZ = *srcPtr;
                 const Obj&  Z = gg(&mZ, SPEC);
 
-                typename Obj::const_pointer pointers[2];
+                typename Obj::const_pointer pointers[2] = { 0, 0 };
                 storeFirstNElemAddr(pointers,
                                     Z,
                                     sizeof pointers / sizeof *pointers);

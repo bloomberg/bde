@@ -1367,7 +1367,7 @@ void BenchmarkSuite::run(int   iterations,
     BENCHMARK(createDouble(1.23), isDouble(), theDouble(), double);
 
     {
-        unsigned char buffer[8]; // big enough fox max encoding size
+        unsigned char buffer[16]; // big enough fox max encoding size
         (void)buffer;
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)

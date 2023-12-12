@@ -7,6 +7,10 @@
 #include <stdio.h>      // print, fprintf
 #include <stdlib.h>     // atoi
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================

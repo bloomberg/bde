@@ -4554,7 +4554,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
 
                     bool empty = 0 == ZZ.size();
 
-                    typename Obj::const_pointer pointers[2];
+                    typename Obj::const_pointer pointers[2] = { 0, 0 };
                     storeFirstNElemAddr(pointers,
                                         Z,
                                         sizeof pointers / sizeof *pointers);
@@ -4996,7 +4996,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase26()
                 Obj&        mZ = *srcPtr;
                 const Obj&  Z = gg(&mZ, SPEC);
 
-                typename Obj::const_pointer pointers[2];
+                typename Obj::const_pointer pointers[2] = { 0, 0 };
                 storeFirstNElemAddr(pointers, Z,
                                     sizeof pointers / sizeof *pointers);
 

@@ -166,7 +166,7 @@ void testFunction() {
 // operator will not be used, e.g., the following code will result in an error:
 //..
 #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
-    bool flag = value;
+    bool flag = value;  (void)flag;
 #endif
 }
 //..

@@ -1353,7 +1353,9 @@ int main(int argc, char **argv)
             for (int j = 0; j < SAMPLE_NUM; ++j) {
                 const bsl::size_t BUFFER_SIZE = sampleSizes[j];
 
-                if (veryVerbose) T_ P(BUFFER_SIZE);
+                if (veryVerbose) {
+                    T_ P(BUFFER_SIZE);
+                }
 
                 char *buffer = new char[BUFFER_SIZE];
                 fillBuffer(buffer, BUFFER_SIZE);
@@ -1392,7 +1394,9 @@ int main(int argc, char **argv)
             for (int j = 0; j < SAMPLE_NUM; ++j) {
                 const bsl::size_t BUFFER_SIZE = sampleSizes[j];
 
-                if (veryVerbose) T_ P(BUFFER_SIZE);
+                if (veryVerbose) {
+                    T_ P(BUFFER_SIZE);
+                }
 
                 const char *buffer = new char[BUFFER_SIZE];
                 char       *hack   = const_cast<char *>(buffer);
