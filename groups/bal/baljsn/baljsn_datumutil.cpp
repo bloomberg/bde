@@ -17,6 +17,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdld_datummapowningkeysbuilder.h>
 #include <bdld_manageddatum.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bdlde_utf8util.h>
 
 #include <bdlma_bufferedsequentialallocator.h>

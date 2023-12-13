@@ -1,6 +1,7 @@
 // bdld_datum.t.cpp                                                   -*-C++-*-
 #include <bdld_datum.h>
 
+#include <bdldfp_decimal.h>
 #include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_decimalutil.h>
 
@@ -1562,7 +1563,7 @@ void BenchmarkSuite::runVisit()
 
         for (int j = 0; j < d_iterations; ++j) {
             for (int i = 0; i < k_DATUMS; ++i) {
-                double sum = 0;
+                volatile double sum = 0;
                 for (ConstDatumIter iter = combo.begin(), last = combo.end();
                      iter != last;
                      ++iter) {
@@ -2101,6 +2102,120 @@ HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher,
 }
 
 //=============================================================================
+//                  CLANG TEST FOR SECOND PHASE LOOKUP ISSUE
+//-----------------------------------------------------------------------------
+
+#define u_NEXT_CLANG_MAJOR_VERSION (16 * 10000)
+#if !defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
+                        BSLS_PLATFORM_CMP_VERSION >= u_NEXT_CLANG_MAJOR_VERSION
+
+// This section of code is testing if a clang-specific issue template
+// compilation still exist, and so we still need the workaround in the header
+// 'bdld_datum.h'.
+//
+///The Background
+///--------------
+// We have been requested to replace the inclusion of '<bdldfp_decimal.h>' (for
+// 'bdldfp::Decimal64') with just forward declarations, because it made the
+// compilation of '<bdld_datum.h>' very expensive in a certain key library.
+//
+// We have created '<bdldfp_decimal.fwd.h>' to forward declare the decimal
+// floating point types.  Including only the forward declaration header makes
+// 'bdldfp::Decimal64' an incomplete type while '<bdld_datum.h>' is being
+// compiled.  Those who need to use 'bdld::Datum' with 'bdldfp::Decimal64' need
+// just to include '<bdldfp_decimal.h>' in their .cpp file, or so we thought.
+//
+///What is the Issue?
+///------------------
+// For historical reasons '<bdld_datum.h>' defines two function templates, the
+// member template 'apply' for the Visitor Pattern, and the 'bdld::hashAppend'
+// free function for the BDE-style chained hash-calculation implementation.
+// Both of these functions implement the Visitor Pattern so they suffer from
+// the same consequences: generally, using a Visitor makes code dependent on
+// *all* possible visitable types, and in this specific case 'bdld::Datum'
+// offers by-value accessors only.
+//
+// The 'bdldfp::Decimal64 theDecimal() const' accessor uses 'bdldfp::Decimal64'
+// by value in its signature.  But in the header 'bdldfp::Decimal64' is an
+// incomplete type, so calling that function is not possible until we include
+// '<bdldfp_decimal.h>'.  But the function templates we define (in the
+// '<bdld_datum.h>') header actually directly call 'theDecimal64()'.
+//
+// Two-phase name lookup rules in C++ declares that all names that are not
+// dependent on a template argument must be resolved during the first phase of
+// template compilation, and only during that first phase.  Whatever is found
+// while compiling our header is what must be used as the meaning of
+// non-dependent names during the second phase, the instantiation of the
+// function template.  'bdldfp::Decimal64' is not a dependent name so clang++,
+// that takes the lookup rules to the letter "remembers" the incomplete type,
+// and we end up with the error message:
+//..
+// error: calling 'theDecimal64' with incomplete return type
+//        'bdldfp::Decimal64' (aka 'BloombergLP::bdldfp::Decimal_Type64')
+//    visitor(theDecimal64());
+//    ^ ~~~~~~~~~~~~~
+// note: 'theDecimal64' declared here
+//    bdldfp::Decimal64 theDecimal64() const;
+// note : forward declaration of 'BloombergLP::bdldfp::Decimal_Type64'
+//    class Decimal_Type64;
+//          ^
+//..
+//
+///Why Testing Here?
+///-----------------
+// Due to large amounts of code depending on transitive includes we are unable
+// to remove the inclusion of '<bdldfp_decimal.h>' from '<bdld_datum.h>'.  The
+// design decision was taken to keep the header '<bdld_datum.h>' itself to have
+// minimal conditional compilation, and that we recreate the error-situation
+// for clang within the test driver to detect starts behaving like the other
+// compilers do.
+//
+///The Workaround
+///--------------
+// The workaround use is that we make the function being called "dependent" of
+// a (function) template argument (using a little utility class template, or
+// metafunction) so the 'theDecimal64()' will be bound in the second phase
+// (instantiation phase) name lookup.
+
+namespace {
+
+// -------------------------------------------
+// "Header" with declarations and the template
+
+struct ForwardDeclared;
+
+ForwardDeclared returnByValue();
+
+template <class t_VISITOR>
+void callerTemplate(const t_VISITOR& v) {
+    v.call(returnByValue());
+// error: calling 'returnByValue' with incomplete return type 'ForwardDeclared'
+// If you see the above error during compilation with clang please increase the
+// major version number in the '#if' around this code.  If you see a similar
+// error from a compiler that is not clang it means that the function-pointer
+// workaround code will have to remain in '<bdld_datum.h>'.  See the large
+// comment section right after the '#if' above for an explanation of what is
+// tested here, and why.
+}
+
+// -----------------------------------------------------------------
+// An "implementation" with definitions & the template instantiation
+
+struct ForwardDeclared {};
+
+ForwardDeclared returnByValue() {
+    return ForwardDeclared();
+}
+
+struct Visitor {
+    void call(ForwardDeclared) {}
+};
+
+}  // close unnamed namespace
+
+#endif  // Verify name binding issue
+
+//=============================================================================
 //                               MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -2116,6 +2231,12 @@ int main(int argc, char *argv[])
 
     // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) &&                                       \
+                        BSLS_PLATFORM_CMP_VERSION >= u_NEXT_CLANG_MAJOR_VERSION
+    ASSERT(!"This clang major release fixed the 2 phase name lookup issue.");
+    // Time to plan phasing out the function-pointer workaround
+#endif  // The test driver should not have compiled
 
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 

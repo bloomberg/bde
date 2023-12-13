@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdld_datumarraybuilder_cpp, "$Id$ $CSID$")
 
 #include <bdld_datum.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_cstring.h>

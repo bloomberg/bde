@@ -1,15 +1,19 @@
 // bdld_datumarraybuilder.t.cpp                                       -*-C++-*-
 #include <bdld_datumarraybuilder.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h> // for testing only
 #include <bslma_default.h>               // for testing only
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_cstddef.h>

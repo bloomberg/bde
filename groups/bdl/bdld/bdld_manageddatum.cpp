@@ -1,6 +1,8 @@
 // bdld_manageddatum.cpp                                              -*-C++-*-
 #include <bdld_manageddatum.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdld_manageddatum_cpp,"$Id$ $CSID$")
 

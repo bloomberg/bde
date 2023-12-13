@@ -1,6 +1,8 @@
 // bdld_datummaker.t.cpp                                              -*-C++-*-
 #include <bdld_datummaker.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bdlma_localsequentialallocator.h>
 
 #include <bsl_iostream.h>

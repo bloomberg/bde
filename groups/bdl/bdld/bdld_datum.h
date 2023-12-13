@@ -1,5 +1,4 @@
 // bdld_datum.h                                                       -*-C++-*-
-
 #ifndef INCLUDED_BDLD_DATUM
 #define INCLUDED_BDLD_DATUM
 
@@ -594,7 +593,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlb_float.h>         // 'isSignalingNan'
 #include <bdlb_printmethods.h>
 
-#include <bdldfp_decimal.h>
+#include <bdldfp_decimal.fwd.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    #include <bdldfp_decimal.h>
+#endif
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -602,7 +604,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlt_epochutil.h>
 #include <bdlt_time.h>
 
-#include <bsl_algorithm.h>
+#include <bslma_allocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisecopyable.h>
@@ -619,6 +621,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_review.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_climits.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
@@ -626,23 +629,18 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_string.h>
 #include <bsl_utility.h>
 
-#include <bslma_allocator.h>
-
 #if !defined(BSLS_PLATFORM_CPU_32_BIT) && !defined(BSLS_PLATFORM_CPU_64_BIT)
 #error 'bdld::Datum' supports 32- or 64-bit platforms only.
 BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #define BDLD_DATUM_FORCE_INLINE __forceinline
-#elif defined(BSLS_PLATFORM_CMP_GNU)
-#define BDLD_DATUM_FORCE_INLINE inline
 #else
 #define BDLD_DATUM_FORCE_INLINE inline
 #endif
 
 namespace BloombergLP {
-
 
 namespace bdld {
 
@@ -655,6 +653,15 @@ class DatumMutableArrayRef;
 class DatumMutableIntMapRef;
 class DatumMutableMapOwningKeysRef;
 class DatumMutableMapRef;
+
+template <class t_WANT_TO_BE_DEPENDENT, class t_ALREADY_DEPENDENT>
+struct Datum_MakeDependent {
+    // Metafunction for use in templates to create a dependent 'type' that is
+    // identical to the 't_WANT_TO_BE_DEPENDENT' type specified as first
+    // template argument using the 't_ALREADY_DEPENDENT' type of the user
+    // template (of this metafunction).
+    typedef t_WANT_TO_BE_DEPENDENT type;
+};
 
                                 // ===========
                                 // class Datum
@@ -1671,8 +1678,8 @@ class Datum {
         // that this method's definition is compiler generated.
 
     // ACCESSORS
-    template <class BDLD_VISITOR>
-    void apply(BDLD_VISITOR& visitor) const;
+    template <class t_VISITOR>
+    void apply(t_VISITOR& visitor) const;
         // Apply the specified 'visitor' to the current value represented by
         // this object by passing held value to the 'visitor' object's
         // 'operator()' overload.
@@ -1973,8 +1980,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
     // and return a reference to the modifiable 'stream'.  The function will
     // have no effect if the specified 'stream' is not valid.
 
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlgorithm, const Datum& datum);
+template <class t_HASH_ALGORITHM>
+void hashAppend(t_HASH_ALGORITHM& hashAlgorithm, const Datum& datum);
     // Invoke the specified 'hashAlgorithm' on the value of the specified
     // 'datum' object.  Note that the value of a User Defined Type in Datum is
     // a combination of its type integer and the address (pointer value), not
@@ -2763,13 +2770,13 @@ struct Datum_Helpers {
     // within a buffer.  The functions assume that objects within the buffers
     // have proper alignment and use casts to suppress compiler warnings about
     // possible alignment problems.
-    template <class Type>
-    static Type load(const void *source, int offset);
+    template <class t_TYPE>
+    static t_TYPE load(const void *source, int offset);
         // Return the typed value found at the specified 'offset' within the
         // specified 'source'.
 
-    template <class Type>
-    static Type store(void *destination, int offset, Type value);
+    template <class t_TYPE>
+    static t_TYPE store(void *destination, int offset, t_TYPE value);
         // Store the specified typed 'value' at the specified 'offset' within
         // the specified 'destination' and return 'value'.
 };
@@ -2834,24 +2841,24 @@ struct Datum_Helpers32 : Datum_Helpers {
                             // --------------------
 
 // CLASS METHODS
-template <class Type>
+template <class t_TYPE>
 inline
-Type Datum_Helpers::load(const void *source, int offset)
+t_TYPE Datum_Helpers::load(const void *source, int offset)
 {
     // The intermediate cast to 'void *' avoids warnings about the cast to a
     // pointer of stricter alignment.
-    return *static_cast<const Type *>(
+    return *static_cast<const t_TYPE *>(
             static_cast<const void *>(
             static_cast<const char *>(source) + offset));
 }
 
-template <class Type>
+template <class t_TYPE>
 inline
-Type Datum_Helpers::store(void *destination, int offset, Type value)
+t_TYPE Datum_Helpers::store(void *destination, int offset, t_TYPE value)
 {
     // The intermediate cast to 'void *' avoids warnings about the cast to a
     // pointer of stricter alignment.
-    return *static_cast<Type *>(
+    return *static_cast<t_TYPE *>(
             static_cast<void *>(
             static_cast<char *>(destination) + offset)) = value;
 }
@@ -3871,15 +3878,6 @@ bdlt::DatetimeInterval Datum::theDatetimeInterval() const
 #endif // BSLS_PLATFORM_CPU_32_BIT
 }
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-inline
-bdldfp::Decimal64 Datum::theDecimal64() const
-{
-    BSLS_ASSERT_SAFE(isDecimal64());
-    return *reinterpret_cast<const bdldfp::Decimal64 *>(theInlineStorage());
-}
-#endif // BSLS_PLATFORM_CPU_64_BIT
-
 inline
 double Datum::theDouble() const
 {
@@ -4129,8 +4127,8 @@ Datum::DataType Datum::type() const
 }
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-template <class BDLD_VISITOR>
-void Datum::apply(BDLD_VISITOR& visitor) const
+template <class t_VISITOR>
+void Datum::apply(t_VISITOR& visitor) const
 {
     switch (internalType()) {
       case e_INTERNAL_INF:
@@ -4216,9 +4214,20 @@ void Datum::apply(BDLD_VISITOR& visitor) const
             break;
           case e_EXTENDED_INTERNAL_DECIMAL64:
           case e_EXTENDED_INTERNAL_DECIMAL64_SPECIAL:
-          case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC:
-            visitor(theDecimal64());
-            break;
+          case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
+            // Code below is identical to 'visitor(theDecimal64())' but
+            // postpones the name lookup for 'theDecimal64()' to the second
+            // (instantiation) phase, so that we can use only a forward
+            // declaration of 'bdldfp::Decimal64' in this header.  Without this
+            // workaround clang won't compile calls to 'apply' or 'hashAppend'
+            // even if '<bdldfp_decimal.h>' is included after this header.  See
+            // the test driver for more information.
+            typedef bdldfp::Decimal64 (Datum::*Dec64MemFunPtr)() const;
+            const typename Datum_MakeDependent<
+                        Dec64MemFunPtr,
+                        t_VISITOR>::type dec64MemFunPtr = &Datum::theDecimal64;
+            visitor((this->*dec64MemFunPtr)());
+          } break;
           case e_EXTENDED_INTERNAL_NIL:
             visitor(bslmf::Nil());
             break;
@@ -4236,8 +4245,8 @@ void Datum::apply(BDLD_VISITOR& visitor) const
 
 #else  // BSLS_PLATFORM_CPU_32_BIT
 
-template <class BDLD_VISITOR>
-void Datum::apply(BDLD_VISITOR& visitor) const
+template <class t_VISITOR>
+void Datum::apply(t_VISITOR& visitor) const
 {
     switch (internalType()) {
       case e_INTERNAL_INF:
@@ -4303,9 +4312,20 @@ void Datum::apply(BDLD_VISITOR& visitor) const
       case e_INTERNAL_BINARY_ALLOC:
         visitor(theBinary());
         break;
-      case e_INTERNAL_DECIMAL64:
-        visitor(theDecimal64());
-        break;
+      case e_INTERNAL_DECIMAL64: {
+        // Code below is identical to 'visitor(theDecimal64())' but postpones
+        // the name lookup for 'theDecimal64()' to the second (instantiation)
+        // phase, so that we can use only forward declaration of
+        // 'bdldfp::Decimal64' in this header.  Without this workaround clang
+        // won't compile calls to 'apply' or 'hashAppend' even if
+        // '<bdldfp_decimal.h>' is included after this header.  See the test
+        // driver for more information.
+        typedef bdldfp::Decimal64 (Datum::*Dec64MemFunPtr)() const;
+        const typename Datum_MakeDependent<
+                        Dec64MemFunPtr,
+                        t_VISITOR>::type dec64MemFunPtr = &Datum::theDecimal64;
+        visitor((this->*dec64MemFunPtr)());
+      } break;
       case e_INTERNAL_INT_MAP:
           visitor(theIntMap());
           break;
@@ -4316,7 +4336,6 @@ void Datum::apply(BDLD_VISITOR& visitor) const
         BSLS_ASSERT_SAFE(!"Unknown type!!");
     }
 }
-
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -4792,8 +4811,8 @@ bsl::ostream& bdld::operator<<(bsl::ostream& stream, const Datum& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-template <class HASH_ALGORITHM>
-void bdld::hashAppend(HASH_ALGORITHM& hashAlg, const bdld::Datum& input)
+template <class t_HASH_ALGORITHM>
+void bdld::hashAppend(t_HASH_ALGORITHM& hashAlg, const bdld::Datum& input)
 {
     using bslh::hashAppend;
     hashAppend(hashAlg, input.type());
@@ -4858,7 +4877,19 @@ void bdld::hashAppend(HASH_ALGORITHM& hashAlg, const bdld::Datum& input)
             }
         } break;
         case bdld::Datum::e_DECIMAL64: {
-            hashAppend(hashAlg, input.theDecimal64());
+          // Code below is identical to
+          // 'hashAppend(hashAlg, input.theDecimal64())', but postpones the
+          // name lookup for 'theDecimal64()' to the second (instantiation)
+          // phase so that we can use only forward declaration of
+          // 'bdldfp::Decimal64' in this header.  Without this workaround clang
+          // won't compile calls to 'apply' or 'hashAppend' even if
+          // '<bdldfp_decimal.h>' is included after this header.  See the test
+          // driver for more information.
+          typedef bdldfp::Decimal64 (Datum::*Dec64MemFunPtr)() const;
+          const typename Datum_MakeDependent<
+                   Dec64MemFunPtr,
+                   t_HASH_ALGORITHM>::type dec64MemFunPtr = &Datum::theDecimal64;
+          hashAppend(hashAlg, (input.*dec64MemFunPtr)());
         } break;
         case bdld::Datum::e_INT_MAP: {
             hashAppend(hashAlg, input.theIntMap().size());

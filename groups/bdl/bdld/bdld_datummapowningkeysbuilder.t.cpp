@@ -1,7 +1,10 @@
 // bdld_datummapowningkeysbuilder.t.cpp                               -*-C++-*-
 #include <bdld_datummapowningkeysbuilder.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bslim_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_default.h>               // for testing only

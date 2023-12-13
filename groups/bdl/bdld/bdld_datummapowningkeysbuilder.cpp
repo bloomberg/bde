@@ -5,8 +5,13 @@
 BSLS_IDENT_RCSID(bdld_datummapowningkeysbuilder.cpp,"$Id$ $CSID$")
 
 #include <bdld_datum.h>
+
+#include <bdldfp_decimal.h>
+
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_memory.h>
 #include <bsl_cstring.h>

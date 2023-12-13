@@ -2,6 +2,8 @@
 
 #include <bdld_datummaker.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdld_datummaker_cpp, "$Id$ $CSID$")
 

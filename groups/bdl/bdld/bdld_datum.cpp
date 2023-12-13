@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 
-//
 ///Implementation Notes
 ///--------------------
 ///
@@ -1325,10 +1324,10 @@ Datum Datum::clone(bslma::Allocator *basicAllocator) const
     return result;
 }
 
-#ifdef BSLS_PLATFORM_CPU_32_BIT
 bdldfp::Decimal64 Datum::theDecimal64() const
 {
     BSLS_ASSERT(isDecimal64());
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     using namespace bdldfp;
 
     switch (
@@ -1361,9 +1360,11 @@ bdldfp::Decimal64 Datum::theDecimal64() const
       } break;
     }
 
-    return Decimal64(); // silence compiler.
+    return Decimal64(); // silence compiler warning
+#else   // end - 32 bit / begin - 64 bit
+    return *reinterpret_cast<const bdldfp::Decimal64 *>(theInlineStorage());
+#endif  // end - 64 bit
 }
-#endif  // BSLS_PLATFORM_CPU_32_BIT
 
 bsl::ostream& Datum::print(bsl::ostream& stream,
                            int           level,

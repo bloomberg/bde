@@ -214,6 +214,8 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 
 #include <bdld_manageddatum.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 

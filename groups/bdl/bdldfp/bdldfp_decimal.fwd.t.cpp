@@ -32,7 +32,6 @@ using bsl::atoi;
 // [ 1] FORWARD DECLARATIONS
 // ----------------------------------------------------------------------------
 
-
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -54,7 +53,6 @@ void aSsErT(bool condition, const char *message, int line)
 }
 
 }  // close unnamed namespace
-
 
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
@@ -78,7 +76,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_ BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_ BSLIM_TESTUTIL_L_  // current Line number
 
-
 // ============================================================================
 //               STANDARD FORWARDING HEADER TESTING UTILITIES
 // ----------------------------------------------------------------------------
@@ -88,8 +85,8 @@ namespace u {
                     // 'isIncomplete' function template
                     // ================================
 
-template <class TYPE> bool isIncomplete(int(*)[sizeof(TYPE)]);
-template <class TYPE> bool isIncomplete(...);
+template <class t_TYPE> bool isIncomplete(int(*)[sizeof(t_TYPE)]);
+template <class t_TYPE> bool isIncomplete(...);
     // Return 'true' when invoked with literal '0' argument if 'T&' is
     // incomplete, 'false' if 'T' is complete.
 
@@ -97,29 +94,25 @@ template <class TYPE> bool isIncomplete(...);
                     // 'isIncomplete' function template
                     // --------------------------------
 
-template <class TYPE>
+template <class t_TYPE>
 bool isIncomplete(int(*)[sizeof(TYPE)])
 {
     return false;
 }
 
-template <class TYPE>
+template <class t_TYPE>
 bool isIncomplete(...)
 {
     return true;
 }
 
-}  // close namespace u
-
-// ============================================================================
-//                         NAME COMPLETION DECLARATION
-// ----------------------------------------------------------------------------
-
-static void testTypeCompleteness ();
+void testTypeCompleteness();
     // Verify that the names declared in this forwarding header are complete
     // when the primary header is included.  Note that the definition of this
     // function is at the end of this file after 'main' and the inclusion of
     // the primary header.
+
+}  // close namespace u
 
 //-----------------------------------------------------------------------------
 //                              MAIN PROGRAM
@@ -149,7 +142,7 @@ int main(int argc, char* argv[])
         //
         // Plan:
         //: 1 Verify that each expected name is declared and is incomplete
-        //: using 'isIncomplete'.
+        //: using 'u::isIncomplete'.
         //:
         //: 2 Invoke 'testTypeCompleteness', defined below after the inclusion
         //: of the primary header, to verify that the forward names are
@@ -158,14 +151,14 @@ int main(int argc, char* argv[])
         // Testing:
         //   FORWARD DECLARATIONS
         // --------------------------------------------------------------------
-        if (verbose) printf("\nFORWARD DECLARATIONS"
-                            "\n====================\n");
+        if (verbose) puts("\nFORWARD DECLARATIONS"
+                          "\n====================");
 
         ASSERT(u::isIncomplete<bdldfp::Decimal32>(0));
         ASSERT(u::isIncomplete<bdldfp::Decimal64>(0));
         ASSERT(u::isIncomplete<bdldfp::Decimal128>(0));
 
-        testTypeCompleteness ();
+        testTypeCompleteness();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -187,13 +180,17 @@ int main(int argc, char* argv[])
 
 // Verify that the primary header defined the types only declared by '.fwd.h'.
 
-static void testTypeCompleteness ()
+namespace u {
+
+void testTypeCompleteness()
 {
     ASSERT(!u::isIncomplete<bdldfp::Decimal32>(0));
     ASSERT(!u::isIncomplete<bdldfp::Decimal64>(0));
     ASSERT(!u::isIncomplete<bdldfp::Decimal128>(0));
 
 }
+
+}  // close namespace u
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

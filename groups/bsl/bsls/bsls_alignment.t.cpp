@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 
         // Silence 'defined but not used' warning:
 
-        (void) allocateFromBuffer;
+        (void)&allocateFromBuffer;
 
       } break;
       case 1: {

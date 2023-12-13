@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdld_datummapbuilder.cpp, "$Id$ $CSID$")
 
 #include <bdld_datum.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>

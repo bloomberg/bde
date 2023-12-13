@@ -1,6 +1,8 @@
 // bdld_manageddatum.t.cpp                                            -*-C++-*-
 #include <bdld_manageddatum.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
