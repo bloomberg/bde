@@ -2879,10 +2879,22 @@ void TestDriver<TYPE>::testCase15()
             ASSERT(v == s);
             v = s;
             ASSERT(v.data() == s.data());
-            bslstl::StringRefData<TYPE> o(v);
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
-            o = v;
-            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+
+            // 'StringRefData' constructor from 'bsl::basic_string_view' was
+            // made explicit to solve the problem described in the
+            // DRQS 173445931.  We still able to implicitly convert
+            // 'StringRefData' object to 'bsl::basic_string_view' since it is
+            // an upcasting conversion, but not vice versa.  So we have to
+            // comment out the rest of the test.
+            //
+            //   bslstl::StringRefData<TYPE> o(v);
+            //   ASSERT(0 == memcmp(o.data(),
+            //                      v.data(),
+            //                      (LEN + 1) * sizeof(TYPE)));
+            //   o = v;
+            //   ASSERT(0 == memcmp(o.data(),
+            //                      v.data(),
+            //                      (LEN + 1) * sizeof(TYPE)));
         }
     }
 }

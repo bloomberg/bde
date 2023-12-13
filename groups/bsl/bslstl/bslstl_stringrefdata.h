@@ -196,7 +196,7 @@ class StringRefData : public bsl::basic_string_view<CHAR_TYPE> {
         // attribute values.  The behavior is undefined unless 'begin <= end'
         // and '!begin == !end'.
 
-    StringRefData(const bsl::basic_string_view<CHAR_TYPE>& view);
+    explicit StringRefData(const bsl::basic_string_view<CHAR_TYPE>& view);
         // Create a 'StringRefData' object from the specified 'view'.
 
     //! StringRefData(const StringRefData&) = default;
