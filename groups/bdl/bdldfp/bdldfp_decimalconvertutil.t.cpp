@@ -2087,7 +2087,7 @@ int main(int argc, char* argv[])
                 char buf1[32];
                 sprintf(buf1, "%.7d", i);
                 for (int j = 0; j <= 7; ++j) {
-                    char buf2[32];
+                    char buf2[64];
                     bsl::sprintf(buf2, "%.*s.%s", j, buf1, buf1 + j);
                     float f;
                     bsl::sscanf(buf2, "%f", &f);

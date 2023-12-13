@@ -2313,7 +2313,7 @@ if (verbose)
 
                 if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(DAY) P(EXP) }
 
-                LOOP_ASSERT(LINE, EXP == Obj::isValidYearDay(YEAR, DAY));
+                LOOP_ASSERT(LINE, !!EXP == Obj::isValidYearDay(YEAR, DAY));
 
                 Obj mX(1133, 275);  const Obj& X = mX;
 
@@ -2337,7 +2337,7 @@ if (verbose)
                 // '[isValid|validateAndSetYearDay](year, dayOfYear)'
 
                 {
-                    LOOP_ASSERT(LINE, EXP == Obj::isValid(YEAR, DAY));
+                    LOOP_ASSERT(LINE, !!EXP == Obj::isValid(YEAR, DAY));
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
                     Obj mX(1133, 275);  const Obj& X = mX;
@@ -2514,7 +2514,9 @@ if (verbose)
                 }
 
                 LOOP_ASSERT(LINE,
-                            EXP == Obj::isValidYearMonthDay(YEAR, MONTH, DAY));
+                            !!EXP == Obj::isValidYearMonthDay(YEAR,
+                                                              MONTH,
+                                                              DAY));
 
                 Obj mX(1133, 10, 2);  const Obj& X = mX;
 
@@ -2542,7 +2544,7 @@ if (verbose)
                 // '[isValid|validateAndSetYearMonthDay](year, month, day)'
 
                 {
-                    LOOP_ASSERT(LINE, EXP == Obj::isValid(YEAR, MONTH, DAY));
+                    LOOP_ASSERT(LINE, !!EXP == Obj::isValid(YEAR, MONTH, DAY));
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
                     Obj mY(1133, 10, 2);  const Obj& Y = mY;

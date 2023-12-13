@@ -5078,7 +5078,8 @@ void TestDriver::appendRandomInvalidTwoOctets(bsl::string *string)
 
                      k_RAND_BITS = 2 + k_RAND_FUDGE_BITS };
 
-    BSLMF_ASSERT(k_NUM_ERROR_TYPES * k_RAND_FUDGE_MULTIPLE <
+    BSLMF_ASSERT(static_cast<unsigned>(k_NUM_ERROR_TYPES)
+                               * static_cast<unsigned>(k_RAND_FUDGE_MULTIPLE) <
                                                           (1u << k_RAND_BITS));
 
     const ErrorType errorType = static_cast<ErrorType>(
@@ -5251,8 +5252,8 @@ void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
         // Append valid continuation bytes.  The number of continuation bytes
         // to append is random in the range '[ 0 .. 2 ]'.
 
-        enum { k_CONT_MOD = 3,
-               k_RAND_CONT_BITS = 2 + k_RAND_FUDGE_BITS };
+        const unsigned k_CONT_MOD       = 3;
+        const unsigned k_RAND_CONT_BITS = 2 + k_RAND_FUDGE_BITS;
 
         BSLMF_ASSERT(k_CONT_MOD * k_RAND_FUDGE_MULTIPLE <
                                                      (1u << k_RAND_CONT_BITS));
@@ -5294,19 +5295,19 @@ void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
         encodeFourOctets(string->data() + len, uc);
       } break;
       case e_TOO_HIGH: {
-        enum { k_MAX_LEGAL_UNICODE = 0x10ffffu,
-               k_FLOOR = k_MAX_LEGAL_UNICODE + 1,
-               k_DATA_BITS  = FOUR_OCT_CONT_WID + 3 * CONTINUE_CONT_WID,
-               k_MOD = (1 << k_DATA_BITS) - k_FLOOR,
-
-               k_RAND_BITS = k_DATA_BITS + k_RAND_FUDGE_BITS };
+        const unsigned k_MAX_LEGAL_UNICODE = 0x10ffffu;
+        const unsigned k_FLOOR             = k_MAX_LEGAL_UNICODE + 1;
+        const unsigned k_DATA_BITS         = FOUR_OCT_CONT_WID +
+                                                         3 * CONTINUE_CONT_WID;
+        const unsigned k_MOD               = (1 << k_DATA_BITS) - k_FLOOR;
+        const unsigned k_RAND_BITS         = k_DATA_BITS + k_RAND_FUDGE_BITS;
 
         BSLMF_ASSERT(k_RAND_BITS < 32);
         BSLMF_ASSERT(k_MOD * k_RAND_FUDGE_MULTIPLE < (1u << k_RAND_BITS));
 
         const unsigned uc = k_FLOOR + s_randGen.bits(k_RAND_BITS) % k_MOD;
 
-        ASSERT(uc < (1 << k_DATA_BITS));
+        ASSERT(uc < (1u << k_DATA_BITS));
 
         const bsl::size_t len = string->length();
         string->resize(len + 4);
@@ -5408,14 +5409,13 @@ void TestDriver::appendRandomValidThreeOctets(bsl::string *string)
 
 void TestDriver::appendRandomValidFourOctets(bsl::string *string)
 {
-    enum { k_FLOOR_BITS = THREE_OCT_CONT_WID + 2 * CONTINUE_CONT_WID,
-           k_FLOOR      = 1 << k_FLOOR_BITS,
-           k_DATA_BITS  = FOUR_OCT_CONT_WID  + 3 * CONTINUE_CONT_WID,
-           k_MOD        = (1 << k_DATA_BITS) - k_FLOOR,
+    const unsigned k_FLOOR_BITS = THREE_OCT_CONT_WID + 2 * CONTINUE_CONT_WID;
+    const unsigned k_FLOOR      = 1 << k_FLOOR_BITS;
+    const unsigned k_DATA_BITS  = FOUR_OCT_CONT_WID  + 3 * CONTINUE_CONT_WID;
+    const unsigned k_MOD        = (1 << k_DATA_BITS) - k_FLOOR;
+    const unsigned k_RAND_BITS  = k_DATA_BITS + k_RAND_FUDGE_BITS;
 
-           k_RAND_BITS  = k_DATA_BITS + k_RAND_FUDGE_BITS,
-
-           k_MAX_LEGAL_UNICODE_POINT = 0x10ffffu };
+    const unsigned k_MAX_LEGAL_UNICODE_POINT = 0x10ffffu;
 
     BSLMF_ASSERT(k_RAND_BITS < 32);
     BSLMF_ASSERT(k_MOD * k_RAND_FUDGE_MULTIPLE < (1u << k_RAND_BITS));

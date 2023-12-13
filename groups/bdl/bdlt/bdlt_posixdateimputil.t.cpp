@@ -1930,14 +1930,14 @@ if (veryVerbose)
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
-                LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isValidYearMonthDay(DATA[di].d_year,
-                                                    DATA[di].d_month,
-                                                    DATA[di].d_day));
-                LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                            Util::isValidYearMonthDayNoCache(DATA[di].d_year,
-                                                           DATA[di].d_month,
-                                                           DATA[di].d_day));
+                LOOP_ASSERT(LINE, !!DATA[di].d_exp ==
+                                    Util::isValidYearMonthDay(DATA[di].d_year,
+                                                              DATA[di].d_month,
+                                                              DATA[di].d_day));
+                LOOP_ASSERT(LINE, !!DATA[di].d_exp ==
+                             Util::isValidYearMonthDayNoCache(DATA[di].d_year,
+                                                              DATA[di].d_month,
+                                                              DATA[di].d_day));
             }
         }
 
@@ -2040,8 +2040,8 @@ if (veryVerbose)
                 const int LINE = DATA[di].d_lineNum;
                 const int Y    = DATA[di].d_year;
                 const int J    = DATA[di].d_dayOfYear;
-                LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isValidYearDay(Y, J));
+                LOOP_ASSERT(LINE, !!DATA[di].d_exp == Util::isValidYearDay(Y,
+                                                                           J));
             }
         }
 
@@ -2121,8 +2121,7 @@ if (veryVerbose)
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
                 const int S    = DATA[di].d_serial;
-                LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isValidSerial(S));
+                LOOP_ASSERT(LINE, !!DATA[di].d_exp == Util::isValidSerial(S));
             }
         }
 
@@ -2414,8 +2413,8 @@ if (veryVerbose)
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
-                LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isLeapYear(DATA[di].d_year));
+                LOOP_ASSERT(LINE, !!DATA[di].d_exp ==
+                                            Util::isLeapYear(DATA[di].d_year));
             }
         }
 

@@ -5630,7 +5630,7 @@ DEFINE_TEST_CASE(10) {
                             P(V_SPEC);
                         }
 
-                        const int Z = ui == vi; // flag indicating same values
+                        const bool Z = ui == vi; // flag indicating same values
 
                         for (int vj = 0; vj < NUM_EXTEND; ++vj) {
                           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
@@ -5994,7 +5994,7 @@ DEFINE_TEST_CASE(9) {
 
                     const Obj VV = g(V_SPEC);           // control
 
-                    const int Z = ui == vi; // flag indicating same values
+                    const bool Z = ui == vi; // flag indicating same values
 
                     for (int uj = 0; uj < NUM_EXTEND; ++uj) {
                         const int U_N = EXTEND[uj];

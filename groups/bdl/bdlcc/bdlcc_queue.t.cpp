@@ -239,7 +239,8 @@ Element randElement(int *seed)
 
     const unsigned int num = bdlb::Random::generate15(seed);
     const unsigned int div = bdlb::Random::generate15(seed);
-    const Element      ret = num + ((double) (div & k_DIV_MASK) / k_DIV_BIT);
+    const Element      ret = num + ((double) (div & k_DIV_MASK) /
+                                               static_cast<double>(k_DIV_BIT));
 
     return (div & k_DIV_BIT) ? ret : -ret;
 }
@@ -883,12 +884,12 @@ class TestClass12 {      // this class is a functor passed to thread::create
                 return;                                               // RETURN
             }
 
-            if (k_TERMINATE == e) {
+            if (static_cast<double>(k_TERMINATE) == e) {
                 *d_status_p = 0;
                 return;                                               // RETURN
             }
 
-            ASSERT(k_VALID_VAL == e);
+            ASSERT(static_cast<double>(k_VALID_VAL) == e);
 
             sts = d_barrier->timedWait(d_timeout);
             ASSERT(!sts);
@@ -2445,14 +2446,14 @@ int main(int argc, char *argv[])
         ASSERT(4 == tc13.s_pushCount);
         ASSERT(4 == mX.length());  // 5th push is blocking on high watermark
 
-        ASSERT(TestClass13::k_VALID_VAL == mX.popFront());
+        ASSERT(static_cast<double>(TestClass13::k_VALID_VAL) == mX.popFront());
         ASSERT(!barrier.timedWait(timeout));
         bslmt::ThreadUtil::yield();
         bslmt::ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(5 == tc13.s_pushCount);
         ASSERT(4 == mX.length());
 
-        ASSERT(TestClass13::k_VALID_VAL == mX.popBack());
+        ASSERT(static_cast<double>(TestClass13::k_VALID_VAL) == mX.popBack());
         ASSERT(!barrier.timedWait(timeout));
         bslmt::ThreadUtil::yield();
         bslmt::ThreadUtil::microSleep(50*1000);        // 50 mSec
@@ -2462,10 +2463,12 @@ int main(int argc, char *argv[])
         for (int i = 0; 4 > i; ++i) {
             bool back = !(1 & i);
             if (back) {
-                ASSERT(TestClass13::k_VALID_VAL == mX.popBack());
+                ASSERT(static_cast<double>(TestClass13::k_VALID_VAL) ==
+                                                                 mX.popBack());
             }
             else {
-                ASSERT(TestClass13::k_VALID_VAL == mX.popFront());
+                ASSERT(static_cast<double>(TestClass13::k_VALID_VAL) ==
+                                                                mX.popFront());
             }
             ASSERT(6 == tc13.s_pushCount);
             ASSERT(3 - i == mX.length());

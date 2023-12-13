@@ -1920,8 +1920,18 @@ int main(int argc, char *argv[])
         bslmt::Barrier  consumerBarrier(k_NUM_CONSUMERS + 1);
         bsls::AtomicInt outPairVecIdx(0);
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+// disable the larger than warning for this buffer
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
         OutPair *outPairVec =
                        new OutPair[k_NUM_PRODUCERS * k_NUM_ITEMS_PER_PRODUCER];
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         bsl::memset(
                  outPairVec,

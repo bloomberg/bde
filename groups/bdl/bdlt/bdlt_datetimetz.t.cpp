@@ -802,7 +802,8 @@ if (verbose) {
                                                   SECOND,
                                                   MILLISECOND);
                 LOOP_ASSERT(LINE,
-                  IS_VALID == bdlt::DatetimeTz::isValid(SRC_DATETIME, OFFSET));
+                          !!IS_VALID == bdlt::DatetimeTz::isValid(SRC_DATETIME,
+                                                                  OFFSET));
 
                 const int            OFFSET2 = 5 * 60;
                 const bdlt::Datetime DEST_DATETIME(2003, 3, 18);
@@ -894,7 +895,8 @@ if (verbose) {
                                                   SECOND,
                                                   MILLISECOND);
                 LOOP_ASSERT(LINE,
-                  IS_VALID == bdlt::DatetimeTz::isValid(SRC_DATETIME, OFFSET));
+                          !!IS_VALID == bdlt::DatetimeTz::isValid(SRC_DATETIME,
+                                                                  OFFSET));
 
                 const int            OFFSET2 = 5 * 60;
                 const bdlt::Datetime DEST_DATETIME(2003, 3, 18);

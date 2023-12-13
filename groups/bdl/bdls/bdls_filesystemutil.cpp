@@ -3234,6 +3234,8 @@ int FilesystemUtil::mapChecked(FileDescriptor   descriptor,
     // (slow) into '0 == (offset & (pageSize - 1))' (fast).
 
     static const Offset pageSizeMask = MemoryUtil::pageSize() - 1;
+    (void)pageSizeMask;
+
     BSLS_ASSERT_OPT(0 == (offset & pageSizeMask) &&
                                                "mapChecked: page not aligned");
 

@@ -2575,10 +2575,10 @@ int main(int argc, char *argv[])
                 }
 
                 LOOP4_ASSERT(LINE, YEAR, MONTH, DAY,
-                           EXP == Util::isValidYearMonthDay(YEAR, MONTH, DAY));
+                         !!EXP == Util::isValidYearMonthDay(YEAR, MONTH, DAY));
 
                 LOOP4_ASSERT(LINE, YEAR, MONTH, DAY,
-                    EXP == Util::isValidYearMonthDayNoCache(YEAR, MONTH, DAY));
+                  !!EXP == Util::isValidYearMonthDayNoCache(YEAR, MONTH, DAY));
             }
         }
 
@@ -2605,8 +2605,8 @@ int main(int argc, char *argv[])
                         }
                         ++loopCount;
 
-                        int v1 = Util::isValidYearMonthDay(y, m, d);
-                        int v2 = Util::isValidYearMonthDayNoCache(y, m, d);
+                        bool v1 = Util::isValidYearMonthDay(y, m, d);
+                        bool v2 = Util::isValidYearMonthDayNoCache(y, m, d);
 
                         LOOP3_ASSERT(y, m, d, isValid == v1);
                         LOOP3_ASSERT(y, m, d, isValid == v2);
@@ -2712,7 +2712,7 @@ int main(int argc, char *argv[])
                 }
 
                 LOOP3_ASSERT(LINE, YEAR, DAYOFYEAR,
-                             EXP == Util::isValidYearDay(YEAR, DAYOFYEAR));
+                             !!EXP == Util::isValidYearDay(YEAR, DAYOFYEAR));
             }
         }
 
@@ -2795,7 +2795,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P_(LINE);  P_(SERIAL);  P(EXP); }
 
                 LOOP2_ASSERT(LINE, SERIAL,
-                             EXP == Util::isValidSerial(SERIAL));
+                             !!EXP == Util::isValidSerial(SERIAL));
             }
         }
 
@@ -3313,7 +3313,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(LINE);  P_(YEAR);  P(EXP); }
 
-                LOOP_ASSERT(LINE, EXP == Util::isLeapYear(YEAR));
+                LOOP_ASSERT(LINE, !!EXP == Util::isLeapYear(YEAR));
             }
         }
 

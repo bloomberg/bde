@@ -3303,7 +3303,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     cout << "\tdoing remove(handles1[" << j  <<"], &v1);\n";
                 }
-                int v1, v2;
+                int v1 = 0, v2 = 0;
                 int r1 = o1.remove (handles1[j], &v1);
                 int r2 = o2.remove (handles2[j], &v2);
                 if (veryVerbose) {
@@ -3591,7 +3591,7 @@ int main(int argc, char *argv[])
 
         Obj x1;
         const Obj &X1=x1;
-        double vbuffer;
+        double vbuffer = 0.0;
 
         int HA = x1.add(VA);
         ASSERT(1 == X1.length());

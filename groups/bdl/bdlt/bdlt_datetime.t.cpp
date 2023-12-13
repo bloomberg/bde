@@ -3336,14 +3336,14 @@ if (veryVerbose)
                     P(EXPECTED)
             }
 
-            LOOP_ASSERT(LINE, EXPECTED == Obj::isValid(YEAR,
-                                                       MONTH,
-                                                       DAY,
-                                                       HOUR,
-                                                       MINUTE,
-                                                       SECOND,
-                                                       MSEC,
-                                                       USEC));
+            LOOP_ASSERT(LINE, !!EXPECTED == Obj::isValid(YEAR,
+                                                         MONTH,
+                                                         DAY,
+                                                         HOUR,
+                                                         MINUTE,
+                                                         SECOND,
+                                                         MSEC,
+                                                         USEC));
         }
 
       } break;

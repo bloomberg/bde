@@ -7215,7 +7215,7 @@ int main(int argc, char *argv[])
                             P(V_SPEC);
                         }
 
-                        const int Z = ui == vi; // flag indicating same values
+                        const bool Z = ui == vi; // flag indicating same values
 
                         for (int vj = 0; vj < NUM_EXTEND; ++vj) {
                           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
@@ -7777,7 +7777,7 @@ int main(int argc, char *argv[])
 
                     const Obj VV = gDispatch(V_SPEC);           // control
 
-                    const int Z = ui == vi; // flag indicating same values
+                    const bool Z = ui == vi; // flag indicating same values
 
                     for (int uj = 0; uj < NUM_EXTEND; ++uj) {
                         const int U_N = EXTEND[uj];

@@ -832,6 +832,7 @@ inline
 NullableAllocatedValue<TYPE>::NullableAllocatedValue()
 : d_allocator(bslma::Default::defaultAllocator())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -840,6 +841,7 @@ NullableAllocatedValue<TYPE>
 ::NullableAllocatedValue(const bsl::allocator<char>& allocator)
 : d_allocator(allocator.mechanism())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -847,6 +849,7 @@ inline
 NullableAllocatedValue<TYPE>::NullableAllocatedValue(const bsl::nullopt_t&)
 : d_allocator(bslma::Default::defaultAllocator())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -856,6 +859,7 @@ NullableAllocatedValue<TYPE>
                          const bsl::allocator<char>& allocator)
 : d_allocator(allocator.mechanism())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -866,6 +870,9 @@ NullableAllocatedValue<TYPE>
 {
     if (original.has_value()) {
         makeValue(original.value());
+    }
+    else {
+        d_storage.d_pointer_p = 0;
     }
 }
 
@@ -878,6 +885,9 @@ NullableAllocatedValue<TYPE>
 {
     if (original.has_value()) {
         makeValue(original.value());
+    }
+    else {
+        d_storage.d_pointer_p = 0;
     }
 }
 

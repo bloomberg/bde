@@ -415,6 +415,7 @@ struct TestTransitionalUnixInterfaceUtil {
 // CREATORS
 TestTransitionalUnixInterfaceCall::TestTransitionalUnixInterfaceCall()
 {
+    d_fstat64.d_fildes = 0;
 }
 
 TestTransitionalUnixInterfaceCall::TestTransitionalUnixInterfaceCall(

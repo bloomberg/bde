@@ -4242,11 +4242,11 @@ class EmptyDequeFunctor {
                 break;
             }
 
-            if (TERMINATE == e) {
+            if (static_cast<double>(TERMINATE) == e) {
                 *d_status_p = 0;
                 break;
             }
-            ASSERT(VALID_VAL == e);
+            ASSERT(static_cast<double>(VALID_VAL) == e);
 
             sts = d_barrier_p->timedWait(d_timeout);
             ASSERT(!sts);

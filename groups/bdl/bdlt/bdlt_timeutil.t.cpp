@@ -1038,7 +1038,7 @@ if (veryVerbose) {
                    P(VALID) P(VALUE)
             }
 
-            ASSERT(VALID == Util::isValidHHMMSSmmm(VALUE));
+            ASSERT(!!VALID == Util::isValidHHMMSSmmm(VALUE));
 
             if (VALID) {
                 const bdlt::Time exp(HOUR, MINUTE, SECOND, MILLISECOND);
@@ -1217,7 +1217,7 @@ if (veryVerbose) {
                    P(VALUE)
             }
 
-            ASSERT(VALID == Util::isValidHHMMSS(VALUE));
+            ASSERT(!!VALID == Util::isValidHHMMSS(VALUE));
 
             if (VALID) {
                 const bdlt::Time exp(HOUR, MINUTE, SECOND);
@@ -1367,7 +1367,7 @@ if (veryVerbose) {
                    P(VALUE)
             }
 
-            ASSERT(VALID == Util::isValidHHMM(VALUE));
+            ASSERT(!!VALID == Util::isValidHHMM(VALUE));
 
             if (VALID) {
                 const bdlt::Time exp(HOUR, MINUTE);

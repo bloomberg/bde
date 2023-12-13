@@ -927,7 +927,8 @@ struct ChronoRecurringTest {
         ASSERT(1 < d_callTimes.size());
         ASSERT(d_callTimes.front() >= d_startTime);
         ASSERT(d_callTimes.back()  <= d_stopTime);
-        size_t maxExpectedCalls = (d_stopTime - d_startTime) / d_interval + 1;
+        size_t maxExpectedCalls = static_cast<size_t>(
+                                  (d_stopTime - d_startTime) / d_interval + 1);
         if (veryVerbose)
             cout << "Expected " << maxExpectedCalls << " callbacks, got "
                 << d_callTimes.size()

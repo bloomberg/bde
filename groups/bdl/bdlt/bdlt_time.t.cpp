@@ -1089,11 +1089,11 @@ if (veryVerbose)
                                        P(MICROSECOND);
                 }
                 LOOP_ASSERT(LINE,
-                            VALID == bdlt::Time::isValid(HOUR,
-                                                         MINUTE,
-                                                         SECOND,
-                                                         MILLISECOND,
-                                                         MICROSECOND));
+                            !!VALID == bdlt::Time::isValid(HOUR,
+                                                           MINUTE,
+                                                           SECOND,
+                                                           MILLISECOND,
+                                                           MICROSECOND));
             }
         }
 

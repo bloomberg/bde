@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Sep  7 13:13:26 2023
+// Generated on Wed Dec 13 09:34:44 2023
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
@@ -910,6 +910,7 @@ inline
 NullableAllocatedValue<TYPE>::NullableAllocatedValue()
 : d_allocator(bslma::Default::defaultAllocator())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -918,6 +919,7 @@ NullableAllocatedValue<TYPE>
 ::NullableAllocatedValue(const bsl::allocator<char>& allocator)
 : d_allocator(allocator.mechanism())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -925,6 +927,7 @@ inline
 NullableAllocatedValue<TYPE>::NullableAllocatedValue(const bsl::nullopt_t&)
 : d_allocator(bslma::Default::defaultAllocator())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -934,6 +937,7 @@ NullableAllocatedValue<TYPE>
                          const bsl::allocator<char>& allocator)
 : d_allocator(allocator.mechanism())
 {
+    d_storage.d_pointer_p = 0;
 }
 
 template <class TYPE>
@@ -944,6 +948,9 @@ NullableAllocatedValue<TYPE>
 {
     if (original.has_value()) {
         makeValue(original.value());
+    }
+    else {
+        d_storage.d_pointer_p = 0;
     }
 }
 
@@ -956,6 +963,9 @@ NullableAllocatedValue<TYPE>
 {
     if (original.has_value()) {
         makeValue(original.value());
+    }
+    else {
+        d_storage.d_pointer_p = 0;
     }
 }
 
@@ -2598,7 +2608,7 @@ void bdlb::swap(NullableAllocatedValue<TYPE>& a,
 #endif // ! defined(INCLUDED_BDLB_NULLABLEALLOCATEDVALUE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

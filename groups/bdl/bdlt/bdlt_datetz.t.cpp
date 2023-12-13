@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
 
             const bdlt::Date SRC_DATE(YEAR, MONTH, DAY);
             ASSERTV(LINE,
-                        IS_VALID == bdlt::DateTz::isValid(SRC_DATE, OFFSET));
+                    !!IS_VALID == bdlt::DateTz::isValid(SRC_DATE, OFFSET));
 
             const bdlt::Date DEST_DATE(2003,  3, 18);
             bdlt::DateTz t(DEST_DATE, 5*60);

@@ -1324,12 +1324,12 @@ int main(int argc, char *argv[])
                 gg(&mY, SPEC_B);
                 const Obj YY(Y);
 
-                ASSERTV(LINE, LE == Y.areMembers(X));
-                ASSERTV(LINE, GE == X.areMembers(Y));
-                ASSERTV(LINE, 1  == X.areMembers(X));
-                ASSERTV(LINE, 1  == Y.areMembers(Y));
-                ASSERTV(LINE, XX == X);
-                ASSERTV(LINE, YY == Y);
+                ASSERTV(LINE, !!LE == Y.areMembers(X));
+                ASSERTV(LINE, !!GE == X.areMembers(Y));
+                ASSERTV(LINE,   1  == X.areMembers(X));
+                ASSERTV(LINE,   1  == Y.areMembers(Y));
+                ASSERTV(LINE,   XX == X);
+                ASSERTV(LINE,   YY == Y);
             }
         }
       } break;
@@ -2227,7 +2227,7 @@ int main(int argc, char *argv[])
 
                     const Obj& VV = g(V_SPEC);           // control
 
-                    const int Z = ui == vi; // flag indicating same values
+                    const bool Z = ui == vi; // flag indicating same values
 
                     Obj mU;
                     const Obj& U = mU; gg(&mU, U_SPEC);

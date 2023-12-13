@@ -397,6 +397,7 @@ struct TestUnixInterfaceUtil {
 // CREATORS
 TestUnixInterfaceCall::TestUnixInterfaceCall()
 {
+    d_fstat.d_fildes = 0;
 }
 
 TestUnixInterfaceCall::TestUnixInterfaceCall(const TestUnixInterfaceCall& other)

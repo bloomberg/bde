@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
 
                 int result = isIdentifier(INPUT);
 
-                LOOP4_ASSERT(LINE, EXP, result, INPUT, EXP == result);
+                LOOP4_ASSERT(LINE, EXP, result, INPUT, EXP == !!result);
 
             }
         }
@@ -703,7 +703,11 @@ int main(int argc, char *argv[])
                         const bool isMem =
                               Util::isCategory(static_cast<char>(i), category);
                         if (veryVeryVerbose) { T_ T_ P_(i) P(isMem) }
-                        LOOP4_ASSERT(category, i, isMem, n[i], isMem == n[i]);
+                        LOOP4_ASSERT(category,
+                                     i,
+                                     isMem,
+                                     n[i],
+                                     isMem == !!n[i]);
                     }
                 }
             }
@@ -1195,26 +1199,26 @@ int main(int argc, char *argv[])
 
                 char c = static_cast<char>(i);
 
-                LOOP_ASSERT(i, isUpper(c)  == DOC_TABLE[i][Util::e_UPPER]);
-                LOOP_ASSERT(i, isLower(c)  == DOC_TABLE[i][Util::e_LOWER]);
-                LOOP_ASSERT(i, isOdigit(c) == DOC_TABLE[i][Util::e_ODIGIT]);
-                LOOP_ASSERT(i, isDigit(c)  == DOC_TABLE[i][Util::e_DIGIT]);
-                LOOP_ASSERT(i, isXdigit(c) == DOC_TABLE[i][Util::e_XDIGIT]);
+                LOOP_ASSERT(i, isUpper(c)  == !!DOC_TABLE[i][Util::e_UPPER]);
+                LOOP_ASSERT(i, isLower(c)  == !!DOC_TABLE[i][Util::e_LOWER]);
+                LOOP_ASSERT(i, isOdigit(c) == !!DOC_TABLE[i][Util::e_ODIGIT]);
+                LOOP_ASSERT(i, isDigit(c)  == !!DOC_TABLE[i][Util::e_DIGIT]);
+                LOOP_ASSERT(i, isXdigit(c) == !!DOC_TABLE[i][Util::e_XDIGIT]);
 
-                LOOP_ASSERT(i, isAlpha(c)  == DOC_TABLE[i][Util::e_ALPHA]);
-                LOOP_ASSERT(i, isAlnum(c)  == DOC_TABLE[i][Util::e_ALNUM]);
-                LOOP_ASSERT(i, isSpace(c)  == DOC_TABLE[i][Util::e_SPACE]);
-                LOOP_ASSERT(i, isPrint(c)  == DOC_TABLE[i][Util::e_PRINT]);
+                LOOP_ASSERT(i, isAlpha(c)  == !!DOC_TABLE[i][Util::e_ALPHA]);
+                LOOP_ASSERT(i, isAlnum(c)  == !!DOC_TABLE[i][Util::e_ALNUM]);
+                LOOP_ASSERT(i, isSpace(c)  == !!DOC_TABLE[i][Util::e_SPACE]);
+                LOOP_ASSERT(i, isPrint(c)  == !!DOC_TABLE[i][Util::e_PRINT]);
 
-                LOOP_ASSERT(i, isGraph(c)  == DOC_TABLE[i][Util::e_GRAPH]);
-                LOOP_ASSERT(i, isPunct(c)  == DOC_TABLE[i][Util::e_PUNCT]);
-                LOOP_ASSERT(i, isCntrl(c)  == DOC_TABLE[i][Util::e_CNTRL]);
-                LOOP_ASSERT(i, isAscii(c)  == DOC_TABLE[i][Util::e_ASCII]);
+                LOOP_ASSERT(i, isGraph(c)  == !!DOC_TABLE[i][Util::e_GRAPH]);
+                LOOP_ASSERT(i, isPunct(c)  == !!DOC_TABLE[i][Util::e_PUNCT]);
+                LOOP_ASSERT(i, isCntrl(c)  == !!DOC_TABLE[i][Util::e_CNTRL]);
+                LOOP_ASSERT(i, isAscii(c)  == !!DOC_TABLE[i][Util::e_ASCII]);
 
-                LOOP_ASSERT(i, isIdent(c)  == DOC_TABLE[i][Util::e_IDENT]);
-                LOOP_ASSERT(i, isAlund(c)  == DOC_TABLE[i][Util::e_ALUND]);
-                LOOP_ASSERT(i, isAll(c)    == DOC_TABLE[i][Util::e_ALL]);
-                LOOP_ASSERT(i, isNone(c)   == DOC_TABLE[i][Util::e_NONE]);
+                LOOP_ASSERT(i, isIdent(c)  == !!DOC_TABLE[i][Util::e_IDENT]);
+                LOOP_ASSERT(i, isAlund(c)  == !!DOC_TABLE[i][Util::e_ALUND]);
+                LOOP_ASSERT(i, isAll(c)    == !!DOC_TABLE[i][Util::e_ALL]);
+                LOOP_ASSERT(i, isNone(c)   == !!DOC_TABLE[i][Util::e_NONE]);
             }
         }
 
