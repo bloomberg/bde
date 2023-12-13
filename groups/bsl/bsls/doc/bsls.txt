@@ -18,26 +18,26 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 83 components having 16 levels of physical
+ The 'bsls' package currently has 83 components having 17 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  16. bsls_byteorder
+  17. bsls_byteorder
 
-  15. bsls_alignedbuffer
+  16. bsls_alignedbuffer
       bsls_alignment
       bsls_byteorderutil
       bsls_platformutil                                  !DEPRECATED!
       bsls_systemtime
 
-  14. bsls_alignmentutil
+  15. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_fuzztest
       bsls_stopwatch
       bsls_timeinterval
 
-  13. bsls_asserttest
+  14. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
       bsls_fuzztestpreconditionexception
@@ -47,18 +47,31 @@
       bsls_spinlock
       bsls_timeutil
 
-  12. bsls_assert
+  13. bsls_assert
 
-  11. bsls_review
+  12. bsls_review
 
-  10. bsls_atomic
+  11. bsls_atomic
       bsls_bslonce
       bsls_log
 
-   9. bsls_atomicoperations
+  10. bsls_atomicoperations
 
-   8. bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
+   9. bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
+      bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
+      bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
+
+   8. bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
+      bsls_atomicoperations_all_all_gccintrinsics                     !PRIVATE!
+      bsls_atomicoperations_arm_all_gcc                               !PRIVATE!
+      bsls_atomicoperations_powerpc_aix_xlc_default                   !PRIVATE!
+      bsls_atomicoperations_powerpc_all_gcc                           !PRIVATE!
+      bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
+      bsls_atomicoperations_x64_all_gcc                               !PRIVATE!
+      bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
+      bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
+      bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
       bsls_bsllock
       bsls_objectbuffer
       bsls_protocoltest
@@ -66,7 +79,7 @@
    7. bsls_alignmentfromtype
       bsls_assertimputil
       bsls_asserttestexception
-      bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
+      bsls_atomicoperations_default                                   !PRIVATE!
       bsls_bsllockimpl_win32                                          !PRIVATE!
       bsls_cpp11                                         !DEPRECATED!
       bsls_libraryfeatures
@@ -75,28 +88,16 @@
 
    6. bsls_alignmenttotype
       bsls_annotation                                    !DEPRECATED!
-      bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
-      bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
       bsls_consteval
       bsls_keyword
       bsls_nullptr
       bsls_performancehint
 
-   5. bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
-      bsls_atomicoperations_all_all_gccintrinsics                     !PRIVATE!
-      bsls_atomicoperations_arm_all_gcc                               !PRIVATE!
-      bsls_atomicoperations_powerpc_aix_xlc_default                   !PRIVATE!
-      bsls_atomicoperations_powerpc_all_gcc                           !PRIVATE!
-      bsls_atomicoperations_x64_all_gcc                               !PRIVATE!
-      bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
-      bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
-      bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
-      bsls_bsllockimpl_pthread                                        !PRIVATE!
+   5. bsls_bsllockimpl_pthread                                        !PRIVATE!
       bsls_compilerfeatures
 
    4. bsls_assert_macroreset                                          !PRIVATE!
       bsls_asserttest_macroreset                                      !PRIVATE!
-      bsls_atomicoperations_default                                   !PRIVATE!
       bsls_buildtarget
       bsls_int64                                         !DEPRECATED!
       bsls_logseverity

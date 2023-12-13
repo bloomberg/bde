@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 // and 'bsls_atomic' for the public interface to atomics.
 
 #include <bsls_atomicoperations_default.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -80,7 +81,9 @@ struct AtomicOperations_ALL_ALL_GCCIntrinsics
 
         // *** atomic functions for int ***
 
-    static void initInt(AtomicTypes::Int *atomicInt, int value);
+    static void BSLS_KEYWORD_CONSTEXPR_CPP14 initInt(
+                                                   AtomicTypes::Int *atomicInt,
+                                                   int value);
 
     static int getInt(const AtomicTypes::Int *atomicInt);
 
@@ -114,7 +117,9 @@ struct AtomicOperations_ALL_ALL_GCCIntrinsics
 
         // *** atomic functions for Int64 ***
 
-    static void initInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value);
+    static BSLS_KEYWORD_CONSTEXPR_CPP14 void initInt64(
+                                                 AtomicTypes::Int64 *atomicInt,
+                                                 Types::Int64 value);
 
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
 
@@ -163,11 +168,11 @@ struct AtomicOperations_ALL_ALL_GCCIntrinsics
                // struct AtomicOperations_ALL_ALL_GCCIntrinsics
                // ---------------------------------------------
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_CPP14
 void AtomicOperations_ALL_ALL_GCCIntrinsics::
     initInt(AtomicTypes::Int *atomicInt, int value)
 {
-    __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELAXED);
+    atomicInt->d_value = value;
 }
 
 inline
@@ -271,11 +276,11 @@ int AtomicOperations_ALL_ALL_GCCIntrinsics::
     return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_RELAXED);
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_CPP14
 void AtomicOperations_ALL_ALL_GCCIntrinsics::
     initInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
-    __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELAXED);
+    atomicInt->d_value = value;
 }
 
 inline
