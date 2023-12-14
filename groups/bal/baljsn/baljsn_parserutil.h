@@ -229,6 +229,12 @@ struct ParserUtil {
         // 'data'.  The string must be begin and end in '"' characters which
         // are not part of the resulting 'value'.  Return 0 on success and a
         // non-zero value otherwise.
+
+    static bool stripQuotes(bsl::string_view *str);
+        // If the specified '*str' is at least two characters long and begins
+        // and ends with quotation marks ("), then remove the first and last
+        // characters; otherwise, do not modify '*str'.  Return 'true' if
+        // '*str' was modified.
 };
 
 // ============================================================================

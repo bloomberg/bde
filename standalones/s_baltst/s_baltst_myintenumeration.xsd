@@ -11,4 +11,11 @@
     </xs:restriction>
   </xs:simpleType>
 
+<!-- Define a record with an element of the enumeration type defined above, so
+     that the enumeration won't be discarded by 'baexml_schemparser'. -->
+  <xs:complexType name="MyIntEnumerationRecord">
+    <xs:sequence>
+      <xs:element name="value" type="MyIntEnumeration"/>
+    </xs:sequence>
+  </xs:complexType>
 </xs:schema>

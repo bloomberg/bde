@@ -162,6 +162,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_localsequentialallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isintegral.h>
 
 #include <bsls_assert.h>
 #include <bsls_types.h>
@@ -676,9 +677,7 @@ int Decoder::decodeImp(TYPE                       *value,
 }
 
 template <class TYPE>
-int Decoder::decodeImp(TYPE *value,
-                              int,
-                              bdlat_TypeCategory::Enumeration)
+int Decoder::decodeImp(TYPE *value, int, bdlat_TypeCategory::Enumeration)
 {
     enum { k_MIN_ENUM_STRING_LENGTH = 2 };
 
@@ -689,40 +688,52 @@ int Decoder::decodeImp(TYPE *value,
 
     bslstl::StringRef dataValue;
     int rc = d_tokenizer.value(&dataValue);
-    if (rc
-     || dataValue.length() <= k_MIN_ENUM_STRING_LENGTH
-     || '"'                != dataValue[0]
-     || '"'                != dataValue[dataValue.length() - 1]) {
-        d_logStream << "Error reading enumeration value\n";
-        return -1;                                                    // RETURN
-    }
-
-    // This used to be 'BUF_SIZE' but that caused a #define conflict.
-
-    const int                                     BAL_BUF_SIZE = 128;
-    bdlma::LocalSequentialAllocator<BAL_BUF_SIZE> bufferAllocator;
-    bsl::string                                   tmpString(&bufferAllocator);
-
-    rc = baljsn::ParserUtil::getValue(&tmpString, dataValue);
     if (rc) {
         d_logStream << "Error reading enumeration value\n";
         return -1;                                                    // RETURN
     }
 
-    rc = bdlat::EnumUtil::fromStringOrFallbackIfEnabled(
-        value, tmpString.data(), static_cast<int>(tmpString.size()));
+    if (dataValue.length() >= k_MIN_ENUM_STRING_LENGTH &&
+        '"' == dataValue.front() && '"' == dataValue.back()) {
+        const int                                 kBufSize = 128;
+        bdlma::LocalSequentialAllocator<kBufSize> bufferAllocator;
+        bsl::string                               tmpString(&bufferAllocator);
 
-    if (rc) {
-        d_logStream << "Could not decode Enum String, value not allowed \""
-                    << dataValue << "\"\n";
+        rc = baljsn::ParserUtil::getValue(&tmpString, dataValue);
+        if (rc) {
+            d_logStream << "Error reading enumeration value\n";
+            return -1;                                                // RETURN
+        }
+
+        rc = bdlat::EnumUtil::fromStringOrFallbackIfEnabled(
+                value, tmpString.data(), static_cast<int>(tmpString.size()));
+        if (rc) {
+            d_logStream << "Could not decode Enum String, value not allowed \""
+                        << dataValue << "\"\n";
+        }
+
+        return rc;                                                    // RETURN
     }
+
+    // We also accept an unquoted integer (DRQS 166048981).
+    int intValue;
+    rc = ParserUtil::getValue(&intValue, dataValue);
+    if (rc) {
+        d_logStream << "Error reading enumeration value\n";
+        return -1;                                                // RETURN
+    }
+
+    rc = bdlat::EnumUtil::fromIntOrFallbackIfEnabled(value, intValue);
+    if (rc) {
+        d_logStream << "Could not decode int Enum, value " << intValue
+                    << " not allowed\n";
+    }
+
     return rc;
 }
 
 template <class TYPE>
-int Decoder::decodeImp(TYPE *value,
-                              int,
-                              bdlat_TypeCategory::CustomizedType)
+int Decoder::decodeImp(TYPE *value, int, bdlat_TypeCategory::CustomizedType)
 {
     if (Tokenizer::e_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Customized element value was not found\n";
@@ -736,9 +747,18 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type valueBaseType;
+    typedef
+        typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType valueBaseType;
 
     rc = ParserUtil::getValue(&valueBaseType, dataValue);
+    // For integral base types, we also accept a quoted representation
+    // (DRQS 166048981).
+    if (bsl::is_integral<BaseType>::value && 0 != rc &&
+        ParserUtil::stripQuotes(&dataValue)) {
+        rc = ParserUtil::getValue(&valueBaseType, dataValue);
+    }
     if (rc) {
         d_logStream << "Could not decode Enum Customized, "
                     << "value not allowed \"" << dataValue << "\"\n";
@@ -757,9 +777,7 @@ int Decoder::decodeImp(TYPE *value,
 }
 
 template <class TYPE>
-int Decoder::decodeImp(TYPE *value,
-                              int,
-                              bdlat_TypeCategory::Simple)
+int Decoder::decodeImp(TYPE *value, int, bdlat_TypeCategory::Simple)
 {
     if (Tokenizer::e_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Simple element value was not found\n";
@@ -773,7 +791,14 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    return ParserUtil::getValue(value, dataValue);
+    rc = ParserUtil::getValue(value, dataValue);
+    // For integral types, we also accept a quoted representation
+    // (DRQS 166048981).
+    if (bsl::is_integral<TYPE>::value && 0 != rc &&
+        ParserUtil::stripQuotes(&dataValue)) {
+        rc = ParserUtil::getValue(value, dataValue);
+    }
+    return rc;
 }
 
 inline
