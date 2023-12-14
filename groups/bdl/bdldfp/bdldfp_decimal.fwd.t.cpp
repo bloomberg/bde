@@ -95,7 +95,7 @@ template <class t_TYPE> bool isIncomplete(...);
                     // --------------------------------
 
 template <class t_TYPE>
-bool isIncomplete(int(*)[sizeof(TYPE)])
+bool isIncomplete(int(*)[sizeof(t_TYPE)])
 {
     return false;
 }
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
         ASSERT(u::isIncomplete<bdldfp::Decimal64>(0));
         ASSERT(u::isIncomplete<bdldfp::Decimal128>(0));
 
-        testTypeCompleteness();
+        u::testTypeCompleteness();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
