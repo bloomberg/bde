@@ -1,4 +1,13 @@
 // bslstl_map.t.cpp                                                   -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow="
+#endif
+
 #include <bslstl_map.h>
 
 #include <bslstl_iterator.h>
@@ -37,7 +46,6 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
 

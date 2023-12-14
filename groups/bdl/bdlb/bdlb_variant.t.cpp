@@ -7,6 +7,13 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, SEC_NULL_PTR_DEREF)
+#endif
+
 #include <bdlb_variant.h>
 
 #include <bdlb_print.h>
@@ -28,7 +35,6 @@
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
-#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsltf_movablealloctesttype.h>

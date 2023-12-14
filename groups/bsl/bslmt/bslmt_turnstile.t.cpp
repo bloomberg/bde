@@ -380,7 +380,8 @@ int main(int argc, char *argv[])
         // The number of executed events should not be off by more than one.
 
         LOOP_ASSERT(oss.str().length(),
-                               RATE * DURATION * MSGLEN == oss.str().length());
+                    RATE * DURATION * static_cast<double>(MSGLEN) ==
+                                      static_cast<double>(oss.str().length()));
 
         if (veryVerbose) {
             P_(RATE);    P(RATE * DURATION * (double) MESSAGE.length());

@@ -1,4 +1,13 @@
 // bslstl_multiset.t.cpp                                              -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow="
+#endif
+
 #include <bslstl_multiset.h>
 
 #include <bslstl_iterator.h>            // for testing only
@@ -27,7 +36,6 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
-#include <bsls_platform.h>
 
 #include <bsltf_allocargumenttype.h>
 #include <bsltf_argumenttype.h>

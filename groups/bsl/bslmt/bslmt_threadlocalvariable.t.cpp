@@ -15,6 +15,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <bsl_ostream.h>
 #include <bsl_iostream.h>
@@ -25,6 +26,10 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_ctime.h>
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif
 
 using namespace BloombergLP;
 
@@ -763,6 +768,7 @@ extern "C" void *typesTest(void *voidArgs)
         contextReference() = &currentContext;
 
         // Process the request.
+        (void)request;
 
         contextReference() = 0;
     }
@@ -777,6 +783,7 @@ extern "C" void *typesTest(void *voidArgs)
 
         // Perform some task that makes use of this threads 'requestContext'.
         // ...
+        (void)context;
     }
 //..
 struct UsageTestArgs {
@@ -801,10 +808,9 @@ extern "C" void *usageTest(void *voidArgs)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int test        = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int verbose     = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 

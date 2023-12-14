@@ -6,12 +6,17 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 
 #ifdef BDE_BUILD_TARGET_EXC
 #include <new>
+#endif
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wsized-deallocation"
 #endif
 
 using namespace BloombergLP;

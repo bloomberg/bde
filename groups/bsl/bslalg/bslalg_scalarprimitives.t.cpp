@@ -19,11 +19,16 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 
 #include <stddef.h>
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 #include <string.h>
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 
 using namespace BloombergLP;
 

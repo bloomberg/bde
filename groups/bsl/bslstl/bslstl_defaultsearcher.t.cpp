@@ -15,6 +15,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_timeutil.h>  // TC -1
 #include <bsls_types.h>     // for 'bsls::Types::Int64'
 
@@ -29,6 +30,10 @@
 #include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
 #include <stddef.h>   // for 'NULL'
 #include <stdio.h>    // for 'stdout' and 'printf'
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, SEC_UNINITIALIZED_MEM_READ)
+#endif
 
 using namespace BloombergLP;
 

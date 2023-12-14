@@ -1,6 +1,13 @@
 // bsltf_bitwisemoveabletesttype.t.cpp                                -*-C++-*-
 #include <bsltf_bitwisemoveabletesttype.h>
 
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>

@@ -605,7 +605,7 @@ static
                 }
                 else
                 {
-                    int a;
+                    int a = 0;
                     ASSERT_SAFE_PASS(a = bsls::AlignmentUtil::
                                      calculateAlignmentOffset(
                                          ADDRESS,

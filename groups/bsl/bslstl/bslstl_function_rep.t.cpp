@@ -14,8 +14,9 @@
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_asserttest.h>
-#include <bsls_keyword.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
+#include <bsls_platform.h>
 
 #include <bslstl_referencewrapper.h>
 
@@ -24,6 +25,10 @@
 #include <climits>  // 'INT_MIN'
 #include <cstdio>   // 'printf'
 #include <cstdlib>  // 'atoi'
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -309,8 +314,6 @@ class TrackableValue {
         // set 'isCopied()' to 'rhs.isCopied()', then assign 'rhs' the value
         // 'e_MOVED_FROM_VAL' and return '*this'.
 
-    void setIsCopiedRaw(bool copiedFlag);
-    void setIsMovedRaw(bool movedFlag);
     void setValueRaw(int v);
         // Set the constituent parts of this object to the specified
         // 'copiedFlag', specified 'movedFlag', or specified 'v', without
@@ -370,16 +373,6 @@ TrackableValue::operator=(bslmf::MovableRef<TrackableValue> rhs)
     d_valueAndFlags = rhsRef.d_valueAndFlags | e_MOVED_FLAG;
     rhsRef.d_valueAndFlags = e_MOVED_FROM_STATE;
     return *this;
-}
-
-void TrackableValue::setIsCopiedRaw(bool copiedFlag) {
-    d_valueAndFlags &= (e_VALUE_MASK | e_MOVED_FLAG);
-    if (copiedFlag) d_valueAndFlags |= e_COPIED_FLAG;
-}
-
-void TrackableValue::setIsMovedRaw(bool movedFlag) {
-    d_valueAndFlags &= (e_VALUE_MASK | e_COPIED_FLAG);
-    if (movedFlag) d_valueAndFlags |= e_MOVED_FLAG;
 }
 
 void TrackableValue::setValueRaw(int v) {

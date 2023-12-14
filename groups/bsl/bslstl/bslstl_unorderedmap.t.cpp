@@ -62,6 +62,10 @@
 #include <cstring>  // for 'strtok'
 #include <ctype.h>  // for 'toupper'
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
 using namespace BloombergLP;
 using bsls::NameOf;
 using bsl::pair;

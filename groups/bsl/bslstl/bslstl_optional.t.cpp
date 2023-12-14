@@ -1,4 +1,12 @@
 // bslstl_optional.t.cpp                                              -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 #include <bslstl_optional.h>
 
 #include <bslstl_compare.h>

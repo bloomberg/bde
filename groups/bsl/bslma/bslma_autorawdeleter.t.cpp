@@ -5,6 +5,7 @@
 #include <bslma_allocator.h>   // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -1023,11 +1024,20 @@ int main(int argc, char *argv[])
             }
             TestAllocator a;
             {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
                 typedef bslma::AutoRawDeleter<my_Class, TestAllocator> T;
                 T mX(myClassArray + 100, &a, 12);    // configured for disaster
                 mX.reset(myClassArray + ORIGIN);
                 mX.setLength(LENGTH);
                 LOOP_ASSERT(LINE, LENGTH == mX.length());
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
             }
 
             if (veryVerbose) {

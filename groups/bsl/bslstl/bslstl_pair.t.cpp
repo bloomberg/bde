@@ -1,5 +1,16 @@
 // bslstl_pair.t.cpp                                                  -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wfloat-conversion"
+#endif
+
 #include <bslstl_pair.h>
+
+#include <bsla_maybeunused.h>
 
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
@@ -3587,7 +3598,7 @@ void TupleTestDriver::runTestAllocImpl()
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
 
-    bool silenceVeryVerbose = veryVeryVerbose;
+    BSLA_MAYBE_UNUSED bool silenceVeryVerbose = veryVeryVerbose;
 #   define veryVerbose silenceVeryVerbose
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(aa) {
 #   undef  veryVerbose

@@ -1,4 +1,12 @@
 // bslstl_unorderedmap_test.t.cpp                                     -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, SEC_NULL_PTR_DEREF)
+#endif
+
 #include <bslstl_unorderedmap_test.h>
 
 #include <bslstl_hash.h>
@@ -36,7 +44,6 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
 

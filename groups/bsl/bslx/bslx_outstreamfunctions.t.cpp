@@ -1,5 +1,12 @@
 // bslx_outstreamfunctions.t.cpp                                      -*-C++-*-
 
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 #include <bslx_outstreamfunctions.h>
 
 #include <bsls_assert.h>

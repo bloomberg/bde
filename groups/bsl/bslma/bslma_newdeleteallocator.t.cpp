@@ -23,6 +23,10 @@
 #endif
 #endif
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wsized-deallocation"
+#endif
+
 using namespace BloombergLP;
 
 // ============================================================================

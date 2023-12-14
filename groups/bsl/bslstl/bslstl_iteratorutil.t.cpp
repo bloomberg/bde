@@ -10,11 +10,16 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, SEC_UNINITIALIZED_MEM_READ)
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;

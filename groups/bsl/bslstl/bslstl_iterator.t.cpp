@@ -4,6 +4,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 
 #include <new>
 
@@ -14,6 +15,7 @@ using namespace BloombergLP;
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #pragma error_messages(off, arrowrtn)
+#pragma error_messages(off, SEC_UNINITIALIZED_MEM_READ)
 #endif
 
 //=============================================================================

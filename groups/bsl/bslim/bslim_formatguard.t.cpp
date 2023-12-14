@@ -1,8 +1,9 @@
 // bslim_formatguard.t.cpp                                            -*-C++-*-
 #include <bslim_formatguard.h>
 
-#include <bsls_assert.h>
 #include <bslim_testutil.h>  // for testing only
+
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
@@ -13,6 +14,7 @@
 #include <bsl_sstream.h>
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wstringop-overread"
 #endif
 

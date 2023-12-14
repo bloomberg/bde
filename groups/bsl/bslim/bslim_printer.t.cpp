@@ -1,11 +1,19 @@
 // bslim_printer.t.cpp                                                -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
 #include <bslim_printer.h>
 
 #include <bslim_testutil.h>  // for testing only
 
 #include <bslma_testallocator.h>
+
 #include <bsls_compilerfeatures.h>
-#include <bsls_platform.h>
 
 #include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>

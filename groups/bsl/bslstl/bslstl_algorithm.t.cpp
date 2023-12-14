@@ -501,8 +501,9 @@ int main(int argc, char *argv[])
         runTestAllOf<char>();
         runTestAnyOf<char>();
         runTestNoneOf<char>();
+#else
+        ASSERT(1);
 #endif
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

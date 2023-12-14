@@ -72,6 +72,14 @@
 #undef std
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, SEC_NULL_PTR_DEREF)
+#endif
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wstringop-overflow="
+#endif
+
 using namespace BloombergLP;
 using bsls::NameOf;
 using bsls::nameOfType;
@@ -5736,11 +5744,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     //   Proper use of 'std::length_error'
     // ------------------------------------------------------------------------
 
-    typedef bslstl::StringRefData<TYPE>           StringRefData;
-    typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
-    typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
-    typedef ::FillN<TYPE>                         FillN;
-
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
@@ -5754,6 +5757,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     LimitObj mY(LENGTH, DEFAULT_VALUE);  // does not throw
 
 #ifdef BDE_BUILD_TARGET_EXC
+    typedef bslstl::StringRefData<TYPE>           StringRefData;
+    typedef bsl::basic_string_view<TYPE, TRAITS>  StringView;
+    typedef ConvertibleToStringViewOnlyType<TYPE> StringViewOnlyLikeType;
+    typedef ::FillN<TYPE>                         FillN;
+
     const LimitObj& Y = mY;
 
     const StringRefData          SR( Y);

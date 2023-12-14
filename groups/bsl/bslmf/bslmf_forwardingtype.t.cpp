@@ -27,6 +27,7 @@ using namespace BloombergLP;
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #pragma error_messages(off, refarray0)
+#pragma error_messages(off, SEC_UNINITIALIZED_MEM_READ)
 #endif
 
 // Suppress bde_verify messages about all-uppercase type names.  Test drivers

@@ -300,8 +300,9 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
-#include <bsls_types.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 namespace bslalg {
@@ -449,7 +450,16 @@ class RbTreeNode {
 inline
 bsls::Types::UintPtr RbTreeNode::toInt(RbTreeNode *value)
 {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
     return reinterpret_cast<bsls::Types::UintPtr>(value);
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 }
 
 inline

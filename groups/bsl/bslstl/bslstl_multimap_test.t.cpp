@@ -1,4 +1,17 @@
 // bslstl_multimap_test.t.cpp                                         -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#if defined(BSLS_PLATFORM_CMP_SUN)
+#pragma error_messages(off, SEC_NULL_PTR_DEREF)
+#endif
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow="
+#endif
+
 #include <bslstl_multimap_test.h>
 
 #include <bslstl_forwarditerator.h>
@@ -34,7 +47,6 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 
 #include <bsltf_allocargumenttype.h>
 #include <bsltf_argumenttype.h>
