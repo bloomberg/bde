@@ -74,8 +74,8 @@ using bsl::endl;;
 //
 // MANIPULATORS
 // [ 8] Location& operator=(const Location& rhs);
-// [ 9] void reset();
-// [ 2] void setOffset(bsl::uint64_t value);
+// [ 9] Location& reset();
+// [ 2] Location& setOffset(bsl::uint64_t value);
 //
 // [ 7] void swap(Location& other);
 //
@@ -463,6 +463,9 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'reset' method set an object to the default state
         //:   irrespective of the state of the object.
+        //:
+        //: 2 The 'reset' manipulator returns a non-'const' reference to the
+        //:   object.
         //
         // Plan:
         //: 1 Create a series of objects each having a value representative of
@@ -470,9 +473,13 @@ int main(int argc, char *argv[])
         //:
         //: 2 For each of those objects, invoke the 'reset' method and confirm
         //:   that the object is in the default state.
+        //:
+        //: 3 Confirm that the manipulator returns a value that can be assigned
+        //:   to a non-'const' reference to 'Location' and that value has the
+        //:   same address as the object under test.
         //
         // Testing:
-        //   void reset();
+        //   Location& reset();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -492,9 +499,10 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(LINE) P(OFFSET) }
 
-            Obj mX(OFFSET); const Obj& X = mX;
-            mX.reset();                                                 // TEST
+            Obj  mX(OFFSET); const Obj& X = mX;
+            Obj& RETVAL =  mX.reset();                                  // TEST
             ASSERTV(OFFSET,  Obj() == X);
+            ASSERT(&mX == &RETVAL);
         }
 
         ASSERT(dam.isInUseSame());
@@ -1465,29 +1473,36 @@ int main(int argc, char *argv[])
         //:   calls to the primary manipulator.
         //:
         //: 6 Any argument can be 'const'.
+        //:
+        //: 7 The 'setOffset' manipulator returns a non-'const' reference to
+        //:   the object.
         //
         // Plan:
-        //:  1 An ad hoc series of operations:
+        //: 1 An ad hoc series of operations:
         //:
-        //:    1 Default constructs an object.
+        //:   1 Default constructs an object.
         //:
-        //:    2 Sets the object to representative values that include
-        //:      the extremes of the allowed values.
+        //:   2 Sets the object to representative values that include
+        //:     the extremes of the allowed values.
         //:
-        //:    3 Use the basic accessor to confirm the set values.
+        //:   3 Use the basic accessor to confirm the set values.
         //:
-        //:  2 The 'const'-ness of the basic accessor is confirmed by invoking
-        //:    it on a 'cons'-reference to the object.
+        //: 2 The 'const'-ness of the basic accessor is confirmed by invoking
+        //:   it on a 'cons'-reference to the object.
         //:
-        //:  3 A test allocator is installed as the default allocator and
-        //:    checked to confirm that no memory is allocated by the
-        //:    constructor, and no temporary memory is allocated by either
-        //:    the primary manipulator or basic accessor.
+        //: 3 A test allocator is installed as the default allocator and
+        //:   checked to confirm that no memory is allocated by the
+        //:   constructor, and no temporary memory is allocated by either
+        //:   the primary manipulator or basic accessor.
+        //:
+        //: 4 Confirm that the 'setOffset' manipulator returns a value that can
+        //:   be assigned to a non-'const' reference to 'Location' and that
+        //:   value has the same address as the object under test.
         //
         // Testing:
         //   Location();
         //   ~Location();
-        //   void setOffset(bsl::uint64_t value);
+        //   Location& setOffset(bsl::uint64_t value);
         //   bsl::uint64_t offset() const;
         // --------------------------------------------------------------------
 
@@ -1521,14 +1536,17 @@ int main(int argc, char *argv[])
         // Confirm that the attribute can be set to any value in the supportred
         // range.
 
-        mX.setOffset(A1);                                               // TEST
+        Obj& RETVAL_A1 = mX.setOffset(A1);                              // TEST
         ASSERTV(A1, A1 == X.offset());                                  // TEST
+        ASSERT (&mX == &RETVAL_A1);                                     // TEST
 
-        mX.setOffset(B1);                                               // TEST
+        Obj& RETVAL_B1 = mX.setOffset(B1);                              // TEST
         ASSERTV(B1, B1 == X.offset());                                  // TEST
+        ASSERTV(&mX == &RETVAL_B1);                                     // TEST
 
-        mX.setOffset(D1);                                               // TEST
+        Obj& RETVAL_D1 = mX.setOffset(D1);                              // TEST
         ASSERTV(D1, D1 == X.offset());                                  // TEST
+        ASSERTV(&mX == &RETVAL_D1);                                     // TEST
 
         ASSERT(dam.isInUseSame());
       } break;

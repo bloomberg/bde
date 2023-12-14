@@ -66,11 +66,11 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 9] operator=(const bdljsn::WriteOptions& rhs);
-// [ 3] reset();
-// [ 3] setInitialIndentLevel(int value);
-// [ 3] setSortMembers(bool value);
-// [ 3] setSpacesPerLevel(int value);
-// [ 3] setStyle(bdljsn::WriteStyle::Enum value);
+// [ 3] WriteOptions& reset();
+// [ 3] WriteOptions& setInitialIndentLevel(int value);
+// [ 3] WriteOptions& setSortMembers(bool value);
+// [ 3] WriteOptions& setSpacesPerLevel(int value);
+// [ 3] WriteOptions& setStyle(bdljsn::WriteStyle::Enum value);
 //
 // ACCESSORS
 // [ 4] int initialIndentLevel() const;
@@ -1227,7 +1227,7 @@ int main(int argc, char *argv[])
         //: 3 Each attribute can be set to represent any value that does not
         //:   violate that attribute's documented constraints.
         //:
-        //: 4 Each manipulator returns a 'const' reference to the object.
+        //: 4 Each manipulator returns a non-'const' reference to the object.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //:
@@ -1262,13 +1262,17 @@ int main(int argc, char *argv[])
         //:
         //: 6 After each test, check that 'reset()' returns the object to the
         //:   default value.
+        //:
+        //: 7 Confirm that each manipulation returns a value that can be
+        //:   assigned to a non-'const' reference to 'WriteOptions' and that
+        //:   value has the same address as the object under test.
         //
         // Testing:
-        //   reset();
-        //   setInitialIndentLevel(int value);
-        //   setSortMembers(bool value);
-        //   setSpacesPerLevel(int value);
-        //   setStyle(bdljsn::WriteStyle::Enum value);
+        //   WriteOptions& reset();
+        //   WriteOptions& setInitialIndentLevel(int value);
+        //   WriteOptions& setSortMembers(bool value);
+        //   WriteOptions& setSpacesPerLevel(int value);
+        //   WriteOptions& setStyle(bdljsn::WriteStyle::Enum value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1482,6 +1486,9 @@ int main(int argc, char *argv[])
 
                 Obj &a3 = mX.setInitialIndentLevel(A4);
                 ASSERTV(&a3, &mX, &a3 == &mX);
+
+                Obj &r  = mX.reset();
+                ASSERTV(&r , &mX, &r  == &mX);
             }
 
             // ---------------------------------------

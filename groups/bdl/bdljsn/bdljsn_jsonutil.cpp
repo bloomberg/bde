@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(bdljsn_jsonutil_cpp, "$Id$ $CSID$")
 
 #include <bdljsn_json.h>
 #include <bdljsn_jsonnumber.h>
-
+#include <bdljsn_jsontestsuiteutil.h>  // for testing only
 #include <bdljsn_location.h>
 #include <bdljsn_readoptions.h>
 #include <bdljsn_stringutil.h>
@@ -677,8 +677,7 @@ int JsonUtil::read(Json               *result,
     bdlma::LocalSequentialAllocator<8 * 1024> bsa;
 
     Tokenizer tokenizer(&bsa);
-    tokenizer.setAllowNonUtf8StringLiterals(false);
-    tokenizer.setAllowTrailingTopLevelComma(false);
+    tokenizer.setConformanceMode(Tokenizer::e_STRICT);
     tokenizer.reset(input);
 
     // Advance from e_BEGIN
