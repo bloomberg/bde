@@ -263,7 +263,6 @@ void verifyExceptionType(int                    line,
 int throwAndCatchExceptionsAndCheckLogging(const char *message)
 {
     typedef void (*SetHookFunc)(Util::PreThrowHook);
-    BSLS_ANNOTATION_NORETURN
     typedef void (*ThrowFunc)(const char *);
     typedef void (*VerifyExceptionFunc)(
                                      int, const std::exception&, const char *);
