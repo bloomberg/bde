@@ -5,6 +5,7 @@
 #include <bsls_exceptionutil.h>
 #include <bsls_log.h>
 
+#include <algorithm>
 #include <stdexcept>    //  yes, we want the native std here
 
 #include <cstdio>
@@ -174,151 +175,166 @@ void failAssert(const char *, const char *)
     BSLS_ASSERT_INVOKE_NORETURN("fail");
 }
 
-void clear()
-{
-    Util::setRuntimeErrorHook(&failAssert);
-    Util::setLogicErrorHook(&failAssert);
-    Util::setDomainErrorHook(&failAssert);
-    Util::setInvalidArgumentHook(&failAssert);
-    Util::setLengthErrorHook(&failAssert);
-    Util::setOutOfRangeHook(&failAssert);
-    Util::setRangeErrorHook(&failAssert);
-    Util::setOverflowErrorHook(&failAssert);
-    Util::setUnderflowErrorHook(&failAssert);
-
-    memset(&TC::severity, 0xa5, sizeof(TC::severity));
-    memset(TC::sourceFileNameBuf, 0xa5, sizeof(TC::sourceFileNameBuf));
-    TC::lineNumber = -1;
-    memset(TC::outBuf, 0xa5, sizeof(TC::outBuf));
-}
-
-void verifyLogContent(const char *exceptionName, const char *message)
+void verifyLogContent(int line, const char *exceptionName, const char *message)
 {
     // Verify severity.
 
-    ASSERT(bsls::LogSeverity::e_WARN == TC::severity);
+    ASSERTV(line, bsls::LogSeverity::e_WARN == TC::severity);
 
-    // The should file name should be the imp file of this component.  Verify
-    // that by substituting '.t.cpp' for '.cpp' and then comparing to
-    // '__FILE__'.
+    // The file name should be the imp file of this component.  Verify that by
+    // substituting '.t.cpp' for '.cpp' and then comparing to '__FILE__'.
 
     char *pc = strstr(TC::sourceFileNameBuf, ".cpp");
-    ASSERT(pc);
+    ASSERTV(line, pc);
     strcpy(pc, ".t.cpp");
-    ASSERT(!strcmp(TC::sourceFileNameBuf, __FILE__));
+    ASSERTV(line, TC::sourceFileNameBuf, __FILE__,
+                                     !strcmp(TC::sourceFileNameBuf, __FILE__));
 
     // Verify the line number was positive.
 
-    ASSERT(0 < TC::lineNumber);
+    ASSERTV(line, 0 < TC::lineNumber);
 
     // Verify outBuf contains "About to throw <exceptionName>"
 
     char aboutBuf[256];
     strcpy(aboutBuf, "About to throw ");
     strcat(aboutBuf, exceptionName);
-    ASSERTV(TC::outBuf, strstr(TC::outBuf, aboutBuf));
+    ASSERTV(line, TC::outBuf, strstr(TC::outBuf, aboutBuf));
 
     // Verify outBuf contains 'message'
 
-    ASSERT(strstr(TC::outBuf, message));
+    ASSERTV(line, strstr(TC::outBuf, message));
 
     // Verify outBuf
 
-    ASSERTV(TC::outBuf, strstr(TC::outBuf, "/bb/bin/showfunc.tsk "));
+    ASSERTV(line, TC::outBuf, strstr(TC::outBuf, "/bb/bin/showfunc.tsk "));
 
     // After the 'showfunc.tsk' should be the cheap stack trace -- a series
     // of addresses of stack frames separated by space.  Confirm there are
-    // at least 6 spaces
+    // at least 6 spaces.  For some reason using 'std::count' didn't compile on
+    // Solaris.
 
     int count = 0;
     for (pc = strstr(outBuf, ".tsk ") + 4; *pc; ++pc) {
         count += ' ' == *pc;
     }
-    ASSERT(6 <= count);
+    ASSERTV(line, 6 <= count);
 }
 
-void verifyTypeOfCaughtException(const std::exception&  exc,
-                                 const char            *exceptionName)
+static const struct NotA5 {
+    bool operator()(char c) const
+    {
+        static const char unset = static_cast<char>(0xa5);
+        return unset != c;
+    }
+} notA5;
+
+void verifyNotLogged(int line)
+    // Verify that none of the logged state in this namespace has been
+    // modified since it was cleared before the throw.
 {
-#define U_TEST_EXC(name)                                                      \
-    if (!strcmp(exceptionName, #name)) {                                      \
-        ASSERTV(exceptionName, #name, dynamic_cast<const std::name *>(&exc)); \
-        return;                                                               \
-    }                                                                 // RETURN
+    char *pc  = reinterpret_cast<char *>(&TC::severity);
+    char *end = pc + sizeof(TC::severity);
+    ASSERTV(line, std::find_if(pc, end, TC::notA5) == end);
 
-    U_TEST_EXC(runtime_error)
-    U_TEST_EXC(logic_error)
-    U_TEST_EXC(domain_error)
-    U_TEST_EXC(invalid_argument)
-    U_TEST_EXC(length_error)
-    U_TEST_EXC(out_of_range)
-    U_TEST_EXC(range_error)
-    U_TEST_EXC(overflow_error)
-    U_TEST_EXC(underflow_error)
+    pc  = TC::sourceFileNameBuf;
+    end = pc + sizeof(TC::sourceFileNameBuf);
+    ASSERTV(line, std::find_if(pc, end, TC::notA5) == end);
 
-#undef U_TEST_EXC
+    ASSERTV(line, TC::lineNumber < 0);
 
-    ASSERTV(exceptionName, 0 && "exception name not matched");
+    pc  = TC::outBuf;
+    end = pc + sizeof(TC::outBuf);
+    ASSERTV(line, std::find_if(pc, end, TC::notA5) == end);
 }
+
+template <class EXCEPTION>
+void verifyExceptionType(int                    line,
+                         const std::exception&  exc,
+                         const char            *exceptionName)
+    // Verify that the specified 'exc' is actually a reference to an
+    // 'EXCEPTION' object, using the specified 'line' and 'exceptionName'
+    // to report errors.
+{
+    ASSERTV(line, exceptionName, dynamic_cast<const EXCEPTION *>(&exc));
+}
+
 
 int throwAndCatchExceptionsAndCheckLogging(const char *message)
 {
     typedef void (*SetHookFunc)(Util::PreThrowHook);
-
     BSLS_ANNOTATION_NORETURN
-    typedef void(*ThrowFunc)(const char *);
+    typedef void (*ThrowFunc)(const char *);
+    typedef void (*VerifyExceptionFunc)(
+                                     int, const std::exception&, const char *);
 
 #define U_TABLE_LINE(setHookFunc, throwFunc, exceptionName)                   \
-        { L_, &Util::setHookFunc, &Util::throwFunc, exceptionName }
+        { L_, &Util::setHookFunc, &Util::throwFunc,                           \
+                              &TC::verifyExceptionType<std::exceptionName>,   \
+                                                       "std::" #exceptionName }
 
     static const struct Data {
-        int          d_line;
-        SetHookFunc  d_setHookFunc;
-        ThrowFunc    d_throwFunc;
-        const char  *d_exceptionName;
+        int                  d_line;
+        SetHookFunc          d_setHookFunc;
+        ThrowFunc            d_throwFunc;
+        VerifyExceptionFunc  d_verifyExceptionFunc;
+        const char          *d_exceptionName;
     } DATA[] = {
-        U_TABLE_LINE(setRuntimeErrorHook, throwRuntimeError, "runtime_error"),
-        U_TABLE_LINE(setLogicErrorHook,   throwLogicError,   "logic_error"),
-        U_TABLE_LINE(setDomainErrorHook,  throwDomainError,  "domain_error"),
+        U_TABLE_LINE(setRuntimeErrorHook,  throwRuntimeError, runtime_error),
+        U_TABLE_LINE(setLogicErrorHook,    throwLogicError,   logic_error),
+        U_TABLE_LINE(setDomainErrorHook,   throwDomainError,  domain_error),
         U_TABLE_LINE(setInvalidArgumentHook, throwInvalidArgument,
-                                                           "invalid_argument"),
-        U_TABLE_LINE(setLengthErrorHook,  throwLengthError, "length_error"),
-        U_TABLE_LINE(setOutOfRangeHook,   throwOutOfRange,  "out_of_range"),
-        U_TABLE_LINE(setRangeErrorHook,   throwRangeError,  "range_error"),
+                                                             invalid_argument),
+        U_TABLE_LINE(setLengthErrorHook,   throwLengthError,  length_error),
+        U_TABLE_LINE(setOutOfRangeHook,    throwOutOfRange,   out_of_range),
+        U_TABLE_LINE(setRangeErrorHook,    throwRangeError,   range_error),
         U_TABLE_LINE(setOverflowErrorHook, throwOverflowError,
-                                                             "overflow_error"),
+                                                              overflow_error),
         U_TABLE_LINE(setUnderflowErrorHook, throwUnderflowError,
-                                                            "underflow_error")
+                                                              underflow_error)
     };
 #undef U_TABLE_LINE
     enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-        const Data&        data           = DATA[ti];
-        const int          LINE           = data.d_line;
-        const SetHookFunc  SET_HOOK_FUNC  = data.d_setHookFunc;
-        const ThrowFunc    THROW_FUNC     = data.d_throwFunc;
-        const char        *EXCEPTION_NAME = data.d_exceptionName;
+    for (int ti = 0; ti < k_NUM_DATA * 2; ++ti) {
+        const int                  tii            = ti % k_NUM_DATA;
+        const bool                 LOG            = ti < k_NUM_DATA;
+        const Data&                data           = DATA[tii];
+        const int                  LINE           = data.d_line;
+        const SetHookFunc          SET_HOOK_FUNC  = data.d_setHookFunc;
+        const ThrowFunc            THROW_FUNC     = data.d_throwFunc;
+        const VerifyExceptionFunc  VERIFY_FUNC    = data.d_verifyExceptionFunc;
+        const char                *EXCEPTION_NAME = data.d_exceptionName;
 
-        char fullExceptionName[128] = { "std::" };
-        strcat(fullExceptionName, EXCEPTION_NAME);
+        // Set all the hooks to failing.
 
+        for (int tj = 0; tj < k_NUM_DATA; ++tj) {
+            (*DATA[tj].d_setHookFunc)(&TC::failAssert);
+        }
+
+        // Set all the test state in 'TC' to failing.
+
+        memset(&TC::severity, 0xa5, sizeof(TC::severity));
+        memset(TC::sourceFileNameBuf, 0xa5, sizeof(TC::sourceFileNameBuf));
+        TC::lineNumber = -1;
+        memset(TC::outBuf, 0xa5, sizeof(TC::outBuf));
         TC::caught = false;
+
         try {
-            TC::clear();
-            (*SET_HOOK_FUNC)(&Util::logCheapStackTrace);
+            (*SET_HOOK_FUNC)(LOG ? &Util::logCheapStackTrace : 0);
             (*THROW_FUNC)(message);
             ASSERTV(LINE, EXCEPTION_NAME, 0 && "throw failed");
         }
         catch (const std::exception& exc) {
             ASSERTV(LINE, EXCEPTION_NAME, exc.what(), message,
                                                  !strcmp(exc.what(), message));
-            verifyTypeOfCaughtException(exc, EXCEPTION_NAME);
+            (*VERIFY_FUNC)(LINE, exc, EXCEPTION_NAME);
             TC::caught = true;
         }
 
         ASSERTV(LINE, EXCEPTION_NAME, TC::caught);
-        TC::verifyLogContent(fullExceptionName, message);
+        LOG ? TC::verifyLogContent(LINE, EXCEPTION_NAME, message)
+            : TC::verifyNotLogged(LINE);
     }
 
     return 1;
@@ -332,8 +348,8 @@ int recurser(int *depth, FUNC_PTR func, const char *message)
     // We want to recurse several times here so that the stack trace will have
     // some depth to traverse.  This is non-trivial because optimizers are very
     // motivated to inline function calls and replace calls at the end of
-    // functions with simple jumps.  Most of that manipulation and checking of
-    // the 'depth' variable after the function calls it intended to force the
+    // functions with simple jumps.  Most of the manipulation and checking of
+    // the 'depth' variable after the function calls are intended to force the
     // optimizer to do funciton calls and return from them rather than simply
     // chaining.
 {
@@ -409,7 +425,7 @@ int main(int argc, char *argv[])
         //:   test (and only that type) to 'logCheapStackTrace', and then
         //:   throwing the exception, which is then caught as a reference to
         //:   base class 'std::excption', and then verified through dynamic
-        //:   cast to0 be of the exception type expected.  The output of
+        //:   cast to be of the exception type expected.  The output of
         //:   'logCheapStackTrace' is then checked and verified to be correct
         //
         // Testing:
