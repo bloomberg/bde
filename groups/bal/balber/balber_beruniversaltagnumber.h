@@ -612,11 +612,6 @@ BerUniversalTagNumber_Imp::select(const CharSel&)
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
 
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
-
     return BerUniversalTagNumber::e_BER_INT;
 }
 
@@ -632,11 +627,6 @@ BerUniversalTagNumber_Imp::select(const ScharSel&)
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
 
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
-
     return BerUniversalTagNumber::e_BER_INT;
 }
 
@@ -647,11 +637,6 @@ BerUniversalTagNumber_Imp::select(const UcharSel&)
     BSLS_ASSERT_SAFE(
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
-
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -664,11 +649,6 @@ BerUniversalTagNumber_Imp::select(const ShortSel&)
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
 
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
-
     return BerUniversalTagNumber::e_BER_INT;
 }
 
@@ -679,11 +659,6 @@ BerUniversalTagNumber_Imp::select(const UshortSel&)
     BSLS_ASSERT_SAFE(
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
-
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -696,11 +671,6 @@ BerUniversalTagNumber_Imp::select(const IntSel&)
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
 
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
-
     return BerUniversalTagNumber::e_BER_INT;
 }
 
@@ -711,11 +681,6 @@ BerUniversalTagNumber_Imp::select(const UintSel&)
     BSLS_ASSERT_SAFE(
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
-
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -728,11 +693,6 @@ BerUniversalTagNumber_Imp::select(const LongSel&)
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
 
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
-
     return BerUniversalTagNumber::e_BER_INT;
 }
 
@@ -743,11 +703,6 @@ BerUniversalTagNumber_Imp::select(const UlongSel&)
     BSLS_ASSERT_SAFE(
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
-
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -760,11 +715,6 @@ BerUniversalTagNumber_Imp::select(const Int64Sel&)
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
 
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
-
     return BerUniversalTagNumber::e_BER_INT;
 }
 
@@ -775,11 +725,6 @@ BerUniversalTagNumber_Imp::select(const Uint64Sel&)
     BSLS_ASSERT_SAFE(
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK));
-
-    // For 'unsigned short' and 'int', we also accept the enumeration
-    // identifier (DRQS 166048981).  For all other integer types besides
-    // 'bool', we also accept the enumeration identifier for consistency.
-    d_alternateTag = BerUniversalTagNumber::e_BER_ENUMERATION;
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -970,9 +915,6 @@ BerUniversalTagNumber_Imp::select(
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_DEC     == (d_formattingMode & FMode::e_TYPE_MASK)
        || FMode::e_TEXT    == (d_formattingMode & FMode::e_TYPE_MASK));
-
-    // We also allow decoding integer values into enums (DRQS 166048981).
-    d_alternateTag = BerUniversalTagNumber::e_BER_INT;
 
     return BerUniversalTagNumber::e_BER_ENUMERATION;
 }

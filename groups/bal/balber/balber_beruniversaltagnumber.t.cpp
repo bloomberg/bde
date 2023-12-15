@@ -1144,68 +1144,68 @@ int main(int argc, char *argv[])
         PASS(boolVal           , TEXT   , BOOL          , NONE          );
 
         FAIL(charVal           , BASE64                                 );
-        PASS(charVal           , DEC    , INT           , ENUMERATION   );
-        PASS(charVal           , DEFAULT, INT           , ENUMERATION   );
+        PASS(charVal           , DEC    , INT           , NONE          );
+        PASS(charVal           , DEFAULT, INT           , NONE          );
         FAIL(charVal           , HEX                                    );
         PASS(charVal           , TEXT   , UTF8_STRING   , NONE          );
 
         FAIL(signedCharVal     , BASE64                                 );
-        PASS(signedCharVal     , DEC    , INT           , ENUMERATION   );
-        PASS(signedCharVal     , DEFAULT, INT           , ENUMERATION   );
+        PASS(signedCharVal     , DEC    , INT           , NONE          );
+        PASS(signedCharVal     , DEFAULT, INT           , NONE          );
         FAIL(signedCharVal     , HEX                                    );
         PASS(signedCharVal     , TEXT   , UTF8_STRING   , NONE          );
 
         FAIL(unsignedCharVal   , BASE64                                 );
-        PASS(unsignedCharVal   , DEC    , INT           , ENUMERATION   );
-        PASS(unsignedCharVal   , DEFAULT, INT           , ENUMERATION   );
+        PASS(unsignedCharVal   , DEC    , INT           , NONE          );
+        PASS(unsignedCharVal   , DEFAULT, INT           , NONE          );
         FAIL(unsignedCharVal   , HEX                                    );
         FAIL(unsignedCharVal   , TEXT                                   );
 
         FAIL(shortVal          , BASE64                                 );
-        PASS(shortVal          , DEC    , INT           , ENUMERATION   );
-        PASS(shortVal          , DEFAULT, INT           , ENUMERATION   );
+        PASS(shortVal          , DEC    , INT           , NONE          );
+        PASS(shortVal          , DEFAULT, INT           , NONE          );
         FAIL(shortVal          , HEX                                    );
         FAIL(shortVal          , TEXT                                   );
 
         FAIL(unsignedShortVal  , BASE64                                 );
-        PASS(unsignedShortVal  , DEC    , INT           , ENUMERATION   );
-        PASS(unsignedShortVal  , DEFAULT, INT           , ENUMERATION   );
+        PASS(unsignedShortVal  , DEC    , INT           , NONE          );
+        PASS(unsignedShortVal  , DEFAULT, INT           , NONE          );
         FAIL(unsignedShortVal  , HEX                                    );
         FAIL(unsignedShortVal  , TEXT                                   );
 
         FAIL(intVal            , BASE64                                 );
-        PASS(intVal            , DEC    , INT           , ENUMERATION   );
-        PASS(intVal            , DEFAULT, INT           , ENUMERATION   );
+        PASS(intVal            , DEC    , INT           , NONE          );
+        PASS(intVal            , DEFAULT, INT           , NONE          );
         FAIL(intVal            , HEX                                    );
         FAIL(intVal            , TEXT                                   );
 
         FAIL(unsignedIntVal    , BASE64                                 );
-        PASS(unsignedIntVal    , DEC    , INT           , ENUMERATION   );
-        PASS(unsignedIntVal    , DEFAULT, INT           , ENUMERATION   );
+        PASS(unsignedIntVal    , DEC    , INT           , NONE          );
+        PASS(unsignedIntVal    , DEFAULT, INT           , NONE          );
         FAIL(unsignedIntVal    , HEX                                    );
         FAIL(unsignedIntVal    , TEXT                                   );
 
         FAIL(longVal           , BASE64                                 );
-        PASS(longVal           , DEC    , INT           , ENUMERATION   );
-        PASS(longVal           , DEFAULT, INT           , ENUMERATION   );
+        PASS(longVal           , DEC    , INT           , NONE          );
+        PASS(longVal           , DEFAULT, INT           , NONE          );
         FAIL(longVal           , HEX                                    );
         FAIL(longVal           , TEXT                                   );
 
         FAIL(unsignedLongVal   , BASE64                                 );
-        PASS(unsignedLongVal   , DEC    , INT           , ENUMERATION   );
-        PASS(unsignedLongVal   , DEFAULT, INT           , ENUMERATION   );
+        PASS(unsignedLongVal   , DEC    , INT           , NONE          );
+        PASS(unsignedLongVal   , DEFAULT, INT           , NONE          );
         FAIL(unsignedLongVal   , HEX                                    );
         FAIL(unsignedLongVal   , TEXT                                   );
 
         FAIL(int64Val          , BASE64                                 );
-        PASS(int64Val          , DEC    , INT           , ENUMERATION   );
-        PASS(int64Val          , DEFAULT, INT           , ENUMERATION   );
+        PASS(int64Val          , DEC    , INT           , NONE          );
+        PASS(int64Val          , DEFAULT, INT           , NONE          );
         FAIL(int64Val          , HEX                                    );
         FAIL(int64Val          , TEXT                                   );
 
         FAIL(uint64Val         , BASE64                                 );
-        PASS(uint64Val         , DEC    , INT           , ENUMERATION   );
-        PASS(uint64Val         , DEFAULT, INT           , ENUMERATION   );
+        PASS(uint64Val         , DEC    , INT           , NONE          );
+        PASS(uint64Val         , DEFAULT, INT           , NONE          );
         FAIL(uint64Val         , HEX                                    );
         FAIL(uint64Val         , TEXT                                   );
 
@@ -1324,14 +1324,14 @@ int main(int argc, char *argv[])
         FAIL_OPT(custDynIntVal , TEXT                                   );
 
         FAIL(custEnumVal       , BASE64                                 );
-        PASS(custEnumVal       , DEC    , ENUMERATION   , INT           );
-        PASS(custEnumVal       , DEFAULT, ENUMERATION   , INT           );
+        PASS(custEnumVal       , DEC    , ENUMERATION   , NONE          );
+        PASS(custEnumVal       , DEFAULT, ENUMERATION   , NONE          );
         FAIL(custEnumVal       , HEX                                    );
-        PASS(custEnumVal       , TEXT   , ENUMERATION   , INT           );
+        PASS(custEnumVal       , TEXT   , ENUMERATION   , NONE          );
 
         FAIL(custNullIntVal    , BASE64                                 );
-        PASS(custNullIntVal    , DEC    , INT           , ENUMERATION   );
-        PASS(custNullIntVal    , DEFAULT, INT           , ENUMERATION   );
+        PASS(custNullIntVal    , DEC    , INT           , NONE          );
+        PASS(custNullIntVal    , DEFAULT, INT           , NONE          );
         FAIL(custNullIntVal    , HEX                                    );
         FAIL(custNullIntVal    , TEXT                                   );
 
@@ -1342,8 +1342,8 @@ int main(int argc, char *argv[])
         FAIL(custSeqVal        , TEXT                                   );
 
         FAIL(custIntVal        , BASE64                                 );
-        PASS(custIntVal        , DEC    , INT           , ENUMERATION   );
-        PASS(custIntVal        , DEFAULT, INT           , ENUMERATION   );
+        PASS(custIntVal        , DEC    , INT           , NONE          );
+        PASS(custIntVal        , DEFAULT, INT           , NONE          );
         FAIL(custIntVal        , HEX                                    );
         FAIL(custIntVal        , TEXT                                   );
 
@@ -1366,16 +1366,16 @@ int main(int argc, char *argv[])
         FAIL_OPT(dynCustDynIntVal, TEXT                                 );
 
         FAIL(dynCustIntVal     , BASE64                                 );
-        PASS(dynCustIntVal     , DEC    , INT           , ENUMERATION   );
-        PASS(dynCustIntVal     , DEFAULT, INT           , ENUMERATION   );
+        PASS(dynCustIntVal     , DEC    , INT           , NONE          );
+        PASS(dynCustIntVal     , DEFAULT, INT           , NONE          );
         FAIL(dynCustIntVal     , HEX                                    );
         FAIL(dynCustIntVal     , TEXT                                   );
 
         FAIL(dynEnumVal        , BASE64                                 );
-        PASS(dynEnumVal        , DEC    , ENUMERATION   , INT           );
-        PASS(dynEnumVal        , DEFAULT, ENUMERATION   , INT           );
+        PASS(dynEnumVal        , DEC    , ENUMERATION   , NONE          );
+        PASS(dynEnumVal        , DEFAULT, ENUMERATION   , NONE          );
         FAIL(dynEnumVal        , HEX                                    );
-        PASS(dynEnumVal        , TEXT   , ENUMERATION   , INT           );
+        PASS(dynEnumVal        , TEXT   , ENUMERATION   , NONE          );
 
         FAIL_OPT(dynNullDynIntVal, BASE64                               );
         FAIL_OPT(dynNullDynIntVal, DEC                                  );
@@ -1384,8 +1384,8 @@ int main(int argc, char *argv[])
         FAIL_OPT(dynNullDynIntVal, TEXT                                 );
 
         FAIL(dynNullIntVal     , BASE64                                 );
-        PASS(dynNullIntVal     , DEC    , INT           , ENUMERATION   );
-        PASS(dynNullIntVal     , DEFAULT, INT           , ENUMERATION   );
+        PASS(dynNullIntVal     , DEC    , INT           , NONE          );
+        PASS(dynNullIntVal     , DEFAULT, INT           , NONE          );
         FAIL(dynNullIntVal     , HEX                                    );
         FAIL(dynNullIntVal     , TEXT                                   );
 
@@ -1396,16 +1396,16 @@ int main(int argc, char *argv[])
         FAIL(dynSeqVal         , TEXT                                   );
 
         FAIL(dynIntVal         , BASE64                                 );
-        PASS(dynIntVal         , DEC    , INT           , ENUMERATION   );
-        PASS(dynIntVal         , DEFAULT, INT           , ENUMERATION   );
+        PASS(dynIntVal         , DEC    , INT           , NONE          );
+        PASS(dynIntVal         , DEFAULT, INT           , NONE          );
         FAIL(dynIntVal         , HEX                                    );
         FAIL(dynIntVal         , TEXT                                   );
 
         FAIL(enumVal           , BASE64                                 );
-        PASS(enumVal           , DEC    , ENUMERATION   , INT           );
-        PASS(enumVal           , DEFAULT, ENUMERATION   , INT           );
+        PASS(enumVal           , DEC    , ENUMERATION   , NONE          );
+        PASS(enumVal           , DEFAULT, ENUMERATION   , NONE          );
         FAIL(enumVal           , HEX                                    );
-        PASS(enumVal           , TEXT   , ENUMERATION   , INT           );
+        PASS(enumVal           , TEXT   , ENUMERATION   , NONE          );
 
         FAIL(nullArrayVal      , BASE64                                 );
         FAIL(nullArrayVal      , DEC                                    );
@@ -1420,8 +1420,8 @@ int main(int argc, char *argv[])
         FAIL(nullChoiceVal     , TEXT                                   );
 
         FAIL(nullCustIntVal    , BASE64                                 );
-        PASS(nullCustIntVal    , DEC    , INT           , ENUMERATION   );
-        PASS(nullCustIntVal    , DEFAULT, INT           , ENUMERATION   );
+        PASS(nullCustIntVal    , DEC    , INT           , NONE          );
+        PASS(nullCustIntVal    , DEFAULT, INT           , NONE          );
         FAIL(nullCustIntVal    , HEX                                    );
         FAIL(nullCustIntVal    , TEXT                                   );
 
@@ -1432,10 +1432,10 @@ int main(int argc, char *argv[])
         FAIL_OPT(nullDynIntVal , TEXT                                   );
 
         FAIL(nullEnumVal       , BASE64                                 );
-        PASS(nullEnumVal       , DEC    , ENUMERATION   , INT           );
-        PASS(nullEnumVal       , DEFAULT, ENUMERATION   , INT           );
+        PASS(nullEnumVal       , DEC    , ENUMERATION   , NONE          );
+        PASS(nullEnumVal       , DEFAULT, ENUMERATION   , NONE          );
         FAIL(nullEnumVal       , HEX                                    );
-        PASS(nullEnumVal       , TEXT   , ENUMERATION   , INT           );
+        PASS(nullEnumVal       , TEXT   , ENUMERATION   , NONE          );
 
         FAIL(nullSeqVal        , BASE64                                 );
         FAIL(nullSeqVal        , DEC                                    );
@@ -1444,8 +1444,8 @@ int main(int argc, char *argv[])
         FAIL(nullSeqVal        , TEXT                                   );
 
         FAIL(nullIntVal        , BASE64                                 );
-        PASS(nullIntVal        , DEC    , INT           , ENUMERATION   );
-        PASS(nullIntVal        , DEFAULT, INT           , ENUMERATION   );
+        PASS(nullIntVal        , DEC    , INT           , NONE          );
+        PASS(nullIntVal        , DEFAULT, INT           , NONE          );
         FAIL(nullIntVal        , HEX                                    );
         FAIL(nullIntVal        , TEXT                                   );
 
@@ -1632,8 +1632,6 @@ int main(int argc, char *argv[])
                                  FM::e_DEC,
                                  Class::e_BER_BOOL,
                                  &otherTag);
-
-        otherTag = Class::e_BER_ENUMERATION;
         TEST_SELECT_WITH_ALT_TAG(char,
                                  FM::e_DEFAULT,
                                  Class::e_BER_INT,
@@ -1642,14 +1640,10 @@ int main(int argc, char *argv[])
                                  FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
-
-        otherTag = -1;
         TEST_SELECT_WITH_ALT_TAG(char,
                                  FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
-
-        otherTag = Class::e_BER_ENUMERATION;
         TEST_SELECT_WITH_ALT_TAG(schar,
                                  FM::e_DEFAULT,
                                  Class::e_BER_INT,
@@ -1658,14 +1652,10 @@ int main(int argc, char *argv[])
                                  FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
-
-        otherTag = -1;
         TEST_SELECT_WITH_ALT_TAG(schar,
                                  FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
-
-        otherTag = Class::e_BER_ENUMERATION;
         TEST_SELECT_WITH_ALT_TAG(uchar,
                                  FM::e_DEFAULT,
                                  Class::e_BER_INT,
@@ -1738,8 +1728,6 @@ int main(int argc, char *argv[])
                                  FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
-
-        otherTag = -1;
         TEST_SELECT_WITH_ALT_TAG(float,
                                  FM::e_DEFAULT,
                                  Class::e_BER_REAL,
@@ -1796,8 +1784,6 @@ int main(int argc, char *argv[])
                                  FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
-
-        otherTag = Class::e_BER_INT;
         TEST_SELECT_WITH_ALT_TAG(MyEnum,
                                  FM::e_DEFAULT,
                                  Class::e_BER_ENUMERATION,
@@ -1810,8 +1796,6 @@ int main(int argc, char *argv[])
                                  FM::e_TEXT,
                                  Class::e_BER_ENUMERATION,
                                  &otherTag);
-
-        otherTag = -1;
         TEST_SELECT_WITH_ALT_TAG(MySequence,
                                  FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,

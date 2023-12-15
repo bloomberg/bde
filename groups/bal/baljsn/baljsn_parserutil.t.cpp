@@ -84,7 +84,6 @@ using bsl::endl;
 // [28] static int getValue(DatetimeOrDatetimeTz *v, bsl::string_view s);
 // [20] static int getValue(vector<char>         *v, bsl::string_view s);
 // [21] static int getValue(bdldfp::Decimal64    *v, bsl::string_view s);
-// [29] static bool stripQuotes(bsl::string_view *str);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 //
@@ -93,7 +92,7 @@ using bsl::endl;
 // [24] NUMBERS ROUND-TRIP
 // [25] DATE AND TIME TYPES ROUND-TRIP
 //
-// [30] USAGE EXAMPLE
+// [29] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -332,7 +331,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 29: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -396,80 +395,6 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::Date(1985, 06, 24) == employee.d_date);
     ASSERT(21                      == employee.d_age);
 //..
-      } break;
-      case 29: {
-        // --------------------------------------------------------------------
-        // TESTING 'stripQuotes'
-        //
-        // Concerns:
-        //: 1 'stripQuotes' returns 'true' if the input string is of the form
-        //:   '"' + S + '"', where S is a possibly empty string, and modifies
-        //:   its argument to refer to S.
-        //: 2 'stripQuotes' returns 'false' in all other cases, and doesn't
-        //:   modify its argument.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of input value, expected resulting value, and return value.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create a 'bsl::string_view' object referring to the input
-        //:     string and pass it to the 'stripQuotes' function.
-        //:
-        //:   2 Verify that the return value of 'stripQuotes', and the value of
-        //:     the 'bsl::string_view' object, are as specified in the table.
-        //
-        // Testing:
-        //   static bool stripQuotes(bsl::string_view *str);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING 'stripQuotes'"
-                          << "\n=====================" << endl;
-
-        static const struct {
-            int         d_line;
-            const char *d_input_p;
-            const char *d_output_p;
-            bool        d_expectedReturn;
-        } DATA[] = {
-           //line input         output    expected
-           //---- -----         ------    -------
-            { L_, "",           "",       false },
-            { L_, "\"",         "\"",     false },
-            { L_, "a",          "a",      false },
-            { L_, "\"\"",       "",       true  },
-            { L_, "\"a",        "\"a",    false },
-            { L_, "a\"",        "a\"",    false },
-            { L_, "aa",         "aa",     false },
-            { L_, "\"\"\"",     "\"",     true  },
-            { L_, "\"\"a",      "\"\"a",  false },
-            { L_, "\"a\"",      "a",      true  },
-            { L_, "\"aa",       "\"aa",   false },
-            { L_, "a\"\"",      "a\"\"",  false },
-            { L_, "a\"a",       "a\"a",   false },
-            { L_, "aa\"",       "aa\"",   false },
-            { L_, "aaa",        "aaa",    false },
-            { L_, "\"ab\"",     "ab",     true  },
-            { L_, "\"\"a\"\"",  "\"a\"",  true  },
-            { L_, "\"a\"\"b\"", "a\"\"b", true  },
-            { L_, "a\"\"b",     "a\"\"b", false }
-        };
-        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int         LINE   = DATA[i].d_line;
-            string_view       INPUT  = DATA[i].d_input_p;
-            const string_view OUTPUT = DATA[i].d_output_p;
-            const bool        R      = DATA[i].d_expectedReturn;
-
-            if (veryVerbose) { P_(LINE) P(INPUT) }
-
-            const bool result = Util::stripQuotes(&INPUT);
-
-            LOOP3_ASSERT(LINE, R, result, R == result);
-            LOOP3_ASSERT(LINE, OUTPUT, INPUT, OUTPUT == INPUT);
-        }
       } break;
       case 28: {
         // --------------------------------------------------------------------

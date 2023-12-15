@@ -18,7 +18,6 @@
 #include <s_baltst_employee.h>
 #include <s_baltst_mychoice.h>
 #include <s_baltst_myenumeration.h>
-#include <s_baltst_myintenumeration.h>
 #include <s_baltst_myenumerationwithfallback.h>
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
@@ -1482,51 +1481,7 @@ bsl::ostream& MySequenceWithDefaultValues::print(
     return stream;
 }
 
-                             // ==================
-                             // class Enumeration1
-                             // ==================
-
-class Enumeration1 {
-  private:
-    int d_value;
-    friend int bdlat_enumFromInt(Enumeration1 *dest, int val)
-    {
-        if (val == 0 || val == 1) {
-            dest->d_value = val;
-            return 0;                                                 // RETURN
-        }
-        return -1;
-    }
-
-    friend int bdlat_enumFromString(Enumeration1 *, const char *, int)
-    {
-        bsl::cout << "should not be called\n";
-        ASSERT(false);
-        return -1;
-    }
-
-    friend void bdlat_enumToInt(int *result, const Enumeration1& src)
-    {
-        *result = src.d_value;
-    }
-
-    friend void bdlat_enumToString(bsl::string         *result,
-                                   const Enumeration1&  src)
-    {
-        if (src.d_value == 0) {
-            *result = "0";
-        } else {
-            ASSERT(1 == src.d_value);
-            *result = "1";
-        }
-    }
-};
-}  // close namespace s_baltst
-namespace bdlat_EnumFunctions {
-template <>
-struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
-};
-}  // close namespace bdlat_EnumFunctions
+}  // close package namespace
 }  // close enterprise namespace
 
 // ============================================================================
@@ -2005,7 +1960,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2029,93 +1984,6 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
-      } break;
-      case 21: {
-        // --------------------------------------------------------------------
-        // DECODING INTS AS ENUMS AND VICE VERSA
-        //
-        // Concerns:
-        //: 1 The encoding produced by 'balber_berencoder' when encoding an
-        //:   integer enumeration can be decoded into either a plain integral
-        //:   type or a customized type (as produced by bas_codegen) whose base
-        //:   type is integral.
-        //:
-        //: 2 The encoding produced by 'balber_berencoder' when encoding either
-        //:   a plain integral type or a customized type (as produced by
-        //:   bas_codegen) whose base type is integral can be decoded into an
-        //:   integer enumeration type.
-        //
-        // Plan:
-        //: 1 Define a type, 'Enumeration1', that is a 'bdlat' enumeration, can
-        //:   hold an integer value of either 0 or 1, and whose string
-        //:   representation is just the decimal form of its value (as with
-        //:   'bcem_Aggregate').
-        //:
-        //: 2 Using 'balber_berencoder', encode objects of type 'Enumeration1'
-        //:   having values of 0 and 1, and decode them into plain 'int's.
-        //:   Verify that the resulting values are the same as the original
-        //:   values.  Then, repeat using the generated type
-        //:   'test::MyIntEnumeration'.  (C-1)
-        //:
-        //: 3 Using 'balber_berencoder', encode plain 'int's having values of 0
-        //:   and 1, decode them into 'Enumeration1', and verify that the
-        //:   resulting values are the same as the original values.  Then,
-        //:   repeat using the generated type 'test::MyIntEnumeration'.  (C-2)
-        //
-        // Testing:
-        //   DECODING INTS AS ENUMS AND VICE VERSA
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nDECODING INTS AS ENUMS AND VICE VERSA"
-                          << "\n=====================================" << endl;
-
-        balber::BerEncoder encoder;
-        balber::BerDecoder decoder;
-
-        // P-1
-        for (int i = 0; i < 2; i++) {
-            if (veryVerbose) P(i);
-
-            test::Enumeration1 e;
-            ASSERT(0 == bdlat_enumFromInt(&e, i));
-
-            bdlsb::MemOutStreamBuf osb1;
-            ASSERT(0 == encoder.encode(&osb1, e));
-            bdlsb::FixedMemInStreamBuf isb1(osb1.data(), osb1.length());
-            int x;
-            ASSERT(0 == decoder.decode(&isb1, &x));
-            ASSERT(i == x);
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encode(&osb2, e));
-            bdlsb::FixedMemInStreamBuf isb2(osb2.data(), osb2.length());
-            test::MyIntEnumeration c;
-            ASSERT(0 == decoder.decode(&isb2, &c));
-            ASSERT(test::MyIntEnumeration(i) == c);
-
-        }
-
-        // P-2
-        for (int i = 0; i < 2; i++) {
-            if (veryVerbose) P(i);
-
-            test::Enumeration1 e;
-            int                value;
-
-            bdlsb::MemOutStreamBuf osb1;
-            ASSERT(0 == encoder.encode(&osb1, i));
-            bdlsb::FixedMemInStreamBuf isb1(osb1.data(), osb1.length());
-            ASSERT(0 == decoder.decode(&isb1, &e));
-            bdlat_enumToInt(&value, e);
-            ASSERT(i == value);
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encode(&osb2, test::MyIntEnumeration(i)));
-            bdlsb::FixedMemInStreamBuf isb2(osb2.data(), osb2.length());
-            ASSERT(0 == decoder.decode(&isb2, &e));
-            bdlat_enumToInt(&value, e);
-            ASSERT(i == value);
-        }
       } break;
       case 20: {
         // --------------------------------------------------------------------
