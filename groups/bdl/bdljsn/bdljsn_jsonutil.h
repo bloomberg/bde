@@ -48,12 +48,12 @@ BSLS_IDENT("$Id: $")
 //        "b": []
 //    }
 //..
-// For more information, see the 'bdljsn_writeoptions' and 'bdljsn_writestyle'
-// components.
+// For more information, see the 'bdljsn_writeoptions' and
+// 'bdljsn_writestyle' components.
 //
 ///Handling of Duplicate Keys
 ///--------------------------
-// 'bdljsn::JsonObject' represents a JSON Object having unique keys.  If an
+// 'bdljsn::JsonObject' represents a JSON Object having unique keys. If an
 // Object with duplicate keys is found in a JSON document, 'read' will preserve
 // the value associated with the FIRST instance of that key.
 //
@@ -204,10 +204,10 @@ BSLS_IDENT("$Id: $")
 // There are 4 options, which can be broken down into 2 unrelated sets.
 //
 // The first set consists of the 'sortMembers' option, which controls whether
-// members of objects are printed in lexicographical order.
+// members of objects are printed in lexicogaphical order.
 //
 // The second set consists of the 'style', 'initialIndentLevel', and
-// 'spacesPerLevel' options - 'style' controls the format used to render a
+// 'spacesPerLevel' options - 'style' controls which format is used to render a
 // 'Json', and, if 'bdljsn::WriteStyle::e_PRETTY == options.style()', the
 // 'spacesPerLevel' and 'initialIndentLevel' options are used to control the
 // indentation of the output.  For any other value of 'options.style()', the
@@ -400,7 +400,7 @@ struct JsonUtil {
         // or the text that follows starts with a delimiter).  Here, delimiters
         // are white-space characters, '[',']','{','}',',', or '"'.
 
-    static bsl::ostream& printError(bsl::ostream&           stream,
+    static bsl::ostream& printError(bsl::ostream&          stream,
                                     bsl::istream&           input,
                                     const Error&            error);
     static bsl::ostream& printError(bsl::ostream&           stream,
@@ -411,7 +411,7 @@ struct JsonUtil {
                                     const Error&            error);
         // Print, to the specified 'stream', a description of the specified
         // 'error', containing the line and column in the specified 'input'
-        // where the 'error' occurred.  Return a reference to the modifiable
+        // where the 'error' occured.  Return a reference to the modifiable
         // 'stream'.  If 'error.location()' does not refer to a valid location
         // in 'input' an unspecified error description will be written to
         // 'stream'.  Note that the caller should ensure 'input' refers to the

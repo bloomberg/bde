@@ -192,7 +192,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                      CONVENIENCE MACROS
 // ----------------------------------------------------------------------------
 
-// For use in 'ASSERTV' macro invocations to print allocator.
+// For use in ASSERTV macro invocations to print allocator.
 #define ALLOC_OF(EXPR) (EXPR).allocator()
 
 // ============================================================================

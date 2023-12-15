@@ -6,16 +6,15 @@
 
 #include <bdlde_utf8util.h>
 
-#include <bdlsb_fixedmeminstreambuf.h>
-#include <bdlsb_fixedmemoutstreambuf.h>
-#include <bdlsb_memoutstreambuf.h>
+#include <bdlsb_fixedmeminstreambuf.h>   // for testing only
+#include <bdlsb_fixedmemoutstreambuf.h>  // for testing only
+#include <bdlsb_memoutstreambuf.h>       // for testing only
 
 #include <bsla_maybeunused.h>
 
 #include <bslim_printer.h>
 #include <bslim_testutil.h>
 
-#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -28,13 +27,11 @@
 #include <bsl_algorithm.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
-#include <bsl_cstddef.h>    // 'bsl::size_t'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_list.h>
-#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -59,40 +56,31 @@ using bsl::endl;
 // after the advance the next token and the data value is as expected.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ x] Tokenizer(bslma::Allocator *bA = 0);
-// [ x] ~Tokenizer();
+// [ 2] bdljsn::Tokenizer(bslma::Allocator *bA = 0);
+// [ 2] ~bdljsn::Tokenizer();
 //
 // MANIPULATORS
-// [ 9] int advanceToNextToken();
 // [10] void reset(bsl::streambuf &streamBuf);
-// [13] int resetStreamBufGetPointer();
-// [15] Tokenizer& setAllowHeterogenousArrays(bool value);
-// [18] Tokenizer& setAllowNonUtf8StringLiterals(bool);
-// [14] Tokenizer& setAllowStandAloneValues(bool value);
-// [ 3] Tokenizer& setAllowTrailingTopLevelComma();
-// [20] Tokenizer& setConformanceMode(ConformanceMode mode);
+// [13] void resetStreamBufGetPointer();
+// [14] void setAllowStandAloneValues(bool value);
+// [15] void setAllowHeterogenousArrays(bool value);
+// [ 2] int advanceToNextToken();
+// [ 3] int setAllowTrailingTopLevelComma();
 //
 // ACCESSORS
-// [15] bool allowHeterogenousArrays() const;
-// [18] bool allowNonUtf8StringLiterals() const;
+// [ 4] TokenType tokenType() const;
 // [14] bool allowStandAloneValues() const;
 // [ 3] bool allowTrailingTopLevelComma() const;
-// [20] ConformanceMode conformanceMode() const;
-// [19] Uint64 currentPosition() const;
-// [18] Uint64 readOffset() const;
-// [18] int readStatus() const;
-// [ 4] TokenType tokenType() const;
+// [15] bool allowHeterogenousArrays() const;
 // [ 4] int value(bslstl::StringRef *data) const;
+// [18] bool utf8ErrorIsSet() const;
+// [18} const char *utf8ErrorMessage(const char *) const;
+// [18] void setAllowNonUtf8StringLiterals(bool);
+// [18] bool allowNonUtf8StringLiterals() const;
+// [19] Uint64 currentPosition() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [21] USAGE EXAMPLE
-// [ 2] CONCERN: 'advanceToNextToken' FIRST CHARACTER
-// [ 4] CONCERN: 'advanceToNextToken' TO 'e_START_OBJECT'
-// [ 5] CONCERN: 'advanceToNextToken' TO 'e_NAME'
-// [ 6] CONCERN: 'advanceToNextToken' TO 'e_VALUE'
-// [ 7] CONCERN: 'advanceToNextToken' TO 'e_END_OBJECT'
-// [ 8] CONCERN: 'advanceToNextToken' TO 'e_START_ARRAY'
-// [ 9] CONCERN: 'advanceToNextToken' TO 'e_END_ARRAY'
+// [20] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -137,15 +125,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
-
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -528,7 +507,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 21: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -660,133 +639,6 @@ int main(int argc, char *argv[])
     ASSERT(55              == address.d_floorCount);
 //..
       } break;
-      case 20: {
-        // --------------------------------------------------------------------
-        // TESTING 'conformanceMode'
-        //
-        // Concerns:
-        //: 1 The default constructed tokenizer has the expected
-        //:   'conformanceMode' ('e_RELAXED') and the individual token options
-        //:   have their default values.
-        //:
-        //: 2 Setting 'conformanceMode' to 'e_STRICT' changes the reported
-        //:   'conformanceMode' to that value and each individual token option
-        //:   has the expected value for strict mode.
-        //:
-        //: 3 Setting 'conformanceMode' from 'e_STRICT' to 'e_RELAXED' changes
-        //:   the reported mode to that value and each individual token option
-        //:   retains the value it had in strict mode.
-        //:
-        //: 4 In relaxed mode the token options can be set to arbitrary values.
-        //:
-        //: 5 The manipulator returns the expected type and  value.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Default construct a 'bdljsn::Tokenizer' object and use
-        //:   'setConformanceMode' from relaxed to strict to relaxed again.
-        //:   Once back in relaxed mode, flip the token options (now allowed).
-        //:   At each transition use the relevant accessor to confirm the
-        //:   expected values of conformance mode and token option value.
-        //:   (C-1..4)
-        //:
-        //: 2 At each step in P-1, compare the address of the object referenced
-        //:   by the return value of the manipulator to the address of the
-        //:   object under test.  (C-5)
-        //
-        //: 3 Using the 'BSLS_ASSERTTEST_*' macros, verify that, in appropriate
-        //:   build modes, defensive checks are triggered when setting, either
-        //:   'true' or 'false' any of the tokenizer options when the tokenizer
-        //:   conformance mode is 'e_STRICT', but not when that mode is
-        //:   'e_RELAXED'.  (C-6)
-        //
-        // Testing:
-        //   Tokenizer& setConformanceMode(ConformanceMode mode);
-        //   ConformanceMode conformanceMode() const;
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << endl
-                 << "TESTING 'conformanceMode'" << "\n"
-                 << "=========================" << endl;
-
-        if (veryVerbose) cout << endl
-                              << "Test: \"get\"/\"set\" conformance mode"
-                              << endl;
-        {
-            Obj mX; const Obj& X = mX;                                  // TEST
-
-            ASSERT(Obj::e_RELAXED == X.conformanceMode());
-            ASSERT(true           == X.allowNonUtf8StringLiterals());
-            ASSERT(true           == X.allowTrailingTopLevelComma());
-            ASSERT(true           == X.allowHeterogenousArrays());
-            ASSERT(true           == X.allowStandAloneValues());
-
-            Obj& RETVAL_STRICT = mX.setConformanceMode(Obj::e_STRICT);  // TEST
-            ASSERT(Obj::e_STRICT  == X.conformanceMode());
-            ASSERT(false          == X.allowNonUtf8StringLiterals());
-            ASSERT(false          == X.allowTrailingTopLevelComma());
-            ASSERT(true           == X.allowHeterogenousArrays());
-            ASSERT(true           == X.allowStandAloneValues());
-            ASSERT(&X             == &RETVAL_STRICT);
-
-            Obj& RETVAL_RELAXED = mX.setConformanceMode(Obj::e_RELAXED);// TEST
-            ASSERT(Obj::e_RELAXED == X.conformanceMode());
-            ASSERT(false          == X.allowNonUtf8StringLiterals());
-            ASSERT(false          == X.allowTrailingTopLevelComma());
-            ASSERT(true           == X.allowHeterogenousArrays());
-            ASSERT(true           == X.allowStandAloneValues());
-            ASSERT(&X             == &RETVAL_RELAXED);
-
-            mX.setAllowNonUtf8StringLiterals(true);
-            mX.setAllowTrailingTopLevelComma(true);
-            mX.setAllowHeterogenousArrays(false);
-            mX.setAllowStandAloneValues(false);
-
-            ASSERT(true           == X.allowNonUtf8StringLiterals());
-            ASSERT(true           == X.allowTrailingTopLevelComma());
-            ASSERT(false          == X.allowHeterogenousArrays());
-            ASSERT(false          == X.allowStandAloneValues());
-        }
-
-        if (veryVerbose) cout << endl
-                              << "Negative Testing" << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            Obj mX;
-
-            mX.setConformanceMode(Obj::e_STRICT);
-
-            ASSERT_FAIL(mX.setAllowNonUtf8StringLiterals(true ));
-            ASSERT_FAIL(mX.setAllowNonUtf8StringLiterals(false));
-
-            ASSERT_FAIL(mX.setAllowTrailingTopLevelComma(true ));
-            ASSERT_FAIL(mX.setAllowTrailingTopLevelComma(false));
-
-            ASSERT_FAIL(mX.setAllowHeterogenousArrays(true ));
-            ASSERT_FAIL(mX.setAllowHeterogenousArrays(false));
-
-            ASSERT_FAIL(mX.setAllowStandAloneValues(true ));
-            ASSERT_FAIL(mX.setAllowStandAloneValues(false));
-
-            mX.setConformanceMode(Obj::e_RELAXED);
-
-            ASSERT_PASS(mX.setAllowNonUtf8StringLiterals(true ));
-            ASSERT_PASS(mX.setAllowNonUtf8StringLiterals(false));
-
-            ASSERT_PASS(mX.setAllowTrailingTopLevelComma(true ));
-            ASSERT_PASS(mX.setAllowTrailingTopLevelComma(false));
-
-            ASSERT_PASS(mX.setAllowHeterogenousArrays(true ));
-            ASSERT_PASS(mX.setAllowHeterogenousArrays(false));
-
-            ASSERT_PASS(mX.setAllowStandAloneValues(true ));
-            ASSERT_PASS(mX.setAllowStandAloneValues(false));
-        }
-
-      } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING 'currentPosition'
@@ -811,8 +663,8 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'currentPosition'" << "\n"
-                 << "=========================" << endl;
+                 << "TESTING currentPosition" << "\n"
+                 << "=======================" << endl;
 
         typedef int TOffsetList[20];
 
@@ -1025,15 +877,11 @@ int main(int argc, char *argv[])
         //:     except this time expecting a non-continuation octet error.
         //
         // Testing:
-        //   Tokenizer& setAllowNonUtf8StringLiterals(bool);
+        //   bool utf8ErrorIsSet() const;
+        //   const char *utf8ErrorMessage(const char *) const;
+        //   void setAllowNonUtf8StringLiterals(bool);
         //   bool allowNonUtf8StringLiterals() const;
-        //   int readStatus() const;
-        //   Uint64 readOffset() const;
         // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING UTF-8" << endl
-                          << "=============" << endl;
 
         bslma::TestAllocator sa;
         bsl::string          str(&sa);
@@ -1075,10 +923,6 @@ int main(int argc, char *argv[])
                 const int          JLINE   = jdata.d_lineNum;
                 const char        *JUTF8   = jdata.d_utf8_p;
                 const int          JSTATUS = jdata.d_status;
-
-                if (veryVerbose) {
-                    T_ P_(tj) P_(JLINE) P_(JUTF8) P(JSTATUS)
-                }
 
                 if (JSTATUS < 0) continue;
 
@@ -1194,7 +1038,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING THAT ARRAYS OF HETEROGENEOUS TYPES ARE HANDLED CORRECTLY
+        // TESTING that arrays of heterogeneous types are handled correctly
         //
         // Concerns:
         //: 1 In an array, all nested types are allowed, in any order.
@@ -1208,11 +1052,12 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-          << "TESTING THAT ARRAYS OF HETEROGENEOUS TYPES ARE HANDLED CORRECTLY"
-          << endl
-          << "================================================================"
-          << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING THAT ARRAYS OF HETEROGENEOUS TYPES ARE HANDLED "
+                    "CORRECTLY" << "\n"
+                 << "======================================================="
+                    "=========" << endl;
 
         bsl::string values[] = {
             "{}"
@@ -1265,15 +1110,13 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
+
                 mX.reset(iss.rdbuf());
                 mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
                 bsl::size_t item_count = 0;
 
                 while (0 == mX.advanceToNextToken()) {
-                    if (veryVerbose) {
-                        T_ P(X.tokenType())
-                    }
                     switch (X.tokenType()) {
                       case Obj::e_ELEMENT_VALUE:
                       case Obj::e_END_OBJECT:
@@ -1296,7 +1139,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING THAT TRUNCATED DATA IS HANDLED CORRECTLY
+        // TESTING that truncated data is handled correctly
         //
         // Concerns:
         //: 1 A stream of data that is truncated at any point -- within an
@@ -1443,9 +1286,6 @@ int main(int argc, char *argv[])
             // NUM_PREADVS advances should be successful.
 
             for (int i = 0; i < NUM_PREADVS; ++i) {
-                if (veryVerbose) {
-                    T_ P(i)
-                }
                 int rc = mX.advanceToNextToken();
                 ASSERTV(LINE, CHECK_UTF8, rc, !rc);
             }
@@ -1483,7 +1323,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'setAllowHeterogenousArrays' AND 'allowHeterogenousArrays'
+        // TESTING 'setAllowHeterogenousArrays' and 'allowHeterogenousArrays'
         //
         // Concerns:
         //: 1 'allowHeterogenousArrays' returns 'true' by default.
@@ -1518,15 +1358,14 @@ int main(int argc, char *argv[])
         //:   then arrays of heterogeneous values are tokenized correctly.
         //
         // Testing:
-        //   Tokenizer& setAllowHeterogenousArrays(bool value);
+        //   void setAllowHeterogenousArrays(bool value);
         //   bool allowHeterogenousArrays() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-        << "TESTING 'setAllowHeterogenousArrays' AND 'allowHeterogenousArrays'"
-        << endl
-        << "=================================================================="
-        << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING 'allowHeterogenousArrays' OPTION" << endl
+                 << "========================================" << endl;
 
         const struct Data {
             int             d_line;
@@ -1626,9 +1465,6 @@ int main(int argc, char *argv[])
                     ALLOW_HETEROGENOUS_ARRAYS == X.allowHeterogenousArrays());
 
             for (int i = 0; i < NUM_ADV; ++i) {
-                if (veryVerbose) {
-                    T_ P(i)
-                }
                 ASSERTV(LINE, 0 == mX.advanceToNextToken());
             }
 
@@ -1644,7 +1480,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'setAllowStandAloneValues' AND 'allowStandAloneValues'
+        // TESTING 'setAllowStandAloneValues' and 'allowStandAloneValues'
         //
         // Concerns:
         //: 1 'allowStandAloneValues' returns 'true' by default.
@@ -1678,15 +1514,13 @@ int main(int argc, char *argv[])
         //:   array values are tokenized.
         //
         // Testing:
-        //   Tokenizer& setAllowStandAloneValues(bool value);
+        //   void setAllowStandAloneValues(bool value);
         //   bool allowStandAloneValues() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-            << "TESTING 'setAllowStandAloneValues' AND 'allowStandAloneValues'"
-            << endl
-            << "=============================================================="
-            << endl;
+                          << "TESTING 'allowStandAloneValues' OPTION" << endl
+                          << "======================================" << endl;
 
 #define DT                                                                    \
      "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
@@ -2100,8 +1934,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'resetStreamBufGetPointer'" << endl
-                          << "==================================" << endl;
+                          << "TESTING RESETTING STREAMBUF GET POINTER" << "\n"
+                          << "=======================================" << endl;
 
 // Define data block of 1400 bytes
 
@@ -2390,25 +2224,10 @@ int main(int argc, char *argv[])
                                       CHECK_UTF8);
             }
         }
-
-        if (veryVerbose) cout << endl
-                              << "Negative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            Obj mX;
-
-            ASSERT_FAIL(mX.resetStreamBufGetPointer());
-
-            bsl::istringstream iss("some text");
-            mX.reset(iss.rdbuf());
-
-            ASSERT_PASS(mX.resetStreamBufGetPointer());
-        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING THAT STRINGS WITH ESCAPED QUOTES ARE HANDLED CORRECTLY
+        // TESTING that strings with escaped quotes are handled correctly
         //
         // Concerns:
         //: 1 Values having escaped quotes are handled correctly.
@@ -2433,10 +2252,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-            << "TESTING THAT STRINGS WITH ESCAPED QUOTES ARE HANDLED CORRECTLY"
-            << endl
-            << "=============================================================="
-            << endl;
+                          << "TESTING THAT STRINGS WITH ESCAPED QUOTES "
+                          << "ARE HANDLED CORRECTLY" << "\n"
+                          << "========================================="
+                          << "=====================" << endl;
 
         const struct Data {
             int             d_line;
@@ -2673,10 +2492,6 @@ int main(int argc, char *argv[])
             int rc;
             do {
                 rc = mX.advanceToNextToken();
-
-                if (veryVerbose) {
-                    P_(rc) P(X.tokenType())
-                }
             } while (!rc && Obj::e_ELEMENT_VALUE != X.tokenType());
 
             ASSERTV(LINE, rc, 0 == rc);
@@ -2688,7 +2503,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING THAT LARGE VALUES (GREATER THAN 8K) ARE HANDLED CORRECTLY
+        // TESTING that large values (greater than 8K) are handled correctly
         //
         // Concerns:
         //: 1 Values of larger sizes are handled correctly.
@@ -2719,10 +2534,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-         << "TESTING THAT LARGE VALUES (GREATER THAN 8K) ARE HANDLED CORRECTLY"
-         << "\n"
-         << "================================================================="
-         << endl;
+                          << "TESTING THAT LARGE VALUES (GREATER THAN 8k) "
+                          << "ARE HANDLED CORRECTLY" << "\n"
+                          << "============================================"
+                          << "=====================" << endl;
 
         const bsl::string LARGE_STRING(LARGE_STRING_C_STR);
 
@@ -2870,10 +2685,6 @@ int main(int argc, char *argv[])
                 const string SUFFIX = DATA[ti].d_suffixText;
                 const string TEXT   = LARGE_STRING + SUFFIX;
 
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(SUFFIX) P(TEXT)
-                }
-
                 ASSERTV(LINE, 0                    == mX.advanceToNextToken());
                 ASSERTV(LINE, Obj::e_ELEMENT_NAME  == X.tokenType());
 
@@ -2886,9 +2697,6 @@ int main(int argc, char *argv[])
             }
 
             for (int ti = 0; ti < NUM_DATA; ++ ti) {
-                if (veryVerbose) {
-                    T_ P(ti)
-                }
                 ASSERTV(0                         == mX.advanceToNextToken());
                 ASSERTV(Obj::e_ELEMENT_NAME  == X.tokenType());
 
@@ -2909,13 +2717,11 @@ int main(int argc, char *argv[])
         // TESTING 'reset'
         //
         // Concerns:
-        //: 1 TBD
         //
         // Plan:
-        //: 1 TBD
         //
         // Testing:
-        //   void reset(bsl::streambuf &streamBuf);
+        //   void reset();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2985,8 +2791,7 @@ int main(int argc, char *argv[])
         //:     value of that token is as expected.
         //
         // Testing:
-        //    CONCERN: 'advanceToNextToken' TO 'e_END_ARRAY'
-        //    int advanceToNextToken();
+        //   int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3922,9 +3727,6 @@ int main(int argc, char *argv[])
             mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                if (veryVerbose) {
-                    P(i)
-                }
                 ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
                         Obj::e_ERROR != X.tokenType());
@@ -3952,27 +3754,25 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
-        //..
-        //    1 NAME             -> START_ARRAY                      ':' -> '['
-        //
-        //    2 START_ARRAY      -> START_ARRAY                      '[' -> '['
-        //
-        //    3 END_ARRAY        -> START_ARRAY               ']' -> ',' -> '['
-        //..
+        //:
+        //:   1 NAME             -> START_ARRAY                      ':' -> '['
+        //:
+        //:   2 START_ARRAY      -> START_ARRAY                      '[' -> '['
+        //:
+        //:   3 END_ARRAY        -> START_ARRAY               ']' -> ',' -> '['
         //:
         //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //  1 The following transitions return an error:
-        //..
-        //    1 NAME (no ':')    -> START_ARRAY                      '"' -> '['
-        //
-        //    2 VALUE (with ',') -> START_ARRAY             VALUE -> ',' -> '['
-        //
-        //    3 START_OBJECT     -> START_ARRAY                      '{' -> '['
-        //
-        //    4 END_OBJECT       -> START_ARRAY                      '}' -> '['
-        //..
+        //: 1 The following transitions return an error:
+        //:
+        //:   1 NAME (no ':')    -> START_ARRAY                      '"' -> '['
+        //:
+        //:   2 VALUE (with ',') -> START_ARRAY             VALUE -> ',' -> '['
+        //:
+        //:   3 START_OBJECT     -> START_ARRAY                      '{' -> '['
+        //:
+        //:   4 END_OBJECT       -> START_ARRAY                      '}' -> '['
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -4000,12 +3800,12 @@ int main(int argc, char *argv[])
         //:     value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_START_ARRAY'
+        //   int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                  << "TESTING 'advanceToNextToken' TO 'e_START_ARRAY'" << endl
-                  << "===============================================" << endl;
+                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "========================================" << endl;
 
         const struct Data {
             int             d_line;
@@ -4271,9 +4071,6 @@ int main(int argc, char *argv[])
             mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                if (veryVerbose) {
-                    P(i)
-                }
                 ASSERTV(i, 0 == mX.advanceToNextToken());
                 ASSERTV(X.tokenType(), Obj::e_ERROR != X.tokenType());
             }
@@ -4356,7 +4153,7 @@ int main(int argc, char *argv[])
         //:     value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_END_OBJECT'
+        //   int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5111,9 +4908,6 @@ int main(int argc, char *argv[])
             mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                if (veryVerbose) {
-                    P(i)
-                }
                 ASSERTV(i, 0 == mX.advanceToNextToken());
                 ASSERTV(X.tokenType(), Obj::e_ERROR != X.tokenType());
             }
@@ -5140,35 +4934,33 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
-        //..
-        //    1 NAME           -> VALUE (number)                   ':' -> VALUE
-        //
-        //    2 NAME           -> VALUE (string)                   ':' -> VALUE
-        //
-        //    3 START_ARRAY    -> VALUE (number)                   '[' -> VALUE
-        //
-        //    4 START_ARRAY    -> VALUE (string)                   '[' -> VALUE
-        //
-        //    5 VALUE (number) -> VALUE (number)                 VALUE -> VALUE
-        //
-        //    6 VALUE (string) -> VALUE (string)                 VALUE -> VALUE
-        //
-        //    7 VALUE (number) -> VALUE (string)                 VALUE -> VALUE
-        //
-        //    8 VALUE (string) -> VALUE (number)                 VALUE -> VALUE
-        //..
+        //:
+        //:   1 NAME           -> VALUE (number)                   ':' -> VALUE
+        //:
+        //:   2 NAME           -> VALUE (string)                   ':' -> VALUE
+        //:
+        //:   3 START_ARRAY    -> VALUE (number)                   '[' -> VALUE
+        //:
+        //:   4 START_ARRAY    -> VALUE (string)                   '[' -> VALUE
+        //:
+        //:   5 VALUE (number) -> VALUE (number)                 VALUE -> VALUE
+        //:
+        //:   6 VALUE (string) -> VALUE (string)                 VALUE -> VALUE
+        //:
+        //:   7 VALUE (number) -> VALUE (string)                 VALUE -> VALUE
+        //:
+        //:   8 VALUE (string) -> VALUE (number)                 VALUE -> VALUE
         //:
         //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
         //: 1 The following transitions return an error:
-        //..
-        //    1 VALUE (no ,)   -> VALUE                         VALUE  -> VALUE
-        //
-        //    2 END_OBJECT     -> VALUE                           '}'  -> VALUE
-        //
-        //    3 END_ARRAY      -> VALUE                           ']'  -> VALUE
-        //..
+        //:
+        //:   1 VALUE (no ,)   -> VALUE                         VALUE  -> VALUE
+        //:
+        //:   2 END_OBJECT     -> VALUE                           '}'  -> VALUE
+        //:
+        //:   3 END_ARRAY      -> VALUE                           ']'  -> VALUE
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -5196,7 +4988,7 @@ int main(int argc, char *argv[])
         //:     value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_VALUE'
+        //   int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -6025,9 +5817,6 @@ int main(int argc, char *argv[])
             mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                if (veryVerbose) {
-                    P(i);
-                }
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
                         Obj::e_ERROR != X.tokenType());
@@ -6055,29 +5844,27 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
-        //..
-        //    1 START_OBJECT   -> NAME                               '{' -> '"'
-        //
-        //    2 END_OBJECT     -> NAME          ':' -> '{' -> '}' -> ',' -> '"'
-        //
-        //    3 END_ARRAY      -> NAME          ':' -> '[' -> ']' -> ',' -> '"'
-        //
-        //    4 VALUE (number) -> NAME               ':' -> VALUE -> ',' -> '"'
-        //
-        //    5 VALUE (string) -> NAME               ':' -> VALUE -> ',' -> '"'
-        //..
+        //:
+        //:   1 START_OBJECT   -> NAME                               '{' -> '"'
+        //:
+        //:   2 END_OBJECT     -> NAME          ':' -> '{' -> '}' -> ',' -> '"'
+        //:
+        //:   3 END_ARRAY      -> NAME          ':' -> '[' -> ']' -> ',' -> '"'
+        //:
+        //:   4 VALUE (number) -> NAME               ':' -> VALUE -> ',' -> '"'
+        //:
+        //:   5 VALUE (string) -> NAME               ':' -> VALUE -> ',' -> '"'
         //:
         //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
         //: 1 The following transitions return an error:
-        //..
-        //    1 END_OBJECT (no ',') -> NAME                         '}'  -> '"'
-        //
-        //    2 END_ARRAY (no ',')  -> NAME                         ']'  -> '"'
-        //
-        //    3 NAME                -> NAME                         '"'  -> '"'
-        //..
+        //:
+        //:   1 END_OBJECT (no ',') -> NAME                         '}'  -> '"'
+        //:
+        //:   2 END_ARRAY (no ',')  -> NAME                         ']'  -> '"'
+        //:
+        //:   3 NAME                -> NAME                         '"'  -> '"'
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -6105,7 +5892,7 @@ int main(int argc, char *argv[])
         //:     value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_NAME'
+        //   int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -6575,9 +6362,6 @@ int main(int argc, char *argv[])
             mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                if (veryVerbose) {
-                    P(i);
-                }
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
                         Obj::e_ERROR != X.tokenType());
@@ -6605,29 +6389,27 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
-        //..
-        //    1 BEGIN          -> START_OBJECT                     BEGIN -> '{'
-        //
-        //    2 NAME           -> START_OBJECT                       ':' -> '{'
-        //
-        //    3 START_ARRAY    -> START_OBJECT                       '[' -> '{'
-        //
-        //    4 END_OBJECT     -> START_OBJECT  '[' -> '{' -> '}' -> ',' -> '{'
-        //..
-        //
+        //:
+        //:   1 BEGIN          -> START_OBJECT                     BEGIN -> '{'
+        //:
+        //:   2 NAME           -> START_OBJECT                       ':' -> '{'
+        //:
+        //:   3 START_ARRAY    -> START_OBJECT                       '[' -> '{'
+        //:
+        //:   4 END_OBJECT     -> START_OBJECT  '[' -> '{' -> '}' -> ',' -> '{'
+        //:
         //: 2 The return code is 0 on success and non-zero on failure.
         //
         // Errors:
         //: 1 The following transitions return an error:
-        //..
-        //    1 NAME (no ':')  -> START_OBJECT                      '"'  -> '{'
-        //
-        //    2 START_OBJECT   -> START_OBJECT                      '{'  -> '{'
-        //
-        //    3 END_ARRAY      -> START_OBJECT                      ']'  -> '{'
-        //
-        //    4 VALUE          -> START_OBJECT                     VALUE -> '{'
-        //..
+        //:
+        //:   1 NAME (no ':')  -> START_OBJECT                      '"'  -> '{'
+        //:
+        //:   2 START_OBJECT   -> START_OBJECT                      '{'  -> '{'
+        //:
+        //:   3 END_ARRAY      -> START_OBJECT                      ']'  -> '{'
+        //:
+        //:   4 VALUE          -> START_OBJECT                     VALUE -> '{'
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -6655,9 +6437,9 @@ int main(int argc, char *argv[])
         //:     value of that token is as expected.
         //
         // Testing:
+        //   int advanceToNextToken();
         //   TokenType tokenType() const;
         //   int value(bslstl::StringRef *data) const;
-        //   CONCERN: 'advanceToNextToken' TO 'e_START_OBJECT'
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7346,10 +7128,7 @@ int main(int argc, char *argv[])
             mX.reset(iss.rdbuf());
             mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
-             for (int i = 0; i < PRE_MOVES; ++i) {
-                if (veryVerbose) {
-                    P(i);
-                }
+            for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
                         Obj::e_ERROR != X.tokenType());
@@ -7389,21 +7168,15 @@ int main(int argc, char *argv[])
         //:
         //: 3 The accessor 'allowTrailingTopLevelComma' reports a value
         //:   consistent with the expected value and the demonstrated behavior.
-        //:
-        //: 4 The manipulator returns the expected type and value.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct rows
-        //:   consisting of otherwise-valid input text with trailing commas,
-        //:   and make sure the result of calling 'advanceToNextToken' to
-        //:   completion matches the 'setAllowTrailingTopLevelComma' value.
-        //:
-        //:   o Compare the address of the object referenced by the
-        //:     return value of the manipulator to the address of the object
-        //:     under test.
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of otherwise-valid input text with trailing
+        //:   commas, and make sure the result of calling 'advanceToNextToken'
+        //:   to completion matches the 'setAllowTrailingTopLevelComma' value.
         //
         // Testing:
-        //   Tokenizer& setAllowTrailingTopLevelComma();
+        //   int setAllowTrailingTopLevelComma();
         //   bool allowTrailingTopLevelComma() const;
         // --------------------------------------------------------------------
 
@@ -7533,18 +7306,14 @@ int main(int argc, char *argv[])
                 const Obj& X = mX;
                 mX.reset(iss.rdbuf());
 
-                Obj& RETVAL = mX.setAllowTrailingTopLevelComma(tlcFlag);
+                mX.setAllowTrailingTopLevelComma(tlcFlag);
                 ASSERT(tlcFlag == X.allowTrailingTopLevelComma());
 
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
                 ASSERTV(X.currentPosition(), 0 == X.currentPosition());
                 ASSERTV(X.readOffset(), 0 == X.readOffset());
-                ASSERT (&X == &RETVAL);
 
                 while (0 == mX.advanceToNextToken()) {
-                    if (veryVerbose) {
-                        P(X.tokenType())
-                    }
                 }
 
                 ASSERTV(LINE,
@@ -7566,23 +7335,22 @@ int main(int argc, char *argv[])
         //
         // Errors:
         //: 1 The following transitions return an error:
-        //..
-        //    1 WHITESPACE ONLY                                  " \t\n\v\f\r"
-        //
-        //    2 BEGIN -> START_ARRAY                             BEGIN -> '['
-        //
-        //    3 BEGIN -> END_ARRAY                               BEGIN -> ']'
-        //
-        //    4 BEGIN -> END_OBJECT                              BEGIN -> '}'
-        //
-        //    5 BEGIN -> '"'                                     BEGIN -> '"'
-        //
-        //    6 BEGIN -> ','                                     BEGIN -> ','
-        //
-        //    7 BEGIN -> ':'                                     BEGIN -> ':'
-        //
-        //    8 BEGIN -> VALUE                                   BEGIN -> VALUE
-        //..
+        //:
+        //:   1 WHITESPACE ONLY                                  " \t\n\v\f\r"
+        //:
+        //:   2 BEGIN -> START_ARRAY                             BEGIN -> '['
+        //:
+        //:   3 BEGIN -> END_ARRAY                               BEGIN -> ']'
+        //:
+        //:   4 BEGIN -> END_OBJECT                              BEGIN -> '}'
+        //:
+        //:   5 BEGIN -> '"'                                     BEGIN -> '"'
+        //:
+        //:   6 BEGIN -> ','                                     BEGIN -> ','
+        //:
+        //:   7 BEGIN -> ':'                                     BEGIN -> ':'
+        //:
+        //:   8 BEGIN -> VALUE                                   BEGIN -> VALUE
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -7610,7 +7378,7 @@ int main(int argc, char *argv[])
         //:     value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' FIRST CHARACTER
+        //   int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7829,9 +7597,6 @@ int main(int argc, char *argv[])
             mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                if (veryVerbose) {
-                    P(i);
-                }
                 ASSERTV(i, 0 == mX.advanceToNextToken());
                 ASSERTV(X.tokenType(), Obj::e_ERROR != X.tokenType());
             }
@@ -7851,21 +7616,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 != mX.advanceToNextToken());
             }
         }
-
-        if (veryVerbose) cout << endl
-                              << "Negative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            Obj mX;
-
-            ASSERT_FAIL(mX.advanceToNextToken());
-
-            bsl::istringstream iss("some text");
-            mX.reset(iss.rdbuf());
-
-            ASSERT_PASS(mX.advanceToNextToken());
-        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -7877,8 +7627,6 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Confirm that the default constructed object is in the expected
-        //:   token state.
         //
         // Testing:
         //   BREATHING TEST

@@ -2439,7 +2439,7 @@ int main(int argc, char *argv[])
           Obj mX;
           int rc = 0;
           rc = mX.setFormat("["
-                       "\"timestamp\", {\"timestamp\":{\"name\":\"Time\"}}"
+                       "\"timestamp\", {\"timestamp\":{\"name\":\"Time\"}},"
                        ",\"pid\", {\"pid\":{\"name\":\"PID\"}}"
                        ",\"line\", {\"line\":{\"name\":\"ln\"}}"
                        ",\"category\", {\"category\":{\"name\":\"cat\"}}"

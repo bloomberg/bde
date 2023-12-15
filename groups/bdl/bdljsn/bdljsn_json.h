@@ -356,9 +356,9 @@ class JsonArray {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     JsonArray& operator=(std::initializer_list<Json> initializer);
         // Assign to this object the value resulting from first clearing this
-        // 'JsonArray' and then inserting (in order) each 'Json' object in the
+        // JsonArray and then inserting (in order) each 'Json' object in the
         // specified 'initializer' initializer list.  Return a reference to
-        // '*this'.  If an exception is thrown, '*this' is left in a valid but
+        // `*this`.  If an exception is thrown, '*this' is left in a valid but
         // unspecified state.
 
     void assign(std::initializer_list<Json> initializer);
@@ -801,7 +801,7 @@ class JsonObject {
         // Assign to this object the value resulting from first clearing this
         // 'JsonObject' and then inserting (in order) each 'Member' object in
         // the specified 'members' initializer list.  Return a reference to
-        // '*this'.  If an exception is thrown, '*this' is left in a valid but
+        // `*this`.  If an exception is thrown, '*this' is left in a valid but
         // unspecified state.
 #endif
 
@@ -884,9 +884,9 @@ class JsonObject {
         // 'member.first' is valid UTF-8 (see 'bdlde::Utf8Util::isValid').
 
     template <class INPUT_ITERATOR>
-    typename bsl::enable_if<!bsl::is_convertible<INPUT_ITERATOR,
-                                                 bsl::string_view>::value,
-                            void>::type
+    typename bsl::enable_if<
+        !bsl::is_convertible<INPUT_ITERATOR, bsl::string_view>::value,
+        void>::type
     insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Create a 'member' object for each iterator in the range starting at
         // the specified 'first' iterator and ending immediately before the
@@ -1373,8 +1373,8 @@ class Json {
         // 'bdlde::Utf8Util::isValid').
 
     template <class STRING_TYPE>
-    typename bsl::enable_if<bsl::is_same<STRING_TYPE,
-                                         bsl::string>::value>::type
+    typename bsl::enable_if<
+        bsl::is_same<STRING_TYPE, bsl::string>::value>::type
         makeString(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string);
         // Create an instance of type 'bsl::string' in this object, using the
         // allocator currently held by this object to supply memory.
@@ -1492,7 +1492,6 @@ class Json {
         // type 'JsonNumber' held by this object.  If this number is outside
         // the representable range, return +INF or -INF (as appropriate).  The
         // behavior is undefined unless 'isNumber()' returns true.
-
     // BDE_VERIFY pragma: +FABC01
 
     int asDecimal64Exact(bdldfp::Decimal64 *result) const;

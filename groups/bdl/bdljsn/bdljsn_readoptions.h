@@ -118,18 +118,17 @@ class ReadOptions {
         // Assign to this object the value of the specified 'rhs' object and
         // return a non-'const' reference to this object.
 
-    ReadOptions& reset();
+    void reset();
         // Reset this object to the default value (i.e., its value upon default
-        // construction) and return a non-'const' reference to this object.
+        // construction).
 
-    ReadOptions& setAllowTrailingText(bool value);
-        // Set the 'allowTrailingText' attribute of this object to th specified
-        // 'value' and return a non-'const' reference to this object.
+    void setAllowTrailingText(bool value);
+        // Set the 'allowTrailingText' attribute of this object to the
+        // specified 'value'.
 
-    ReadOptions& setMaxNestedDepth(int value);
+    void setMaxNestedDepth(int value);
         // Set the 'maxNestedDepth' attribute of this object to the specified
-        // 'value' and return a non-'const' reference to this object.  The
-        // behavior is undefined unless '0 < value'.
+        // 'value'.  The behavior is undefined unless '0 < value'.
 
     // ACCESSORS
     bool allowTrailingText() const;
@@ -208,19 +207,17 @@ ReadOptions& ReadOptions::operator=(const ReadOptions& rhs)
 }
 
 inline
-ReadOptions& ReadOptions::setAllowTrailingText(bool value)
+void ReadOptions::setAllowTrailingText(bool value)
 {
     d_allowTrailingText = value;
-    return *this;
 }
 
 inline
-ReadOptions& ReadOptions::setMaxNestedDepth(int value)
+void ReadOptions::setMaxNestedDepth(int value)
 {
     BSLS_ASSERT(0 < value);
 
     d_maxNestedDepth = value;
-    return *this;
 }
 
 // ACCESSORS

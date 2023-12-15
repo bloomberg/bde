@@ -5,11 +5,11 @@
 @MNEMONIC: Basic Development Library JSoN (bdljsn)
 
 @DESCRIPTION: The 'bdljsn' package provides the 'bdljsn::Json' type, found in
- the 'bdljsn_json' component, which is a value-semantic representation of JSON
- data.  This package also provides facilities for reading and writing
- 'bdljsn::Json' objects to JSON documents.  'bdljsn::Json' has close structural
- similarities to the JSON grammar itself, which looks like the following, at a
- high level:
+the 'bdljsn_json' component, which is a value-semantic representation of JSON
+data.  This package also provides facilities for reading and writing
+'bdljsn::Json' objects to JSON documents.  'bdljsn::Json' has close structural
+similarities to the JSON grammar itself, which looks like the following, at a
+high level:
 ..
   JSON ::= Object
          | Array
@@ -18,28 +18,28 @@
          | Boolean
          | null
 ..
- Noting that the 'Object' and 'Array' alternatives can recursively contain
- 'JSON'.  Just like this grammar, the value of a 'bdljsn::Json' object can be
- an object, array, string, number, boolean, or the null value.  Objects and
- Arrays are represented by the 'bdljsn::JsonObject' and 'bdljsn::JsonArray'
- types, respectively, and are also provided by the 'bdljsn_json' component.
- 'bdljsn::JsonObject' is an associative container from strings to
- 'bdljsn::Json' objects, and 'bdljsn::JsonArray' is a sequence container with
- 'bdljsn::Json' elements.  Strings and booleans are represented with the
- standard 'bsl::string' and 'bool' types.  The singular "null" value is
- represented by the 'bdljsn::JsonNull' type, which has a single value like
- 'std::monostate'.  Numbers are represented by the 'bdljsn::JsonNumber' type,
- which has facilities for storing any number that satisfies the JSON number
- grammar with arbitrary precision.  It also provides operations for converting
- these arbitrary-precision numbers to common finite-precision number vocabulary
- types like 'int', 'double', and 'bdldfp::Decimal64', and detecting where
- overflow, underflow, and/or truncation would occur during conversion.
+Noting that the 'Object' and 'Array' alternatives can recursively contain
+'JSON'.  Just like this grammar, the value of a 'bdljsn::Json' object can be an
+object, array, string, number, boolean, or the null value.  Objects and Arrays
+are represented by the 'bdljsn::JsonObject' and 'bdljsn::JsonArray' types,
+respectively, and are also provided by the 'bdljsn_json' component.
+'bdljsn::JsonObject' is an associative container from strings to 'bdljsn::Json'
+objects, and 'bdljsn::JsonArray' is a sequence container with 'bdljsn::Json'
+elements.  Strings and booleans are represented with the standard 'bsl::string'
+and 'bool' types.  The singular "null" value is represented by the
+'bdljsn::JsonNull' type, which has a single value like 'std::monostate'.
+Numbers are represented by the 'bdljsn::JsonNumber' type, which has facilities
+for storing any number that satisfies the JSON number grammar with arbitrary
+precision.  It also provides operations for converting these
+arbitrary-precision numbers to common finite-precision number vocabulary types
+like 'int', 'double', and 'bdldfp::Decimal64', and detecting where overflow,
+underflow, and/or truncation would occur during conversion.
 
- Though this package provides several types representing different kinds of
- JSON values, in general the 'bdljsn::Json' interface is rich enough to be the
- primary vocabulary type for working with JSON.  For example, if the value
- stored in a 'bdljsn::Json' holds a JSON object, then you can use much of the
- associative container interface on the 'bdljsn::Json' object directly, e.g.,
+Though this package provides several types representing different kinds of JSON
+values, in general the 'bdljsn::Json' interface is rich enough to be the
+primary vocabulary type for working with JSON.  For example, if the value
+stored in a 'bdljsn::Json' holds a JSON object, then you can use much of the
+associative container interface on the 'bdljsn::Json' object directly, e.g.,
 ..
   void getName(bsl::string *name, const bdljsn::Json& json)
       // Load to the specified 'name' the "name" member of the specified
@@ -55,8 +55,8 @@
       *name = json["name"].theString();
   }
 ..
- Alternatively, if a 'bdljsn::Json' holds a JSON array, then we can use it like
- a sequence container,
+Alternatively, if a 'bdljsn::Json' holds a JSON array, then we can use it like
+a sequence container,
 ..
   bool findWaldo(const bdljsn::Json& json)
       // Return 'true' if 'json' is an array that contains the string "waldo",
@@ -81,9 +81,9 @@
       return false;
   }
 ..
- For an example of constructing 'bdljsn::Json' objects, consider the use case
- where we have a simple representation of an organization chart, which we would
- like to convert to JSON for printing to standard output:
+For an example of constructing 'bdljsn::Json' objects, consider the use case
+where we have a simple representation of an organization chart, which we would
+like to convert to JSON for printing to standard output:
 ..
   struct Employee {
       // PUBLIC DATA
@@ -98,7 +98,7 @@
       bsl::vector<Employee> d_members;
   };
 ..
- We can define utility functions for converting these types to JSON:
+We can define utility functions for converting these types to JSON:
 ..
   struct Utility {
       // CLASS METHODS
@@ -137,8 +137,8 @@
       }
   };
 ..
- And then we can create a sample 'Team' and print it to standard output using
- our 'toJson' functions,
+And then we can create a sample 'Team' and print it to standard output using
+our 'toJson' functions,
 ..
   void example()
   {
@@ -163,7 +163,7 @@
       assert(0 == rc);
   }
 ..
- Then, we can observe the following printed to standard output:
+Then, we can observe the following printed to standard output:
 ..
   {
       "manager": {
@@ -188,7 +188,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdljsn' package currently has 15 components having 5 levels of physical
+ The 'bdljsn' package currently has 14 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -201,16 +201,15 @@
 
   2. bdljsn_error
      bdljsn_jsonnumber
-     bdljsn_tokenizer
      bdljsn_writeoptions
 
   1. bdljsn_jsonnull
-     bdljsn_jsontestsuiteutil
      bdljsn_jsontype
      bdljsn_location
      bdljsn_numberutil
      bdljsn_readoptions
      bdljsn_stringutil
+     bdljsn_tokenizer
      bdljsn_writestyle
 ..
 
@@ -230,9 +229,6 @@
 :
 : 'bdljsn_jsonnumber':
 :      Provide a value-semantic type representing a JSON number.
-:
-: 'bdljsn_jsontestsuiteutil':
-:      Provide JSON Test Suite for BDE table-driven testing.
 :
 : 'bdljsn_jsontype':
 :      Enumerate the set of JSON value types.

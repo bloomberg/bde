@@ -38129,13 +38129,13 @@ int main(int argc, char *argv[])
             { L_, "[[0,0]]"         , YES, 1, { 2          } },
             { L_, "[,[0,0]]"        ,  NO, 0, {            } },
             { L_, "[[,0,0]]"        ,  NO, 0, {            } },
-            { L_, "[[0,,0]]"        ,  NO, 0, {            } },
-            { L_, "[[0,,,0]]"       ,  NO, 1, {            } },
+            { L_, "[[0,,0]]"        , YES, 1, { 2          } }, // *
+            { L_, "[[0,,,0]]"       , YES, 1, { 2          } }, // *
             { L_, "[[0,0,]]"        ,  NO, 0, {            } },
             { L_, "[[0,0],]"        ,  NO, 0, {            } },
             { L_, "[[0,0]],"        , YES, 1, { 2          } },
-            { L_, "[[0],,[0]]"      ,  NO, 0, {            } },
-            { L_, "[[0],,,[0]]"     ,  NO, 0, {            } },
+            { L_, "[[0],,[0]]"      , YES, 2, { 1, 1       } }, // *
+            { L_, "[[0],,,[0]]"     , YES, 2, { 1, 1       } }, // *
             // * These test vectors illustrate a known issue with the decoder,
             // which is that it accepts consecutive commas between array
             // elements.

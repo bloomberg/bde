@@ -2341,6 +2341,7 @@ int main(int argc, char *argv[])
 
         static const struct TC::FailureListData failureList[] = {
             { L_, "n_array_comma_after_close.json", "TBD" }
+          , { L_, "n_array_double_comma.json", "TBD" }
           , { L_, "n_multidigit_number_then_00.json", "TBD" }
           , { L_, "n_number_+1.json", "TBD" }
           , { L_, "n_number_+Inf.json", "TBD" }
@@ -2369,11 +2370,13 @@ int main(int argc, char *argv[])
           , { L_, "n_number_real_without_fractional_part.json", "TBD" }
           , { L_, "n_number_starting_with_dot.json", "TBD" }
           , { L_, "n_number_with_leading_zero.json", "TBD" }
+          , { L_, "n_object_double_colon.json", "TBD" }
           , { L_, "n_object_trailing_comment.json", "TBD" }
           , { L_, "n_object_trailing_comment_open.json", "TBD" }
           , { L_, "n_object_trailing_comment_slash_open.json", "TBD" }
           , { L_, "n_object_trailing_comment_slash_open_incomplete.json",
               "TBD" }
+          , { L_, "n_object_two_commas_in_a_row.json", "TBD" }
           , { L_, "n_object_with_trailing_garbage.json", "TBD" }
           , { L_, "n_string_unescaped_newline.json", "TBD" }
           , { L_, "n_string_unescaped_tab.json", "TBD" }

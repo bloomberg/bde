@@ -152,11 +152,11 @@ class Location {
     Location& operator=(const Location& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
-    Location& reset();
+    void reset();
         // Reset this object to the default value (i.e., its value upon default
         // construction).
 
-    Location& setOffset(bsl::uint64_t value);
+    void setOffset(bsl::uint64_t value);
         // Set the "offset" attribute of this object to the specified 'value'.
 
                                   // Aspects
@@ -259,17 +259,15 @@ Location& Location::operator=(const Location& rhs)
 }
 
 inline
-Location& Location::reset()
+void Location::reset()
 {
     d_offset = 0;
-    return *this;
 }
 
 inline
-Location& Location::setOffset(bsl::uint64_t value)
+void Location::setOffset(bsl::uint64_t value)
 {
     d_offset = value;
-    return *this;
 }
 
                                   // Aspects
