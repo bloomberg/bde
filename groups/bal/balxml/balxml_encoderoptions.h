@@ -3,7 +3,7 @@
 #define INCLUDED_BALXML_ENCODEROPTIONS
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balxml_encoderoptions_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balxml_encoderoptions_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -31,10 +31,9 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
-#include <bslma_allocator.h>
-
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
 namespace balxml { class EncoderOptions; }
 namespace balxml {
@@ -51,8 +50,8 @@ class EncoderOptions {
     // used to specify the formatting of the output.  Note that
     // 'InitialIndentLevel', 'SpacesPerLevel', and 'WrapColumn' are ignored
     // when 'EncodingStyle' is COMPACT (this is the default).
-    // This struct is generated using bas_codegen.pl called by
-    // balxml/code_from_xsd.pl
+    // The generated C++ code for this schema element is created by using
+    // bas_codegen.pl, run by balxml/code_from_xsd.pl, with no hand-editing.
 
     // INSTANCE DATA
     bsl::string               d_objectNamespace;
@@ -72,6 +71,9 @@ class EncoderOptions {
     int                       d_datetimeFractionalSecondPrecision;
         // This option controls the number of decimal places used for seconds
         // when encoding 'Datetime' and 'DatetimeTz'.
+        // Note that the default of this field is '6' in
+        // 'balxml_encoderoptions.cpp', but is edited to '3' in
+        // 'balxml_configschema.cpp' by balxml/code_from_xsd.pl.
     bdlb::NullableValue<int>  d_maxDecimalTotalDigits;
         // Maximum total digits of the decimal value that should be displayed
     bdlb::NullableValue<int>  d_maxDecimalFractionDigits;
@@ -92,8 +94,7 @@ class EncoderOptions {
         // alias with the top-level element.
     bool                      d_useZAbbreviationForUtc;
         // This option control whether 'Z' should be used for the zone
-        // designator of 'DateTz', TimeTz, and 'DatetimeTz' or instead of
-        // +00:00' (specific to UTC).
+        // designator of 'DateTz' or instead of '+00:00' (specific to UTC).
 
   public:
     // TYPES
@@ -227,8 +228,8 @@ class EncoderOptions {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
@@ -236,8 +237,8 @@ class EncoderOptions {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
         // Invoke the specified 'manipulator' on the address of
         // the (modifiable) attribute indicated by the specified 'id',
         // supplying 'manipulator' with the corresponding attribute
@@ -245,8 +246,8 @@ class EncoderOptions {
         // invocation of 'manipulator' if 'id' identifies an attribute of this
         // class, and -1 otherwise.
 
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
         // Invoke the specified 'manipulator' on the address of
@@ -256,15 +257,15 @@ class EncoderOptions {
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
-    void setObjectNamespace(const bsl::string_view& value);
+    void setObjectNamespace(const bsl::string& value);
         // Set the "ObjectNamespace" attribute of this object to the specified
         // 'value'.
 
-    void setSchemaLocation(const bsl::string_view& value);
+    void setSchemaLocation(const bsl::string& value);
         // Set the "SchemaLocation" attribute of this object to the specified
         // 'value'.
 
-    void setTag(const bsl::string_view& value);
+    void setTag(const bsl::string& value);
         // Set the "Tag" attribute of this object to the specified 'value'.
 
     void setFormattingMode(int value);
@@ -321,7 +322,7 @@ class EncoderOptions {
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
         // optionally specified indentation 'level' and return a reference to
@@ -335,8 +336,8 @@ class EncoderOptions {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
         // with the corresponding attribute information structure until such
@@ -344,16 +345,16 @@ class EncoderOptions {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
@@ -364,68 +365,62 @@ class EncoderOptions {
         // class, and -1 otherwise.
 
     const bsl::string& objectNamespace() const;
-        // Return a reference to the non-modifiable "ObjectNamespace" attribute
-        // of this object.
+        // Return a reference offering non-modifiable access to the
+        // "ObjectNamespace" attribute of this object.
 
     const bsl::string& schemaLocation() const;
-        // Return a reference to the non-modifiable "SchemaLocation" attribute
-        // of this object.
+        // Return a reference offering non-modifiable access to the
+        // "SchemaLocation" attribute of this object.
 
     const bsl::string& tag() const;
-        // Return a reference to the non-modifiable "Tag" attribute of this
-        // object.
+        // Return a reference offering non-modifiable access to the "Tag"
+        // attribute of this object.
 
     int formattingMode() const;
-        // Return a reference to the non-modifiable "FormattingMode" attribute
-        // of this object.
+        // Return the value of the "FormattingMode" attribute of this object.
 
     int initialIndentLevel() const;
-        // Return a reference to the non-modifiable "InitialIndentLevel"
-        // attribute of this object.
+        // Return the value of the "InitialIndentLevel" attribute of this
+        // object.
 
     int spacesPerLevel() const;
-        // Return a reference to the non-modifiable "SpacesPerLevel" attribute
-        // of this object.
+        // Return the value of the "SpacesPerLevel" attribute of this object.
 
     int wrapColumn() const;
-        // Return a reference to the non-modifiable "WrapColumn" attribute of
-        // this object.
+        // Return the value of the "WrapColumn" attribute of this object.
 
     const bdlb::NullableValue<int>& maxDecimalTotalDigits() const;
-        // Return a reference to the non-modifiable "MaxDecimalTotalDigits"
-        // attribute of this object.
+        // Return a reference offering non-modifiable access to the
+        // "MaxDecimalTotalDigits" attribute of this object.
 
     const bdlb::NullableValue<int>& maxDecimalFractionDigits() const;
-        // Return a reference to the non-modifiable "MaxDecimalFractionDigits"
-        // attribute of this object.
+        // Return a reference offering non-modifiable access to the
+        // "MaxDecimalFractionDigits" attribute of this object.
 
     const bdlb::NullableValue<int>& significantDoubleDigits() const;
-        // Return a reference to the non-modifiable "SignificantDoubleDigits"
-        // attribute of this object.
+        // Return a reference offering non-modifiable access to the
+        // "SignificantDoubleDigits" attribute of this object.
 
     EncodingStyle::Value encodingStyle() const;
-        // Return a reference to the non-modifiable "EncodingStyle" attribute
-        // of this object.
+        // Return the value of the "EncodingStyle" attribute of this object.
 
     bool allowControlCharacters() const;
-        // Return a reference to the non-modifiable "AllowControlCharacters"
-        // attribute of this object.
+        // Return the value of the "AllowControlCharacters" attribute of this
+        // object.
 
     bool outputXMLHeader() const;
-        // Return a reference to the non-modifiable "OutputXMLHeader" attribute
-        // of this object.
+        // Return the value of the "OutputXMLHeader" attribute of this object.
 
     bool outputXSIAlias() const;
-        // Return a reference to the non-modifiable "OutputXSIAlias" attribute
-        // of this object.
+        // Return the value of the "OutputXSIAlias" attribute of this object.
 
     int datetimeFractionalSecondPrecision() const;
-        // Return a reference to the non-modifiable
-        // "DatetimeFractionalSecondPrecision" attribute of this object.
+        // Return the value of the "DatetimeFractionalSecondPrecision"
+        // attribute of this object.
 
     bool useZAbbreviationForUtc() const;
-        // Return a reference to the non-modifiable "UseZAbbreviationForUtc"
-        // attribute of this object.
+        // Return the value of the "UseZAbbreviationForUtc" attribute of this
+        // object.
 };
 
 // FREE OPERATORS
@@ -465,8 +460,8 @@ namespace balxml {
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderOptions::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -550,11 +545,11 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderOptions::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -612,11 +607,11 @@ int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderOptions::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -630,19 +625,19 @@ int EncoderOptions::manipulateAttribute(
 }
 
 inline
-void EncoderOptions::setObjectNamespace(const bsl::string_view& value)
+void EncoderOptions::setObjectNamespace(const bsl::string& value)
 {
     d_objectNamespace = value;
 }
 
 inline
-void EncoderOptions::setSchemaLocation(const bsl::string_view& value)
+void EncoderOptions::setSchemaLocation(const bsl::string& value)
 {
     d_schemaLocation = value;
 }
 
 inline
-void EncoderOptions::setTag(const bsl::string_view& value)
+void EncoderOptions::setTag(const bsl::string& value)
 {
     d_tag = value;
 }
@@ -726,8 +721,8 @@ void EncoderOptions::setUseZAbbreviationForUtc(bool value)
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderOptions::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -811,11 +806,11 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderOptions::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -873,11 +868,11 @@ int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderOptions::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -1032,22 +1027,12 @@ bsl::ostream& balxml::operator<<(
 }  // close enterprise namespace
 #endif
 
-// BAS_CODEGEN RUN BY code_from_xsd.pl RUN ON Thu Sep 24 20:40:02 EDT 2020
-// GENERATED BY BLP_BAS_CODEGEN_2020.09.14
+// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
 // USING bas_codegen.pl -m msg -p balxml -E --noExternalization --noAggregateConversion --noHashSupport balxml.xsd
-
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------- END-OF-FILE ----------------------------------
+// NOTICE:
+//      Copyright 2023 Bloomberg Finance L.P. All rights reserved.
+//      Property of Bloomberg Finance L.P. (BFLP)
+//      This software is made available solely pursuant to the
+//      terms of a BFLP license agreement which governs its use.
+// ------------------------------- END-OF-FILE --------------------------------

@@ -3,7 +3,7 @@
 #define INCLUDED_BALXML_DECODEROPTIONS
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balxml_decoderoptions_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balxml_decoderoptions_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -34,8 +34,8 @@ namespace balxml {
 
 class DecoderOptions {
     // Options for controlling the XML decoding process.
-    // This struct is generated using bas_codegen.pl called by
-    // balxml/code_from_xsd.pl
+    // The generated C++ code for this schema element is created by using
+    // bas_codegen.pl, run by balxml/code_from_xsd.pl with no hand-editing.
 
     // INSTANCE DATA
     int   d_maxDepth;
@@ -46,6 +46,8 @@ class DecoderOptions {
         // Option to skip unknown elements
     bool  d_validateInputIsUtf8;
         // option to check that input is valid UTF-8
+    bool  d_validateRootTag;
+        // Option to validate the root tag when decoding a structure.
 
   public:
     // TYPES
@@ -54,10 +56,11 @@ class DecoderOptions {
       , ATTRIBUTE_ID_FORMATTING_MODE        = 1
       , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS  = 2
       , ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8 = 3
+      , ATTRIBUTE_ID_VALIDATE_ROOT_TAG      = 4
     };
 
     enum {
-        NUM_ATTRIBUTES = 4
+        NUM_ATTRIBUTES = 5
     };
 
     enum {
@@ -65,6 +68,7 @@ class DecoderOptions {
       , ATTRIBUTE_INDEX_FORMATTING_MODE        = 1
       , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS  = 2
       , ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8 = 3
+      , ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG      = 4
     };
 
     // CONSTANTS
@@ -77,6 +81,8 @@ class DecoderOptions {
     static const bool DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS;
 
     static const bool DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8;
+
+    static const bool DEFAULT_INITIALIZER_VALIDATE_ROOT_TAG;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -128,8 +134,8 @@ class DecoderOptions {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
@@ -137,8 +143,8 @@ class DecoderOptions {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
         // Invoke the specified 'manipulator' on the address of
         // the (modifiable) attribute indicated by the specified 'id',
         // supplying 'manipulator' with the corresponding attribute
@@ -146,8 +152,8 @@ class DecoderOptions {
         // invocation of 'manipulator' if 'id' identifies an attribute of this
         // class, and -1 otherwise.
 
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
         // Invoke the specified 'manipulator' on the address of
@@ -173,9 +179,13 @@ class DecoderOptions {
         // Set the "ValidateInputIsUtf8" attribute of this object to the
         // specified 'value'.
 
+    void setValidateRootTag(bool value);
+        // Set the "ValidateRootTag" attribute of this object to the specified
+        // 'value'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
         // optionally specified indentation 'level' and return a reference to
@@ -189,8 +199,8 @@ class DecoderOptions {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
         // with the corresponding attribute information structure until such
@@ -198,16 +208,16 @@ class DecoderOptions {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
@@ -218,20 +228,21 @@ class DecoderOptions {
         // class, and -1 otherwise.
 
     int maxDepth() const;
-        // Return a reference to the non-modifiable "MaxDepth" attribute of
-        // this object.
+        // Return the value of the "MaxDepth" attribute of this object.
 
     int formattingMode() const;
-        // Return a reference to the non-modifiable "FormattingMode" attribute
-        // of this object.
+        // Return the value of the "FormattingMode" attribute of this object.
 
     bool skipUnknownElements() const;
-        // Return a reference to the non-modifiable "SkipUnknownElements"
-        // attribute of this object.
+        // Return the value of the "SkipUnknownElements" attribute of this
+        // object.
 
     bool validateInputIsUtf8() const;
-        // Return a reference to the non-modifiable "ValidateInputIsUtf8"
-        // attribute of this object.
+        // Return the value of the "ValidateInputIsUtf8" attribute of this
+        // object.
+
+    bool validateRootTag() const;
+        // Return the value of the "ValidateRootTag" attribute of this object.
 };
 
 // FREE OPERATORS
@@ -271,8 +282,8 @@ namespace balxml {
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int DecoderOptions::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -296,11 +307,16 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
-    return ret;
+    ret = manipulator(&d_validateRootTag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG]);
+    if (ret) {
+        return ret;
+    }
+
+    return 0;
 }
 
-template <class MANIPULATOR>
-int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int DecoderOptions::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -317,16 +333,19 @@ int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
         return manipulator(&d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
       }
+      case ATTRIBUTE_ID_VALIDATE_ROOT_TAG: {
+        return manipulator(&d_validateRootTag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG]);
+      }
       default:
         return NOT_FOUND;
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int DecoderOptions::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -363,9 +382,15 @@ void DecoderOptions::setValidateInputIsUtf8(bool value)
     d_validateInputIsUtf8 = value;
 }
 
+inline
+void DecoderOptions::setValidateRootTag(bool value)
+{
+    d_validateRootTag = value;
+}
+
 // ACCESSORS
-template <class ACCESSOR>
-int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int DecoderOptions::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -389,11 +414,16 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    ret = accessor(d_validateRootTag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG]);
+    if (ret) {
+        return ret;
+    }
+
+    return 0;
 }
 
-template <class ACCESSOR>
-int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int DecoderOptions::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -410,16 +440,19 @@ int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
         return accessor(d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
       }
+      case ATTRIBUTE_ID_VALIDATE_ROOT_TAG: {
+        return accessor(d_validateRootTag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG]);
+      }
       default:
         return NOT_FOUND;
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int DecoderOptions::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -456,6 +489,12 @@ bool DecoderOptions::validateInputIsUtf8() const
     return d_validateInputIsUtf8;
 }
 
+inline
+bool DecoderOptions::validateRootTag() const
+{
+    return d_validateRootTag;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -468,7 +507,8 @@ bool balxml::operator==(
     return  lhs.maxDepth() == rhs.maxDepth()
          && lhs.formattingMode() == rhs.formattingMode()
          && lhs.skipUnknownElements() == rhs.skipUnknownElements()
-         && lhs.validateInputIsUtf8() == rhs.validateInputIsUtf8();
+         && lhs.validateInputIsUtf8() == rhs.validateInputIsUtf8()
+         && lhs.validateRootTag() == rhs.validateRootTag();
 }
 
 inline
@@ -490,22 +530,12 @@ bsl::ostream& balxml::operator<<(
 }  // close enterprise namespace
 #endif
 
-// BAS_CODEGEN RUN BY code_from_xsd.pl RUN ON Thu Sep 24 20:40:02 EDT 2020
-// GENERATED BY BLP_BAS_CODEGEN_2020.09.14
+// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
 // USING bas_codegen.pl -m msg -p balxml -E --noExternalization --noAggregateConversion --noHashSupport balxml.xsd
-
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------- END-OF-FILE ----------------------------------
+// NOTICE:
+//      Copyright 2023 Bloomberg Finance L.P. All rights reserved.
+//      Property of Bloomberg Finance L.P. (BFLP)
+//      This software is made available solely pursuant to the
+//      terms of a BFLP license agreement which governs its use.
+// ------------------------------- END-OF-FILE --------------------------------
