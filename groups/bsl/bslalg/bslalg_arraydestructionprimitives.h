@@ -98,8 +98,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_isbitwisecopyable.h>
 
-#include <cstddef>  // 'size_t'
-
+#include <stddef.h>  // 'size_t'
 #include <cstring>  // 'memset', 'memcpy', and 'memmove'
 
 namespace BloombergLP {
@@ -144,6 +143,10 @@ struct ArrayDestructionPrimitives {
         // if (template parameter) 'TARGET_TYPE' is bitwise copyable, i.e. in
         // the overload where the last argument (used only for overload
         // resolution) if of type 'bsl::true_type'.
+
+    static void scribbleOverMemory(void *ptr, size_t numBytes);
+        // Overwrite the specified 'numBytes' of memory starting at the
+        // specified 'ptr'.
 
   public:
     // CLASS METHODS
@@ -192,7 +195,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     if (begin) {
-        std::memset((void *) begin, 0xa5, (end - begin) * sizeof(TARGET_TYPE));
+        scribbleOverMemory(begin, (end - begin) * sizeof(TARGET_TYPE));
     }
 #else
     (void) begin;
@@ -221,8 +224,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     // destructor.
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
-    std::memset((void *)begin, 0xa5, numBytes);
+    scribbleOverMemory(begin, (end - begin) * sizeof(TARGET_TYPE));
 #else
     (void) begin;
     (void) end;
