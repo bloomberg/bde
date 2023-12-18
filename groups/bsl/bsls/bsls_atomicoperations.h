@@ -788,9 +788,7 @@ struct AtomicOperations {
         // Atomically retrieve the value of the specified 'atomicInt', without
         // providing any memory ordering guarantees.
 
-    static BSLS_KEYWORD_CONSTEXPR_CPP14 void initInt(
-                                           AtomicTypes::Int *atomicInt,
-                                           int               initialValue = 0);
+    static void initInt(AtomicTypes::Int *atomicInt, int initialValue = 0);
         // Initialize the specified 'atomicInt' and set its value to the
         // optionally specified 'initialValue'.
 
@@ -927,9 +925,8 @@ struct AtomicOperations {
         // Atomically retrieve the value of the specified 'atomicInt', without
         // providing any memory ordering guarantees.
 
-    static BSLS_KEYWORD_CONSTEXPR_CPP14 void initInt64(
-                                         AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64        initialValue = 0);
+    static void initInt64(AtomicTypes::Int64 *atomicInt,
+                          Types::Int64        initialValue = 0);
         // Initialize the specified 'atomicInt' and set its value to the
         // optionally specified 'initialValue'.
 
@@ -1082,9 +1079,8 @@ struct AtomicOperations {
         // Atomically retrieve the value of the specified 'atomicUint', without
         // providing any memory ordering guarantees.
 
-    static BSLS_KEYWORD_CONSTEXPR_CPP14 void initUint(
-                                          AtomicTypes::Uint *atomicUint,
-                                          unsigned int       initialValue = 0);
+    static void initUint(AtomicTypes::Uint *atomicUint,
+                         unsigned int       initialValue = 0);
         // Initialize the specified 'atomicUint' and set its value to the
         // optionally specified 'initialValue'.
 
@@ -1236,9 +1232,8 @@ struct AtomicOperations {
         // Atomically retrieve the value of the specified 'atomicUint', without
         // providing any memory ordering guarantees.
 
-    static BSLS_KEYWORD_CONSTEXPR_CPP14 void initUint64(
-                                        AtomicTypes::Uint64 *atomicUint,
-                                        Types::Uint64        initialValue = 0);
+    static void initUint64(AtomicTypes::Uint64 *atomicUint,
+                           Types::Uint64        initialValue = 0);
         // Initialize the specified 'atomicUint' and set its value to the
         // optionally specified 'initialValue'.
 
@@ -1395,9 +1390,8 @@ struct AtomicOperations {
         // Atomically retrieve the value of the specified 'atomicPtr', without
         // providing any memory ordering guarantees.
 
-    static BSLS_KEYWORD_CONSTEXPR_CPP14 void initPointer(
-                                       AtomicTypes::Pointer *atomicPtr,
-                                       void                 *initialValue = 0);
+    static void initPointer(AtomicTypes::Pointer *atomicPtr,
+                            void                 *initialValue = 0);
         // Initialize the specified 'atomicPtr' and set its value to the
         // optionally specified 'initialValue'.
 
@@ -1476,7 +1470,7 @@ int AtomicOperations::getIntRelaxed(AtomicTypes::Int const *atomicInt)
     return Imp::getIntRelaxed(atomicInt);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 void AtomicOperations::initInt(AtomicTypes::Int *atomicInt, int initialValue)
 {
     Imp::initInt(atomicInt, initialValue);
@@ -1657,7 +1651,7 @@ Types::Int64
     return Imp::getInt64Relaxed(atomicInt);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 void AtomicOperations::initInt64(AtomicTypes::Int64 *atomicInt,
                                  Types::Int64        initialValue)
 {
@@ -1858,7 +1852,7 @@ unsigned int AtomicOperations::getUintRelaxed(
     return Imp::getUintRelaxed(atomicUint);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 void AtomicOperations::initUint(AtomicTypes::Uint *atomicUint,
                                 unsigned int       initialValue)
 {
@@ -2057,7 +2051,7 @@ Types::Uint64
     return Imp::getUint64Relaxed(atomicUint);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 void AtomicOperations::initUint64(AtomicTypes::Uint64 *atomicUint,
                                   Types::Uint64        initialValue)
 {
@@ -2260,7 +2254,7 @@ void * AtomicOperations::getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr)
     return Imp::getPtrRelaxed(atomicPtr);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 void AtomicOperations::initPointer(AtomicTypes::Pointer *atomicPtr,
                                    void                 *initialValue)
 {

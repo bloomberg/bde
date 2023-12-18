@@ -669,7 +669,6 @@ BSLS_IDENT("$Id: $")
 // Notice that if the stack was empty, a NULL pointer is returned.
 
 #include <bsls_atomicoperations.h>
-#include <bsls_keyword.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -699,10 +698,10 @@ class AtomicInt {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicInt();
+    AtomicInt();
         // Create an atomic integer object having the default value 0.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicInt(int value);
+    AtomicInt(int value);
         // Create an atomic integer object having the specified 'value'.
 
     //! ~AtomicInt() = default;
@@ -842,10 +841,10 @@ class AtomicInt64 {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicInt64();
+    AtomicInt64();
         // Create an atomic 64-bit integer object having the default value 0.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicInt64(Types::Int64 value);
+    AtomicInt64(Types::Int64 value);
         // Create an atomic 64-bit integer object having the specified 'value'.
 
     //! ~AtomicInt64() = default;
@@ -987,10 +986,10 @@ class AtomicUint {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicUint();
+    AtomicUint();
         // Create an atomic unsigned integer object having the default value 0.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicUint(unsigned int value);
+    AtomicUint(unsigned int value);
         // Create an atomic unsigned integer object having the specified
         // 'value'.
 
@@ -1133,11 +1132,11 @@ class AtomicUint64 {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicUint64();
+    AtomicUint64();
         // Create an atomic 64-bit unsigned integer object having the default
         // value 0.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicUint64(Types::Uint64 value);
+    AtomicUint64(Types::Uint64 value);
         // Create an atomic 64-bit unsigned integer object having the specified
         // 'value'.
 
@@ -1299,10 +1298,10 @@ class AtomicPointer {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicPointer();
+    AtomicPointer();
         // Create an atomic pointer object having the default value NULL.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicPointer(TYPE *value);
+    AtomicPointer(TYPE *value);
         // Create an atomic pointer object having the specified 'value'.
 
     //! ~AtomicPointer() = default;
@@ -1401,10 +1400,10 @@ class AtomicBool {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicBool();
+    AtomicBool();
         // Create an atomic boolean object having the default value 'false'.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP14 AtomicBool(bool value);
+    AtomicBool(bool value);
         // Create an atomic boolean object having the specified 'value'.
 
     //! ~AtomicBool() = default;
@@ -1482,16 +1481,14 @@ namespace bsls {
                                // ---------------
 
 // CREATORS
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicInt::AtomicInt()
-: d_value()
 {
     AtomicOperations_Imp::initInt(&d_value, 0);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicInt::AtomicInt(int value)
-: d_value()
 {
     AtomicOperations_Imp::initInt(&d_value, value);
 }
@@ -1657,16 +1654,14 @@ int AtomicInt::loadRelaxed() const
                               // -----------------
 
 // CREATORS
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicInt64::AtomicInt64()
-: d_value()
 {
     AtomicOperations_Imp::initInt64(&d_value, 0);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicInt64::AtomicInt64(Types::Int64 value)
-: d_value()
 {
     AtomicOperations_Imp::initInt64(&d_value, value);
 }
@@ -1835,16 +1830,14 @@ Types::Int64 AtomicInt64::loadRelaxed() const
                               // ---------------
 
 // CREATORS
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicUint::AtomicUint()
-: d_value()
 {
     AtomicOperations_Imp::initUint(&d_value, 0);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicUint::AtomicUint(unsigned int value)
-: d_value()
 {
     AtomicOperations_Imp::initUint(&d_value, value);
 }
@@ -2008,16 +2001,14 @@ unsigned int AtomicUint::loadRelaxed() const
                               // -----------------
 
 // CREATORS
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicUint64::AtomicUint64()
-: d_value()
 {
     AtomicOperations_Imp::initUint64(&d_value, 0);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicUint64::AtomicUint64(Types::Uint64 value)
-: d_value()
 {
     AtomicOperations_Imp::initUint64(&d_value, value);
 }
@@ -2181,17 +2172,15 @@ Types::Uint64 AtomicUint64::loadRelaxed() const
 
 // CREATORS
 template <class TYPE>
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicPointer<TYPE>::AtomicPointer()
-: d_value()
 {
     AtomicOperations_Imp::initPointer(&d_value, 0);
 }
 
 template <class TYPE>
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicPointer<TYPE>::AtomicPointer(TYPE *value)
-: d_value()
 {
     AtomicOperations_Imp::initPointer(
             &d_value,
@@ -2329,16 +2318,14 @@ TYPE *AtomicPointer<TYPE>::loadRelaxed() const
                                // ----------------
 
 // CREATORS
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicBool::AtomicBool()
-: d_value()
 {
     AtomicOperations_Imp::initInt(&d_value, AtomicBool::e_FALSE);
 }
 
-inline BSLS_KEYWORD_CONSTEXPR_CPP14
+inline
 AtomicBool::AtomicBool(bool value)
-: d_value()
 {
     AtomicOperations_Imp::initInt(
         &d_value,
