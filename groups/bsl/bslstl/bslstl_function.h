@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 2: Use in Generic a Algorithm
+///Example 2: Use in a Generic Algorithm
 ///- - - - - - - - - - - - - - - - - - -
 // Suppose we want to define an algorithm that performs a mutating operation on
 // every element of an array of integers.  The inputs are pointers to the first
