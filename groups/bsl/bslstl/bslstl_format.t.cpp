@@ -132,16 +132,23 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        const int x = 1;
-        const int y = 2;
-        check(bsl::format("{}: {} + {} = {}",
-                          bsl::string("Here is a simple equation"),
-                          x, y, x + y),
+        const bsl::string intro = "Here is a simple equation";
+        const int         x   = 1;
+        const int         y   = 2;
+        const int         sum = x + y;
+        check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
-        ASSERT(!bslstl_format_IsEnabled<bsl::formatter<NonFormattableType> >::value);
+        check(bsl::vformat("{}: {} + {} = {}",
+                           bsl::make_format_args(intro, x, y, sum)),
+              "Here is a simple equation: 1 + 2 = 3");
+        ASSERT(!bslstl_format_IsEnabled<
+               bsl::formatter<NonFormattableType> >::value);
         FormattableType ft;
         ft.x = 37;
         check(bsl::format("The value of {1} is {0}", ft.x, ft),
+              "The value of FormattableType{37} is 37");
+        check(bsl::vformat("The value of {1} is {0}",
+                           bsl::make_format_args(ft.x, ft)),
               "The value of FormattableType{37} is 37");
       } break;
       default: {

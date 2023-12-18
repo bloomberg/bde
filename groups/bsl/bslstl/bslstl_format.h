@@ -53,6 +53,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#include <bslstl_array.h>
 #include <bslstl_monostate.h>
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
@@ -77,68 +78,6 @@ BSLS_IDENT("$Id: $")
 #else
 
 namespace bsl {
-template <class t_ITERATOR>
-class bslstl_format_TruncatingIterator {
-  private:
-    // TYPES
-    typedef typename iterator_traits<t_ITERATOR>::difference_type DT;
-
-    // DATA
-    t_ITERATOR d_iterator;
-    DT         d_limit;
-    DT         d_count;
-
-  public:
-    // TYPES
-    typedef std::output_iterator_tag iterator_category;
-    typedef void                     difference_type;
-    typedef void                     value_type;
-    typedef void                     reference;
-    typedef void                     pointer;
-
-    // CREATORS
-    bslstl_format_TruncatingIterator(t_ITERATOR iterator, DT limit)
-    : d_iterator(iterator)
-    , d_limit(limit)
-    , d_count(0)
-    {
-    }
-
-    // MANIPULATORS
-    bslstl_format_TruncatingIterator& operator*()
-    {
-        return *this;
-    }
-
-    void operator=(typename iterator_traits<t_ITERATOR>::value_type x)
-    {
-        if (d_count++ < d_limit) {
-            *d_iterator++ = x;
-        }
-    }
-
-    bslstl_format_TruncatingIterator& operator++()
-    {
-        return *this;
-    }
-
-    bslstl_format_TruncatingIterator operator++(int)
-    {
-        return *this;
-    }
-
-    // ACCESSORS
-    DT count() const
-    {
-        return d_count;
-    }
-
-    t_ITERATOR underlying() const
-    {
-        return d_iterator;
-    }
-};
-
 template <class t_FORMATTER, class = void>
 struct bslstl_format_IsEnabled : true_type {};
 
@@ -421,6 +360,139 @@ struct formatter<t_ARG, t_CHAR> : bsl::formatter<t_ARG, t_CHAR> {
 #else  // defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #define BSL_FORMAT_CONSTEXPR
 namespace bsl {
+template <class t_ITERATOR>
+class bslstl_format_TruncatingIterator {
+  private:
+    // TYPES
+    typedef typename iterator_traits<t_ITERATOR>::difference_type DT;
+
+    // DATA
+    t_ITERATOR d_iterator;
+    DT         d_limit;
+    DT         d_count;
+
+  public:
+    // TYPES
+    typedef std::output_iterator_tag iterator_category;
+    typedef void                     difference_type;
+    typedef void                     value_type;
+    typedef void                     reference;
+    typedef void                     pointer;
+
+    // CREATORS
+    bslstl_format_TruncatingIterator(t_ITERATOR iterator, DT limit)
+    : d_iterator(iterator)
+    , d_limit(limit)
+    , d_count(0)
+    {
+    }
+
+    // MANIPULATORS
+    bslstl_format_TruncatingIterator& operator*()
+    {
+        return *this;
+    }
+
+    void operator=(typename iterator_traits<t_ITERATOR>::value_type x)
+    {
+        if (d_count++ < d_limit) {
+            *d_iterator++ = x;
+        }
+    }
+
+    bslstl_format_TruncatingIterator& operator++()
+    {
+        return *this;
+    }
+
+    bslstl_format_TruncatingIterator operator++(int)
+    {
+        return *this;
+    }
+
+    // ACCESSORS
+    DT count() const
+    {
+        return d_count;
+    }
+
+    t_ITERATOR underlying() const
+    {
+        return d_iterator;
+    }
+};
+
+template <class t_VALUE>
+class bslstl_format_OutputIteratorBase {
+  public:
+    // MANIPULATORS
+    virtual void put(t_VALUE) = 0;
+};
+
+template <class t_VALUE, class t_ITER>
+class bslstl_format_OutputIteratorImpl
+: public bslstl_format_OutputIteratorBase<t_VALUE>{
+  private:
+    // DATA
+    t_ITER& d_iter;
+
+  public:
+    // CREATORS
+    bslstl_format_OutputIteratorImpl(t_ITER& iter)
+    : d_iter(iter)
+    {
+    }
+
+    // MANIPULATORS
+    void put(t_VALUE x) BSLS_KEYWORD_OVERRIDE
+    {
+        *d_iter++ = x;
+    }
+};
+
+template <class t_VALUE>
+class bslstl_format_OutputIteratorRef {
+  private:
+    // DATA
+    bslstl_format_OutputIteratorBase<t_VALUE>* d_base_p;
+
+  public:
+    // TYPES
+    typedef std::output_iterator_tag iterator_category;
+    typedef void                     difference_type;
+    typedef void                     value_type;
+    typedef void                     reference;
+    typedef void                     pointer;
+
+    // CREATORS
+    bslstl_format_OutputIteratorRef(
+                               bslstl_format_OutputIteratorBase<t_VALUE> *base)
+    : d_base_p(base)
+    {
+    }
+
+    // MANIPULATORS
+    bslstl_format_OutputIteratorRef& operator*()
+    {
+        return *this;
+    }
+
+    void operator=(t_VALUE x)
+    {
+        d_base_p->put(x);
+    }
+
+    bslstl_format_OutputIteratorRef& operator++()
+    {
+        return *this;
+    }
+
+    bslstl_format_OutputIteratorRef operator++(int)
+    {
+        return *this;
+    }
+};
+
 class format_error : public std::runtime_error {
   public:
     // CREATORS
@@ -730,6 +802,95 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     }
 };
 
+typedef basic_format_context<bslstl_format_OutputIteratorRef<char>, char>
+                                            bslstl_format_DefaultFormatContext;
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class t_CONTEXT, class... t_ARGS>
+class bslstl_format_FormatArgStore {
+    // TODO: Make all members private
+
+  public:
+    // DATA
+    array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> d_args;
+
+    // PRIVATE CREATORS
+    explicit bslstl_format_FormatArgStore(
+             const array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
+                                                          BSLS_KEYWORD_NOEXCEPT
+    : d_args(args)
+    {}
+};
+
+template <class t_CONTEXT, class... t_ARGS>
+bslstl_format_FormatArgStore<t_CONTEXT, t_ARGS...>
+bslstl_format_MakeFormatArgs(t_ARGS&... fmt_args)
+{
+    // Use the form of braced initialization that is valid in C++03
+    array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array =
+                                  {{basic_format_arg<t_CONTEXT>(fmt_args)...}};
+    return bslstl_format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
+}
+
+template <class... t_ARGS>
+bslstl_format_FormatArgStore<bslstl_format_DefaultFormatContext, t_ARGS...>
+make_format_args(t_ARGS&... fmt_args)
+{
+    return bslstl_format_MakeFormatArgs<bslstl_format_DefaultFormatContext>(
+                                                                  fmt_args...);
+}
+#endif
+
+template <class t_CONTEXT>
+class bslstl_format_BasicFormatArgs;
+
+typedef bslstl_format_BasicFormatArgs<bslstl_format_DefaultFormatContext>
+                                                                   format_args;
+
+template <class t_CONTEXT>
+class bslstl_format_BasicFormatArgs {
+    // DATA
+    size_t                             d_size;
+    const basic_format_arg<t_CONTEXT> *d_data;
+
+  public:
+    // CREATORS
+    bslstl_format_BasicFormatArgs() BSLS_KEYWORD_NOEXCEPT
+    : d_size(0)
+    {}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... t_ARGS>
+    bslstl_format_BasicFormatArgs(
+               const bslstl_format_FormatArgStore<t_CONTEXT, t_ARGS...>& store) 
+                                             BSLS_KEYWORD_NOEXCEPT  // IMPLICIT
+    : d_size(sizeof...(t_ARGS))
+    , d_data(store.d_args.data())
+    {}
+#endif
+
+    // ACCESSORS
+    basic_format_arg<t_CONTEXT> get(size_t i) const BSLS_KEYWORD_NOEXCEPT
+    {
+        return i < d_size ? d_data[i] : basic_format_arg<t_CONTEXT>();
+    }
+
+  private:
+    // PRIVATE ACCESSORS
+    size_t size() const
+    {
+        return d_size;
+    }
+
+    // FRIENDS
+    template <class t_OUT, class t_CHAR>
+    friend t_OUT bslstl_format_VFormatImpl(
+           t_OUT                                                        out,
+           basic_string_view<t_CHAR>                                    fmtstr,
+           bslstl_format_BasicFormatArgs<basic_format_context<t_OUT,
+                                                              t_CHAR> > args);
+};
+
 // 'visit_format_arg' is not a hidden friend.
 #ifdef BSL_VARIANT_FULL_IMPLEMENTATION
 template <class t_VISITOR, class t_CONTEXT>
@@ -753,8 +914,7 @@ class basic_format_context {
     typedef basic_format_arg<basic_format_context> Arg;
 
     // DATA
-    Arg   *d_args_begin;
-    Arg   *d_args_end;
+    bslstl_format_BasicFormatArgs<basic_format_context> d_args;
     t_OUT  d_out;
 
   public:
@@ -770,9 +930,10 @@ class basic_format_context {
     // CREATORS
     // TODO: This constructor should be made private (callable only by
     // 'bsl::format' internals)
-    basic_format_context(t_OUT out, Arg *begin, Arg *end)
-    : d_args_begin(begin)
-    , d_args_end(end)
+    basic_format_context(
+                      t_OUT                                               out,
+                      bslstl_format_BasicFormatArgs<basic_format_context> args)
+    : d_args(args)
     , d_out(out)
     { }
 
@@ -790,8 +951,7 @@ class basic_format_context {
     // ACCESSORS
     Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
     {
-        const size_t numArgs = d_args_end - d_args_begin;
-        return id < numArgs ? d_args_begin[id] : Arg();
+        return d_args.get(id);
     }
 };
 
@@ -898,18 +1058,22 @@ struct bslstl_format_FormatVisitor {
     }
 };
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class t_OUT, class... t_ARGS>
-t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
+template <class t_OUT, class t_CHAR>
+t_OUT bslstl_format_VFormatImpl(
+    t_OUT                                                               out,
+    basic_string_view<t_CHAR>                                           fmtstr,
+    bslstl_format_BasicFormatArgs<basic_format_context<t_OUT, t_CHAR> > args)
+    // The actual meat of the implementation.  This overload is used when the
+    // iterator type 't_OUT' matches the iterator type that 'args' is able to
+    // format to.  In all other cases the iterator must be wrapped.
 {
-    format_parse_context pc(fmtstr, sizeof...(args));
-    typedef basic_format_context<t_OUT, char> FC;
-    // extra arg prevents empty initializer list
-    basic_format_arg<FC> fargs[] = {basic_format_arg<FC>(args)...,
-                                    basic_format_arg<FC>()};
-    FC fc(out, fargs, fargs + sizeof...(args)); 
-    string_view::iterator it = pc.begin();
-    bslstl_format_FormatVisitor<t_OUT, char> visitor(pc, fc);
+    typedef basic_format_context<t_OUT, t_CHAR> FC;
+
+    basic_format_parse_context<t_CHAR>           pc(fmtstr, args.size());
+    FC                                           fc(out, args);
+    typename basic_string_view<t_CHAR>::iterator it = pc.begin();
+    bslstl_format_FormatVisitor<t_OUT, t_CHAR>   visitor(pc, fc);
+
     while (it != pc.end()) {
         if (*it == '{') {
             ++it;
@@ -929,9 +1093,7 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
                 id = 0;
                 while (it != pc.end() && *it >= '0' && *it <= '9') {
                     id = 10 * id + (*it++ - '0');
-                    // suppress warning about the comparison
-                    size_t argCount = sizeof...(args);
-                    if (id >= argCount) {
+                    if (id >= args.size()) {
                         BSLS_THROW(format_error("arg id too large"));
                     }
                 }
@@ -948,7 +1110,7 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
                 ++it;
             }
             pc.advance_to(it);
-            visit_format_arg(visitor, fargs[id]);
+            visit_format_arg(visitor, args.get(id));
             it = pc.begin();
             if (it != pc.end()) {
                 // advance past the terminating }
@@ -974,10 +1136,47 @@ t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
     return fc.out();
 }
 
+template <class t_OUT, class t_CHAR, class t_CONTEXT>
+t_OUT bslstl_format_VFormatImpl(
+                               t_OUT                                    out,
+                               basic_string_view<t_CHAR>                fmtstr,
+                               bslstl_format_BasicFormatArgs<t_CONTEXT> args)
+{
+    bslstl_format_OutputIteratorImpl<char, t_OUT> wrappedOut(out);
+    bslstl_format_VFormatImpl(
+                            bslstl_format_OutputIteratorRef<char>(&wrappedOut),
+                            fmtstr,
+                            args);
+    return out;
+}
+
+template <class t_OUT>
+t_OUT vformat_to(t_OUT out, string_view fmtstr, format_args args)
+{
+    return bslstl_format_VFormatImpl(out, fmtstr, args);
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class t_OUT, class... t_ARGS>
+t_OUT format_to(t_OUT out, string_view fmtstr, const t_ARGS&... args)
+{
+    typedef basic_format_context<t_OUT, char>      Context;
+    typedef bslstl_format_BasicFormatArgs<Context> Args;
+    return bslstl_format_VFormatImpl(
+                         out,
+                         fmtstr,
+                         Args(bslstl_format_MakeFormatArgs<Context>(args...)));
+}
+
 template <class... t_ARGS>
 void format_to(string *out, string_view fmtstr, const t_ARGS&... args)
 {
     format_to(std::back_inserter(*out), fmtstr, args...);
+}
+
+void vformat_to(string *out, string_view fmtstr, format_args args)
+{
+    vformat_to(std::back_inserter(*out), fmtstr, args);
 }
 
 template <class... t_ARGS>
@@ -993,6 +1192,22 @@ string format(allocator<char> alloc, string_view fmtstr, const t_ARGS&... args)
 {
     string result(alloc);
     format_to(&result, fmtstr, args...);
+    return result;
+}
+
+inline
+bsl::string vformat(string_view fmt, format_args args)
+{
+    string result;
+    vformat_to(&result, fmt, args);
+    return result;
+}
+
+inline
+bsl::string vformat(allocator<char> alloc, string_view fmt, format_args args)
+{
+    string result(alloc);
+    vformat_to(&result, fmt, args);
     return result;
 }
 
