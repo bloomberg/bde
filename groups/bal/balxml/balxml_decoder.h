@@ -272,7 +272,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_nullablevaluefunctions.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_typecategory.h>
-#include <bdlat_typename.h>
 #include <bdlat_valuetypefunctions.h>
 
 #include <bdlb_string.h>
@@ -295,7 +294,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-#include <bsl_cstddef.h>   // NULL
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cerrno.h>
@@ -444,12 +442,6 @@ class Decoder {
     void resetErrors();
     int  checkForReaderErrors();
     int  checkForErrors(const ErrorInfo& errInfo);
-
-    template <class TYPE>
-    int  validateTopElement(const TYPE *object);
-        // When decoding a structure, make sure that the root tag of the XML
-        // matches the structure of the specified 'object' that we are decoding
-        // into.  Return 0 if it does.
 
     void setDecoderError(ErrorInfo::Severity severity, bsl::string_view msg);
 
@@ -1964,47 +1956,6 @@ int Decoder::warningCount() const
     return d_warningCount;
 }
 
-template <class TYPE>
-inline
-int Decoder::validateTopElement(const TYPE *object) {
-    // If we're decoding a structure (aka 'sequence' or 'choice'), check to
-    // make sure that the root tag in the XML matches the name of the specified
-    // 'TYPE' that we are decoding into.  If 'TYPE' has not implemented the
-    // bdlat introspection protocol, then the class name will be NULL, and we
-    // cannot check it against the tag name.
-
-    // has the user asked us to validate the root tag?
-    if (!d_options->validateRootTag()) {
-        return 0;                                                     // RETURN
-    }
-
-    // Are we decoding a sequence or a choice?
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Category_t;
-    if (0 == bsl::is_same<bdlat_TypeCategory::Sequence, Category_t>::value &&
-        0 == bsl::is_same<bdlat_TypeCategory::Choice,   Category_t>::value) {
-        return 0;                                                     // RETURN
-    }
-
-    // Do we have introspection on 'TYPE'?
-    const char *typeName = bdlat_TypeName::className(*object);
-    if (0 == typeName) {   // no introspection support for 'TYPE'
-        return 0;                                                     // RETURN
-    }
-
-    // Does the class name match the root tag?
-    const char *nodeName = d_reader->nodeName();  // this is the root tag
-    if (0 == strcmp(nodeName, typeName)) {
-        return 0;                                                     // RETURN
-    }
-
-    BALXML_DECODER_LOG_ERROR(this)
-                        << "The root object is of type '" << nodeName << "',"
-                        << " but we're attempting to decode an object of type "
-                        << "'" << typeName << "'." << BALXML_DECODER_LOG_END;
-    return -1;
-}
-
-
 inline
 int Decoder::open(bsl::istream& stream, const char *uri)
 {
@@ -2043,10 +1994,7 @@ Decoder::decode(bsl::streambuf *buffer, TYPE *object, const char *uri)
 
     }
 
-    int ret = validateTopElement(object);
-    if (0 == ret) {
-        ret = this->decode(object);
-    }
+    int ret = this->decode(object);
 
     switch(errorSeverity()) {
       case ErrorInfo::e_NO_ERROR:
@@ -2078,11 +2026,7 @@ int Decoder::decode(const char  *buffer,
         return this->errorCount();                                    // RETURN
     }
 
-    int ret = validateTopElement(object);
-    if (0 == ret) {
-        ret = this->decode(object);
-    }
-
+    int ret = this->decode(object);
     this->close();
     return ret;
 }
@@ -2095,11 +2039,7 @@ int Decoder::decode(const char *filename, TYPE *object)
         return this->errorCount();                                    // RETURN
     }
 
-    int ret = validateTopElement(object);
-    if (0 == ret) {
-        ret = this->decode(object);
-    }
-
+    int ret = this->decode(object);
     this->close();
     return ret;
 }
