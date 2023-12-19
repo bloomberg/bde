@@ -1,10 +1,17 @@
-bsl-internal (3.128.1.0) unstable; urgency=low
+bsl-internal (3.128.2.0) unstable; urgency=low
 
+  * 4111d7c06 Bumped version to 3.128.2.0
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 19 Dec 2023 16:06:31 -0500
+
+bsl-internal (3.128.1.0) git; urgency=low
+
+  * 3b83f6442 Changelog for version 3.128.1.0
   * ac70465e5 Bumped version to 3.128.1.0
   * cbc5bc45b Revert "Elide atomic constructor calls for compile-time constants for C++14+ - {DRQS 173277048} (#4466)" (#4546)
   * 886442f1e Typo in documentation heading (#4544)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 18 Dec 2023 17:30:35 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 18 Dec 2023 17:31:42 -0500
 
 bsl-internal (3.128.0.0) git; urgency=low
 
