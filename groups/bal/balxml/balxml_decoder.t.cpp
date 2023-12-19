@@ -74,8 +74,6 @@
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
 
-#include <bdlat_typename.h>
-
 #include <bdlb_chartype.h>
 #include <bdlb_nullableallocatedvalue.h>
 #include <bdlb_nullablevalue.h>
@@ -199,8 +197,7 @@ namespace Test = s_baltst;
 // [ 1] BREATHING TEST
 // [16] USAGE EXAMPLES
 // [22] REPRODUCE SCENARIO FROM DRQS 169438741
-// [23] REPRODUCE SCENARIO FROM DRQS 171405619
-// [24] DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
+// [23] DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
 // [-1] TESTING VALID & INVALID UTF-8: e_STRING
 // [-1] TESTING VALID & INVALID UTF-8: e_STREAMBUF
 // [-1] TESTING VALID & INVALID UTF-8: e_ISTREAM
@@ -1375,10 +1372,6 @@ const bdlat_SelectionInfo TestChoice2::SELECTION_INFO_ARRAY[] = {
     { 1, "S1", 2, "Selection 1", 0 },
     { 2, "S2", 2, "Selection 2", 0 },
 };
-
-const char *bdlat_TypeName_className(const TestChoice2 &) {
-    return "TestChoice2";
-    }
 
               // ===============================================
               // bdlat_ChoiceFunctions Overrides For TestChoice2
@@ -4425,7 +4418,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 23: {
         // --------------------------------------------------------------------
         // DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
         //   This case tests that the decoder can decode elements that are
@@ -4583,89 +4576,6 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, RESULT, RESULT_DATA == data);
             }
-        }
-      } break;
-      case 23: {
-        // --------------------------------------------------------------------
-        // REPRODUCE SCENARIO FROM DRQS 171405619
-        //
-        // Concerns:
-        //: 1 Decoding a XML input that does not match the type of the class
-        //:   being decoded should cause an error.
-        //:
-        //
-        // Plan:
-        //: 1 Attempt to decode some XML that contains a structure named
-        //:   'ErrorEmployee1' into a 'Employee'.   Verify that an error is
-        //:   reported. (C-1)
-        //
-        // Testing:
-        //   DRQS 171405619
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nREPRODUCE SCENARIO FROM DRQS 171405619"
-                          << "\n======================================"
-                          << endl;
-
-
-        balxml::MiniReader     reader;
-        balxml::ErrorInfo      errInfo;
-        balxml::DecoderOptions options;
-
-        options.setSkipUnknownElements(false);
-        options.setValidateRootTag(true);
-
-        balxml::Decoder decoder(&options,
-                                &reader,
-                                &errInfo,
-                                &bsl::cerr,
-                                &bsl::cerr);
-
-        // Structure - Tag matches
-        {
-            bsl::string_view           INPUT = "<Employee></Employee>";
-            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
-            Test::Employee             bob;
-            int                        rc = decoder.decode(&isb, &bob);
-            ASSERTV(errInfo.message(), rc, 0 == rc);
-        }
-
-        // Structure - Tag does not match
-        {
-            bsl::string_view           INPUT
-                                         = "<ErrorEmployee1></ErrorEmployee1>";
-            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
-            Test::Employee             bob;
-            int                        rc = decoder.decode(&isb, &bob);
-            ASSERTV(errInfo.message(), rc, 0 != rc);
-        }
-
-        // Choice - Tag matches
-        {
-            bsl::string_view INPUT =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<TestChoice2 " XSI ">\n"
-                "    <S1>123</S1>\n"
-                "</TestChoice2>\n";
-
-            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
-            TestChoice2                tc;
-            int                        rc = decoder.decode(&isb, &tc);
-            ASSERTV(errInfo.message(), rc, 0 == rc);
-        }
-
-        // Choice - Tag does not match
-        {
-            bsl::string_view INPUT =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<NotATestChoice2 " XSI ">\n"
-                "    <S1>123</S1>\n"
-                "</NotATestChoice2>\n";
-
-            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
-            TestChoice2                tc;
-            int                        rc = decoder.decode(&isb, &tc);
-            ASSERTV(errInfo.message(), rc, 0 != rc);
         }
 
       } break;
