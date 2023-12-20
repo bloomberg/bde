@@ -1,6 +1,8 @@
 // bsls_atomicoperations.t.cpp                                        -*-C++-*-
 
 #include <bsls_atomicoperations.h>
+
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <stdlib.h> // atoi
@@ -18,6 +20,10 @@ typedef HANDLE my_thread_t;
 #include <pthread.h>
 #include <sys/time.h>
 typedef pthread_t my_thread_t;
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
 #endif
 
 using namespace BloombergLP;
@@ -220,8 +226,8 @@ extern "C" {
 typedef void* (*THREAD_ENTRY)(void *arg);
 }
 
-#define UINT64_M1 0xFFFFFFFFFFFFFFFFLL
-#define UINT64_M2 0xFFFFFFFFFFFFFFFELL
+#define UINT64_M1 0xFFFFFFFFFFFFFFFFULL
+#define UINT64_M2 0xFFFFFFFFFFFFFFFEULL
 #define INT64_MN  0x1000000000000000LL
 #define INT64_MN1 0x1000000000000001LL
 
@@ -311,7 +317,7 @@ struct IntTestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
     int            d_addVal;
     Types::Int    *d_int_p;
@@ -321,7 +327,7 @@ struct Int64TestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
     bsls::Types::Int64 d_addVal;
     Types::Int64    *d_int_p;
@@ -331,7 +337,7 @@ struct UintTestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
     unsigned int   d_addVal;
     Types::Uint   *d_uint_p;
@@ -341,7 +347,7 @@ struct Uint64TestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
     bsls::Types::Uint64 d_addVal;
     Types::Uint64 *d_uint_p;
@@ -351,11 +357,11 @@ struct IntSwapTestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
-    volatile int   d_value1Count;
-    volatile int   d_value2Count;
-    volatile int   d_errorCount;
+    int            d_value1Count;
+    int            d_value2Count;
+    int            d_errorCount;
     Types::Int    *d_int_p;
 };
 
@@ -363,11 +369,11 @@ struct Int64SwapTestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
-    volatile int   d_value1Count;
-    volatile int   d_value2Count;
-    volatile int   d_errorCount;
+    int            d_value1Count;
+    int            d_value2Count;
+    int            d_errorCount;
     Types::Int64  *d_int_p;
 };
 
@@ -375,11 +381,11 @@ struct UintSwapTestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
-    volatile int   d_value1Count;
-    volatile int   d_value2Count;
-    volatile int   d_errorCount;
+    int            d_value1Count;
+    int            d_value2Count;
+    int            d_errorCount;
     Types::Uint   *d_uint_p;
 };
 
@@ -387,11 +393,11 @@ struct Uint64SwapTestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
-    volatile int   d_value1Count;
-    volatile int   d_value2Count;
-    volatile int   d_errorCount;
+    int            d_value1Count;
+    int            d_value2Count;
+    int            d_errorCount;
     Types::Uint64 *d_uint_p;
 };
 
@@ -399,11 +405,11 @@ struct PointerTestThreadArgs {
     my_Conditional d_barrier;
     my_Conditional d_startSig;
     my_Mutex       d_mutex;
-    volatile int   d_countStarted;
+    int            d_countStarted;
     int            d_iterations;
-    volatile int   d_value1Count;
-    volatile int   d_value2Count;
-    volatile int   d_errorCount;
+    int            d_value1Count;
+    int            d_value2Count;
+    int            d_errorCount;
     Types::Pointer *d_ptr_p;
 };
 
@@ -2760,12 +2766,12 @@ int main(int argc, char *argv[]) {
                 bsls::Types::Uint64 d_value;       // Input value
             } VALUES[] = {
                 //line value
-                //---- --------------------
-                { L_,   0                   },
-                { L_,   1                   },
-                { L_,  0xFFFFFFFFFFFFFFFFLL },
-                { L_,  0xFFFFFFFFLL         },
-                { L_,  0x100000000LL        }
+                //---- ---------------------
+                { L_,   0                    },
+                { L_,   1                    },
+                { L_,  0xFFFFFFFFFFFFFFFFULL },
+                { L_,  0xFFFFFFFFULL         },
+                { L_,  0x100000000ULL        }
             };
 
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -3280,12 +3286,12 @@ int main(int argc, char *argv[]) {
                 bsls::Types::Uint64 d_value;       // Input value
             } VALUES[] = {
                 //line d_x
-                //---- -------------------
-                { L_,   0                  },
-                { L_,   1                  },
-                { L_, 0xFFFFFFFFFFFFFFFFLL },
-                { L_,   2                  },
-                { L_, 0xFFFFFFFFFFFFFFFELL }
+                //---- --------------------
+                { L_,   0                   },
+                { L_,   1                   },
+                { L_, 0xFFFFFFFFFFFFFFFFULL },
+                { L_,   2                   },
+                { L_, 0xFFFFFFFFFFFFFFFEULL }
             };
 
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -5545,12 +5551,12 @@ int main(int argc, char *argv[]) {
 
             } VALUES[] = {
                 //line value                      expected
-                //---- ---------------------   ---------------------
-                { L_,   0                    , 1                   },
-                { L_,   1                    , 2                   },
-                { L_,  11LL                  , 12                  },
-                { L_,   0xFFFFFFFFLL         , 0x100000000LL       },
-                { L_,   0xFFFFFFFFFFFFFFFFLL , 0                   }
+                //---- -----------------------  -------------------
+                { L_,   0                     , 1                  },
+                { L_,   1                     , 2                  },
+                { L_,  11ULL                  , 12                 },
+                { L_,   0xFFFFFFFFULL         , 0x100000000ULL     },
+                { L_,   0xFFFFFFFFFFFFFFFFULL , 0                  }
             };
 
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -5606,12 +5612,12 @@ int main(int argc, char *argv[]) {
 
             } VALUES[] = {
                 //line expected                   value
-                //---- ---------------------   ---------------------
-                { L_,   0                    , 1                   },
-                { L_,   1                    , 2                   },
-                { L_,  11LL                  , 12                  },
-                { L_,   0xFFFFFFFFLL         , 0x100000000LL       },
-                { L_,   0xFFFFFFFFFFFFFFFFLL , 0                   }
+                //---- -----------------------  -------------------
+                { L_,   0                     , 1                  },
+                { L_,   1                     , 2                  },
+                { L_,  11ULL                  , 12                 },
+                { L_,   0xFFFFFFFFULL         , 0x100000000ULL     },
+                { L_,   0xFFFFFFFFFFFFFFFFULL , 0                  }
             };
 
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -6376,12 +6382,12 @@ int main(int argc, char *argv[]) {
 
             } VALUES[] = {
                 //line value                      expected
-                //---- -------------------    ---------------------
-                { L_,         0             , 1                    },
-                { L_,         1             , 2                    },
-                { L_,        11LL           , 12                   },
-                { L_,          0xFFFFFFFFLL , 0x100000000LL        },
-                { L_,  0xFFFFFFFFFFFFFFFFLL , 0                    }
+                //---- ----------------------  --------------------
+                { L_,         0              , 1                   },
+                { L_,         1              , 2                   },
+                { L_,        11ULL           , 12                  },
+                { L_,          0xFFFFFFFFULL , 0x100000000ULL      },
+                { L_,  0xFFFFFFFFFFFFFFFFULL , 0                   }
             };
 
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -6437,12 +6443,12 @@ int main(int argc, char *argv[]) {
 
             } VALUES[] = {
                 //line expected                   value
-                //---- -------------------        ---------------------
-                { L_,          0           , 1                    },
-                { L_,          1           , 2                    },
-                { L_,         11LL         , 12                   },
-                { L_,          0xFFFFFFFFLL, 0x100000000LL        },
-                { L_,  0xFFFFFFFFFFFFFFFFLL, 0                    }
+                //---- ---------------------  --------------------
+                { L_,          0            , 1                   },
+                { L_,          1            , 2                   },
+                { L_,         11ULL         , 12                  },
+                { L_,          0xFFFFFFFFULL, 0x100000000ULL      },
+                { L_,  0xFFFFFFFFFFFFFFFFULL, 0                   }
             };
 
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;

@@ -22,6 +22,10 @@
 #include <stdlib.h>     // 'atoi'
 #include <string.h>
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================

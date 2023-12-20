@@ -1569,34 +1569,35 @@ void BenchmarkSuite::runVisit()
                      ++iter) {
                     switch (iter->type()) {
                       case Datum::e_INTEGER:
-                        sum += iter->theInteger();
+                        sum = sum + iter->theInteger();
                         break;
                       case Datum::e_DOUBLE:
-                        sum += iter->theDouble();
+                        sum = sum + iter->theDouble();
                         break;
                       case Datum::e_STRING:
-                        sum += static_cast<double>(iter->theString().length());
+                        sum = sum + static_cast<double>(
+                                                   iter->theString().length());
                         break;
                       case Datum::e_BOOLEAN:
-                        sum += iter->theBoolean();
+                        sum = sum + iter->theBoolean();
                         break;
                       case Datum::e_ERROR:
-                        sum += iter->theError().code();
+                        sum = sum + iter->theError().code();
                         break;
                       case Datum::e_DATE:
-                        sum += iter->theDate().day();
+                        sum = sum + iter->theDate().day();
                         break;
                       case Datum::e_TIME:
-                        sum += iter->theTime().second();
+                        sum = sum + iter->theTime().second();
                         break;
                       case Datum::e_DATETIME:
-                        sum += iter->theDatetime().day();
+                        sum = sum + iter->theDatetime().day();
                         break;
                       case Datum::e_DATETIME_INTERVAL:
-                        sum += iter->theDatetimeInterval().seconds();
+                        sum = sum + iter->theDatetimeInterval().seconds();
                         break;
                       case Datum::e_INTEGER64:
-                        sum += static_cast<double>(iter->theInteger64());
+                        sum = sum + static_cast<double>(iter->theInteger64());
                         break;
                       default:
                         break;
@@ -2623,8 +2624,8 @@ int main(int argc, char *argv[])
                 const size_t       DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i < DATA_LEN; ++i) {
-                    const bool VALUE = DATA[i];
-                    const bool TEXT = VALUE ? "true" : "false";
+                    const bool  VALUE = DATA[i];
+                    const char *TEXT  = VALUE ? "true" : "false";
 
                     if (veryVerbose) { T_ P(VALUE) }
 

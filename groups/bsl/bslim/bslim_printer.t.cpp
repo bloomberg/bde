@@ -44,6 +44,10 @@
 #define snprintf _snprintf
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslim;
@@ -4214,7 +4218,9 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(ABSLVL_EXP, ABSLVL_ACT, ABSLVL_EXP == ABSLVL_ACT);
             LOOP2_ASSERT(SPL_EXP, SPL_ACT, SPL_EXP == SPL_ACT);
-            LOOP2_ASSERT(SIIFLAG_EXP, SIIFLAG_ACT, SIIFLAG_EXP == SIIFLAG_ACT);
+            LOOP2_ASSERT(SIIFLAG_EXP,
+                         SIIFLAG_ACT,
+                         SIIFLAG_EXP == !!SIIFLAG_ACT);
         }
       } break;
       case 1: {

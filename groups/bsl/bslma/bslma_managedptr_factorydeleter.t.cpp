@@ -92,8 +92,8 @@ class MyTestObject {
     // used to demonstrate the 'bslma::ManagedPtr' aliasing facility.
 
     // DATA
-    volatile int *d_deleteCounter_p;
-    mutable int   d_value[2];
+    int         *d_deleteCounter_p;
+    mutable int  d_value[2];
 
   public:
     // CREATORS
@@ -153,7 +153,7 @@ int *MyTestObject::valuePtr(int index) const
 class CountedStackDeleter
 {
     // DATA
-    volatile int *d_deleteCounter_p;
+    int *d_deleteCounter_p;
 
   private:
     // NOT IMPLEMENTED

@@ -77,7 +77,12 @@
 #endif
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wlarger-than="
 #pragma GCC diagnostic ignored "-Wstringop-overflow="
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4834)
 #endif
 
 using namespace BloombergLP;

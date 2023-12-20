@@ -16,6 +16,10 @@
 #include <cstdlib>  // atoi()
 #include <cstring>
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
+
 using namespace BloombergLP;
 using namespace std;
 

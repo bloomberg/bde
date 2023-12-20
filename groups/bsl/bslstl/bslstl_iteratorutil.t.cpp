@@ -21,6 +21,10 @@
 #pragma error_messages(off, SEC_UNINITIALIZED_MEM_READ)
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslstl;

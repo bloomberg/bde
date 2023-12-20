@@ -496,21 +496,21 @@ using namespace BloombergLP;
 //
 // class NonPolymorphicTestObject
 //-------------------------------
-// [  ] volatile bsls::Types::Int64 *deleteCounter() const
-// [  ] volatile bsls::Types::Int64 *copyCounter() const
+// [  ] bsls::Types::Int64 *deleteCounter() const
+// [  ] bsls::Types::Int64 *copyCounter() const
 //
 // class MyTestObject
 //-------------------
-// [  ] volatile bsls::Types::Int64 *deleteCounter() const
-// [  ] volatile bsls::Types::Int64 *copyCounter() const
+// [  ] bsls::Types::Int64 *deleteCounter() const
+// [  ] bsls::Types::Int64 *copyCounter() const
 //
 // class MyTestBaseObject
 //-----------------------
 //
 // class MyTestDerivedObject
 //--------------------------
-// [  ] volatile bsls::Types::Int64 *deleteCounter() const
-// [  ] volatile bsls::Types::Int64 *copyCounter() const
+// [  ] bsls::Types::Int64 *deleteCounter() const
+// [  ] bsls::Types::Int64 *copyCounter() const
 //
 // class MyPDTestObject
 //---------------------
@@ -1773,8 +1773,8 @@ class NonPolymorphicTestObject : public NonPolymorphicTestBaseObject {
     // many objects have been copied.
 
     // DATA
-    volatile bsls::Types::Int64 *d_deleteCounter_p;
-    volatile bsls::Types::Int64 *d_copyCounter_p;
+    bsls::Types::Int64 *d_deleteCounter_p;
+    bsls::Types::Int64 *d_copyCounter_p;
 
   public:
     // CREATORS
@@ -1789,11 +1789,11 @@ class NonPolymorphicTestObject : public NonPolymorphicTestBaseObject {
         // virtual.
 
     // ACCESSORS
-    volatile bsls::Types::Int64 *copyCounter() const;
+    bsls::Types::Int64 *copyCounter() const;
         // Return a pointer to the counter (if any) used to track the number of
         // times an object of type 'NonPolymorphicTestObject' has been copied.
 
-    volatile bsls::Types::Int64 *deleteCounter() const;
+    bsls::Types::Int64 *deleteCounter() const;
         // Return a pointer to the counter used to track the number of times an
         // object of type 'NonPolymorphicTestObject' has been copied.
 
@@ -1839,8 +1839,8 @@ class MyTestObject : public MyTestBaseObject {
     // have been copied.
 
     // DATA
-    volatile bsls::Types::Int64 *d_deleteCounter_p;
-    volatile bsls::Types::Int64 *d_copyCounter_p;
+    bsls::Types::Int64 *d_deleteCounter_p;
+    bsls::Types::Int64 *d_copyCounter_p;
 
   public:
     // CREATORS
@@ -1854,11 +1854,11 @@ class MyTestObject : public MyTestBaseObject {
         // Destroy this object.
 
     // ACCESSORS
-    volatile bsls::Types::Int64 *copyCounter() const;
+    bsls::Types::Int64 *copyCounter() const;
         // Return a pointer to the counter (if any) used to track the number of
         // times an object of type 'MyTestObject' has been copied.
 
-    volatile bsls::Types::Int64 *deleteCounter() const;
+    bsls::Types::Int64 *deleteCounter() const;
         // Return a pointer to the counter used to track the number of times an
         // object of type 'MyTestObject' has been copied.
 
@@ -2829,12 +2829,12 @@ NonPolymorphicTestObject::~NonPolymorphicTestObject()
 }
 
 // ACCESSORS
-volatile bsls::Types::Int64* NonPolymorphicTestObject::copyCounter() const
+bsls::Types::Int64* NonPolymorphicTestObject::copyCounter() const
 {
     return d_copyCounter_p;
 }
 
-volatile bsls::Types::Int64* NonPolymorphicTestObject::deleteCounter() const
+bsls::Types::Int64* NonPolymorphicTestObject::deleteCounter() const
 {
     return d_deleteCounter_p;
 }
@@ -2865,12 +2865,12 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile bsls::Types::Int64* MyTestObject::copyCounter() const
+bsls::Types::Int64* MyTestObject::copyCounter() const
 {
     return d_copyCounter_p;
 }
 
-volatile bsls::Types::Int64* MyTestObject::deleteCounter() const
+bsls::Types::Int64* MyTestObject::deleteCounter() const
 {
     return d_deleteCounter_p;
 }

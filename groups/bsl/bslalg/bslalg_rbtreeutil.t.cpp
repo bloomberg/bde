@@ -37,13 +37,17 @@
 #include <unistd.h>
 #endif
 
-using namespace BloombergLP;
-using namespace std;
-using namespace bslalg;
-
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #pragma error_messages(off, arrowrtn)
 #endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
+
+using namespace BloombergLP;
+using namespace std;
+using namespace bslalg;
 
 //=============================================================================
 //                              TEST PLAN

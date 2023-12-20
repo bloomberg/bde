@@ -31,6 +31,10 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;

@@ -1,4 +1,12 @@
 // bslmf_forwardingreftype.t.cpp                                      -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4180)
+#endif
+
 #include <bslmf_forwardingreftype.h>
 
 #include <bslmf_addconst.h>
@@ -13,7 +21,6 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_platform.h>
 
 #include <utility>     // 'std::move' for C++11
 

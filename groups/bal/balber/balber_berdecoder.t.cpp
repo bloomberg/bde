@@ -5822,8 +5822,9 @@ int main(int argc, char *argv[])
         }
         {
             const char *enumValueStrings[] = {"VALUE1", "VALUE2"};
-            const int numEnumValueStrings = bsl::size(enumValueStrings);
-            for (int i = 0; i < numEnumValueStrings; i++) {
+            const bsl::size_t numEnumValueStrings =
+                                                   bsl::size(enumValueStrings);
+            for (bsl::size_t i = 0; i < numEnumValueStrings; i++) {
                 const char *enumValueString = enumValueStrings[i];
                 const int   enumValueLength =
                                 static_cast<int>(bsl::strlen(enumValueString));

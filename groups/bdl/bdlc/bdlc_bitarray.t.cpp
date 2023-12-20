@@ -48,6 +48,10 @@
 #undef SS  // Solaris 5.10/x86 sys/regset.h via stdlib.h
 #undef ES
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4305)
+#endif
+
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;

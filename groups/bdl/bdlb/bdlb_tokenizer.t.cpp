@@ -5,6 +5,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
@@ -16,6 +17,11 @@
 #include <bsl_vector.h>
 
 #include <string>       // for 'std::string'
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4553)
+#pragma warning(disable:4834)
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;

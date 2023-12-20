@@ -7,6 +7,13 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 #include <bdlb_nullablevalue.h>
 
 #include <bslalg_constructorproxy.h>
@@ -33,7 +40,6 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsltf_movabletesttype.h>
@@ -201,11 +207,6 @@ int testStatus = 0;
 
 void aSsErT(bool condition, const char *message, int line)
 {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-
     if (condition) {
         cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
@@ -214,10 +215,6 @@ void aSsErT(bool condition, const char *message, int line)
             ++testStatus;
         }
     }
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
 }
 
 }  // close unnamed namespace

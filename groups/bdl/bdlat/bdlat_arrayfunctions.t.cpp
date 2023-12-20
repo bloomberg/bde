@@ -7,6 +7,13 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
+#include <bsls_platform.h>
+
+// the following suppresses warnings from '#include' inlined functions
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4244)
+#endif
+
 #include <bdlat_arrayfunctions.h>
 
 #include <bslim_testutil.h>

@@ -12,10 +12,15 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 #include <string.h>
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
 
 using namespace BloombergLP;
 using namespace BloombergLP::bslalg;

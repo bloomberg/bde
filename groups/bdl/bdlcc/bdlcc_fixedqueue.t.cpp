@@ -37,6 +37,7 @@
 
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
@@ -55,6 +56,10 @@
 #include <bsl_memory.h>
 
 #include <bsl_c_stdlib.h>            // 'atoi'
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

@@ -130,7 +130,7 @@ class my_Conditional {
 #else
     pthread_mutex_t d_mutex;
     pthread_cond_t  d_cond;
-    volatile int    d_signaled;
+    int             d_signaled;
 #endif
 
   public:
@@ -176,7 +176,7 @@ class my_Barrier {
     my_Mutex       d_awakeMutex;     // mutex for 'd_awake' counter
     int            d_waiting;        // # of threads blocked on d_waitCondition
     int            d_awake;          // # of threads exited 'wait'
-    volatile int   d_genCounter;     // generation counter
+    AtomicOpInt    d_genCounter;     // generation counter
     const int      d_expected;       // number of threads to expected
 
   public:
@@ -382,10 +382,11 @@ static void mySleep(int milliseconds)
 my_Barrier::my_Barrier(int numThreads)
 : d_waiting(0)
 , d_awake(0)
-, d_genCounter(0)
 , d_expected(numThreads)
 {
     ASSERT(numThreads > 0);
+
+    AtomicOp::initInt(&d_genCounter, 0);
 }
 
 my_Barrier::~my_Barrier()
@@ -405,18 +406,18 @@ void my_Barrier::wait()
     // 'd_awake' counter.  For the last thread, loop signaling the condition
     // variable until all threads are awake (i.e., 'd_awake == d_expected - 1')
     d_waitMutex.lock();
-    int generation = d_genCounter;
+    int generation = AtomicOp::getInt(&d_genCounter);
     if (d_waiting < d_expected - 1) {
         ++d_waiting;
         d_waitMutex.unlock();
         do {
             d_waitCondition.wait();
-        } while (generation == d_genCounter);
+        } while (generation == AtomicOp::getInt(&d_genCounter));
         LockGuard<my_Mutex> awakeGuard(&d_awakeMutex);
         ++d_awake;
     }
     else {
-        ++d_genCounter;
+        AtomicOp::incrementInt(&d_genCounter);
         int numAwake;
         do {
             d_waitCondition.signal();

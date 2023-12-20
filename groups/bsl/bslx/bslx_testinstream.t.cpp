@@ -718,7 +718,7 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
                             const char                *spec,
                             int                        numArrayElements,
                             FuncPtr                    getFunc,
-                            TypeCode::Enum            dataType)
+                            TypeCode::Enum             dataType)
     // Iterate over the specified 'data' test vectors 'numData' times.  In each
     // iteration, create a test input stream object initialized with the output
     // of the generator function 'g' using the specified 'spec'.  Invoke some
@@ -793,7 +793,13 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
             }
         }
     }
-
+#else
+    (void)data;
+    (void)numData;
+    (void)spec;
+    (void)numArrayElements;
+    (void)getFunc;
+    (void)dataType;
 #endif
 }
 
@@ -896,7 +902,12 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
             }
         }
     }
-
+#else
+    (void)data;
+    (void)numData;
+    (void)spec;
+    (void)getFunc;
+    (void)dataType;
 #endif
 }
 
@@ -1241,6 +1252,8 @@ int main(int argc, char *argv[]) {
     int verbose = argc > 2;
     int veryVerbose = globalVeryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    (void)veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -4753,9 +4766,9 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == X.isQuiet());
 
             if (verbose) cout << "\tQuiet" << endl;
-            mX.setQuiet(10);
+            mX.setQuiet(true);
             ASSERT(1 == X.isQuiet());
-            mX.setQuiet(0);
+            mX.setQuiet(false);
             ASSERT(0 == X.isQuiet());
         }
 

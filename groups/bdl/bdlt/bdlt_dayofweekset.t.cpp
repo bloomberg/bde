@@ -8,6 +8,7 @@
 #include <bslma_defaultallocatorguard.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bslx_byteinstream.h>
@@ -24,6 +25,10 @@
 #include <bsl_c_stdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4834)
+#endif
 
 using namespace BloombergLP;
 

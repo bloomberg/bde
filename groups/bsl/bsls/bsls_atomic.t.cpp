@@ -23,6 +23,10 @@ typedef pthread_t thread_t;
 
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
+
 using namespace BloombergLP;
 using namespace std;
 
@@ -3289,12 +3293,12 @@ int main(int argc, char *argv[])
                 Uint64 d_value;    // input value
             } VALUES[] = {
                 //line d_x
-                //---- -------------------
-                { L_,   0                  },
-                { L_,   1                  },
-                { L_, 0xFFFFFFFFFFFFFFFFLL },
-                { L_,   2                  },
-                { L_, 0xFFFFFFFFFFFFFFFELL }
+                //---- --------------------
+                { L_,   0                   },
+                { L_,   1                   },
+                { L_, 0xFFFFFFFFFFFFFFFFULL },
+                { L_,   2                   },
+                { L_, 0xFFFFFFFFFFFFFFFEULL }
             };
 
             const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;

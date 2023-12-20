@@ -31,6 +31,10 @@
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -426,7 +430,7 @@ void my_Barrier::wait()
         ++d_awake;
     }
     else {
-        ++d_genCounter;
+        d_genCounter = d_genCounter + 1;
         int numAwake;
         do {
             d_waitCondition.signal();

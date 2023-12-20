@@ -250,7 +250,7 @@ struct PingPongWriter
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / static_cast<double>(elapsed)) *
-         k_MICROSECS_PER_SEC * SCORE_SCALE;
+                        static_cast<double>(k_MICROSECS_PER_SEC) * SCORE_SCALE;
 
       d_locks[0].unlock();
       d_locks[2].unlock();
@@ -307,7 +307,7 @@ struct PingPongReader
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / static_cast<double>(elapsed)) *
-         k_MICROSECS_PER_SEC * SCORE_SCALE;
+                        static_cast<double>(k_MICROSECS_PER_SEC) * SCORE_SCALE;
 
       d_locks[1].unlock();
       d_locks[3].unlock();
@@ -353,7 +353,7 @@ struct ContentionWriter
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / static_cast<double>(elapsed)) *
-         k_MICROSECS_PER_SEC * SCORE_SCALE;
+                        static_cast<double>(k_MICROSECS_PER_SEC) * SCORE_SCALE;
 
       d_locks[0].unlock();
    }
@@ -402,7 +402,7 @@ struct ContentionReader
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / static_cast<double>(elapsed)) *
-         k_MICROSECS_PER_SEC * SCORE_SCALE;
+                        static_cast<double>(k_MICROSECS_PER_SEC) * SCORE_SCALE;
 
       d_locks[1].unlock();
    }
@@ -458,8 +458,8 @@ int benchmarkSpeed (LOCK       * /* lock */,
       }
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
-      score = ((double)numCycles / static_cast<double>(elapsed))
-            * k_MICROSECS_PER_SEC * SCORE_SCALE;
+      score = ((double)numCycles / static_cast<double>(elapsed)) *
+                        static_cast<double>(k_MICROSECS_PER_SEC) * SCORE_SCALE;
 
       cout << "Lock \"" << lockName << "\": individual-overhead score="
            << score << endl;

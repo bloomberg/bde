@@ -134,8 +134,8 @@ class my_Condition {
     // DATA
     bslmt::Condition d_cond;
     bslmt::Mutex     d_mutex;
-    volatile int     d_sigState;
-    volatile int     d_bcastCount;
+    int              d_sigState;
+    int              d_bcastCount;
   public:
     // CREATORS
     my_Condition();
@@ -226,18 +226,18 @@ struct TestArguments {
     // thread functions in this test driver.  It also provides a set of wait
     // and signal methods.
 
-    Obj              d_lock;
-    my_Condition     d_cond1;
-    my_Condition     d_cond2;
-    bslmt::Mutex      d_mutex;
-    volatile int     d_startSigCount;
-    volatile int     d_stopSigCount;
-    volatile int     d_iterations;
-    bsls::AtomicInt   d_count;
-    bsls::AtomicInt   d_readCount;
-    bsls::AtomicInt   d_writeCount;
-    bslmt::Barrier    d_barrierAll;     // barrier for all threads
-    bslmt::Barrier    d_barrier2;       // barrier for two threads
+    Obj             d_lock;
+    my_Condition    d_cond1;
+    my_Condition    d_cond2;
+    bslmt::Mutex    d_mutex;
+    int             d_startSigCount;
+    int             d_stopSigCount;
+    int             d_iterations;
+    bsls::AtomicInt d_count;
+    bsls::AtomicInt d_readCount;
+    bsls::AtomicInt d_writeCount;
+    bslmt::Barrier  d_barrierAll;     // barrier for all threads
+    bslmt::Barrier  d_barrier2;       // barrier for two threads
   public:
     TestArguments(int iterations = 0, int nThreads = k_NTHREADS);
         // Construct a 'TestArguments' object and initialize all counters to

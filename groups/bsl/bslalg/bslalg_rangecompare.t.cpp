@@ -12,6 +12,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -20,6 +21,10 @@
 #include <stdlib.h>
 
 #include <new>
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
 
 using namespace BloombergLP;
 using namespace std;

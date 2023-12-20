@@ -25,6 +25,10 @@
 #include <stdlib.h>
 #include <time.h>   // for srand
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -262,7 +266,7 @@ void runTestScenario(Scenario scenario, bool printMessages)
         // processor speeds.
 
         const unsigned longLoop = 8 * 1000L * 1000L;
-        for (volatile unsigned u = 0; u < longLoop; ++u) {
+        for (unsigned u = 0; u < longLoop; ++u) {
             ++u; --u;
         }
       } break;
@@ -403,7 +407,7 @@ void burnSystemTime(SystemTimeResource fd)
 #endif
 }
 
-void burnUserTime(volatile int *u)
+void burnUserTime(int *u)
     // Consume some arbitrary amount of user time, at least observably greater
     // than the system time consumed.
 {
@@ -1788,7 +1792,7 @@ int main(int argc, char *argv[])
 
                     // Burn some user time
 
-                    volatile int u = 0;
+                    int u = 0;
                     burnUserTime(&u);
 
                     modelUserTime = getModelUserTime();
@@ -2079,7 +2083,7 @@ int main(int argc, char *argv[])
             Int64 ut1 = TU::getProcessUserTimer();
             Int64 st1 = TU::getProcessSystemTimer();
 
-            for (volatile unsigned u = 0; u < longLoop; ++u) {
+            for (unsigned u = 0; u < longLoop; ++u) {
                 ++u; --u;
             }
 
@@ -2623,7 +2627,7 @@ int main(int argc, char *argv[])
                         burnSystemTime(resource);
                       } break;
                       case e_USER: {
-                        volatile int u = 0;
+                        int u = 0;
                         burnUserTime(&u);
                       } break;
                       case e_WALL: {

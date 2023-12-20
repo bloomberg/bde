@@ -30,6 +30,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_nameof.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -45,6 +46,10 @@
 #include <bsl_limits.h>
 
 #include <bsl_c_ctype.h>
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
 
 using namespace BloombergLP;
 using bsls::NameOf;

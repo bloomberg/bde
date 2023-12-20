@@ -281,8 +281,8 @@ class MyTestObject {
     // have been copied.
 
     // DATA
-    volatile bsls::Types::Int64 *d_deleteCounter_p;
-    volatile bsls::Types::Int64 *d_copyCounter_p;
+    bsls::Types::Int64 *d_deleteCounter_p;
+    bsls::Types::Int64 *d_copyCounter_p;
 
   public:
     // CREATORS
@@ -296,11 +296,11 @@ class MyTestObject {
         // Destroy this object.
 
     // ACCESSORS
-    volatile bsls::Types::Int64 *copyCounter() const;
+    bsls::Types::Int64 *copyCounter() const;
         // Return a pointer to the counter (if any) used to track the number of
         // times an object of type 'MyTestObject' has been copied.
 
-    volatile bsls::Types::Int64 *deleteCounter() const;
+    bsls::Types::Int64 *deleteCounter() const;
         // Return a pointer to the counter used to track the number of times an
         // object of type 'MyTestObject' has been copied.
 
@@ -331,12 +331,12 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile bsls::Types::Int64* MyTestObject::copyCounter() const
+bsls::Types::Int64* MyTestObject::copyCounter() const
 {
     return d_copyCounter_p;
 }
 
-volatile bsls::Types::Int64* MyTestObject::deleteCounter() const
+bsls::Types::Int64* MyTestObject::deleteCounter() const
 {
     return d_deleteCounter_p;
 }

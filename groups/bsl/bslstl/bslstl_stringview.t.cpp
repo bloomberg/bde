@@ -14,6 +14,7 @@
 #include <bsls_nameof.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <cstddef>     // 'std::ptrdiff'
 #include <cstring>     // 'std::memcpy', 'std::memcmp'
@@ -23,6 +24,10 @@
 #include <string>
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <type_traits> // 'std::is_convertible', 'std::is_pointer'
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4805)
 #endif
 
 //=============================================================================

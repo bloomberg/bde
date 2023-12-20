@@ -30,6 +30,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_atomic.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 
@@ -40,6 +41,10 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4312)
+#endif
 
 using namespace BloombergLP;
 using bsl::cout;

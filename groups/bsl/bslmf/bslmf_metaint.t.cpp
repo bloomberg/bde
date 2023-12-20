@@ -14,6 +14,10 @@
 #pragma report(disable, "1540-0724")
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4305)
+#endif
+
 using namespace BloombergLP;
 using namespace bslmf;
 

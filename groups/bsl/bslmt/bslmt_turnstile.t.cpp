@@ -555,10 +555,10 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval OFFSET(1.0); // turnstile start offset (1 sec)
 
         const double WT   = 1.0 / RATE;    // max wait time for each turn
-        const Int64  WTUB =
-         static_cast<Int64>(k_USPS * (WT + EPSILON));  // upper bound wait time
-        const Int64  WTLB =
-         static_cast<Int64>(k_USPS * (WT - EPSILON));  // lower bound wait time
+        const Int64  WTUB = static_cast<Int64>(static_cast<double>(k_USPS)
+                                   * (WT + EPSILON));  // upper bound wait time
+        const Int64  WTLB = static_cast<Int64>(static_cast<double>(k_USPS)
+                                   * (WT - EPSILON));  // lower bound wait time
 
         Obj        mX(RATE, OFFSET);
         const Obj& X = mX;
@@ -689,8 +689,10 @@ int main(int argc, char *argv[])
 
         const double RATE = 5.0;
         const double WT   = 1.0 / RATE;  // max wait time for each turn
-        const Int64  WTUB = k_USPS * (WT + EPSILON);  // upper bound wait time
-        const Int64  WTLB = k_USPS * (WT - EPSILON);  // lower bound wait time
+        const Int64  WTUB = static_cast<Int64>(static_cast<double>(k_USPS)
+                                   * (WT + EPSILON));  // upper bound wait time
+        const Int64  WTLB = static_cast<Int64>(static_cast<double>(k_USPS)
+                                   * (WT - EPSILON));  // lower bound wait time
 
         if (verbose) {
             P_(RATE)   P_(WT)  P_(WTUB)  P(WTLB);
@@ -728,7 +730,7 @@ int main(int argc, char *argv[])
 
         // Wait 2.25 times the period time
 
-        int sleepTime = (int) (2.5 * k_USPS * WT);
+        int sleepTime = (int) (2.5 * static_cast<double>(k_USPS) * WT);
         bslmt::ThreadUtil::microSleep(sleepTime);
 
         // At this point.  'X.lagTime() == 1.5 * k_USPS * WT + epsA'.  Take one

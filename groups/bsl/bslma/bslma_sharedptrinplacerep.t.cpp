@@ -192,8 +192,8 @@ class MyTestObject {
     // have been copied.
 
     // DATA
-    volatile int *d_deleteCounter_p;
-    volatile int *d_copyCounter_p;
+    int *d_deleteCounter_p;
+    int *d_copyCounter_p;
 
   public:
     // CREATORS
@@ -202,8 +202,8 @@ class MyTestObject {
     virtual ~MyTestObject();
 
     // ACCESSORS
-    volatile int *copyCounter() const;
-    volatile int *deleteCounter() const;
+    int *copyCounter() const;
+    int *deleteCounter() const;
 };
 
                              // ------------------
@@ -230,12 +230,12 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile int* MyTestObject::copyCounter() const
+int* MyTestObject::copyCounter() const
 {
     return d_copyCounter_p;
 }
 
-volatile int* MyTestObject::deleteCounter() const
+int* MyTestObject::deleteCounter() const
 {
     return d_deleteCounter_p;
 }

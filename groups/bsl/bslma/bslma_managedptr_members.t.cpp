@@ -118,8 +118,8 @@ class MyTestObject {
     // to demonstrate the 'ManagedPtr' aliasing facility.
 
     // DATA
-    volatile int *d_deleteCounter_p;
-    mutable int   d_value[2];
+    int         *d_deleteCounter_p;
+    mutable int  d_value[2];
 
   public:
     // CREATORS
@@ -135,7 +135,7 @@ class MyTestObject {
         // Destroy this object.
 
     // ACCESSORS
-    volatile int *deleteCounter() const;
+    int *deleteCounter() const;
         // Return the address of the counter used to track when this object's
         // destructor is run.
 
@@ -158,7 +158,7 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile int* MyTestObject::deleteCounter() const
+int* MyTestObject::deleteCounter() const
 {
     return d_deleteCounter_p;
 }
@@ -246,7 +246,7 @@ MySecondDerivedObject::~MySecondDerivedObject()
 class CountedStackDeleter
 {
     // DATA
-    volatile int *d_deleteCounter_p;
+    int *d_deleteCounter_p;
 
   private:
     // NOT IMPLEMENTED
@@ -263,7 +263,7 @@ class CountedStackDeleter
         // Destroy this object.
 
     // ACCESSORS
-    volatile int *deleteCounter() const { return d_deleteCounter_p; }
+    int *deleteCounter() const { return d_deleteCounter_p; }
         // Return the address of the counter used to track when this object is
         // invoked as a deleter.
 
