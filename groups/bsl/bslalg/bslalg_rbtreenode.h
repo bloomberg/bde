@@ -451,8 +451,9 @@ inline
 bsls::Types::UintPtr RbTreeNode::toInt(RbTreeNode *value)
 {
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC   diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma GCC   diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
     return reinterpret_cast<bsls::Types::UintPtr>(value);
